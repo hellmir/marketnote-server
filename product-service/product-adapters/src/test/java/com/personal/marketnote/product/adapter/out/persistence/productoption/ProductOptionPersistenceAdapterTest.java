@@ -51,7 +51,7 @@ class ProductOptionPersistenceAdapterTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void save_whenTwoExistingCategoriesAndNewOne_createsOnlyFullCombinationsAndDeletesOldPolicies() {
+    void save_whenTwoExistingCategoriesAndNewOne_createsOnlyFullCombinationsAndDeactivatesOldPolicies() {
         long productId = 1L;
         Product product = buildProduct(productId);
         ProductOptionCategory newCategory = buildCategory(product, "C", 4);
@@ -73,7 +73,7 @@ class ProductOptionPersistenceAdapterTest {
 
         adapter.save(newCategory);
 
-        verify(pricePolicyJpaRepository).deleteByProductId(productId);
+        verify(pricePolicyJpaRepository).deactivateByProductId(productId);
 
         ArgumentCaptor<List<PricePolicyJpaEntity>> policiesCaptor = ArgumentCaptor.forClass(List.class);
         verify(pricePolicyJpaRepository).saveAll(policiesCaptor.capture());
@@ -96,7 +96,7 @@ class ProductOptionPersistenceAdapterTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void save_whenOnlyOneCategory_createsSingleOptionPoliciesAndDeletesOldPolicies() {
+    void save_whenOnlyOneCategory_createsSingleOptionPoliciesAndDeactivatesOldPolicies() {
         long productId = 2L;
         Product product = buildProduct(productId);
         ProductOptionCategory newCategory = buildCategory(product, "A", 3);
@@ -115,7 +115,7 @@ class ProductOptionPersistenceAdapterTest {
 
         adapter.save(newCategory);
 
-        verify(pricePolicyJpaRepository).deleteByProductId(productId);
+        verify(pricePolicyJpaRepository).deactivateByProductId(productId);
 
         ArgumentCaptor<List<PricePolicyJpaEntity>> policiesCaptor = ArgumentCaptor.forClass(List.class);
         verify(pricePolicyJpaRepository).saveAll(policiesCaptor.capture());

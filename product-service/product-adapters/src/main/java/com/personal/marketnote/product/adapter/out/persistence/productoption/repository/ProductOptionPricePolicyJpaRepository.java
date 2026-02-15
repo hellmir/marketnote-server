@@ -43,6 +43,13 @@ public interface ProductOptionPricePolicyJpaRepository extends JpaRepository<Pro
             where popp.id.pricePolicyId = :pricePolicyId
             """)
     void deleteByPricePolicyId(@Param("pricePolicyId") Long pricePolicyId);
-}
 
+    @Modifying
+    @Query("""
+            delete
+            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+            where popp.id.pricePolicyId in :pricePolicyIds
+            """)
+    void deleteByPricePolicyIds(@Param("pricePolicyIds") List<Long> pricePolicyIds);
+}
 
