@@ -165,4 +165,60 @@ public class ProductJpaEntityToDomainMapper {
                     );
                 });
     }
+
+    public static Optional<ProductOptionCategory> mapToDomainWithoutProductTags(
+            ProductOptionCategoryJpaEntity productOptionCategoryJpaEntity
+    ) {
+        return Optional.ofNullable(productOptionCategoryJpaEntity)
+                .map(entity -> {
+                    Product product = mapToDomainWithoutProductTags(entity.getProductJpaEntity());
+                    ProductOptionCategory productOptionCategory = ProductOptionCategory.from(
+                            ProductOptionCategorySnapshotState.builder()
+                                    .id(entity.getId())
+                                    .product(product)
+                                    .name(entity.getName())
+                                    .options(null)
+                                    .orderNum(entity.getOrderNum())
+                                    .status(entity.getStatus())
+                                    .build()
+                    );
+
+                    List<ProductOption> options = entity.getProductOptionJpaEntities()
+                            .stream()
+                            .map(optEntity -> mapToDomain(optEntity, productOptionCategory))
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .toList();
+
+                    return ProductOptionCategory.from(
+                            ProductOptionCategorySnapshotState.builder()
+                                    .id(entity.getId())
+                                    .product(product)
+                                    .name(entity.getName())
+                                    .options(options)
+                                    .orderNum(entity.getOrderNum())
+                                    .status(entity.getStatus())
+                                    .build()
+                    );
+                });
+    }
+
+    private static Product mapToDomainWithoutProductTags(ProductJpaEntity productJpaEntity) {
+        return Product.from(
+                ProductSnapshotState.builder()
+                        .id(productJpaEntity.getId())
+                        .sellerId(productJpaEntity.getSellerId())
+                        .name(productJpaEntity.getName())
+                        .brandName(productJpaEntity.getBrandName())
+                        .detail(productJpaEntity.getDetail())
+                        .sales(productJpaEntity.getSales())
+                        .viewCount(productJpaEntity.getViewCount())
+                        .popularity(productJpaEntity.getPopularity())
+                        .findAllOptionsYn(productJpaEntity.isFindAllOptionsYn())
+                        .productTags(List.of())
+                        .orderNum(productJpaEntity.getOrderNum())
+                        .status(productJpaEntity.getStatus())
+                        .build()
+        );
+    }
 }

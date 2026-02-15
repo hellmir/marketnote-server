@@ -59,8 +59,19 @@ public class ProductOptionPersistenceAdapter implements SaveProductOptionsPort, 
         List<ProductOptionPricePolicyJpaEntity> newOptionPolicies = new ArrayList<>();
         registerPricePoliciesToOptionCombinations(allCategories, savedCategory, newPolicies, newOptionPolicies, product);
 
-        // 기존 가격 정책 전체 삭제
-        pricePolicyJpaRepository.deleteByProductId(productId);
+        // 기존 가격 정책 비활성화 및 옵션-가격 정책 매핑 삭제 (장바구니 참조 보호)
+        List<PricePolicyJpaEntity> existingPolicies
+                = pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(productId);
+        if (FormatValidator.hasNoValue(existingPolicies)) {
+            existingPolicies = List.of();
+        }
+        List<Long> existingPolicyIds = existingPolicies.stream()
+                .map(PricePolicyJpaEntity::getId)
+                .toList();
+        if (FormatValidator.hasValue(existingPolicyIds)) {
+            productOptionPricePolicyJpaRepository.deleteByPricePolicyIds(existingPolicyIds);
+        }
+        pricePolicyJpaRepository.deactivateByProductId(productId);
 
         // endregion
 
@@ -68,7 +79,7 @@ public class ProductOptionPersistenceAdapter implements SaveProductOptionsPort, 
         savedPricePolicyJpaEntities.forEach(PricePolicyJpaEntity::setIdToOrderNum);
         productOptionPricePolicyJpaRepository.saveAll(newOptionPolicies);
 
-        return ProductJpaEntityToDomainMapper.mapToDomain(savedCategory).orElse(null);
+        return ProductJpaEntityToDomainMapper.mapToDomainWithoutProductTags(savedCategory).orElse(null);
     }
 
     private void registerPricePoliciesToOptionCombinations(
