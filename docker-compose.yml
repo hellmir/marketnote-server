@@ -23,7 +23,6 @@ services:
       - FASSTO_BASE_URL=${FASSTO_BASE_URL:-http://localhost:1234}
       - FASSTO_API_CD=${FASSTO_API_CD:-abc}
       - FASSTO_API_KEY=${FASSTO_API_KEY:-def}
-      - COMMERCE_SERVICE_SERVER_ORIGIN=https://commerce.marketnote.store
 
 networks:
   shop_network:

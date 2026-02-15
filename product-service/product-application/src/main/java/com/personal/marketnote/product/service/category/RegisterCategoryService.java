@@ -34,7 +34,7 @@ public class RegisterCategoryService implements RegisterCategoryUseCase {
                         && findCategoryPort.findAllActiveByIds(List.of(parentCategoryId)).isEmpty()
         ) {
             throw new CategoryNotFoundException(
-                    "존재하지 않는 상위 카테고리 ID입니다. 전송된 상위 카테고리 ID: %d",
+                    "%s::존재하지 않는 상위 카테고리 ID입니다. 전송된 상위 카테고리 ID: %d",
                     parentCategoryId
             );
         }

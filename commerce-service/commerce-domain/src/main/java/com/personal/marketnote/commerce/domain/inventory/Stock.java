@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.domain.inventory;
 
-import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidQuantityException;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.QuantityNoValueException;
 import com.personal.marketnote.common.utility.FormatConverter;
@@ -68,11 +67,5 @@ public class Stock {
 
     public Integer reduce(int stock) {
         return this.stock - stock;
-    }
-
-    public void validateIsSufficient(int orderQuantity) {
-        if (stock < orderQuantity) {
-            throw new InsufficientQuantityException(stock, orderQuantity);
-        }
     }
 }

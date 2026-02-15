@@ -140,6 +140,7 @@ public class RestTemplateKakaoTokenProcessor implements TokenProcessor {
 
         return OAuth2AuthenticationInfo.builder()
                 .id(responseBody.getString(SUB_CLAIM_KEY))
+                .authVendor(AuthVendor.KAKAO)
                 .build();
     }
 
