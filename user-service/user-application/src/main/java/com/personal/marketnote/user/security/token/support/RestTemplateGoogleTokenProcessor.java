@@ -103,6 +103,7 @@ public class RestTemplateGoogleTokenProcessor implements TokenProcessor {
 
         return OAuth2AuthenticationInfo.builder()
                 .id(responseBody.getString("id"))
+                .authVendor(AuthVendor.GOOGLE)
                 .build();
     }
 

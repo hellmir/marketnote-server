@@ -1,13 +1,10 @@
 package com.personal.marketnote.commerce.service.order;
 
-import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderCreateState;
 import com.personal.marketnote.commerce.domain.order.OrderProductCreateState;
-import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.RegisterOrderUseCase;
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.common.application.UseCase;
@@ -15,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -23,26 +19,10 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
 public class RegisterOrderService implements RegisterOrderUseCase {
-    private final GetInventoryUseCase getInventoryUseCase;
     private final SaveOrderPort saveOrderPort;
 
     @Override
     public RegisterOrderResult registerOrder(RegisterOrderCommand command) {
-        Set<Inventory> inventories = getInventoryUseCase.getInventories(
-                command.orderProducts()
-                        .stream()
-                        .map(OrderProductItemCommand::pricePolicyId)
-                        .toList()
-        );
-        inventories.forEach(inventory -> {
-            int orderQuantity = command.orderProducts().stream()
-                    .filter(item -> item.pricePolicyId().equals(inventory.getPricePolicyId()))
-                    .map(OrderProductItemCommand::quantity)
-                    .reduce(0, Integer::sum);
-
-            inventory.validateIsSufficient(orderQuantity);
-        });
-
         List<OrderProductCreateState> orderProductStates = command.orderProducts().stream()
                 .map(item -> OrderProductCreateState.builder()
                         .sellerId(item.sellerId())

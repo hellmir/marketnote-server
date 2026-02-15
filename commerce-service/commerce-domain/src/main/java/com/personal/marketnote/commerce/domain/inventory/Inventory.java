@@ -60,8 +60,4 @@ public class Inventory {
     public boolean isMe(Long pricePolicyId) {
         return FormatValidator.equals(pricePolicyId, pricePolicyId);
     }
-
-    public void validateIsSufficient(int orderQuantity) {
-        stock.validateIsSufficient(orderQuantity);
-    }
 }
