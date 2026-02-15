@@ -15,6 +15,8 @@ import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
 import com.personal.marketnote.product.port.out.product.SaveProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -40,14 +42,36 @@ public class RegisterProductService implements RegisterProductUseCase {
                 sellerId, false, RegisterPricePolicyCommand.from(productId, command)
         );
 
+        // 트랜잭션이 있는 경우 트랜잭션 커밋 후 외부 시스템 요청
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    registerExternalSystems(savedProduct, command, registerPricePolicyResult.id());
+                }
+            });
+
+            return RegisterProductResult.from(savedProduct);
+
+        }
+
+        // 트랜잭션이 없는 경우 직접 호출
+        registerExternalSystems(savedProduct, command, registerPricePolicyResult.id());
+
+        return RegisterProductResult.from(savedProduct);
+    }
+
+    private void registerExternalSystems(
+            Product savedProduct,
+            RegisterProductCommand command,
+            Long pricePolicyId
+    ) {
         // FIXME: Kafka 이벤트 Production으로 변경
-        registerInventoryPort.registerInventory(productId, registerPricePolicyResult.id());
+        registerInventoryPort.registerInventory(savedProduct.getId(), pricePolicyId);
 
         // FIXME: Kafka 이벤트 Production으로 변경
         registerFulfillmentVendorGoodsPort.registerFulfillmentVendorGoods(
                 FulfillmentVendorGoodsCommandMapper.mapToRegisterCommand(savedProduct, command.fulfillmentVendorGoods())
         );
-
-        return RegisterProductResult.from(savedProduct);
     }
 }
