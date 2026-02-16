@@ -16,6 +16,10 @@ import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
 import com.personal.marketnote.file.port.out.resized.SaveResizedFilesPort;
 import com.personal.marketnote.file.port.out.storage.UploadFilesPort;
 import lombok.RequiredArgsConstructor;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +28,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,13 +136,13 @@ public class UpdateFilesService implements UpdateFileUseCase {
     }
 
     private MultipartFile resizeSquare(MultipartFile original, int targetWidth, String newOriginalFilename) throws IOException {
-        BufferedImage source = ImageIO.read(original.getInputStream());
+        BufferedImage source = readImageOrThrow(original);
 
         return resize(targetWidth, targetWidth, source, newOriginalFilename);
     }
 
     private MultipartFile resizeByWidth(MultipartFile original, int targetWidth, String newOriginalFilename) throws IOException {
-        BufferedImage source = ImageIO.read(original.getInputStream());
+        BufferedImage source = readImageOrThrow(original);
         int originalWidth = source.getWidth();
         int originalHeight = source.getHeight();
         int targetHeight = (int) Math.round((double) originalHeight * targetWidth / originalWidth);
@@ -174,6 +179,67 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 contentTypeFor(format),
                 byteArrayOutputStream.toByteArray()
         );
+    }
+
+    private BufferedImage readImageOrThrow(MultipartFile original) throws IOException {
+        if (isSvg(original)) {
+            return readSvgToBufferedImage(original);
+        }
+
+        try (InputStream inputStream = original.getInputStream()) {
+            BufferedImage source = ImageIO.read(inputStream);
+            if (FormatValidator.hasNoValue(source)) {
+                throw new IOException("Unsupported image format.");
+            }
+            return source;
+        }
+    }
+
+    private boolean isSvg(MultipartFile original) {
+        if (FormatValidator.hasNoValue(original)) {
+            return false;
+        }
+
+        String contentType = original.getContentType();
+        if (FormatValidator.hasValue(contentType) && contentType.toLowerCase().contains("svg")) {
+            return true;
+        }
+
+        String extension = getExtension(original.getOriginalFilename(), "");
+        return FormatValidator.equalsIgnoreCase(extension, "svg");
+    }
+
+    private BufferedImage readSvgToBufferedImage(MultipartFile original) throws IOException {
+        try (InputStream inputStream = original.getInputStream()) {
+            TranscoderInput input = new TranscoderInput(inputStream);
+            BufferedImageTranscoder transcoder = new BufferedImageTranscoder();
+            transcoder.transcode(input, null);
+            BufferedImage image = transcoder.getBufferedImage();
+            if (FormatValidator.hasNoValue(image)) {
+                throw new IOException("Unsupported SVG image.");
+            }
+            return image;
+        } catch (TranscoderException e) {
+            throw new IOException("Failed to read SVG image.", e);
+        }
+    }
+
+    private static class BufferedImageTranscoder extends ImageTranscoder {
+        private BufferedImage image;
+
+        @Override
+        public BufferedImage createImage(int w, int h) {
+            return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        }
+
+        @Override
+        public void writeImage(BufferedImage image, TranscoderOutput out) {
+            this.image = image;
+        }
+
+        private BufferedImage getBufferedImage() {
+            return image;
+        }
     }
 
     private String getExtension(String filename, String defaultExtension) {

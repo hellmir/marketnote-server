@@ -16,6 +16,8 @@ import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -51,8 +53,22 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             updateOptionPricePolicyPort.assignPricePolicyToOptions(id, optionIds);
         }
 
-        registerInventoryPort.registerInventory(productId, id);
+        registerInventoryAfterCommit(productId, id);
 
         return RegisterPricePolicyResult.of(id);
+    }
+
+    private void registerInventoryAfterCommit(Long productId, Long pricePolicyId) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    registerInventoryPort.registerInventory(productId, pricePolicyId);
+                }
+            });
+            return;
+        }
+
+        registerInventoryPort.registerInventory(productId, pricePolicyId);
     }
 }

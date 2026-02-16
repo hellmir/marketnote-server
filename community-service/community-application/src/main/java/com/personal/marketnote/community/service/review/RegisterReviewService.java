@@ -16,6 +16,8 @@ import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -60,7 +62,16 @@ public class RegisterReviewService implements RegisterReviewUseCase {
 
         // 주문 상품의 리뷰 작성 여부를 true로 업데이트
         // FIXME: Kafka 이벤트 Production으로 변경
-        updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
+                }
+            });
+        } else {
+            updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
+        }
 
         return RegisterReviewResult.from(savedReview);
     }

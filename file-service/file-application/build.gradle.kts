@@ -99,6 +99,11 @@ dependencies {
     // MIME 타입 체크를 위한 Apache Tika
     implementation("org.apache.tika:tika-core:3.1.0")
 
+    // SVG/WebP 이미지 디코딩
+    implementation("org.apache.xmlgraphics:batik-transcoder:1.17")
+    implementation("com.twelvemonkeys.imageio:imageio-core:3.12.0")
+    implementation("com.twelvemonkeys.imageio:imageio-webp:3.12.0")
+
     // Prometheus
     implementation("io.micrometer:micrometer-registry-prometheus")
 }
