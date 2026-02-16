@@ -5,7 +5,7 @@ import com.personal.marketnote.product.port.in.result.category.RegisterCategoryR
 
 public interface RegisterCategoryUseCase {
     /**
-     * @param command 등록 카테고리 커맨드
+     * @param command 카테고리 등록 커맨드
      * @return 카테고리 등록 결과 {@link RegisterCategoryResult}
      * @Date 2025-12-31
      * @Author 성효빈
