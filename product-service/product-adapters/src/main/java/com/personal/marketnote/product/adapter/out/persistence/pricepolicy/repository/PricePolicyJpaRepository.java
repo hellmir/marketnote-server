@@ -74,8 +74,8 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  OR NOT EXISTS (SELECT 1 FROM PricePolicyJpaEntity pp0 WHERE pp0.id = :cursor)
                  OR (
                         (:sortProperty = 'orderNum' AND (
-                              pp.orderNum > (SELECT pp2.orderNum FROM PricePolicyJpaEntity pp2 WHERE pp2.id = :cursor)
-                           OR (pp.orderNum = (SELECT pp2.orderNum FROM PricePolicyJpaEntity pp2 WHERE pp2.id = :cursor)
+                              p.orderNum > (SELECT pp2.productJpaEntity.orderNum FROM PricePolicyJpaEntity pp2 WHERE pp2.id = :cursor)
+                           OR (p.orderNum = (SELECT pp2.productJpaEntity.orderNum FROM PricePolicyJpaEntity pp2 WHERE pp2.id = :cursor)
                                AND pp.id > :cursor)
                         ))
                      OR (:sortProperty = 'popularity' AND (
@@ -96,7 +96,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  )
               )
             ORDER BY
-                CASE WHEN :sortProperty = 'orderNum' THEN pp.orderNum END ASC,
+                CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END ASC,
                 CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END ASC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END ASC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END ASC,
@@ -142,13 +142,13 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  OR NOT EXISTS (SELECT 1 FROM PricePolicyJpaEntity pp0 WHERE pp0.id = :cursor)
                  OR (
                         (:sortProperty = 'orderNum' AND (
-                              pp.orderNum < (
-                                  SELECT pp2.orderNum
+                              p.orderNum < (
+                                  SELECT pp2.productJpaEntity.orderNum
                                   FROM PricePolicyJpaEntity pp2
                                   WHERE pp2.id = :cursor
                               )
-                           OR (pp.orderNum = (
-                                    SELECT pp2.orderNum
+                           OR (p.orderNum = (
+                                    SELECT pp2.productJpaEntity.orderNum
                                     FROM PricePolicyJpaEntity pp2
                                     WHERE pp2.id = :cursor
                                 )
@@ -196,7 +196,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  )
               )
             ORDER BY
-                CASE WHEN :sortProperty = 'orderNum' THEN pp.orderNum END DESC,
+                CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END DESC,
                 CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END DESC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END DESC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END DESC,

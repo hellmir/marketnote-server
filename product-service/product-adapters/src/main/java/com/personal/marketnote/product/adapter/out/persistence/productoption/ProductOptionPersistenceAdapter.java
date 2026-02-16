@@ -213,7 +213,7 @@ public class ProductOptionPersistenceAdapter implements SaveProductOptionsPort, 
 
     @Override
     @CacheEvict(value = "product:detail", key = "#productId")
-    public void assignPricePolicyToOptions(Long pricePolicyId, List<Long> optionIds) {
+    public void assignPricePolicyToOptions(Long productId, Long pricePolicyId, List<Long> optionIds) {
         // 기존 동일 옵션 조합 가격 정책 삭제
         List<PricePolicyJpaEntity> existentPricePolicies = pricePolicyJpaRepository.findByOptionIds(optionIds);
         existentPricePolicies.forEach(PricePolicyJpaEntity::deactivate);

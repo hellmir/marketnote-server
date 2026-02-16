@@ -50,7 +50,7 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
 
         List<Long> optionIds = command.optionIds();
         if (FormatValidator.hasValue(optionIds)) {
-            updateOptionPricePolicyPort.assignPricePolicyToOptions(id, optionIds);
+            updateOptionPricePolicyPort.assignPricePolicyToOptions(productId, id, optionIds);
         }
 
         registerInventoryAfterCommit(productId, id);
