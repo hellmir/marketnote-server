@@ -28,7 +28,7 @@ public class RegisterReferredUserCodeService implements RegisterReferredUserCode
     public void registerReferredUserCode(Long requestUserId, String referredUserCode) {
         if (!getUserUseCase.existsUser(referredUserCode)) {
             throw new UserNotFoundException(
-                    String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, FIRST_ERROR_CODE, referredUserCode)
+                    String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode)
             );
         }
 
