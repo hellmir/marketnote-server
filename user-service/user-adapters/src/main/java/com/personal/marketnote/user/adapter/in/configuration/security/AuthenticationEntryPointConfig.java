@@ -12,7 +12,10 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 public class AuthenticationEntryPointConfig {
     @Bean
     @ConditionalOnMissingBean(OpaqueTokenIntrospector.class)
-    public OpaqueTokenIntrospector defaultOpaqueTokenIntrospector(TokenSupport tokenSupport, FindUserPort findUserPort) {
+    public OpaqueTokenIntrospector defaultOpaqueTokenIntrospector(
+            TokenSupport tokenSupport,
+            FindUserPort findUserPort
+    ) {
         return new OpaqueTokenDefaultIntrospector(tokenSupport, findUserPort);
     }
 }
