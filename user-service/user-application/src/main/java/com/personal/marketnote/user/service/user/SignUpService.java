@@ -21,6 +21,8 @@ import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -74,10 +76,7 @@ public class SignUpService implements SignUpUseCase {
                 )
         );
 
-        modifyUserPointPort.registerUserPoint(
-                signedUpUser.getId(),
-                signedUpUser.getUserKey().toString()
-        );
+        registerUserPointAfterCommit(signedUpUser.getId(), signedUpUser.getUserKey().toString());
 
         saveLoginHistoryPort.saveLoginHistory(
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)
@@ -141,5 +140,19 @@ public class SignUpService implements SignUpUseCase {
         }
 
         throw new UserNotActiveException(SIXTH_ERROR_CODE, email);
+    }
+
+    private void registerUserPointAfterCommit(Long userId, String userKey) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    modifyUserPointPort.registerUserPoint(userId, userKey);
+                }
+            });
+            return;
+        }
+
+        modifyUserPointPort.registerUserPoint(userId, userKey);
     }
 }

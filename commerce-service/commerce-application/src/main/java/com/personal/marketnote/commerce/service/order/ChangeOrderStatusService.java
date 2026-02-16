@@ -16,6 +16,8 @@ import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,16 +52,19 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             // 결제 완료 시 재고 차감
             reduceProductInventoryUseCase.reduce(order.getOrderProducts(), status.getDescription());
 
-            // 결제 완료 시 장바구니 상품 삭제
-            deleteOrderedCartProductsPort.delete(
-                    order.getOrderProducts()
-                            .stream()
-                            .map(OrderProduct::getPricePolicyId)
-                            .toList()
-            );
+            List<Long> pricePolicyIds = order.getOrderProducts()
+                    .stream()
+                    .map(OrderProduct::getPricePolicyId)
+                    .toList();
+            List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
 
-            // 링크 공유 회원 포인트 적립
-            modifyUserPointPort.accrueSharedPurchasePoints(extractSharerIds(order.getOrderProducts()));
+            runAfterCommit(() -> {
+                // 결제 완료 시 장바구니 상품 삭제
+                deleteOrderedCartProductsPort.delete(pricePolicyIds);
+
+                // 링크 공유 회원 포인트 적립
+                modifyUserPointPort.accrueSharedPurchasePoints(sharerIds);
+            });
         }
     }
 
@@ -79,5 +84,19 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                 .map(OrderProduct::getSharerId)
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    private void runAfterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+            return;
+        }
+
+        action.run();
     }
 }
