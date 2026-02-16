@@ -128,8 +128,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     @Override
     public Optional<PricePolicy> findByOptionIds(List<Long> optionIds) {
         return pricePolicyJpaRepository.findOneByOptionIds(optionIds)
-                .map(PricePolicyJpaEntityToDomainMapper::mapToDomain)
-                .orElse(null);
+                .flatMap(PricePolicyJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override

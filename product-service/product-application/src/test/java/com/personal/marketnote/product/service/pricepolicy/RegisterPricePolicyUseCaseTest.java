@@ -99,7 +99,7 @@ class RegisterPricePolicyUseCaseTest {
         assertThat(saved.getAccumulationRate())
                 .isEqualByComparingTo(calculateAccumulationRate(command.accumulatedPoint(), command.discountPrice()));
 
-        verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(100L, optionIds);
+        verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 100L, optionIds);
         verify(registerInventoryPort).registerInventory(productId, 100L);
     }
 
@@ -118,7 +118,7 @@ class RegisterPricePolicyUseCaseTest {
 
         assertThat(result.id()).isEqualTo(200L);
         verify(registerInventoryPort).registerInventory(productId, 200L);
-        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyList());
+        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verifyNoInteractions(findProductPort);
     }
 
@@ -136,7 +136,7 @@ class RegisterPricePolicyUseCaseTest {
 
         registerPricePolicyService.registerPricePolicy(userId, false, command);
 
-        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyList());
+        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verify(registerInventoryPort).registerInventory(productId, 250L);
     }
 
@@ -174,7 +174,7 @@ class RegisterPricePolicyUseCaseTest {
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
                 .isSameAs(exception);
 
-        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyList());
+        verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verifyNoInteractions(registerInventoryPort);
     }
 
@@ -191,7 +191,7 @@ class RegisterPricePolicyUseCaseTest {
         when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
         when(getProductUseCase.getProduct(productId)).thenReturn(product);
         when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(300L);
-        doThrow(exception).when(updateOptionPricePolicyPort).assignPricePolicyToOptions(300L, optionIds);
+        doThrow(exception).when(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 300L, optionIds);
 
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
                 .isSameAs(exception);
@@ -217,7 +217,7 @@ class RegisterPricePolicyUseCaseTest {
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
                 .isSameAs(exception);
 
-        verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(400L, optionIds);
+        verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 400L, optionIds);
     }
 
     private RegisterPricePolicyCommand buildCommand(Long productId, List<Long> optionIds) {

@@ -61,6 +61,6 @@ public class PricePolicyJpaEntity extends BaseOrderedGeneralEntity {
     }
 
     public void deactivate() {
-        deactivate();
+        super.deactivate();
     }
 }

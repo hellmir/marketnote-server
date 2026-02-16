@@ -442,8 +442,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
             ORDER BY
                 CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END DESC,
                 CASE WHEN :sortProperty = 'popularity' THEN p.sales END DESC,
-                CASE WHEN :sortProperty = 'name' THEN COALESCE(pp.discountPrice, 0) END DESC,
-                CASE WHEN :sortProperty = 'brandName' THEN COALESCE(pp.accumulatedPoint, 0) END DESC,
+                CASE WHEN :sortProperty = 'discountPrice' THEN COALESCE(pp.discountPrice, 0) END DESC,
+                CASE WHEN :sortProperty = 'accumulatedPoint' THEN COALESCE(pp.accumulatedPoint, 0) END DESC,
                 p.id DESC
             """)
     List<ProductJpaEntity> findAllActiveByCategoryIdCursorDesc(
