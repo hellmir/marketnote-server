@@ -49,7 +49,7 @@ class RegisterReferredUserCodeUseCaseTest {
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
                 .isInstanceOf(UserNotFoundException.class)
                 .hasMessage(String.format(
-                        USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, FIRST_ERROR_CODE, referredUserCode
+                        USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode
                 ));
 
         verify(getUserUseCase).existsUser(referredUserCode);

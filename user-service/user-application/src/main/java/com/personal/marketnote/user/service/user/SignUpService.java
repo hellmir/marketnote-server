@@ -76,7 +76,9 @@ public class SignUpService implements SignUpUseCase {
                 )
         );
 
-        registerUserPointAfterCommit(signedUpUser.getId(), signedUpUser.getUserKey().toString());
+        registerUserPointAfterCommit(
+                signedUpUser.getId(), signedUpUser.getUserKey().toString()
+        );
 
         saveLoginHistoryPort.saveLoginHistory(
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)

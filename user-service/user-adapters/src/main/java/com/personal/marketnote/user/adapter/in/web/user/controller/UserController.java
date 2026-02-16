@@ -93,7 +93,9 @@ public class UserController {
         if (FormatValidator.hasValue(principal)) {
             oidcId = principal.getAttribute(SUB_CLAIM_KEY);
             String issuer = principal.getAttribute(ISS_CLAIM_KEY);
-            authVendor = resolveVendorFromIssuer(FormatConverter.toUpperCase(issuer));
+            if (FormatValidator.hasValue(issuer)) {
+                authVendor = resolveVendorFromIssuer(FormatConverter.toUpperCase(issuer));
+            }
         }
 
         SignUpResult signUpResult = signUpUseCase.signUp(
@@ -191,7 +193,9 @@ public class UserController {
         if (FormatValidator.hasValue(principal)) {
             oidcId = principal.getAttribute(SUB_CLAIM_KEY);
             String issuer = principal.getAttribute(ISS_CLAIM_KEY);
-            authVendor = resolveVendorFromIssuer(FormatConverter.toUpperCase(issuer));
+            if (FormatValidator.hasValue(issuer)) {
+                authVendor = resolveVendorFromIssuer(FormatConverter.toUpperCase(issuer));
+            }
         }
 
         String clientIp = extractClientIp(request);
