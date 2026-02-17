@@ -30,6 +30,7 @@ public class FasstoWarehousingController {
     private final GetFasstoWarehousingUseCase getFasstoWarehousingUseCase;
     private final GetFasstoWarehousingDetailUseCase getFasstoWarehousingDetailUseCase;
     private final GetFasstoWarehousingAbnormalUseCase getFasstoWarehousingAbnormalUseCase;
+    private final GetFasstoWarehousingAbnormalImageUseCase getFasstoWarehousingAbnormalImageUseCase;
     private final UpdateFasstoWarehousingUseCase updateFasstoWarehousingUseCase;
 
     /**
@@ -189,6 +190,52 @@ public class FasstoWarehousingController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "파스토 비정상 입고 상품 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 파스토 비정상 입고 상품 이미지 조회
+     *
+     * @param slipNo        입고요청번호
+     * @param godCd         상품코드
+     * @param goodsSerialNo 상품일련번호
+     * @param fileSeq       파일seq
+     * @param imgNo         이미지순서
+     * @param accessToken   파스토 액세스 토큰
+     * @Author 성효빈
+     * @Date 2026-02-17
+     * @Description 파스토 비정상 입고 상품 이미지를 조회합니다.
+     */
+    @GetMapping("/abnormal/image/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetFasstoWarehousingAbnormalImageApiDocs
+    public ResponseEntity<BaseResponse<GetFasstoWarehousingAbnormalImageResponse>> getWarehousingAbnormalImage(
+            @PathVariable String slipNo,
+            @PathVariable String godCd,
+            @PathVariable String goodsSerialNo,
+            @PathVariable String fileSeq,
+            @PathVariable String imgNo,
+            @RequestHeader("accessToken") String accessToken
+    ) {
+        GetFasstoWarehousingAbnormalImageResult result = getFasstoWarehousingAbnormalImageUseCase.getWarehousingAbnormalImage(
+                FasstoWarehousingRequestToCommandMapper.mapToWarehousingAbnormalImageCommand(
+                        accessToken,
+                        slipNo,
+                        godCd,
+                        goodsSerialNo,
+                        fileSeq,
+                        imgNo
+                )
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetFasstoWarehousingAbnormalImageResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "파스토 비정상 입고 상품 이미지 조회 성공"
                 ),
                 HttpStatus.OK
         );
