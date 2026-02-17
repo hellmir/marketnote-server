@@ -63,6 +63,7 @@ vendor:
       warehousing-abnormal-path: ${FASSTO_WAREHOUSING_ABNORMAL_PATH:/api/v1/warehousing/abnormal/{customerCode}/{whCd}/{slipNo}}
       warehousing-abnormal-image-path: ${FASSTO_WAREHOUSING_ABNORMAL_IMAGE_PATH:/api/v1/warehousing/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}}
       delivery-path: ${FASSTO_DELIVERY_PATH:/api/v1/delivery/parcel/{customerCode}}
+      delivery-car-path: ${FASSTO_DELIVERY_CAR_PATH:/api/v1/delivery/car/{customerCode}}
       delivery-list-path: ${FASSTO_DELIVERY_LIST_PATH:/api/v1/delivery/{customerCode}/{startDate}/{endDate}/{status}/{outDiv}}
       delivery-status-path: ${FASSTO_DELIVERY_STATUS_PATH:/api/v1/delivery/parcel/{customerCode}/{startDate}/{endDate}/{outDiv}}
       delivery-detail-path: ${FASSTO_DELIVERY_DETAIL_PATH:/api/v1/delivery/detail/{customerCode}/{slipNo}}

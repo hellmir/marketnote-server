@@ -37,7 +37,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 @VendorAdapter
 @RequiredArgsConstructor
 @Slf4j
-public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, GetFasstoDeliveriesPort, GetFasstoDeliveryStatusesPort, GetFasstoDeliveryDetailPort, GetFasstoDeliveryOutOrdGoodsDetailPort, CancelFasstoDeliveryPort {
+public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, RegisterFasstoDeliveryCarPort, GetFasstoDeliveriesPort, GetFasstoDeliveryStatusesPort, GetFasstoDeliveryDetailPort, GetFasstoDeliveryOutOrdGoodsDetailPort, CancelFasstoDeliveryPort {
     private static final String ACCESS_TOKEN_HEADER = "accessToken";
     private static final String CUSTOMER_CODE_PLACEHOLDER = "{customerCode}";
 
@@ -51,6 +51,12 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, GetFass
     @Override
     public RegisterFasstoDeliveryResult registerDelivery(FasstoDeliveryMapper request) {
         RegisterFasstoDeliveryResponse response = executeDeliveryRegistration(request, "REGISTER");
+        return mapDeliveryResult(response);
+    }
+
+    @Override
+    public RegisterFasstoDeliveryResult registerDeliveryCar(FasstoDeliveryCarMapper request) {
+        RegisterFasstoDeliveryResponse response = executeDeliveryCarRegistration(request, "REGISTER_CAR");
         return mapDeliveryResult(response);
     }
 
@@ -662,6 +668,138 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, GetFass
         throw new RegisterFasstoDeliveryFailedException(failureMessage, new IOException(error));
     }
 
+    private RegisterFasstoDeliveryResponse executeDeliveryCarRegistration(
+            FasstoDeliveryCarMapper request,
+            String action
+    ) {
+        if (FormatValidator.hasNoValue(request)) {
+            throw new IllegalArgumentException("Fassto delivery car request is required.");
+        }
+
+        URI uri = buildDeliveryCarUri(request.getCustomerCode());
+        HttpEntity<List<Map<String, Object>>> httpEntity = new HttpEntity<>(
+                request.toPayload(),
+                buildHeaders(request.getAccessToken())
+        );
+
+        Exception error = new Exception();
+        String failureMessage = null;
+        long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
+        FulfillmentVendorCommunicationTargetType targetType = FulfillmentVendorCommunicationTargetType.DELIVERY;
+        FulfillmentVendorName vendorName = FulfillmentVendorName.FASSTO;
+
+        for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
+            int attempt = i + 1;
+            JsonNode requestPayloadJson = buildCarRequestPayloadJson(request, uri, attempt, action);
+            String requestPayload = requestPayloadJson.toString();
+
+            ResponseEntity<String> response;
+            try {
+                response = restTemplate.exchange(
+                        uri,
+                        HttpMethod.POST,
+                        httpEntity,
+                        String.class
+                );
+            } catch (Exception e) {
+                Map<String, Object> errorPayload = new LinkedHashMap<>();
+                errorPayload.put("error", e.getClass().getSimpleName());
+                errorPayload.put("message", e.getMessage());
+                errorPayload.put("attempt", attempt);
+
+                vendorCommunicationFailureHandler.handleFailure(
+                        targetType,
+                        vendorName,
+                        requestPayload,
+                        requestPayloadJson,
+                        errorPayload,
+                        e
+                );
+
+                String vendorMessage = resolveVendorMessageFromException(e);
+                if (FormatValidator.hasValue(vendorMessage)) {
+                    failureMessage = vendorMessage;
+                    error = new Exception(vendorMessage);
+                }
+
+                log.warn("Failed to {} Fassto delivery car: attempt={}, message={}",
+                        action.toLowerCase(),
+                        attempt,
+                        e.getMessage(),
+                        e
+                );
+                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
+                    error = e;
+                }
+
+                sleep(sleepMillis);
+                sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
+                continue;
+            }
+
+            JsonNode responsePayloadJson = buildResponsePayloadJson(response, attempt);
+            String responsePayload = responsePayloadJson.toString();
+
+            RegisterFasstoDeliveryResponse parsedResponse = parseResponseBody(response);
+            boolean isSuccess = isSuccessResponse(response, parsedResponse);
+            String exception = isSuccess
+                    ? null
+                    : resolveResponseException(response, parsedResponse);
+
+            vendorCommunicationRecorder.record(
+                    targetType,
+                    FulfillmentVendorCommunicationType.REQUEST,
+                    FulfillmentVendorCommunicationSenderType.SERVER,
+                    vendorName,
+                    requestPayload,
+                    requestPayloadJson,
+                    exception
+            );
+            vendorCommunicationRecorder.record(
+                    targetType,
+                    FulfillmentVendorCommunicationType.RESPONSE,
+                    FulfillmentVendorCommunicationSenderType.VENDOR,
+                    vendorName,
+                    responsePayload,
+                    responsePayloadJson,
+                    exception
+            );
+
+            if (isSuccess) {
+                return parsedResponse;
+            }
+
+            String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
+            if (FormatValidator.hasValue(vendorMessage)) {
+                failureMessage = vendorMessage;
+                error = new Exception(vendorMessage);
+            }
+
+            log.warn("Fassto delivery car {} failed: attempt={}, status={}, exception={}",
+                    action.toLowerCase(),
+                    attempt,
+                    FormatValidator.hasValue(response) ? response.getStatusCode() : null,
+                    exception
+            );
+
+            if (CommunicationFailureHandler.isCertainFailure(response)) {
+                break;
+            }
+
+            sleep(sleepMillis);
+            sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
+        }
+
+        log.error("Failed to {} Fassto delivery car request: {} with error: {}",
+                action.toLowerCase(),
+                uri,
+                error.getMessage(),
+                error
+        );
+
+        throw new RegisterFasstoDeliveryFailedException(failureMessage, new IOException(error));
+    }
+
     private RegisterFasstoDeliveryResponse executeDeliveryCancellation(
             FasstoDeliveryCancelMapper request,
             String action
@@ -802,6 +940,14 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, GetFass
                 .toUri();
     }
 
+    private URI buildDeliveryCarUri(String customerCode) {
+        validateDeliveryCarProperties();
+        return UriComponentsBuilder.fromUriString(properties.getBaseUrl())
+                .path(properties.getDeliveryCarPath())
+                .buildAndExpand(customerCode)
+                .toUri();
+    }
+
     private URI buildDeliveryListUri(
             String customerCode,
             String startDate,
@@ -891,6 +1037,18 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, GetFass
         }
         if (!properties.getDeliveryPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
             throw new IllegalStateException("Fassto delivery path must include {customerCode}.");
+        }
+    }
+
+    private void validateDeliveryCarProperties() {
+        if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
+            throw new IllegalStateException("Fassto base URL is required.");
+        }
+        if (FormatValidator.hasNoValue(properties.getDeliveryCarPath())) {
+            throw new IllegalStateException("Fassto delivery car path is required.");
+        }
+        if (!properties.getDeliveryCarPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
+            throw new IllegalStateException("Fassto delivery car path must include {customerCode}.");
         }
     }
 
@@ -1200,6 +1358,23 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, GetFass
 
     private JsonNode buildRequestPayloadJson(
             FasstoDeliveryMapper request,
+            URI uri,
+            int attempt,
+            String action
+    ) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("method", HttpMethod.POST.name());
+        payload.put("url", uri.toString());
+        payload.put("customerCode", request.getCustomerCode());
+        payload.put(ACCESS_TOKEN_HEADER, maskValue(request.getAccessToken()));
+        payload.put("body", request.toPayload());
+        payload.put("action", action);
+        payload.put("attempt", attempt);
+        return vendorCommunicationPayloadGenerator.buildPayloadJson(payload);
+    }
+
+    private JsonNode buildCarRequestPayloadJson(
+            FasstoDeliveryCarMapper request,
             URI uri,
             int attempt,
             String action
