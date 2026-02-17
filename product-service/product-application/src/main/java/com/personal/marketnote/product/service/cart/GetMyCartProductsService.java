@@ -3,7 +3,6 @@ package com.personal.marketnote.product.service.cart;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.product.domain.cart.CartProduct;
 import com.personal.marketnote.product.port.in.result.cart.GetMyCartProductsResult;
-import com.personal.marketnote.product.port.in.usecase.cart.GetMyCartProductsUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductInventoryUseCase;
 import com.personal.marketnote.product.port.out.cart.FindCartProductsPort;
 import lombok.RequiredArgsConstructor;

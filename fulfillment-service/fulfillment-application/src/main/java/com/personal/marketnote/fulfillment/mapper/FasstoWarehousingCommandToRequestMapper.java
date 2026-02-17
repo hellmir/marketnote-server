@@ -48,6 +48,19 @@ public class FasstoWarehousingCommandToRequestMapper {
         );
     }
 
+    public static FasstoWarehousingAbnormalImageQuery mapToAbnormalImageQuery(
+            GetFasstoWarehousingAbnormalImageCommand command
+    ) {
+        return FasstoWarehousingAbnormalImageQuery.of(
+                command.accessToken(),
+                command.slipNo(),
+                command.godCd(),
+                command.goodsSerialNo(),
+                command.fileSeq(),
+                command.imgNo()
+        );
+    }
+
     public static FasstoWarehousingMapper mapToUpdateRequest(UpdateFasstoWarehousingCommand command) {
         List<FasstoWarehousingItemMapper> requests = command.warehousingRequests().stream()
                 .map(FasstoWarehousingCommandToRequestMapper::mapUpdateItem)

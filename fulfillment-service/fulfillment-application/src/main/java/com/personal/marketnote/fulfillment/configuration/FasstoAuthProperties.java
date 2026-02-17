@@ -24,6 +24,7 @@ public class FasstoAuthProperties {
     private String warehousingListPath = "/api/v1/warehousing/{customerCode}/{startDate}/{endDate}";
     private String warehousingDetailPath = "/api/v1/warehousing/detail/{customerCode}/{slipNo}";
     private String warehousingAbnormalPath = "/api/v1/warehousing/abnormal/{customerCode}/{whCd}/{slipNo}";
+    private String warehousingAbnormalImagePath = "/api/v1/warehousing/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}";
     private String deliveryPath = "/api/v1/delivery/parcel/{customerCode}";
     private String deliveryListPath = "/api/v1/delivery/{customerCode}/{startDate}/{endDate}/{status}/{outDiv}";
     private String deliveryStatusPath = "/api/v1/delivery/parcel/{customerCode}/{startDate}/{endDate}/{outDiv}";

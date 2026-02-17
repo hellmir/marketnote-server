@@ -51,6 +51,24 @@ public class FasstoWarehousingRequestToCommandMapper {
         return GetFasstoWarehousingAbnormalCommand.of(customerCode, accessToken, whCd, slipNo);
     }
 
+    public static GetFasstoWarehousingAbnormalImageCommand mapToWarehousingAbnormalImageCommand(
+            String accessToken,
+            String slipNo,
+            String godCd,
+            String goodsSerialNo,
+            String fileSeq,
+            String imgNo
+    ) {
+        return GetFasstoWarehousingAbnormalImageCommand.of(
+                accessToken,
+                slipNo,
+                godCd,
+                goodsSerialNo,
+                fileSeq,
+                imgNo
+        );
+    }
+
     public static UpdateFasstoWarehousingCommand mapToUpdateCommand(
             String customerCode,
             String accessToken,
