@@ -66,6 +66,44 @@ public class FasstoDeliveryItemMapper {
         return mapper;
     }
 
+    public static FasstoDeliveryItemMapper update(
+            String ordDt,
+            String ordNo,
+            Integer ordSeq,
+            String slipNo,
+            String custNm,
+            String custTelNo,
+            String custAddr,
+            String outWay,
+            String sendNm,
+            String sendTelNo,
+            String salChanel,
+            String shipReqTerm,
+            List<FasstoDeliveryGoodsMapper> godCds,
+            String oneDayDeliveryCd,
+            String remark
+    ) {
+        FasstoDeliveryItemMapper mapper = FasstoDeliveryItemMapper.builder()
+                .ordDt(ordDt)
+                .ordNo(ordNo)
+                .ordSeq(ordSeq)
+                .slipNo(slipNo)
+                .custNm(custNm)
+                .custTelNo(custTelNo)
+                .custAddr(custAddr)
+                .outWay(outWay)
+                .sendNm(sendNm)
+                .sendTelNo(sendTelNo)
+                .salChanel(salChanel)
+                .shipReqTerm(shipReqTerm)
+                .godCds(godCds)
+                .oneDayDeliveryCd(oneDayDeliveryCd)
+                .remark(remark)
+                .build();
+        mapper.validateForUpdate();
+        return mapper;
+    }
+
     public Map<String, Object> toPayload() {
         Map<String, Object> payload = new LinkedHashMap<>();
         putIfHasValue(payload, "ordDt", ordDt);
@@ -113,6 +151,13 @@ public class FasstoDeliveryItemMapper {
         }
         if (FormatValidator.hasNoValue(godCds)) {
             throw new IllegalArgumentException("godCds is required for delivery request.");
+        }
+    }
+
+    private void validateForUpdate() {
+        validate();
+        if (FormatValidator.hasNoValue(slipNo)) {
+            throw new IllegalArgumentException("slipNo is required for delivery update request.");
         }
     }
 
