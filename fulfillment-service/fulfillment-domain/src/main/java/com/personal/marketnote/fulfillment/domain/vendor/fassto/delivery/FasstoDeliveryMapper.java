@@ -29,6 +29,20 @@ public class FasstoDeliveryMapper {
         return mapper;
     }
 
+    public static FasstoDeliveryMapper update(
+            String customerCode,
+            String accessToken,
+            List<FasstoDeliveryItemMapper> deliveryRequests
+    ) {
+        FasstoDeliveryMapper mapper = FasstoDeliveryMapper.builder()
+                .customerCode(customerCode)
+                .accessToken(accessToken)
+                .deliveryRequests(deliveryRequests)
+                .build();
+        mapper.validate();
+        return mapper;
+    }
+
     public List<Map<String, Object>> toPayload() {
         return deliveryRequests.stream()
                 .map(FasstoDeliveryItemMapper::toPayload)

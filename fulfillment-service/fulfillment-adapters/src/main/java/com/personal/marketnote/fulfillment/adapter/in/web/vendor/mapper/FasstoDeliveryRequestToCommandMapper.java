@@ -1,10 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.in.web.vendor.mapper;
 
-import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.CancelFasstoDeliveryRequest;
-import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryCarRequest;
-import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryGoodsRequest;
-import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryRequest;
-import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.UpdateFasstoDeliveryCarRequest;
+import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 
 import java.util.List;
@@ -20,6 +16,18 @@ public class FasstoDeliveryRequestToCommandMapper {
                 .toList();
 
         return RegisterFasstoDeliveryCommand.of(customerCode, accessToken, deliveryRequests);
+    }
+
+    public static UpdateFasstoDeliveryCommand mapToUpdateCommand(
+            String customerCode,
+            String accessToken,
+            List<UpdateFasstoDeliveryRequest> request
+    ) {
+        List<UpdateFasstoDeliveryItemCommand> deliveryRequests = request.stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapUpdateItem)
+                .toList();
+
+        return UpdateFasstoDeliveryCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static RegisterFasstoDeliveryCarCommand mapToRegisterCarCommand(
@@ -111,6 +119,30 @@ public class FasstoDeliveryRequestToCommandMapper {
                 .toList();
 
         return RegisterFasstoDeliveryItemCommand.builder()
+                .ordDt(item.getOrdDt())
+                .ordNo(item.getOrdNo())
+                .ordSeq(item.getOrdSeq())
+                .slipNo(item.getSlipNo())
+                .custNm(item.getCustNm())
+                .custTelNo(item.getCustTelNo())
+                .custAddr(item.getCustAddr())
+                .outWay(item.getOutWay())
+                .sendNm(item.getSendNm())
+                .sendTelNo(item.getSendTelNo())
+                .salChanel(item.getSalChanel())
+                .shipReqTerm(item.getShipReqTerm())
+                .godCds(goods)
+                .oneDayDeliveryCd(item.getOneDayDeliveryCd())
+                .remark(item.getRemark())
+                .build();
+    }
+
+    private static UpdateFasstoDeliveryItemCommand mapUpdateItem(UpdateFasstoDeliveryRequest item) {
+        List<RegisterFasstoDeliveryGoodsCommand> goods = item.getGodCds().stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapGoods)
+                .toList();
+
+        return UpdateFasstoDeliveryItemCommand.builder()
                 .ordDt(item.getOrdDt())
                 .ordNo(item.getOrdNo())
                 .ordSeq(item.getOrdSeq())

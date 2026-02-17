@@ -37,7 +37,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 @VendorAdapter
 @RequiredArgsConstructor
 @Slf4j
-public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, RegisterFasstoDeliveryCarPort, UpdateFasstoDeliveryCarPort, GetFasstoDeliveriesPort, GetFasstoDeliveryStatusesPort, GetFasstoDeliveryDetailPort, GetFasstoDeliveryOutOrdGoodsDetailPort, CancelFasstoDeliveryPort {
+public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, UpdateFasstoDeliveryPort, RegisterFasstoDeliveryCarPort, UpdateFasstoDeliveryCarPort, GetFasstoDeliveriesPort, GetFasstoDeliveryStatusesPort, GetFasstoDeliveryDetailPort, GetFasstoDeliveryOutOrdGoodsDetailPort, CancelFasstoDeliveryPort {
     private static final String ACCESS_TOKEN_HEADER = "accessToken";
     private static final String CUSTOMER_CODE_PLACEHOLDER = "{customerCode}";
 
@@ -50,7 +50,13 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, Registe
 
     @Override
     public RegisterFasstoDeliveryResult registerDelivery(FasstoDeliveryMapper request) {
-        RegisterFasstoDeliveryResponse response = executeDeliveryRegistration(request, "REGISTER");
+        RegisterFasstoDeliveryResponse response = executeDeliveryMutation(request, "REGISTER", HttpMethod.POST, false);
+        return mapDeliveryResult(response);
+    }
+
+    @Override
+    public RegisterFasstoDeliveryResult updateDelivery(FasstoDeliveryMapper request) {
+        RegisterFasstoDeliveryResponse response = executeDeliveryMutation(request, "UPDATE", HttpMethod.PATCH, true);
         return mapDeliveryResult(response);
     }
 
@@ -540,9 +546,11 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, Registe
         throw new GetFasstoDeliveryDetailFailedException(failureMessage, new IOException(error));
     }
 
-    private RegisterFasstoDeliveryResponse executeDeliveryRegistration(
+    private RegisterFasstoDeliveryResponse executeDeliveryMutation(
             FasstoDeliveryMapper request,
-            String action
+            String action,
+            HttpMethod method,
+            boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
             throw new IllegalArgumentException("Fassto delivery request is required.");
@@ -569,7 +577,7 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, Registe
             try {
                 response = restTemplate.exchange(
                         uri,
-                        HttpMethod.POST,
+                        method,
                         httpEntity,
                         String.class
                 );
@@ -671,6 +679,9 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, Registe
                 error
         );
 
+        if (isUpdate) {
+            throw new UpdateFasstoDeliveryFailedException(failureMessage, new IOException(error));
+        }
         throw new RegisterFasstoDeliveryFailedException(failureMessage, new IOException(error));
     }
 
