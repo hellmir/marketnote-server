@@ -23,6 +23,7 @@ public class FasstoAuthProperties {
     private String warehousingPath = "/api/v1/warehousing/{customerCode}";
     private String warehousingListPath = "/api/v1/warehousing/{customerCode}/{startDate}/{endDate}";
     private String warehousingDetailPath = "/api/v1/warehousing/detail/{customerCode}/{slipNo}";
+    private String warehousingInspecDetailPath = "/api/v1/warehousing/inspec/{customerCode}/{slipNo}/{whCd}";
     private String warehousingAbnormalPath = "/api/v1/warehousing/abnormal/{customerCode}/{whCd}/{slipNo}";
     private String warehousingAbnormalImagePath = "/api/v1/warehousing/{slipNo}/{godCd}/{goodsSerialNo}/{fileSeq}/{imgNo}";
     private String deliveryPath = "/api/v1/delivery/parcel/{customerCode}";
