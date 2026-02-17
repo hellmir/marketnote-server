@@ -69,6 +69,7 @@ vendor:
       delivery-detail-path: ${FASSTO_DELIVERY_DETAIL_PATH:/api/v1/delivery/detail/{customerCode}/{slipNo}}
       delivery-cancel-path: ${FASSTO_DELIVERY_CANCEL_PATH:/api/v1/delivery/cancel/{customerCode}}
       delivery-out-ord-goods-detail-path: ${FASSTO_DELIVERY_OUT_ORD_GOODS_DETAIL_PATH:/api/v1/delivery/outOrd/goodsDetail/{customerCode}}
+      delivery-out-ord-goods-ord-no-path: ${FASSTO_DELIVERY_OUT_ORD_GOODS_ORD_NO_PATH:/api/v1/delivery/outOrd/ordNo/{customerCode}/{startDate}/{endDate}}
       stock-list-path: ${FASSTO_STOCK_LIST_PATH:/api/v1/stock/list/{customerCode}}
       settlement-daily-cost-path: ${FASSTO_SETTLEMENT_DAILY_COST_PATH:/api/v1/settlement/{yearMonth}/{whCd}/{customerCode}}
       api-cd: ${FASSTO_API_CD:change-me}
