@@ -4,6 +4,7 @@ import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.CancelF
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryCarRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryGoodsRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryRequest;
+import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.UpdateFasstoDeliveryCarRequest;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 
 import java.util.List;
@@ -31,6 +32,18 @@ public class FasstoDeliveryRequestToCommandMapper {
                 .toList();
 
         return RegisterFasstoDeliveryCarCommand.of(customerCode, accessToken, deliveryRequests);
+    }
+
+    public static UpdateFasstoDeliveryCarCommand mapToUpdateCarCommand(
+            String customerCode,
+            String accessToken,
+            List<UpdateFasstoDeliveryCarRequest> request
+    ) {
+        List<UpdateFasstoDeliveryCarItemCommand> deliveryRequests = request.stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapUpdateCarItem)
+                .toList();
+
+        return UpdateFasstoDeliveryCarCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static GetFasstoDeliveriesCommand mapToDeliveriesCommand(
@@ -122,6 +135,22 @@ public class FasstoDeliveryRequestToCommandMapper {
                 .toList();
 
         return RegisterFasstoDeliveryCarItemCommand.builder()
+                .ordDt(item.getOrdDt())
+                .ordNo(item.getOrdNo())
+                .slipNo(item.getSlipNo())
+                .outWay(item.getOutWay())
+                .cstShopCd(item.getCstShopCd())
+                .godCds(goods)
+                .remark(item.getRemark())
+                .build();
+    }
+
+    private static UpdateFasstoDeliveryCarItemCommand mapUpdateCarItem(UpdateFasstoDeliveryCarRequest item) {
+        List<RegisterFasstoDeliveryGoodsCommand> goods = item.getGodCds().stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapGoods)
+                .toList();
+
+        return UpdateFasstoDeliveryCarItemCommand.builder()
                 .ordDt(item.getOrdDt())
                 .ordNo(item.getOrdNo())
                 .slipNo(item.getSlipNo())
