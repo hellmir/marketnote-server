@@ -6,6 +6,7 @@ import com.personal.marketnote.fulfillment.adapter.in.web.vendor.mapper.FasstoDe
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.CancelFasstoDeliveryRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryCarRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryRequest;
+import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.UpdateFasstoDeliveryCarRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.response.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.*;
@@ -29,6 +30,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class FasstoDeliveryController {
     private final RegisterFasstoDeliveryUseCase registerFasstoDeliveryUseCase;
     private final RegisterFasstoDeliveryCarUseCase registerFasstoDeliveryCarUseCase;
+    private final UpdateFasstoDeliveryCarUseCase updateFasstoDeliveryCarUseCase;
     private final GetFasstoDeliveriesUseCase getFasstoDeliveriesUseCase;
     private final GetFasstoDeliveryStatusesUseCase getFasstoDeliveryStatusesUseCase;
     private final GetFasstoDeliveryDetailUseCase getFasstoDeliveryDetailUseCase;
@@ -98,6 +100,39 @@ public class FasstoDeliveryController {
                         "파스토 출고 등록(차량) 성공"
                 ),
                 HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * (관리자) 파스토 출고 수정(차량) 요청
+     *
+     * @param customerCode 파스토 고객사 코드
+     * @param accessToken  파스토 액세스 토큰
+     * @param request      출고 수정(차량) 요청 정보
+     * @Author 성효빈
+     * @Date 2026-02-17
+     * @Description 파스토 출고 수정(차량)을 요청합니다.
+     */
+    @PatchMapping("/car/{customerCode}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @UpdateFasstoDeliveryCarApiDocs
+    public ResponseEntity<BaseResponse<RegisterFasstoDeliveryResponse>> updateDeliveryCar(
+            @PathVariable String customerCode,
+            @RequestHeader("accessToken") String accessToken,
+            @Valid @RequestBody List<UpdateFasstoDeliveryCarRequest> request
+    ) {
+        RegisterFasstoDeliveryResult result = updateFasstoDeliveryCarUseCase.updateDeliveryCar(
+                FasstoDeliveryRequestToCommandMapper.mapToUpdateCarCommand(customerCode, accessToken, request)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        RegisterFasstoDeliveryResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "파스토 출고 수정(차량) 성공"
+                ),
+                HttpStatus.OK
         );
     }
 

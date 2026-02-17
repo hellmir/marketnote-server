@@ -42,6 +42,28 @@ public class FasstoDeliveryCarItemMapper {
         return mapper;
     }
 
+    public static FasstoDeliveryCarItemMapper update(
+            String ordDt,
+            String ordNo,
+            String slipNo,
+            String outWay,
+            String cstShopCd,
+            List<FasstoDeliveryGoodsMapper> godCds,
+            String remark
+    ) {
+        FasstoDeliveryCarItemMapper mapper = FasstoDeliveryCarItemMapper.builder()
+                .ordDt(ordDt)
+                .ordNo(ordNo)
+                .slipNo(slipNo)
+                .outWay(outWay)
+                .cstShopCd(cstShopCd)
+                .godCds(godCds)
+                .remark(remark)
+                .build();
+        mapper.validateForUpdate();
+        return mapper;
+    }
+
     public Map<String, Object> toPayload() {
         Map<String, Object> payload = new LinkedHashMap<>();
         putIfHasValue(payload, "ordDt", ordDt);
@@ -73,6 +95,13 @@ public class FasstoDeliveryCarItemMapper {
         }
         if (FormatValidator.hasNoValue(godCds)) {
             throw new IllegalArgumentException("godCds is required for delivery car request.");
+        }
+    }
+
+    private void validateForUpdate() {
+        validate();
+        if (FormatValidator.hasNoValue(slipNo)) {
+            throw new IllegalArgumentException("slipNo is required for delivery car update request.");
         }
     }
 
