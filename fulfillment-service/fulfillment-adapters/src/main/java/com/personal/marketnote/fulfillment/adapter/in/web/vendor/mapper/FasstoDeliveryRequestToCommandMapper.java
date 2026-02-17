@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.in.web.vendor.mapper;
 
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.CancelFasstoDeliveryRequest;
+import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryCarRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryGoodsRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryRequest;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
@@ -18,6 +19,18 @@ public class FasstoDeliveryRequestToCommandMapper {
                 .toList();
 
         return RegisterFasstoDeliveryCommand.of(customerCode, accessToken, deliveryRequests);
+    }
+
+    public static RegisterFasstoDeliveryCarCommand mapToRegisterCarCommand(
+            String customerCode,
+            String accessToken,
+            List<RegisterFasstoDeliveryCarRequest> request
+    ) {
+        List<RegisterFasstoDeliveryCarItemCommand> deliveryRequests = request.stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapCarItem)
+                .toList();
+
+        return RegisterFasstoDeliveryCarCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
     public static GetFasstoDeliveriesCommand mapToDeliveriesCommand(
@@ -99,6 +112,22 @@ public class FasstoDeliveryRequestToCommandMapper {
                 .shipReqTerm(item.getShipReqTerm())
                 .godCds(goods)
                 .oneDayDeliveryCd(item.getOneDayDeliveryCd())
+                .remark(item.getRemark())
+                .build();
+    }
+
+    private static RegisterFasstoDeliveryCarItemCommand mapCarItem(RegisterFasstoDeliveryCarRequest item) {
+        List<RegisterFasstoDeliveryGoodsCommand> goods = item.getGodCds().stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapGoods)
+                .toList();
+
+        return RegisterFasstoDeliveryCarItemCommand.builder()
+                .ordDt(item.getOrdDt())
+                .ordNo(item.getOrdNo())
+                .slipNo(item.getSlipNo())
+                .outWay(item.getOutWay())
+                .cstShopCd(item.getCstShopCd())
+                .godCds(goods)
                 .remark(item.getRemark())
                 .build();
     }

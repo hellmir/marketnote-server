@@ -71,6 +71,18 @@ public class FasstoDeliveryCommandToRequestMapper {
         );
     }
 
+    public static FasstoDeliveryCarMapper mapToRegisterCarRequest(RegisterFasstoDeliveryCarCommand command) {
+        List<FasstoDeliveryCarItemMapper> deliveryRequests = command.deliveryRequests().stream()
+                .map(FasstoDeliveryCommandToRequestMapper::mapCarItem)
+                .toList();
+
+        return FasstoDeliveryCarMapper.register(
+                command.customerCode(),
+                command.accessToken(),
+                deliveryRequests
+        );
+    }
+
     private static FasstoDeliveryItemMapper mapItem(RegisterFasstoDeliveryItemCommand item) {
         List<FasstoDeliveryGoodsMapper> goods = item.godCds().stream()
                 .map(FasstoDeliveryCommandToRequestMapper::mapGoods)
@@ -91,6 +103,22 @@ public class FasstoDeliveryCommandToRequestMapper {
                 item.shipReqTerm(),
                 goods,
                 item.oneDayDeliveryCd(),
+                item.remark()
+        );
+    }
+
+    private static FasstoDeliveryCarItemMapper mapCarItem(RegisterFasstoDeliveryCarItemCommand item) {
+        List<FasstoDeliveryGoodsMapper> goods = item.godCds().stream()
+                .map(FasstoDeliveryCommandToRequestMapper::mapGoods)
+                .toList();
+
+        return FasstoDeliveryCarItemMapper.of(
+                item.ordDt(),
+                item.ordNo(),
+                item.slipNo(),
+                item.outWay(),
+                item.cstShopCd(),
+                goods,
                 item.remark()
         );
     }
