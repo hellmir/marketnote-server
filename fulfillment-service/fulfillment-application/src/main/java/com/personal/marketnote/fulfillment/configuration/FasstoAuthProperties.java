@@ -33,6 +33,7 @@ public class FasstoAuthProperties {
     private String deliveryDetailPath = "/api/v1/delivery/detail/{customerCode}/{slipNo}";
     private String deliveryCancelPath = "/api/v1/delivery/cancel/{customerCode}";
     private String deliveryOutOrdGoodsDetailPath = "/api/v1/delivery/outOrd/goodsDetail/{customerCode}";
+    private String deliveryOutOrdGoodsByOrdNoPath = "/api/v1/delivery/outOrd/ordNo/{customerCode}/{startDate}/{endDate}";
     private String stockListPath = "/api/v1/stock/list/{customerCode}";
     private String settlementDailyCostPath = "/api/v1/settlement/{yearMonth}/{whCd}/{customerCode}";
 }
