@@ -61,6 +61,17 @@ public class FasstoWarehousingCommandToRequestMapper {
         );
     }
 
+    public static FasstoWarehousingInspecDetailQuery mapToInspecDetailQuery(
+            GetFasstoWarehousingInspecDetailCommand command
+    ) {
+        return FasstoWarehousingInspecDetailQuery.of(
+                command.customerCode(),
+                command.accessToken(),
+                command.slipNo(),
+                command.whCd()
+        );
+    }
+
     public static FasstoWarehousingMapper mapToUpdateRequest(UpdateFasstoWarehousingCommand command) {
         List<FasstoWarehousingItemMapper> requests = command.warehousingRequests().stream()
                 .map(FasstoWarehousingCommandToRequestMapper::mapUpdateItem)

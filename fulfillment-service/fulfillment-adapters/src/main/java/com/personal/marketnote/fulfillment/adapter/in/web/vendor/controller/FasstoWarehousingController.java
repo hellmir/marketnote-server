@@ -29,6 +29,7 @@ public class FasstoWarehousingController {
     private final RegisterFasstoWarehousingUseCase registerFasstoWarehousingUseCase;
     private final GetFasstoWarehousingUseCase getFasstoWarehousingUseCase;
     private final GetFasstoWarehousingDetailUseCase getFasstoWarehousingDetailUseCase;
+    private final GetFasstoWarehousingInspecDetailUseCase getFasstoWarehousingInspecDetailUseCase;
     private final GetFasstoWarehousingAbnormalUseCase getFasstoWarehousingAbnormalUseCase;
     private final GetFasstoWarehousingAbnormalImageUseCase getFasstoWarehousingAbnormalImageUseCase;
     private final UpdateFasstoWarehousingUseCase updateFasstoWarehousingUseCase;
@@ -150,6 +151,46 @@ public class FasstoWarehousingController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "파스토 상품 입고 상세 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 파스토 입고 검수 상세 조회
+     *
+     * @param customerCode 파스토 고객사 코드
+     * @param slipNo       파스토 입고요청번호
+     * @param whCd         센터
+     * @param accessToken  파스토 액세스 토큰
+     * @Author 성효빈
+     * @Date 2026-02-17
+     * @Description 파스토 입고 검수 상세 정보를 조회합니다.
+     */
+    @GetMapping("/inspec/{customerCode}/{slipNo}/{whCd}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetFasstoWarehousingInspecDetailApiDocs
+    public ResponseEntity<BaseResponse<GetFasstoWarehousingInspecDetailResponse>> getWarehousingInspecDetail(
+            @PathVariable String customerCode,
+            @PathVariable String slipNo,
+            @PathVariable String whCd,
+            @RequestHeader("accessToken") String accessToken
+    ) {
+        GetFasstoWarehousingInspecDetailResult result = getFasstoWarehousingInspecDetailUseCase.getWarehousingInspecDetail(
+                FasstoWarehousingRequestToCommandMapper.mapToWarehousingInspecDetailCommand(
+                        customerCode,
+                        accessToken,
+                        slipNo,
+                        whCd
+                )
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetFasstoWarehousingInspecDetailResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "파스토 입고 검수 상세 조회 성공"
                 ),
                 HttpStatus.OK
         );
