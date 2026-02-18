@@ -15,6 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -189,6 +192,195 @@ class RegisterInventoryUseCaseTest {
                     .isSameAs(exception);
 
             verify(saveInventoryPort).save(any(Inventory.class));
+        }
+    }
+
+    // ==================================================================================
+    // registerInventories (다건 등록)
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("registerInventories (다건 등록)")
+    class RegisterInventoriesTest {
+
+        @Test
+        @DisplayName("복수 재고 등록 시 커맨드에 해당하는 재고를 모두 저장한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_success_savesAllInventories() {
+            Set<RegisterInventoryCommand> commands = new LinkedHashSet<>();
+            commands.add(RegisterInventoryCommand.of(1L, 100L));
+            commands.add(RegisterInventoryCommand.of(2L, 200L));
+            commands.add(RegisterInventoryCommand.of(3L, 300L));
+
+            Set<Inventory> result = registerInventoryService.registerInventories(commands);
+
+            ArgumentCaptor<Set<Inventory>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(saveInventoryPort).save(captor.capture());
+            Set<Inventory> saved = captor.getValue();
+
+            assertThat(saved).hasSize(3);
+            assertThat(saved).extracting(Inventory::getProductId).containsExactlyInAnyOrder(1L, 2L, 3L);
+            assertThat(saved).extracting(Inventory::getPricePolicyId).containsExactlyInAnyOrder(100L, 200L, 300L);
+            assertThat(saved).allMatch(inv -> inv.getStockValue() == 0);
+        }
+
+        @Test
+        @DisplayName("복수 재고 등록 시 캐시에 재고를 저장한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_success_savesCacheForAll() {
+            Set<RegisterInventoryCommand> commands = new LinkedHashSet<>();
+            commands.add(RegisterInventoryCommand.of(10L, 1000L));
+            commands.add(RegisterInventoryCommand.of(20L, 2000L));
+
+            registerInventoryService.registerInventories(commands);
+
+            ArgumentCaptor<Set<Inventory>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(saveCacheStockPort).save(captor.capture());
+            Set<Inventory> cached = captor.getValue();
+
+            assertThat(cached).hasSize(2);
+            assertThat(cached).extracting(Inventory::getPricePolicyId).containsExactlyInAnyOrder(1000L, 2000L);
+        }
+
+        @Test
+        @DisplayName("복수 재고 등록 시 생성된 재고 목록을 반환한다")
+        void registerInventories_success_returnsCreatedInventories() {
+            Set<RegisterInventoryCommand> commands = new LinkedHashSet<>();
+            commands.add(RegisterInventoryCommand.of(11L, 1100L));
+            commands.add(RegisterInventoryCommand.of(12L, 1200L));
+
+            Set<Inventory> result = registerInventoryService.registerInventories(commands);
+
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(Inventory::getProductId).containsExactlyInAnyOrder(11L, 12L);
+            assertThat(result).extracting(Inventory::getPricePolicyId).containsExactlyInAnyOrder(1100L, 1200L);
+            assertThat(result).allMatch(inv -> inv.getStockValue() == 0);
+        }
+
+        @Test
+        @DisplayName("복수 재고 등록 시 재고 저장 -> 캐시 저장 순서로 호출한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_success_callsPortsInOrder() {
+            Set<RegisterInventoryCommand> commands = Set.of(
+                    RegisterInventoryCommand.of(13L, 1300L)
+            );
+
+            registerInventoryService.registerInventories(commands);
+
+            var inOrder = inOrder(saveInventoryPort, saveCacheStockPort);
+            inOrder.verify(saveInventoryPort).save(any(Set.class));
+            inOrder.verify(saveCacheStockPort).save(any(Set.class));
+            inOrder.verifyNoMoreInteractions();
+        }
+
+        @Test
+        @DisplayName("복수 재고 등록 시 중복 확인 없이 바로 저장한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_doesNotCheckDuplicates() {
+            Set<RegisterInventoryCommand> commands = Set.of(
+                    RegisterInventoryCommand.of(14L, 1400L)
+            );
+
+            registerInventoryService.registerInventories(commands);
+
+            verifyNoInteractions(findInventoryPort);
+            verify(saveInventoryPort).save(any(Set.class));
+        }
+
+        @Test
+        @DisplayName("하나의 커맨드로 복수 재고 등록 시 단일 재고를 저장하고 반환한다")
+        void registerInventories_singleCommand_savesSingleInventory() {
+            Set<RegisterInventoryCommand> commands = Set.of(
+                    RegisterInventoryCommand.of(15L, 1500L)
+            );
+
+            Set<Inventory> result = registerInventoryService.registerInventories(commands);
+
+            assertThat(result).hasSize(1);
+
+            Inventory inventory = result.iterator().next();
+            assertThat(inventory.getProductId()).isEqualTo(15L);
+            assertThat(inventory.getPricePolicyId()).isEqualTo(1500L);
+            assertThat(inventory.getStockValue()).isEqualTo(0);
+        }
+
+        @Test
+        @DisplayName("빈 커맨드 목록으로 복수 재고 등록 시 빈 목록을 저장하고 반환한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_emptyCommands_savesEmptyAndReturnsEmpty() {
+            Set<RegisterInventoryCommand> commands = Set.of();
+
+            Set<Inventory> result = registerInventoryService.registerInventories(commands);
+
+            assertThat(result).isEmpty();
+
+            ArgumentCaptor<Set<Inventory>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(saveInventoryPort).save(captor.capture());
+            assertThat(captor.getValue()).isEmpty();
+
+            verify(saveCacheStockPort).save(captor.capture());
+            assertThat(captor.getValue()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("productId가 null인 커맨드를 포함하여 복수 재고 등록 시 null productId 재고도 저장한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_nullProductId_savesWithNullProductId() {
+            Set<RegisterInventoryCommand> commands = new LinkedHashSet<>();
+            commands.add(RegisterInventoryCommand.of(1600L));
+            commands.add(RegisterInventoryCommand.of(17L, 1700L));
+
+            Set<Inventory> result = registerInventoryService.registerInventories(commands);
+
+            assertThat(result).hasSize(2);
+
+            Inventory nullProductIdInventory = result.stream()
+                    .filter(inv -> inv.getPricePolicyId().equals(1600L))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(nullProductIdInventory.getProductId()).isNull();
+            assertThat(nullProductIdInventory.getStockValue()).isEqualTo(0);
+
+            Inventory withProductIdInventory = result.stream()
+                    .filter(inv -> inv.getPricePolicyId().equals(1700L))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(withProductIdInventory.getProductId()).isEqualTo(17L);
+            assertThat(withProductIdInventory.getStockValue()).isEqualTo(0);
+        }
+
+        @Test
+        @DisplayName("복수 재고 저장 중 예외 발생 시 예외를 전파한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_saveInventoryFails_propagates() {
+            Set<RegisterInventoryCommand> commands = Set.of(
+                    RegisterInventoryCommand.of(18L, 1800L)
+            );
+            RuntimeException exception = new RuntimeException("batch save fail");
+
+            doThrow(exception).when(saveInventoryPort).save(any(Set.class));
+
+            assertThatThrownBy(() -> registerInventoryService.registerInventories(commands))
+                    .isSameAs(exception);
+
+            verifyNoInteractions(saveCacheStockPort);
+        }
+
+        @Test
+        @DisplayName("복수 재고 캐시 저장 중 예외 발생 시 예외를 전파한다")
+        @SuppressWarnings("unchecked")
+        void registerInventories_saveCacheFails_propagates() {
+            Set<RegisterInventoryCommand> commands = Set.of(
+                    RegisterInventoryCommand.of(19L, 1900L)
+            );
+            RuntimeException exception = new RuntimeException("batch cache fail");
+
+            doThrow(exception).when(saveCacheStockPort).save(any(Set.class));
+
+            assertThatThrownBy(() -> registerInventoryService.registerInventories(commands))
+                    .isSameAs(exception);
+
+            verify(saveInventoryPort).save(any(Set.class));
         }
     }
 }
