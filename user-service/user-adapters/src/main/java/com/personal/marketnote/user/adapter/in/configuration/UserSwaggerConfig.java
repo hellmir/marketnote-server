@@ -36,6 +36,7 @@ public class UserSwaggerConfig {
             "회원 관리자 API",
             "회원 API",
             "회원 약관 API",
+            "배송지 API",
             "서버 정보 API"
     );
 
