@@ -157,6 +157,15 @@ public class FasstoDeliveryRequestToCommandMapper {
         );
     }
 
+    public static CompleteFasstoDeliveryIcsCommand mapToIcsCompletionCommand(
+            String customerCode,
+            String accessToken,
+            CompleteFasstoDeliveryIcsRequest request
+    ) {
+        CompleteFasstoDeliveryIcsItemCommand itemCommand = CompleteFasstoDeliveryIcsItemCommand.of(request.getOrdNoList());
+        return CompleteFasstoDeliveryIcsCommand.of(customerCode, accessToken, List.of(itemCommand));
+    }
+
     private static RegisterFasstoDeliveryItemCommand mapItem(RegisterFasstoDeliveryRequest item) {
         List<RegisterFasstoDeliveryGoodsCommand> goods = item.getGodCds().stream()
                 .map(FasstoDeliveryRequestToCommandMapper::mapGoods)

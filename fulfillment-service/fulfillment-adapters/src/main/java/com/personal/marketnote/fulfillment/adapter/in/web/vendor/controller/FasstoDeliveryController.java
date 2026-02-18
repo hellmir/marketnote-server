@@ -37,6 +37,7 @@ public class FasstoDeliveryController {
     private final GetFasstoDeliveryOutOrdGoodsByOrdNoUseCase getFasstoDeliveryOutOrdGoodsByOrdNoUseCase;
     private final GetFasstoDeliveryGoodDetailUseCase getFasstoDeliveryGoodDetailUseCase;
     private final CancelFasstoDeliveryUseCase cancelFasstoDeliveryUseCase;
+    private final CompleteFasstoDeliveryIcsUseCase completeFasstoDeliveryIcsUseCase;
 
     /**
      * (관리자) 파스토 출고 등록 요청
@@ -482,6 +483,39 @@ public class FasstoDeliveryController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "파스토 출고 상품 상세 목록 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 파스토 배송완료 처리(해외)
+     *
+     * @param customerCode 파스토 고객사 코드
+     * @param accessToken  파스토 액세스 토큰
+     * @param request      배송완료 처리 요청 정보
+     * @Author 성효빈
+     * @Date 2026-02-18
+     * @Description 파스토 해외(ICS) 배송완료 처리를 요청합니다.
+     */
+    @PatchMapping("/ics/completed/{customerCode}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @CompleteFasstoDeliveryIcsApiDocs
+    public ResponseEntity<BaseResponse<CompleteFasstoDeliveryIcsResponse>> completeDeliveryIcs(
+            @PathVariable String customerCode,
+            @RequestHeader("accessToken") String accessToken,
+            @Valid @RequestBody CompleteFasstoDeliveryIcsRequest request
+    ) {
+        CompleteFasstoDeliveryIcsResult result = completeFasstoDeliveryIcsUseCase.completeDeliveryIcs(
+                FasstoDeliveryRequestToCommandMapper.mapToIcsCompletionCommand(customerCode, accessToken, request)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        CompleteFasstoDeliveryIcsResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "파스토 배송완료 처리(해외) 성공"
                 ),
                 HttpStatus.OK
         );
