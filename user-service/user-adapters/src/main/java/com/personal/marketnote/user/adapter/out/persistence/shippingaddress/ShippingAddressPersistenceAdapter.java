@@ -1,0 +1,44 @@
+package com.personal.marketnote.user.adapter.out.persistence.shippingaddress;
+
+import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.user.adapter.out.mapper.ShippingAddressJpaEntityToDomainMapper;
+import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.entity.ShippingAddressJpaEntity;
+import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.repository.ShippingAddressJpaRepository;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
+import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
+import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
+import lombok.RequiredArgsConstructor;
+
+@PersistenceAdapter
+@RequiredArgsConstructor
+public class ShippingAddressPersistenceAdapter implements FindShippingAddressPort, SaveShippingAddressPort {
+    private final ShippingAddressJpaRepository shippingAddressJpaRepository;
+
+    @Override
+    public ShippingAddress save(ShippingAddress shippingAddress) {
+        ShippingAddressJpaEntity entity = ShippingAddressJpaEntity.from(shippingAddress);
+        ShippingAddressJpaEntity savedEntity = shippingAddressJpaRepository.save(entity);
+        return ShippingAddressJpaEntityToDomainMapper.mapToDomain(savedEntity);
+    }
+
+    @Override
+    public boolean existsByUserIdAndAddressType(Long userId, ShippingAddressType addressType) {
+        return shippingAddressJpaRepository.existsByUserIdAndAddressTypeAndStatus(
+                userId, addressType, EntityStatus.ACTIVE
+        );
+    }
+
+    @Override
+    public long countByUserIdAndAddressType(Long userId, ShippingAddressType addressType) {
+        return shippingAddressJpaRepository.countByUserIdAndAddressTypeAndStatus(
+                userId, addressType, EntityStatus.ACTIVE
+        );
+    }
+
+    @Override
+    public boolean existsByUserId(Long userId) {
+        return shippingAddressJpaRepository.existsByUserIdAndStatus(userId, EntityStatus.ACTIVE);
+    }
+}
