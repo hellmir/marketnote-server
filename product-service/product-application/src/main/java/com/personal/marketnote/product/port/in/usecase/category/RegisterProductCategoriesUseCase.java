@@ -5,7 +5,7 @@ import com.personal.marketnote.product.port.in.result.category.RegisterProductCa
 
 public interface RegisterProductCategoriesUseCase {
     /**
-     * @param userId 사용자 ID
+     * @param userId  사용자 ID
      * @param isAdmin 관리자 여부
      * @param command 상품 카테고리 등록 커맨드
      * @return 상품 카테고리 등록 결과 {@link RegisterProductCategoriesResult}
