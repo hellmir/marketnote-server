@@ -18,19 +18,19 @@ import java.lang.annotation.*;
         summary = "(관리자) 파스토 출고 상품 상세 목록 조회",
         description = """
                 작성일자: 2026-02-18
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 파스토 출고 상품의 상세 정보(금액, 배송유형 등)를 조회합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
                 | accessToken | header | string | 파스토 액세스 토큰 | Y | 039a797bf66d11f0be620ab49498ff55 |
@@ -38,11 +38,11 @@ import java.lang.annotation.*;
                 | startDate | path | string | 조회 시작일(YYYY-MM-DD) | Y | 2026-02-01 |
                 | endDate | path | string | 조회 종료일(YYYY-MM-DD) | Y | 2026-02-18 |
                 | ordNo | query | string | 고객사 주문번호 | N | ORDER-20260202 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 그 외 |
@@ -50,20 +50,20 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-02-18T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "파스토 출고 상품 상세 목록 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | dataCount | number | 조회 건수 | 1 |
                 | goodDetails | array | 출고 상품 상세 정보 | [ ... ] |
-
+                
                 ---
-
+                
                 ### Response > content > goodDetails
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | outDt | string | 출고일 | "2026-02-18" |

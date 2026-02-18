@@ -9,7 +9,7 @@ public interface RecordProductServiceCommunicationHistoryUseCase {
      * @return 상품 서비스 통신 기록 {@link ProductServiceCommunicationHistory}
      * @Date 2026-02-18
      * @Author 성효빈
-     * @Description 상품 서비스 통신 기록을 기록합니다.
+     * @Description 상품 서비스 통신 기록을 저장합니다.
      */
     ProductServiceCommunicationHistory record(ProductServiceCommunicationHistoryCommand command);
 }
