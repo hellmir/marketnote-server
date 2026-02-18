@@ -16,6 +16,7 @@
   <br>
 
 ## 📚 관련 URL
+- [CI/CD 파이프라인](https://hyobin-jenkins.duckdns.org/job/marketnote)
 - [회원 서비스](https://users.marketnote.store/swagger-ui/index.html)
 - [상품 서비스](https://products.marketnote.store/swagger-ui/index.html)
 - [커머스 서비스](https://commerce.marketnote.store/swagger-ui/index.html)
