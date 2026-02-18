@@ -254,6 +254,26 @@ public class FasstoDeliveryCommandToRequestMapper {
         );
     }
 
+    public static FasstoDeliveryIcsCompletionMapper mapToIcsCompletionRequest(
+            CompleteFasstoDeliveryIcsCommand command
+    ) {
+        List<FasstoDeliveryIcsCompletionItemMapper> completionRequests = command.completionRequests().stream()
+                .map(FasstoDeliveryCommandToRequestMapper::mapIcsCompletionItem)
+                .toList();
+
+        return FasstoDeliveryIcsCompletionMapper.of(
+                command.customerCode(),
+                command.accessToken(),
+                completionRequests
+        );
+    }
+
+    private static FasstoDeliveryIcsCompletionItemMapper mapIcsCompletionItem(
+            CompleteFasstoDeliveryIcsItemCommand item
+    ) {
+        return FasstoDeliveryIcsCompletionItemMapper.of(item.ordNoList());
+    }
+
     private static FasstoDeliveryCancelItemMapper mapCancelItem(CancelFasstoDeliveryItemCommand item) {
         return FasstoDeliveryCancelItemMapper.of(
                 item.slipNo(),
