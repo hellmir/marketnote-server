@@ -44,4 +44,23 @@ class DeleteCartProductUseCaseTest {
         assertThatThrownBy(() -> deleteCartProductService.deleteCartProducts(command))
                 .isSameAs(exception);
     }
+
+    @Test
+    @DisplayName("장바구니 비우기 시 사용자 ID로 삭제를 요청한다")
+    void deleteAllCartProducts_deletesByUserId() {
+        deleteCartProductService.deleteAllCartProducts(10L);
+
+        verify(deleteCartProductPort).deleteAll(10L);
+    }
+
+    @Test
+    @DisplayName("장바구니 비우기 시 삭제 요청에 실패하면 예외를 전파한다")
+    void deleteAllCartProducts_deleteFails_propagates() {
+        RuntimeException exception = new RuntimeException("delete all fail");
+
+        doThrow(exception).when(deleteCartProductPort).deleteAll(20L);
+
+        assertThatThrownBy(() -> deleteCartProductService.deleteAllCartProducts(20L))
+                .isSameAs(exception);
+    }
 }
