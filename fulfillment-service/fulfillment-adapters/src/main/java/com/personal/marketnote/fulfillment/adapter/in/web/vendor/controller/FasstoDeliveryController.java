@@ -35,6 +35,7 @@ public class FasstoDeliveryController {
     private final GetFasstoDeliveryDetailUseCase getFasstoDeliveryDetailUseCase;
     private final GetFasstoDeliveryOutOrdGoodsDetailUseCase getFasstoDeliveryOutOrdGoodsDetailUseCase;
     private final GetFasstoDeliveryOutOrdGoodsByOrdNoUseCase getFasstoDeliveryOutOrdGoodsByOrdNoUseCase;
+    private final GetFasstoDeliveryGoodDetailUseCase getFasstoDeliveryGoodDetailUseCase;
     private final CancelFasstoDeliveryUseCase cancelFasstoDeliveryUseCase;
 
     /**
@@ -438,6 +439,49 @@ public class FasstoDeliveryController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "파스토 주문번호 기반 출고중 상품 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 파스토 출고 상품 상세 목록 조회
+     *
+     * @param customerCode 파스토 고객사 코드
+     * @param startDate    조회 시작일(YYYY-MM-DD)
+     * @param endDate      조회 종료일(YYYY-MM-DD)
+     * @param accessToken  파스토 액세스 토큰
+     * @param ordNo        고객사 주문번호
+     * @Author 성효빈
+     * @Date 2026-02-18
+     * @Description 파스토 출고 상품의 상세 정보(금액, 배송유형 등)를 조회합니다.
+     */
+    @GetMapping("/good-detail/{customerCode}/{startDate}/{endDate}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetFasstoDeliveryGoodDetailApiDocs
+    public ResponseEntity<BaseResponse<GetFasstoDeliveryGoodDetailResponse>> getDeliveryGoodDetail(
+            @PathVariable String customerCode,
+            @PathVariable String startDate,
+            @PathVariable String endDate,
+            @RequestHeader("accessToken") String accessToken,
+            @RequestParam(required = false) String ordNo
+    ) {
+        GetFasstoDeliveryGoodDetailResult result = getFasstoDeliveryGoodDetailUseCase.getDeliveryGoodDetail(
+                FasstoDeliveryRequestToCommandMapper.mapToDeliveryGoodDetailCommand(
+                        customerCode,
+                        accessToken,
+                        startDate,
+                        endDate,
+                        ordNo
+                )
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetFasstoDeliveryGoodDetailResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "파스토 출고 상품 상세 목록 조회 성공"
                 ),
                 HttpStatus.OK
         );

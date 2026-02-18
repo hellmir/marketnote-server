@@ -141,6 +141,22 @@ public class FasstoDeliveryRequestToCommandMapper {
         );
     }
 
+    public static GetFasstoDeliveryGoodDetailCommand mapToDeliveryGoodDetailCommand(
+            String customerCode,
+            String accessToken,
+            String startDate,
+            String endDate,
+            String ordNo
+    ) {
+        return GetFasstoDeliveryGoodDetailCommand.of(
+                customerCode,
+                accessToken,
+                startDate,
+                endDate,
+                ordNo
+        );
+    }
+
     private static RegisterFasstoDeliveryItemCommand mapItem(RegisterFasstoDeliveryRequest item) {
         List<RegisterFasstoDeliveryGoodsCommand> goods = item.getGodCds().stream()
                 .map(FasstoDeliveryRequestToCommandMapper::mapGoods)
