@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.user.exception.ExceptionMessage.USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 

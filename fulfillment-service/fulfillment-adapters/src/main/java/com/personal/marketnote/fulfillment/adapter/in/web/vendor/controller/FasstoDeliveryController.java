@@ -28,6 +28,7 @@ public class FasstoDeliveryController {
     private final RegisterFasstoDeliveryUseCase registerFasstoDeliveryUseCase;
     private final UpdateFasstoDeliveryUseCase updateFasstoDeliveryUseCase;
     private final RegisterFasstoDeliveryCarUseCase registerFasstoDeliveryCarUseCase;
+    private final RegisterFasstoDeliveryIcsUseCase registerFasstoDeliveryIcsUseCase;
     private final UpdateFasstoDeliveryCarUseCase updateFasstoDeliveryCarUseCase;
     private final GetFasstoDeliveriesUseCase getFasstoDeliveriesUseCase;
     private final GetFasstoDeliveryStatusesUseCase getFasstoDeliveryStatusesUseCase;
@@ -130,6 +131,39 @@ public class FasstoDeliveryController {
                         HttpStatus.CREATED,
                         DEFAULT_SUCCESS_CODE,
                         "파스토 출고 등록(차량) 성공"
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * (관리자) 파스토 출고 등록(해외) 요청
+     *
+     * @param customerCode 파스토 고객사 코드
+     * @param accessToken  파스토 액세스 토큰
+     * @param request      출고 등록(해외) 요청 정보
+     * @Author 성효빈
+     * @Date 2026-02-18
+     * @Description 파스토 출고 등록(해외)을 요청합니다.
+     */
+    @PostMapping("/ics/{customerCode}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @RegisterFasstoDeliveryIcsApiDocs
+    public ResponseEntity<BaseResponse<RegisterFasstoDeliveryResponse>> registerDeliveryIcs(
+            @PathVariable String customerCode,
+            @RequestHeader("accessToken") String accessToken,
+            @Valid @RequestBody List<RegisterFasstoDeliveryIcsRequest> request
+    ) {
+        RegisterFasstoDeliveryResult result = registerFasstoDeliveryIcsUseCase.registerDeliveryIcs(
+                FasstoDeliveryRequestToCommandMapper.mapToRegisterIcsCommand(customerCode, accessToken, request)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        RegisterFasstoDeliveryResponse.from(result),
+                        HttpStatus.CREATED,
+                        DEFAULT_SUCCESS_CODE,
+                        "파스토 출고 등록(해외) 성공"
                 ),
                 HttpStatus.CREATED
         );

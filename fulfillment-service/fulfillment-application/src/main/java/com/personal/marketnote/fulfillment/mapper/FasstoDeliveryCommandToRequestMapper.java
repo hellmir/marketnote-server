@@ -119,6 +119,18 @@ public class FasstoDeliveryCommandToRequestMapper {
         );
     }
 
+    public static FasstoDeliveryIcsMapper mapToRegisterIcsRequest(RegisterFasstoDeliveryIcsCommand command) {
+        List<FasstoDeliveryIcsItemMapper> deliveryRequests = command.deliveryRequests().stream()
+                .map(FasstoDeliveryCommandToRequestMapper::mapIcsItem)
+                .toList();
+
+        return FasstoDeliveryIcsMapper.register(
+                command.customerCode(),
+                command.accessToken(),
+                deliveryRequests
+        );
+    }
+
     private static FasstoDeliveryItemMapper mapItem(RegisterFasstoDeliveryItemCommand item) {
         List<FasstoDeliveryGoodsMapper> goods = item.godCds().stream()
                 .map(FasstoDeliveryCommandToRequestMapper::mapGoods)
@@ -204,6 +216,29 @@ public class FasstoDeliveryCommandToRequestMapper {
                 item.cstGodCd(),
                 item.distTermDt(),
                 item.ordQty()
+        );
+    }
+
+    private static FasstoDeliveryIcsItemMapper mapIcsItem(RegisterFasstoDeliveryIcsItemCommand item) {
+        List<FasstoDeliveryGoodsMapper> goods = item.godCds().stream()
+                .map(FasstoDeliveryCommandToRequestMapper::mapGoods)
+                .toList();
+
+        return FasstoDeliveryIcsItemMapper.of(
+                item.ordDt(),
+                item.ordNo(),
+                item.platform(),
+                item.logiCenter(),
+                item.invoiceNo(),
+                item.custNm(),
+                item.custTelNo(),
+                item.custAddr(),
+                item.sendNm(),
+                item.sendTelNo(),
+                item.salChanel(),
+                item.shipReqTerm(),
+                item.remark(),
+                goods
         );
     }
 

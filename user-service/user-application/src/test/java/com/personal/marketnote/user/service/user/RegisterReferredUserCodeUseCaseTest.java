@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.List;
 
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static com.personal.marketnote.user.exception.ExceptionMessage.USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

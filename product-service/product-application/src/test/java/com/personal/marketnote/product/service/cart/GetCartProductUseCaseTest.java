@@ -8,6 +8,8 @@ import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotSta
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.exception.CartProductNotFoundException;
+import com.personal.marketnote.product.port.in.result.cart.GetCartProductResult;
+import com.personal.marketnote.product.port.in.result.cart.GetMyCartProductsResult;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductInventoryUseCase;
 import com.personal.marketnote.product.port.out.cart.FindCartProductPort;
 import com.personal.marketnote.product.port.out.cart.FindCartProductsPort;
@@ -128,10 +130,10 @@ class GetCartProductUseCaseTest {
         when(getProductInventoryUseCase.getProductStocks(List.of(100L, 200L)))
                 .thenReturn(Map.of(100L, 5, 200L, 0));
 
-        var result = getCartProductService.getMyCartProducts(userId);
+        GetMyCartProductsResult result = getCartProductService.getMyCartProducts(userId);
 
         assertThat(result.cartProducts()).hasSize(2);
-        var first = result.cartProducts().getFirst();
+        GetCartProductResult first = result.cartProducts().getFirst();
         assertThat(first.pricePolicy().id()).isEqualTo(100L);
         assertThat(first.product().id()).isEqualTo(1L);
         assertThat(first.product().imageUrl()).isEqualTo("url-1");
@@ -139,7 +141,7 @@ class GetCartProductUseCaseTest {
         assertThat(first.stock()).isEqualTo(5);
         assertThat(first.sharerId()).isEqualTo(10L);
 
-        var second = result.cartProducts().get(1);
+        GetCartProductResult second = result.cartProducts().get(1);
         assertThat(second.pricePolicy().id()).isEqualTo(200L);
         assertThat(second.product().id()).isEqualTo(2L);
         assertThat(second.product().imageUrl()).isEqualTo("url-2");
@@ -159,7 +161,7 @@ class GetCartProductUseCaseTest {
         when(findCartProductsPort.findByUserId(userId)).thenReturn(List.of());
         when(getProductInventoryUseCase.getProductStocks(List.of())).thenReturn(Map.of());
 
-        var result = getCartProductService.getMyCartProducts(userId);
+        GetMyCartProductsResult result = getCartProductService.getMyCartProducts(userId);
 
         assertThat(result.cartProducts()).isEmpty();
         verify(findCartProductsPort).findByUserId(userId);
@@ -177,7 +179,7 @@ class GetCartProductUseCaseTest {
         when(findCartProductsPort.findByUserId(userId)).thenReturn(List.of(cartProduct));
         when(getProductInventoryUseCase.getProductStocks(List.of(300L))).thenReturn(Map.of());
 
-        var result = getCartProductService.getMyCartProducts(userId);
+        GetMyCartProductsResult result = getCartProductService.getMyCartProducts(userId);
 
         assertThat(result.cartProducts()).hasSize(1);
         assertThat(result.cartProducts().getFirst().stock()).isNull();

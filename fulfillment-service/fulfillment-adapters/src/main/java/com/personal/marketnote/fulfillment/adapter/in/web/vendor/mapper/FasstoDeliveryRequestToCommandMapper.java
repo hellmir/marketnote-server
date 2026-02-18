@@ -42,6 +42,18 @@ public class FasstoDeliveryRequestToCommandMapper {
         return RegisterFasstoDeliveryCarCommand.of(customerCode, accessToken, deliveryRequests);
     }
 
+    public static RegisterFasstoDeliveryIcsCommand mapToRegisterIcsCommand(
+            String customerCode,
+            String accessToken,
+            List<RegisterFasstoDeliveryIcsRequest> request
+    ) {
+        List<RegisterFasstoDeliveryIcsItemCommand> deliveryRequests = request.stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapIcsItem)
+                .toList();
+
+        return RegisterFasstoDeliveryIcsCommand.of(customerCode, accessToken, deliveryRequests);
+    }
+
     public static UpdateFasstoDeliveryCarCommand mapToUpdateCarCommand(
             String customerCode,
             String accessToken,
@@ -209,10 +221,41 @@ public class FasstoDeliveryRequestToCommandMapper {
                 .build();
     }
 
+    private static RegisterFasstoDeliveryIcsItemCommand mapIcsItem(RegisterFasstoDeliveryIcsRequest item) {
+        List<RegisterFasstoDeliveryGoodsCommand> goods = item.getGodCds().stream()
+                .map(FasstoDeliveryRequestToCommandMapper::mapIcsGoods)
+                .toList();
+
+        return RegisterFasstoDeliveryIcsItemCommand.builder()
+                .ordDt(item.getOrdDt())
+                .ordNo(item.getOrdNo())
+                .platform(item.getPlatform())
+                .logiCenter(item.getLogiCenter())
+                .invoiceNo(item.getInvoiceNo())
+                .custNm(item.getCustNm())
+                .custTelNo(item.getCustTelNo())
+                .custAddr(item.getCustAddr())
+                .sendNm(item.getSendNm())
+                .sendTelNo(item.getSendTelNo())
+                .salChanel(item.getSalChanel())
+                .shipReqTerm(item.getShipReqTerm())
+                .remark(item.getRemark())
+                .godCds(goods)
+                .build();
+    }
+
     private static RegisterFasstoDeliveryGoodsCommand mapGoods(RegisterFasstoDeliveryGoodsRequest item) {
         return RegisterFasstoDeliveryGoodsCommand.of(
                 item.getCstGodCd(),
                 item.getDistTermDt(),
+                item.getOrdQty()
+        );
+    }
+
+    private static RegisterFasstoDeliveryGoodsCommand mapIcsGoods(RegisterFasstoDeliveryIcsGoodsRequest item) {
+        return RegisterFasstoDeliveryGoodsCommand.of(
+                item.getCstGodCd(),
+                null,
                 item.getOrdQty()
         );
     }

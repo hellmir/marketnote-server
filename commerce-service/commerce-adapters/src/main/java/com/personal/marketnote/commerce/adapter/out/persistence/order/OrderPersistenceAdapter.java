@@ -19,10 +19,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
@@ -89,7 +86,7 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
 
         List<OrderJpaEntity> entities = orderJpaRepository.findWithProductsByIds(orderIds);
 
-        var orderIndex = new HashMap<Long, Integer>();
+        Map<Long, Integer> orderIndex = new HashMap<>();
         for (int i = 0; i < orderIds.size(); i++) {
             orderIndex.put(orderIds.get(i), i);
         }
