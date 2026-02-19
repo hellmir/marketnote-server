@@ -10,6 +10,7 @@ public enum FulfillmentVendorCommunicationTargetType {
     GOODS("상품"),
     WAREHOUSING("입고"),
     DELIVERY("출고"),
+    RETURN_DELIVERY("반품"),
     STOCK("재고"),
     SETTLEMENT("정산");
 

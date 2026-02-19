@@ -165,9 +165,12 @@ public class GlobalExceptionHandler {
         httpStatus = HttpStatus.BAD_REQUEST;
 
         String fieldErrorMessage = e.getBindingResult().getFieldErrors().stream()
-                .findFirst()
                 .map(fieldError -> fieldError.getDefaultMessage())
-                .orElse("요청 값이 올바르지 않습니다.");
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        if (fieldErrorMessage.isEmpty()) {
+            fieldErrorMessage = "요청 값이 올바르지 않습니다.";
+        }
 
         initializeMessage(fieldErrorMessage);
 

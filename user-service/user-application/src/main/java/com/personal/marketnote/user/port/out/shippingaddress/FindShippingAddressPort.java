@@ -17,5 +17,5 @@ public interface FindShippingAddressPort {
 
     Optional<ShippingAddress> findByIdAndUserId(Long id, Long userId);
 
-    Optional<ShippingAddress> findDefaultByUserId(Long userId);
+    List<ShippingAddress> findDefaultsByUserId(Long userId);
 }
