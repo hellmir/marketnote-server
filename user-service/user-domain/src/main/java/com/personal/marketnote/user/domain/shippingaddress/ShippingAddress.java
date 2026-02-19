@@ -74,6 +74,27 @@ public class ShippingAddress extends BaseDomain {
         this.isDefault = false;
     }
 
+    public void update(
+            String address,
+            String addressDetail,
+            String companyName,
+            String addressAlias,
+            String recipientName,
+            String recipientPhoneNumber,
+            DeliveryRequestType deliveryRequestType,
+            String deliveryRequestMessage
+    ) {
+        this.address = address;
+        this.addressDetail = addressDetail;
+        this.companyName = companyName;
+        this.addressAlias = addressAlias;
+        this.recipientName = recipientName;
+        this.recipientPhoneNumber = recipientPhoneNumber;
+        this.deliveryRequestType = deliveryRequestType;
+        this.deliveryRequestMessage = deliveryRequestMessage;
+        validate();
+    }
+
     private void validate() {
         if (addressType == ShippingAddressType.COMPANY && FormatValidator.hasNoValue(companyName)) {
             throw new IllegalArgumentException("회사 배송지에는 회사명이 필수입니다.");
