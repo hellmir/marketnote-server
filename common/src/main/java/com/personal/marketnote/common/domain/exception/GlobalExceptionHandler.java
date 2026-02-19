@@ -163,7 +163,13 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException
             (MethodArgumentNotValidException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        initializeMessage(e.getMessage());
+
+        String fieldErrorMessage = e.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(fieldError -> fieldError.getDefaultMessage())
+                .orElse("요청 값이 올바르지 않습니다.");
+
+        initializeMessage(fieldErrorMessage);
 
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 
@@ -199,7 +205,8 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException
             (HttpMessageNotReadableException e) {
         httpStatus = HttpStatus.BAD_REQUEST;
-        initializeMessage(e.getMessage());
+        code = httpStatus.name();
+        message = "요청 본문을 읽을 수 없습니다.";
 
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
 

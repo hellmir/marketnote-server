@@ -8,6 +8,7 @@ import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddress
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class GetMyShippingAddressesService implements GetMyShippingAddressesUseC
 
     @Override
     public GetMyShippingAddressesResult getMyShippingAddresses(Long userId) {
-        List<ShippingAddress> shippingAddresses = findShippingAddressPort.findAllByUserId(userId);
+        List<ShippingAddress> shippingAddresses = new ArrayList<>(findShippingAddressPort.findAllByUserId(userId));
 
         shippingAddresses.sort(
                 Comparator.comparing(ShippingAddress::isDefault, Comparator.reverseOrder())
