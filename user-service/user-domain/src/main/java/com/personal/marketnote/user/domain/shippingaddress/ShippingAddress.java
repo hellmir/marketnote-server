@@ -66,6 +66,14 @@ public class ShippingAddress extends BaseDomain {
                 .build();
     }
 
+    public void setAsDefault() {
+        this.isDefault = true;
+    }
+
+    public void unsetAsDefault() {
+        this.isDefault = false;
+    }
+
     private void validate() {
         if (addressType == ShippingAddressType.COMPANY && FormatValidator.hasNoValue(companyName)) {
             throw new IllegalArgumentException("회사 배송지에는 회사명이 필수입니다.");

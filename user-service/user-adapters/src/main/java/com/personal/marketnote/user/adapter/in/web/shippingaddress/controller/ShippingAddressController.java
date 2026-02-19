@@ -5,6 +5,7 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.GetMyShippingAddressesApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.GetShippingAddressApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.RegisterShippingAddressApiDocs;
+import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.SetDefaultShippingAddressApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.RegisterShippingAddressRequest;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetMyShippingAddressesResponse;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetShippingAddressResponse;
@@ -15,6 +16,7 @@ import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShipp
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetMyShippingAddressesUseCase;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetShippingAddressUseCase;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
+import com.personal.marketnote.user.port.in.usecase.shippingaddress.SetDefaultShippingAddressUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class ShippingAddressController {
     private final RegisterShippingAddressUseCase registerShippingAddressUseCase;
     private final GetShippingAddressUseCase getShippingAddressUseCase;
     private final GetMyShippingAddressesUseCase getMyShippingAddressesUseCase;
+    private final SetDefaultShippingAddressUseCase setDefaultShippingAddressUseCase;
 
     /**
      * 배송지 등록
@@ -133,6 +136,33 @@ public class ShippingAddressController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "내 배송지 목록 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * 기본 배송지 설정
+     *
+     * @param id        배송지 ID
+     * @param principal OAuth2 인증 정보
+     * @return 기본 배송지 설정 결과
+     */
+    @PatchMapping("/{id}/default")
+    @SetDefaultShippingAddressApiDocs
+    public ResponseEntity<BaseResponse<Void>> setDefaultShippingAddress(
+            @PathVariable Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        setDefaultShippingAddressUseCase.setDefaultShippingAddress(id, userId);
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "기본 배송지 설정 성공"
                 )
         );
     }

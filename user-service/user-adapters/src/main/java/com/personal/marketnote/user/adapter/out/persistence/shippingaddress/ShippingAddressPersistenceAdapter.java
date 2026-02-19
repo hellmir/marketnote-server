@@ -7,8 +7,10 @@ import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.enti
 import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.repository.ShippingAddressJpaRepository;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
+import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
+import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class ShippingAddressPersistenceAdapter implements FindShippingAddressPort, SaveShippingAddressPort {
+public class ShippingAddressPersistenceAdapter implements FindShippingAddressPort, SaveShippingAddressPort, UpdateShippingAddressPort {
     private final ShippingAddressJpaRepository shippingAddressJpaRepository;
 
     @Override
@@ -57,5 +59,19 @@ public class ShippingAddressPersistenceAdapter implements FindShippingAddressPor
     public Optional<ShippingAddress> findByIdAndUserId(Long id, Long userId) {
         return shippingAddressJpaRepository.findByIdAndUserIdAndStatus(id, userId, EntityStatus.ACTIVE)
                 .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain);
+    }
+
+    @Override
+    public Optional<ShippingAddress> findDefaultByUserId(Long userId) {
+        return shippingAddressJpaRepository.findByUserIdAndIsDefaultAndStatus(userId, true, EntityStatus.ACTIVE)
+                .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain);
+    }
+
+    @Override
+    public void update(ShippingAddress shippingAddress) {
+        ShippingAddressJpaEntity entity = shippingAddressJpaRepository.findById(shippingAddress.getId())
+                .orElseThrow(() -> new ShippingAddressNotFoundException(shippingAddress.getId()));
+
+        entity.updateFrom(shippingAddress);
     }
 }
