@@ -5,6 +5,8 @@ import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.enti
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ShippingAddressJpaRepository extends JpaRepository<ShippingAddressJpaEntity, Long> {
 
     boolean existsByUserIdAndAddressTypeAndStatus(Long userId, ShippingAddressType addressType, EntityStatus status);
@@ -12,4 +14,6 @@ public interface ShippingAddressJpaRepository extends JpaRepository<ShippingAddr
     long countByUserIdAndAddressTypeAndStatus(Long userId, ShippingAddressType addressType, EntityStatus status);
 
     boolean existsByUserIdAndStatus(Long userId, EntityStatus status);
+
+    List<ShippingAddressJpaEntity> findAllByUserIdAndStatus(Long userId, EntityStatus status);
 }
