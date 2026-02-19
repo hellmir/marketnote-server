@@ -3,13 +3,17 @@ package com.personal.marketnote.user.adapter.in.web.shippingaddress.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.GetMyShippingAddressesApiDocs;
+import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.GetShippingAddressApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.RegisterShippingAddressApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.RegisterShippingAddressRequest;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetMyShippingAddressesResponse;
+import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetShippingAddressResponse;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetMyShippingAddressesResult;
+import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetMyShippingAddressesUseCase;
+import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetShippingAddressUseCase;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,6 +40,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @Slf4j
 public class ShippingAddressController {
     private final RegisterShippingAddressUseCase registerShippingAddressUseCase;
+    private final GetShippingAddressUseCase getShippingAddressUseCase;
     private final GetMyShippingAddressesUseCase getMyShippingAddressesUseCase;
 
     /**
@@ -77,6 +82,33 @@ public class ShippingAddressController {
                         "배송지 등록 성공"
                 ),
                 HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * 배송지 정보 조회
+     *
+     * @param id        배송지 ID
+     * @param principal OAuth2 인증 정보
+     * @return 배송지 조회 결과 {@link GetShippingAddressResponse}
+     */
+    @GetMapping("/{id}")
+    @GetShippingAddressApiDocs
+    public ResponseEntity<BaseResponse<GetShippingAddressResponse>> getShippingAddress(
+            @PathVariable Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        GetShippingAddressResult result = getShippingAddressUseCase.getShippingAddress(id, userId);
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetShippingAddressResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "배송지 조회 성공"
+                )
         );
     }
 

@@ -12,6 +12,7 @@ import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddress
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
@@ -50,5 +51,11 @@ public class ShippingAddressPersistenceAdapter implements FindShippingAddressPor
                 .stream()
                 .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<ShippingAddress> findByIdAndUserId(Long id, Long userId) {
+        return shippingAddressJpaRepository.findByIdAndUserIdAndStatus(id, userId, EntityStatus.ACTIVE)
+                .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain);
     }
 }
