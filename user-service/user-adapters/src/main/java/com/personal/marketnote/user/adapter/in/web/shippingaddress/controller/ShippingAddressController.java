@@ -6,10 +6,13 @@ import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.ap
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.GetShippingAddressApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.RegisterShippingAddressApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.SetDefaultShippingAddressApiDocs;
+import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.UpdateShippingAddressApiDocs;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.RegisterShippingAddressRequest;
+import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.UpdateShippingAddressRequest;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetMyShippingAddressesResponse;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetShippingAddressResponse;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
+import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippingAddressCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetMyShippingAddressesResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
@@ -17,6 +20,7 @@ import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetMyShippin
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetShippingAddressUseCase;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.SetDefaultShippingAddressUseCase;
+import com.personal.marketnote.user.port.in.usecase.shippingaddress.UpdateShippingAddressUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +49,7 @@ public class ShippingAddressController {
     private final GetShippingAddressUseCase getShippingAddressUseCase;
     private final GetMyShippingAddressesUseCase getMyShippingAddressesUseCase;
     private final SetDefaultShippingAddressUseCase setDefaultShippingAddressUseCase;
+    private final UpdateShippingAddressUseCase updateShippingAddressUseCase;
 
     /**
      * 배송지 등록
@@ -163,6 +168,48 @@ public class ShippingAddressController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "기본 배송지 설정 성공"
+                )
+        );
+    }
+
+    /**
+     * 배송지 수정
+     *
+     * @param id        배송지 ID
+     * @param request   배송지 수정 요청
+     * @param principal OAuth2 인증 정보
+     * @return 배송지 수정 결과
+     */
+    @PutMapping("/{id}")
+    @UpdateShippingAddressApiDocs
+    public ResponseEntity<BaseResponse<Void>> updateShippingAddress(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateShippingAddressRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        updateShippingAddressUseCase.updateShippingAddress(
+                id,
+                userId,
+                UpdateShippingAddressCommand.builder()
+                        .address(request.getAddress())
+                        .addressDetail(request.getAddressDetail())
+                        .companyName(request.getCompanyName())
+                        .addressAlias(request.getAddressAlias())
+                        .recipientName(request.getRecipientName())
+                        .recipientPhoneNumber(request.getRecipientPhoneNumber())
+                        .deliveryRequestType(request.getDeliveryRequestType())
+                        .deliveryRequestMessage(request.getDeliveryRequestMessage())
+                        .build()
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "배송지 수정 성공"
                 )
         );
     }

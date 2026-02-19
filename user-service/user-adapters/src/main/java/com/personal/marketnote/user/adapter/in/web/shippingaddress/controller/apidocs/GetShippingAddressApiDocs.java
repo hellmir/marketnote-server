@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Operation(
         summary = "배송지 정보 조회",
         description = """
-                작성일자: 2026-02-03
+                작성일자: 2026-02-19
                 
                 작성자: 성효빈
                 
@@ -44,7 +44,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 |
                 | code | string | 응답 코드 | "SUC01" |
-                | timestamp | string(datetime) | 응답 일시 | "2026-02-03T12:00:00.000" |
+                | timestamp | string(datetime) | 응답 일시 | "2026-02-19T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "배송지 조회 성공" |
                 
@@ -79,7 +79,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 200,
                                           "code": "SUC01",
-                                          "timestamp": "2026-02-03T12:00:00.000000",
+                                          "timestamp": "2026-02-19T12:00:00.000000",
                                           "content": {
                                             "id": 1,
                                             "addressType": "HOME",
@@ -106,7 +106,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 404,
                                           "code": "NOT_FOUND",
-                                          "timestamp": "2026-02-03T12:00:00.000000",
+                                          "timestamp": "2026-02-19T12:00:00.000000",
                                           "message": "배송지를 찾을 수 없습니다. 전송된 배송지 ID: 999"
                                         }
                                         """)
