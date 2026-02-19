@@ -25,12 +25,7 @@ public class ShippingAddress extends BaseDomain {
     private boolean isDefault;
 
     public static ShippingAddress from(ShippingAddressCreateState state) {
-        return from(state, null);
-    }
-
-    public static ShippingAddress from(ShippingAddressCreateState state, Long id) {
         ShippingAddress shippingAddress = ShippingAddress.builder()
-                .id(id)
                 .userId(state.getUserId())
                 .addressType(state.getAddressType())
                 .address(state.getAddress())
@@ -46,6 +41,23 @@ public class ShippingAddress extends BaseDomain {
 
         shippingAddress.validate();
         return shippingAddress;
+    }
+
+    public static ShippingAddress from(ShippingAddressSnapshotState state) {
+        return ShippingAddress.builder()
+                .id(state.getId())
+                .userId(state.getUserId())
+                .addressType(state.getAddressType())
+                .address(state.getAddress())
+                .addressDetail(state.getAddressDetail())
+                .companyName(state.getCompanyName())
+                .addressAlias(state.getAddressAlias())
+                .recipientName(state.getRecipientName())
+                .recipientPhoneNumber(state.getRecipientPhoneNumber())
+                .deliveryRequestType(state.getDeliveryRequestType())
+                .deliveryRequestMessage(state.getDeliveryRequestMessage())
+                .isDefault(state.isDefault())
+                .build();
     }
 
     public static ShippingAddress referenceOf(Long id) {

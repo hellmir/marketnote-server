@@ -2,13 +2,14 @@ package com.personal.marketnote.user.adapter.out.mapper;
 
 import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.entity.ShippingAddressJpaEntity;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
-import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 
 public class ShippingAddressJpaEntityToDomainMapper {
 
     public static ShippingAddress mapToDomain(ShippingAddressJpaEntity entity) {
         return ShippingAddress.from(
-                ShippingAddressCreateState.builder()
+                ShippingAddressSnapshotState.builder()
+                        .id(entity.getId())
                         .userId(entity.getUserId())
                         .addressType(entity.getAddressType())
                         .address(entity.getAddress())
@@ -20,8 +21,7 @@ public class ShippingAddressJpaEntityToDomainMapper {
                         .deliveryRequestType(entity.getDeliveryRequestType())
                         .deliveryRequestMessage(entity.getDeliveryRequestMessage())
                         .isDefault(Boolean.TRUE.equals(entity.getIsDefault()))
-                        .build(),
-                entity.getId()
+                        .build()
         );
     }
 }
