@@ -11,6 +11,7 @@ import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShipp
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
+import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
 
     private final FindShippingAddressPort findShippingAddressPort;
     private final SaveShippingAddressPort saveShippingAddressPort;
+    private final UpdateShippingAddressPort updateShippingAddressPort;
 
     @Override
     public RegisterShippingAddressResult registerShippingAddress(RegisterShippingAddressCommand command) {
@@ -37,6 +39,14 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
 
         boolean isFirstAddress = !findShippingAddressPort.existsByUserId(userId);
         boolean isDefault = isFirstAddress || Boolean.TRUE.equals(command.isDefault());
+
+        if (isDefault && !isFirstAddress) {
+            findShippingAddressPort.findDefaultByUserId(userId)
+                    .ifPresent(currentDefault -> {
+                        currentDefault.unsetAsDefault();
+                        updateShippingAddressPort.update(currentDefault);
+                    });
+        }
 
         ShippingAddress shippingAddress = ShippingAddress.from(
                 ShippingAddressCreateState.builder()
