@@ -74,6 +74,16 @@ public class ShippingAddress extends BaseDomain {
         this.isDefault = false;
     }
 
+    public void delete() {
+        if (addressType == ShippingAddressType.HOME) {
+            throw new IllegalArgumentException("집 배송지는 삭제할 수 없습니다.");
+        }
+        if (isDefault) {
+            throw new IllegalArgumentException("기본 배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 설정한 후 삭제해주세요.");
+        }
+        deactivate();
+    }
+
     public void update(
             String address,
             String addressDetail,

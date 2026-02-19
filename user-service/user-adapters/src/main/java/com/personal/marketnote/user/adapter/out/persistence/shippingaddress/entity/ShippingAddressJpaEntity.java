@@ -51,6 +51,9 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
     private Boolean isDefault;
 
     public void updateFrom(ShippingAddress shippingAddress) {
+        if (shippingAddress.isInactive()) {
+            deactivate();
+        }
         this.address = shippingAddress.getAddress();
         this.addressDetail = shippingAddress.getAddressDetail();
         this.companyName = shippingAddress.getCompanyName();

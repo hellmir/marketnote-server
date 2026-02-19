@@ -2,11 +2,7 @@ package com.personal.marketnote.user.adapter.in.web.shippingaddress.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
-import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.GetMyShippingAddressesApiDocs;
-import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.GetShippingAddressApiDocs;
-import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.RegisterShippingAddressApiDocs;
-import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.SetDefaultShippingAddressApiDocs;
-import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.UpdateShippingAddressApiDocs;
+import com.personal.marketnote.user.adapter.in.web.shippingaddress.controller.apidocs.*;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.RegisterShippingAddressRequest;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.UpdateShippingAddressRequest;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetMyShippingAddressesResponse;
@@ -16,11 +12,7 @@ import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippi
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetMyShippingAddressesResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetMyShippingAddressesUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetShippingAddressUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.SetDefaultShippingAddressUseCase;
-import com.personal.marketnote.user.port.in.usecase.shippingaddress.UpdateShippingAddressUseCase;
+import com.personal.marketnote.user.port.in.usecase.shippingaddress.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +37,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RequiredArgsConstructor
 @Slf4j
 public class ShippingAddressController {
+    private final DeleteShippingAddressUseCase deleteShippingAddressUseCase;
     private final RegisterShippingAddressUseCase registerShippingAddressUseCase;
     private final GetShippingAddressUseCase getShippingAddressUseCase;
     private final GetMyShippingAddressesUseCase getMyShippingAddressesUseCase;
@@ -210,6 +203,33 @@ public class ShippingAddressController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "배송지 수정 성공"
+                )
+        );
+    }
+
+    /**
+     * 배송지 삭제
+     *
+     * @param id        배송지 ID
+     * @param principal OAuth2 인증 정보
+     * @return 배송지 삭제 결과
+     */
+    @DeleteMapping("/{id}")
+    @DeleteShippingAddressApiDocs
+    public ResponseEntity<BaseResponse<Void>> deleteShippingAddress(
+            @PathVariable Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        deleteShippingAddressUseCase.deleteShippingAddress(id, userId);
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "배송지 삭제 성공"
                 )
         );
     }
