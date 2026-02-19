@@ -50,6 +50,19 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
     @Column(name = "is_default", nullable = false, columnDefinition = "boolean default false")
     private Boolean isDefault;
 
+    public void updateFrom(ShippingAddress shippingAddress) {
+        this.addressType = shippingAddress.getAddressType();
+        this.address = shippingAddress.getAddress();
+        this.addressDetail = shippingAddress.getAddressDetail();
+        this.companyName = shippingAddress.getCompanyName();
+        this.addressAlias = shippingAddress.getAddressAlias();
+        this.recipientName = shippingAddress.getRecipientName();
+        this.recipientPhoneNumber = shippingAddress.getRecipientPhoneNumber();
+        this.deliveryRequestType = shippingAddress.getDeliveryRequestType();
+        this.deliveryRequestMessage = shippingAddress.getDeliveryRequestMessage();
+        this.isDefault = shippingAddress.isDefault();
+    }
+
     public static ShippingAddressJpaEntity from(ShippingAddress shippingAddress) {
         return ShippingAddressJpaEntity.builder()
                 .userId(shippingAddress.getUserId())

@@ -19,4 +19,6 @@ public interface ShippingAddressJpaRepository extends JpaRepository<ShippingAddr
     List<ShippingAddressJpaEntity> findAllByUserIdAndStatus(Long userId, EntityStatus status);
 
     Optional<ShippingAddressJpaEntity> findByIdAndUserIdAndStatus(Long id, Long userId, EntityStatus status);
+
+    Optional<ShippingAddressJpaEntity> findByUserIdAndIsDefaultAndStatus(Long userId, Boolean isDefault, EntityStatus status);
 }
