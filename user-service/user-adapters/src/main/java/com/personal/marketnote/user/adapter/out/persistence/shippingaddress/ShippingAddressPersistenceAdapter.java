@@ -62,9 +62,11 @@ public class ShippingAddressPersistenceAdapter implements FindShippingAddressPor
     }
 
     @Override
-    public Optional<ShippingAddress> findDefaultByUserId(Long userId) {
-        return shippingAddressJpaRepository.findByUserIdAndIsDefaultAndStatus(userId, true, EntityStatus.ACTIVE)
-                .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain);
+    public List<ShippingAddress> findDefaultsByUserId(Long userId) {
+        return shippingAddressJpaRepository.findAllByUserIdAndIsDefaultAndStatus(userId, true, EntityStatus.ACTIVE)
+                .stream()
+                .map(ShippingAddressJpaEntityToDomainMapper::mapToDomain)
+                .toList();
     }
 
     @Override

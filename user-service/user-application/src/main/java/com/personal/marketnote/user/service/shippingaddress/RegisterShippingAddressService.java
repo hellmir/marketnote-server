@@ -41,8 +41,8 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
         boolean isDefault = isFirstAddress || Boolean.TRUE.equals(command.isDefault());
 
         if (isDefault && !isFirstAddress) {
-            findShippingAddressPort.findDefaultByUserId(userId)
-                    .ifPresent(currentDefault -> {
+            findShippingAddressPort.findDefaultsByUserId(userId)
+                    .forEach(currentDefault -> {
                         currentDefault.unsetAsDefault();
                         updateShippingAddressPort.update(currentDefault);
                     });

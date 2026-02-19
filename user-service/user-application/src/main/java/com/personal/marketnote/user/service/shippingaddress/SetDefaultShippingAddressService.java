@@ -27,8 +27,8 @@ public class SetDefaultShippingAddressService implements SetDefaultShippingAddre
             return;
         }
 
-        findShippingAddressPort.findDefaultByUserId(userId)
-                .ifPresent(currentDefault -> {
+        findShippingAddressPort.findDefaultsByUserId(userId)
+                .forEach(currentDefault -> {
                     currentDefault.unsetAsDefault();
                     updateShippingAddressPort.update(currentDefault);
                 });
