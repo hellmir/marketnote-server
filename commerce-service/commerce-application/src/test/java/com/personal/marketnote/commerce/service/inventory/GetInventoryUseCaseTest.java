@@ -314,5 +314,111 @@ class GetInventoryUseCaseTest {
             assertThatThrownBy(() -> getInventoryService.existsInventory(300L))
                     .isSameAs(exception);
         }
+
+        @Test
+        @DisplayName("FindInventoryPort.existsByPricePolicyId를 정확히 한 번 호출한다")
+        void existsInventory_callsFindPortExactlyOnce() {
+            when(findInventoryPort.existsByPricePolicyId(100L)).thenReturn(true);
+
+            getInventoryService.existsInventory(100L);
+
+            verify(findInventoryPort, times(1)).existsByPricePolicyId(100L);
+            verifyNoMoreInteractions(findInventoryPort);
+        }
+
+        @Test
+        @DisplayName("입력된 pricePolicyId가 Port에 정확히 전달된다")
+        void existsInventory_passesExactPricePolicyIdToPort() {
+            Long pricePolicyId = 999L;
+            when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(false);
+
+            getInventoryService.existsInventory(pricePolicyId);
+
+            ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
+            verify(findInventoryPort).existsByPricePolicyId(captor.capture());
+            assertThat(captor.getValue()).isEqualTo(999L);
+        }
+
+        @Test
+        @DisplayName("재고 존재 여부 조회 시 RegisterInventoryUseCase와 상호작용하지 않는다")
+        void existsInventory_doesNotInteractWithRegisterUseCase() {
+            when(findInventoryPort.existsByPricePolicyId(100L)).thenReturn(true);
+
+            getInventoryService.existsInventory(100L);
+
+            verifyNoInteractions(registerInventoryUseCase);
+        }
+
+        @Test
+        @DisplayName("서로 다른 pricePolicyId로 호출하면 각각 정확한 ID로 Port를 호출한다")
+        void existsInventory_withDifferentIds_delegatesEachCorrectly() {
+            when(findInventoryPort.existsByPricePolicyId(100L)).thenReturn(true);
+            when(findInventoryPort.existsByPricePolicyId(200L)).thenReturn(false);
+            when(findInventoryPort.existsByPricePolicyId(300L)).thenReturn(true);
+
+            assertThat(getInventoryService.existsInventory(100L)).isTrue();
+            assertThat(getInventoryService.existsInventory(200L)).isFalse();
+            assertThat(getInventoryService.existsInventory(300L)).isTrue();
+
+            verify(findInventoryPort).existsByPricePolicyId(100L);
+            verify(findInventoryPort).existsByPricePolicyId(200L);
+            verify(findInventoryPort).existsByPricePolicyId(300L);
+        }
+
+        @Test
+        @DisplayName("pricePolicyId가 1인 경우 정상적으로 위임한다")
+        void existsInventory_withMinId_delegatesCorrectly() {
+            when(findInventoryPort.existsByPricePolicyId(1L)).thenReturn(true);
+
+            boolean result = getInventoryService.existsInventory(1L);
+
+            assertThat(result).isTrue();
+            verify(findInventoryPort).existsByPricePolicyId(1L);
+        }
+
+        @Test
+        @DisplayName("pricePolicyId가 큰 값인 경우 정상적으로 위임한다")
+        void existsInventory_withLargeId_delegatesCorrectly() {
+            when(findInventoryPort.existsByPricePolicyId(Long.MAX_VALUE)).thenReturn(false);
+
+            boolean result = getInventoryService.existsInventory(Long.MAX_VALUE);
+
+            assertThat(result).isFalse();
+            verify(findInventoryPort).existsByPricePolicyId(Long.MAX_VALUE);
+        }
+
+        @Test
+        @DisplayName("Port 예외 발생 시 RegisterInventoryUseCase와 상호작용하지 않는다")
+        void existsInventory_portFails_doesNotInteractWithRegisterUseCase() {
+            when(findInventoryPort.existsByPricePolicyId(100L))
+                    .thenThrow(new RuntimeException("port error"));
+
+            assertThatThrownBy(() -> getInventoryService.existsInventory(100L))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(registerInventoryUseCase);
+        }
+
+        @Test
+        @DisplayName("Port가 false를 반환하면 반환값을 변환 없이 그대로 반환한다")
+        void existsInventory_portReturnsFalse_returnsExactFalse() {
+            when(findInventoryPort.existsByPricePolicyId(500L)).thenReturn(false);
+
+            boolean result = getInventoryService.existsInventory(500L);
+
+            assertThat(result).isFalse();
+            assertThat(result).isEqualTo(false);
+        }
+
+        @Test
+        @DisplayName("Port가 true를 반환하면 반환값을 변환 없이 그대로 반환한다")
+        void existsInventory_portReturnsTrue_returnsExactTrue() {
+            when(findInventoryPort.existsByPricePolicyId(600L)).thenReturn(true);
+
+            boolean result = getInventoryService.existsInventory(600L);
+
+            assertThat(result).isTrue();
+            assertThat(result).isEqualTo(true);
+        }
     }
 }
