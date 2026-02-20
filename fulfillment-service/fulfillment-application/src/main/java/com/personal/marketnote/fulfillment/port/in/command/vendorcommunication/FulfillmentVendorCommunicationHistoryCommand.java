@@ -6,17 +6,16 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
 @Builder
-public class FulfillmentVendorCommunicationHistoryCommand {
-    private final FulfillmentVendorCommunicationTargetType targetType;
-    private final String targetId;
-    private final FulfillmentVendorName vendorName;
-    private final FulfillmentVendorCommunicationType communicationType;
-    private final FulfillmentVendorCommunicationSenderType sender;
-    private final String exception;
-    private final String payload;
-    private final JsonNode payloadJson;
+public record FulfillmentVendorCommunicationHistoryCommand(
+        FulfillmentVendorCommunicationTargetType targetType,
+        String targetId,
+        FulfillmentVendorName vendorName,
+        FulfillmentVendorCommunicationType communicationType,
+        FulfillmentVendorCommunicationSenderType sender,
+        String exception,
+        String payload,
+        JsonNode payloadJson
+) {
 }

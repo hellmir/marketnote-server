@@ -11,14 +11,14 @@ public class FulfillmentVendorCommunicationHistoryCommandToStateMapper {
             FulfillmentVendorCommunicationHistoryCommand command
     ) {
         return FulfillmentVendorCommunicationHistoryCreateState.builder()
-                .targetType(command.getTargetType())
-                .targetId(command.getTargetId())
-                .vendorName(command.getVendorName())
-                .communicationType(command.getCommunicationType())
-                .sender(command.getSender())
-                .exception(command.getException())
-                .payload(command.getPayload())
-                .payloadJson(command.getPayloadJson())
+                .targetType(command.targetType())
+                .targetId(command.targetId())
+                .vendorName(command.vendorName())
+                .communicationType(command.communicationType())
+                .sender(command.sender())
+                .exception(command.exception())
+                .payload(command.payload())
+                .payloadJson(command.payloadJson())
                 .build();
     }
 }
