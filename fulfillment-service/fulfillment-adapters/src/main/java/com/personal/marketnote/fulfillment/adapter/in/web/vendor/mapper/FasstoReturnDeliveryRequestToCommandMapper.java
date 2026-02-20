@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.in.web.vendor.mapper;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoDeliveryGoodsRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.vendor.request.RegisterFasstoReturnDeliveryRequest;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFasstoReturnGodDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoDeliveryGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoReturnDeliveryItemCommand;
@@ -21,6 +22,19 @@ public class FasstoReturnDeliveryRequestToCommandMapper {
                 .toList();
 
         return RegisterFasstoReturnDeliveryCommand.of(customerCode, accessToken, returnDeliveryRequests);
+    }
+
+    public static GetFasstoReturnGodDetailCommand mapToReturnGodDetailCommand(
+            String customerCode,
+            String accessToken,
+            String strDt,
+            String endDt,
+            String rtnSlipNoList,
+            String whCd
+    ) {
+        return GetFasstoReturnGodDetailCommand.of(
+                customerCode, accessToken, strDt, endDt, rtnSlipNoList, whCd
+        );
     }
 
     private static RegisterFasstoReturnDeliveryItemCommand mapItem(RegisterFasstoReturnDeliveryRequest item) {

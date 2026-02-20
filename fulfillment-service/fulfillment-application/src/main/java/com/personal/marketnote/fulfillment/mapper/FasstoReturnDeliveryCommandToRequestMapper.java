@@ -3,6 +3,8 @@ package com.personal.marketnote.fulfillment.mapper;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery.FasstoDeliveryGoodsMapper;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery.FasstoReturnDeliveryItemMapper;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery.FasstoReturnDeliveryMapper;
+import com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery.FasstoReturnGodDetailQuery;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFasstoReturnGodDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoDeliveryGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoReturnDeliveryItemCommand;
@@ -10,6 +12,17 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFassto
 import java.util.List;
 
 public class FasstoReturnDeliveryCommandToRequestMapper {
+
+    public static FasstoReturnGodDetailQuery mapToReturnGodDetailQuery(GetFasstoReturnGodDetailCommand command) {
+        return FasstoReturnGodDetailQuery.of(
+                command.customerCode(),
+                command.accessToken(),
+                command.startDate(),
+                command.endDate(),
+                command.rtnSlipNoList(),
+                command.whCd()
+        );
+    }
 
     public static FasstoReturnDeliveryMapper mapToRegisterRequest(RegisterFasstoReturnDeliveryCommand command) {
         List<FasstoReturnDeliveryItemMapper> returnDeliveryRequests = command.returnDeliveryRequests().stream()

@@ -40,5 +40,6 @@ public class FasstoAuthProperties {
     private String stockListPath = "/api/v1/stock/list/{customerCode}";
     private String returnDeliveryPath = "/api/v1/return/parcel/{customerCode}";
     private String returnDirectDeliveryPath = "/api/v1/return/direct/{customerCode}";
+    private String returnGodDetailPath = "/api/v1/return/godDetail/{customerCode}";
     private String settlementDailyCostPath = "/api/v1/settlement/{yearMonth}/{whCd}/{customerCode}";
 }

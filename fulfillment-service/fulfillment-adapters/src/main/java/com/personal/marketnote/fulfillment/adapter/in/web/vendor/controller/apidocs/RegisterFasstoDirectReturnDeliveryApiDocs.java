@@ -21,7 +21,7 @@ import java.lang.annotation.*;
         description = """
                 작성일자: 2026-02-20
                 
-                작성자: Claude
+                작성자: 성효빈
                 
                 ---
                 
