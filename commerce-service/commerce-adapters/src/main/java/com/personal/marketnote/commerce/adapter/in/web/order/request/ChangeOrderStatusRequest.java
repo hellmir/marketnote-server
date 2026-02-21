@@ -24,7 +24,7 @@ public class ChangeOrderStatusRequest {
     private OrderStatus orderStatus;
 
     @Schema(
-            name = "reason_category",
+            name = "reasonCategory",
             description = "변경 사유 카테고리",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
