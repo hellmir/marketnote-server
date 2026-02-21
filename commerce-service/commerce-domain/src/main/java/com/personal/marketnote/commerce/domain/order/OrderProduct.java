@@ -44,6 +44,15 @@ public class OrderProduct {
     }
 
     public void changeOrderStatus(OrderStatus orderStatus) {
+        if (this.orderStatus == orderStatus) {
+            return;
+        }
+        if (!this.orderStatus.canTransitionTo(orderStatus)) {
+            throw new IllegalStateException(
+                    String.format("주문 상품 상태를 %s에서 %s(으)로 변경할 수 없습니다.",
+                            this.orderStatus.getDescription(), orderStatus.getDescription())
+            );
+        }
         this.orderStatus = orderStatus;
     }
 
