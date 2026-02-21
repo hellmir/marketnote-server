@@ -102,7 +102,7 @@ public class FasstoWarehousingItemMapper {
         putIfNotNull(payload, "distTermDt", distTermDt);
         putIfNotNull(payload, "makeDt", makeDt);
         putIfNotNull(payload, "preArv", preArv);
-        if (godCds != null) {
+        if (FormatValidator.hasValue(godCds)) {
             payload.put("godCds", godCds.stream()
                     .map(FasstoWarehousingGoodsMapper::toPayload)
                     .toList());
@@ -130,7 +130,7 @@ public class FasstoWarehousingItemMapper {
     }
 
     private void putIfNotNull(Map<String, Object> payload, String key, String value) {
-        if (value != null) {
+        if (FormatValidator.hasValue(value)) {
             payload.put(key, value);
         }
     }

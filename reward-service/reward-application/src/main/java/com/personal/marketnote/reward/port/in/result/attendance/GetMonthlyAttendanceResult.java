@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.port.in.result.attendance;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.attendance.UserAttendance;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
 
@@ -14,12 +15,12 @@ public record GetMonthlyAttendanceResult(
         long totalRewardQuantity
 ) {
     public static GetMonthlyAttendanceResult from(UserAttendance attendance) {
-        if (attendance == null) {
+        if (FormatValidator.hasNoValue(attendance)) {
             return empty();
         }
 
         List<UserAttendanceHistory> histories = attendance.getHistories();
-        List<LocalDate> dates = histories == null
+        List<LocalDate> dates = FormatValidator.hasNoValue(histories)
                 ? List.of()
                 : histories.stream()
                 .map(UserAttendanceHistory::getAttendedAt)

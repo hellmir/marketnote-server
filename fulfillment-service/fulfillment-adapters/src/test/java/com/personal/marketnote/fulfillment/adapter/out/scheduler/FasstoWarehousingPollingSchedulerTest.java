@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.out.scheduler;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFasstoWarehousingCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFasstoAllStockCommand;
@@ -92,7 +93,7 @@ class FasstoWarehousingPollingSchedulerTest {
         FasstoWarehousingInfoResult item = buildWarehousingInfo("ORD-1", "WH1", "4");
         GetFasstoWarehousingResult result = GetFasstoWarehousingResult.of(1, List.of(item));
         when(getFasstoWarehousingUseCase.getWarehousing(
-                argThat(command -> command != null && "4".equals(command.wrkStat()))
+                argThat(command -> FormatValidator.hasValue(command) && "4".equals(command.wrkStat()))
         ))
                 .thenReturn(result);
         scheduler.schedule(buildCommand("ORD-1"));

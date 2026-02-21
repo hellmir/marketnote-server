@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.mapper;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery.FasstoDeliveryGoodsMapper;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery.FasstoReturnDeliveryItemMapper;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery.FasstoReturnDeliveryMapper;
@@ -37,7 +38,7 @@ public class FasstoReturnDeliveryCommandToRequestMapper {
     }
 
     private static FasstoReturnDeliveryItemMapper mapItem(RegisterFasstoReturnDeliveryItemCommand item) {
-        List<FasstoDeliveryGoodsMapper> goods = item.godCds() != null
+        List<FasstoDeliveryGoodsMapper> goods = FormatValidator.hasValue(item.godCds())
                 ? item.godCds().stream()
                 .map(FasstoReturnDeliveryCommandToRequestMapper::mapGoods)
                 .toList()

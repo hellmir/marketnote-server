@@ -76,7 +76,7 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
     public void sendRequest(URI uri, HttpEntity<RegisterInventoryRequest> httpEntity, Long pricePolicyId) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
-        String targetId = pricePolicyId != null ? String.valueOf(pricePolicyId) : null;
+        String targetId = FormatValidator.hasValue(pricePolicyId) ? String.valueOf(pricePolicyId) : null;
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;

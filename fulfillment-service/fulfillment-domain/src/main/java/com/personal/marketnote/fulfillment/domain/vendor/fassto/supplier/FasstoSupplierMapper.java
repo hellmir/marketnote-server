@@ -196,7 +196,7 @@ public class FasstoSupplierMapper {
     }
 
     private void putIfNotNull(Map<String, Object> payload, String key, String value) {
-        if (value != null) {
+        if (FormatValidator.hasValue(value)) {
             payload.put(key, value);
         }
     }

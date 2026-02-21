@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.out.web.fulfillment.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.List;
 
@@ -10,6 +11,6 @@ public record GetFasstoGoodsElementsResponse(
         List<FasstoGoodsElementResponse> elements
 ) {
     public boolean isSuccess() {
-        return elements != null;
+        return FormatValidator.hasValue(elements);
     }
 }

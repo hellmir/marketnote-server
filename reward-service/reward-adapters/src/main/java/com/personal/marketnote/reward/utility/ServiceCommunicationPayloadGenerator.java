@@ -18,7 +18,7 @@ public class ServiceCommunicationPayloadGenerator {
     private final ObjectMapper objectMapper;
 
     public JsonNode buildPayloadJson(Object payload) {
-        if (payload == null) {
+        if (FormatValidator.hasNoValue(payload)) {
             return objectMapper.createObjectNode();
         }
 
@@ -33,7 +33,7 @@ public class ServiceCommunicationPayloadGenerator {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("method", method.name());
         payload.put("url", uri.toString());
-        if (body != null) {
+        if (FormatValidator.hasValue(body)) {
             payload.put("body", body);
         }
         payload.put("attempt", attempt);
@@ -45,7 +45,7 @@ public class ServiceCommunicationPayloadGenerator {
         if (FormatValidator.hasValue(response)) {
             payload.put("status", response.getStatusCode().value());
             Object body = response.getBody();
-            if (body != null) {
+            if (FormatValidator.hasValue(body)) {
                 payload.put("body", body);
             }
         }

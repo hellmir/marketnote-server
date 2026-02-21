@@ -33,7 +33,7 @@ public class FasstoWarehousingGoodsMapper {
         Map<String, Object> payload = new LinkedHashMap<>();
         putIfNotNull(payload, "cstGodCd", cstGodCd);
         putIfNotNull(payload, "distTermDt", distTermDt);
-        if (ordQty != null) {
+        if (FormatValidator.hasValue(ordQty)) {
             payload.put("ordQty", ordQty);
         }
         return payload;
@@ -49,7 +49,7 @@ public class FasstoWarehousingGoodsMapper {
     }
 
     private void putIfNotNull(Map<String, Object> payload, String key, String value) {
-        if (value != null) {
+        if (FormatValidator.hasValue(value)) {
             payload.put(key, value);
         }
     }
