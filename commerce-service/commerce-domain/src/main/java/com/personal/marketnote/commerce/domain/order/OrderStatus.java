@@ -3,6 +3,11 @@ package com.personal.marketnote.commerce.domain.order;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
+
 @RequiredArgsConstructor
 @Getter
 public enum OrderStatus {
@@ -28,6 +33,39 @@ public enum OrderStatus {
     REFUNDED("환불 완료");
 
     private final String description;
+
+    private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
+
+    static {
+        ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCEL_REQUESTED, CANCELLED));
+        ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED, CANCELLED));
+        ALLOWED_TRANSITIONS.put(FAILED, EnumSet.noneOf(OrderStatus.class));
+        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(PREPARED, CANCEL_REQUESTED, CANCELLED));
+        ALLOWED_TRANSITIONS.put(PREPARED, EnumSet.of(SHIPPING, CANCEL_REQUESTED, CANCELLED));
+        ALLOWED_TRANSITIONS.put(CANCEL_REQUESTED, EnumSet.of(CANCELLED));
+        ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
+        ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED));
+        ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, PARTIALLY_CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED));
+        ALLOWED_TRANSITIONS.put(CONFIRMED, EnumSet.noneOf(OrderStatus.class));
+        ALLOWED_TRANSITIONS.put(EXCHANGE_REQUESTED, EnumSet.of(EXCHANGE_RECALLING));
+        ALLOWED_TRANSITIONS.put(EXCHANGE_RECALLING, EnumSet.of(EXCHANGE_SHIPPING));
+        ALLOWED_TRANSITIONS.put(EXCHANGE_SHIPPING, EnumSet.of(EXCHANGED));
+        ALLOWED_TRANSITIONS.put(EXCHANGED, EnumSet.noneOf(OrderStatus.class));
+        ALLOWED_TRANSITIONS.put(REFUND_REQUESTED, EnumSet.of(REFUND_RECALLING));
+        ALLOWED_TRANSITIONS.put(REFUND_RECALLING, EnumSet.of(REFUND_SHIPPING));
+        ALLOWED_TRANSITIONS.put(REFUND_SHIPPING, EnumSet.of(REFUNDED, PARTIALLY_REFUNDED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_REFUNDED, EnumSet.of(REFUND_REQUESTED, REFUNDED));
+        ALLOWED_TRANSITIONS.put(REFUNDED, EnumSet.noneOf(OrderStatus.class));
+    }
+
+    public boolean canTransitionTo(OrderStatus target) {
+        return ALLOWED_TRANSITIONS.getOrDefault(this, EnumSet.noneOf(OrderStatus.class)).contains(target);
+    }
+
+    public boolean isTerminal() {
+        return ALLOWED_TRANSITIONS.getOrDefault(this, EnumSet.noneOf(OrderStatus.class)).isEmpty();
+    }
 
     public boolean isRefunded() {
         return this == REFUNDED;
