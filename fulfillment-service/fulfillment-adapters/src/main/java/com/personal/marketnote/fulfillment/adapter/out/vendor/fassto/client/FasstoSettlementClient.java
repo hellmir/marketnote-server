@@ -281,9 +281,9 @@ public class FasstoSettlementClient implements GetFasstoSettlementDailyCostsPort
     }
 
     private GetFasstoSettlementDailyCostsResult mapDailyCostListResult(FasstoSettlementDailyCostListResponse response) {
-        List<FasstoSettlementDailyCostInfoResult> dailyCosts = response.data().stream()
-                .map(this::mapDailyCostInfo)
-                .toList();
+        List<FasstoSettlementDailyCostInfoResult> dailyCosts = FormatValidator.hasValue(response.data())
+                ? response.data().stream().map(this::mapDailyCostInfo).toList()
+                : List.of();
         Integer dataCount = FormatValidator.hasValue(response.header()) ? response.header().dataCount() : null;
         return GetFasstoSettlementDailyCostsResult.of(dataCount, dailyCosts);
     }
