@@ -276,7 +276,7 @@ public class GetProductService implements GetProductUseCase {
         }
 
         ProductReviewAggregateResult result = reviewAggregatesByProductId.get(productId);
-        if (result == null || result.averageRating() == null) {
+        if (FormatValidator.hasNoValue(result) || FormatValidator.hasNoValue(result.averageRating())) {
             return 0f;
         }
 
@@ -293,7 +293,7 @@ public class GetProductService implements GetProductUseCase {
         }
 
         ProductReviewAggregateResult result = reviewAggregatesByProductId.get(productId);
-        if (result == null || result.totalCount() == null) {
+        if (FormatValidator.hasNoValue(result) || FormatValidator.hasNoValue(result.totalCount())) {
             return 0;
         }
 

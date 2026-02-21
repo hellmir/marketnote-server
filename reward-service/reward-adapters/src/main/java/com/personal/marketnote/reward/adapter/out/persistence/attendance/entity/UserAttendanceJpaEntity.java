@@ -64,7 +64,7 @@ public class UserAttendanceJpaEntity {
                 .month(attendance.getMonth())
                 .createdAt(attendance.getCreatedAt())
                 .totalRewardQuantity(attendance.getTotalRewardQuantity())
-                .histories(attendance.getHistories() == null ? null : attendance.getHistories().stream()
+                .histories(FormatValidator.hasNoValue(attendance.getHistories()) ? null : attendance.getHistories().stream()
                         .map(UserAttendanceHistoryJpaEntity::from)
                         .toList())
                 .build();
@@ -79,7 +79,7 @@ public class UserAttendanceJpaEntity {
                         .month(month)
                         .createdAt(createdAt)
                         .totalRewardQuantity(totalRewardQuantity)
-                        .histories(histories == null ? null : histories.stream()
+                        .histories(FormatValidator.hasNoValue(histories) ? null : histories.stream()
                                 .map(UserAttendanceHistoryJpaEntity::toDomain)
                                 .toList())
                         .build()

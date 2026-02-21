@@ -90,7 +90,7 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
                         );
                 BaseResponse<GetProductReviewAggregatesResponse> response = responseEntity.getBody();
 
-                if (response == null || response.getContent() == null) {
+                if (FormatValidator.hasNoValue(response) || FormatValidator.hasNoValue(response.getContent())) {
                     return Map.of();
                 }
 
@@ -102,7 +102,7 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
 
                 return reviewAggregates.stream()
                         .filter(Objects::nonNull)
-                        .filter(item -> item.productId() != null)
+                        .filter(item -> FormatValidator.hasValue(item.productId()))
                         .collect(Collectors.toMap(
                                 ProductReviewAggregateItemResponse::productId,
                                 item -> new ProductReviewAggregateResult(

@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.port.in.result.review;
 
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.review.Review;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public record GetReviewsResult(
                 reviews.stream()
                         .map(review -> {
                             Long pricePolicyId = review.getPricePolicyId();
-                            ReviewProductInfoResult productInfo = pricePolicyId != null
+                            ReviewProductInfoResult productInfo = FormatValidator.hasValue(pricePolicyId)
                                     ? productInfoByPricePolicyId.get(pricePolicyId)
                                     : null;
 

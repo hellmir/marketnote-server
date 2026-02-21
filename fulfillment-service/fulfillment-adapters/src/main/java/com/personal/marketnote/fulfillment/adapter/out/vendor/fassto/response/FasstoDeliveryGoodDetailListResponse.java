@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ public record FasstoDeliveryGoodDetailListResponse(
         FasstoErrorInfo errorInfo
 ) implements FasstoApiResponse {
     public boolean isSuccess() {
-        return header != null && header.isSuccess() && data != null;
+        return FormatValidator.hasValue(header) && header.isSuccess();
     }
 }

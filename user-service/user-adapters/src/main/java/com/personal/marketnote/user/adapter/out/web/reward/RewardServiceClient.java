@@ -70,7 +70,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
                     statusCode = response.getStatusCode();
                 }
 
-                String exception = statusCode != null ? statusCode.toString() : "EmptyResponse";
+                String exception = FormatValidator.hasValue(statusCode) ? statusCode.toString() : "EmptyResponse";
                 JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
                         HttpMethod.POST,
                         uri,

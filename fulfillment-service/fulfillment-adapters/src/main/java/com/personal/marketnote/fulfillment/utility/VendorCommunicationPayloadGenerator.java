@@ -13,7 +13,7 @@ public class VendorCommunicationPayloadGenerator {
     private final ObjectMapper objectMapper;
 
     public JsonNode buildPayloadJson(Object payload) {
-        if (payload == null) {
+        if (FormatValidator.hasNoValue(payload)) {
             return objectMapper.createObjectNode();
         }
 

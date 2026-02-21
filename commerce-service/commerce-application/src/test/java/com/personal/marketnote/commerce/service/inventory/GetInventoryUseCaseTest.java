@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.port.in.command.inventory.RegisterInventoryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RegisterInventoryUseCase;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
+import com.personal.marketnote.common.utility.FormatValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -96,7 +97,7 @@ class GetInventoryUseCaseTest {
             assertThat(commands).hasSize(3);
             assertThat(commands).extracting(RegisterInventoryCommand::pricePolicyId)
                     .containsExactlyInAnyOrder(100L, 200L, 300L);
-            assertThat(commands).allMatch(cmd -> cmd.productId() == null);
+            assertThat(commands).allMatch(cmd -> FormatValidator.hasNoValue(cmd.productId()));
         }
 
         @Test
