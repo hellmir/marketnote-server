@@ -29,6 +29,15 @@ public interface FindProductPort {
     Optional<Product> findById(Long productId);
 
     /**
+     * @param productId 상품 ID
+     * @return 활성화 상태의 상품 도메인 {@link Product}
+     * @Date 2026-02-23
+     * @Author 성효빈
+     * @Description 활성화 상태의 상품만 조회합니다.
+     */
+    Optional<Product> findActiveById(Long productId);
+
+    /**
      * @return 모든 상품 목록 {@link List<Product>}
      * @Date 2025-12-31
      * @Author 성효빈

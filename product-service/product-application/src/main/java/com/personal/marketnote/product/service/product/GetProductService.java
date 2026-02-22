@@ -72,6 +72,20 @@ public class GetProductService implements GetProductUseCase {
 
     @Override
     public GetProductInfoWithOptionsResult getProductInfo(Long id, List<Long> selectedOptionIds) {
+        Product product = findProductPort.findActiveById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        return buildProductInfo(product, id, selectedOptionIds);
+    }
+
+    @Override
+    public GetProductInfoWithOptionsResult getProductInfoIncludingInactive(Long id, List<Long> selectedOptionIds) {
+        Product product = getProduct(id);
+        return buildProductInfo(product, id, selectedOptionIds);
+    }
+
+    private GetProductInfoWithOptionsResult buildProductInfo(
+            Product product, Long id, List<Long> selectedOptionIds
+    ) {
         // 상단 대표 이미지 목록, 본문 이미지 목록 조회 시작
         CompletableFuture<GetFilesResult> representativeFuture =
                 CompletableFuture.supplyAsync(
@@ -90,7 +104,6 @@ public class GetProductService implements GetProductUseCase {
                 );
 
         // 상품 조회 (병렬 진행)
-        Product product = getProduct(id);
         List<ProductOptionCategory> categories
                 = findProductOptionCategoryPort.findActiveWithOptionsByProductId(product.getId());
         List<PricePolicy> pricePolicies
