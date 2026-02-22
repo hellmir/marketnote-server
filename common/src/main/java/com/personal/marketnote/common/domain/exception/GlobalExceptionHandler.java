@@ -7,6 +7,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -16,8 +17,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -335,6 +338,60 @@ public class GlobalExceptionHandler {
                 .message(message)
                 .build();
 
+        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    private ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        code = httpStatus.name();
+        message = "필수 요청 파라미터 '" + e.getParameterName() + "'이(가) 누락되었습니다.";
+
+        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .statusCode(httpStatus.value())
+                .timestamp(LocalDateTime.now())
+                .code(code)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    private ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException e) {
+        httpStatus = HttpStatus.BAD_REQUEST;
+        code = httpStatus.name();
+        message = "요청 파라미터 '" + e.getName() + "'의 타입이 올바르지 않습니다.";
+
+        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .statusCode(httpStatus.value())
+                .timestamp(LocalDateTime.now())
+                .code(code)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    private ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+            DataIntegrityViolationException e) {
+        httpStatus = HttpStatus.CONFLICT;
+        code = httpStatus.name();
+        message = "데이터 무결성 제약 조건을 위반했습니다.";
+
+        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .statusCode(httpStatus.value())
+                .timestamp(LocalDateTime.now())
+                .code(code)
+                .message(message)
+                .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
     }
 }
