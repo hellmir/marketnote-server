@@ -15,16 +15,16 @@ import java.util.List;
 public class ProductRequestToCommandMapper {
     public static RegisterProductCommand mapToCommand(RegisterProductRequest registerProductRequest) {
         return RegisterProductCommand.builder()
-                .sellerId(registerProductRequest.getSellerId())
-                .name(registerProductRequest.getName())
-                .brandName(registerProductRequest.getBrandName())
-                .detail(registerProductRequest.getDetail())
-                .price(registerProductRequest.getPrice())
-                .discountPrice(registerProductRequest.getDiscountPrice())
-                .accumulatedPoint(registerProductRequest.getAccumulatedPoint())
-                .isFindAllOptions(registerProductRequest.getIsFindAllOptions())
-                .tags(registerProductRequest.getTags())
-                .fulfillmentVendorGoods(mapToCommand(registerProductRequest.getFulfillmentVendorGoods()))
+                .sellerId(registerProductRequest.sellerId())
+                .name(registerProductRequest.name())
+                .brandName(registerProductRequest.brandName())
+                .detail(registerProductRequest.detail())
+                .price(registerProductRequest.price())
+                .discountPrice(registerProductRequest.discountPrice())
+                .accumulatedPoint(registerProductRequest.accumulatedPoint())
+                .isFindAllOptions(registerProductRequest.isFindAllOptions())
+                .tags(registerProductRequest.tags())
+                .fulfillmentVendorGoods(mapToCommand(registerProductRequest.fulfillmentVendorGoods()))
                 .build();
     }
 
@@ -145,12 +145,12 @@ public class ProductRequestToCommandMapper {
     ) {
         return UpdateProductCommand.builder()
                 .id(id)
-                .name(request.getName())
-                .brandName(request.getBrandName())
-                .detail(request.getDetail())
-                .isFindAllOptions(request.getIsFindAllOptions())
-                .tags(request.getTags())
-                .fulfillmentVendorGoods(mapToCommand(request.getFulfillmentVendorGoods()))
+                .name(request.name())
+                .brandName(request.brandName())
+                .detail(request.detail())
+                .isFindAllOptions(request.isFindAllOptions())
+                .tags(request.tags())
+                .fulfillmentVendorGoods(mapToCommand(request.fulfillmentVendorGoods()))
                 .build();
     }
 
