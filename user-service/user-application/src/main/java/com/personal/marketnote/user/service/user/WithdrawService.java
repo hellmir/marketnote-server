@@ -65,7 +65,6 @@ public class WithdrawService implements WithdrawUseCase {
             user.removeAppleOidcId();
             isAppleDisconnected = false;
         }
-
         updateUserPort.update(user);
 
         return new WithdrawResult(isKakaoDisconnected, isGoogleDisconnected, isAppleDisconnected);
