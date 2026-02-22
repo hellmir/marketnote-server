@@ -223,7 +223,7 @@ public class OrderController {
     public ResponseEntity<BaseResponse<Void>> updateOrderProductReviewStatus(
             @PathVariable("orderId") Long orderId,
             @PathVariable("pricePolicyId") Long pricePolicyId,
-            @Valid @RequestParam Boolean isReviewed
+            @RequestParam Boolean isReviewed
     ) {
         updateOrderProductUseCase.updateReviewStatus(
                 UpdateOrderProductReviewStatusCommand.of(orderId, pricePolicyId, isReviewed)
