@@ -34,9 +34,19 @@ public interface GetProductUseCase {
      * @return 상품 상세 정보 응답 {@link GetProductInfoWithOptionsResult}
      * @Date 2025-12-31
      * @Author 성효빈
-     * @Description 상품 상세 정보를 조회합니다.
+     * @Description 활성화 상태의 상품 상세 정보를 조회합니다.
      */
     GetProductInfoWithOptionsResult getProductInfo(Long id, List<Long> selectedOptionIds);
+
+    /**
+     * @param id                상품 ID
+     * @param selectedOptionIds 선택된 옵션 ID 목록
+     * @return 상품 상세 정보 응답 {@link GetProductInfoWithOptionsResult}
+     * @Date 2026-02-23
+     * @Author 성효빈
+     * @Description 비활성화/비노출 상품을 포함하여 상품 상세 정보를 조회합니다. (관리자용)
+     */
+    GetProductInfoWithOptionsResult getProductInfoIncludingInactive(Long id, List<Long> selectedOptionIds);
 
     /**
      * @param categoryId     카테고리 ID

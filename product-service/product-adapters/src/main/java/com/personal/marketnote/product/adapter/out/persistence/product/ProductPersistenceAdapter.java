@@ -52,6 +52,11 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
     }
 
     @Override
+    public Optional<Product> findActiveById(Long id) {
+        return findById(id).filter(Product::isActive);
+    }
+
+    @Override
     public List<Product> findAll() {
         return loadProductsWithAssociations(productJpaRepository.findAll()).stream()
                 .map(entity -> ProductJpaEntityToDomainMapper.mapToDomain(entity).get())
