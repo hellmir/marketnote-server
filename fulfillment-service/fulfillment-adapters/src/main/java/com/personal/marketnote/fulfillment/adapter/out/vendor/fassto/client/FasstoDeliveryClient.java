@@ -417,6 +417,10 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, UpdateF
                 return mapOutOrdGoodsDetailResult(parsedResponse);
             }
 
+            if (isOutOrdGoodsDetailEmptyDataResponse(response, parsedResponse)) {
+                return mapOutOrdGoodsDetailResult(parsedResponse);
+            }
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -1958,6 +1962,14 @@ public class FasstoDeliveryClient implements RegisterFasstoDeliveryPort, UpdateF
                 && response.getStatusCode().value() == 200
                 && FormatValidator.hasValue(parsedResponse)
                 && parsedResponse.isSuccess();
+    }
+
+    private boolean isOutOrdGoodsDetailEmptyDataResponse(ResponseEntity<String> response, FasstoOutOrdGoodsDetailListResponse parsedResponse) {
+        return FormatValidator.hasValue(response)
+                && response.getStatusCode().value() == 200
+                && FormatValidator.hasValue(parsedResponse)
+                && FormatValidator.hasValue(parsedResponse.header())
+                && FormatValidator.hasNoValue(parsedResponse.data());
     }
 
     private boolean isOutOrdGoodsByOrdNoSuccess(ResponseEntity<String> response, FasstoOutOrdGoodsByOrdNoListResponse parsedResponse) {
