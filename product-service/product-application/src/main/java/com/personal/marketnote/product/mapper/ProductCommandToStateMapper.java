@@ -20,7 +20,7 @@ public class ProductCommandToStateMapper {
                 .name(command.name())
                 .brandName(command.brandName())
                 .detail(command.detail())
-                .findAllOptionsYn(command.isFindAllOptions())
+                .findAllOptionsYn(Boolean.TRUE.equals(command.isFindAllOptions()))
                 .tags(
                         command.tags()
                                 .stream()
