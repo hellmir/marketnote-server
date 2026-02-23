@@ -21,8 +21,9 @@ public class JsonBearerTokenResolver implements BearerTokenResolver {
             return null;
         }
 
-        return authorization.startsWith(AUTHENTICATION_SCHEME)
-                ? authorization.substring(7)
-                : authorization;
+        if (!authorization.startsWith(AUTHENTICATION_SCHEME)) {
+            return null;
+        }
+        return authorization.substring(7);
     }
 }
