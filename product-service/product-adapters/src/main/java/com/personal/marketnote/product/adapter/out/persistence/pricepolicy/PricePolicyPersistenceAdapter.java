@@ -281,7 +281,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
             return "%" + searchKeyword + "%";
         }
 
-        return null;
+        return "";
     }
 
     @Override

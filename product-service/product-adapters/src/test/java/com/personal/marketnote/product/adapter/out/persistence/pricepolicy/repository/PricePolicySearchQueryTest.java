@@ -1,0 +1,284 @@
+package com.personal.marketnote.product.adapter.out.persistence.pricepolicy.repository;
+
+import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
+import com.personal.marketnote.product.adapter.out.persistence.productcategory.entity.ProductCategoryJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.productcategory.repository.ProductCategoryJpaRepository;
+import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
+import com.personal.marketnote.product.domain.product.Product;
+import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest
+@ActiveProfiles("test")
+@Import(AuditConfig.class)
+class PricePolicySearchQueryTest {
+
+    @Autowired
+    private PricePolicyJpaRepository pricePolicyJpaRepository;
+
+    @Autowired
+    private ProductJpaRepository productJpaRepository;
+
+    @Autowired
+    private ProductCategoryJpaRepository productCategoryJpaRepository;
+
+    private ProductJpaEntity productA;
+    private ProductJpaEntity productB;
+    private ProductJpaEntity productC;
+
+    private PricePolicyJpaEntity policyA;
+    private PricePolicyJpaEntity policyB;
+    private PricePolicyJpaEntity policyC;
+
+    @BeforeEach
+    void setUp() {
+        productA = saveProduct("QA 테스트 상품", "글로벌브랜드");
+        productB = saveProduct("일반 상품", "로컬브랜드");
+        productC = saveProduct("QA 검증 제품", "글로벌마켓");
+
+        policyA = savePricePolicy(productA);
+        policyB = savePricePolicy(productB);
+        policyC = savePricePolicy(productC);
+    }
+
+    @Nested
+    @DisplayName("상품명 검색 (searchTarget=name)")
+    class SearchByName {
+
+        @Test
+        @DisplayName("상품명에 QA가 포함된 상품만 조회된다 (DESC)")
+        void filtersCorrectly_desc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "orderNum", "name", "%QA%", null
+            );
+
+            assertThat(results).hasSize(2);
+            assertThat(results)
+                    .allMatch(pp -> pp.getProductJpaEntity().getName().contains("QA"));
+        }
+
+        @Test
+        @DisplayName("상품명에 QA가 포함된 상품만 조회된다 (ASC)")
+        void filtersCorrectly_asc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "orderNum"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, null, pageable, "orderNum", "name", "%QA%", null
+            );
+
+            assertThat(results).hasSize(2);
+            assertThat(results)
+                    .allMatch(pp -> pp.getProductJpaEntity().getName().contains("QA"));
+        }
+
+        @Test
+        @DisplayName("대소문자를 구분하여 검색한다")
+        void caseSensitiveSearch() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> lowerCaseResults = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "orderNum", "name", "%qa%", null
+            );
+
+            assertThat(lowerCaseResults).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("브랜드명 검색 (searchTarget=brandName)")
+    class SearchByBrandName {
+
+        @Test
+        @DisplayName("브랜드명에 글로가 포함된 상품만 조회된다")
+        void filtersCorrectly() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "orderNum", "brandName", "%글로%", null
+            );
+
+            assertThat(results).hasSize(2);
+            assertThat(results)
+                    .allMatch(pp -> pp.getProductJpaEntity().getBrandName().contains("글로"));
+        }
+    }
+
+    @Nested
+    @DisplayName("검색 조건 없음 (빈 pattern)")
+    class NoSearchCondition {
+
+        @Test
+        @DisplayName("pattern이 빈 문자열이면 모든 활성 상품이 조회된다")
+        void returnsAll() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "orderNum", "name", "", null
+            );
+
+            assertThat(results).hasSize(3);
+        }
+    }
+
+    @Nested
+    @DisplayName("매칭 불가 검색")
+    class NonMatchingSearch {
+
+        @Test
+        @DisplayName("매칭되지 않는 키워드면 빈 결과를 반환한다")
+        void returnsEmpty() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "orderNum", "name", "%존재하지않는키워드%", null
+            );
+
+            assertThat(results).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("카테고리 + 검색 조합")
+    class CategoryWithSearch {
+
+        @Test
+        @DisplayName("카테고리와 검색 조건을 동시에 적용한다")
+        void filtersByCategoryAndSearch() {
+            Long categoryId = 100L;
+            productCategoryJpaRepository.save(ProductCategoryJpaEntity.of(productA.getId(), categoryId));
+            productCategoryJpaRepository.save(ProductCategoryJpaEntity.of(productC.getId(), categoryId));
+
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> allInCategory = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "orderNum", "name", "", categoryId
+            );
+            assertThat(allInCategory).hasSize(2);
+
+            List<PricePolicyJpaEntity> searchInCategory = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "orderNum", "name", "%테스트%", categoryId
+            );
+            assertThat(searchInCategory).hasSize(1);
+            assertThat(searchInCategory.getFirst().getProductJpaEntity().getName()).contains("테스트");
+        }
+
+        @Test
+        @DisplayName("countActiveByCategoryId도 검색 조건을 적용한다")
+        void countByCategoryAndSearch() {
+            Long categoryId = 200L;
+            productCategoryJpaRepository.save(ProductCategoryJpaEntity.of(productA.getId(), categoryId));
+            productCategoryJpaRepository.save(ProductCategoryJpaEntity.of(productB.getId(), categoryId));
+            productCategoryJpaRepository.save(ProductCategoryJpaEntity.of(productC.getId(), categoryId));
+
+            long totalInCategory = pricePolicyJpaRepository.countActiveByCategoryId(categoryId, "name", "");
+            long filteredInCategory = pricePolicyJpaRepository.countActiveByCategoryId(categoryId, "name", "%QA%");
+
+            assertThat(totalInCategory).isEqualTo(3);
+            assertThat(filteredInCategory).isEqualTo(2);
+        }
+    }
+
+    @Nested
+    @DisplayName("전체 개수 검색 (countActive)")
+    class CountActive {
+
+        @Test
+        @DisplayName("검색 조건을 올바르게 적용한다")
+        void filtersCorrectly() {
+            long totalCount = pricePolicyJpaRepository.countActive("name", "");
+            long nameFiltered = pricePolicyJpaRepository.countActive("name", "%QA%");
+            long brandFiltered = pricePolicyJpaRepository.countActive("brandName", "%글로%");
+
+            assertThat(totalCount).isEqualTo(3);
+            assertThat(nameFiltered).isEqualTo(2);
+            assertThat(brandFiltered).isEqualTo(2);
+        }
+    }
+
+    @Nested
+    @DisplayName("pricePolicyIds 필터링")
+    class PricePolicyIdsFilter {
+
+        @Test
+        @DisplayName("pricePolicyIds 지정 시 해당 ID만 조회된다")
+        void filtersByIds() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    List.of(policyA.getId()), null, pageable, "orderNum", "name", "", null
+            );
+
+            assertThat(results).hasSize(1);
+            assertThat(results.getFirst().getId()).isEqualTo(policyA.getId());
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds와 검색 조건을 동시에 적용한다")
+        void filtersByIdsAndSearch() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    List.of(policyA.getId(), policyB.getId()), null, pageable, "orderNum", "name", "%QA%", null
+            );
+
+            assertThat(results).hasSize(1);
+            assertThat(results.getFirst().getProductJpaEntity().getName()).contains("QA");
+        }
+    }
+
+    private ProductJpaEntity saveProduct(String name, String brandName) {
+        Product product = Product.from(
+                ProductSnapshotState.builder()
+                        .sellerId(1L)
+                        .name(name)
+                        .brandName(brandName)
+                        .detail("설명")
+                        .findAllOptionsYn(false)
+                        .productTags(List.of())
+                        .status(EntityStatus.ACTIVE)
+                        .build()
+        );
+        ProductJpaEntity entity = ProductJpaEntity.from(product);
+        ProductJpaEntity saved = productJpaRepository.save(entity);
+        saved.setIdToOrderNum();
+        return saved;
+    }
+
+    private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity) {
+        PricePolicy pricePolicy = PricePolicy.from(
+                PricePolicyCreateState.builder()
+                        .price(10000L)
+                        .discountPrice(9000L)
+                        .discountRate(BigDecimal.valueOf(10.0))
+                        .accumulatedPoint(100L)
+                        .accumulationRate(BigDecimal.valueOf(1.0))
+                        .build()
+        );
+        PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
+        PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);
+        saved.setIdToOrderNum();
+        return saved;
+    }
+}
