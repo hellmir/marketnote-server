@@ -51,7 +51,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             WHERE 1 = 1
               AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
               AND (
-                    :pattern IS NULL
+                    :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
                  OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
@@ -119,7 +119,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             WHERE 1 = 1
               AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
               AND (
-                    :pattern IS NULL
+                    :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
                  OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
@@ -226,7 +226,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                     AND pc.categoryId = :categoryId
               )
               AND (
-                    :pattern IS NULL
+                    :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
                  OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
@@ -245,7 +245,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             WHERE 1 = 1
               AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
               AND (
-                    :pattern IS NULL
+                    :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
                  OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
