@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +47,7 @@ class GetAdminProductDetailUseCaseTest {
         FulfillmentVendorGoodsInfoResult goodsInfo = goodsInfoWithCstGodCd(String.valueOf(id));
         FulfillmentVendorGoodsElementInfoResult elementInfo = elementInfoWithCstGodCd(String.valueOf(id));
 
-        when(getProductUseCase.getProductInfo(id, selectedOptionIds)).thenReturn(productInfo);
+        when(getProductUseCase.getProductInfoIncludingInactive(id, selectedOptionIds)).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(1, List.of(goodsInfo)));
         when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
@@ -59,7 +60,7 @@ class GetAdminProductDetailUseCaseTest {
         assertThat(result.product()).isSameAs(productInfo);
         assertThat(result.fasstoGoods()).isSameAs(goodsInfo);
         assertThat(result.fasstoGoodsElement()).isSameAs(elementInfo);
-        verify(getProductUseCase).getProductInfo(id, selectedOptionIds);
+        verify(getProductUseCase).getProductInfoIncludingInactive(id, selectedOptionIds);
         verify(getFulfillmentVendorGoodsPort).getFulfillmentVendorGoods(String.valueOf(id));
         verify(getFulfillmentVendorGoodsElementsPort).getFulfillmentVendorGoodsElements();
     }
@@ -70,7 +71,7 @@ class GetAdminProductDetailUseCaseTest {
         Long id = 200L;
         GetProductInfoWithOptionsResult productInfo = mock(GetProductInfoWithOptionsResult.class);
 
-        when(getProductUseCase.getProductInfo(eq(id), anyList())).thenReturn(productInfo);
+        when(getProductUseCase.getProductInfoIncludingInactive(eq(id), anyList())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
         when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
@@ -79,7 +80,7 @@ class GetAdminProductDetailUseCaseTest {
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, null);
 
         ArgumentCaptor<List<Long>> optionsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(getProductUseCase).getProductInfo(eq(id), optionsCaptor.capture());
+        verify(getProductUseCase).getProductInfoIncludingInactive(eq(id), optionsCaptor.capture());
         assertThat(optionsCaptor.getValue()).isEmpty();
         assertThat(result.fasstoGoods()).isNull();
         assertThat(result.fasstoGoodsElement()).isNull();
@@ -95,11 +96,11 @@ class GetAdminProductDetailUseCaseTest {
         FulfillmentVendorGoodsElementInfoResult invalidElement = elementInfoWithCstGodCd(null);
         FulfillmentVendorGoodsElementInfoResult validElement = elementInfoWithCstGodCd(String.valueOf(id));
 
-        when(getProductUseCase.getProductInfo(id, List.of())).thenReturn(productInfo);
+        when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
-                .thenReturn(GetFulfillmentVendorGoodsResult.of(2, List.of(null, invalidGoods, validGoods)));
+                .thenReturn(GetFulfillmentVendorGoodsResult.of(2, Arrays.asList(null, invalidGoods, validGoods)));
         when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
-                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(2, List.of(null, invalidElement, validElement)));
+                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(2, Arrays.asList(null, invalidElement, validElement)));
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
@@ -117,7 +118,7 @@ class GetAdminProductDetailUseCaseTest {
         FulfillmentVendorGoodsElementInfoResult firstElement = elementInfoWithCstGodCd(String.valueOf(id));
         FulfillmentVendorGoodsElementInfoResult secondElement = elementInfoWithCstGodCd(String.valueOf(id));
 
-        when(getProductUseCase.getProductInfo(id, List.of())).thenReturn(productInfo);
+        when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(2, List.of(firstGoods, secondGoods)));
         when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
@@ -135,7 +136,7 @@ class GetAdminProductDetailUseCaseTest {
         Long id = 500L;
         RuntimeException exception = new RuntimeException("product info fail");
 
-        when(getProductUseCase.getProductInfo(id, List.of())).thenThrow(exception);
+        when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenThrow(exception);
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
                 .isSameAs(exception);
@@ -150,7 +151,7 @@ class GetAdminProductDetailUseCaseTest {
         GetProductInfoWithOptionsResult productInfo = mock(GetProductInfoWithOptionsResult.class);
         RuntimeException exception = new RuntimeException("goods fail");
 
-        when(getProductUseCase.getProductInfo(id, List.of())).thenReturn(productInfo);
+        when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id))).thenThrow(exception);
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
@@ -166,7 +167,7 @@ class GetAdminProductDetailUseCaseTest {
         GetProductInfoWithOptionsResult productInfo = mock(GetProductInfoWithOptionsResult.class);
         RuntimeException exception = new RuntimeException("elements fail");
 
-        when(getProductUseCase.getProductInfo(id, List.of())).thenReturn(productInfo);
+        when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
         when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements()).thenThrow(exception);
