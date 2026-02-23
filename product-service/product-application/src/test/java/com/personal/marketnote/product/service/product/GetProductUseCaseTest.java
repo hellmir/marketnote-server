@@ -123,7 +123,7 @@ class GetProductUseCaseTest {
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(500L)))
                 .thenReturn(List.of(policyForLookup));
 
-        when(findProductPort.findById(1L)).thenReturn(Optional.of(product));
+        when(findProductPort.findActiveById(1L)).thenReturn(Optional.of(product));
         ProductOptionCategory category = buildOptionCategory(11L, product, optionList);
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(1L))
                 .thenReturn(List.of(category));
@@ -164,7 +164,7 @@ class GetProductUseCaseTest {
         Product product = buildProduct(2L, false);
         PricePolicy optionPolicy = buildPricePolicy(900L, product, List.of(1L), List.of());
 
-        when(findProductPort.findById(2L)).thenReturn(Optional.of(product));
+        when(findProductPort.findActiveById(2L)).thenReturn(Optional.of(product));
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(2L))
                 .thenReturn(List.of());
         when(findPricePoliciesPort.findByProductId(2L)).thenReturn(List.of(optionPolicy));
@@ -181,15 +181,13 @@ class GetProductUseCaseTest {
     @Test
     @DisplayName("상품 상세 정보 조회 시 상품이 없으면 예외를 던진다")
     void getProductInfo_productNotFound_throws() {
-        stubProductImageExecutor();
-        stubProductImagesEmpty(77L);
-        when(findProductPort.findById(77L)).thenReturn(Optional.empty());
+        when(findProductPort.findActiveById(77L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getProductService.getProductInfo(77L, List.of()))
                 .isInstanceOf(ProductNotFoundException.class)
                 .hasMessageContaining("상품을 찾을 수 없습니다");
 
-        verify(findProductPort).findById(77L);
+        verify(findProductPort).findActiveById(77L);
         verifyNoInteractions(findProductOptionCategoryPort, findPricePoliciesPort, getProductInventoryUseCase);
     }
 
@@ -203,7 +201,7 @@ class GetProductUseCaseTest {
         PricePolicy defaultPolicy = buildPricePolicy(700L, product, null, List.of());
         PricePolicy optionPolicy = buildPricePolicy(701L, product, List.of(202L), List.of());
 
-        when(findProductPort.findById(3L)).thenReturn(Optional.of(product));
+        when(findProductPort.findActiveById(3L)).thenReturn(Optional.of(product));
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(3L))
                 .thenReturn(List.of(category));
         when(findPricePoliciesPort.findByProductId(3L)).thenReturn(List.of(defaultPolicy, optionPolicy));
@@ -232,7 +230,7 @@ class GetProductUseCaseTest {
         PricePolicy defaultPolicy = buildPricePolicy(800L, product, null, List.of());
         PricePolicy optionPolicy = buildPricePolicy(801L, product, selectedOptionIds, List.of());
 
-        when(findProductPort.findById(4L)).thenReturn(Optional.of(product));
+        when(findProductPort.findActiveById(4L)).thenReturn(Optional.of(product));
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(4L))
                 .thenReturn(List.of(category));
         when(findPricePoliciesPort.findByProductId(4L)).thenReturn(List.of(defaultPolicy, optionPolicy));
@@ -256,7 +254,7 @@ class GetProductUseCaseTest {
         PricePolicy defaultPolicy = buildPricePolicy(810L, product, null, List.of());
         PricePolicy optionPolicy = buildPricePolicy(811L, product, List.of(401L), List.of());
 
-        when(findProductPort.findById(5L)).thenReturn(Optional.of(product));
+        when(findProductPort.findActiveById(5L)).thenReturn(Optional.of(product));
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(5L))
                 .thenReturn(List.of(category));
         when(findPricePoliciesPort.findByProductId(5L)).thenReturn(List.of(defaultPolicy, optionPolicy));
@@ -281,7 +279,7 @@ class GetProductUseCaseTest {
         PricePolicy defaultPolicy = buildPricePolicy(820L, product, null, List.of());
         PricePolicy optionPolicy = buildPricePolicy(821L, product, selectedOptionIds, List.of());
 
-        when(findProductPort.findById(6L)).thenReturn(Optional.of(product));
+        when(findProductPort.findActiveById(6L)).thenReturn(Optional.of(product));
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(6L))
                 .thenReturn(List.of());
         when(findPricePoliciesPort.findByProductId(6L)).thenReturn(List.of(defaultPolicy, optionPolicy));

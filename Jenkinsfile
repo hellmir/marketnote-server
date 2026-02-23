@@ -261,7 +261,7 @@ pipeline {
 		stage('Test') {
             steps {
                 sh "chmod u+x ${WORKSPACE}/gradlew"
-                sh "./gradlew -p ${env.SERVICE_DIRECTORY} clean test"
+                sh "./gradlew -p ${env.SERVICE_NAME} clean test"
                 echo "Tests complete"
             }
         }
