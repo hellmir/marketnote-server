@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 import static com.personal.marketnote.common.application.aop.LogMessage.PERFORMANCE_MEASUREMENT;
 
 
@@ -26,6 +28,12 @@ public class LoggingAspect {
             = "Beginning to '{}.{}' task with parameters: {}";
     private static final String END
             = "'{}.{}' task was executed successfully by {}: '{}', ";
+
+    private static final Set<String> SENSITIVE_PARAM_NAMES = Set.of(
+            "password", "secret", "token", "key", "credential",
+            "authorization", "accesstoken", "refreshtoken", "apikey"
+    );
+    private static final String MASKED_VALUE = "***MASKED***";
 
     @Around(SERVICE_LOGGING_EXECUTION_POINTCUT)
     public Object serviceLogAroundForStringValue(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -49,7 +57,10 @@ public class LoggingAspect {
             if (i > 0) {
                 params.append(", ");
             }
-            params.append(parameterNames[i]).append(": ").append(parameterValues[i]);
+            String paramValue = isSensitiveParam(parameterNames[i])
+                    ? MASKED_VALUE
+                    : String.valueOf(parameterValues[i]);
+            params.append(parameterNames[i]).append(": ").append(paramValue);
         }
 
         log.info(START, className, methodName, params.toString());
@@ -68,5 +79,10 @@ public class LoggingAspect {
                 elapsedTime, memoryUsage);
 
         return process;
+    }
+
+    private static boolean isSensitiveParam(String paramName) {
+        String lowerName = paramName.toLowerCase();
+        return SENSITIVE_PARAM_NAMES.stream().anyMatch(lowerName::contains);
     }
 }

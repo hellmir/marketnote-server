@@ -12,10 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,27 +53,37 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         long ms = System.currentTimeMillis();
         String key = String.format("%s/%d/%s_%s", ownerType.name().toLowerCase(), ownerId, ms, sanitizedFilename);
 
+        Path tempFile = null;
         try {
-            File tempFile = convertMultipartFileToFile(multipartFile);
+            tempFile = convertMultipartFileToTempFile(multipartFile);
             s3Client.putObject(PutObjectRequest.builder()
                             .bucket(s3BucketName)
                             .key(key)
                             .build(),
-                    Paths.get(tempFile.getPath()));
-            tempFile.delete();
+                    tempFile);
         } catch (IOException ie) {
             throw new S3UploadFailedException(FIRST_ERROR_CODE, ie);
+        } finally {
+            deleteTempFileQuietly(tempFile);
         }
 
         return String.format("%s%s.%s/%s", TLS_HTTP_PROTOCOL, s3BucketName, S3_ADDRESS, key);
     }
 
-    private File convertMultipartFileToFile(MultipartFile file) throws IOException {
-        File convertedFile = new File(String.format("%s/%s", System.getProperty("java.io.tmpdir"), file.getOriginalFilename()));
-        try (FileOutputStream fos = new FileOutputStream(convertedFile)) {
-            fos.write(file.getBytes());
+    private Path convertMultipartFileToTempFile(MultipartFile file) throws IOException {
+        Path tempFile = Files.createTempFile("s3-upload-", ".tmp");
+        Files.write(tempFile, file.getBytes());
+        return tempFile;
+    }
+
+    private void deleteTempFileQuietly(Path tempFile) {
+        if (tempFile == null) {
+            return;
         }
-        return convertedFile;
+        try {
+            Files.deleteIfExists(tempFile);
+        } catch (IOException ignored) {
+        }
     }
 }
 
