@@ -295,7 +295,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     @CacheEvict(value = {"product:detail", "product:price-policy"}, key = "#productId", beforeInvocation = false)
     public void deleteByIdInternal(Long productId, Long pricePolicyId) {
         productOptionPricePolicyJpaRepository.deleteByPricePolicyId(pricePolicyId);
-        pricePolicyJpaRepository.deleteById(pricePolicyId);
+        pricePolicyJpaRepository.findById(pricePolicyId).ifPresent(PricePolicyJpaEntity::deactivate);
     }
 
     private List<PricePolicyJpaEntity> loadPricePoliciesWithAssociations(List<PricePolicyJpaEntity> baseEntities) {
