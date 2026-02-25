@@ -1,8 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.web.payment.mapper;
 
 import com.personal.marketnote.commerce.adapter.in.web.payment.request.ApprovePaymentRequest;
+import com.personal.marketnote.commerce.adapter.in.web.payment.request.CancelPaymentRequest;
 import com.personal.marketnote.commerce.adapter.in.web.payment.request.ReadyPaymentRequest;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
+import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
 
 public class PaymentRequestToCommandMapper {
@@ -24,6 +26,16 @@ public class PaymentRequestToCommandMapper {
                 .encData(request.getEncData())
                 .encInfo(request.getEncInfo())
                 .payType(request.getPayType())
+                .build();
+    }
+
+    public static CancelPaymentCommand mapToCommand(String orderKey, CancelPaymentRequest request, Long buyerId) {
+        return CancelPaymentCommand.builder()
+                .buyerId(buyerId)
+                .orderKey(orderKey)
+                .cancelType(request.getCancelType())
+                .cancelAmount(request.getCancelAmount())
+                .cancelReason(request.getCancelReason())
                 .build();
     }
 }
