@@ -8,8 +8,25 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FindOrderPort {
+    /**
+     * @param id 주문 ID
+     * @return 주문 도메인 {@link Order}
+     * @Date 2026-01-06
+     * @Author 성효빈
+     * @Description 주문 ID로 주문 정보를 조회합니다.
+     */
     Optional<Order> findById(Long id);
 
+    /**
+     * @param buyerId   구매자 ID
+     * @param startDate 조회 시작 일시
+     * @param endDate   조회 종료 일시
+     * @param statuses  주문 상태 목록
+     * @return 주문 목록 {@link List}
+     * @Date 2026-01-06
+     * @Author 성효빈
+     * @Description 구매자 ID와 조건으로 주문 목록을 조회합니다.
+     */
     List<Order> findByBuyerId(
             Long buyerId,
             LocalDateTime startDate,

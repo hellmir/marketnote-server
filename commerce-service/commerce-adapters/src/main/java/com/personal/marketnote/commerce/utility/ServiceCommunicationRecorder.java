@@ -28,7 +28,7 @@ public class ServiceCommunicationRecorder {
                         .communicationType(communicationType)
                         .sender(sender)
                         .payload(payload)
-                        .payloadJson(payloadJson)
+                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -48,7 +48,7 @@ public class ServiceCommunicationRecorder {
                         .communicationType(communicationType)
                         .sender(sender)
                         .payload(payload)
-                        .payloadJson(payloadJson)
+                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -68,7 +68,7 @@ public class ServiceCommunicationRecorder {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson)
+                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -90,7 +90,7 @@ public class ServiceCommunicationRecorder {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson)
+                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
                         .build()
         );
     }

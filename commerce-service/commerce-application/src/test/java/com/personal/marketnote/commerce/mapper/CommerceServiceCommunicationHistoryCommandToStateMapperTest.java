@@ -1,8 +1,5 @@
 package com.personal.marketnote.commerce.mapper;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationHistoryCreateState;
 import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationSenderType;
 import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationTargetType;
@@ -15,13 +12,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CommerceServiceCommunicationHistoryCommandToStateMapperTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
     @DisplayName("커맨드의 모든 필드가 CreateState로 정확히 매핑된다")
     void mapToCreateState_allFields_mapsCorrectly() {
         // given
-        JsonNode payloadJson = objectMapper.createObjectNode().put("key", "value");
+        String payloadJson = "{\"key\":\"value\"}";
         CommerceServiceCommunicationHistoryCommand command = CommerceServiceCommunicationHistoryCommand.builder()
                 .targetType(CommerceServiceCommunicationTargetType.PRODUCT_INFO)
                 .targetId("target-123")
@@ -138,14 +133,7 @@ class CommerceServiceCommunicationHistoryCommandToStateMapperTest {
     @DisplayName("복합 JSON payloadJson이 정확히 매핑된다")
     void mapToCreateState_complexJsonPayload_mapsCorrectly() {
         // given
-        ObjectNode body = objectMapper.createObjectNode();
-        body.put("productId", 100);
-        body.put("quantity", 5);
-        ObjectNode complexJson = objectMapper.createObjectNode();
-        complexJson.put("method", "POST");
-        complexJson.put("url", "http://api.example.com");
-        complexJson.put("attempt", 3);
-        complexJson.set("body", body);
+        String complexJson = "{\"method\":\"POST\",\"url\":\"http://api.example.com\",\"attempt\":3,\"body\":{\"productId\":100,\"quantity\":5}}";
 
         CommerceServiceCommunicationHistoryCommand command = CommerceServiceCommunicationHistoryCommand.builder()
                 .targetType(CommerceServiceCommunicationTargetType.CART_PRODUCT)
@@ -160,11 +148,11 @@ class CommerceServiceCommunicationHistoryCommandToStateMapperTest {
 
         // then
         assertThat(state.getPayloadJson()).isEqualTo(complexJson);
-        assertThat(state.getPayloadJson().get("method").asText()).isEqualTo("POST");
-        assertThat(state.getPayloadJson().get("url").asText()).isEqualTo("http://api.example.com");
-        assertThat(state.getPayloadJson().get("attempt").asInt()).isEqualTo(3);
-        assertThat(state.getPayloadJson().get("body").get("productId").asInt()).isEqualTo(100);
-        assertThat(state.getPayloadJson().get("body").get("quantity").asInt()).isEqualTo(5);
+        assertThat(state.getPayloadJson()).contains("\"method\":\"POST\"");
+        assertThat(state.getPayloadJson()).contains("\"url\":\"http://api.example.com\"");
+        assertThat(state.getPayloadJson()).contains("\"attempt\":3");
+        assertThat(state.getPayloadJson()).contains("\"productId\":100");
+        assertThat(state.getPayloadJson()).contains("\"quantity\":5");
     }
 
     @Test
@@ -192,7 +180,7 @@ class CommerceServiceCommunicationHistoryCommandToStateMapperTest {
     @DisplayName("payloadJson만 있고 payload가 null이면 독립적으로 매핑된다")
     void mapToCreateState_payloadJsonOnlyWithoutText_mapsIndependently() {
         // given
-        JsonNode json = objectMapper.createObjectNode().put("status", 200);
+        String json = "{\"status\":200}";
         CommerceServiceCommunicationHistoryCommand command = CommerceServiceCommunicationHistoryCommand.builder()
                 .targetType(CommerceServiceCommunicationTargetType.USER_POINT)
                 .communicationType(CommerceServiceCommunicationType.RESPONSE)
