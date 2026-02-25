@@ -4,17 +4,20 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUseCase;
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
+import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,6 +38,8 @@ class RegisterOrderUseCaseTest {
     private GetInventoryUseCase getInventoryUseCase;
     @Mock
     private SaveOrderPort saveOrderPort;
+    @Mock
+    private SavePaymentPort savePaymentPort;
 
     @InjectMocks
     private RegisterOrderService registerOrderService;
@@ -1188,9 +1194,10 @@ class RegisterOrderUseCaseTest {
 
             registerOrderService.registerOrder(command);
 
-            var inOrder = inOrder(getInventoryUseCase, saveOrderPort);
+            InOrder inOrder = inOrder(getInventoryUseCase, saveOrderPort, savePaymentPort);
             inOrder.verify(getInventoryUseCase).getInventories(List.of(pricePolicyId));
             inOrder.verify(saveOrderPort).save(any(Order.class));
+            inOrder.verify(savePaymentPort).save(any(Payment.class));
             inOrder.verifyNoMoreInteractions();
         }
 
@@ -1639,6 +1646,7 @@ class RegisterOrderUseCaseTest {
     private Order mockSavedOrder(Long orderId) {
         Order order = mock(Order.class);
         when(order.getId()).thenReturn(orderId);
+        when(order.getOrderKey()).thenReturn(UUID.randomUUID());
         return order;
     }
 }

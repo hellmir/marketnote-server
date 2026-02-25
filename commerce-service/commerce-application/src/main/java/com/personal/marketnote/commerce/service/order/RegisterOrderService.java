@@ -4,13 +4,17 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderCreateState;
 import com.personal.marketnote.commerce.domain.order.OrderProductCreateState;
+import com.personal.marketnote.commerce.domain.payment.Payment;
+import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.RegisterOrderUseCase;
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
+import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RegisterOrderService implements RegisterOrderUseCase {
     private final GetInventoryUseCase getInventoryUseCase;
     private final SaveOrderPort saveOrderPort;
+    private final SavePaymentPort savePaymentPort;
 
     @Override
     public RegisterOrderResult registerOrder(RegisterOrderCommand command) {
@@ -62,6 +67,20 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 .couponAmount(command.couponAmount())
                                 .pointAmount(command.pointAmount())
                                 .orderProductStates(orderProductStates)
+                                .build()
+                )
+        );
+
+        long couponAmount = FormatValidator.hasValue(command.couponAmount()) ? command.couponAmount() : 0L;
+        long pointAmount = FormatValidator.hasValue(command.pointAmount()) ? command.pointAmount() : 0L;
+        long paymentAmount = command.totalAmount() - couponAmount - pointAmount;
+
+        savePaymentPort.save(
+                Payment.from(
+                        PaymentCreateState.builder()
+                                .orderId(savedOrder.getId())
+                                .orderKey(savedOrder.getOrderKey())
+                                .paymentAmount(paymentAmount)
                                 .build()
                 )
         );

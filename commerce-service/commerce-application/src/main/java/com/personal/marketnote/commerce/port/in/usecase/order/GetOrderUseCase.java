@@ -4,10 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHistoryQuery;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderProductsQuery;
-import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrderProductsResult;
-import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrdersResult;
-import com.personal.marketnote.commerce.port.in.result.order.GetOrderCountResult;
-import com.personal.marketnote.commerce.port.in.result.order.GetOrderResult;
+import com.personal.marketnote.commerce.port.in.result.order.*;
 
 public interface GetOrderUseCase {
     /**
@@ -54,6 +51,15 @@ public interface GetOrderUseCase {
      * @Description 구매자 주문 내역 개수를 조회합니다.
      */
     GetOrderCountResult getBuyerOrderCount(GetBuyerOrderHistoryQuery query);
+
+    /**
+     * @param id 주문 ID
+     * @return 주문 키 조회 결과 {@link GetOrderKeyResult}
+     * @Date 2026-02-25
+     * @Author 성효빈
+     * @Description 주문 키를 조회합니다.
+     */
+    GetOrderKeyResult getOrderKey(Long id);
 
     /**
      * @param orderId       주문 ID

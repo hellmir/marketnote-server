@@ -105,6 +105,13 @@ public class GetOrderService implements GetOrderUseCase {
     }
 
     @Override
+    public GetOrderKeyResult getOrderKey(Long id) {
+        Order order = getOrder(id);
+
+        return GetOrderKeyResult.from(order);
+    }
+
+    @Override
     public OrderProduct getOrderProduct(Long orderId, Long pricePolicyId) {
         return findOrderProductPort.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
                 .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
