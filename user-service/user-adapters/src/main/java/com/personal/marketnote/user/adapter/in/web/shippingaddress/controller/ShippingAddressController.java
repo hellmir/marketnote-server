@@ -27,6 +27,10 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 
 /**
  * 배송지 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-02-19
+ * @Description 배송지 관련 API를 제공합니다.
  */
 @RestController
 @RequestMapping("/api/v1/shipping-addresses")

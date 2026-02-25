@@ -2,6 +2,13 @@ package com.personal.marketnote.product.port.in.usecase.product;
 
 import com.personal.marketnote.product.port.in.command.UpdateProductCommand;
 
+/**
+ * 상품 수정 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-01
+ * @Description 상품 수정 기능을 제공합니다.
+ */
 public interface UpdateProductUseCase {
     /**
      * @param userId  사용자 ID

@@ -5,6 +5,13 @@ import com.personal.marketnote.reward.domain.offerwall.OfferwallType;
 
 import java.util.Optional;
 
+/**
+ * 오퍼월 매퍼 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-20
+ * @Description 오퍼월 매퍼 조회 관련 기능을 제공합니다.
+ */
 public interface GetOfferwallMapperUseCase {
     /**
      * @param offerwallType 오퍼월 타입

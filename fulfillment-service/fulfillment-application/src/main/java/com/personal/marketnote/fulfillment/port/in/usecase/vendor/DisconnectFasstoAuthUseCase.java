@@ -1,5 +1,12 @@
 package com.personal.marketnote.fulfillment.port.in.usecase.vendor;
 
+/**
+ * 파스토 인증 해제 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-25
+ * @Description 파스토 인증 해제 기능을 제공합니다.
+ */
 public interface DisconnectFasstoAuthUseCase {
     /**
      * @param accessToken Fassto access token

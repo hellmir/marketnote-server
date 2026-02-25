@@ -9,6 +9,13 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
+/**
+ * 상품 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-31
+ * @Description 상품 조회 관련 기능을 제공합니다.
+ */
 public interface GetProductUseCase {
     /**
      * @param id 상품 ID

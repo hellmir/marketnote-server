@@ -4,6 +4,13 @@ import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 
+/**
+ * 회원 가입 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-28
+ * @Description 회원 가입 기능을 제공합니다.
+ */
 public interface SignUpUseCase {
     /**
      * @param signUpCommand 회원 등록 요청 커맨드

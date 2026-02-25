@@ -2,6 +2,13 @@ package com.personal.marketnote.user.port.in.usecase.user;
 
 import com.personal.marketnote.user.port.in.result.WithdrawResult;
 
+/**
+ * 회원 탈퇴 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-29
+ * @Description 회원 탈퇴 기능을 제공합니다.
+ */
 public interface WithdrawUseCase {
     /**
      * @param id                회원 ID

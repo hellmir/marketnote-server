@@ -4,6 +4,13 @@ import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 
 import java.util.Optional;
 
+/**
+ * PSP 결제 이벤트 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-02-25
+ * @Description PSP 결제 이벤트 조회 관련 기능을 제공합니다.
+ */
 public interface FindPspPaymentEventPort {
     /**
      * @param orderKey 주문 키

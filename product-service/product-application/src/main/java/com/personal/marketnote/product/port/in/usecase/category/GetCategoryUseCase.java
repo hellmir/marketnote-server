@@ -3,6 +3,13 @@ package com.personal.marketnote.product.port.in.usecase.category;
 import com.personal.marketnote.product.domain.category.Category;
 import com.personal.marketnote.product.port.in.result.category.GetCategoriesResult;
 
+/**
+ * 카테고리 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-31
+ * @Description 카테고리 조회 관련 기능을 제공합니다.
+ */
 public interface GetCategoryUseCase {
     /**
      * @param id 카테고리 ID

@@ -2,6 +2,13 @@ package com.personal.marketnote.product.port.in.usecase.option;
 
 import com.personal.marketnote.product.port.in.result.option.GetProductOptionsResult;
 
+/**
+ * 상품 옵션 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-01
+ * @Description 상품 옵션 조회 기능을 제공합니다.
+ */
 public interface GetProductOptionsUseCase {
     /**
      * @param productId 상품 ID

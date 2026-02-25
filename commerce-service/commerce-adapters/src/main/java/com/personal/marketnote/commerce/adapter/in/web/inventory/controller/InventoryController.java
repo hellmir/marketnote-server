@@ -26,6 +26,13 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_POINTCUT;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
+/**
+ * 재고 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-06
+ * @Description 재고 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/inventories")
 @Tag(name = "재고 API", description = "재고 관련 API")

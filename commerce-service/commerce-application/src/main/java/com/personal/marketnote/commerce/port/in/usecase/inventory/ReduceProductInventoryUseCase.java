@@ -4,6 +4,13 @@ import com.personal.marketnote.commerce.domain.order.OrderProduct;
 
 import java.util.List;
 
+/**
+ * 상품 재고 차감 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-06
+ * @Description 상품 재고 차감 기능을 제공합니다.
+ */
 public interface ReduceProductInventoryUseCase {
     /**
      * @param orderProducts 주문 상품 목록

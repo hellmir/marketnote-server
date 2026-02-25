@@ -5,6 +5,13 @@ import com.personal.marketnote.community.domain.report.ReportTargetType;
 
 import java.util.List;
 
+/**
+ * 신고 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-13
+ * @Description 신고 내역 조회 관련 기능을 제공합니다.
+ */
 public interface GetReportUseCase {
     /**
      * @param targetType 대상 유형

@@ -5,6 +5,13 @@ import com.personal.marketnote.commerce.domain.payment.Payment;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * 결제 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-02-25
+ * @Description 결제 조회 관련 기능을 제공합니다.
+ */
 public interface FindPaymentPort {
     /**
      * @param orderId 주문 ID

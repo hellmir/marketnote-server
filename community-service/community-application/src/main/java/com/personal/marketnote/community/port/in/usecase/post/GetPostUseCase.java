@@ -6,6 +6,13 @@ import com.personal.marketnote.community.port.in.command.post.GetPostsQuery;
 import com.personal.marketnote.community.port.in.result.post.GetPostsResult;
 import com.personal.marketnote.community.port.in.result.post.PostItemResult;
 
+/**
+ * 게시글 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-13
+ * @Description 게시글 조회 관련 기능을 제공합니다.
+ */
 public interface GetPostUseCase {
     /**
      * @param id 게시글 ID

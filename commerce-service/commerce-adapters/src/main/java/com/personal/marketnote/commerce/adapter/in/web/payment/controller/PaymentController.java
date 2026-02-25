@@ -31,6 +31,13 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 
+/**
+ * 결제 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-02-25
+ * @Description 결제 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/payments")
 @Tag(name = "결제 API", description = "결제 관련 API")

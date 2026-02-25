@@ -7,6 +7,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 주문 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-05
+ * @Description 주문 조회 관련 기능을 제공합니다.
+ */
 public interface FindOrderPort {
     /**
      * @param id 주문 ID

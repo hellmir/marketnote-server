@@ -3,6 +3,13 @@ package com.personal.marketnote.community.port.in.usecase.post;
 import com.personal.marketnote.community.port.in.command.post.RegisterPostCommand;
 import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
 
+/**
+ * 게시글 등록 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-13
+ * @Description 게시글 등록 기능을 제공합니다.
+ */
 public interface RegisterPostUseCase {
     /**
      * 게시글 등록

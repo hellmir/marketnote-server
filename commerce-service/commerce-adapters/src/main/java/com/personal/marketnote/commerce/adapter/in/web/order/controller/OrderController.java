@@ -29,6 +29,13 @@ import org.springframework.web.bind.annotation.*;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
+/**
+ * 주문 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-05
+ * @Description 주문 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/orders")
 @Tag(name = "주문 API", description = "주문 관련 API")

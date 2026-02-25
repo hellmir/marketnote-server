@@ -5,6 +5,13 @@ import com.personal.marketnote.product.port.in.result.pricepolicy.GetPricePolici
 
 import java.util.List;
 
+/**
+ * 가격 정책 목록 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-04
+ * @Description 가격 정책 목록 조회 관련 기능을 제공합니다.
+ */
 public interface GetPricePoliciesUseCase {
     /**
      * @param productId 상품 ID

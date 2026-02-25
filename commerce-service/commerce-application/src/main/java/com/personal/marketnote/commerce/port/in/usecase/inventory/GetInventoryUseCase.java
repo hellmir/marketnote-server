@@ -5,6 +5,13 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * 재고 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-07
+ * @Description 재고 조회 관련 기능을 제공합니다.
+ */
 public interface GetInventoryUseCase {
     /**
      * @param pricePolicyIds 가격 정책 ID 목록

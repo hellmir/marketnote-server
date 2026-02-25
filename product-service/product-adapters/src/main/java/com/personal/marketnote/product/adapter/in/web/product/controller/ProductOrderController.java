@@ -19,6 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 
+/**
+ * 상품 주문 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-05
+ * @Description 상품 주문 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/products/ordering")
 @Tag(name = "상품 주문 API", description = "상품 주문 관련 API")

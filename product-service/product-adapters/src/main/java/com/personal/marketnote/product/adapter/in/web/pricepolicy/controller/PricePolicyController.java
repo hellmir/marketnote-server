@@ -29,6 +29,13 @@ import org.springframework.web.bind.annotation.*;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_POINTCUT;
 
+/**
+ * 가격 정책 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-01
+ * @Description 상품 가격 정책 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/products/{productId}/price-policies")
 @Tag(name = "상품 가격 정책 API", description = "상품 가격 정책 관련 API")

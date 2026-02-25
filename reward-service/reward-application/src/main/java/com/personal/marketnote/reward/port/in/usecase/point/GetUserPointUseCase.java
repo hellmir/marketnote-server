@@ -2,6 +2,13 @@ package com.personal.marketnote.reward.port.in.usecase.point;
 
 import com.personal.marketnote.reward.domain.point.UserPoint;
 
+/**
+ * 회원 포인트 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-17
+ * @Description 회원 포인트 조회 관련 기능을 제공합니다.
+ */
 public interface GetUserPointUseCase {
     /**
      * @param userKey 회원 키

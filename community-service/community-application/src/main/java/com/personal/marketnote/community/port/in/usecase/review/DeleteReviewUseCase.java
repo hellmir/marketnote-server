@@ -1,5 +1,12 @@
 package com.personal.marketnote.community.port.in.usecase.review;
 
+/**
+ * 리뷰 삭제 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-12
+ * @Description 리뷰 삭제 기능을 제공합니다.
+ */
 public interface DeleteReviewUseCase {
     /**
      * @param id         리뷰 ID

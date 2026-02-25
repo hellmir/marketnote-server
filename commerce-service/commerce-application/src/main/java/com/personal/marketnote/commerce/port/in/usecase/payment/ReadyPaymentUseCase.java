@@ -3,6 +3,13 @@ package com.personal.marketnote.commerce.port.in.usecase.payment;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ReadyPaymentResult;
 
+/**
+ * 결제 준비 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-02-25
+ * @Description 결제 준비 기능을 제공합니다.
+ */
 public interface ReadyPaymentUseCase {
     /**
      * @param command 결제 준비 커맨드

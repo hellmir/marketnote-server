@@ -4,6 +4,13 @@ import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeExce
 import com.personal.marketnote.user.port.in.result.LoginResult;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 
+/**
+ * OAuth2 소셜 로그인 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-28
+ * @Description OAuth2 소셜 로그인 기능을 제공합니다.
+ */
 public interface Oauth2LoginUseCase {
     /**
      * @param code        인증 코드

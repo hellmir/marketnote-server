@@ -3,6 +3,13 @@ package com.personal.marketnote.user.port.in.usecase.terms;
 import com.personal.marketnote.user.port.in.command.AcceptOrCancelTermsCommand;
 import com.personal.marketnote.user.port.in.result.GetUserTermsResult;
 
+/**
+ * 이용 약관 동의/철회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-28
+ * @Description 이용 약관 동의 및 철회 기능을 제공합니다.
+ */
 public interface UpdateTermsUseCase {
     /**
      * @param userId                     회원 ID

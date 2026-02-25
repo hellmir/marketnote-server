@@ -1,5 +1,12 @@
 package com.personal.marketnote.product.port.in.usecase.option;
 
+/**
+ * 상품 옵션 삭제 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-01
+ * @Description 상품 옵션 삭제 기능을 제공합니다.
+ */
 public interface DeleteProductOptionsUseCase {
     /**
      * @param userId           사용자 ID

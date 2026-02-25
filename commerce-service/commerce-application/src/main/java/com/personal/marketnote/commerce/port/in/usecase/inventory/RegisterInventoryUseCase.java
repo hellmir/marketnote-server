@@ -5,6 +5,13 @@ import com.personal.marketnote.commerce.port.in.command.inventory.RegisterInvent
 
 import java.util.Set;
 
+/**
+ * 재고 등록 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-06
+ * @Description 재고 등록 관련 기능을 제공합니다.
+ */
 public interface RegisterInventoryUseCase {
     /**
      * @param command 재고 도메인 등록 커맨드

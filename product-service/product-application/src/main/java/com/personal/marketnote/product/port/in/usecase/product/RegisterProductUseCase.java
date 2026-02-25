@@ -3,6 +3,13 @@ package com.personal.marketnote.product.port.in.usecase.product;
 import com.personal.marketnote.product.port.in.command.RegisterProductCommand;
 import com.personal.marketnote.product.port.in.result.product.RegisterProductResult;
 
+/**
+ * 상품 등록 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-30
+ * @Description 상품 등록 기능을 제공합니다.
+ */
 public interface RegisterProductUseCase {
     /**
      * @param command 상품 등록 커맨드

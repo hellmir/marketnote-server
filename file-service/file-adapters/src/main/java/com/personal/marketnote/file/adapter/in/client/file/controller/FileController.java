@@ -23,6 +23,13 @@ import org.springframework.web.bind.annotation.*;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
+/**
+ * 파일 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-03
+ * @Description 파일 관련 API를 제공합니다.
+ */
 @Controller
 @RequestMapping("/api/v1/files")
 @Tag(name = "파일 API", description = "파일 관련 API")

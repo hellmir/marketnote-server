@@ -3,6 +3,13 @@ package com.personal.marketnote.fulfillment.port.in.usecase.vendor;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.CompleteFasstoDeliveryIcsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.CompleteFasstoDeliveryIcsResult;
 
+/**
+ * 파스토 출고 ICS 완료 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-02-18
+ * @Description 파스토 출고 ICS 완료 기능을 제공합니다.
+ */
 public interface CompleteFasstoDeliveryIcsUseCase {
     /**
      * @param command 해외 배송완료 처리 커맨드

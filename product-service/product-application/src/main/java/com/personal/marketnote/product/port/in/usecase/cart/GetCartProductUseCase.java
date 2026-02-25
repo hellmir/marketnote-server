@@ -3,6 +3,13 @@ package com.personal.marketnote.product.port.in.usecase.cart;
 import com.personal.marketnote.product.domain.cart.CartProduct;
 import com.personal.marketnote.product.port.in.result.cart.GetMyCartProductsResult;
 
+/**
+ * 장바구니 상품 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-04
+ * @Description 장바구니 상품 조회 관련 기능을 제공합니다.
+ */
 public interface GetCartProductUseCase {
     /**
      * @param userId   회원 ID

@@ -4,6 +4,13 @@ import com.personal.marketnote.community.domain.post.Board;
 import com.personal.marketnote.community.port.in.result.board.GetBoardCategoriesResult;
 import com.personal.marketnote.community.port.in.result.board.GetBoardsResult;
 
+/**
+ * 게시판 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-15
+ * @Description 게시판 및 카테고리 조회 기능을 제공합니다.
+ */
 public interface GetBoardUseCase {
     /**
      * @param board 게시판

@@ -11,6 +11,13 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
+/**
+ * 리뷰 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-09
+ * @Description 리뷰 조회 관련 기능을 제공합니다.
+ */
 public interface GetReviewUseCase {
     /**
      * @param id 리뷰 ID
