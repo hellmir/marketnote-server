@@ -2,8 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterResponse;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import com.personal.marketnote.commerce.domain.payment.PaymentMethod;
@@ -12,8 +11,7 @@ import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendo
 import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendorCommunicationType;
 import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendorName;
 import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
-import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorCommand;
-import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorResult;
+import com.personal.marketnote.commerce.port.out.payment.vendor.*;
 import com.personal.marketnote.commerce.utility.VendorCommunicationRecorder;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +25,7 @@ import java.util.Set;
 @Slf4j
 public class KcpPaymentVendorAdapter implements PaymentVendorPort {
     private static final CommerceVendorName VENDOR_NAME = CommerceVendorName.NHN_KCP;
+    private static final String PAYMENT_APPROVAL_TRAN_CD = "00100000";
     private static final String MASKED = "***MASKED***";
     private static final Set<String> SENSITIVE_FIELDS = Set.of(
             "kcp_cert_info", "kcp_sign_data", "enc_data", "enc_info"
@@ -76,6 +75,55 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
                     .build();
         } catch (KcpCommunicationException e) {
             recordError(CommerceVendorCommunicationTargetType.TRADE_REGISTER, command.orderKey(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public PaymentApprovalVendorResult approvePayment(PaymentApprovalVendorCommand command) {
+        String certInfo = kcpCertificateLoader.loadCertInfo();
+
+        KcpPaymentApprovalRequest request = KcpPaymentApprovalRequest.builder()
+                .siteCd(kcpProperties.getSiteCd())
+                .encData(command.encData())
+                .encInfo(command.encInfo())
+                .tranCd(PAYMENT_APPROVAL_TRAN_CD)
+                .kcpCertInfo(certInfo)
+                .ordrMony(command.ordrMony())
+                .ordrNo(command.ordrNo())
+                .payType(command.payType())
+                .build();
+
+        recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.ordrNo(), request);
+
+        try {
+            KcpPaymentApprovalResponse response = kcpApiClient.approvePayment(request);
+            recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.ordrNo(), response);
+
+            return PaymentApprovalVendorResult.builder()
+                    .resCd(response.resCd())
+                    .resMsg(response.resMsg())
+                    .resEnMsg(response.resEnMsg())
+                    .tno(response.tno())
+                    .amount(response.amount())
+                    .payMethod(response.payMethod())
+                    .cardCd(response.cardCd())
+                    .cardName(response.cardName())
+                    .cardNo(response.cardNo())
+                    .appNo(response.appNo())
+                    .appTime(response.appTime())
+                    .noinf(response.noinf())
+                    .noinfType(response.noinfType())
+                    .quota(response.quota())
+                    .cardMny(response.cardMny())
+                    .couponMny(response.couponMny())
+                    .partcancYn(response.partcancYn())
+                    .cardBinType01(response.cardBinType01())
+                    .cardBinType02(response.cardBinType02())
+                    .rawResponse(kcpApiClient.toJsonNode(response).toString())
+                    .build();
+        } catch (KcpCommunicationException e) {
+            recordError(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.ordrNo(), e);
             throw e;
         }
     }

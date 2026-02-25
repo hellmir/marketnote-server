@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.port.out.payment;
 
-import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorCommand;
-import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorResult;
+import com.personal.marketnote.commerce.port.out.payment.vendor.*;
 
 public interface PaymentVendorPort {
     /**
@@ -20,4 +19,13 @@ public interface PaymentVendorPort {
      * @Description 결제 대행사에 거래를 등록합니다.
      */
     TradeRegisterVendorResult registerTrade(TradeRegisterVendorCommand command);
+
+    /**
+     * @param command 결제 승인 요청 정보 {@link PaymentApprovalVendorCommand}
+     * @return 결제 승인 결과 {@link PaymentApprovalVendorResult}
+     * @Date 2026-02-25
+     * @Author 성효빈
+     * @Description 결제 대행사에 결제 승인을 요청합니다.
+     */
+    PaymentApprovalVendorResult approvePayment(PaymentApprovalVendorCommand command);
 }

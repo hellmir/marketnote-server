@@ -2,8 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterResponse;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -43,7 +42,7 @@ public class KcpApiClient {
         log.debug("KCP 거래등록 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
 
         if (FormatValidator.hasNoValue(responseBody)) {
-            throw new KcpCommunicationException("KCP 거래등록 응답 본문이 비어있습니다");
+            throw new KcpCommunicationException("KCP 거래등록 응답 본문이 비어 있습니다.");
         }
 
         try {
@@ -51,6 +50,37 @@ public class KcpApiClient {
         } catch (Exception e) {
             log.error("KCP 거래등록 응답 파싱 실패: {}", e.getMessage());
             throw new KcpCommunicationException("KCP 거래등록 응답 파싱 실패", e);
+        }
+    }
+
+    public KcpPaymentApprovalResponse approvePayment(KcpPaymentApprovalRequest request) {
+        String url = kcpProperties.getApi().getPaymentApprovalUrl();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<KcpPaymentApprovalRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        log.info("KCP 결제승인 요청: url={}, ordrNo={}", url, request.ordrNo());
+
+        ResponseEntity<String> rawResponse = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                httpEntity,
+                String.class
+        );
+
+        String responseBody = rawResponse.getBody();
+        log.debug("KCP 결제승인 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+
+        if (FormatValidator.hasNoValue(responseBody)) {
+            throw new KcpCommunicationException("KCP 결제승인 응답 본문이 비어 있습니다.");
+        }
+
+        try {
+            return objectMapper.readValue(responseBody, KcpPaymentApprovalResponse.class);
+        } catch (Exception e) {
+            log.error("KCP 결제승인 응답 파싱 실패: {}", e.getMessage());
+            throw new KcpCommunicationException("KCP 결제승인 응답 파싱 실패", e);
         }
     }
 
