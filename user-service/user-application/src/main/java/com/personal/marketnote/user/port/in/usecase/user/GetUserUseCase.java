@@ -12,6 +12,13 @@ import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * 회원 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2025-12-28
+ * @Description 회원 조회 관련 기능을 제공합니다.
+ */
 public interface GetUserUseCase {
     /**
      * @param referredUserCode 추천인 코드

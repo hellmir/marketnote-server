@@ -2,6 +2,13 @@ package com.personal.marketnote.commerce.port.out.inventory;
 
 import java.util.Set;
 
+/**
+ * 재고 락 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-17
+ * @Description 재고 동시성 제어를 위한 락 기능을 제공합니다.
+ */
 public interface InventoryLockPort {
     /**
      * @param pricePolicyIds 가격 정책 ID 목록

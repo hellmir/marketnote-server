@@ -43,6 +43,13 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 import static com.personal.marketnote.common.domain.exception.ExceptionMessage.INVALID_ACCESS_TOKEN_EXCEPTION_MESSAGE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
+/**
+ * 게시글 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-13
+ * @Description 게시글 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/posts")
 @Tag(name = "게시글 API", description = "게시글 관련 API")

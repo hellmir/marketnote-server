@@ -5,6 +5,13 @@ import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResul
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 가격 정책 기반 상품 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-09
+ * @Description 가격 정책 ID를 기반으로 상품 정보를 조회합니다.
+ */
 public interface FindProductByPricePolicyPort {
     /**
      * @param pricePolicyIds 가격 정책 ID 목록

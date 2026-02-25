@@ -2,6 +2,13 @@ package com.personal.marketnote.user.port.in.usecase.shippingaddress;
 
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
 
+/**
+ * 배송지 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-02-19
+ * @Description 배송지 조회 기능을 제공합니다.
+ */
 public interface GetShippingAddressUseCase {
     /**
      * @param shippingAddressId 배송지 ID

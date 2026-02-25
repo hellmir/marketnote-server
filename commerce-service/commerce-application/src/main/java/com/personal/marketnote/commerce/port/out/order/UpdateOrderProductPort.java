@@ -3,6 +3,13 @@ package com.personal.marketnote.commerce.port.out.order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 
+/**
+ * 주문 상품 수정 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-12
+ * @Description 주문 상품 수정 기능을 제공합니다.
+ */
 public interface UpdateOrderProductPort {
     /**
      * @param orderProduct 주문 상품 도메인

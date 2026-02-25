@@ -10,6 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * 리뷰 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-09
+ * @Description 리뷰 조회 관련 기능을 제공합니다.
+ */
 public interface FindReviewPort {
     /**
      * @param id 리뷰 ID

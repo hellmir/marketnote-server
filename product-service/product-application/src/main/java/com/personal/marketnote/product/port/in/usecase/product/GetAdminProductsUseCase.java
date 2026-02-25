@@ -7,6 +7,13 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
+/**
+ * 관리자 상품 목록 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-02-03
+ * @Description 관리자 상품 목록 조회 기능을 제공합니다.
+ */
 public interface GetAdminProductsUseCase {
     /**
      * @param categoryId     카테고리 ID

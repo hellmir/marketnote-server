@@ -3,6 +3,13 @@ package com.personal.marketnote.fulfillment.port.in.usecase.vendor;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoDirectReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFasstoDeliveryResult;
 
+/**
+ * 파스토 직접 반품 등록 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-02-20
+ * @Description 파스토 직접 반품 등록 기능을 제공합니다.
+ */
 public interface RegisterFasstoDirectReturnDeliveryUseCase {
     /**
      * @param command 반품 택배사 미지정 등록 커맨드

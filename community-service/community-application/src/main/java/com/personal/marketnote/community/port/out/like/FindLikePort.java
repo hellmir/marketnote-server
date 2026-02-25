@@ -6,6 +6,13 @@ import com.personal.marketnote.community.exception.LikeNotFoundException;
 
 import java.util.Optional;
 
+/**
+ * 좋아요 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-10
+ * @Description 좋아요 조회 관련 기능을 제공합니다.
+ */
 public interface FindLikePort {
     /**
      * @param targetType 좋아요 대상 타입

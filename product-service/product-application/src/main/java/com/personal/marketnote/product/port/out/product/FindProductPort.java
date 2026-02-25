@@ -8,6 +8,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 상품 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2025-12-31
+ * @Description 상품 조회 관련 기능을 제공합니다.
+ */
 public interface FindProductPort {
     /**
      * @param productId 상품 ID

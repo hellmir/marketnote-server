@@ -5,6 +5,13 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
+/**
+ * 게시글 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-13
+ * @Description 게시글 조회 관련 기능을 제공합니다.
+ */
 public interface FindPostPort {
     /**
      * @param id 게시글 ID

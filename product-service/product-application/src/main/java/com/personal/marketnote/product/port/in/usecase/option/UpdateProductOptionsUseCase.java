@@ -3,6 +3,13 @@ package com.personal.marketnote.product.port.in.usecase.option;
 import com.personal.marketnote.product.port.in.command.UpdateProductOptionsCommand;
 import com.personal.marketnote.product.port.in.result.option.UpdateProductOptionsResult;
 
+/**
+ * 상품 옵션 수정 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-01
+ * @Description 상품 옵션 수정 기능을 제공합니다.
+ */
 public interface UpdateProductOptionsUseCase {
     /**
      * @param userId  사용자 ID

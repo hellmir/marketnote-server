@@ -2,6 +2,13 @@ package com.personal.marketnote.commerce.port.out.payment;
 
 import com.personal.marketnote.commerce.port.out.payment.vendor.*;
 
+/**
+ * 결제 대행사 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-02-25
+ * @Description 결제 대행사 연동 관련 기능을 제공합니다.
+ */
 public interface PaymentVendorPort {
     /**
      * @return 결제 대행사 사이트 코드 {@link String}

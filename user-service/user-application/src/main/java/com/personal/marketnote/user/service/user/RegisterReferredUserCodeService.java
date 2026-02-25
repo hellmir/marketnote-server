@@ -40,7 +40,13 @@ public class RegisterReferredUserCodeService implements RegisterReferredUserCode
 
         // 추천한 회원/추천 받은 회원 포인트 적립 요청
         // FIXME: Kafka 이벤트 Production으로 변경
-        runAfterCommit(() -> modifyUserPointPort.accrueReferralPoints(requestUser.getId(), referredUser.getId()));
+        try {
+            runAfterCommit(() -> modifyUserPointPort.accrueReferralPoints(requestUser.getId(), referredUser.getId()));
+        } catch (Exception e) {
+            requestUser.removeReferredUserCode();
+            updateUserPort.update(requestUser);
+            throw e;
+        }
     }
 
     private void runAfterCommit(Runnable action) {

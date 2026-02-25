@@ -32,6 +32,13 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 import static org.apache.commons.lang3.BooleanUtils.FALSE;
 
+/**
+ * 리뷰 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-09
+ * @Description 리뷰 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "리뷰 API", description = "리뷰 관련 API")

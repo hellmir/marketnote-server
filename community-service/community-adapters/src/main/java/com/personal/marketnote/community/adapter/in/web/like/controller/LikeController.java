@@ -22,6 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 
+/**
+ * 좋아요 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-10
+ * @Description 좋아요 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/likes")
 @Tag(name = "좋아요 API", description = "좋아요 관련 API")

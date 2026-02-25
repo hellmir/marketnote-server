@@ -37,6 +37,13 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_POINTCUT;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
+/**
+ * 카테고리 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2025-12-31
+ * @Description 카테고리 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/categories")
 @Tag(name = "카테고리 API", description = "카테고리 관련 API")

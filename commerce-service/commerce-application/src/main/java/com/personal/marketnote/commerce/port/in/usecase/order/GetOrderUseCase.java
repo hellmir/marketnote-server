@@ -6,6 +6,13 @@ import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHisto
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderProductsQuery;
 import com.personal.marketnote.commerce.port.in.result.order.*;
 
+/**
+ * 주문 조회 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-05
+ * @Description 주문 조회 관련 기능을 제공합니다.
+ */
 public interface GetOrderUseCase {
     /**
      * @param id 주문 ID

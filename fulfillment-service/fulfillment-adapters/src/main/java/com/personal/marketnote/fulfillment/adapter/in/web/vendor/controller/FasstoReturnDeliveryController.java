@@ -29,6 +29,13 @@ import java.util.List;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
+/**
+ * 파스토 반품 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-02-20
+ * @Description 파스토 반품 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/vendors/fassto/return-deliveries")
 @Tag(name = "파스토 반품 API", description = "파스토 반품 관련 API")

@@ -23,6 +23,13 @@ import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 
+/**
+ * 장바구니 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2026-01-04
+ * @Description 장바구니 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/cart")
 @Tag(name = "장바구니 API", description = "장바구니 관련 API")

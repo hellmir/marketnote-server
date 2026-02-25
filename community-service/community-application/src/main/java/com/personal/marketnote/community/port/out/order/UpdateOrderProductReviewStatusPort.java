@@ -1,5 +1,12 @@
 package com.personal.marketnote.community.port.out.order;
 
+/**
+ * 주문 상품 리뷰 상태 수정 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-12
+ * @Description 주문 상품의 리뷰 작성 여부를 수정합니다.
+ */
 public interface UpdateOrderProductReviewStatusPort {
     /**
      * @param orderId       주문 ID

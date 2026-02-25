@@ -32,6 +32,13 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 import static com.personal.marketnote.common.utility.NumberConstant.MINUS_ONE;
 
+/**
+ * 상품 컨트롤러
+ *
+ * @Author 성효빈
+ * @Date 2025-12-30
+ * @Description 상품 관련 API를 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/v1/products")
 @Tag(name = "상품 API", description = "상품 관련 API")

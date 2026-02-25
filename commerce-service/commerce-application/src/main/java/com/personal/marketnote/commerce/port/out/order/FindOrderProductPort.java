@@ -4,6 +4,13 @@ import com.personal.marketnote.commerce.domain.order.OrderProduct;
 
 import java.util.Optional;
 
+/**
+ * 주문 상품 조회 포트
+ *
+ * @Author 성효빈
+ * @Date 2026-01-12
+ * @Description 주문 상품 조회 관련 기능을 제공합니다.
+ */
 public interface FindOrderProductPort {
     /**
      * @param orderId       주문 ID

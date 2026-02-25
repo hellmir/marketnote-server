@@ -3,6 +3,13 @@ package com.personal.marketnote.fulfillment.port.in.usecase.vendor;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFasstoGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFasstoGoodsResult;
 
+/**
+ * 파스토 상품 수정 유스케이스
+ *
+ * @Author 성효빈
+ * @Date 2026-01-30
+ * @Description 파스토 상품 수정 기능을 제공합니다.
+ */
 public interface UpdateFasstoGoodsUseCase {
     /**
      * @param command 상품 수정 커맨드
