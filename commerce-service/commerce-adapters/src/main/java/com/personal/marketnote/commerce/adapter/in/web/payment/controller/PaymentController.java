@@ -1,15 +1,19 @@
 package com.personal.marketnote.commerce.adapter.in.web.payment.controller;
 
 import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.ApprovePaymentApiDocs;
+import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.GetPaymentApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.ReadyPaymentApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.payment.mapper.PaymentRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.payment.request.ApprovePaymentRequest;
 import com.personal.marketnote.commerce.adapter.in.web.payment.request.ReadyPaymentRequest;
 import com.personal.marketnote.commerce.adapter.in.web.payment.response.ApprovePaymentResponse;
+import com.personal.marketnote.commerce.adapter.in.web.payment.response.GetPaymentResponse;
 import com.personal.marketnote.commerce.adapter.in.web.payment.response.ReadyPaymentResponse;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
+import com.personal.marketnote.commerce.port.in.result.payment.GetPaymentResult;
 import com.personal.marketnote.commerce.port.in.result.payment.ReadyPaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ApprovePaymentUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.payment.GetPaymentUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ReadyPaymentUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
@@ -31,6 +35,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 public class PaymentController {
     private final ReadyPaymentUseCase readyPaymentUseCase;
     private final ApprovePaymentUseCase approvePaymentUseCase;
+    private final GetPaymentUseCase getPaymentUseCase;
 
     /**
      * 거래 등록 (Mobile)
@@ -87,6 +92,35 @@ public class PaymentController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "결제 승인 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 결제 정보 조회
+     *
+     * @param orderKey 주문 키 (UUID)
+     * @return 결제 정보 조회 응답 {@link GetPaymentResponse}
+     * @Author 성효빈
+     * @Date 2026-02-25
+     * @Description 주문 키로 결제 정보를 조회합니다.
+     */
+    @GetMapping("/{orderKey}")
+    @GetPaymentApiDocs
+    public ResponseEntity<BaseResponse<GetPaymentResponse>> getPayment(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @PathVariable("orderKey") String orderKey
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+        GetPaymentResult result = getPaymentUseCase.getPayment(buyerId, orderKey);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetPaymentResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "결제 정보 조회 성공"
                 ),
                 HttpStatus.OK
         );
