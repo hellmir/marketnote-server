@@ -68,10 +68,11 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 생성된 주문 ID | 1 |
+                | orderKey | string(uuid) | 주문 키 | "550e8400-e29b-41d4-a716-446655440000" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -115,7 +116,8 @@ import java.lang.annotation.*;
                                           "code": "SUC01",
                                           "timestamp": "2026-01-05T12:12:30.013",
                                           "content": {
-                                            "id": 1
+                                            "id": 1,
+                                            "orderKey": "550e8400-e29b-41d4-a716-446655440000"
                                           },
                                           "message": "주문 등록 성공"
                                         }

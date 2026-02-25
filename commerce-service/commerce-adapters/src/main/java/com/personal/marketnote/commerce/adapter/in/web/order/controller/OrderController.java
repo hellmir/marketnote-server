@@ -4,10 +4,7 @@ import com.personal.marketnote.commerce.adapter.in.web.order.controller.apidocs.
 import com.personal.marketnote.commerce.adapter.in.web.order.mapper.OrderRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
-import com.personal.marketnote.commerce.adapter.in.web.order.response.GetMyOrdersResponse;
-import com.personal.marketnote.commerce.adapter.in.web.order.response.GetOrderCountResponse;
-import com.personal.marketnote.commerce.adapter.in.web.order.response.GetOrderResponse;
-import com.personal.marketnote.commerce.adapter.in.web.order.response.RegisterOrderResponse;
+import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
 import com.personal.marketnote.commerce.domain.order.OrderStatusFilter;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHistoryQuery;
@@ -72,6 +69,33 @@ public class OrderController {
                         "주문 등록 성공"
                 ),
                 HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * 주문 키 조회
+     *
+     * @param id 주문 ID
+     * @return 주문 키 조회 응답 {@link GetOrderKeyResponse}
+     * @Author 성효빈
+     * @Date 2026-02-25
+     * @Description 주문 ID로 주문 키를 조회합니다.
+     */
+    @GetMapping("/{id}/order-key")
+    @GetOrderKeyApiDocs
+    public ResponseEntity<BaseResponse<GetOrderKeyResponse>> getOrderKey(
+            @PathVariable("id") Long id
+    ) {
+        GetOrderKeyResult getOrderKeyResult = getOrderUseCase.getOrderKey(id);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetOrderKeyResponse.from(getOrderKeyResult),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "주문 키 조회 성공"
+                ),
+                HttpStatus.OK
         );
     }
 
