@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.domain.servicecommunication;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +16,7 @@ public class CommerceServiceCommunicationHistory {
     private CommerceServiceCommunicationSenderType sender;
     private String exception;
     private String payload;
-    private JsonNode payloadJson;
+    private String payloadJson;
     private LocalDateTime createdAt;
 
     public static CommerceServiceCommunicationHistory from(CommerceServiceCommunicationHistoryCreateState state) {

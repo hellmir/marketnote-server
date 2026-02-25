@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.servicecommunication.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -58,6 +59,8 @@ public class CommerceServiceCommunicationHistoryJpaEntity {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     public static CommerceServiceCommunicationHistoryJpaEntity from(CommerceServiceCommunicationHistory history) {
         return CommerceServiceCommunicationHistoryJpaEntity.builder()
                 .id(history.getId())
@@ -67,7 +70,7 @@ public class CommerceServiceCommunicationHistoryJpaEntity {
                 .sender(history.getSender())
                 .exception(history.getException())
                 .payload(history.getPayload())
-                .payloadJson(history.getPayloadJson())
+                .payloadJson(parseJsonNode(history.getPayloadJson()))
                 .createdAt(history.getCreatedAt())
                 .build();
     }
@@ -82,9 +85,20 @@ public class CommerceServiceCommunicationHistoryJpaEntity {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson)
+                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
                         .createdAt(createdAt)
                         .build()
         );
+    }
+
+    private static JsonNode parseJsonNode(String jsonString) {
+        if (jsonString == null) {
+            return null;
+        }
+        try {
+            return OBJECT_MAPPER.readTree(jsonString);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

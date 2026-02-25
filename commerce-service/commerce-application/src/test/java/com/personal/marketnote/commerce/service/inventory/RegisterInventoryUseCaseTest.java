@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -87,7 +88,7 @@ class RegisterInventoryUseCaseTest {
 
             registerInventoryService.registerInventory(command);
 
-            var inOrder = inOrder(findInventoryPort, saveInventoryPort, saveCacheStockPort);
+            InOrder inOrder = inOrder(findInventoryPort, saveInventoryPort, saveCacheStockPort);
             inOrder.verify(findInventoryPort).existsByPricePolicyId(pricePolicyId);
             inOrder.verify(saveInventoryPort).save(any(Inventory.class));
             inOrder.verify(saveCacheStockPort).save(pricePolicyId, 0);
@@ -267,7 +268,7 @@ class RegisterInventoryUseCaseTest {
 
             registerInventoryService.registerInventories(commands);
 
-            var inOrder = inOrder(saveInventoryPort, saveCacheStockPort);
+            InOrder inOrder = inOrder(saveInventoryPort, saveCacheStockPort);
             inOrder.verify(saveInventoryPort).save(any(Set.class));
             inOrder.verify(saveCacheStockPort).save(any(Set.class));
             inOrder.verifyNoMoreInteractions();

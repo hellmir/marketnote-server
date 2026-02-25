@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.domain.servicecommunication;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,6 +15,6 @@ public class CommerceServiceCommunicationHistorySnapshotState {
     private final CommerceServiceCommunicationSenderType sender;
     private final String exception;
     private final String payload;
-    private final JsonNode payloadJson;
+    private final String payloadJson;
     private final LocalDateTime createdAt;
 }

@@ -553,7 +553,7 @@ public class FasstoReturnDeliveryClient implements RegisterFasstoReturnDeliveryP
 
         if (FormatValidator.hasValue(rawBody)) {
             try {
-                var errorResponse = objectMapper.readValue(rawBody, FasstoErrorResponse.class);
+                FasstoErrorResponse errorResponse = objectMapper.readValue(rawBody, FasstoErrorResponse.class);
                 return errorResponse.resolveErrorMessage();
             } catch (Exception ignored) {
             }
@@ -641,7 +641,7 @@ public class FasstoReturnDeliveryClient implements RegisterFasstoReturnDeliveryP
 
         if (FormatValidator.hasValue(rawBody)) {
             try {
-                var errorResponse = objectMapper.readValue(rawBody, FasstoErrorResponse.class);
+                FasstoErrorResponse errorResponse = objectMapper.readValue(rawBody, FasstoErrorResponse.class);
                 return errorResponse.resolveErrorMessage();
             } catch (Exception ignored) {
             }
@@ -657,7 +657,7 @@ public class FasstoReturnDeliveryClient implements RegisterFasstoReturnDeliveryP
                 return null;
             }
             try {
-                var parsedResponse = objectMapper.readValue(body, FasstoErrorResponse.class);
+                FasstoErrorResponse parsedResponse = objectMapper.readValue(body, FasstoErrorResponse.class);
                 return parsedResponse.resolveErrorMessage();
             } catch (Exception ignored) {
             }

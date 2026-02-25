@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -372,7 +373,7 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
 
             syncFulfillmentVendorInventoryService.syncInventories(command);
 
-            var inOrder = inOrder(findInventoryPort, updateInventoryPort, saveCacheStockPort);
+            InOrder inOrder = inOrder(findInventoryPort, updateInventoryPort, saveCacheStockPort);
             inOrder.verify(findInventoryPort).findByProductIds(any());
             inOrder.verify(findInventoryPort).findByPricePolicyIds(any());
             inOrder.verify(updateInventoryPort).update(any());

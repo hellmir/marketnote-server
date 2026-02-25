@@ -63,6 +63,16 @@ reward-service:
   base-url: ${REWARD_SERVICE_SERVER_ORIGIN:http://localhost:8084}
   share-point-amount: ${REWARD_SHARE_POINT_AMOUNT:5000}
 
+kcp:
+  site-cd: ${KCP_SITE_CD:T0000}
+  cert-info-path: ${KCP_CERT_INFO_PATH:classpath:kcp/cert/kcp_test_cert.pem}
+  private-key-path: ${KCP_PRIVATE_KEY_PATH:}
+  api:
+    trade-register-url: ${KCP_TRADE_REGISTER_URL:https://testsmpay.kcp.co.kr/trade/register.do}
+    payment-approval-url: ${KCP_PAYMENT_APPROVAL_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
+    payment-cancel-url: ${KCP_PAYMENT_CANCEL_URL:https://stg-spl.kcp.co.kr/gw/mod/v1/cancel}
+  ret-url: ${KCP_RET_URL:https://marketnote-dev.vercel.app/payments/kcp/callback}
+
 management:
   endpoints:
     web:

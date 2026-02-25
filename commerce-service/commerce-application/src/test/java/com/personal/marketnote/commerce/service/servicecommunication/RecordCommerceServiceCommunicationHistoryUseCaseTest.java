@@ -1,8 +1,5 @@
 package com.personal.marketnote.commerce.service.servicecommunication;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.personal.marketnote.commerce.domain.servicecommunication.*;
 import com.personal.marketnote.commerce.port.in.command.servicecommunication.CommerceServiceCommunicationHistoryCommand;
 import com.personal.marketnote.commerce.port.out.servicecommunication.SaveCommerceServiceCommunicationHistoryPort;
@@ -29,13 +26,11 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @InjectMocks
     private RecordCommerceServiceCommunicationHistoryService recordService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
     @DisplayName("커머스 서비스 통신 기록 저장 시 모든 필드가 정확히 매핑되어 저장된다")
     void record_withAllFields_savesWithAllFieldsMapped() {
         // given
-        JsonNode payloadJson = objectMapper.createObjectNode().put("key", "value");
+        String payloadJson = "{\"key\":\"value\"}";
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.PRODUCT_INFO,
                 "target-123",
@@ -255,7 +250,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @DisplayName("커머스 서비스 통신 기록 저장 시 payloadJson만 있고 payload가 null이면 정상 저장된다")
     void record_withPayloadJsonOnly_savesCorrectly() {
         // given
-        JsonNode json = objectMapper.createObjectNode().put("status", 500);
+        String json = "{\"status\":500}";
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.USER_POINT,
                 null,
@@ -361,7 +356,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @DisplayName("커머스 서비스 통신 기록 저장 시 SavePort의 반환값이 그대로 반환된다")
     void record_returnsExactResultFromPort() {
         // given
-        JsonNode payloadJson = objectMapper.createObjectNode().put("method", "GET");
+        String payloadJson = "{\"method\":\"GET\"}";
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.PRODUCT_INFO,
                 "product-789",
@@ -427,14 +422,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @DisplayName("커머스 서비스 통신 기록 저장 시 복합 JSON payload가 정확히 매핑된다")
     void record_withComplexJsonPayload_mapsCorrectly() {
         // given
-        ObjectNode body = objectMapper.createObjectNode();
-        body.put("productId", 100);
-        body.put("quantity", 5);
-        ObjectNode complexJson = objectMapper.createObjectNode();
-        complexJson.put("method", "POST");
-        complexJson.put("url", "http://api.example.com/products/info");
-        complexJson.put("attempt", 3);
-        complexJson.set("body", body);
+        String complexJson = "{\"method\":\"POST\",\"url\":\"http://api.example.com/products/info\",\"attempt\":3,\"body\":{\"productId\":100,\"quantity\":5}}";
 
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.PRODUCT_INFO,
@@ -458,20 +446,17 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
 
         CommerceServiceCommunicationHistory captured = captor.getValue();
         assertThat(captured.getPayloadJson()).isEqualTo(complexJson);
-        assertThat(captured.getPayloadJson().get("method").asText()).isEqualTo("POST");
-        assertThat(captured.getPayloadJson().get("attempt").asInt()).isEqualTo(3);
-        assertThat(captured.getPayloadJson().get("body").get("productId").asInt()).isEqualTo(100);
-        assertThat(captured.getPayloadJson().get("body").get("quantity").asInt()).isEqualTo(5);
+        assertThat(captured.getPayloadJson()).contains("\"method\":\"POST\"");
+        assertThat(captured.getPayloadJson()).contains("\"attempt\":3");
+        assertThat(captured.getPayloadJson()).contains("\"productId\":100");
+        assertThat(captured.getPayloadJson()).contains("\"quantity\":5");
     }
 
     @Test
     @DisplayName("상품 서비스 상품 정보 조회 실패 응답 기록이 정확히 저장된다")
     void record_productInfoFailureResponse_savesCorrectly() {
         // given
-        ObjectNode errorPayload = objectMapper.createObjectNode();
-        errorPayload.put("error", "Not Found");
-        errorPayload.put("message", "상품을 찾을 수 없습니다");
-        errorPayload.put("attempt", 1);
+        String errorPayload = "{\"error\":\"Not Found\",\"message\":\"상품을 찾을 수 없습니다\",\"attempt\":1}";
 
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.PRODUCT_INFO,
@@ -519,10 +504,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @DisplayName("유저 서비스 포인트 차감 요청 기록이 정확히 저장된다")
     void record_userPointDeductionRequest_savesCorrectly() {
         // given
-        ObjectNode requestPayload = objectMapper.createObjectNode();
-        requestPayload.put("method", "POST");
-        requestPayload.put("url", "http://user/api/points/deduct");
-        requestPayload.put("attempt", 1);
+        String requestPayload = "{\"method\":\"POST\",\"url\":\"http://user/api/points/deduct\",\"attempt\":1}";
 
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.USER_POINT,
@@ -556,10 +538,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @DisplayName("유저 서비스 포인트 조회 실패 응답 기록이 정확히 저장된다")
     void record_userPointQueryFailureResponse_savesCorrectly() {
         // given
-        ObjectNode errorPayload = objectMapper.createObjectNode();
-        errorPayload.put("error", "RestClientException");
-        errorPayload.put("message", "Connection refused");
-        errorPayload.put("attempt", 3);
+        String errorPayload = "{\"error\":\"RestClientException\",\"message\":\"Connection refused\",\"attempt\":3}";
 
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.USER_POINT,
@@ -593,9 +572,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @DisplayName("장바구니 상품 조회 실패 응답 기록이 정확히 저장된다")
     void record_cartProductQueryFailureResponse_savesCorrectly() {
         // given
-        ObjectNode responsePayload = objectMapper.createObjectNode();
-        responsePayload.put("status", 500);
-        responsePayload.put("message", "Internal Server Error");
+        String responsePayload = "{\"status\":500,\"message\":\"Internal Server Error\"}";
 
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.CART_PRODUCT,
@@ -629,14 +606,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
     @DisplayName("상품 정보 동기화 요청 기록이 정확히 저장된다")
     void record_productInfoSyncRequest_savesCorrectly() {
         // given
-        ObjectNode requestBody = objectMapper.createObjectNode();
-        requestBody.put("productName", "테스트 상품");
-        requestBody.put("price", 15000);
-        ObjectNode requestPayload = objectMapper.createObjectNode();
-        requestPayload.put("method", "POST");
-        requestPayload.put("url", "http://product/api/products/info");
-        requestPayload.put("attempt", 1);
-        requestPayload.set("body", requestBody);
+        String requestPayload = "{\"method\":\"POST\",\"url\":\"http://product/api/products/info\",\"attempt\":1,\"body\":{\"productName\":\"테스트 상품\",\"price\":15000}}";
 
         CommerceServiceCommunicationHistoryCommand command = buildCommand(
                 CommerceServiceCommunicationTargetType.PRODUCT_INFO,
@@ -664,7 +634,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
         assertThat(captured.getCommunicationType()).isEqualTo(CommerceServiceCommunicationType.REQUEST);
         assertThat(captured.getSender()).isEqualTo(CommerceServiceCommunicationSenderType.COMMERCE);
         assertThat(captured.getException()).isNull();
-        assertThat(captured.getPayloadJson().get("body").get("productName").asText()).isEqualTo("테스트 상품");
+        assertThat(captured.getPayloadJson()).contains("\"productName\":\"테스트 상품\"");
     }
 
     @Test
@@ -710,7 +680,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
             CommerceServiceCommunicationSenderType sender,
             String exception,
             String payload,
-            JsonNode payloadJson
+            String payloadJson
     ) {
         return CommerceServiceCommunicationHistoryCommand.builder()
                 .targetType(targetType)
@@ -731,7 +701,7 @@ class RecordCommerceServiceCommunicationHistoryUseCaseTest {
             CommerceServiceCommunicationSenderType sender,
             String exception,
             String payload,
-            JsonNode payloadJson,
+            String payloadJson,
             LocalDateTime createdAt
     ) {
         return CommerceServiceCommunicationHistory.from(

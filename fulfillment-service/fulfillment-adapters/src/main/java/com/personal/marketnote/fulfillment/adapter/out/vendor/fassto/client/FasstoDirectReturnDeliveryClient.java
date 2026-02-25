@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FasstoErrorResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFasstoDeliveryResponse;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery.FasstoDirectReturnDeliveryMapper;
@@ -325,9 +326,9 @@ public class FasstoDirectReturnDeliveryClient implements RegisterFasstoDirectRet
 
         if (FormatValidator.hasValue(rawBody)) {
             try {
-                var errorResponse = objectMapper.readValue(
+                FasstoErrorResponse errorResponse = objectMapper.readValue(
                         rawBody,
-                        com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FasstoErrorResponse.class
+                        FasstoErrorResponse.class
                 );
                 return errorResponse.resolveErrorMessage();
             } catch (Exception ignored) {
@@ -344,9 +345,9 @@ public class FasstoDirectReturnDeliveryClient implements RegisterFasstoDirectRet
                 return null;
             }
             try {
-                var parsedResponse = objectMapper.readValue(
+                FasstoErrorResponse parsedResponse = objectMapper.readValue(
                         body,
-                        com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FasstoErrorResponse.class
+                        FasstoErrorResponse.class
                 );
                 return parsedResponse.resolveErrorMessage();
             } catch (Exception ignored) {

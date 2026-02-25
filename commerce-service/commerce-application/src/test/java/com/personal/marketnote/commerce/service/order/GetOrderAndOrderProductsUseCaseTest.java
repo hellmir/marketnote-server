@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -810,7 +811,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             getOrderService.getOrderAndOrderProducts(orderId);
 
-            var inOrder = inOrder(findOrderPort, findProductByPricePolicyPort);
+            InOrder inOrder = inOrder(findOrderPort, findProductByPricePolicyPort);
             inOrder.verify(findOrderPort).findById(orderId);
             inOrder.verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(pricePolicyId));
             inOrder.verifyNoMoreInteractions();

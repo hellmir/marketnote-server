@@ -1,0 +1,60 @@
+package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterRequest;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpTradeRegisterResponse;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
+import com.personal.marketnote.commerce.configuration.KcpProperties;
+import com.personal.marketnote.common.utility.FormatValidator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class KcpApiClient {
+    private final KcpProperties kcpProperties;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
+    public KcpTradeRegisterResponse registerTrade(KcpTradeRegisterRequest request) {
+        String url = kcpProperties.getApi().getTradeRegisterUrl();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<KcpTradeRegisterRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        log.info("KCP 거래등록 요청: url={}, site_cd={}, ordr_idxx={}, good_mny={}, pay_method={}, good_name={}, Ret_URL={}",
+                url, request.siteCd(), request.ordrIdxx(), request.goodMny(),
+                request.payMethod(), request.goodName(), request.retUrl());
+
+        ResponseEntity<String> rawResponse = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                httpEntity,
+                String.class
+        );
+
+        String responseBody = rawResponse.getBody();
+        log.debug("KCP 거래등록 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+
+        if (FormatValidator.hasNoValue(responseBody)) {
+            throw new KcpCommunicationException("KCP 거래등록 응답 본문이 비어있습니다");
+        }
+
+        try {
+            return objectMapper.readValue(responseBody, KcpTradeRegisterResponse.class);
+        } catch (Exception e) {
+            log.error("KCP 거래등록 응답 파싱 실패: {}", e.getMessage());
+            throw new KcpCommunicationException("KCP 거래등록 응답 파싱 실패", e);
+        }
+    }
+
+    public JsonNode toJsonNode(Object object) {
+        return objectMapper.valueToTree(object);
+    }
+}
