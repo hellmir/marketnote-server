@@ -28,4 +28,13 @@ public interface PaymentVendorPort {
      * @Description 결제 대행사에 결제 승인을 요청합니다.
      */
     PaymentApprovalVendorResult approvePayment(PaymentApprovalVendorCommand command);
+
+    /**
+     * @param command 결제 취소 요청 정보 {@link PaymentCancelVendorCommand}
+     * @return 결제 취소 결과 {@link PaymentCancelVendorResult}
+     * @Date 2026-02-25
+     * @Author 성효빈
+     * @Description 결제 대행사에 결제 취소를 요청합니다.
+     */
+    PaymentCancelVendorResult cancelPayment(PaymentCancelVendorCommand command);
 }

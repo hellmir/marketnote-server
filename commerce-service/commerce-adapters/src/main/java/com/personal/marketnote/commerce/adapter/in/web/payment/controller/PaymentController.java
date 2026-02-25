@@ -1,10 +1,12 @@
 package com.personal.marketnote.commerce.adapter.in.web.payment.controller;
 
 import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.ApprovePaymentApiDocs;
+import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.CancelPaymentApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.GetPaymentApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.ReadyPaymentApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.payment.mapper.PaymentRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.payment.request.ApprovePaymentRequest;
+import com.personal.marketnote.commerce.adapter.in.web.payment.request.CancelPaymentRequest;
 import com.personal.marketnote.commerce.adapter.in.web.payment.request.ReadyPaymentRequest;
 import com.personal.marketnote.commerce.adapter.in.web.payment.response.ApprovePaymentResponse;
 import com.personal.marketnote.commerce.adapter.in.web.payment.response.GetPaymentResponse;
@@ -13,6 +15,7 @@ import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentRes
 import com.personal.marketnote.commerce.port.in.result.payment.GetPaymentResult;
 import com.personal.marketnote.commerce.port.in.result.payment.ReadyPaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ApprovePaymentUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.payment.CancelPaymentUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.GetPaymentUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ReadyPaymentUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
@@ -35,6 +38,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 public class PaymentController {
     private final ReadyPaymentUseCase readyPaymentUseCase;
     private final ApprovePaymentUseCase approvePaymentUseCase;
+    private final CancelPaymentUseCase cancelPaymentUseCase;
     private final GetPaymentUseCase getPaymentUseCase;
 
     /**
@@ -121,6 +125,38 @@ public class PaymentController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "결제 정보 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 결제 취소
+     *
+     * @param orderKey 주문 키 (UUID)
+     * @param request  결제 취소 요청
+     * @Author 성효빈
+     * @Date 2026-02-25
+     * @Description KCP 결제 취소 API를 호출합니다.
+     */
+    @PostMapping("/{orderKey}/cancel")
+    @CancelPaymentApiDocs
+    public ResponseEntity<BaseResponse<Void>> cancelPayment(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @PathVariable("orderKey") String orderKey,
+            @Valid @RequestBody CancelPaymentRequest request
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+        cancelPaymentUseCase.cancel(
+                PaymentRequestToCommandMapper.mapToCommand(orderKey, request, buyerId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "결제 취소 성공"
                 ),
                 HttpStatus.OK
         );

@@ -68,7 +68,7 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 생성된 주문 ID | 1 |

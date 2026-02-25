@@ -128,6 +128,48 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
         }
     }
 
+    @Override
+    public PaymentCancelVendorResult cancelPayment(PaymentCancelVendorCommand command) {
+        String certInfo = kcpCertificateLoader.loadCertInfo();
+        String signData = kcpSignatureGenerator.generateSignData(
+                kcpProperties.getSiteCd(),
+                command.tno(),
+                command.modType()
+        );
+
+        KcpPaymentCancelRequest request = KcpPaymentCancelRequest.builder()
+                .siteCd(kcpProperties.getSiteCd())
+                .tno(command.tno())
+                .kcpCertInfo(certInfo)
+                .kcpSignData(signData)
+                .modType(command.modType())
+                .modMny(String.valueOf(command.modMny()))
+                .remMny(String.valueOf(command.remMny()))
+                .modDesc(command.modDesc())
+                .build();
+
+        recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.tno(), request);
+
+        try {
+            KcpPaymentCancelResponse response = kcpApiClient.cancelPayment(request);
+            recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.tno(), response);
+
+            if (!response.isSuccess()) {
+                log.error("KCP 결제취소 실패: resCd={}, resMsg={}", response.resCd(), response.resMsg());
+            }
+
+            return PaymentCancelVendorResult.builder()
+                    .resCd(response.resCd())
+                    .resMsg(response.resMsg())
+                    .amount(response.amount())
+                    .rawResponse(kcpApiClient.toJsonNode(response).toString())
+                    .build();
+        } catch (KcpCommunicationException e) {
+            recordError(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.tno(), e);
+            throw e;
+        }
+    }
+
     private void recordRequest(CommerceVendorCommunicationTargetType targetType, String targetId, Object request) {
         JsonNode payloadJson = maskSensitiveFields(kcpApiClient.toJsonNode(request));
         vendorCommunicationRecorder.record(

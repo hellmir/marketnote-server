@@ -84,6 +84,37 @@ public class KcpApiClient {
         }
     }
 
+    public KcpPaymentCancelResponse cancelPayment(KcpPaymentCancelRequest request) {
+        String url = kcpProperties.getApi().getPaymentCancelUrl();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<KcpPaymentCancelRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        log.info("KCP 결제취소 요청: url={}, tno={}", url, request.tno());
+
+        ResponseEntity<String> rawResponse = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                httpEntity,
+                String.class
+        );
+
+        String responseBody = rawResponse.getBody();
+        log.debug("KCP 결제취소 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+
+        if (FormatValidator.hasNoValue(responseBody)) {
+            throw new KcpCommunicationException("KCP 결제취소 응답 본문이 비어 있습니다.");
+        }
+
+        try {
+            return objectMapper.readValue(responseBody, KcpPaymentCancelResponse.class);
+        } catch (Exception e) {
+            log.error("KCP 결제취소 응답 파싱 실패: {}", e.getMessage());
+            throw new KcpCommunicationException("KCP 결제취소 응답 파싱 실패", e);
+        }
+    }
+
     public JsonNode toJsonNode(Object object) {
         return objectMapper.valueToTree(object);
     }
