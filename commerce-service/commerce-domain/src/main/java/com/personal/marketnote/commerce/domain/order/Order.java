@@ -72,6 +72,10 @@ public class Order {
                 .build();
     }
 
+    public boolean isPaymentPending() {
+        return this.orderStatus.isPending();
+    }
+
     public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))

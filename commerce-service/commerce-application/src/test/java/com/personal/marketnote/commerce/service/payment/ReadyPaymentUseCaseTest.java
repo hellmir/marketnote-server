@@ -1,11 +1,18 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.commerce.domain.payment.Payment;
-import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
+import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.payment.*;
+import com.personal.marketnote.commerce.exception.DuplicatePaymentReadyException;
+import com.personal.marketnote.commerce.exception.InvalidOrderStatusForPaymentException;
+import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ReadyPaymentResult;
+import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
+import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorResult;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +40,13 @@ class ReadyPaymentUseCaseTest {
     private ReadyPaymentService readyPaymentService;
 
     @Mock
+    private FindOrderPort findOrderPort;
+
+    @Mock
     private FindPaymentPort findPaymentPort;
+
+    @Mock
+    private FindPspPaymentEventPort findPspPaymentEventPort;
 
     @Mock
     private PaymentVendorPort paymentVendorPort;
@@ -51,8 +64,11 @@ class ReadyPaymentUseCaseTest {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
             TradeRegisterVendorResult vendorResult = createVendorResult();
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             ReadyPaymentResult result = readyPaymentService.ready(command);
@@ -69,8 +85,11 @@ class ReadyPaymentUseCaseTest {
             Payment payment = createPayment(1L, ORDER_KEY, 77000L);
             ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
             TradeRegisterVendorResult vendorResult = createVendorResult();
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             readyPaymentService.ready(command);
@@ -90,8 +109,11 @@ class ReadyPaymentUseCaseTest {
                     .goodName("테스트 상품")
                     .build();
             TradeRegisterVendorResult vendorResult = createVendorResult();
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             readyPaymentService.ready(command);
@@ -121,6 +143,164 @@ class ReadyPaymentUseCaseTest {
     }
 
     @Nested
+    @DisplayName("주문 미존재")
+    class OrderNotFoundTest {
+
+        @Test
+        @DisplayName("orderId에 해당하는 주문이 없으면 OrderNotFoundException이 발생한다")
+        void shouldThrowWhenOrderNotFound() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(OrderNotFoundException.class);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("주문 상태 검증 실패")
+    class InvalidOrderStatusTest {
+
+        @Test
+        @DisplayName("주문이 CANCELLED 상태이면 InvalidOrderStatusForPaymentException이 발생한다")
+        void shouldThrowWhenOrderIsCancelled() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.CANCELLED);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(InvalidOrderStatusForPaymentException.class)
+                    .hasMessageContaining("주문 취소");
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+
+        @Test
+        @DisplayName("주문이 PAID 상태이면 InvalidOrderStatusForPaymentException이 발생한다")
+        void shouldThrowWhenOrderIsPaid() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PAID);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(InvalidOrderStatusForPaymentException.class)
+                    .hasMessageContaining("결제 완료");
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+
+        @Test
+        @DisplayName("주문 상태 검증 실패 시 KCP 거래등록이 호출되지 않는다")
+        void shouldNotCallVendorWhenOrderStatusInvalid() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PREPARING);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(InvalidOrderStatusForPaymentException.class);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+            verify(findPspPaymentEventPort, never()).findByOrderKey(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("중복 거래 등록 방지")
+    class DuplicatePaymentReadyTest {
+
+        @Test
+        @DisplayName("이미 READY 상태의 PspPaymentEvent가 존재하면 DuplicatePaymentReadyException이 발생한다")
+        void shouldThrowWhenReadyEventExists() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+            PspPaymentEvent activeEvent = createPspPaymentEvent(PaymentEventStatus.READY);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(activeEvent));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(DuplicatePaymentReadyException.class)
+                    .hasMessageContaining(ORDER_KEY_STR);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+
+        @Test
+        @DisplayName("이미 EXECUTING 상태의 PspPaymentEvent가 존재하면 DuplicatePaymentReadyException이 발생한다")
+        void shouldThrowWhenExecutingEventExists() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+            PspPaymentEvent activeEvent = createPspPaymentEvent(PaymentEventStatus.EXECUTING);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(activeEvent));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(DuplicatePaymentReadyException.class);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+
+        @Test
+        @DisplayName("COMPLETE 상태의 PspPaymentEvent가 존재해도 거래 등록은 정상 진행된다")
+        void shouldProceedWhenCompleteEventExists() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            TradeRegisterVendorResult vendorResult = createVendorResult();
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+            PspPaymentEvent completedEvent = createPspPaymentEvent(PaymentEventStatus.COMPLETE);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(completedEvent));
+            when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
+
+            ReadyPaymentResult result = readyPaymentService.ready(command);
+
+            assertThat(result.orderKey()).isEqualTo(ORDER_KEY_STR);
+            verify(paymentVendorPort).registerTrade(any());
+        }
+
+        @Test
+        @DisplayName("CANCELLED 상태의 PspPaymentEvent가 존재해도 거래 등록은 정상 진행된다")
+        void shouldProceedWhenCancelledEventExists() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            TradeRegisterVendorResult vendorResult = createVendorResult();
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+            PspPaymentEvent cancelledEvent = createPspPaymentEvent(PaymentEventStatus.CANCELLED);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(cancelledEvent));
+            when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
+
+            ReadyPaymentResult result = readyPaymentService.ready(command);
+
+            assertThat(result.orderKey()).isEqualTo(ORDER_KEY_STR);
+            verify(paymentVendorPort).registerTrade(any());
+        }
+    }
+
+    @Nested
     @DisplayName("KCP 통신 실패")
     class VendorFailureTest {
 
@@ -129,8 +309,11 @@ class ReadyPaymentUseCaseTest {
         void shouldPropagateVendorException() {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
             when(paymentVendorPort.registerTrade(any())).thenThrow(new RuntimeException("KCP 거래등록 실패"));
 
             assertThatThrownBy(() -> readyPaymentService.ready(command))
@@ -146,6 +329,28 @@ class ReadyPaymentUseCaseTest {
                 .paymentAmount(amount)
                 .build();
         return Payment.from(state);
+    }
+
+    private Order createOrder(Long orderId, OrderStatus orderStatus) {
+        OrderSnapshotState state = OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(1L)
+                .orderKey(ORDER_KEY)
+                .orderNumber("ORD-TEST-001")
+                .orderStatus(orderStatus)
+                .totalAmount(50000L)
+                .build();
+        return Order.from(state);
+    }
+
+    private PspPaymentEvent createPspPaymentEvent(PaymentEventStatus status) {
+        PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
+                .id(1L)
+                .orderId(1L)
+                .orderKey(ORDER_KEY_STR)
+                .poStatus(status)
+                .build();
+        return PspPaymentEvent.from(state);
     }
 
     private ReadyPaymentCommand createReadyCommand(String orderKey) {

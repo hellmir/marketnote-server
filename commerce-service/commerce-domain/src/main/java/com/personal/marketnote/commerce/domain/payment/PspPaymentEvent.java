@@ -141,6 +141,14 @@ public class PspPaymentEvent {
         this.resultMessage = resultMessage;
     }
 
+    /**
+     * 거래 등록이 진행 중인 활성 상태인지 확인한다.
+     * READY 또는 EXECUTING 상태면 true를 반환한다.
+     */
+    public boolean isActiveEvent() {
+        return this.poStatus.isReady() || this.poStatus.isExecuting();
+    }
+
     public void cancel(String pgCancelApprovalResult) {
         if (!this.poStatus.isComplete()) {
             throw new IllegalStateException("COMPLETE 상태에서만 취소할 수 있습니다. 현재 상태: " + this.poStatus);
