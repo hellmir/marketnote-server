@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.web.order.request;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class ChangeOrderStatusRequest {
     )
     private List<Long> pricePolicyIds;
 
+    @NotNull(message = "주문 상태는 필수값입니다.")
     @Schema(
             name = "orderStatus",
             description = "주문 상태",
