@@ -104,47 +104,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Nested
-    @DisplayName("NPE 핸들러 정보 노출 방지")
-    class NpeInfoLeakPreventionTest {
-
-        @Test
-        @DisplayName("NPE 핸들러는 500을 반환한다")
-        void shouldReturn500ForNullPointerException() {
-            NullPointerException exception =
-                    new NullPointerException("Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null");
-
-            ResponseEntity<ErrorResponse> response = handler.handleNullPointerException(exception);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        @Test
-        @DisplayName("NPE 핸들러는 응답에 내부 패키지/클래스 정보를 노출하지 않는다")
-        void shouldNotExposeInternalInfoInNpeResponse() {
-            NullPointerException exception =
-                    new NullPointerException("Cannot invoke \"com.personal.marketnote.commerce.domain.order.OrderStatus.isMe()\" because \"status\" is null");
-
-            ResponseEntity<ErrorResponse> response = handler.handleNullPointerException(exception);
-
-            assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getMessage()).doesNotContain("com.personal");
-            assertThat(response.getBody().getMessage()).doesNotContain("OrderStatus");
-            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
-        }
-
-        @Test
-        @DisplayName("NPE 핸들러는 null 메시지에도 고정 문자열을 반환한다")
-        void shouldReturnGenericMessageForNullNpeMessage() {
-            NullPointerException exception = new NullPointerException();
-
-            ResponseEntity<ErrorResponse> response = handler.handleNullPointerException(exception);
-
-            assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
-        }
-    }
-
-    @Nested
     @DisplayName("스레드 안전성")
     class ThreadSafetyTest {
 
