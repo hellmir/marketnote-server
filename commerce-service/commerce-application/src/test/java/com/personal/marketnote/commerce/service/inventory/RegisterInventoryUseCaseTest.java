@@ -99,7 +99,7 @@ class RegisterInventoryUseCaseTest {
         @DisplayName("productId가 null인 커맨드로 재고 등록 시 productId가 null인 재고를 저장한다")
         void registerInventory_nullProductId_savesWithNullProductId() {
             Long pricePolicyId = 400L;
-            RegisterInventoryCommand command = RegisterInventoryCommand.of(pricePolicyId);
+            RegisterInventoryCommand command = RegisterInventoryCommand.of(null, pricePolicyId);
 
             when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(false);
 
@@ -328,7 +328,7 @@ class RegisterInventoryUseCaseTest {
         @SuppressWarnings("unchecked")
         void registerInventories_nullProductId_savesWithNullProductId() {
             Set<RegisterInventoryCommand> commands = new LinkedHashSet<>();
-            commands.add(RegisterInventoryCommand.of(1600L));
+            commands.add(RegisterInventoryCommand.of(null, 1600L));
             commands.add(RegisterInventoryCommand.of(17L, 1700L));
 
             Set<Inventory> result = registerInventoryService.registerInventories(commands);

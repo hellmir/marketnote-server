@@ -9,6 +9,7 @@ import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,8 +44,10 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
             ));
 
             updateInventoryPort.update(inventories);
-            Map<Long, Long> productIdsByPricePolicyId = inventories.stream()
-                    .collect(Collectors.toMap(Inventory::getPricePolicyId, Inventory::getProductId));
+            Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
+            inventories.forEach(inventory ->
+                    productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
+            );
             saveInventoryDeductionHistoryPort.save(
                     InventoryDeductionHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, reason)
             );

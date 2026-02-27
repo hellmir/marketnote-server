@@ -5,12 +5,6 @@ public record RegisterInventoryCommand(
         Long pricePolicyId
 ) {
     public static RegisterInventoryCommand of(
-            Long pricePolicyId
-    ) {
-        return new RegisterInventoryCommand(null, pricePolicyId);
-    }
-
-    public static RegisterInventoryCommand of(
             Long productId,
             Long pricePolicyId
     ) {

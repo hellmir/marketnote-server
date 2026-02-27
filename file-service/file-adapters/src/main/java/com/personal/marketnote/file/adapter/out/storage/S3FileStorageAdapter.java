@@ -77,7 +77,7 @@ public class S3FileStorageAdapter implements UploadFilesPort {
     }
 
     private void deleteTempFileQuietly(Path tempFile) {
-        if (tempFile == null) {
+        if (FormatValidator.hasNoValue(tempFile)) {
             return;
         }
         try {

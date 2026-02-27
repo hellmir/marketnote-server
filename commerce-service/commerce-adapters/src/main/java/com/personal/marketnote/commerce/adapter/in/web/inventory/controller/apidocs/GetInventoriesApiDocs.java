@@ -25,13 +25,15 @@ import java.lang.annotation.*;
                 
                 ## Description
                 
-                상품 재고 목록을 조회합니다.
+                상품 재고 목록을 조회합니다. productIds를 함께 전달하면 존재하지 않는 재고를 자동 생성합니다.
+                productIds를 전달하지 않으면 존재하는 재고만 조회합니다.
                 
                 ## Request
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | pricePolicyIds | array<number> | 가격 정책 ID 목록 | Y | [1, 2, 3] |
+                | productIds | array<number> | 상품 ID 목록 (pricePolicyIds와 동일 순서로 매핑) | N | [100, 200, 300] |
                 
                 ---
                 
@@ -69,6 +71,13 @@ import java.lang.annotation.*;
                         in = ParameterIn.QUERY,
                         required = true,
                         schema = @Schema(type = "array", example = "[1, 2, 3]")
+                ),
+                @Parameter(
+                        name = "productIds",
+                        description = "상품 ID 목록 (pricePolicyIds와 동일 순서로 매핑, 전달 시 존재하지 않는 재고 자동 생성)",
+                        in = ParameterIn.QUERY,
+                        required = false,
+                        schema = @Schema(type = "array", example = "[100, 200, 300]")
                 )
         },
         responses = {

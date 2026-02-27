@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServ
 import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationType;
 import com.personal.marketnote.commerce.port.in.command.servicecommunication.CommerceServiceCommunicationHistoryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.servicecommunication.RecordCommerceServiceCommunicationHistoryUseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +29,7 @@ public class ServiceCommunicationRecorder {
                         .communicationType(communicationType)
                         .sender(sender)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -48,7 +49,7 @@ public class ServiceCommunicationRecorder {
                         .communicationType(communicationType)
                         .sender(sender)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -68,7 +69,7 @@ public class ServiceCommunicationRecorder {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -90,7 +91,7 @@ public class ServiceCommunicationRecorder {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }

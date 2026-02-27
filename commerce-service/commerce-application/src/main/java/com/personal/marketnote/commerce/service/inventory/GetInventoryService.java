@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -24,18 +26,25 @@ public class GetInventoryService implements GetInventoryUseCase {
 
     @Override
     public Set<Inventory> getInventories(List<Long> pricePolicyIds) {
-        Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(new HashSet<>(pricePolicyIds));
+        return findInventoryPort.findByPricePolicyIds(new HashSet<>(pricePolicyIds));
+    }
 
-        // FIXME: Kafka 이벤트 Production으로 변경 -> productId 추가
-        // 존재하지 않는 재고 튜플/Cache Memory 신규 생성
+    @Override
+    public Set<Inventory> getOrCreateInventories(Map<Long, Long> productIdsByPricePolicyId) {
+        Set<Long> pricePolicyIds = productIdsByPricePolicyId.keySet();
+        Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(pricePolicyIds);
+
         if (inventories.size() != pricePolicyIds.size()) {
-            Set<RegisterInventoryCommand> commands = new HashSet<>();
-            pricePolicyIds.stream()
-                    .filter(pricePolicyId -> inventories.stream()
-                            .filter(inventory -> inventory.isMe(pricePolicyId))
-                            .findFirst()
-                            .isEmpty())
-                    .forEach(pricePolicyId -> commands.add(RegisterInventoryCommand.of(pricePolicyId)));
+            Set<Long> existingPricePolicyIds = inventories.stream()
+                    .map(Inventory::getPricePolicyId)
+                    .collect(Collectors.toSet());
+
+            Set<RegisterInventoryCommand> commands = pricePolicyIds.stream()
+                    .filter(pricePolicyId -> !existingPricePolicyIds.contains(pricePolicyId))
+                    .map(pricePolicyId -> RegisterInventoryCommand.of(
+                            productIdsByPricePolicyId.get(pricePolicyId), pricePolicyId
+                    ))
+                    .collect(Collectors.toSet());
 
             inventories.addAll(registerInventoryUseCase.registerInventories(commands));
         }

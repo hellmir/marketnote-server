@@ -1,5 +1,6 @@
 package com.personal.marketnote.product.adapter.in.web.product.request;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -96,6 +97,6 @@ public record RegisterProductRequest(
         RegisterProductFulfillmentVendorGoodsRequest fulfillmentVendorGoods
 ) {
     public RegisterProductRequest {
-        isFindAllOptions = isFindAllOptions != null ? isFindAllOptions : true;
+        isFindAllOptions = FormatValidator.hasValue(isFindAllOptions) ? isFindAllOptions : true;
     }
 }

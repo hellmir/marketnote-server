@@ -29,9 +29,9 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
 
     @Override
     public ReadyPaymentResult ready(ReadyPaymentCommand command) {
-        UUID orderKeyUuid = UUID.fromString(command.orderKey());
+        UUID orderKey = UUID.fromString(command.orderKey());
 
-        Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
+        Payment payment = findPaymentPort.findByOrderKey(orderKey)
                 .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
 
         TradeRegisterVendorCommand vendorCommand = TradeRegisterVendorCommand.builder()

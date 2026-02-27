@@ -17,6 +17,7 @@ import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorCommand;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorResult;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,9 +42,9 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
 
     @Override
     public ApprovePaymentResult approve(ApprovePaymentCommand command) {
-        UUID orderKeyUuid = UUID.fromString(command.orderKey());
+        UUID orderKey = UUID.fromString(command.orderKey());
 
-        Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
+        Payment payment = findPaymentPort.findByOrderKey(orderKey)
                 .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
 
         Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
@@ -147,8 +148,8 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
     }
 
     private void verifyPaymentAmount(Order order, Payment payment) {
-        Long couponAmount = order.getCouponAmount() != null ? order.getCouponAmount() : 0L;
-        Long pointAmount = order.getPointAmount() != null ? order.getPointAmount() : 0L;
+        Long couponAmount = FormatValidator.hasValue(order.getCouponAmount()) ? order.getCouponAmount() : 0L;
+        Long pointAmount = FormatValidator.hasValue(order.getPointAmount()) ? order.getPointAmount() : 0L;
         Long expectedAmount = order.getTotalAmount() - couponAmount - pointAmount;
 
         if (!expectedAmount.equals(payment.getPaymentAmount())) {

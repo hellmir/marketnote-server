@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.payment;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -120,7 +121,7 @@ public class PspPaymentEvent {
     }
 
     private LocalDateTime parseAppTime(String appTime) {
-        if (appTime == null || appTime.isBlank()) {
+        if (FormatValidator.hasNoValue(appTime)) {
             return LocalDateTime.now();
         }
         try {
