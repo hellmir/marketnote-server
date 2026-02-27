@@ -3,7 +3,6 @@ package com.personal.marketnote.commerce.adapter.in.web.order.request;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 import java.util.List;
@@ -36,6 +35,5 @@ public class ChangeOrderStatusRequest {
             description = "변경 사유",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @Size(max = 500, message = "변경 사유는 500자 이내여야 합니다.")
     private String reason;
 }

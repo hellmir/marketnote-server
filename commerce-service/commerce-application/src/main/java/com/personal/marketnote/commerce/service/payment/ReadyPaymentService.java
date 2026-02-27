@@ -15,11 +15,13 @@ import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
+import com.personal.marketnote.commerce.port.out.payment.SavePspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorCommand;
 import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorResult;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -34,6 +36,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
     private final FindOrderPort findOrderPort;
     private final FindPaymentPort findPaymentPort;
     private final FindPspPaymentEventPort findPspPaymentEventPort;
+    private final SavePspPaymentEventPort savePspPaymentEventPort;
     private final PaymentVendorPort paymentVendorPort;
 
     @Override
@@ -45,6 +48,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
 
         verifyOrderStatusForPayment(payment.getOrderId());
         verifyNoDuplicatePaymentReady(command.orderKey());
+        saveReadyEvent(payment, command.payMethod());
 
         TradeRegisterVendorCommand vendorCommand = TradeRegisterVendorCommand.builder()
                 .orderKey(payment.getOrderKey().toString())
@@ -86,5 +90,16 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
                             orderKey, event.getPoStatus());
                     throw new DuplicatePaymentReadyException(orderKey);
                 });
+    }
+
+    private void saveReadyEvent(Payment payment, String payMethod) {
+        String vendorSiteCd = paymentVendorPort.getVendorSiteCd();
+        PspPaymentEvent readyEvent = PspPaymentEvent.createReady(payment, vendorSiteCd, payMethod);
+        try {
+            savePspPaymentEventPort.save(readyEvent);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Race Condition으로 인한 중복 거래 등록 감지 - orderKey: {}", payment.getOrderKey(), e);
+            throw new DuplicatePaymentReadyException(payment.getOrderKey().toString());
+        }
     }
 }

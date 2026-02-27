@@ -12,7 +12,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "psp_payment_event", uniqueConstraints = @UniqueConstraint(columnNames = "order_key"))
+@Table(name = "psp_payment_event")
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

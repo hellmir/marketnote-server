@@ -56,7 +56,12 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
                 .orElseGet(() -> PspPaymentEvent.createReady(payment, vendorSiteCd, command.payType()));
         event.startExecution();
-        savePspPaymentEventPort.save(event);
+
+        if (FormatValidator.hasValue(event.getId())) {
+            updatePspPaymentEventPort.update(event);
+        } else {
+            savePspPaymentEventPort.save(event);
+        }
 
         Long serverAmount = payment.getPaymentAmount();
 

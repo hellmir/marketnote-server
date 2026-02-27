@@ -14,6 +14,7 @@ import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
+import com.personal.marketnote.commerce.port.out.payment.SavePspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.TradeRegisterVendorResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -49,6 +51,9 @@ class ReadyPaymentUseCaseTest {
     private FindPspPaymentEventPort findPspPaymentEventPort;
 
     @Mock
+    private SavePspPaymentEventPort savePspPaymentEventPort;
+
+    @Mock
     private PaymentVendorPort paymentVendorPort;
 
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -69,6 +74,7 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             ReadyPaymentResult result = readyPaymentService.ready(command);
@@ -90,6 +96,7 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             readyPaymentService.ready(command);
@@ -114,6 +121,7 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             readyPaymentService.ready(command);
@@ -314,11 +322,57 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenThrow(new RuntimeException("KCP 거래등록 실패"));
 
             assertThatThrownBy(() -> readyPaymentService.ready(command))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("KCP 거래등록 실패");
+        }
+    }
+
+    @Nested
+    @DisplayName("Race Condition 방어 (DataIntegrityViolationException 처리)")
+    class RaceConditionDefenseTest {
+
+        @Test
+        @DisplayName("이벤트 저장 시 DataIntegrityViolationException이 발생하면 DuplicatePaymentReadyException으로 변환된다")
+        void shouldThrowDuplicatePaymentReadyWhenDataIntegrityViolation() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(savePspPaymentEventPort.save(any())).thenThrow(
+                    new DataIntegrityViolationException("duplicate key value violates unique constraint"));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(DuplicatePaymentReadyException.class);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+
+        @Test
+        @DisplayName("이벤트 저장 시 DataIntegrityViolationException 발생 시 KCP 거래등록이 호출되지 않는다")
+        void shouldNotCallVendorWhenDataIntegrityViolation() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(savePspPaymentEventPort.save(any())).thenThrow(
+                    new DataIntegrityViolationException("duplicate key"));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(DuplicatePaymentReadyException.class);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
         }
     }
 
