@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.result.payment.GetPaymentResult;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
@@ -109,6 +110,40 @@ class GetPaymentUseCaseTest {
 
             assertThat(result.refundedYn()).isTrue();
             assertThat(result.refundAmount()).isEqualTo(50000L);
+        }
+    }
+
+    @Nested
+    @DisplayName("주문 소유자 검증")
+    class OrderOwnerVerificationTest {
+
+        @Test
+        @DisplayName("주문 소유자가 아닌 사용자가 결제 조회 시 UnauthorizedOrderAccessException이 발생한다")
+        void shouldThrowWhenBuyerIsNotOrderOwner() {
+            Long attackerBuyerId = 999L;
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+
+            assertThatThrownBy(() -> getPaymentService.getPayment(attackerBuyerId, ORDER_KEY_STR))
+                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+
+            verify(findPspPaymentEventPort, never()).findByOrderKey(any());
+        }
+
+        @Test
+        @DisplayName("주문을 찾을 수 없으면 OrderNotFoundException이 발생한다")
+        void shouldThrowWhenOrderNotFound() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> getPaymentService.getPayment(BUYER_ID, ORDER_KEY_STR))
+                    .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
+
+            verify(findPspPaymentEventPort, never()).findByOrderKey(any());
         }
     }
 

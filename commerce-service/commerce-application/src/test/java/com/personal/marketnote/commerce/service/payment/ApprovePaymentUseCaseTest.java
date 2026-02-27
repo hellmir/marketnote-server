@@ -9,6 +9,7 @@ import com.personal.marketnote.commerce.domain.payment.PaymentEventStatus;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.exception.PaymentApprovalException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
@@ -176,6 +177,48 @@ class ApprovePaymentUseCaseTest {
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentNotFoundException.class);
+
+            verify(paymentVendorPort, never()).approvePayment(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("주문 소유자 검증")
+    class OrderOwnerVerificationTest {
+
+        @Test
+        @DisplayName("주문 소유자가 아닌 사용자가 결제 승인 시 UnauthorizedOrderAccessException이 발생한다")
+        void shouldThrowWhenBuyerIsNotOrderOwner() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            Long attackerBuyerId = 999L;
+            ApprovePaymentCommand command = ApprovePaymentCommand.builder()
+                    .buyerId(attackerBuyerId)
+                    .orderKey(ORDER_KEY_STR)
+                    .encData("enc_data_test")
+                    .encInfo("enc_info_test")
+                    .payType("PACA")
+                    .build();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+
+            assertThatThrownBy(() -> approvePaymentService.approve(command))
+                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+
+            verify(paymentVendorPort, never()).approvePayment(any());
+        }
+
+        @Test
+        @DisplayName("주문을 찾을 수 없으면 OrderNotFoundException이 발생한다")
+        void shouldThrowWhenOrderNotFound() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> approvePaymentService.approve(command))
+                    .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }

@@ -13,10 +13,32 @@ public record ChangeOrderStatusCommand(
         List<Long> pricePolicyIds,
         OrderStatus orderStatus,
         OrderStatusReasonCategory reasonCategory,
-        String reason
+        String reason,
+        String role,
+        Long buyerId
 ) {
+    private static final String BUYER_ROLE = "BUYER";
+
     public boolean isPartialProductChange() {
         return FormatValidator.hasValue(pricePolicyIds);
     }
-}
 
+    /**
+     * 구매자 역할인지 확인한다.
+     *
+     * @return role이 BUYER이면 true
+     */
+    public boolean isBuyerRole() {
+        return BUYER_ROLE.equals(role);
+    }
+
+    /**
+     * 서비스 내부 호출인지 확인한다.
+     * role이 null이면 서비스 내부 호출로 간주한다.
+     *
+     * @return role이 null이면 true
+     */
+    public boolean isInternalCall() {
+        return FormatValidator.hasNoValue(role);
+    }
+}

@@ -82,18 +82,21 @@ public class OrderController {
     /**
      * 주문 키 조회
      *
-     * @param id 주문 ID
+     * @param id        주문 ID
+     * @param principal 인증된 사용자 정보
      * @return 주문 키 조회 응답 {@link GetOrderKeyResponse}
      * @Author 성효빈
      * @Date 2026-02-25
-     * @Description 주문 ID로 주문 키를 조회합니다.
+     * @Description 주문 ID로 주문 키를 조회합니다. 구매자 소유자 검증을 수행합니다.
      */
     @GetMapping("/{id}/order-key")
     @GetOrderKeyApiDocs
     public ResponseEntity<BaseResponse<GetOrderKeyResponse>> getOrderKey(
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
-        GetOrderKeyResult getOrderKeyResult = getOrderUseCase.getOrderKey(id);
+        Long buyerId = ElementExtractor.extractUserId(principal);
+        GetOrderKeyResult getOrderKeyResult = getOrderUseCase.getOrderKey(id, buyerId);
 
         return new ResponseEntity<>(
                 BaseResponse.of(
@@ -109,16 +112,21 @@ public class OrderController {
     /**
      * 주문 정보 조회
      *
-     * @param id 주문 ID
+     * @param id        주문 ID
+     * @param principal 인증된 사용자 정보
      * @return 주문 정보 조회 응답 {@link GetOrderResponse}
      * @Author 성효빈
      * @Date 2026-01-05
-     * @Description 주문 정보를 조회합니다.
+     * @Description 주문 정보를 조회합니다. 구매자 소유자 검증을 수행합니다.
      */
     @GetMapping("/{id}")
     @GetOrderInfoApiDocs
-    public ResponseEntity<BaseResponse<GetOrderResponse>> getOrder(@PathVariable("id") Long id) {
-        GetOrderResult getOrderResult = getOrderUseCase.getOrderAndOrderProducts(id);
+    public ResponseEntity<BaseResponse<GetOrderResponse>> getOrder(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+        GetOrderResult getOrderResult = getOrderUseCase.getOrderAndOrderProducts(id, buyerId);
 
         return new ResponseEntity<>(
                 BaseResponse.of(
@@ -212,19 +220,25 @@ public class OrderController {
     /**
      * 주문 상태 변경
      *
-     * @param request 주문 상태 변겅 요청
+     * @param id        주문 ID
+     * @param request   주문 상태 변경 요청
+     * @param principal 인증된 사용자 정보
      * @Author 성효빈
      * @Date 2026-01-05
-     * @Description 주문 상태를 변경합니다.
+     * @Description 주문 상태를 변경합니다. 구매자 역할일 경우 허용된 상태만 변경 가능합니다.
      */
     @PatchMapping("/{id}")
     @ChangeOrderStatusApiDocs
     public ResponseEntity<BaseResponse<Void>> changeOrderStatus(
             @PathVariable("id") Long id,
-            @Valid @RequestBody ChangeOrderStatusRequest request
+            @Valid @RequestBody ChangeOrderStatusRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+        String role = ElementExtractor.extractRole(principal);
+
         changeOrderStatusUseCase.changeOrderStatus(
-                OrderRequestToCommandMapper.mapToCommand(id, request)
+                OrderRequestToCommandMapper.mapToCommand(id, request, role, buyerId)
         );
 
         return new ResponseEntity<>(

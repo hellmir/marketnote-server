@@ -4,8 +4,10 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
+import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
@@ -112,9 +114,11 @@ public class CancelPaymentService implements CancelPaymentUseCase {
 
     private void verifyOrderOwnership(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
-                .orElseThrow(() -> new IllegalStateException("주문 정보를 찾을 수 없습니다: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         if (!order.getBuyerId().equals(buyerId)) {
-            throw new IllegalStateException("해당 주문에 대한 권한이 없습니다");
+            log.warn("결제 취소 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
+                    orderId, order.getBuyerId(), buyerId);
+            throw new UnauthorizedOrderAccessException();
         }
     }
 }

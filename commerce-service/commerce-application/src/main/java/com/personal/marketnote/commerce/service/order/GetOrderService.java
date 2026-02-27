@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHistoryQuery;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderProductsQuery;
 import com.personal.marketnote.commerce.port.in.result.order.*;
@@ -15,6 +16,7 @@ import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResul
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -29,6 +31,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
+@Slf4j
 public class GetOrderService implements GetOrderUseCase {
     private final FindOrderPort findOrderPort;
     private final FindOrderProductPort findOrderProductPort;
@@ -36,7 +39,17 @@ public class GetOrderService implements GetOrderUseCase {
 
     @Override
     public GetOrderResult getOrderAndOrderProducts(Long id) {
-        Order order = getOrder(id);
+        return getOrderAndOrderProductsInternal(getOrder(id));
+    }
+
+    @Override
+    public GetOrderResult getOrderAndOrderProducts(Long id, Long buyerId) {
+        Order order = getOrderAndVerifyOwner(id, buyerId);
+
+        return getOrderAndOrderProductsInternal(order);
+    }
+
+    private GetOrderResult getOrderAndOrderProductsInternal(Order order) {
         Map<Long, ProductInfoResult> orderedProductsByPricePolicyId = Optional.ofNullable(
                         findProductByPricePolicyPort.findByPricePolicyIds(
                                 order.getOrderProducts()
@@ -112,9 +125,27 @@ public class GetOrderService implements GetOrderUseCase {
     }
 
     @Override
+    public GetOrderKeyResult getOrderKey(Long id, Long buyerId) {
+        Order order = getOrderAndVerifyOwner(id, buyerId);
+
+        return GetOrderKeyResult.from(order);
+    }
+
+    @Override
     public OrderProduct getOrderProduct(Long orderId, Long pricePolicyId) {
         return findOrderProductPort.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
                 .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
+    }
+
+    private Order getOrderAndVerifyOwner(Long id, Long buyerId) {
+        Order order = getOrder(id);
+
+        if (!order.getBuyerId().equals(buyerId)) {
+            log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", id, order.getBuyerId(), buyerId);
+            throw new UnauthorizedOrderAccessException();
+        }
+
+        return order;
     }
 
     private BuyerOrdersAndProductsResult findBuyerOrders(GetBuyerOrderHistoryQuery query, boolean includeProductDetails) {
