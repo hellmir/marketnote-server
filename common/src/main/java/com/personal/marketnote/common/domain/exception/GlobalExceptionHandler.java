@@ -292,7 +292,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    private ResponseEntity<ErrorResponse> handleMailException(IllegalStateException e) {
+    private ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException e) {
         httpStatus = HttpStatus.CONFLICT;
         initializeMessage(e.getMessage());
 

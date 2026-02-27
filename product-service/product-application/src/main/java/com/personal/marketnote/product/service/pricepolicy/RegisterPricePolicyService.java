@@ -66,6 +66,7 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
                     registerInventoryPort.registerInventory(productId, pricePolicyId);
                 }
             });
+
             return;
         }
 

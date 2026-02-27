@@ -46,6 +46,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
+                | productId | number | 상품 ID | Y | 245 |
                 | sellerId | number | 판매자 회원 ID | Y | 1 |
                 | pricePolicyId | number | 가격 정책 ID | Y | 1 |
                 | sharerId | number | 링크 공유 회원 ID | N | 1 |
@@ -86,6 +87,7 @@ import java.lang.annotation.*;
                                   "pointAmount": 5000,
                                   "orderProducts": [
                                     {
+                                      "productId": 245,
                                       "sellerId": 1,
                                       "pricePolicyId": 23,
                                       "sharerId": 1,
@@ -94,6 +96,7 @@ import java.lang.annotation.*;
                                       "imageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png"
                                     },
                                     {
+                                      "productId": 246,
                                       "sellerId": 2,
                                       "pricePolicyId": 14,
                                       "quantity": 10,

@@ -4,7 +4,6 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.port.in.command.inventory.RegisterInventoryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RegisterInventoryUseCase;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
-import com.personal.marketnote.common.utility.FormatValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,11 +33,11 @@ class GetInventoryUseCaseTest {
     private GetInventoryService getInventoryService;
 
     // ==================================================================================
-    // getInventories (재고 목록 조회)
+    // getInventories (재고 목록 조회 - 순수 조회, 자동 생성 없음)
     // ==================================================================================
 
     @Nested
-    @DisplayName("getInventories (재고 목록 조회)")
+    @DisplayName("getInventories (재고 목록 조회 - 순수 조회)")
     class GetInventoriesTest {
 
         @Test
@@ -74,68 +74,33 @@ class GetInventoryUseCaseTest {
         }
 
         @Test
-        @DisplayName("재고가 하나도 없으면 전체 가격 정책 ID로 재고 등록을 요청한다")
-        @SuppressWarnings("unchecked")
-        void getInventories_noneExist_registersAll() {
-            List<Long> pricePolicyIds = List.of(100L, 200L, 300L);
-
-            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L, 300L)))
-                    .thenReturn(new HashSet<>());
-
-            Inventory created1 = Inventory.of(null, 100L);
-            Inventory created2 = Inventory.of(null, 200L);
-            Inventory created3 = Inventory.of(null, 300L);
-            when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(created1, created2, created3));
-
-            Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
-
-            ArgumentCaptor<Set<RegisterInventoryCommand>> captor = ArgumentCaptor.forClass(Set.class);
-            verify(registerInventoryUseCase).registerInventories(captor.capture());
-            Set<RegisterInventoryCommand> commands = captor.getValue();
-
-            assertThat(commands).hasSize(3);
-            assertThat(commands).extracting(RegisterInventoryCommand::pricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L, 300L);
-            assertThat(commands).allMatch(cmd -> FormatValidator.hasNoValue(cmd.productId()));
-        }
-
-        @Test
-        @DisplayName("재고가 하나도 없으면 등록된 재고를 합쳐서 반환한다")
-        @SuppressWarnings("unchecked")
-        void getInventories_noneExist_returnsCombinedResult() {
+        @DisplayName("재고가 하나도 없으면 빈 결과를 반환한다 (자동 생성 없음)")
+        void getInventories_noneExist_returnsEmpty() {
             List<Long> pricePolicyIds = List.of(100L, 200L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
                     .thenReturn(new HashSet<>());
 
-            Inventory created1 = Inventory.of(null, 100L);
-            Inventory created2 = Inventory.of(null, 200L);
-            when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(created1, created2));
-
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
-            assertThat(result).hasSize(2);
-            assertThat(result).extracting(Inventory::getPricePolicyId)
-                    .containsExactlyInAnyOrder(100L, 200L);
-            assertThat(result).allMatch(inv -> inv.getStockValue() == 0);
+            assertThat(result).isEmpty();
+            verifyNoInteractions(registerInventoryUseCase);
         }
 
         @Test
-        @DisplayName("일부 재고만 존재하면 재고 등록을 호출한다")
-        void getInventories_partialExist_callsRegister() {
+        @DisplayName("일부 재고만 존재하면 존재하는 재고만 반환한다 (자동 생성 없음)")
+        void getInventories_partialExist_returnsOnlyExisting() {
             List<Long> pricePolicyIds = List.of(100L, 200L);
             Inventory existing = Inventory.of(1L, 100L, 5);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
                     .thenReturn(new HashSet<>(Set.of(existing)));
-            when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of());
 
-            getInventoryService.getInventories(pricePolicyIds);
+            Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
-            verify(registerInventoryUseCase).registerInventories(anySet());
+            assertThat(result).hasSize(1);
+            assertThat(result.iterator().next().getPricePolicyId()).isEqualTo(100L);
+            verifyNoInteractions(registerInventoryUseCase);
         }
 
         @Test
@@ -171,27 +136,17 @@ class GetInventoryUseCaseTest {
         }
 
         @Test
-        @DisplayName("단일 가격 정책 ID로 조회 시 미존재하면 등록 후 반환한다")
-        @SuppressWarnings("unchecked")
-        void getInventories_singleMissing_registersAndReturns() {
+        @DisplayName("단일 가격 정책 ID로 조회 시 미존재하면 빈 결과를 반환한다 (자동 생성 없음)")
+        void getInventories_singleMissing_returnsEmpty() {
             List<Long> pricePolicyIds = List.of(100L);
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
                     .thenReturn(new HashSet<>());
 
-            Inventory created = Inventory.of(null, 100L);
-            when(registerInventoryUseCase.registerInventories(anySet()))
-                    .thenReturn(Set.of(created));
-
             Set<Inventory> result = getInventoryService.getInventories(pricePolicyIds);
 
-            assertThat(result).hasSize(1);
-            assertThat(result.iterator().next().getPricePolicyId()).isEqualTo(100L);
-
-            ArgumentCaptor<Set<RegisterInventoryCommand>> captor = ArgumentCaptor.forClass(Set.class);
-            verify(registerInventoryUseCase).registerInventories(captor.capture());
-            assertThat(captor.getValue()).hasSize(1);
-            assertThat(captor.getValue().iterator().next().pricePolicyId()).isEqualTo(100L);
+            assertThat(result).isEmpty();
+            verifyNoInteractions(registerInventoryUseCase);
         }
 
         @Test
@@ -260,11 +215,200 @@ class GetInventoryUseCaseTest {
 
             verifyNoInteractions(registerInventoryUseCase);
         }
+    }
+
+    // ==================================================================================
+    // getOrCreateInventories (재고 조회 + 미존재 시 자동 생성)
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("getOrCreateInventories (재고 조회 + 미존재 시 자동 생성)")
+    class GetOrCreateInventoriesTest {
+
+        @Test
+        @DisplayName("모든 재고가 존재하면 조회 결과를 그대로 반환한다")
+        void getOrCreateInventories_allExist_returnsInventories() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L);
+            Inventory inv1 = Inventory.of(1000L, 100L, 10);
+            Inventory inv2 = Inventory.of(2000L, 200L, 20);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
+                    .thenReturn(new HashSet<>(Set.of(inv1, inv2)));
+
+            Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(Inventory::getPricePolicyId)
+                    .containsExactlyInAnyOrder(100L, 200L);
+            assertThat(result).extracting(Inventory::getStockValue)
+                    .containsExactlyInAnyOrder(10, 20);
+        }
+
+        @Test
+        @DisplayName("모든 재고가 존재하면 재고 등록을 호출하지 않는다")
+        void getOrCreateInventories_allExist_doesNotRegister() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L);
+            Inventory inv = Inventory.of(1000L, 100L, 5);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
+                    .thenReturn(new HashSet<>(Set.of(inv)));
+
+            getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            verifyNoInteractions(registerInventoryUseCase);
+        }
+
+        @Test
+        @DisplayName("재고가 하나도 없으면 전체 가격 정책 ID로 재고 등록을 요청한다")
+        @SuppressWarnings("unchecked")
+        void getOrCreateInventories_noneExist_registersAll() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L, 300L, 3000L);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L, 300L)))
+                    .thenReturn(new HashSet<>());
+
+            Inventory created1 = Inventory.of(1000L, 100L);
+            Inventory created2 = Inventory.of(2000L, 200L);
+            Inventory created3 = Inventory.of(3000L, 300L);
+            when(registerInventoryUseCase.registerInventories(anySet()))
+                    .thenReturn(Set.of(created1, created2, created3));
+
+            Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            ArgumentCaptor<Set<RegisterInventoryCommand>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(registerInventoryUseCase).registerInventories(captor.capture());
+            Set<RegisterInventoryCommand> commands = captor.getValue();
+
+            assertThat(commands).hasSize(3);
+            assertThat(commands).extracting(RegisterInventoryCommand::pricePolicyId)
+                    .containsExactlyInAnyOrder(100L, 200L, 300L);
+            assertThat(commands).extracting(RegisterInventoryCommand::productId)
+                    .containsExactlyInAnyOrder(1000L, 2000L, 3000L);
+        }
+
+        @Test
+        @DisplayName("재고가 하나도 없으면 등록된 재고를 합쳐서 반환한다")
+        @SuppressWarnings("unchecked")
+        void getOrCreateInventories_noneExist_returnsCombinedResult() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
+                    .thenReturn(new HashSet<>());
+
+            Inventory created1 = Inventory.of(1000L, 100L);
+            Inventory created2 = Inventory.of(2000L, 200L);
+            when(registerInventoryUseCase.registerInventories(anySet()))
+                    .thenReturn(Set.of(created1, created2));
+
+            Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(Inventory::getPricePolicyId)
+                    .containsExactlyInAnyOrder(100L, 200L);
+            assertThat(result).allMatch(inv -> inv.getStockValue() == 0);
+        }
+
+        @Test
+        @DisplayName("일부 재고만 존재하면 누락된 재고에 대해 등록을 호출한다")
+        @SuppressWarnings("unchecked")
+        void getOrCreateInventories_partialExist_registersOnlyMissing() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L);
+            Inventory existing = Inventory.of(1000L, 100L, 5);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
+                    .thenReturn(new HashSet<>(Set.of(existing)));
+            when(registerInventoryUseCase.registerInventories(anySet()))
+                    .thenReturn(Set.of(Inventory.of(2000L, 200L)));
+
+            Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            ArgumentCaptor<Set<RegisterInventoryCommand>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(registerInventoryUseCase).registerInventories(captor.capture());
+            Set<RegisterInventoryCommand> commands = captor.getValue();
+
+            assertThat(commands).hasSize(1);
+            RegisterInventoryCommand command = commands.iterator().next();
+            assertThat(command.pricePolicyId()).isEqualTo(200L);
+            assertThat(command.productId()).isEqualTo(2000L);
+
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(Inventory::getPricePolicyId)
+                    .containsExactlyInAnyOrder(100L, 200L);
+        }
+
+        @Test
+        @DisplayName("일부 재고만 존재하면 기존 재고와 신규 재고를 합쳐서 반환한다")
+        @SuppressWarnings("unchecked")
+        void getOrCreateInventories_partialExist_returnsCombinedResult() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L);
+            Inventory existing = Inventory.of(1000L, 100L, 5);
+            Inventory created = Inventory.of(2000L, 200L);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
+                    .thenReturn(new HashSet<>(Set.of(existing)));
+            when(registerInventoryUseCase.registerInventories(anySet()))
+                    .thenReturn(Set.of(created));
+
+            Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(Inventory::getPricePolicyId)
+                    .containsExactlyInAnyOrder(100L, 200L);
+        }
+
+        @Test
+        @DisplayName("단일 가격 정책 ID로 조회 시 미존재하면 등록 후 반환한다")
+        @SuppressWarnings("unchecked")
+        void getOrCreateInventories_singleMissing_registersAndReturns() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
+                    .thenReturn(new HashSet<>());
+
+            Inventory created = Inventory.of(1000L, 100L);
+            when(registerInventoryUseCase.registerInventories(anySet()))
+                    .thenReturn(Set.of(created));
+
+            Set<Inventory> result = getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.iterator().next().getPricePolicyId()).isEqualTo(100L);
+
+            ArgumentCaptor<Set<RegisterInventoryCommand>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(registerInventoryUseCase).registerInventories(captor.capture());
+            assertThat(captor.getValue()).hasSize(1);
+            RegisterInventoryCommand command = captor.getValue().iterator().next();
+            assertThat(command.pricePolicyId()).isEqualTo(100L);
+            assertThat(command.productId()).isEqualTo(1000L);
+        }
+
+        @Test
+        @DisplayName("RegisterInventoryCommand에 productId가 올바르게 매핑된다")
+        @SuppressWarnings("unchecked")
+        void getOrCreateInventories_mapsProductIdCorrectly() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L, 200L, 2000L);
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
+                    .thenReturn(new HashSet<>());
+            when(registerInventoryUseCase.registerInventories(anySet()))
+                    .thenReturn(Set.of(Inventory.of(1000L, 100L), Inventory.of(2000L, 200L)));
+
+            getInventoryService.getOrCreateInventories(productIdsByPricePolicyId);
+
+            ArgumentCaptor<Set<RegisterInventoryCommand>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(registerInventoryUseCase).registerInventories(captor.capture());
+            Set<RegisterInventoryCommand> commands = captor.getValue();
+
+            for (RegisterInventoryCommand command : commands) {
+                Long expectedProductId = productIdsByPricePolicyId.get(command.pricePolicyId());
+                assertThat(command.productId()).isEqualTo(expectedProductId);
+            }
+        }
 
         @Test
         @DisplayName("재고 등록 중 예외 발생 시 예외를 전파한다")
-        void getInventories_registerFails_propagates() {
-            List<Long> pricePolicyIds = List.of(100L);
+        void getOrCreateInventories_registerFails_propagates() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L);
             RuntimeException exception = new RuntimeException("register fail");
 
             when(findInventoryPort.findByPricePolicyIds(Set.of(100L)))
@@ -272,8 +416,22 @@ class GetInventoryUseCaseTest {
             when(registerInventoryUseCase.registerInventories(anySet()))
                     .thenThrow(exception);
 
-            assertThatThrownBy(() -> getInventoryService.getInventories(pricePolicyIds))
+            assertThatThrownBy(() -> getInventoryService.getOrCreateInventories(productIdsByPricePolicyId))
                     .isSameAs(exception);
+        }
+
+        @Test
+        @DisplayName("재고 조회 중 예외 발생 시 예외를 전파한다")
+        void getOrCreateInventories_findPortFails_propagates() {
+            Map<Long, Long> productIdsByPricePolicyId = Map.of(100L, 1000L);
+            RuntimeException exception = new RuntimeException("find fail");
+
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenThrow(exception);
+
+            assertThatThrownBy(() -> getInventoryService.getOrCreateInventories(productIdsByPricePolicyId))
+                    .isSameAs(exception);
+
+            verifyNoInteractions(registerInventoryUseCase);
         }
     }
 

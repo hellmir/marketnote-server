@@ -6,12 +6,14 @@ import com.personal.marketnote.commerce.adapter.in.web.inventory.controller.apid
 import com.personal.marketnote.commerce.adapter.in.web.inventory.mapper.InventoryRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.inventory.request.SyncFulfillmentVendorInventoryRequest;
 import com.personal.marketnote.commerce.adapter.in.web.inventory.response.GetInventoriesResponse;
+import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.port.in.result.inventory.GetInventoriesResult;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RegisterInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.SyncFulfillmentVendorInventoryUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.request.RegisterInventoryRequest;
+import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_POINTCUT;
@@ -74,18 +79,30 @@ public class InventoryController {
      * 상품 재고 목록 조회
      *
      * @param pricePolicyIds 가격 정책 ID 목록
+     * @param productIds     상품 ID 목록 (선택, pricePolicyIds와 동일 순서로 매핑)
      * @Author 성효빈
      * @Date 2026-01-07
-     * @Description 상품 재고 목록을 조회합니다.
+     * @Description 상품 재고 목록을 조회합니다. productIds가 제공되면 존재하지 않는 재고를 자동 생성합니다.
      */
     @GetMapping
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @GetInventoriesApiDocs
     public ResponseEntity<BaseResponse<GetInventoriesResponse>> getInventories(
-            @Valid @RequestParam List<Long> pricePolicyIds
+            @Valid @RequestParam List<Long> pricePolicyIds,
+            @RequestParam(required = false) List<Long> productIds
     ) {
-        GetInventoriesResult getInventoriesResult
-                = GetInventoriesResult.from(getInventoryUseCase.getInventories(pricePolicyIds));
+        Set<Inventory> inventories;
+        if (FormatValidator.hasValue(productIds) && productIds.size() == pricePolicyIds.size()) {
+            Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
+            for (int i = 0; i < pricePolicyIds.size(); i++) {
+                productIdsByPricePolicyId.put(pricePolicyIds.get(i), productIds.get(i));
+            }
+            inventories = getInventoryUseCase.getOrCreateInventories(productIdsByPricePolicyId);
+        } else {
+            inventories = getInventoryUseCase.getInventories(pricePolicyIds);
+        }
+
+        GetInventoriesResult getInventoriesResult = GetInventoriesResult.from(inventories);
 
         return new ResponseEntity<>(
                 BaseResponse.of(

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.commerce.domain.servicecommunication.*;
+import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -85,14 +86,14 @@ public class CommerceServiceCommunicationHistoryJpaEntity {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .createdAt(createdAt)
                         .build()
         );
     }
 
     private static JsonNode parseJsonNode(String jsonString) {
-        if (jsonString == null) {
+        if (FormatValidator.hasNoValue(jsonString)) {
             return null;
         }
         try {

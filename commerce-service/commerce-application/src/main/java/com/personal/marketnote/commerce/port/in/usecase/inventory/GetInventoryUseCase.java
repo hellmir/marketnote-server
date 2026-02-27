@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.port.in.usecase.inventory;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,9 +19,18 @@ public interface GetInventoryUseCase {
      * @return 상품 재고 목록 {@link Set<Inventory>}
      * @Date 2026-01-07
      * @Author 성효빈
-     * @Description 상품 재고 목록을 조회합니다.
+     * @Description 상품 재고 목록을 조회합니다. 존재하지 않는 재고는 자동 생성하지 않습니다.
      */
     Set<Inventory> getInventories(List<Long> pricePolicyIds);
+
+    /**
+     * @param productIdsByPricePolicyId 가격 정책 ID → 상품 ID 매핑
+     * @return 상품 재고 목록 {@link Set<Inventory>}
+     * @Date 2026-02-12
+     * @Author 성효빈
+     * @Description 상품 재고 목록을 조회합니다. 존재하지 않는 재고는 productId와 함께 자동 생성합니다.
+     */
+    Set<Inventory> getOrCreateInventories(Map<Long, Long> productIdsByPricePolicyId);
 
     /**
      * @param pricePolicyId 가격 정책 ID

@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendo
 import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendorName;
 import com.personal.marketnote.commerce.port.in.command.vendorcommunication.CommerceVendorCommunicationHistoryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.vendorcommunication.RecordCommerceVendorCommunicationHistoryUseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ public class VendorCommunicationRecorder {
                         .communicationType(communicationType)
                         .sender(sender)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -53,7 +54,7 @@ public class VendorCommunicationRecorder {
                         .communicationType(communicationType)
                         .sender(sender)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -75,7 +76,7 @@ public class VendorCommunicationRecorder {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }
@@ -99,7 +100,7 @@ public class VendorCommunicationRecorder {
                         .sender(sender)
                         .exception(exception)
                         .payload(payload)
-                        .payloadJson(payloadJson != null ? payloadJson.toString() : null)
+                        .payloadJson(FormatValidator.hasValue(payloadJson) ? payloadJson.toString() : null)
                         .build()
         );
     }

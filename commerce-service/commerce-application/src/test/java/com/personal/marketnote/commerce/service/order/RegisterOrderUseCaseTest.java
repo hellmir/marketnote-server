@@ -30,6 +30,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +65,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .sharerId(5L)
@@ -75,7 +77,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -100,6 +102,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(3000L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId1)
                                     .sharerId(5L)
@@ -108,6 +111,7 @@ class RegisterOrderUseCaseTest {
                                     .imageUrl("https://example.com/image1.png")
                                     .build(),
                             OrderProductItemCommand.builder()
+                                    .productId(200L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId2)
                                     .sharerId(6L)
@@ -120,7 +124,7 @@ class RegisterOrderUseCaseTest {
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId1, pricePolicyId2)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory1, inventory2));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -148,6 +152,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -157,7 +162,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -185,6 +190,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(pointAmount)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -194,7 +200,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -223,6 +229,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(pointAmount)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -232,7 +239,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -260,6 +267,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .sharerId(null)
@@ -271,7 +279,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -299,6 +307,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .sharerId(5L)
@@ -310,7 +319,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -338,6 +347,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -347,7 +357,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -374,6 +384,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(null)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -383,7 +394,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -419,6 +430,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -428,7 +440,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -456,6 +468,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -465,7 +478,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -492,6 +505,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -501,7 +515,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -528,6 +542,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -537,7 +552,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -564,6 +579,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -573,7 +589,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -611,6 +627,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(sellerId)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -620,7 +637,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -648,6 +665,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -657,7 +675,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -686,6 +704,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(quantity)
@@ -695,7 +714,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -724,6 +743,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -733,7 +753,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -762,6 +782,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -772,7 +793,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -801,6 +822,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .sharerId(sharerId)
@@ -811,7 +833,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -839,6 +861,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -848,7 +871,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -887,12 +910,14 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId1)
                                     .quantity(1)
                                     .unitAmount(50000L)
                                     .build(),
                             OrderProductItemCommand.builder()
+                                    .productId(200L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId2)
                                     .quantity(1)
@@ -903,7 +928,7 @@ class RegisterOrderUseCaseTest {
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId1, pricePolicyId2)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory1, inventory2));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -911,7 +936,7 @@ class RegisterOrderUseCaseTest {
 
             registerOrderService.registerOrder(command);
 
-            verify(getInventoryUseCase).getInventories(List.of(pricePolicyId1, pricePolicyId2));
+            verify(getInventoryUseCase).getOrCreateInventories(anyMap());
         }
 
         @Test
@@ -926,6 +951,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(5)
@@ -935,7 +961,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 10);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -961,6 +987,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(orderQuantity)
@@ -970,7 +997,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, orderQuantity);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -994,6 +1021,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(10)
@@ -1003,7 +1031,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 5);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
@@ -1025,6 +1053,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1034,7 +1063,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 0);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
@@ -1056,12 +1085,14 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId1)
                                     .quantity(5)
                                     .unitAmount(50000L)
                                     .build(),
                             OrderProductItemCommand.builder()
+                                    .productId(200L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId2)
                                     .quantity(10)
@@ -1072,7 +1103,7 @@ class RegisterOrderUseCaseTest {
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 5);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId1, pricePolicyId2)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory1, inventory2));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
@@ -1093,12 +1124,14 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(3)
                                     .unitAmount(50000L)
                                     .build(),
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(4)
@@ -1108,7 +1141,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 6);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId, pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
@@ -1129,12 +1162,14 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(3)
                                     .unitAmount(50000L)
                                     .build(),
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(4)
@@ -1144,7 +1179,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 10);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId, pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -1177,6 +1212,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1186,7 +1222,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -1195,7 +1231,7 @@ class RegisterOrderUseCaseTest {
             registerOrderService.registerOrder(command);
 
             InOrder inOrder = inOrder(getInventoryUseCase, saveOrderPort, savePaymentPort);
-            inOrder.verify(getInventoryUseCase).getInventories(List.of(pricePolicyId));
+            inOrder.verify(getInventoryUseCase).getOrCreateInventories(anyMap());
             inOrder.verify(saveOrderPort).save(any(Order.class));
             inOrder.verify(savePaymentPort).save(any(Payment.class));
             inOrder.verifyNoMoreInteractions();
@@ -1213,6 +1249,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(10)
@@ -1222,13 +1259,13 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 5);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
                     .isInstanceOf(InsufficientQuantityException.class);
 
-            verify(getInventoryUseCase).getInventories(List.of(pricePolicyId));
+            verify(getInventoryUseCase).getOrCreateInventories(anyMap());
             verifyNoInteractions(saveOrderPort);
         }
     }
@@ -1253,6 +1290,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1262,7 +1300,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             RuntimeException exception = new RuntimeException("재고 조회 실패");
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenThrow(exception);
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
@@ -1283,6 +1321,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1292,7 +1331,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             RuntimeException exception = new RuntimeException("주문 저장 실패");
@@ -1314,6 +1353,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1322,7 +1362,7 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenThrow(new RuntimeException("재고 조회 실패"));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
@@ -1354,6 +1394,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1363,7 +1404,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(expectedOrderId);
@@ -1387,6 +1428,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1402,6 +1444,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(2)
@@ -1411,7 +1454,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(anyList()))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder1 = mockSavedOrder(1L);
@@ -1449,7 +1492,7 @@ class RegisterOrderUseCaseTest {
                     .orderProducts(List.of())
                     .build();
 
-            when(getInventoryUseCase.getInventories(List.of()))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(new HashSet<>());
 
             Order savedOrder = mockSavedOrder(1L);
@@ -1478,6 +1521,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1487,7 +1531,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -1517,6 +1561,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1526,7 +1571,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
 
             Order savedOrder = mockSavedOrder(1L);
@@ -1555,6 +1600,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(0L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(1)
@@ -1563,7 +1609,7 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(new HashSet<>());
 
             Order savedOrder = mockSavedOrder(1L);
@@ -1589,6 +1635,7 @@ class RegisterOrderUseCaseTest {
                     .pointAmount(5000L)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
+                                    .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId1)
                                     .sharerId(1L)
@@ -1597,6 +1644,7 @@ class RegisterOrderUseCaseTest {
                                     .imageUrl("https://example.com/image1.png")
                                     .build(),
                             OrderProductItemCommand.builder()
+                                    .productId(200L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId2)
                                     .sharerId(2L)
@@ -1605,6 +1653,7 @@ class RegisterOrderUseCaseTest {
                                     .imageUrl("https://example.com/image2.png")
                                     .build(),
                             OrderProductItemCommand.builder()
+                                    .productId(300L)
                                     .sellerId(30L)
                                     .pricePolicyId(pricePolicyId3)
                                     .sharerId(null)
@@ -1618,7 +1667,7 @@ class RegisterOrderUseCaseTest {
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
             Inventory inventory3 = Inventory.of(3L, pricePolicyId3, 30);
-            when(getInventoryUseCase.getInventories(List.of(pricePolicyId1, pricePolicyId2, pricePolicyId3)))
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory1, inventory2, inventory3));
 
             Order savedOrder = mockSavedOrder(1L);

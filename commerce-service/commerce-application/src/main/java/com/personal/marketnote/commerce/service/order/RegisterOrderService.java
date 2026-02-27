@@ -19,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -33,12 +35,14 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
     @Override
     public RegisterOrderResult registerOrder(RegisterOrderCommand command) {
-        Set<Inventory> inventories = getInventoryUseCase.getInventories(
-                command.orderProducts()
-                        .stream()
-                        .map(OrderProductItemCommand::pricePolicyId)
-                        .toList()
-        );
+        Map<Long, Long> productIdsByPricePolicyId = command.orderProducts().stream()
+                .collect(Collectors.toMap(
+                        OrderProductItemCommand::pricePolicyId,
+                        OrderProductItemCommand::productId,
+                        (existing, replacement) -> existing
+                ));
+
+        Set<Inventory> inventories = getInventoryUseCase.getOrCreateInventories(productIdsByPricePolicyId);
         inventories.forEach(inventory -> {
             int orderQuantity = command.orderProducts().stream()
                     .filter(item -> item.pricePolicyId().equals(inventory.getPricePolicyId()))
