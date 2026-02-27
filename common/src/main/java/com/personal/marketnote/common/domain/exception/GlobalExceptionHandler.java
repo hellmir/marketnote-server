@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
