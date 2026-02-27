@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
@@ -71,6 +70,5 @@ public class OrderProductItemRequest {
             description = "상품 이미지 URL",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @Size(max = 2048, message = "이미지 URL은 2048자 이내여야 합니다.")
     private String imageUrl;
 }
