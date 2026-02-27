@@ -5,12 +5,17 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
+import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
+import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
+import com.personal.marketnote.commerce.exception.PriceMismatchException;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUseCase;
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
+import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,12 +29,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
@@ -37,6 +45,8 @@ import static org.mockito.Mockito.*;
 class RegisterOrderUseCaseTest {
     @Mock
     private GetInventoryUseCase getInventoryUseCase;
+    @Mock
+    private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock
     private SaveOrderPort saveOrderPort;
     @Mock
@@ -75,6 +85,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 25000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -122,6 +134,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrices(Map.of(pricePolicyId1, 25000L, pricePolicyId2, 50000L));
+
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -161,6 +175,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrice(pricePolicyId, 50000L);
+
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
@@ -198,6 +214,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -237,6 +255,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -278,6 +298,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrice(pricePolicyId, 50000L);
+
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
@@ -318,6 +340,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrice(pricePolicyId, 50000L);
+
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
@@ -356,6 +380,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrice(pricePolicyId, 50000L);
+
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
@@ -393,6 +419,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrice(pricePolicyId, 50000L);
+
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
@@ -423,35 +451,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_savesBuyerIdCorrectly() {
             Long buyerId = 123L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getBuyerId()).isEqualTo(buyerId);
         }
 
@@ -461,35 +468,14 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Long totalAmount = 150000L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(totalAmount)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(150000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 150000L, 1, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 150000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getTotalAmount()).isEqualTo(totalAmount);
         }
 
@@ -498,35 +484,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_setsInitialStatusToPaymentPending() {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
         }
 
@@ -535,35 +500,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_generatesOrderKey() {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderKey()).isNotNull();
         }
 
@@ -572,35 +516,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_generatesOrderNumber() {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderNumber()).isNotNull();
             assertThat(capturedOrder.getOrderNumber()).isNotEmpty();
         }
@@ -636,19 +559,12 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
             assertThat(capturedOrder.getOrderProducts().get(0).getSellerId()).isEqualTo(sellerId);
         }
@@ -658,35 +574,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_savesPricePolicyIdCorrectly() {
             Long buyerId = 1L;
             Long pricePolicyId = 777L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
             assertThat(capturedOrder.getOrderProducts().get(0).getPricePolicyId()).isEqualTo(pricePolicyId);
         }
@@ -697,35 +592,14 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Integer quantity = 5;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(250000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(quantity)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, quantity, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
             assertThat(capturedOrder.getOrderProducts().get(0).getQuantity()).isEqualTo(quantity);
         }
@@ -736,35 +610,14 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Long unitAmount = 75000L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(75000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(unitAmount)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, unitAmount, 1, 0L, 0L);
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, unitAmount);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
             assertThat(capturedOrder.getOrderProducts().get(0).getUnitAmount()).isEqualTo(unitAmount);
         }
@@ -792,19 +645,12 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
             assertThat(capturedOrder.getOrderProducts().get(0).getImageUrl()).isEqualTo(imageUrl);
         }
@@ -832,19 +678,12 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
-
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
             assertThat(capturedOrder.getOrderProducts().get(0).getSharerId()).isEqualTo(sharerId);
         }
@@ -854,11 +693,386 @@ class RegisterOrderUseCaseTest {
         void registerOrder_setsOrderProductStatusToPaymentPending() {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            registerOrderService.registerOrder(command);
+
+            Order capturedOrder = captureOrder();
+            assertThat(capturedOrder.getOrderProducts()).hasSize(1);
+            assertThat(capturedOrder.getOrderProducts().get(0).getOrderStatus())
+                    .isEqualTo(OrderStatus.PAYMENT_PENDING);
+        }
+    }
+
+    // ==================================================================================
+    // 주문 금액 계산식 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("주문 금액 계산식 검증")
+    class OrderAmountValidationTest {
+
+        @Test
+        @DisplayName("totalAmount가 상품별 금액 합계와 일치하면 주문이 성공한다")
+        void registerOrder_matchingTotalAmount_succeeds() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 2, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("totalAmount가 상품별 금액 합계보다 작으면 OrderAmountMismatchException이 발생한다")
+        void registerOrder_totalAmountLessThanCalculated_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
+                    .buyerId(1L)
+                    .totalAmount(30000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(100L)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(OrderAmountMismatchException.class)
+                    .hasMessageContaining("주문 총액이 상품 금액 합계와 일치하지 않습니다");
+        }
+
+        @Test
+        @DisplayName("totalAmount가 상품별 금액 합계보다 크면 OrderAmountMismatchException이 발생한다")
+        void registerOrder_totalAmountGreaterThanCalculated_throwsException() {
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(100000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(100L)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(OrderAmountMismatchException.class);
+        }
+
+        @Test
+        @DisplayName("totalAmount가 0이고 상품 금액이 0이 아니면 OrderAmountMismatchException이 발생한다")
+        void registerOrder_zeroTotalAmountWithNonZeroProducts_throwsException() {
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(0L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(100L)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(OrderAmountMismatchException.class);
+        }
+
+        @Test
+        @DisplayName("복수 상품의 금액 합계가 totalAmount와 불일치하면 OrderAmountMismatchException이 발생한다")
+        void registerOrder_multipleProductsMismatch_throwsException() {
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(99999L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(100L)
+                                    .quantity(2)
+                                    .unitAmount(25000L)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(200L)
+                                    .sellerId(20L)
+                                    .pricePolicyId(200L)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(OrderAmountMismatchException.class);
+        }
+
+        @Test
+        @DisplayName("금액 불일치 시 재고 검증/주문 저장이 호출되지 않는다")
+        void registerOrder_amountMismatch_doesNotCallSubsequentPorts() {
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(1L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(100L)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(OrderAmountMismatchException.class);
+
+            verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort, findProductByPricePolicyPort);
+        }
+
+        @Test
+        @DisplayName("unitAmount * quantity 오버플로우 발생 시 OrderAmountMismatchException이 발생한다")
+        void registerOrder_overflowInMultiplication_throwsException() {
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(Long.MAX_VALUE)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(100L)
+                                    .quantity(2)
+                                    .unitAmount(Long.MAX_VALUE)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(OrderAmountMismatchException.class);
+        }
+
+        @Test
+        @DisplayName("복수 상품 합산 시 오버플로우 발생하면 OrderAmountMismatchException이 발생한다")
+        void registerOrder_overflowInSum_throwsException() {
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(Long.MAX_VALUE)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(100L)
+                                    .quantity(1)
+                                    .unitAmount(Long.MAX_VALUE)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(101L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(101L)
+                                    .quantity(1)
+                                    .unitAmount(Long.MAX_VALUE)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(OrderAmountMismatchException.class);
+        }
+    }
+
+    // ==================================================================================
+    // 실제 상품 가격 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("실제 상품 가격 검증")
+    class PriceValidationTest {
+
+        @Test
+        @DisplayName("unitAmount가 실제 가격과 일치하면 주문이 성공한다")
+        void registerOrder_matchingPrice_succeeds() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("unitAmount가 실제 가격보다 낮으면 PriceMismatchException이 발생한다")
+        void registerOrder_unitAmountLowerThanActual_throwsException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 1L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(PriceMismatchException.class)
+                    .hasMessageContaining("주문 상품 단가가 실제 가격과 일치하지 않습니다");
+        }
+
+        @Test
+        @DisplayName("unitAmount가 실제 가격보다 높으면 PriceMismatchException이 발생한다")
+        void registerOrder_unitAmountHigherThanActual_throwsException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 100000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(PriceMismatchException.class);
+        }
+
+        @Test
+        @DisplayName("discountPrice가 존재하면 discountPrice로 검증한다")
+        void registerOrder_withDiscountPrice_validatesAgainstDiscountPrice() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 40000L, 1, 0L, 0L);
+
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(pricePolicyId,
+                            new ProductInfoResult(1L, "상품", "브랜드", 50000L, 40000L, List.of())));
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("discountPrice가 null이면 price로 검증한다")
+        void registerOrder_nullDiscountPrice_validatesAgainstPrice() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(pricePolicyId,
+                            new ProductInfoResult(1L, "상품", "브랜드", 50000L, null, List.of())));
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("product-service 조회 실패(빈 Map) 시 가격 검증을 건너뛴다")
+        void registerOrder_productServiceFailure_skipsValidation() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of());
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("가격 불일치 시 재고 검증이 호출되지 않는다")
+        void registerOrder_priceMismatch_doesNotCallInventory() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 1L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(PriceMismatchException.class);
+
+            verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort);
+        }
+    }
+
+    // ==================================================================================
+    // 할인 금액 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("할인 금액 검증")
+    class DiscountValidationTest {
+
+        @Test
+        @DisplayName("couponAmount + pointAmount가 totalAmount 이하이면 성공한다")
+        void registerOrder_validDiscount_succeeds() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 10000L, 5000L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("couponAmount가 totalAmount를 초과하면 ExcessiveDiscountException이 발생한다")
+        void registerOrder_excessiveCoupon_throwsException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 60000L, 0L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ExcessiveDiscountException.class)
+                    .hasMessageContaining("할인 금액이 주문 총액을 초과합니다");
+        }
+
+        @Test
+        @DisplayName("pointAmount가 totalAmount를 초과하면 ExcessiveDiscountException이 발생한다")
+        void registerOrder_excessivePoint_throwsException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 200000L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ExcessiveDiscountException.class);
+        }
+
+        @Test
+        @DisplayName("couponAmount + pointAmount 합계가 totalAmount를 초과하면 ExcessiveDiscountException이 발생한다")
+        void registerOrder_combinedDiscountExceedsTotalAmount_throwsException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 30000L, 30000L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ExcessiveDiscountException.class);
+        }
+
+        @Test
+        @DisplayName("couponAmount와 pointAmount가 null이면 할인 검증을 통과한다")
+        void registerOrder_nullDiscountAmounts_succeeds() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(50000L)
+                    .couponAmount(null)
+                    .pointAmount(null)
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -870,22 +1084,47 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
-            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
-                    .thenReturn(Set.of(inventory));
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
 
-            Order savedOrder = mockSavedOrder(1L);
-            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
 
-            registerOrderService.registerOrder(command);
+        @Test
+        @DisplayName("할인 초과 시 가격 검증/재고 검증이 호출되지 않는다")
+        void registerOrder_excessiveDiscount_doesNotCallSubsequentPorts() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 60000L, 0L);
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ExcessiveDiscountException.class);
 
-            assertThat(capturedOrder.getOrderProducts()).hasSize(1);
-            assertThat(capturedOrder.getOrderProducts().get(0).getOrderStatus())
-                    .isEqualTo(OrderStatus.PAYMENT_PENDING);
+            verifyNoInteractions(findProductByPricePolicyPort, getInventoryUseCase, saveOrderPort, savePaymentPort);
+        }
+
+        @Test
+        @DisplayName("couponAmount + pointAmount 오버플로우 시 ExcessiveDiscountException이 발생한다")
+        void registerOrder_discountOverflow_throwsException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(50000L)
+                    .couponAmount(Long.MAX_VALUE / 2 + 1)
+                    .pointAmount(Long.MAX_VALUE / 2 + 1)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ExcessiveDiscountException.class);
         }
     }
 
@@ -900,11 +1139,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("주문 등록 시 재고 조회가 호출된다")
         void registerOrder_callsGetInventories() {
-            Long buyerId = 1L;
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(100000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -926,6 +1164,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrices(Map.of(pricePolicyId1, 50000L, pricePolicyId2, 50000L));
+
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -942,10 +1182,9 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("재고가 충분하면 주문이 정상 처리된다")
         void registerOrder_sufficientStock_succeeds() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(250000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -959,6 +1198,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 10);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -977,11 +1218,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("재고가 주문 수량과 정확히 일치하면 주문이 정상 처리된다")
         void registerOrder_exactStock_succeeds() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             int orderQuantity = 10;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(500000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -995,6 +1235,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, orderQuantity);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1012,10 +1254,9 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("재고가 부족하면 InsufficientQuantityException이 발생한다")
         void registerOrder_insufficientStock_throwsException() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(500000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -1029,6 +1270,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 5);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1044,23 +1287,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("재고가 0이고 주문 수량이 1 이상이면 InsufficientQuantityException이 발생한다")
         void registerOrder_zeroStock_throwsException() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 0);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1075,11 +1305,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("복수 상품 중 하나라도 재고가 부족하면 InsufficientQuantityException이 발생한다")
         void registerOrder_oneProductInsufficientStock_throwsException() {
-            Long buyerId = 1L;
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(100000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -1089,17 +1318,19 @@ class RegisterOrderUseCaseTest {
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId1)
                                     .quantity(5)
-                                    .unitAmount(50000L)
+                                    .unitAmount(10000L)
                                     .build(),
                             OrderProductItemCommand.builder()
                                     .productId(200L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId2)
                                     .quantity(10)
-                                    .unitAmount(50000L)
+                                    .unitAmount(5000L)
                                     .build()
                     ))
                     .build();
+
+            mockProductPrices(Map.of(pricePolicyId1, 10000L, pricePolicyId2, 5000L));
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 5);
@@ -1115,11 +1346,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("동일 pricePolicyId의 복수 상품이 있으면 수량을 합산하여 재고 검증한다")
         void registerOrder_samePricePolicyMultipleItems_sumsQuantityForValidation() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(150000L)
+                    .buyerId(1L)
+                    .totalAmount(350000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
                     .orderProducts(List.of(
@@ -1139,6 +1369,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 6);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1153,11 +1385,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("동일 pricePolicyId의 복수 상품이 있고 합산 재고가 충분하면 성공한다")
         void registerOrder_samePricePolicyMultipleItems_sufficientStock_succeeds() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(150000L)
+                    .buyerId(1L)
+                    .totalAmount(350000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
                     .orderProducts(List.of(
@@ -1177,6 +1408,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 10);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1201,25 +1434,12 @@ class RegisterOrderUseCaseTest {
     class InvocationOrderTest {
 
         @Test
-        @DisplayName("주문 등록 시 재고 조회 -> 주문 저장 순서로 호출한다")
+        @DisplayName("주문 등록 시 가격 검증 -> 재고 조회 -> 주문 저장 -> 결제 저장 순서로 호출한다")
         void registerOrder_callsInOrder() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1230,7 +1450,8 @@ class RegisterOrderUseCaseTest {
 
             registerOrderService.registerOrder(command);
 
-            InOrder inOrder = inOrder(getInventoryUseCase, saveOrderPort, savePaymentPort);
+            InOrder inOrder = inOrder(findProductByPricePolicyPort, getInventoryUseCase, saveOrderPort, savePaymentPort);
+            inOrder.verify(findProductByPricePolicyPort).findByPricePolicyIds(anyList());
             inOrder.verify(getInventoryUseCase).getOrCreateInventories(anyMap());
             inOrder.verify(saveOrderPort).save(any(Order.class));
             inOrder.verify(savePaymentPort).save(any(Payment.class));
@@ -1240,10 +1461,9 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("재고 검증 실패 시 SaveOrderPort가 호출되지 않는다")
         void registerOrder_stockValidationFails_doesNotCallSaveOrderPort() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(500000L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -1257,6 +1477,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 5);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1281,23 +1503,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("재고 조회 중 예외 발생 시 예외를 전파한다")
         void registerOrder_getInventoriesFails_propagates() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             RuntimeException exception = new RuntimeException("재고 조회 실패");
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1312,23 +1521,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("주문 저장 중 예외 발생 시 예외를 전파한다")
         void registerOrder_saveOrderFails_propagates() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1344,23 +1540,10 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("재고 조회 실패 시 재고 검증이 수행되지 않는다")
         void registerOrder_getInventoriesFails_noValidation() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenThrow(new RuntimeException("재고 조회 실패"));
@@ -1384,24 +1567,11 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("주문 등록 성공 시 저장된 주문의 ID가 포함된 결과를 반환한다")
         void registerOrder_success_returnsOrderId() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Long expectedOrderId = 999L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1421,22 +1591,7 @@ class RegisterOrderUseCaseTest {
         void registerOrder_differentOrders_returnsDifferentIds() {
             Long pricePolicyId = 100L;
 
-            RegisterOrderCommand command1 = RegisterOrderCommand.builder()
-                    .buyerId(1L)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
-
+            RegisterOrderCommand command1 = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
             RegisterOrderCommand command2 = RegisterOrderCommand.builder()
                     .buyerId(2L)
                     .totalAmount(100000L)
@@ -1452,6 +1607,8 @@ class RegisterOrderUseCaseTest {
                                     .build()
                     ))
                     .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1483,9 +1640,8 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("주문 상품이 빈 목록이면 빈 주문이 저장된다")
         void registerOrder_emptyOrderProducts_savesEmptyOrder() {
-            Long buyerId = 1L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(0L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -1502,20 +1658,16 @@ class RegisterOrderUseCaseTest {
 
             assertThat(result).isNotNull();
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).isEmpty();
         }
 
         @Test
-        @DisplayName("totalAmount가 0인 주문도 정상 등록된다")
+        @DisplayName("totalAmount가 0이고 unitAmount도 0이면 정상 등록된다")
         void registerOrder_zeroTotalAmount_succeeds() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(0L)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -1530,6 +1682,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrice(pricePolicyId, 0L);
+
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
@@ -1541,21 +1695,17 @@ class RegisterOrderUseCaseTest {
 
             assertThat(result).isNotNull();
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getTotalAmount()).isEqualTo(0L);
         }
 
         @Test
         @DisplayName("매우 큰 totalAmount도 정상 처리된다")
         void registerOrder_largeTotalAmount_succeeds() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Long largeTotalAmount = Long.MAX_VALUE - 1;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(largeTotalAmount)
                     .couponAmount(0L)
                     .pointAmount(0L)
@@ -1570,6 +1720,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrice(pricePolicyId, largeTotalAmount);
+
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(Set.of(inventory));
@@ -1581,33 +1733,17 @@ class RegisterOrderUseCaseTest {
 
             assertThat(result).isNotNull();
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getTotalAmount()).isEqualTo(largeTotalAmount);
         }
 
         @Test
         @DisplayName("재고 조회 결과가 빈 Set인 경우 재고 검증을 건너뛴다")
         void registerOrder_emptyInventorySet_skipsValidation() {
-            Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
-                    .totalAmount(50000L)
-                    .couponAmount(0L)
-                    .pointAmount(0L)
-                    .orderProducts(List.of(
-                            OrderProductItemCommand.builder()
-                                    .productId(100L)
-                                    .sellerId(10L)
-                                    .pricePolicyId(pricePolicyId)
-                                    .quantity(1)
-                                    .unitAmount(50000L)
-                                    .build()
-                    ))
-                    .build();
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
 
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
                     .thenReturn(new HashSet<>());
@@ -1624,12 +1760,11 @@ class RegisterOrderUseCaseTest {
         @Test
         @DisplayName("여러 판매자의 상품을 포함한 주문이 정상 등록된다")
         void registerOrder_multipleSellers_succeeds() {
-            Long buyerId = 1L;
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
             Long pricePolicyId3 = 300L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
-                    .buyerId(buyerId)
+                    .buyerId(1L)
                     .totalAmount(300000L)
                     .couponAmount(10000L)
                     .pointAmount(5000L)
@@ -1664,6 +1799,8 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
+            mockProductPrices(Map.of(pricePolicyId1, 50000L, pricePolicyId2, 100000L, pricePolicyId3, 100000L));
+
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
             Inventory inventory3 = Inventory.of(3L, pricePolicyId3, 30);
@@ -1677,10 +1814,7 @@ class RegisterOrderUseCaseTest {
 
             assertThat(result).isNotNull();
 
-            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
-            verify(saveOrderPort).save(captor.capture());
-            Order capturedOrder = captor.getValue();
-
+            Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(3);
             assertThat(capturedOrder.getOrderProducts())
                     .extracting(OrderProduct::getSellerId)
@@ -1697,5 +1831,60 @@ class RegisterOrderUseCaseTest {
         when(order.getId()).thenReturn(orderId);
         when(order.getOrderKey()).thenReturn(UUID.randomUUID());
         return order;
+    }
+
+    private RegisterOrderCommand createSingleProductCommand(
+            Long buyerId, Long pricePolicyId, Long unitAmount, Integer quantity,
+            Long couponAmount, Long pointAmount
+    ) {
+        return RegisterOrderCommand.builder()
+                .buyerId(buyerId)
+                .totalAmount(unitAmount * quantity)
+                .couponAmount(couponAmount)
+                .pointAmount(pointAmount)
+                .orderProducts(List.of(
+                        OrderProductItemCommand.builder()
+                                .productId(100L)
+                                .sellerId(10L)
+                                .pricePolicyId(pricePolicyId)
+                                .quantity(quantity)
+                                .unitAmount(unitAmount)
+                                .build()
+                ))
+                .build();
+    }
+
+    private void mockProductPrice(Long pricePolicyId, Long price) {
+        ProductInfoResult productInfo = new ProductInfoResult(
+                1L, "테스트 상품", "테스트 브랜드", price, null, List.of()
+        );
+        when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                .thenReturn(Map.of(pricePolicyId, productInfo));
+    }
+
+    private void mockProductPrices(Map<Long, Long> pricePolicyIdToPrice) {
+        java.util.HashMap<Long, ProductInfoResult> result = new java.util.HashMap<>();
+        pricePolicyIdToPrice.forEach((pricePolicyId, price) ->
+                result.put(pricePolicyId, new ProductInfoResult(
+                        pricePolicyId, "테스트 상품", "테스트 브랜드", price, null, List.of()
+                ))
+        );
+        when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                .thenReturn(result);
+    }
+
+    private void mockInventoryAndSave(Long pricePolicyId, int stock, Long orderId) {
+        Inventory inventory = Inventory.of(1L, pricePolicyId, stock);
+        when(getInventoryUseCase.getOrCreateInventories(anyMap()))
+                .thenReturn(Set.of(inventory));
+
+        Order savedOrder = mockSavedOrder(orderId);
+        when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+    }
+
+    private Order captureOrder() {
+        ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
+        verify(saveOrderPort).save(captor.capture());
+        return captor.getValue();
     }
 }

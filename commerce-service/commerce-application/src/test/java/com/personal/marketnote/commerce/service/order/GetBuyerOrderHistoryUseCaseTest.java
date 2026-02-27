@@ -1129,6 +1129,6 @@ class GetBuyerOrderHistoryUseCaseTest {
     }
 
     private ProductInfoResult createProductInfo(Long id, String name) {
-        return new ProductInfoResult(id, name, "브랜드", List.of());
+        return new ProductInfoResult(id, name, "브랜드", null, null, List.of());
     }
 }
