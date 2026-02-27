@@ -6,6 +6,8 @@ import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderStatusChangeException;
 import com.personal.marketnote.commerce.mapper.OrderCommandToStateMapper;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
@@ -16,6 +18,7 @@ import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -28,6 +31,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
+@Slf4j
 public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final ReduceProductInventoryUseCase reduceProductInventoryUseCase;
     private final GetOrderUseCase getOrderUseCase;
@@ -39,6 +43,9 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     public void changeOrderStatus(ChangeOrderStatusCommand command) {
         Order order = getOrderUseCase.getOrder(command.id());
         OrderStatus status = command.orderStatus();
+
+        validateBuyerRoleRestriction(command);
+        validateBuyerOwnership(command, order);
 
         if (status.isMe(order.getOrderStatus()) && status.isNotPartialChanged()) {
             throw new OrderStatusAlreadyChangedException(status);
@@ -70,6 +77,30 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                 // 링크 공유 회원 포인트 적립
                 modifyUserPointPort.accrueSharedPurchasePoints(sharerIds);
             });
+        }
+    }
+
+    private void validateBuyerRoleRestriction(ChangeOrderStatusCommand command) {
+        if (command.isBuyerRole() && !command.orderStatus().isBuyerAllowed()) {
+            log.warn("구매자 허용되지 않은 상태 변경 시도 - orderId: {}, targetStatus: {}, role: {}",
+                    command.id(), command.orderStatus(), command.role());
+            throw new UnauthorizedOrderStatusChangeException();
+        }
+    }
+
+    private void validateBuyerOwnership(ChangeOrderStatusCommand command, Order order) {
+        if (command.isInternalCall()) {
+            return;
+        }
+
+        if (!command.isBuyerRole()) {
+            return;
+        }
+
+        if (!order.getBuyerId().equals(command.buyerId())) {
+            log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
+                    command.id(), order.getBuyerId(), command.buyerId());
+            throw new UnauthorizedOrderAccessException();
         }
     }
 

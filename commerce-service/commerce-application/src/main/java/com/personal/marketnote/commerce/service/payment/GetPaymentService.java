@@ -3,7 +3,9 @@ package com.personal.marketnote.commerce.service.payment;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
+import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.result.payment.GetPaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.payment.GetPaymentUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -11,6 +13,7 @@ import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
@@ -20,6 +23,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @UseCase
 @RequiredArgsConstructor
 @Transactional(readOnly = true, isolation = READ_COMMITTED)
+@Slf4j
 public class GetPaymentService implements GetPaymentUseCase {
     private final FindOrderPort findOrderPort;
     private final FindPaymentPort findPaymentPort;
@@ -42,9 +46,11 @@ public class GetPaymentService implements GetPaymentUseCase {
 
     private void verifyOrderOwnership(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
-                .orElseThrow(() -> new IllegalStateException("주문 정보를 찾을 수 없습니다: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         if (!order.getBuyerId().equals(buyerId)) {
-            throw new IllegalStateException("해당 주문에 대한 권한이 없습니다");
+            log.warn("결제 조회 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
+                    orderId, order.getBuyerId(), buyerId);
+            throw new UnauthorizedOrderAccessException();
         }
     }
 }

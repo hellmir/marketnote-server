@@ -19,9 +19,19 @@ public interface GetOrderUseCase {
      * @return 주문 조회 결과 {@link GetOrderResult}
      * @Date 2026-01-05
      * @Author 성효빈
-     * @Description 주문과 주문 상품 정보를 조회합니다.
+     * @Description 주문과 주문 상품 정보를 조회합니다. (내부용, 소유자 검증 없음)
      */
     GetOrderResult getOrderAndOrderProducts(Long id);
+
+    /**
+     * @param id      주문 ID
+     * @param buyerId 요청 구매자 ID
+     * @return 주문 조회 결과 {@link GetOrderResult}
+     * @Date 2026-02-27
+     * @Author 성효빈
+     * @Description 구매자 소유자 검증 후 주문과 주문 상품 정보를 조회합니다.
+     */
+    GetOrderResult getOrderAndOrderProducts(Long id, Long buyerId);
 
     /**
      * @param id 주문 ID
@@ -64,9 +74,19 @@ public interface GetOrderUseCase {
      * @return 주문 키 조회 결과 {@link GetOrderKeyResult}
      * @Date 2026-02-25
      * @Author 성효빈
-     * @Description 주문 키를 조회합니다.
+     * @Description 주문 키를 조회합니다. (내부용, 소유자 검증 없음)
      */
     GetOrderKeyResult getOrderKey(Long id);
+
+    /**
+     * @param id      주문 ID
+     * @param buyerId 요청 구매자 ID
+     * @return 주문 키 조회 결과 {@link GetOrderKeyResult}
+     * @Date 2026-02-27
+     * @Author 성효빈
+     * @Description 구매자 소유자 검증 후 주문 키를 조회합니다.
+     */
+    GetOrderKeyResult getOrderKey(Long id, Long buyerId);
 
     /**
      * @param orderId       주문 ID

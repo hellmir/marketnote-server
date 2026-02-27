@@ -34,138 +34,90 @@ public class GlobalExceptionHandler {
     private static final String LOG_WARN_MESSAGE = "Warning exception occurred: {}";
     private static final String LOG_INFO_MESSAGE = "Exception occurred: {}";
 
-    private HttpStatus httpStatus;
-    private String code;
-    private String message;
+    private record ParsedMessage(String code, String message) {
+        static ParsedMessage from(String errorMessage, HttpStatus httpStatus) {
+            if (FormatValidator.hasNoValue(errorMessage)) {
+                return new ParsedMessage(httpStatus.name(), "");
+            }
 
-    private void initializeMessage(String errorMessage) {
-        if (FormatValidator.hasNoValue(errorMessage)) {
-            return;
+            String[] messages = errorMessage.split("::");
+            if (messages.length > 1) {
+                return new ParsedMessage(messages[0].trim(), messages[1].trim());
+            }
+
+            return new ParsedMessage(httpStatus.name(), messages[0]);
         }
+    }
 
-        String[] messages = errorMessage.split("::");
-        if (messages.length > 1) {
-            code = messages[0].trim();
-            message = messages[1].trim();
-            return;
-        }
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus httpStatus, String code, String message) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .statusCode(httpStatus.value())
+                .timestamp(LocalDateTime.now())
+                .code(code)
+                .message(message)
+                .build();
 
-        code = httpStatus.name();
-        message = messages[0];
+        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+    }
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus httpStatus, String errorMessage) {
+        ParsedMessage parsed = ParsedMessage.from(errorMessage, httpStatus);
+        return buildErrorResponse(httpStatus, parsed.code(), parsed.message());
     }
 
     @ExceptionHandler(IOException.class)
-    private ResponseEntity<ErrorResponse> handleIOException
-            (IOException e) {
-        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleIOException(IOException e) {
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(NullPointerException.class)
-    private ResponseEntity<ErrorResponse> handleNullPointerException
-            (NullPointerException e) {
-        httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleNullPointerException(NullPointerException e) {
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    private ResponseEntity<ErrorResponse> handleEntityNotFoundException
-            (EntityNotFoundException e) {
-        httpStatus = HttpStatus.NOT_FOUND;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException e) {
+        HttpStatus httpStatus = HttpStatus.NOT_FOUND;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    private ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException
-            (HttpRequestMethodNotSupportedException e) {
-        httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e) {
+        HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    private ResponseEntity<ErrorResponse> handleAuthenticationException
-            (AuthenticationException e) {
-        httpStatus = HttpStatus.UNAUTHORIZED;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
+        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    private ResponseEntity<ErrorResponse> handleAccessDeniedException
-            (AccessDeniedException e) {
-        httpStatus = HttpStatus.FORBIDDEN;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, e.getMessage());
+    }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+    @ExceptionHandler(BusinessSecurityException.class)
+    ResponseEntity<ErrorResponse> handleBusinessSecurityException(BusinessSecurityException e) {
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
+        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    private ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException
-            (MethodArgumentNotValidException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
+    ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 
         String fieldErrorMessage = e.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getDefaultMessage())
@@ -175,223 +127,97 @@ public class GlobalExceptionHandler {
             fieldErrorMessage = "요청 값이 올바르지 않습니다.";
         }
 
-        initializeMessage(fieldErrorMessage);
-
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, fieldErrorMessage);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    private ResponseEntity<ErrorResponse> handleIllegalArgumentException
-            (IllegalArgumentException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    private ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException
-            (HttpMessageNotReadableException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        code = httpStatus.name();
-        message = "요청 본문을 읽을 수 없습니다.";
-
+    ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, httpStatus.name(), "요청 본문을 읽을 수 없습니다.");
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    private ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException
-            (HttpMediaTypeNotSupportedException e) {
-        httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(
+            HttpMediaTypeNotSupportedException e) {
+        HttpStatus httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    private ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
-    private ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(EntityExistsException.class)
-    private ResponseEntity<ErrorResponse> handleEntityExistsException(EntityExistsException e) {
-        httpStatus = HttpStatus.CONFLICT;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleEntityExistsException(EntityExistsException e) {
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    private ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException e) {
-        httpStatus = HttpStatus.CONFLICT;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException e) {
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(MailException.class)
-    private ResponseEntity<ErrorResponse> handleMailException(MailException e) {
-        httpStatus = HttpStatus.BAD_GATEWAY;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleMailException(MailException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(UncheckedIOException.class)
-    private ResponseEntity<ErrorResponse> handleUncheckedIOException(UncheckedIOException e) {
-        httpStatus = HttpStatus.BAD_GATEWAY;
-        initializeMessage(e.getMessage());
-
+    ResponseEntity<ErrorResponse> handleUncheckedIOException(UncheckedIOException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, e.getMessage());
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    private ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+    ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
             MissingServletRequestParameterException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        code = httpStatus.name();
-        message = "필수 요청 파라미터 '" + e.getParameterName() + "'이(가) 누락되었습니다.";
-
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message = "필수 요청 파라미터 '" + e.getParameterName() + "'이(가) 누락되었습니다.";
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, httpStatus.name(), message);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    private ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
+    ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException e) {
-        httpStatus = HttpStatus.BAD_REQUEST;
-        code = httpStatus.name();
-        message = "요청 파라미터 '" + e.getName() + "'의 타입이 올바르지 않습니다.";
-
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message = "요청 파라미터 '" + e.getName() + "'의 타입이 올바르지 않습니다.";
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, httpStatus.name(), message);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    private ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+    ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
             DataIntegrityViolationException e) {
-        httpStatus = HttpStatus.CONFLICT;
-        code = httpStatus.name();
-        message = "데이터 무결성 제약 조건을 위반했습니다.";
-
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .statusCode(httpStatus.value())
-                .timestamp(LocalDateTime.now())
-                .code(code)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.resolve(errorResponse.getStatusCode()));
+        return buildErrorResponse(httpStatus, httpStatus.name(), "데이터 무결성 제약 조건을 위반했습니다.");
     }
 }

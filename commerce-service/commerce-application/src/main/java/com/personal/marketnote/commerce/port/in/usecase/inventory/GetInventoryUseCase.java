@@ -26,7 +26,7 @@ public interface GetInventoryUseCase {
     /**
      * @param productIdsByPricePolicyId 가격 정책 ID → 상품 ID 매핑
      * @return 상품 재고 목록 {@link Set<Inventory>}
-     * @Date 2026-02-12
+     * @Date 2026-02-27
      * @Author 성효빈
      * @Description 상품 재고 목록을 조회합니다. 존재하지 않는 재고는 productId와 함께 자동 생성합니다.
      */

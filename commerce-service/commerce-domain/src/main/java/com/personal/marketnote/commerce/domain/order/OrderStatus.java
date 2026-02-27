@@ -35,6 +35,9 @@ public enum OrderStatus {
     private final String description;
 
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
+    private static final Set<OrderStatus> BUYER_ALLOWED_STATUSES = EnumSet.of(
+            CANCEL_REQUESTED, CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED
+    );
 
     static {
         ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCEL_REQUESTED, CANCELLED));
@@ -97,5 +100,17 @@ public enum OrderStatus {
 
     public boolean isNotPartialChanged() {
         return this != PARTIALLY_CONFIRMED && this != PARTIALLY_REFUNDED;
+    }
+
+    /**
+     * 구매자가 직접 변경할 수 있는 주문 상태인지 확인한다.
+     * <p>
+     * 구매자 허용 상태: CANCEL_REQUESTED, CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED
+     * </p>
+     *
+     * @return 구매자가 변경 가능한 상태이면 true
+     */
+    public boolean isBuyerAllowed() {
+        return BUYER_ALLOWED_STATUSES.contains(this);
     }
 }
