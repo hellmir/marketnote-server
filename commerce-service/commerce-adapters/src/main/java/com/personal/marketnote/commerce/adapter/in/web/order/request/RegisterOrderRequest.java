@@ -25,6 +25,7 @@ public class RegisterOrderRequest {
             description = "쿠폰 할인 금액(원)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Min(value = 0, message = "쿠폰 할인 금액은 0 이상이어야 합니다.")
     private Long couponAmount;
 
     @Schema(
@@ -32,6 +33,7 @@ public class RegisterOrderRequest {
             description = "포인트 사용 금액(원)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
+    @Min(value = 0, message = "포인트 사용 금액은 0 이상이어야 합니다.")
     private Long pointAmount;
 
     @Schema(
