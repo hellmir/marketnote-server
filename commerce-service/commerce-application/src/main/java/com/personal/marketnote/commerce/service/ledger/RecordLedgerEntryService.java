@@ -85,6 +85,37 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
         record(command);
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
+    public void recordPaymentCancellation(Long orderId, long cancelAmount, String idempotencyKey) {
+        Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
+        Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
+                .transactionType(LedgerTransactionType.PAYMENT_CANCELLATION)
+                .targetType("PAYMENT")
+                .targetId(orderId)
+                .description("결제 취소/환불 역분개")
+                .idempotencyKey(idempotencyKey)
+                .entries(List.of(
+                        RecordLedgerEntryCommand.EntryLine.builder()
+                                .accountId(sellerPayable.getId())
+                                .amount(cancelAmount)
+                                .transactionType(TransactionType.DEBIT)
+                                .build(),
+                        RecordLedgerEntryCommand.EntryLine.builder()
+                                .accountId(pgReceivable.getId())
+                                .amount(cancelAmount)
+                                .transactionType(TransactionType.CREDIT)
+                                .build()
+                ))
+                .build();
+
+        record(command);
+    }
+
     private void validateEntryLines(List<RecordLedgerEntryCommand.EntryLine> entryLines) {
         if (FormatValidator.hasNoValue(entryLines) || entryLines.isEmpty()) {
             throw new IllegalArgumentException("분개 항목이 비어있습니다.");
