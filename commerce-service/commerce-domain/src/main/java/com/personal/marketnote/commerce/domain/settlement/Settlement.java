@@ -82,10 +82,18 @@ public class Settlement {
     }
 
     public void complete() {
+        if (!isPending()) {
+            throw new IllegalStateException(
+                    "PENDING 상태에서만 완료 처리할 수 있습니다. 현재 상태: " + status);
+        }
         this.status = SettlementStatus.COMPLETED;
     }
 
     public void fail() {
+        if (!isPending()) {
+            throw new IllegalStateException(
+                    "PENDING 상태에서만 실패 처리할 수 있습니다. 현재 상태: " + status);
+        }
         this.status = SettlementStatus.FAILED;
     }
 }

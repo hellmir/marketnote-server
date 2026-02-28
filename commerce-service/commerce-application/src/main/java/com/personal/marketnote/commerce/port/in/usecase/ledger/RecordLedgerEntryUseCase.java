@@ -8,4 +8,8 @@ public interface RecordLedgerEntryUseCase {
     void recordPaymentApproval(Long orderId, long paymentAmount);
 
     void recordPaymentCancellation(Long orderId, long cancelAmount, String idempotencyKey);
+
+    void recordPgSettlement(Long settlementId, long totalAmount, long pgFeeAmount);
+
+    void recordSellerSettlement(Long settlementId, long totalAmount, long sellerPayoutAmount, long platformFeeAmount);
 }
