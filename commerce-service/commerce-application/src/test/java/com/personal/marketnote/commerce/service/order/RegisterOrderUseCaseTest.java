@@ -5,6 +5,9 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
 import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
 import com.personal.marketnote.commerce.exception.PriceMismatchException;
@@ -16,6 +19,7 @@ import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUs
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.DisplayName;
@@ -52,6 +56,8 @@ class RegisterOrderUseCaseTest {
     private SaveOrderPort saveOrderPort;
     @Mock
     private SavePaymentPort savePaymentPort;
+    @Mock
+    private SavePaymentAllocationPort savePaymentAllocationPort;
 
     @InjectMocks
     private RegisterOrderService registerOrderService;
@@ -1996,6 +2002,184 @@ class RegisterOrderUseCaseTest {
     }
 
     // ==================================================================================
+    // 결제 배분(PaymentAllocation) 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("결제 배분(PaymentAllocation) 검증")
+    class PaymentAllocationTest {
+
+        @Test
+        @DisplayName("주문 등록 시 판매자별 PaymentAllocation이 생성된다")
+        @SuppressWarnings("unchecked")
+        void registerOrder_createsPaymentAllocationsPerSeller() {
+            Long pricePolicyId1 = 100L;
+            Long pricePolicyId2 = 200L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(100000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(pricePolicyId1)
+                                    .quantity(2)
+                                    .unitAmount(25000L)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(200L)
+                                    .sellerId(20L)
+                                    .pricePolicyId(pricePolicyId2)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyId1, Map.entry(25000L, 10L),
+                    pricePolicyId2, Map.entry(50000L, 20L)
+            ));
+            Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
+            Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
+                    .thenReturn(Set.of(inventory1, inventory2));
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            registerOrderService.registerOrder(command);
+
+            ArgumentCaptor<List<PaymentAllocation>> captor = ArgumentCaptor.forClass(List.class);
+            verify(savePaymentAllocationPort).saveAll(captor.capture());
+            List<PaymentAllocation> allocations = captor.getValue();
+            assertThat(allocations).hasSize(2);
+            assertThat(allocations)
+                    .extracting(PaymentAllocation::getSellerId)
+                    .containsExactlyInAnyOrder(10L, 20L);
+        }
+
+        @Test
+        @DisplayName("동일 판매자의 복수 상품은 금액이 합산된 단일 PaymentAllocation으로 생성된다")
+        @SuppressWarnings("unchecked")
+        void registerOrder_groupsAllocationsBySellerId() {
+            Long pricePolicyId1 = 100L;
+            Long pricePolicyId2 = 200L;
+            Long sameSellerId = 10L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(150000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(sameSellerId)
+                                    .pricePolicyId(pricePolicyId1)
+                                    .quantity(2)
+                                    .unitAmount(50000L)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(200L)
+                                    .sellerId(sameSellerId)
+                                    .pricePolicyId(pricePolicyId2)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyId1, Map.entry(50000L, sameSellerId),
+                    pricePolicyId2, Map.entry(50000L, sameSellerId)
+            ));
+            mockInventoryMultiple(Map.of(pricePolicyId1, 100, pricePolicyId2, 50));
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            registerOrderService.registerOrder(command);
+
+            ArgumentCaptor<List<PaymentAllocation>> captor = ArgumentCaptor.forClass(List.class);
+            verify(savePaymentAllocationPort).saveAll(captor.capture());
+            List<PaymentAllocation> allocations = captor.getValue();
+            assertThat(allocations).hasSize(1);
+            assertThat(allocations.get(0).getSellerId()).isEqualTo(sameSellerId);
+            assertThat(allocations.get(0).getAllocatedAmount()).isEqualTo(150000L);
+        }
+
+        @Test
+        @DisplayName("PaymentAllocation 저장 실패 시 주문 등록도 함께 실패한다 (정산 데이터 정합성 보장)")
+        void registerOrder_allocationSaveFails_orderAlsoFails() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+            doThrow(new RuntimeException("DB 저장 실패"))
+                    .when(savePaymentAllocationPort).saveAll(anyList());
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("DB 저장 실패");
+        }
+
+        @Test
+        @DisplayName("PaymentAllocation의 멱등성 키가 올바른 형식으로 설정된다")
+        @SuppressWarnings("unchecked")
+        void registerOrder_setsCorrectIdempotencyKey() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            registerOrderService.registerOrder(command);
+
+            ArgumentCaptor<List<PaymentAllocation>> captor = ArgumentCaptor.forClass(List.class);
+            verify(savePaymentAllocationPort).saveAll(captor.capture());
+            List<PaymentAllocation> allocations = captor.getValue();
+            assertThat(allocations).hasSize(1);
+            assertThat(allocations.get(0).getIdempotencyKey()).startsWith("ORDER_ALLOCATION:1:");
+        }
+
+        @Test
+        @DisplayName("PaymentAllocation의 transactionType이 ORDER_REGISTRATION으로 설정된다")
+        @SuppressWarnings("unchecked")
+        void registerOrder_setsCorrectTransactionType() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            registerOrderService.registerOrder(command);
+
+            ArgumentCaptor<List<PaymentAllocation>> captor = ArgumentCaptor.forClass(List.class);
+            verify(savePaymentAllocationPort).saveAll(captor.capture());
+            List<PaymentAllocation> allocations = captor.getValue();
+            assertThat(allocations).hasSize(1);
+            assertThat(allocations.get(0).getTransactionType())
+                    .isEqualTo(PaymentAllocationTransactionType.ORDER_REGISTRATION);
+            assertThat(allocations.get(0).getTargetType()).isEqualTo(PaymentAllocationTargetType.ORDER);
+        }
+
+        @Test
+        @DisplayName("무료 상품(단가 0원)만 있는 주문은 allocation을 생성하지 않는다")
+        void registerOrder_freeProductOnly_skipsAllocation() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 0L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 0L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            registerOrderService.registerOrder(command);
+
+            verifyNoInteractions(savePaymentAllocationPort);
+        }
+    }
+
+    // ==================================================================================
     // 헬퍼 메서드
     // ==================================================================================
 
@@ -2079,5 +2263,15 @@ class RegisterOrderUseCaseTest {
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
         verify(saveOrderPort).save(captor.capture());
         return captor.getValue();
+    }
+
+    private void mockInventoryMultiple(Map<Long, Integer> pricePolicyIdToStock) {
+        Set<Inventory> inventories = new HashSet<>();
+        long idCounter = 1L;
+        for (Map.Entry<Long, Integer> entry : pricePolicyIdToStock.entrySet()) {
+            inventories.add(Inventory.of(idCounter++, entry.getKey(), entry.getValue()));
+        }
+        when(getInventoryUseCase.getOrCreateInventories(anyMap()))
+                .thenReturn(inventories);
     }
 }

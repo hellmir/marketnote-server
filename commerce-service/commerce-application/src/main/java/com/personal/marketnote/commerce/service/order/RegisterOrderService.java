@@ -6,6 +6,10 @@ import com.personal.marketnote.commerce.domain.order.OrderCreateState;
 import com.personal.marketnote.commerce.domain.order.OrderProductCreateState;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreateState;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
 import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
 import com.personal.marketnote.commerce.exception.PriceMismatchException;
@@ -18,6 +22,7 @@ import com.personal.marketnote.commerce.port.in.usecase.order.RegisterOrderUseCa
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -41,6 +46,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final SaveOrderPort saveOrderPort;
     private final SavePaymentPort savePaymentPort;
+    private final SavePaymentAllocationPort savePaymentAllocationPort;
 
     @Override
     public RegisterOrderResult registerOrder(RegisterOrderCommand command) {
@@ -108,7 +114,37 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 )
         );
 
+        createPaymentAllocations(savedOrder.getId(), command.orderProducts());
+
         return RegisterOrderResult.from(savedOrder);
+    }
+
+    private void createPaymentAllocations(Long orderId, List<OrderProductItemCommand> orderProducts) {
+        // allocatedAmount = 할인 전 판매자별 소계 (Phase 5에서 할인 배분 처리)
+        Map<Long, Long> sellerAmounts = orderProducts.stream()
+                .collect(Collectors.groupingBy(
+                        OrderProductItemCommand::sellerId,
+                        Collectors.summingLong(item ->
+                                Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
+                ));
+
+        List<PaymentAllocation> allocations = sellerAmounts.entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .map(entry -> PaymentAllocation.from(
+                        PaymentAllocationCreateState.builder()
+                                .orderId(orderId)
+                                .sellerId(entry.getKey())
+                                .allocatedAmount(entry.getValue())
+                                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                                .targetType(PaymentAllocationTargetType.ORDER)
+                                .idempotencyKey("ORDER_ALLOCATION:" + orderId + ":" + entry.getKey())
+                                .build()
+                ))
+                .toList();
+
+        if (!allocations.isEmpty()) {
+            savePaymentAllocationPort.saveAll(allocations);
+        }
     }
 
     private void validateTotalAmountConsistency(RegisterOrderCommand command) {
