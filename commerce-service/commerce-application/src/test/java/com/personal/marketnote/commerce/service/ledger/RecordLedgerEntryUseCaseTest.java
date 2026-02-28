@@ -402,4 +402,92 @@ class RecordLedgerEntryUseCaseTest {
             verify(saveLedgerEntryPort, never()).saveAll(any());
         }
     }
+
+    @Nested
+    @DisplayName("결제 승인 분개 편의 메서드")
+    class RecordPaymentApprovalTest {
+
+        @Test
+        @DisplayName("결제 승인 분개 시 매출채권_PG 차변, 미지급금_판매자 대변으로 기록된다")
+        void shouldRecordPaymentApprovalWithCorrectAccounts() {
+            // given
+            Account pgReceivable = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
+            Account sellerPayable = createActiveAccount(3L, "미지급금_판매자", AccountType.LIABILITY);
+
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(pgReceivable));
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.of(sellerPayable));
+            when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
+            when(findAccountPort.findById(1L)).thenReturn(Optional.of(pgReceivable));
+            when(findAccountPort.findById(3L)).thenReturn(Optional.of(sellerPayable));
+            when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
+                LedgerTransaction tx = invocation.getArgument(0);
+                return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(100L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+            });
+
+            // when
+            recordLedgerEntryService.recordPaymentApproval(1L, 50000L);
+
+            // then
+            verify(findAccountPort).findByName("매출채권_PG");
+            verify(findAccountPort).findByName("미지급금_판매자");
+            verify(saveLedgerTransactionPort).save(argThat(tx ->
+                    tx.getTransactionType() == LedgerTransactionType.PAYMENT_APPROVAL
+                            && "PAYMENT_APPROVAL:1".equals(tx.getIdempotencyKey())
+                            && "PAYMENT".equals(tx.getTargetType())
+            ));
+
+            ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
+            verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
+
+            List<LedgerEntry> savedEntries = entriesCaptor.getValue();
+            assertThat(savedEntries).hasSize(2);
+
+            LedgerEntry debitEntry = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isDebit())
+                    .findFirst().orElseThrow();
+            assertThat(debitEntry.getAccountId()).isEqualTo(1L);
+            assertThat(debitEntry.getAmount()).isEqualTo(50000L);
+
+            LedgerEntry creditEntry = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isCredit())
+                    .findFirst().orElseThrow();
+            assertThat(creditEntry.getAccountId()).isEqualTo(3L);
+            assertThat(creditEntry.getAmount()).isEqualTo(50000L);
+        }
+
+        @Test
+        @DisplayName("매출채권_PG 계정이 없으면 AccountNotFoundException이 발생한다")
+        void shouldThrowWhenPgReceivableAccountNotFound() {
+            // given
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentApproval(1L, 50000L))
+                    .isInstanceOf(AccountNotFoundException.class);
+
+            verify(saveLedgerTransactionPort, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("미지급금_판매자 계정이 없으면 AccountNotFoundException이 발생한다")
+        void shouldThrowWhenSellerPayableAccountNotFound() {
+            // given
+            Account pgReceivable = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(pgReceivable));
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentApproval(1L, 50000L))
+                    .isInstanceOf(AccountNotFoundException.class);
+
+            verify(saveLedgerTransactionPort, never()).save(any());
+        }
+    }
 }

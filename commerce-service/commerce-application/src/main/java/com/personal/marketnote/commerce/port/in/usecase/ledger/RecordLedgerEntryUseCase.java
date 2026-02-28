@@ -4,4 +4,6 @@ import com.personal.marketnote.commerce.port.in.command.ledger.RecordLedgerEntry
 
 public interface RecordLedgerEntryUseCase {
     void record(RecordLedgerEntryCommand command);
+
+    void recordPaymentApproval(Long orderId, long paymentAmount);
 }

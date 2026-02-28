@@ -12,6 +12,7 @@ import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessExcepti
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ApprovePaymentUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -41,6 +42,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final PaymentVendorPort paymentVendorPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
+    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @Override
     public ApprovePaymentResult approve(ApprovePaymentCommand command) {
@@ -119,6 +121,8 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
                         .build()
         );
 
+        recordLedgerEntryForPaymentApproval(payment);
+
         return ApprovePaymentResult.builder()
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
@@ -143,6 +147,16 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
                         .orderStatus(OrderStatus.FAILED)
                         .build()
         );
+    }
+
+    private void recordLedgerEntryForPaymentApproval(Payment payment) {
+        try {
+            recordLedgerEntryUseCase.recordPaymentApproval(
+                    payment.getOrderId(), payment.getPaymentAmount()
+            );
+        } catch (Exception e) {
+            log.error("결제 승인 분개 기록 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
+        }
     }
 
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
