@@ -13,6 +13,7 @@ import com.personal.marketnote.commerce.port.out.ledger.SaveLedgerTransactionPor
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -22,14 +23,17 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 
 @UseCase
 @RequiredArgsConstructor
-@Transactional(isolation = READ_COMMITTED)
 @Slf4j
 public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
+    private static final String ACCOUNT_PG_RECEIVABLE = "매출채권_PG";
+    private static final String ACCOUNT_SELLER_PAYABLE = "미지급금_판매자";
+
     private final FindAccountPort findAccountPort;
     private final SaveLedgerTransactionPort saveLedgerTransactionPort;
     private final SaveLedgerEntryPort saveLedgerEntryPort;
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
     public void record(RecordLedgerEntryCommand command) {
         validateEntryLines(command.entries());
         validateIdempotency(command.idempotencyKey());
@@ -48,6 +52,37 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
         log.info("장부 거래 기록 완료 - transactionId: {}, type: {}, targetType: {}, targetId: {}, idempotencyKey: {}",
                 savedTransaction.getId(), command.transactionType(),
                 command.targetType(), command.targetId(), command.idempotencyKey());
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
+    public void recordPaymentApproval(Long orderId, long paymentAmount) {
+        Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
+        Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
+                .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
+                .targetType("PAYMENT")
+                .targetId(orderId)
+                .description("결제 승인 분개")
+                .idempotencyKey("PAYMENT_APPROVAL:" + orderId)
+                .entries(List.of(
+                        RecordLedgerEntryCommand.EntryLine.builder()
+                                .accountId(pgReceivable.getId())
+                                .amount(paymentAmount)
+                                .transactionType(TransactionType.DEBIT)
+                                .build(),
+                        RecordLedgerEntryCommand.EntryLine.builder()
+                                .accountId(sellerPayable.getId())
+                                .amount(paymentAmount)
+                                .transactionType(TransactionType.CREDIT)
+                                .build()
+                ))
+                .build();
+
+        record(command);
     }
 
     private void validateEntryLines(List<RecordLedgerEntryCommand.EntryLine> entryLines) {

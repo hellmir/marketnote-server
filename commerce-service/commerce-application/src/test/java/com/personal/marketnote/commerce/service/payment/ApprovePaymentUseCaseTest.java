@@ -12,6 +12,7 @@ import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
@@ -62,6 +63,9 @@ class ApprovePaymentUseCaseTest {
 
     @Mock
     private ChangeOrderStatusUseCase changeOrderStatusUseCase;
+
+    @Mock
+    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -333,6 +337,71 @@ class ApprovePaymentUseCaseTest {
                     e.getPoStatus() == PaymentEventStatus.COMPLETE
                             && "tno_999".equals(e.getPgPaymentKey())
             ));
+        }
+    }
+
+    @Nested
+    @DisplayName("결제 승인 시 자동 분개")
+    class LedgerEntryRecordingTest {
+
+        private void setupSuccessScenario(Payment payment) {
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        }
+
+        @Test
+        @DisplayName("결제 승인 성공 시 recordPaymentApproval이 orderId와 결제금액으로 호출된다")
+        void shouldRecordLedgerEntryOnPaymentApproval() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_ledger", "50000");
+            setupSuccessScenario(payment);
+            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
+
+            approvePaymentService.approve(command);
+
+            verify(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+        }
+
+        @Test
+        @DisplayName("분개 기록 실패 시에도 결제 승인은 정상적으로 완료된다")
+        void shouldCompletePaymentEvenWhenLedgerRecordingFails() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_fail", "50000");
+            setupSuccessScenario(payment);
+            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
+
+            doThrow(new RuntimeException("분개 기록 실패"))
+                    .when(recordLedgerEntryUseCase).recordPaymentApproval(anyLong(), anyLong());
+
+            ApprovePaymentResult result = approvePaymentService.approve(command);
+
+            assertThat(result.pgPaymentKey()).isEqualTo("tno_fail");
+            verify(updatePaymentPort).update(argThat(p -> p.getSuccessYn()));
+            verify(changeOrderStatusUseCase).changeOrderStatus(argThat(c -> c.orderStatus() == OrderStatus.PAID));
+        }
+
+        @Test
+        @DisplayName("결제 실패 시 분개가 기록되지 않는다")
+        void shouldNotRecordLedgerEntryOnPaymentFailure() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PaymentApprovalVendorResult vendorResult = PaymentApprovalVendorResult.builder()
+                    .resCd("8001")
+                    .resMsg("카드 인증 실패")
+                    .rawResponse("{}")
+                    .build();
+            setupSuccessScenario(payment);
+            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
+
+            assertThatThrownBy(() -> approvePaymentService.approve(command))
+                    .isInstanceOf(PaymentApprovalException.class);
+
+            verify(recordLedgerEntryUseCase, never()).recordPaymentApproval(anyLong(), anyLong());
         }
     }
 
