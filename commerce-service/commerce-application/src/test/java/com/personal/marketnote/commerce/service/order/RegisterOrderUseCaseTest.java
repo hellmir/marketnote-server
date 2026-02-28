@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
 import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
 import com.personal.marketnote.commerce.exception.PriceMismatchException;
+import com.personal.marketnote.commerce.exception.SellerMismatchException;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
@@ -134,7 +135,10 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            mockProductPrices(Map.of(pricePolicyId1, 25000L, pricePolicyId2, 50000L));
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyId1, Map.entry(25000L, 10L),
+                    pricePolicyId2, Map.entry(50000L, 20L)
+            ));
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
@@ -559,7 +563,7 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            mockProductPrice(pricePolicyId, 50000L);
+            mockProductPriceWithSellerId(pricePolicyId, 50000L, sellerId);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             registerOrderService.registerOrder(command);
@@ -961,7 +965,7 @@ class RegisterOrderUseCaseTest {
 
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(Map.of(pricePolicyId,
-                            new ProductInfoResult(1L, "상품", "브랜드", 50000L, 40000L, List.of())));
+                            new ProductInfoResult(1L, 10L, "상품", "브랜드", 50000L, 40000L, List.of())));
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
@@ -976,7 +980,7 @@ class RegisterOrderUseCaseTest {
 
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(Map.of(pricePolicyId,
-                            new ProductInfoResult(1L, "상품", "브랜드", 50000L, null, List.of())));
+                            new ProductInfoResult(1L, 10L, "상품", "브랜드", 50000L, null, List.of())));
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
@@ -1009,6 +1013,165 @@ class RegisterOrderUseCaseTest {
                     .isInstanceOf(PriceMismatchException.class);
 
             verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort);
+        }
+    }
+
+    // ==================================================================================
+    // sellerId 교차 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("sellerId 교차 검증")
+    class SellerIdValidationTest {
+
+        @Test
+        @DisplayName("sellerId가 실제 상품의 판매자와 일치하면 주문이 성공한다")
+        void registerOrder_matchingSellerId_succeeds() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(50000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(sellerId)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPriceWithSellerId(pricePolicyId, 50000L, sellerId);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("sellerId가 실제 상품의 판매자와 다르면 SellerMismatchException이 발생한다")
+        void registerOrder_mismatchingSellerId_throwsException() {
+            Long pricePolicyId = 100L;
+            Long requestedSellerId = 999L;
+            Long actualSellerId = 10L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(50000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(requestedSellerId)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPriceWithSellerId(pricePolicyId, 50000L, actualSellerId);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(SellerMismatchException.class)
+                    .hasMessageContaining("판매자가 실제 상품의 판매자와 일치하지 않습니다");
+        }
+
+        @Test
+        @DisplayName("product-service 응답의 sellerId가 null이면 검증을 건너뛴다")
+        void registerOrder_nullActualSellerId_skipsValidation() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(50000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(999L)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPriceWithSellerId(pricePolicyId, 50000L, null);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("sellerId 불일치 시 재고 검증/주문 저장이 호출되지 않는다")
+        void registerOrder_sellerMismatch_doesNotCallSubsequentPorts() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(50000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(999L)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPriceWithSellerId(pricePolicyId, 50000L, 10L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(SellerMismatchException.class);
+
+            verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort);
+        }
+
+        @Test
+        @DisplayName("복수 상품 중 하나의 sellerId가 불일치하면 SellerMismatchException이 발생한다")
+        void registerOrder_oneSellerMismatch_throwsException() {
+            Long pricePolicyId1 = 100L;
+            Long pricePolicyId2 = 200L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(100000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(pricePolicyId1)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(200L)
+                                    .sellerId(999L)
+                                    .pricePolicyId(pricePolicyId2)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            java.util.HashMap<Long, ProductInfoResult> productInfoMap = new java.util.HashMap<>();
+            productInfoMap.put(pricePolicyId1, new ProductInfoResult(1L, 10L, "상품1", "브랜드1", 50000L, null, List.of()));
+            productInfoMap.put(pricePolicyId2, new ProductInfoResult(2L, 20L, "상품2", "브랜드2", 50000L, null, List.of()));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(productInfoMap);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(SellerMismatchException.class);
         }
     }
 
@@ -1164,7 +1327,10 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            mockProductPrices(Map.of(pricePolicyId1, 50000L, pricePolicyId2, 50000L));
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyId1, Map.entry(50000L, 10L),
+                    pricePolicyId2, Map.entry(50000L, 20L)
+            ));
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 100);
@@ -1330,7 +1496,10 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            mockProductPrices(Map.of(pricePolicyId1, 10000L, pricePolicyId2, 5000L));
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyId1, Map.entry(10000L, 10L),
+                    pricePolicyId2, Map.entry(5000L, 20L)
+            ));
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 5);
@@ -1600,7 +1769,7 @@ class RegisterOrderUseCaseTest {
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
-                                    .sellerId(20L)
+                                    .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
                                     .quantity(2)
                                     .unitAmount(50000L)
@@ -1799,7 +1968,11 @@ class RegisterOrderUseCaseTest {
                     ))
                     .build();
 
-            mockProductPrices(Map.of(pricePolicyId1, 50000L, pricePolicyId2, 100000L, pricePolicyId3, 100000L));
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyId1, Map.entry(50000L, 10L),
+                    pricePolicyId2, Map.entry(100000L, 20L),
+                    pricePolicyId3, Map.entry(100000L, 30L)
+            ));
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
@@ -1856,17 +2029,37 @@ class RegisterOrderUseCaseTest {
 
     private void mockProductPrice(Long pricePolicyId, Long price) {
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, "테스트 상품", "테스트 브랜드", price, null, List.of()
+                1L, 10L, "테스트 상품", "테스트 브랜드", price, null, List.of()
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                 .thenReturn(Map.of(pricePolicyId, productInfo));
+    }
+
+    private void mockProductPriceWithSellerId(Long pricePolicyId, Long price, Long sellerId) {
+        ProductInfoResult productInfo = new ProductInfoResult(
+                1L, sellerId, "테스트 상품", "테스트 브랜드", price, null, List.of()
+        );
+        when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                .thenReturn(Map.of(pricePolicyId, productInfo));
+    }
+
+    private void mockProductPricesWithSellerIds(Map<Long, Map.Entry<Long, Long>> pricePolicyIdToPriceAndSellerId) {
+        java.util.HashMap<Long, ProductInfoResult> result = new java.util.HashMap<>();
+        pricePolicyIdToPriceAndSellerId.forEach((pricePolicyId, priceAndSellerId) ->
+                result.put(pricePolicyId, new ProductInfoResult(
+                        pricePolicyId, priceAndSellerId.getValue(), "테스트 상품", "테스트 브랜드",
+                        priceAndSellerId.getKey(), null, List.of()
+                ))
+        );
+        when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                .thenReturn(result);
     }
 
     private void mockProductPrices(Map<Long, Long> pricePolicyIdToPrice) {
         java.util.HashMap<Long, ProductInfoResult> result = new java.util.HashMap<>();
         pricePolicyIdToPrice.forEach((pricePolicyId, price) ->
                 result.put(pricePolicyId, new ProductInfoResult(
-                        pricePolicyId, "테스트 상품", "테스트 브랜드", price, null, List.of()
+                        pricePolicyId, 10L, "테스트 상품", "테스트 브랜드", price, null, List.of()
                 ))
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))

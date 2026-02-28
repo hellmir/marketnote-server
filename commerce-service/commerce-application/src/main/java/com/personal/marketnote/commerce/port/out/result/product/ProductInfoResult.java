@@ -7,6 +7,7 @@ import java.util.List;
 
 public record ProductInfoResult(
         Long id,
+        Long sellerId,
         String name,
         String brandName,
         Long price,

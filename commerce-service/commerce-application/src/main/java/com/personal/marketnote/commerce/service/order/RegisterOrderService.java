@@ -9,6 +9,7 @@ import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
 import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
 import com.personal.marketnote.commerce.exception.PriceMismatchException;
+import com.personal.marketnote.commerce.exception.SellerMismatchException;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
@@ -160,16 +161,23 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
 
         if (productInfoMap.isEmpty()) {
-            log.warn("[PRICE_VALIDATION_SKIPPED] product-service 응답 없음 - 가격 검증 생략. pricePolicyIds: {}", pricePolicyIds);
+            log.warn("[PRODUCT_VALIDATION_SKIPPED] product-service 응답 없음 - 가격/판매자 검증 생략. pricePolicyIds: {}", pricePolicyIds);
             return;
         }
 
         for (OrderProductItemCommand item : command.orderProducts()) {
             ProductInfoResult productInfo = productInfoMap.get(item.pricePolicyId());
             if (FormatValidator.hasNoValue(productInfo)) {
-                log.warn("[PRICE_VALIDATION_SKIPPED] 상품 정보 누락 - pricePolicyId: {}, 전송된 단가: {}",
+                log.warn("[PRODUCT_VALIDATION_SKIPPED] 상품 정보 누락 - pricePolicyId: {}, 전송된 단가: {}",
                         item.pricePolicyId(), item.unitAmount());
                 continue;
+            }
+
+            Long actualSellerId = productInfo.sellerId();
+            if (FormatValidator.hasValue(actualSellerId) && !actualSellerId.equals(item.sellerId())) {
+                log.warn("판매자 불일치 - pricePolicyId: {}, 전송된 sellerId: {} (실제 판매자와 불일치)",
+                        item.pricePolicyId(), item.sellerId());
+                throw new SellerMismatchException(item.pricePolicyId(), item.sellerId(), actualSellerId);
             }
 
             Long actualPrice = productInfo.getSellingPrice();
