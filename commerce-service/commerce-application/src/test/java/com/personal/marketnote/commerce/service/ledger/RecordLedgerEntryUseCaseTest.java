@@ -490,4 +490,131 @@ class RecordLedgerEntryUseCaseTest {
             verify(saveLedgerTransactionPort, never()).save(any());
         }
     }
+
+    @Nested
+    @DisplayName("결제 취소/환불 역분개 편의 메서드")
+    class RecordPaymentCancellationTest {
+
+        @Test
+        @DisplayName("결제 취소 역분개 시 미지급금_판매자 차변, 매출채권_PG 대변으로 기록된다")
+        void shouldRecordReverseLedgerEntriesForCancellation() {
+            // given
+            Account pgReceivable = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
+            Account sellerPayable = createActiveAccount(3L, "미지급금_판매자", AccountType.LIABILITY);
+
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(pgReceivable));
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.of(sellerPayable));
+            when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
+            when(findAccountPort.findById(3L)).thenReturn(Optional.of(sellerPayable));
+            when(findAccountPort.findById(1L)).thenReturn(Optional.of(pgReceivable));
+            when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
+                LedgerTransaction tx = invocation.getArgument(0);
+                return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(300L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+            });
+
+            // when
+            recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1");
+
+            // then
+            verify(saveLedgerTransactionPort).save(argThat(tx ->
+                    tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
+                            && "PAYMENT_CANCELLATION:1".equals(tx.getIdempotencyKey())
+                            && "PAYMENT".equals(tx.getTargetType())
+            ));
+
+            ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
+            verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
+
+            List<LedgerEntry> savedEntries = entriesCaptor.getValue();
+            assertThat(savedEntries).hasSize(2);
+
+            LedgerEntry debitEntry = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isDebit())
+                    .findFirst().orElseThrow();
+            assertThat(debitEntry.getAccountId()).isEqualTo(3L);
+            assertThat(debitEntry.getAmount()).isEqualTo(50000L);
+
+            LedgerEntry creditEntry = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isCredit())
+                    .findFirst().orElseThrow();
+            assertThat(creditEntry.getAccountId()).isEqualTo(1L);
+            assertThat(creditEntry.getAmount()).isEqualTo(50000L);
+        }
+
+        @Test
+        @DisplayName("부분 환불 역분개 시 환불 금액만큼만 기록된다")
+        void shouldRecordPartialRefundWithCorrectAmount() {
+            // given
+            Account pgReceivable = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
+            Account sellerPayable = createActiveAccount(3L, "미지급금_판매자", AccountType.LIABILITY);
+
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(pgReceivable));
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.of(sellerPayable));
+            when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
+            when(findAccountPort.findById(3L)).thenReturn(Optional.of(sellerPayable));
+            when(findAccountPort.findById(1L)).thenReturn(Optional.of(pgReceivable));
+            when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
+                LedgerTransaction tx = invocation.getArgument(0);
+                return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(301L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+            });
+
+            // when
+            recordLedgerEntryService.recordPaymentCancellation(1L, 20000L, "PAYMENT_PARTIAL_REFUND:1:20000:0");
+
+            // then
+            verify(saveLedgerTransactionPort).save(argThat(tx ->
+                    tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
+                            && "PAYMENT_PARTIAL_REFUND:1:20000:0".equals(tx.getIdempotencyKey())
+            ));
+
+            ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
+            verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
+
+            List<LedgerEntry> savedEntries = entriesCaptor.getValue();
+            assertThat(savedEntries).hasSize(2);
+            savedEntries.forEach(entry -> assertThat(entry.getAmount()).isEqualTo(20000L));
+        }
+
+        @Test
+        @DisplayName("매출채권_PG 계정이 없으면 AccountNotFoundException이 발생한다")
+        void shouldThrowWhenPgReceivableNotFoundForCancellation() {
+            // given
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1"))
+                    .isInstanceOf(AccountNotFoundException.class);
+
+            verify(saveLedgerTransactionPort, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("미지급금_판매자 계정이 없으면 AccountNotFoundException이 발생한다")
+        void shouldThrowWhenSellerPayableNotFoundForCancellation() {
+            // given
+            Account pgReceivable = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(pgReceivable));
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1"))
+                    .isInstanceOf(AccountNotFoundException.class);
+
+            verify(saveLedgerTransactionPort, never()).save(any());
+        }
+    }
 }

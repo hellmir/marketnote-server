@@ -10,6 +10,7 @@ import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.CancelPaymentUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -38,6 +39,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final PaymentVendorPort paymentVendorPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
+    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @Override
     public void cancel(CancelPaymentCommand command) {
@@ -109,6 +111,28 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                             .orderStatus(OrderStatus.CANCEL_REQUESTED)
                             .build()
             );
+        }
+
+        recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
+    }
+
+    private void recordLedgerEntryForCancellation(
+            Payment payment, boolean isFullCancel, Long cancelAmount, Long alreadyRefunded
+    ) {
+        try {
+            String idempotencyKey;
+            if (isFullCancel) {
+                idempotencyKey = "PAYMENT_CANCELLATION:" + payment.getOrderId();
+            } else {
+                idempotencyKey = "PAYMENT_PARTIAL_REFUND:" + payment.getOrderId()
+                        + ":" + cancelAmount + ":" + alreadyRefunded;
+            }
+            recordLedgerEntryUseCase.recordPaymentCancellation(
+                    payment.getOrderId(), cancelAmount, idempotencyKey
+            );
+        } catch (Exception e) {
+            log.error("결제 취소 역분개 기록 실패 - orderId: {}, error: {}",
+                    payment.getOrderId(), e.getMessage(), e);
         }
     }
 

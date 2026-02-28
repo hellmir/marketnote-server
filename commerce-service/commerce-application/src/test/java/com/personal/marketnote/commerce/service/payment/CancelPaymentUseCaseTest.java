@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
@@ -25,8 +26,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,6 +56,9 @@ class CancelPaymentUseCaseTest {
 
     @Mock
     private ChangeOrderStatusUseCase changeOrderStatusUseCase;
+
+    @Mock
+    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -354,6 +357,94 @@ class CancelPaymentUseCaseTest {
                     .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
 
             verify(paymentVendorPort, never()).cancelPayment(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("분개 기록 검증")
+    class LedgerEntryRecordingTest {
+
+        @Test
+        @DisplayName("전체 취소 성공 시 역분개가 기록된다")
+        void shouldRecordReverseLedgerEntryOnFullCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                    eq(1L), eq(50000L), eq("PAYMENT_CANCELLATION:1")
+            );
+        }
+
+        @Test
+        @DisplayName("부분 취소 성공 시 부분 환불 역분개가 기록된다")
+        void shouldRecordReverseLedgerEntryOnPartialCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                    eq(1L), eq(20000L), eq("PAYMENT_PARTIAL_REFUND:1:20000:0")
+            );
+        }
+
+        @Test
+        @DisplayName("이미 부분환불된 상태에서 추가 부분 취소 시 누적 환불액이 멱등성 키에 포함된다")
+        void shouldIncludeAccumulatedRefundInIdempotencyKey() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            payment.markAsPartiallyRefunded(10000L);
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                    eq(1L), eq(20000L), eq("PAYMENT_PARTIAL_REFUND:1:20000:10000")
+            );
+        }
+
+        @Test
+        @DisplayName("역분개 실패 시에도 결제 취소는 정상 완료된다")
+        void shouldCompleteCancelEvenWhenLedgerRecordingFails() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            doThrow(new RuntimeException("분개 실패")).when(recordLedgerEntryUseCase)
+                    .recordPaymentCancellation(anyLong(), anyLong(), anyString());
+
+            cancelPaymentService.cancel(command);
+
+            verify(updatePaymentPort).update(any());
+            verify(updatePspPaymentEventPort).update(any());
+            verify(changeOrderStatusUseCase).changeOrderStatus(any());
         }
     }
 

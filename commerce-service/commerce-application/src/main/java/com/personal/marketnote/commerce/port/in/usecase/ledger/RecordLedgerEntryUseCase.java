@@ -6,4 +6,6 @@ public interface RecordLedgerEntryUseCase {
     void record(RecordLedgerEntryCommand command);
 
     void recordPaymentApproval(Long orderId, long paymentAmount);
+
+    void recordPaymentCancellation(Long orderId, long cancelAmount, String idempotencyKey);
 }
