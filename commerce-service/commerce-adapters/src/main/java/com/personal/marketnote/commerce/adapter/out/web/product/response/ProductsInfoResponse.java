@@ -9,6 +9,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ProductsInfoResponse(
         Long id,
+        Long sellerId,
         String name,
         String brandName,
         ProductPricePolicyInfoResult pricePolicy,

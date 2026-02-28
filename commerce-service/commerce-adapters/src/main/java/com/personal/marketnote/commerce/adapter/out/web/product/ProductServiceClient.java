@@ -182,6 +182,7 @@ public class ProductServiceClient implements FindProductByPricePolicyPort {
                     pricePolicyId,
                     new ProductInfoResult(
                             productInfo.id(),
+                            productInfo.sellerId(),
                             productInfo.name(),
                             productInfo.brandName(),
                             productInfo.pricePolicy().price(),

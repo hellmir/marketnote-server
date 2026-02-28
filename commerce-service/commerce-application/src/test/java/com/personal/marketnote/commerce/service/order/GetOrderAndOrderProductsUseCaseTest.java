@@ -58,7 +58,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, "테스트 상품", "테스트 브랜드", null, null, List.of()
+                    1L, null, "테스트 상품", "테스트 브랜드", null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
                     .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -86,9 +86,9 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             Map<Long, ProductInfoResult> productInfoMap = Map.of(
-                    pricePolicyId1, new ProductInfoResult(1L, "상품1", "브랜드1", null, null, List.of()),
-                    pricePolicyId2, new ProductInfoResult(2L, "상품2", "브랜드2", null, null, List.of()),
-                    pricePolicyId3, new ProductInfoResult(3L, "상품3", "브랜드3", null, null, List.of())
+                    pricePolicyId1, new ProductInfoResult(1L, null, "상품1", "브랜드1", null, null, List.of()),
+                    pricePolicyId2, new ProductInfoResult(2L, null, "상품2", "브랜드2", null, null, List.of()),
+                    pricePolicyId3, new ProductInfoResult(3L, null, "상품3", "브랜드3", null, null, List.of())
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(productInfoMap);
@@ -134,7 +134,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             Map<Long, ProductInfoResult> productInfoMap = new HashMap<>();
-            productInfoMap.put(pricePolicyId1, new ProductInfoResult(1L, "상품1", "브랜드1", null, null, List.of()));
+            productInfoMap.put(pricePolicyId1, new ProductInfoResult(1L, null, "상품1", "브랜드1", null, null, List.of()));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(productInfoMap);
 
@@ -173,7 +173,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                     new ProductOptionInfoResult(2L, "사이즈: L", "ACTIVE")
             );
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, "테스트 상품", "테스트 브랜드", null, null, options
+                    1L, null, "테스트 상품", "테스트 브랜드", null, null, options
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
                     .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -607,7 +607,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    productId, "테스트 상품", "테스트 브랜드", null, null, List.of()
+                    productId, null, "테스트 상품", "테스트 브랜드", null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
                     .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -630,7 +630,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, productName, "테스트 브랜드", null, null, List.of()
+                    1L, null, productName, "테스트 브랜드", null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
                     .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -653,7 +653,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, "테스트 상품", brandName, null, null, List.of()
+                    1L, null, "테스트 상품", brandName, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
                     .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -680,7 +680,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                     new ProductOptionInfoResult(3L, "소재: 면", "ACTIVE")
             );
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, "테스트 상품", "테스트 브랜드", null, null, options
+                    1L, null, "테스트 상품", "테스트 브랜드", null, null, options
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
                     .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -949,7 +949,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, "테스트 상품", "테스트 브랜드", null, null, List.of()
+                    1L, null, "테스트 상품", "테스트 브랜드", null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(Map.of(pricePolicyId, productInfo));
