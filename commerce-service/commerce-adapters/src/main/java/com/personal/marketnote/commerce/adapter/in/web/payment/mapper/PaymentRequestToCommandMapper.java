@@ -11,8 +11,9 @@ public class PaymentRequestToCommandMapper {
     private PaymentRequestToCommandMapper() {
     }
 
-    public static ReadyPaymentCommand mapToCommand(ReadyPaymentRequest request) {
+    public static ReadyPaymentCommand mapToCommand(ReadyPaymentRequest request, Long buyerId) {
         return ReadyPaymentCommand.builder()
+                .buyerId(buyerId)
                 .orderKey(request.getOrderKey())
                 .payMethod(request.getPayMethod())
                 .goodName(request.getGoodName())

@@ -60,10 +60,12 @@ public class PaymentController {
     @PostMapping("/ready")
     @ReadyPaymentApiDocs
     public ResponseEntity<BaseResponse<ReadyPaymentResponse>> readyPayment(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @Valid @RequestBody ReadyPaymentRequest request
     ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
         ReadyPaymentResult result = readyPaymentUseCase.ready(
-                PaymentRequestToCommandMapper.mapToCommand(request)
+                PaymentRequestToCommandMapper.mapToCommand(request, buyerId)
         );
 
         return new ResponseEntity<>(

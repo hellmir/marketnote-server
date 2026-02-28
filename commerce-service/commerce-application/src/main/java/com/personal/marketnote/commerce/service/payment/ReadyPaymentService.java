@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.exception.InvalidOrderStatusForPaymentEx
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.PaymentApprovalException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ReadyPaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ReadyPaymentUseCase;
@@ -46,7 +47,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
         Payment payment = findPaymentPort.findByOrderKey(orderKey)
                 .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
 
-        verifyOrderStatusForPayment(payment.getOrderId());
+        verifyOrderForPayment(payment.getOrderId(), command.buyerId());
         verifyNoDuplicatePaymentReady(command.orderKey());
         saveReadyEvent(payment, command.payMethod());
 
@@ -71,9 +72,15 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
                 .build();
     }
 
-    private void verifyOrderStatusForPayment(Long orderId) {
+    private void verifyOrderForPayment(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        if (!order.getBuyerId().equals(buyerId)) {
+            log.warn("거래 등록 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
+                    orderId, order.getBuyerId(), buyerId);
+            throw new UnauthorizedOrderAccessException();
+        }
 
         if (!order.isPaymentPending()) {
             log.warn("결제 불가 주문 상태에서 거래 등록 시도 - orderId: {}, 주문 상태: {}",

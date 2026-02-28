@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.exception.DuplicatePaymentReadyException
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusForPaymentException;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
+import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ReadyPaymentResult;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -56,6 +57,7 @@ class ReadyPaymentUseCaseTest {
     @Mock
     private PaymentVendorPort paymentVendorPort;
 
+    private static final Long BUYER_ID = 1L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
     private static final String ORDER_KEY_STR = ORDER_KEY.toString();
 
@@ -111,6 +113,7 @@ class ReadyPaymentUseCaseTest {
         void shouldPassPayMethodAndGoodName() {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ReadyPaymentCommand command = ReadyPaymentCommand.builder()
+                    .buyerId(BUYER_ID)
                     .orderKey(ORDER_KEY_STR)
                     .payMethod("CARD")
                     .goodName("테스트 상품")
@@ -309,6 +312,55 @@ class ReadyPaymentUseCaseTest {
     }
 
     @Nested
+    @DisplayName("주문 소유자 검증 실패 (IDOR 방어)")
+    class UnauthorizedAccessTest {
+
+        @Test
+        @DisplayName("요청자의 buyerId와 주문 소유자가 다르면 UnauthorizedOrderAccessException이 발생한다")
+        void shouldThrowWhenBuyerIdMismatch() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = ReadyPaymentCommand.builder()
+                    .buyerId(999L)
+                    .orderKey(ORDER_KEY_STR)
+                    .payMethod("CARD")
+                    .goodName("테스트 상품")
+                    .build();
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+            verify(findPspPaymentEventPort, never()).findByOrderKey(any());
+        }
+
+        @Test
+        @DisplayName("소유자 검증 실패 시 주문 상태 검증 및 중복 거래 검증이 실행되지 않는다")
+        void shouldNotProceedToStatusCheckWhenBuyerMismatch() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = ReadyPaymentCommand.builder()
+                    .buyerId(888L)
+                    .orderKey(ORDER_KEY_STR)
+                    .payMethod("CARD")
+                    .goodName("테스트 상품")
+                    .build();
+            Order order = createOrder(1L, OrderStatus.CANCELLED);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+
+            verify(findPspPaymentEventPort, never()).findByOrderKey(any());
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+    }
+
+    @Nested
     @DisplayName("KCP 통신 실패")
     class VendorFailureTest {
 
@@ -388,7 +440,7 @@ class ReadyPaymentUseCaseTest {
     private Order createOrder(Long orderId, OrderStatus orderStatus) {
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
-                .buyerId(1L)
+                .buyerId(BUYER_ID)
                 .orderKey(ORDER_KEY)
                 .orderNumber("ORD-TEST-001")
                 .orderStatus(orderStatus)
@@ -409,6 +461,7 @@ class ReadyPaymentUseCaseTest {
 
     private ReadyPaymentCommand createReadyCommand(String orderKey) {
         return ReadyPaymentCommand.builder()
+                .buyerId(BUYER_ID)
                 .orderKey(orderKey)
                 .payMethod("CARD")
                 .goodName("테스트 상품")

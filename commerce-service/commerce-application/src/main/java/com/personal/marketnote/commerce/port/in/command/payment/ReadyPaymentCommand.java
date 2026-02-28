@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record ReadyPaymentCommand(
+        Long buyerId,
         String orderKey,
         String payMethod,
         String goodName
