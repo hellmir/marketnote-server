@@ -27,6 +27,9 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
     private static final String ACCOUNT_PG_RECEIVABLE = "매출채권_PG";
     private static final String ACCOUNT_SELLER_PAYABLE = "미지급금_판매자";
+    private static final String ACCOUNT_CASH = "보통예금";
+    private static final String ACCOUNT_PG_FEE = "PG수수료비용";
+    private static final String ACCOUNT_PLATFORM_FEE_REVENUE = "플랫폼수수료수익";
 
     private final FindAccountPort findAccountPort;
     private final SaveLedgerTransactionPort saveLedgerTransactionPort;
@@ -111,6 +114,95 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
                                 .transactionType(TransactionType.CREDIT)
                                 .build()
                 ))
+                .build();
+
+        record(command);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
+    public void recordPgSettlement(Long settlementId, long totalAmount, long pgFeeAmount) {
+        Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
+        Account pgFeeAccount = findAccountPort.findByName(ACCOUNT_PG_FEE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_FEE));
+        Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
+
+        List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
+
+        long cashAmount = totalAmount - pgFeeAmount;
+        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                .accountId(cashAccount.getId())
+                .amount(cashAmount)
+                .transactionType(TransactionType.DEBIT)
+                .build());
+
+        if (pgFeeAmount > 0) {
+            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                    .accountId(pgFeeAccount.getId())
+                    .amount(pgFeeAmount)
+                    .transactionType(TransactionType.DEBIT)
+                    .build());
+        }
+
+        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                .accountId(pgReceivable.getId())
+                .amount(totalAmount)
+                .transactionType(TransactionType.CREDIT)
+                .build());
+
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
+                .transactionType(LedgerTransactionType.PG_SETTLEMENT)
+                .targetType("SETTLEMENT")
+                .targetId(settlementId)
+                .description("PG 정산 입금 분개")
+                .idempotencyKey("PG_SETTLEMENT:" + settlementId)
+                .entries(entries)
+                .build();
+
+        record(command);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
+    public void recordSellerSettlement(Long settlementId, long totalAmount, long sellerPayoutAmount, long platformFeeAmount) {
+        Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+        Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
+        Account platformFeeAccount = findAccountPort.findByName(ACCOUNT_PLATFORM_FEE_REVENUE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PLATFORM_FEE_REVENUE));
+
+        List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
+
+        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                .accountId(sellerPayable.getId())
+                .amount(totalAmount)
+                .transactionType(TransactionType.DEBIT)
+                .build());
+
+        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                .accountId(cashAccount.getId())
+                .amount(sellerPayoutAmount)
+                .transactionType(TransactionType.CREDIT)
+                .build());
+
+        if (platformFeeAmount > 0) {
+            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                    .accountId(platformFeeAccount.getId())
+                    .amount(platformFeeAmount)
+                    .transactionType(TransactionType.CREDIT)
+                    .build());
+        }
+
+        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
+                .transactionType(LedgerTransactionType.SELLER_SETTLEMENT)
+                .targetType("SETTLEMENT")
+                .targetId(settlementId)
+                .description("판매자 정산 분개")
+                .idempotencyKey("SELLER_SETTLEMENT:" + settlementId)
+                .entries(entries)
                 .build();
 
         record(command);

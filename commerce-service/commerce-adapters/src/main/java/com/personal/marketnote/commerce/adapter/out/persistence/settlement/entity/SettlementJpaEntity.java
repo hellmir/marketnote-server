@@ -74,6 +74,8 @@ public class SettlementJpaEntity {
                 .sellerPayoutAmount(settlement.getSellerPayoutAmount())
                 .status(settlement.getStatus())
                 .version(settlement.getVersion())
+                .createdAt(settlement.getCreatedAt())
+                .modifiedAt(settlement.getModifiedAt())
                 .build();
     }
 }

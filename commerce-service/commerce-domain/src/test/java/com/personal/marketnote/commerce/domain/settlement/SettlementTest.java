@@ -217,5 +217,43 @@ class SettlementTest {
             assertThat(settlement.isPending()).isFalse();
             assertThat(settlement.isCompleted()).isFalse();
         }
+
+        @Test
+        @DisplayName("COMPLETED 상태에서 complete() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenCompleteFromCompleted() {
+            // given
+            Settlement settlement = Settlement.from(
+                    SettlementCreateState.builder()
+                            .sellerId(10L).year(2026).month(2)
+                            .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                            .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                            .build()
+            );
+            settlement.complete();
+
+            // when & then
+            assertThatThrownBy(settlement::complete)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("PENDING");
+        }
+
+        @Test
+        @DisplayName("COMPLETED 상태에서 fail() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenFailFromCompleted() {
+            // given
+            Settlement settlement = Settlement.from(
+                    SettlementCreateState.builder()
+                            .sellerId(10L).year(2026).month(2)
+                            .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                            .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                            .build()
+            );
+            settlement.complete();
+
+            // when & then
+            assertThatThrownBy(settlement::fail)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("PENDING");
+        }
     }
 }

@@ -617,4 +617,261 @@ class RecordLedgerEntryUseCaseTest {
             verify(saveLedgerTransactionPort, never()).save(any());
         }
     }
+
+    @Nested
+    @DisplayName("PG 정산 입금 분개 편의 메서드")
+    class RecordPgSettlementTest {
+
+        @Test
+        @DisplayName("PG 정산 입금 분개 시 보통예금 차변, PG수수료비용 차변, 매출채권_PG 대변으로 기록된다")
+        void shouldRecordPgSettlementWithCorrectAccounts() {
+            // given
+            Account cashAccount = createActiveAccount(2L, "보통예금", AccountType.ASSET);
+            Account pgFeeAccount = createActiveAccount(5L, "PG수수료비용", AccountType.EXPENSE);
+            Account pgReceivable = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
+
+            when(findAccountPort.findByName("보통예금")).thenReturn(Optional.of(cashAccount));
+            when(findAccountPort.findByName("PG수수료비용")).thenReturn(Optional.of(pgFeeAccount));
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(pgReceivable));
+            when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
+            when(findAccountPort.findById(2L)).thenReturn(Optional.of(cashAccount));
+            when(findAccountPort.findById(5L)).thenReturn(Optional.of(pgFeeAccount));
+            when(findAccountPort.findById(1L)).thenReturn(Optional.of(pgReceivable));
+            when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
+                LedgerTransaction tx = invocation.getArgument(0);
+                return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(400L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+            });
+
+            // when
+            recordLedgerEntryService.recordPgSettlement(1L, 10000L, 300L);
+
+            // then
+            verify(saveLedgerTransactionPort).save(argThat(tx ->
+                    tx.getTransactionType() == LedgerTransactionType.PG_SETTLEMENT
+                            && "PG_SETTLEMENT:1".equals(tx.getIdempotencyKey())
+                            && "SETTLEMENT".equals(tx.getTargetType())
+            ));
+
+            ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
+            verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
+
+            List<LedgerEntry> savedEntries = entriesCaptor.getValue();
+            assertThat(savedEntries).hasSize(3);
+
+            // DEBIT 보통예금 = 10000 - 300 = 9700
+            LedgerEntry cashDebit = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(2L))
+                    .findFirst().orElseThrow();
+            assertThat(cashDebit.getAmount()).isEqualTo(9700L);
+
+            // DEBIT PG수수료비용 = 300
+            LedgerEntry pgFeeDebit = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(5L))
+                    .findFirst().orElseThrow();
+            assertThat(pgFeeDebit.getAmount()).isEqualTo(300L);
+
+            // CREDIT 매출채권_PG = 10000
+            LedgerEntry pgReceivableCredit = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isCredit())
+                    .findFirst().orElseThrow();
+            assertThat(pgReceivableCredit.getAccountId()).isEqualTo(1L);
+            assertThat(pgReceivableCredit.getAmount()).isEqualTo(10000L);
+        }
+
+        @Test
+        @DisplayName("PG 수수료 0일 때 보통예금 차변 = totalAmount, PG수수료비용 Entry 생략")
+        void shouldSkipPgFeeEntryWhenZero() {
+            // given
+            Account cashAccount = createActiveAccount(2L, "보통예금", AccountType.ASSET);
+            Account pgFeeAccount = createActiveAccount(5L, "PG수수료비용", AccountType.EXPENSE);
+            Account pgReceivable = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
+
+            when(findAccountPort.findByName("보통예금")).thenReturn(Optional.of(cashAccount));
+            when(findAccountPort.findByName("PG수수료비용")).thenReturn(Optional.of(pgFeeAccount));
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(pgReceivable));
+            when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
+            when(findAccountPort.findById(2L)).thenReturn(Optional.of(cashAccount));
+            when(findAccountPort.findById(1L)).thenReturn(Optional.of(pgReceivable));
+            when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
+                LedgerTransaction tx = invocation.getArgument(0);
+                return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(401L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+            });
+
+            // when
+            recordLedgerEntryService.recordPgSettlement(1L, 10000L, 0L);
+
+            // then
+            ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
+            verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
+
+            List<LedgerEntry> savedEntries = entriesCaptor.getValue();
+            assertThat(savedEntries).hasSize(2); // PG수수료비용 Entry 생략
+
+            LedgerEntry cashDebit = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isDebit())
+                    .findFirst().orElseThrow();
+            assertThat(cashDebit.getAccountId()).isEqualTo(2L);
+            assertThat(cashDebit.getAmount()).isEqualTo(10000L);
+        }
+
+        @Test
+        @DisplayName("보통예금 계정 미존재 시 AccountNotFoundException이 발생한다")
+        void shouldThrowWhenCashAccountNotFound() {
+            // given
+            when(findAccountPort.findByName("보통예금")).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> recordLedgerEntryService.recordPgSettlement(1L, 10000L, 300L))
+                    .isInstanceOf(AccountNotFoundException.class);
+
+            verify(saveLedgerTransactionPort, never()).save(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("판매자 정산 분개 편의 메서드")
+    class RecordSellerSettlementTest {
+
+        @Test
+        @DisplayName("판매자 정산 분개 시 미지급금_판매자 차변, 보통예금 대변, 플랫폼수수료수익 대변으로 기록된다")
+        void shouldRecordSellerSettlementWithCorrectAccounts() {
+            // given
+            Account sellerPayable = createActiveAccount(3L, "미지급금_판매자", AccountType.LIABILITY);
+            Account cashAccount = createActiveAccount(2L, "보통예금", AccountType.ASSET);
+            Account platformFeeAccount = createActiveAccount(4L, "플랫폼수수료수익", AccountType.REVENUE);
+
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.of(sellerPayable));
+            when(findAccountPort.findByName("보통예금")).thenReturn(Optional.of(cashAccount));
+            when(findAccountPort.findByName("플랫폼수수료수익")).thenReturn(Optional.of(platformFeeAccount));
+            when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
+            when(findAccountPort.findById(3L)).thenReturn(Optional.of(sellerPayable));
+            when(findAccountPort.findById(2L)).thenReturn(Optional.of(cashAccount));
+            when(findAccountPort.findById(4L)).thenReturn(Optional.of(platformFeeAccount));
+            when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
+                LedgerTransaction tx = invocation.getArgument(0);
+                return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(500L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+            });
+
+            // when
+            recordLedgerEntryService.recordSellerSettlement(1L, 9700L, 9200L, 500L); // 9700 = 9200 + 500
+
+            // then
+            verify(saveLedgerTransactionPort).save(argThat(tx ->
+                    tx.getTransactionType() == LedgerTransactionType.SELLER_SETTLEMENT
+                            && "SELLER_SETTLEMENT:1".equals(tx.getIdempotencyKey())
+                            && "SETTLEMENT".equals(tx.getTargetType())
+            ));
+
+            ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
+            verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
+
+            List<LedgerEntry> savedEntries = entriesCaptor.getValue();
+            assertThat(savedEntries).hasSize(3);
+
+            // 판매자 정산 분개: DEBIT 미지급금(sellerPayout+platformFee) = CREDIT 보통예금(sellerPayout) + CREDIT 플랫폼수수료수익(platformFee)
+            LedgerEntry sellerDebit = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isDebit())
+                    .findFirst().orElseThrow();
+            assertThat(sellerDebit.getAccountId()).isEqualTo(3L);
+            assertThat(sellerDebit.getAmount()).isEqualTo(9700L); // sellerPayout + platformFee
+
+            List<LedgerEntry> credits = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isCredit())
+                    .toList();
+            assertThat(credits).hasSize(2);
+
+            LedgerEntry cashCredit = credits.stream()
+                    .filter(e -> e.getAccountId().equals(2L))
+                    .findFirst().orElseThrow();
+            assertThat(cashCredit.getAmount()).isEqualTo(9200L);
+
+            LedgerEntry platformFeeCredit = credits.stream()
+                    .filter(e -> e.getAccountId().equals(4L))
+                    .findFirst().orElseThrow();
+            assertThat(platformFeeCredit.getAmount()).isEqualTo(500L);
+        }
+
+        @Test
+        @DisplayName("플랫폼 수수료 0일 때 플랫폼수수료수익 Entry 생략")
+        void shouldSkipPlatformFeeEntryWhenZero() {
+            // given
+            Account sellerPayable = createActiveAccount(3L, "미지급금_판매자", AccountType.LIABILITY);
+            Account cashAccount = createActiveAccount(2L, "보통예금", AccountType.ASSET);
+            Account platformFeeAccount = createActiveAccount(4L, "플랫폼수수료수익", AccountType.REVENUE);
+
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.of(sellerPayable));
+            when(findAccountPort.findByName("보통예금")).thenReturn(Optional.of(cashAccount));
+            when(findAccountPort.findByName("플랫폼수수료수익")).thenReturn(Optional.of(platformFeeAccount));
+            when(saveLedgerTransactionPort.existsByIdempotencyKey(anyString())).thenReturn(false);
+            when(findAccountPort.findById(3L)).thenReturn(Optional.of(sellerPayable));
+            when(findAccountPort.findById(2L)).thenReturn(Optional.of(cashAccount));
+            when(saveLedgerTransactionPort.save(any())).thenAnswer(invocation -> {
+                LedgerTransaction tx = invocation.getArgument(0);
+                return LedgerTransaction.from(LedgerTransactionSnapshotState.builder()
+                        .id(501L)
+                        .transactionType(tx.getTransactionType())
+                        .targetType(tx.getTargetType())
+                        .targetId(tx.getTargetId())
+                        .description(tx.getDescription())
+                        .idempotencyKey(tx.getIdempotencyKey())
+                        .build());
+            });
+
+            // when — totalAmount = sellerPayout + platformFee = 9500 + 0 = 9500
+            recordLedgerEntryService.recordSellerSettlement(1L, 9500L, 9500L, 0L);
+
+            // then
+            ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
+            verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
+
+            List<LedgerEntry> savedEntries = entriesCaptor.getValue();
+            assertThat(savedEntries).hasSize(2); // 플랫폼수수료수익 Entry 생략
+
+            LedgerEntry sellerDebit = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isDebit())
+                    .findFirst().orElseThrow();
+            assertThat(sellerDebit.getAccountId()).isEqualTo(3L);
+            assertThat(sellerDebit.getAmount()).isEqualTo(9500L);
+
+            LedgerEntry cashCredit = savedEntries.stream()
+                    .filter(e -> e.getTransactionType().isCredit())
+                    .findFirst().orElseThrow();
+            assertThat(cashCredit.getAccountId()).isEqualTo(2L);
+            assertThat(cashCredit.getAmount()).isEqualTo(9500L);
+        }
+
+        @Test
+        @DisplayName("미지급금_판매자 계정 미존재 시 AccountNotFoundException이 발생한다")
+        void shouldThrowWhenSellerPayableNotFound() {
+            // given
+            when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> recordLedgerEntryService.recordSellerSettlement(1L, 9700L, 9200L, 500L))
+                    .isInstanceOf(AccountNotFoundException.class);
+
+            verify(saveLedgerTransactionPort, never()).save(any());
+        }
+    }
 }

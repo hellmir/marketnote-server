@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.settlement.repos
 import com.personal.marketnote.commerce.domain.settlement.Settlement;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
+import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class SettlementPersistenceAdapter implements SaveSettlementPort, FindSettlementPort {
+public class SettlementPersistenceAdapter implements SaveSettlementPort, FindSettlementPort, UpdateSettlementPort {
     private final SettlementJpaRepository settlementJpaRepository;
 
     @Override
@@ -46,5 +47,12 @@ public class SettlementPersistenceAdapter implements SaveSettlementPort, FindSet
     @Override
     public boolean existsBySellerIdAndYearAndMonth(Long sellerId, Integer year, Integer month) {
         return settlementJpaRepository.existsBySellerIdAndYearAndMonth(sellerId, year, month);
+    }
+
+    @Override
+    public Settlement update(Settlement settlement) {
+        SettlementJpaEntity entity = SettlementJpaEntity.from(settlement);
+        SettlementJpaEntity updated = settlementJpaRepository.save(entity);
+        return SettlementEntityToDomainMapper.toDomain(updated);
     }
 }
