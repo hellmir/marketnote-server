@@ -21,6 +21,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -92,6 +94,20 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, e.getMessage());
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    ResponseEntity<ErrorResponse> handleNoHandlerFoundException(NoHandlerFoundException e) {
+        HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+        log.info(LOG_INFO_MESSAGE, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "요청한 경로를 찾을 수 없습니다.");
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
+        HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+        log.info(LOG_INFO_MESSAGE, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "요청한 리소스를 찾을 수 없습니다.");
     }
 
     @ExceptionHandler(AuthenticationException.class)

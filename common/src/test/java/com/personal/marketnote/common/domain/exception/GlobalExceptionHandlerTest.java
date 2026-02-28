@@ -3,8 +3,11 @@ package com.personal.marketnote.common.domain.exception;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -141,6 +144,63 @@ class GlobalExceptionHandlerTest {
 
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("404 Not Found 핸들러")
+    class NotFoundHandlerTest {
+
+        @Test
+        @DisplayName("NoHandlerFoundException 핸들러는 404를 반환한다")
+        void shouldReturn404ForNoHandlerFoundException() {
+            NoHandlerFoundException exception =
+                    new NoHandlerFoundException("GET", "/api/v1/nonexistent", null);
+
+            ResponseEntity<ErrorResponse> response = handler.handleNoHandlerFoundException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getCode()).isEqualTo("NOT_FOUND");
+            assertThat(response.getBody().getMessage()).isEqualTo("요청한 경로를 찾을 수 없습니다.");
+        }
+
+        @Test
+        @DisplayName("NoHandlerFoundException 응답에 요청 경로가 노출되지 않는다")
+        void shouldNotExposeRequestPathInNoHandlerResponse() {
+            NoHandlerFoundException exception =
+                    new NoHandlerFoundException("GET", "/api/v1/internal/secret", null);
+
+            ResponseEntity<ErrorResponse> response = handler.handleNoHandlerFoundException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).doesNotContain("/api/v1/internal/secret");
+        }
+
+        @Test
+        @DisplayName("NoResourceFoundException 핸들러는 404를 반환한다")
+        void shouldReturn404ForNoResourceFoundException() {
+            NoResourceFoundException exception =
+                    new NoResourceFoundException(HttpMethod.GET, "/static/missing.js");
+
+            ResponseEntity<ErrorResponse> response = handler.handleNoResourceFoundException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getCode()).isEqualTo("NOT_FOUND");
+            assertThat(response.getBody().getMessage()).isEqualTo("요청한 리소스를 찾을 수 없습니다.");
+        }
+
+        @Test
+        @DisplayName("NoResourceFoundException 응답에 리소스 경로가 노출되지 않는다")
+        void shouldNotExposeResourcePathInNoResourceResponse() {
+            NoResourceFoundException exception =
+                    new NoResourceFoundException(HttpMethod.GET, "/internal/config.json");
+
+            ResponseEntity<ErrorResponse> response = handler.handleNoResourceFoundException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).doesNotContain("/internal/config.json");
         }
     }
 
