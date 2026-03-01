@@ -44,6 +44,14 @@ public class Settlement {
                     "플랫폼 수수료는 음수일 수 없습니다. platformFeeAmount=" + platformFee);
         }
 
+        long expectedPayout = state.getTotalAllocatedAmount() - pgFee - platformFee;
+        if (expectedPayout != state.getSellerPayoutAmount()) {
+            throw new InvalidSettlementAmountException(
+                    "정산 금액 정합성 불일치: totalAllocatedAmount(" + state.getTotalAllocatedAmount()
+                            + ") - pgFeeAmount(" + pgFee + ") - platformFeeAmount(" + platformFee
+                            + ") != sellerPayoutAmount(" + state.getSellerPayoutAmount() + ")");
+        }
+
         return Settlement.builder()
                 .sellerId(state.getSellerId())
                 .year(state.getYear())

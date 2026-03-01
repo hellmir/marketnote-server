@@ -67,7 +67,11 @@ public class Stock {
     }
 
     public Integer reduce(int stock) {
-        return this.stock - stock;
+        int result = this.stock - stock;
+        if (result < 0) {
+            throw new InsufficientQuantityException(this.stock, stock);
+        }
+        return result;
     }
 
     public void validateIsSufficient(int orderQuantity) {
