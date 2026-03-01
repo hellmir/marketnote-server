@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.ledger;
 import com.personal.marketnote.commerce.domain.ledger.*;
 import com.personal.marketnote.commerce.exception.AccountNotFoundException;
 import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
+import com.personal.marketnote.commerce.exception.EmptyLedgerEntriesException;
 import com.personal.marketnote.commerce.exception.InactiveAccountException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.commerce.port.in.command.ledger.RecordLedgerEntryCommand;
@@ -210,7 +211,7 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
 
     private void validateEntryLines(List<RecordLedgerEntryCommand.EntryLine> entryLines) {
         if (FormatValidator.hasNoValue(entryLines) || entryLines.isEmpty()) {
-            throw new IllegalArgumentException("분개 항목이 비어있습니다.");
+            throw new EmptyLedgerEntriesException();
         }
     }
 

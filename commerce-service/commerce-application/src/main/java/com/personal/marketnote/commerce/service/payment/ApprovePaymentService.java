@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentApprovalInfo;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
+import com.personal.marketnote.commerce.exception.PaymentAmountMismatchException;
 import com.personal.marketnote.commerce.exception.PaymentApprovalException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
@@ -179,9 +180,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
             log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
                     order.getId(), order.getTotalAmount(), couponAmount, pointAmount,
                     expectedAmount, payment.getPaymentAmount());
-            throw new IllegalStateException(
-                    "주문 금액과 결제 금액이 일치하지 않습니다. 예상: " + expectedAmount + ", 실제: " + payment.getPaymentAmount()
-            );
+            throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount());
         }
     }
 

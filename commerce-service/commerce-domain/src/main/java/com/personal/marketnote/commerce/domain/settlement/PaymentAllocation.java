@@ -22,7 +22,7 @@ public class PaymentAllocation {
 
     public static PaymentAllocation from(PaymentAllocationCreateState state) {
         if (FormatValidator.hasNoValue(state.getAllocatedAmount()) || state.getAllocatedAmount() <= 0) {
-            throw new IllegalArgumentException(
+            throw new InvalidSettlementAmountException(
                     "배분 금액은 0보다 커야 합니다. allocatedAmount=" + state.getAllocatedAmount());
         }
 

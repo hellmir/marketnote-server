@@ -21,6 +21,6 @@ public enum PaymentMethod {
                 return method;
             }
         }
-        throw new IllegalArgumentException("알 수 없는 KCP 결제수단 코드: " + kcpCode);
+        throw new UnknownPaymentMethodCodeException(kcpCode);
     }
 }

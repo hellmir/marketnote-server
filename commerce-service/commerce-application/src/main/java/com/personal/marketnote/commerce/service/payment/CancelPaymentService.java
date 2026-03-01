@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
+import com.personal.marketnote.commerce.exception.InvalidCancelAmountException;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
@@ -66,10 +67,10 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         } else {
             cancelAmount = command.cancelAmount();
             if (FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0L) {
-                throw new IllegalArgumentException("부분취소 금액은 0보다 커야 합니다");
+                throw new InvalidCancelAmountException("부분취소 금액은 0보다 커야 합니다");
             }
             if (cancelAmount > refundableAmount) {
-                throw new IllegalArgumentException(
+                throw new InvalidCancelAmountException(
                         "취소 금액(" + cancelAmount + ")이 환불 가능 금액(" + refundableAmount + ")을 초과합니다"
                 );
             }
