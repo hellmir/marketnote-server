@@ -12,7 +12,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "settlement")
+@Table(name = "settlement",
+        uniqueConstraints = @UniqueConstraint(name = "idx_settlement_seller_year_month",
+                columnNames = {"seller_id", "year", "month"}))
 @DynamicInsert
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

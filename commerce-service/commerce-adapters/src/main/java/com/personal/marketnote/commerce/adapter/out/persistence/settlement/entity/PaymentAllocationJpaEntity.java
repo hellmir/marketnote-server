@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "payment_allocation",
-        uniqueConstraints = @UniqueConstraint(columnNames = "idempotency_key"))
+        uniqueConstraints = @UniqueConstraint(columnNames = "idempotency_key"),
+        indexes = @Index(name = "idx_payment_allocation_created_at_settlement_id", columnList = "created_at, settlement_id"))
 @DynamicInsert
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

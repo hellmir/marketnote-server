@@ -12,7 +12,8 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "psp_payment_event")
+@Table(name = "psp_payment_event",
+        indexes = @Index(name = "idx_psp_payment_event_order_key", columnList = "order_key"))
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

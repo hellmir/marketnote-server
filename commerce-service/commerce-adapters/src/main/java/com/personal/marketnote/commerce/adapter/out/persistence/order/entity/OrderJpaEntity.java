@@ -20,7 +20,8 @@ import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.CascadeType.PERSIST;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "orders",
+        indexes = @Index(name = "idx_orders_buyer_id_created_at", columnList = "buyer_id, created_at"))
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
