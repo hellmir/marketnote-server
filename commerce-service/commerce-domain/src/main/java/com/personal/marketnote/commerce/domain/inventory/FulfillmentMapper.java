@@ -1,4 +1,4 @@
-package com.personal.marketnote.product.domain.inventory;
+package com.personal.marketnote.commerce.domain.inventory;
 
 import com.personal.marketnote.commerce.domain.inventory.FulfillmentMapperCreateState;
 import com.personal.marketnote.commerce.domain.inventory.FulfillmentMapperSnapshotState;
