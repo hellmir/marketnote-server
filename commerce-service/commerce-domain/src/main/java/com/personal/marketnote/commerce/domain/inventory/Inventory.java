@@ -51,6 +51,13 @@ public class Inventory {
         );
     }
 
+    public void restore(int quantity) {
+        Integer increasedStock = stock.increase(quantity);
+        stock = Stock.of(
+                String.valueOf(increasedStock)
+        );
+    }
+
     public Integer getStockValue() {
         return stock.getValue();
     }
