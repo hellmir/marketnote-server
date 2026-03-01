@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.vendorcommunication.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -64,9 +63,8 @@ public class CommerceVendorCommunicationHistoryJpaEntity {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    public static CommerceVendorCommunicationHistoryJpaEntity from(CommerceVendorCommunicationHistory history) {
+    public static CommerceVendorCommunicationHistoryJpaEntity from(
+            CommerceVendorCommunicationHistory history, JsonNode payloadJson) {
         return CommerceVendorCommunicationHistoryJpaEntity.builder()
                 .id(history.getId())
                 .targetType(history.getTargetType())
@@ -76,7 +74,7 @@ public class CommerceVendorCommunicationHistoryJpaEntity {
                 .sender(history.getSender())
                 .exception(history.getException())
                 .payload(history.getPayload())
-                .payloadJson(parseJsonNode(history.getPayloadJson()))
+                .payloadJson(payloadJson)
                 .createdAt(history.getCreatedAt())
                 .build();
     }
@@ -98,14 +96,4 @@ public class CommerceVendorCommunicationHistoryJpaEntity {
         );
     }
 
-    private static JsonNode parseJsonNode(String jsonString) {
-        if (FormatValidator.hasNoValue(jsonString)) {
-            return null;
-        }
-        try {
-            return OBJECT_MAPPER.readTree(jsonString);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 }
