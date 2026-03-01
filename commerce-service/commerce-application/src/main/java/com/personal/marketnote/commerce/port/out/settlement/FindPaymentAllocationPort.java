@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface FindPaymentAllocationPort {
     List<PaymentAllocation> findUnsettledAllocations(Integer year, Integer month);
+
+    List<PaymentAllocation> findBySettlementId(Long settlementId);
 }

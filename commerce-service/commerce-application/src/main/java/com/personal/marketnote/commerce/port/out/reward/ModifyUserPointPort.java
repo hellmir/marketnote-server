@@ -21,7 +21,7 @@ public interface ModifyUserPointPort {
     /**
      * @param userId 회원 ID
      * @return 사용 가능한 포인트 잔액
-     * @Date 2026-02-20
+     * @Date 2026-03-02
      * @Author 성효빈
      * @Description 회원의 사용 가능한 포인트 잔액을 조회합니다.
      */
@@ -31,7 +31,7 @@ public interface ModifyUserPointPort {
      * @param userId  회원 ID
      * @param amount  차감할 포인트
      * @param orderId 주문 ID
-     * @Date 2026-02-20
+     * @Date 2026-03-02
      * @Author 성효빈
      * @Description 주문 결제 시 포인트를 차감합니다.
      */
@@ -41,7 +41,7 @@ public interface ModifyUserPointPort {
      * @param userId  회원 ID
      * @param amount  환불할 포인트
      * @param orderId 주문 ID
-     * @Date 2026-02-20
+     * @Date 2026-03-02
      * @Author 성효빈
      * @Description 주문 취소 시 포인트를 환불합니다.
      */
