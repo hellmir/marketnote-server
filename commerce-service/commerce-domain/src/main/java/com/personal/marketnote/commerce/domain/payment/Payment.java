@@ -63,7 +63,13 @@ public class Payment {
     }
 
     public void markAsPartiallyRefunded(Long amount) {
-        this.refundAmount = this.refundAmount + amount;
+        long newRefundAmount = this.refundAmount + amount;
+        if (newRefundAmount > this.paymentAmount) {
+            throw new InvalidRefundAmountException(
+                    "누적 환불 금액이 결제 금액을 초과합니다. paymentAmount=" + this.paymentAmount
+                            + ", 현재 환불액=" + this.refundAmount + ", 요청 환불액=" + amount);
+        }
+        this.refundAmount = newRefundAmount;
         if (this.refundAmount.equals(this.paymentAmount)) {
             this.refundedYn = true;
         }

@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.*;
@@ -8,6 +9,7 @@ import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
+import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -22,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -59,6 +62,9 @@ class CancelPaymentUseCaseTest {
 
     @Mock
     private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+
+    @Mock
+    private RestoreProductInventoryUseCase restoreProductInventoryUseCase;
 
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -449,6 +455,69 @@ class CancelPaymentUseCaseTest {
     }
 
     @Nested
+    @DisplayName("재고 복구 검증")
+    class InventoryRestoreTest {
+
+        @Test
+        @DisplayName("전체 취소 성공 시 재고 복구가 호출된다")
+        void shouldRestoreInventoryOnFullCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(restoreProductInventoryUseCase).restore(anyList(), anyString());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 재고 복구가 호출되지 않는다")
+        void shouldNotRestoreInventoryOnPartialCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyString());
+        }
+
+        @Test
+        @DisplayName("재고 복구 실패 시에도 결제 취소는 정상 완료된다")
+        void shouldCompleteCancelEvenWhenInventoryRestoreFails() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
+                    .restore(anyList(), anyString());
+
+            cancelPaymentService.cancel(command);
+
+            verify(updatePaymentPort).update(any());
+            verify(updatePspPaymentEventPort).update(any());
+            verify(changeOrderStatusUseCase).changeOrderStatus(any());
+        }
+    }
+
+    @Nested
     @DisplayName("KCP 취소 실패")
     class VendorFailureTest {
 
@@ -539,11 +608,18 @@ class CancelPaymentUseCaseTest {
     }
 
     private Order createOrder(Long orderId, Long buyerId) {
+        OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
+                .pricePolicyId(100L)
+                .quantity(2)
+                .sellerId(10L)
+                .unitAmount(25000L)
+                .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
                 .buyerId(buyerId)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
+                .orderProductStates(List.of(productState))
                 .build();
         return Order.from(state);
     }
