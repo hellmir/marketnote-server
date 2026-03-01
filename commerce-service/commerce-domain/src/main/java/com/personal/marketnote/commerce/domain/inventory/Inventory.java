@@ -3,6 +3,8 @@ package com.personal.marketnote.commerce.domain.inventory;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
+import static org.hibernate.type.descriptor.java.IntegerJavaType.ZERO;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
@@ -18,7 +20,7 @@ public class Inventory {
                 .productId(productId)
                 .pricePolicyId(pricePolicyId)
                 .stock(Stock.of(
-                        "0"
+                        ZERO.toString()
                 ))
                 .build();
     }
