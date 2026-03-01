@@ -17,4 +17,23 @@ public interface ModifyUserPointPort {
      * @Description 공유 구매 포인트를 적립합니다.
      */
     void accrueSharedPurchasePoints(List<Long> sharerIds);
+
+    /**
+     * @param userId 회원 ID
+     * @return 사용 가능한 포인트 잔액
+     * @Date 2026-02-20
+     * @Author 성효빈
+     * @Description 회원의 사용 가능한 포인트 잔액을 조회합니다.
+     */
+    Long getAvailablePoints(Long userId);
+
+    /**
+     * @param userId  회원 ID
+     * @param amount  차감할 포인트
+     * @param orderId 주문 ID
+     * @Date 2026-02-20
+     * @Author 성효빈
+     * @Description 주문 결제 시 포인트를 차감합니다.
+     */
+    void deductOrderPoints(Long userId, Long amount, Long orderId);
 }

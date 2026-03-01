@@ -30,8 +30,11 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 @Slf4j
 public class RewardServiceClient implements ModifyUserPointPort {
     private static final String SOURCE_TYPE_USER = "USER";
+    private static final String SOURCE_TYPE_ORDER = "ORDER";
     private static final String CHANGE_TYPE_ACCRUAL = "ACCRUAL";
+    private static final String CHANGE_TYPE_DEDUCTION = "DEDUCTION";
     private static final String SHARE_PURCHASE_REASON = "링크 공유 회원 상품 구매";
+    private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 사용";
     private static final CommerceServiceCommunicationTargetType TARGET_TYPE =
             CommerceServiceCommunicationTargetType.USER_POINT;
     private static final CommerceServiceCommunicationSenderType REQUEST_SENDER =
@@ -51,6 +54,57 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private final RestTemplate restTemplate;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
+
+    @Override
+    public Long getAvailablePoints(Long userId) {
+        URI uri = buildUserPointUri(userId);
+        HttpHeaders headers = buildHeaders();
+
+        long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
+        Exception lastError = null;
+
+        for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
+            int attempt = i + 1;
+            try {
+                ResponseEntity<JsonNode> response = restTemplate.exchange(
+                        uri, HttpMethod.GET, new HttpEntity<>(headers), JsonNode.class
+                );
+                if (FormatValidator.hasValue(response) && response.getStatusCode().is2xxSuccessful()
+                        && FormatValidator.hasValue(response.getBody())) {
+                    return response.getBody().path("content").path("amount").asLong(0L);
+                }
+
+                log.warn("포인트 잔액 조회 비정상 응답 - userId: {}, attempt: {}", userId, attempt);
+            } catch (Exception e) {
+                lastError = e;
+                log.warn("포인트 잔액 조회 실패 - userId: {}, attempt: {}, error: {}",
+                        userId, attempt, e.getMessage(), e);
+            }
+
+            sleep(sleepMillis);
+            sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
+        }
+
+        log.error("포인트 잔액 조회 최종 실패 - userId: {}", userId);
+        throw new RewardServiceRequestFailedException(
+                FormatValidator.hasValue(lastError) ? new IOException(lastError) : new IOException("포인트 잔액 조회 실패")
+        );
+    }
+
+    @Override
+    public void deductOrderPoints(Long userId, Long amount, Long orderId) {
+        if (FormatValidator.hasNoValue(amount) || amount <= 0) {
+            return;
+        }
+
+        URI uri = buildUserPointUri(userId);
+        HttpHeaders headers = buildHeaders();
+
+        ModifyUserPointRequest request = ModifyUserPointRequest.deduction(amount, orderId);
+        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        sendDeductionRequest(uri, httpEntity, userId);
+    }
 
     @Override
     public void accrueSharedPurchasePoints(List<Long> sharerIds) {
@@ -238,6 +292,34 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
     }
 
+    private void sendDeductionRequest(URI uri, HttpEntity<ModifyUserPointRequest> httpEntity, Long userId) {
+        long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
+
+        for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
+            int attempt = i + 1;
+            try {
+                ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.PATCH, httpEntity, Void.class);
+                if (FormatValidator.hasValue(response) && response.getStatusCode().is2xxSuccessful()) {
+                    return;
+                }
+
+                log.warn("포인트 차감 비정상 응답 - userId: {}, attempt: {}, status: {}",
+                        userId, attempt,
+                        FormatValidator.hasValue(response) ? response.getStatusCode() : "empty");
+            } catch (Exception e) {
+                log.warn("포인트 차감 요청 실패 - userId: {}, attempt: {}, error: {}",
+                        userId, attempt, e.getMessage(), e);
+                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
+                    log.error("포인트 차감 최종 실패 - userId: {}", userId);
+                    throw new RewardServiceRequestFailedException(new IOException(e));
+                }
+            }
+
+            sleep(sleepMillis);
+            sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
+        }
+    }
+
     private record ModifyUserPointRequest(
             String changeType,
             long amount,
@@ -252,6 +334,16 @@ public class RewardServiceClient implements ModifyUserPointPort {
                     SOURCE_TYPE_USER,
                     sourceId,
                     SHARE_PURCHASE_REASON
+            );
+        }
+
+        private static ModifyUserPointRequest deduction(long amount, Long orderId) {
+            return new ModifyUserPointRequest(
+                    CHANGE_TYPE_DEDUCTION,
+                    Math.abs(amount),
+                    SOURCE_TYPE_ORDER,
+                    orderId,
+                    ORDER_POINT_DEDUCTION_REASON
             );
         }
     }

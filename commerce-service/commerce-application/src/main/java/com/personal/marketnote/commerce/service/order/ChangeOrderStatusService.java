@@ -17,6 +17,7 @@ import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProducts
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +70,9 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                     .map(OrderProduct::getPricePolicyId)
                     .toList();
             List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
+            Long orderId = order.getId();
+            Long buyerId = order.getBuyerId();
+            Long pointAmount = order.getPointAmount();
 
             runAfterCommit(() -> {
                 // 결제 완료 시 장바구니 상품 삭제
@@ -76,6 +80,16 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
                 // 링크 공유 회원 포인트 적립
                 modifyUserPointPort.accrueSharedPurchasePoints(sharerIds);
+
+                // 포인트 사용 시 차감
+                if (FormatValidator.hasValue(pointAmount) && pointAmount > 0) {
+                    try {
+                        modifyUserPointPort.deductOrderPoints(buyerId, pointAmount, orderId);
+                    } catch (Exception e) {
+                        log.error("주문 포인트 차감 실패 - orderId: {}, buyerId: {}, pointAmount: {}, error: {}",
+                                orderId, buyerId, pointAmount, e.getMessage(), e);
+                    }
+                }
             });
         }
     }

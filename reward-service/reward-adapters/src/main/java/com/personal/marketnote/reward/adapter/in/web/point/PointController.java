@@ -5,12 +5,14 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.Role;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.GetMyPointApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.point.apidocs.GetUserPointByIdApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.GetUserPointHistoriesApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.ModifyUserPointApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.RegisterUserPointApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.point.mapper.PointRequestToCommandMapper;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
+import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointByIdResponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.UpdateUserPointResponse;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
@@ -105,6 +107,35 @@ public class PointController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "나의 포인트 정보 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 회원 포인트 정보 조회
+     *
+     * @param userId 회원 ID
+     * @return 회원 포인트 정보 조회 응답 {@link GetUserPointByIdResponse}
+     * @Author 성효빈
+     * @Date 2026-02-20
+     * @Description 관리자가 특정 회원의 포인트 정보를 조회합니다.
+     */
+    @GetMapping("/{userId}/points")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetUserPointByIdApiDocs
+    public ResponseEntity<BaseResponse<GetUserPointByIdResponse>> getUserPointById(
+            @PathVariable("userId") Long userId
+    ) {
+        GetUserPointResult result = GetUserPointResult.from(
+                getUserPointUseCase.getUserPoint(userId)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetUserPointByIdResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 포인트 정보 조회 성공"
                 )
         );
     }
