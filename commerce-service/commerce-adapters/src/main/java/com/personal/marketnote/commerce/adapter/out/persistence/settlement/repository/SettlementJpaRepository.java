@@ -13,4 +13,6 @@ public interface SettlementJpaRepository extends JpaRepository<SettlementJpaEnti
     List<SettlementJpaEntity> findAllByYearAndMonth(Integer year, Integer month);
 
     boolean existsBySellerIdAndYearAndMonth(Long sellerId, Integer year, Integer month);
+
+    List<SettlementJpaEntity> findAllBySellerIdAndYear(Long sellerId, Integer year);
 }

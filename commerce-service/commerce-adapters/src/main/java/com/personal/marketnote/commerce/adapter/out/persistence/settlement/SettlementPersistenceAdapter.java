@@ -50,6 +50,13 @@ public class SettlementPersistenceAdapter implements SaveSettlementPort, FindSet
     }
 
     @Override
+    public List<Settlement> findAllBySellerIdAndYear(Long sellerId, Integer year) {
+        return settlementJpaRepository.findAllBySellerIdAndYear(sellerId, year).stream()
+                .map(SettlementEntityToDomainMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Settlement update(Settlement settlement) {
         SettlementJpaEntity entity = SettlementJpaEntity.from(settlement);
         SettlementJpaEntity updated = settlementJpaRepository.save(entity);
