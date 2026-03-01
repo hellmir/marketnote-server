@@ -40,4 +40,21 @@ public interface FindOrderPort {
             LocalDateTime endDate,
             List<OrderStatus> statuses
     );
+
+    /**
+     * @param sellerId    판매자 ID (null이면 전체)
+     * @param startDate   조회 시작 일시 (null이면 제한 없음)
+     * @param endDate     조회 종료 일시 (null이면 제한 없음)
+     * @param orderStatus 주문 상태 (null이면 전체)
+     * @return 주문 목록 {@link List}
+     * @Date 2026-03-02
+     * @Author 성효빈
+     * @Description 관리자용 전체 주문 조회. 판매자별, 기간별, 상태별 필터링을 지원합니다.
+     */
+    List<Order> findAllWithFilters(
+            Long sellerId,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            OrderStatus orderStatus
+    );
 }
