@@ -2,14 +2,18 @@ package com.personal.marketnote.commerce.adapter.in.web.settlement.controller;
 
 import com.personal.marketnote.commerce.adapter.in.web.settlement.controller.apidocs.ExecuteSettlementApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.controller.apidocs.GetSettlementApiDocs;
+import com.personal.marketnote.commerce.adapter.in.web.settlement.controller.apidocs.GetSettlementDetailApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.controller.apidocs.GetSettlementsApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.mapper.SettlementRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.request.ExecuteSettlementRequest;
+import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSettlementDetailResponse;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSettlementResponse;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSettlementsResponse;
+import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementDetailResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementsResult;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.ExecuteSettlementUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementDetailUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,6 +27,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
@@ -42,6 +48,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class SettlementController {
     private final ExecuteSettlementUseCase executeSettlementUseCase;
     private final GetSettlementUseCase getSettlementUseCase;
+    private final GetSettlementDetailUseCase getSettlementDetailUseCase;
 
     /**
      * 정산 실행
@@ -127,6 +134,34 @@ public class SettlementController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "정산 단건 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 정산 내역 상세 조회
+     *
+     * @param id 정산 ID
+     * @return 정산에 포함된 결제 배분 목록 {@link GetSettlementDetailResponse}
+     * @Author 성효빈
+     * @Date 2026-03-02
+     * @Description 정산 ID로 해당 정산에 포함된 결제 배분(PaymentAllocation) 목록을 조회합니다.
+     */
+    @GetMapping("/{id}/allocations")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetSettlementDetailApiDocs
+    public ResponseEntity<BaseResponse<List<GetSettlementDetailResponse>>> getSettlementAllocations(
+            @PathVariable("id") Long id
+    ) {
+        List<GetSettlementDetailResult> results = getSettlementDetailUseCase.getSettlementAllocations(id);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetSettlementDetailResponse.fromList(results),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "정산 내역 상세 조회 성공"
                 ),
                 HttpStatus.OK
         );

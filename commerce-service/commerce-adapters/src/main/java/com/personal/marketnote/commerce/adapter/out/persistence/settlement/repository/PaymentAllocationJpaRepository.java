@@ -18,4 +18,6 @@ public interface PaymentAllocationJpaRepository extends JpaRepository<PaymentAll
     @Modifying
     @Query("UPDATE PaymentAllocationJpaEntity pa SET pa.settlementId = :settlementId WHERE pa.id IN :ids AND pa.settlementId IS NULL")
     int bulkAssignSettlement(@Param("ids") List<Long> ids, @Param("settlementId") Long settlementId);
+
+    List<PaymentAllocationJpaEntity> findAllBySettlementId(Long settlementId);
 }

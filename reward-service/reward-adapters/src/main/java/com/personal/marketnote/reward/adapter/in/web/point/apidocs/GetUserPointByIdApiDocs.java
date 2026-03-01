@@ -18,7 +18,7 @@ import java.lang.annotation.*;
 @Operation(
         summary = "(관리자) 회원 포인트 정보 조회",
         description = """
-                작성일자: 2026-02-20
+                작성일자: 2026-03-02
 
                 작성자: 성효빈
 
@@ -45,7 +45,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
                 | code | string | 응답 코드 | "SUC01" |
-                | timestamp | string(datetime) | 응답 시간 | "2026-02-20T12:00:00.000" |
+                | timestamp | string(datetime) | 응답 시간 | "2026-03-02T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "회원 포인트 정보 조회 성공" |
 
@@ -82,14 +82,14 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 200,
                                           "code": "SUC01",
-                                          "timestamp": "2026-02-20T18:01:50.214036",
+                                          "timestamp": "2026-03-02T18:01:50.214036",
                                           "content": {
                                             "userId": 100,
                                             "amount": 5000,
                                             "addExpectedAmount": 0,
                                             "expireExpectedAmount": 0,
                                             "createdAt": "2026-01-17T05:27:21.418776",
-                                            "modifiedAt": "2026-02-20T14:28:00.973419"
+                                            "modifiedAt": "2026-03-02T14:28:00.973419"
                                           },
                                           "message": "회원 포인트 정보 조회 성공"
                                         }
@@ -104,7 +104,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 401,
                                           "code": "UNAUTHORIZED",
-                                          "timestamp": "2026-02-20T12:12:30.013",
+                                          "timestamp": "2026-03-02T12:12:30.013",
                                           "content": null,
                                           "message": "Invalid token"
                                         }
@@ -119,7 +119,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 403,
                                           "code": "FORBIDDEN",
-                                          "timestamp": "2026-02-20T12:12:30.013",
+                                          "timestamp": "2026-03-02T12:12:30.013",
                                           "content": null,
                                           "message": "Access Denied"
                                         }

@@ -34,6 +34,13 @@ public class PaymentAllocationPersistenceAdapter
     }
 
     @Override
+    public List<PaymentAllocation> findBySettlementId(Long settlementId) {
+        return paymentAllocationJpaRepository.findAllBySettlementId(settlementId).stream()
+                .map(PaymentAllocationEntityToDomainMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void assignSettlement(List<Long> allocationIds, Long settlementId) {
         paymentAllocationJpaRepository.bulkAssignSettlement(allocationIds, settlementId);
     }

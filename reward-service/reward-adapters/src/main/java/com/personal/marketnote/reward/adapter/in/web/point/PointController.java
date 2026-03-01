@@ -117,7 +117,7 @@ public class PointController {
      * @param userId 회원 ID
      * @return 회원 포인트 정보 조회 응답 {@link GetUserPointByIdResponse}
      * @Author 성효빈
-     * @Date 2026-02-20
+     * @Date 2026-03-02
      * @Description 관리자가 특정 회원의 포인트 정보를 조회합니다.
      */
     @GetMapping("/{userId}/points")
