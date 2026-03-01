@@ -36,4 +36,14 @@ public interface ModifyUserPointPort {
      * @Description 주문 결제 시 포인트를 차감합니다.
      */
     void deductOrderPoints(Long userId, Long amount, Long orderId);
+
+    /**
+     * @param userId  회원 ID
+     * @param amount  환불할 포인트
+     * @param orderId 주문 ID
+     * @Date 2026-02-20
+     * @Author 성효빈
+     * @Description 주문 취소 시 포인트를 환불합니다.
+     */
+    void refundOrderPoints(Long userId, Long amount, Long orderId);
 }
