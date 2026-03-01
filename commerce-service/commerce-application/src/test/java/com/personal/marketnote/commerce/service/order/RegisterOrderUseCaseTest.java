@@ -9,6 +9,7 @@ import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
+import com.personal.marketnote.commerce.exception.InsufficientPointException;
 import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
 import com.personal.marketnote.commerce.exception.PriceMismatchException;
 import com.personal.marketnote.commerce.exception.SellerMismatchException;
@@ -19,6 +20,7 @@ import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUs
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
@@ -58,6 +60,8 @@ class RegisterOrderUseCaseTest {
     private SavePaymentPort savePaymentPort;
     @Mock
     private SavePaymentAllocationPort savePaymentAllocationPort;
+    @Mock
+    private ModifyUserPointPort modifyUserPointPort;
 
     @InjectMocks
     private RegisterOrderService registerOrderService;
@@ -145,6 +149,7 @@ class RegisterOrderUseCaseTest {
                     pricePolicyId1, Map.entry(25000L, 10L),
                     pricePolicyId2, Map.entry(50000L, 20L)
             ));
+            when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(999999L);
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
@@ -226,6 +231,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             mockProductPrice(pricePolicyId, 50000L);
+            when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(999999L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -267,6 +273,7 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             mockProductPrice(pricePolicyId, 50000L);
+            when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(999999L);
 
             Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -1196,6 +1203,7 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 10000L, 5000L);
 
             mockProductPrice(pricePolicyId, 50000L);
+            when(modifyUserPointPort.getAvailablePoints(1L)).thenReturn(999999L);
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
@@ -1294,6 +1302,95 @@ class RegisterOrderUseCaseTest {
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
                     .isInstanceOf(ExcessiveDiscountException.class);
+        }
+    }
+
+    // ==================================================================================
+    // 포인트 잔액 검증 케이스
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("포인트 잔액 검증 케이스")
+    class PointBalanceValidationTest {
+
+        @Test
+        @DisplayName("포인트 사용 시 잔액이 충분하면 주문이 성공한다")
+        void registerOrder_sufficientPoint_succeeds() {
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            Long pointAmount = 5000L;
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(10000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+
+            verify(modifyUserPointPort).getAvailablePoints(buyerId);
+        }
+
+        @Test
+        @DisplayName("포인트 사용 시 잔액이 부족하면 InsufficientPointException이 발생한다")
+        void registerOrder_insufficientPoint_throwsException() {
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            Long pointAmount = 10000L;
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount);
+
+            when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(5000L);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(InsufficientPointException.class);
+
+            verifyNoInteractions(getInventoryUseCase, saveOrderPort, savePaymentPort);
+        }
+
+        @Test
+        @DisplayName("포인트 사용 시 잔액이 정확히 일치하면 주문이 성공한다")
+        void registerOrder_exactPoint_succeeds() {
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            Long pointAmount = 5000L;
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(5000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("포인트를 사용하지 않으면 잔액 조회를 하지 않는다")
+        void registerOrder_zeroPoint_skipsBalanceCheck() {
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            registerOrderService.registerOrder(command);
+
+            verify(modifyUserPointPort, never()).getAvailablePoints(any());
+        }
+
+        @Test
+        @DisplayName("포인트가 null이면 잔액 조회를 하지 않는다")
+        void registerOrder_nullPoint_skipsBalanceCheck() {
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, null);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            registerOrderService.registerOrder(command);
+
+            verify(modifyUserPointPort, never()).getAvailablePoints(any());
         }
     }
 
@@ -1979,6 +2076,7 @@ class RegisterOrderUseCaseTest {
                     pricePolicyId2, Map.entry(100000L, 20L),
                     pricePolicyId3, Map.entry(100000L, 30L)
             ));
+            when(modifyUserPointPort.getAvailablePoints(1L)).thenReturn(999999L);
 
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);

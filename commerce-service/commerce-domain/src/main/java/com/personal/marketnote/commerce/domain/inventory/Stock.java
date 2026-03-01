@@ -74,15 +74,6 @@ public class Stock {
         return result;
     }
 
-    public Integer increase(int quantity) {
-        if (quantity <= 0) {
-            throw new InvalidQuantityException(
-                    String.format(STOCK_INVALID_EXCEPTION, quantity)
-            );
-        }
-        return this.stock + quantity;
-    }
-
     public void validateIsSufficient(int orderQuantity) {
         if (stock < orderQuantity) {
             throw new InsufficientQuantityException(stock, orderQuantity);

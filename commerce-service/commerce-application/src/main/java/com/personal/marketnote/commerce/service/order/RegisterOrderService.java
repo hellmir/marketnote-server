@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreat
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
+import com.personal.marketnote.commerce.exception.InsufficientPointException;
 import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
 import com.personal.marketnote.commerce.exception.PriceMismatchException;
 import com.personal.marketnote.commerce.exception.SellerMismatchException;
@@ -22,6 +23,7 @@ import com.personal.marketnote.commerce.port.in.usecase.order.RegisterOrderUseCa
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.application.UseCase;
@@ -47,11 +49,13 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     private final SaveOrderPort saveOrderPort;
     private final SavePaymentPort savePaymentPort;
     private final SavePaymentAllocationPort savePaymentAllocationPort;
+    private final ModifyUserPointPort modifyUserPointPort;
 
     @Override
     public RegisterOrderResult registerOrder(RegisterOrderCommand command) {
         validateTotalAmountConsistency(command);
         validateDiscountAmounts(command);
+        validatePointBalance(command);
         validateUnitAmountsAgainstActualPrices(command);
 
         Map<Long, Long> productIdsByPricePolicyId = command.orderProducts().stream()
@@ -222,6 +226,20 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                         item.pricePolicyId(), item.unitAmount(), actualPrice);
                 throw new PriceMismatchException(item.pricePolicyId(), item.unitAmount(), actualPrice);
             }
+        }
+    }
+
+    private void validatePointBalance(RegisterOrderCommand command) {
+        long pointAmount = resolveAmount(command.pointAmount());
+        if (pointAmount <= 0) {
+            return;
+        }
+
+        Long availablePoints = modifyUserPointPort.getAvailablePoints(command.buyerId());
+        if (availablePoints < pointAmount) {
+            log.warn("포인트 잔액 부족 - buyerId: {}, 요청: {}, 보유: {}",
+                    command.buyerId(), pointAmount, availablePoints);
+            throw new InsufficientPointException(pointAmount, availablePoints);
         }
     }
 
