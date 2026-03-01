@@ -105,7 +105,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
         FileSort sort = savedFile.getSort();
 
         if (sort.isCatalogImage()) {
-            int size = 300;
+            int size = 500;
 
             try {
                 MultipartFile resizedFile = resizeSquare(
