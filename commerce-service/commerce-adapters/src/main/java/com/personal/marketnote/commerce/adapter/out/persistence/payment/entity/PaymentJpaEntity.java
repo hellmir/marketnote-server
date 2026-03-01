@@ -11,7 +11,9 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "payment", uniqueConstraints = @UniqueConstraint(columnNames = "order_key"))
+@Table(name = "payment",
+        uniqueConstraints = @UniqueConstraint(columnNames = "order_key"),
+        indexes = @Index(name = "idx_payment_order_id", columnList = "order_id"))
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
