@@ -103,6 +103,45 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
     }
 
     @Override
+    public List<Order> findAllWithFilters(
+            Long sellerId,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            OrderStatus orderStatus
+    ) {
+        String orderStatusParam = FormatValidator.hasValue(orderStatus)
+                ? orderStatus.name()
+                : "";
+
+        List<Long> orderIds = orderJpaRepository.findIdsByAdminFilters(
+                sellerId,
+                startDate,
+                endDate,
+                orderStatusParam
+        );
+
+        if (FormatValidator.hasNoValue(orderIds)) {
+            return List.of();
+        }
+
+        List<OrderJpaEntity> entities = orderJpaRepository.findWithProductsByIds(orderIds);
+
+        Map<Long, Integer> orderIndex = new HashMap<>();
+        for (int i = 0; i < orderIds.size(); i++) {
+            orderIndex.put(orderIds.get(i), i);
+        }
+
+        return entities.stream()
+                .sorted(Comparator.comparingInt(
+                        entity -> orderIndex.getOrDefault(entity.getId(), Integer.MAX_VALUE))
+                )
+                .map(OrderJpaEntityToDomainMapper::mapToDomain)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    @Override
     public void update(Order order, OrderStatusHistory orderStatusHistory) throws OrderNotFoundException {
         OrderJpaEntity orderJpaEntity = findEntityById(order.getId());
         orderJpaEntity.updateFrom(order);

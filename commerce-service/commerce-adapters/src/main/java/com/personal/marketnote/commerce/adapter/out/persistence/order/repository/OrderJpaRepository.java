@@ -26,6 +26,25 @@ public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, Long> 
             @Param("statusSize") int statusSize
     );
 
+    @Query(value = """
+            SELECT DISTINCT o.id
+            FROM orders o
+            LEFT JOIN order_product op ON o.id = op.order_id
+            WHERE o.order_status <> 'PAYMENT_PENDING'
+              AND (CAST(:sellerId AS BIGINT) IS NULL OR op.seller_id = :sellerId)
+              AND (CAST(:startDate AS timestamp) IS NULL OR o.created_at >= CAST(:startDate AS timestamp))
+              AND (CAST(:endDate   AS timestamp) IS NULL OR o.created_at <  CAST(:endDate   AS timestamp))
+              AND (:orderStatus = '' OR o.order_status = :orderStatus)
+            ORDER BY o.id DESC
+            LIMIT 1000
+            """, nativeQuery = true)
+    List<Long> findIdsByAdminFilters(
+            @Param("sellerId") Long sellerId,
+            @Param("startDate") java.time.LocalDateTime startDate,
+            @Param("endDate") java.time.LocalDateTime endDate,
+            @Param("orderStatus") String orderStatus
+    );
+
     @Query("""
             SELECT DISTINCT o
             FROM OrderJpaEntity o
