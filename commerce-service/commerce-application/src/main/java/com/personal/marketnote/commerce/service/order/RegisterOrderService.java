@@ -32,9 +32,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,14 +118,12 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 )
         );
 
-        long totalDiscount = Math.addExact(couponAmount, pointAmount);
-        createPaymentAllocations(savedOrder.getId(), command.orderProducts(), totalDiscount);
+        createPaymentAllocations(savedOrder.getId(), command.orderProducts());
 
         return RegisterOrderResult.from(savedOrder);
     }
 
-    private void createPaymentAllocations(Long orderId, List<OrderProductItemCommand> orderProducts,
-                                          long totalDiscount) {
+    private void createPaymentAllocations(Long orderId, List<OrderProductItemCommand> orderProducts) {
         Map<Long, Long> sellerGrossAmounts = orderProducts.stream()
                 .collect(Collectors.groupingBy(
                         OrderProductItemCommand::sellerId,
@@ -136,11 +131,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
                 ));
 
-        Map<Long, Long> sellerAllocatedAmounts = totalDiscount > 0
-                ? distributeDiscountAndAllocate(sellerGrossAmounts, totalDiscount)
-                : sellerGrossAmounts;
-
-        List<PaymentAllocation> allocations = sellerAllocatedAmounts.entrySet().stream()
+        List<PaymentAllocation> allocations = sellerGrossAmounts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
                 .map(entry -> PaymentAllocation.from(
                         PaymentAllocationCreateState.builder()
@@ -157,55 +148,6 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         if (!allocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(allocations);
         }
-    }
-
-    private Map<Long, Long> distributeDiscountAndAllocate(Map<Long, Long> sellerGrossAmounts, long totalDiscount) {
-        long totalGross = sellerGrossAmounts.values().stream().mapToLong(Long::longValue).sum();
-        if (totalGross <= 0) {
-            return sellerGrossAmounts;
-        }
-
-        Map<Long, Long> sellerDiscounts = new LinkedHashMap<>();
-        long allocatedDiscount = 0L;
-        Long largestSellerId = null;
-        long largestGross = Long.MIN_VALUE;
-
-        for (Map.Entry<Long, Long> entry : sellerGrossAmounts.entrySet()) {
-            Long sellerId = entry.getKey();
-            long gross = entry.getValue();
-            long discount = calculateProportionalDiscount(totalDiscount, gross, totalGross);
-            sellerDiscounts.put(sellerId, discount);
-            allocatedDiscount = Math.addExact(allocatedDiscount, discount);
-
-            if (gross > largestGross) {
-                largestGross = gross;
-                largestSellerId = sellerId;
-            }
-        }
-
-        long remainder = totalDiscount - allocatedDiscount;
-        if (remainder < 0) {
-            log.error("할인 배분 오류 - totalDiscount: {}, allocatedDiscount: {}", totalDiscount, allocatedDiscount);
-        }
-        if (remainder > 0 && FormatValidator.hasValue(largestSellerId)) {
-            sellerDiscounts.merge(largestSellerId, remainder, Long::sum);
-        }
-
-        Map<Long, Long> result = new LinkedHashMap<>();
-        for (Map.Entry<Long, Long> entry : sellerGrossAmounts.entrySet()) {
-            Long sellerId = entry.getKey();
-            long gross = entry.getValue();
-            long discount = sellerDiscounts.getOrDefault(sellerId, 0L);
-            result.put(sellerId, gross - discount);
-        }
-        return result;
-    }
-
-    private long calculateProportionalDiscount(long totalDiscount, long sellerGross, long totalGross) {
-        return BigDecimal.valueOf(totalDiscount)
-                .multiply(BigDecimal.valueOf(sellerGross))
-                .divide(BigDecimal.valueOf(totalGross), 0, RoundingMode.DOWN)
-                .longValueExact();
     }
 
     private void validateTotalAmountConsistency(RegisterOrderCommand command) {
