@@ -35,6 +35,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private static final String CHANGE_TYPE_DEDUCTION = "DEDUCTION";
     private static final String SHARE_PURCHASE_REASON = "링크 공유 회원 상품 구매";
     private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 사용";
+    private static final String ORDER_POINT_REFUND_REASON = "주문 취소 포인트 환불";
     private static final CommerceServiceCommunicationTargetType TARGET_TYPE =
             CommerceServiceCommunicationTargetType.USER_POINT;
     private static final CommerceServiceCommunicationSenderType REQUEST_SENDER =
@@ -101,6 +102,21 @@ public class RewardServiceClient implements ModifyUserPointPort {
         HttpHeaders headers = buildHeaders();
 
         ModifyUserPointRequest request = ModifyUserPointRequest.deduction(amount, orderId);
+        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        sendDeductionRequest(uri, httpEntity, userId);
+    }
+
+    @Override
+    public void refundOrderPoints(Long userId, Long amount, Long orderId) {
+        if (FormatValidator.hasNoValue(amount) || amount <= 0) {
+            return;
+        }
+
+        URI uri = buildUserPointUri(userId);
+        HttpHeaders headers = buildHeaders();
+
+        ModifyUserPointRequest request = ModifyUserPointRequest.refund(amount, orderId);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
         sendDeductionRequest(uri, httpEntity, userId);
@@ -344,6 +360,16 @@ public class RewardServiceClient implements ModifyUserPointPort {
                     SOURCE_TYPE_ORDER,
                     orderId,
                     ORDER_POINT_DEDUCTION_REASON
+            );
+        }
+
+        private static ModifyUserPointRequest refund(long amount, Long orderId) {
+            return new ModifyUserPointRequest(
+                    CHANGE_TYPE_ACCRUAL,
+                    Math.abs(amount),
+                    SOURCE_TYPE_ORDER,
+                    orderId,
+                    ORDER_POINT_REFUND_REASON
             );
         }
     }
