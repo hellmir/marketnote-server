@@ -44,7 +44,7 @@ public class LedgerTransaction {
         boolean hasNegativeOrZeroAmount = entries.stream()
                 .anyMatch(entry -> entry.getAmount() <= 0);
         if (hasNegativeOrZeroAmount) {
-            throw new IllegalStateException("분개 금액은 0보다 커야 합니다.");
+            throw new InvalidLedgerEntryAmountException();
         }
 
         long debitTotal = 0L;
@@ -62,9 +62,7 @@ public class LedgerTransaction {
         }
 
         if (debitTotal != creditTotal) {
-            throw new IllegalStateException(
-                    "차변 합계(" + debitTotal + ")와 대변 합계(" + creditTotal + ")가 일치하지 않습니다."
-            );
+            throw new LedgerEntryImbalanceException(debitTotal, creditTotal);
         }
     }
 }

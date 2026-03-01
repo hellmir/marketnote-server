@@ -25,22 +25,22 @@ public class Settlement {
 
     public static Settlement from(SettlementCreateState state) {
         if (FormatValidator.hasNoValue(state.getTotalAllocatedAmount()) || state.getTotalAllocatedAmount() <= 0) {
-            throw new IllegalArgumentException(
+            throw new InvalidSettlementAmountException(
                     "총 배분 금액은 0보다 커야 합니다. totalAllocatedAmount=" + state.getTotalAllocatedAmount());
         }
         if (FormatValidator.hasNoValue(state.getSellerPayoutAmount()) || state.getSellerPayoutAmount() <= 0) {
-            throw new IllegalArgumentException(
+            throw new InvalidSettlementAmountException(
                     "판매자 지급액은 0보다 커야 합니다. sellerPayoutAmount=" + state.getSellerPayoutAmount());
         }
         long pgFee = state.getPgFeeAmount() != null ? state.getPgFeeAmount() : 0L;
         long platformFee = state.getPlatformFeeAmount() != null ? state.getPlatformFeeAmount() : 0L;
 
         if (pgFee < 0) {
-            throw new IllegalArgumentException(
+            throw new InvalidSettlementAmountException(
                     "PG 수수료는 음수일 수 없습니다. pgFeeAmount=" + pgFee);
         }
         if (platformFee < 0) {
-            throw new IllegalArgumentException(
+            throw new InvalidSettlementAmountException(
                     "플랫폼 수수료는 음수일 수 없습니다. platformFeeAmount=" + platformFee);
         }
 
@@ -83,16 +83,14 @@ public class Settlement {
 
     public void complete() {
         if (!isPending()) {
-            throw new IllegalStateException(
-                    "PENDING 상태에서만 완료 처리할 수 있습니다. 현재 상태: " + status);
+            throw new InvalidSettlementStatusTransitionException(status);
         }
         this.status = SettlementStatus.COMPLETED;
     }
 
     public void fail() {
         if (!isPending()) {
-            throw new IllegalStateException(
-                    "PENDING 상태에서만 실패 처리할 수 있습니다. 현재 상태: " + status);
+            throw new InvalidSettlementStatusTransitionException(status);
         }
         this.status = SettlementStatus.FAILED;
     }

@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.inventory;
 
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
+import com.personal.marketnote.commerce.exception.InvalidFulfillmentSyncCommandException;
 import com.personal.marketnote.commerce.exception.InventoryProductNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryCommand;
 import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryItemCommand;
@@ -33,7 +34,7 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
     @Override
     public void syncInventories(SyncFulfillmentVendorInventoryCommand command) {
         if (FormatValidator.hasNoValue(command) || FormatValidator.hasNoValue(command.inventories())) {
-            throw new IllegalArgumentException("Sync fulfillment vendor inventory command is required.");
+            throw new InvalidFulfillmentSyncCommandException();
         }
 
         Map<Long, Integer> stocksByProductId = resolveStocksByProductId(command.inventories());

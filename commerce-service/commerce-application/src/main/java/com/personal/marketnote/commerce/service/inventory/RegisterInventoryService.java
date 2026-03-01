@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hibernate.type.descriptor.java.IntegerJavaType.ZERO;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
@@ -36,7 +35,7 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
         Inventory inventory = Inventory.of(command.productId(), command.pricePolicyId());
         saveInventoryPort.save(inventory);
 
-        saveCacheStockPort.save(command.pricePolicyId(), ZERO);
+        saveCacheStockPort.save(command.pricePolicyId(), 0);
     }
 
     @Override

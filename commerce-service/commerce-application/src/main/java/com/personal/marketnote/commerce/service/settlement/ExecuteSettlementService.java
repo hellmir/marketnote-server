@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.settlement;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.settlement.Settlement;
 import com.personal.marketnote.commerce.domain.settlement.SettlementCreateState;
+import com.personal.marketnote.commerce.exception.InvalidFeeRateException;
 import com.personal.marketnote.commerce.exception.NoUnsettledAllocationException;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
@@ -59,13 +60,13 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
 
     private void validateFeeRates(ExecuteSettlementCommand command) {
         if (FormatValidator.hasNoValue(command.pgFeeRate()) || command.pgFeeRate() < 0) {
-            throw new IllegalArgumentException("PG 수수료율은 0 이상이어야 합니다. pgFeeRate=" + command.pgFeeRate());
+            throw new InvalidFeeRateException("PG 수수료율은 0 이상이어야 합니다. pgFeeRate=" + command.pgFeeRate());
         }
         if (FormatValidator.hasNoValue(command.platformFeeRate()) || command.platformFeeRate() < 0) {
-            throw new IllegalArgumentException("플랫폼 수수료율은 0 이상이어야 합니다. platformFeeRate=" + command.platformFeeRate());
+            throw new InvalidFeeRateException("플랫폼 수수료율은 0 이상이어야 합니다. platformFeeRate=" + command.platformFeeRate());
         }
         if (command.pgFeeRate() + command.platformFeeRate() > BASIS_POINT_DENOMINATOR) {
-            throw new IllegalArgumentException("수수료율 합계가 100%를 초과합니다. pgFeeRate=" + command.pgFeeRate()
+            throw new InvalidFeeRateException("수수료율 합계가 100%를 초과합니다. pgFeeRate=" + command.pgFeeRate()
                     + ", platformFeeRate=" + command.platformFeeRate());
         }
     }
