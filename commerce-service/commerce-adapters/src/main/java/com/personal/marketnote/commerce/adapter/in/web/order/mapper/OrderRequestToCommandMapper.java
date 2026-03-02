@@ -2,9 +2,11 @@ package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterTrackingInfoRequest;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
+import com.personal.marketnote.commerce.port.in.command.order.RegisterTrackingInfoCommand;
 
 import java.util.List;
 
@@ -30,7 +32,22 @@ public class OrderRequestToCommandMapper {
                 .totalAmount(request.getTotalAmount())
                 .couponAmount(request.getCouponAmount())
                 .pointAmount(request.getPointAmount())
+                .recipientName(request.getRecipientName())
+                .address(request.getAddress())
+                .addressDetail(request.getAddressDetail())
+                .zipCode(request.getZipCode())
+                .phoneNumber(request.getPhoneNumber())
                 .orderProducts(orderProducts)
+                .build();
+    }
+
+    public static RegisterTrackingInfoCommand mapToTrackingInfoCommand(
+            Long orderId, RegisterTrackingInfoRequest request
+    ) {
+        return RegisterTrackingInfoCommand.builder()
+                .orderId(orderId)
+                .courierCompany(request.getCourierCompany())
+                .trackingNumber(request.getTrackingNumber())
                 .build();
     }
 

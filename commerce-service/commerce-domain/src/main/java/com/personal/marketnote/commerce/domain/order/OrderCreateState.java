@@ -16,6 +16,11 @@ public class OrderCreateState {
     private final Long totalAmount;
     private final Long couponAmount;
     private final Long pointAmount;
+    private final String recipientName;
+    private final String address;
+    private final String addressDetail;
+    private final String zipCode;
+    private final String phoneNumber;
     private final List<OrderProductCreateState> orderProductStates;
 }
 

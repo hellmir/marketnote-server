@@ -1,8 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.order.entity;
 
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderProduct;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;
@@ -59,6 +57,28 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "point_amount")
     private Long pointAmount;
 
+    @Column(name = "recipient_name", length = 31)
+    private String recipientName;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "address_detail")
+    private String addressDetail;
+
+    @Column(name = "zip_code", length = 10)
+    private String zipCode;
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "courier_company", length = 31)
+    private CourierCompany courierCompany;
+
+    @Column(name = "tracking_number", length = 63)
+    private String trackingNumber;
+
     @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     @Builder.Default
     private List<OrderProductJpaEntity> orderProductJpaEntities = new ArrayList<>();
@@ -73,11 +93,23 @@ public class OrderJpaEntity extends BaseEntity {
                 .paidAmount(order.getPaidAmount())
                 .couponAmount(order.getCouponAmount())
                 .pointAmount(order.getPointAmount())
+                .recipientName(order.getRecipientName())
+                .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
+                .zipCode(order.getZipCode())
+                .phoneNumber(order.getPhoneNumber())
+                .courierCompany(order.getCourierCompany())
+                .trackingNumber(order.getTrackingNumber())
                 .build();
     }
 
     public void addOrderProduct(OrderProductJpaEntity orderProductJpaEntity) {
         orderProductJpaEntities.add(orderProductJpaEntity);
+    }
+
+    public void updateTrackingInfo(Order order) {
+        courierCompany = order.getCourierCompany();
+        trackingNumber = order.getTrackingNumber();
     }
 
     public void updateFrom(Order order) {

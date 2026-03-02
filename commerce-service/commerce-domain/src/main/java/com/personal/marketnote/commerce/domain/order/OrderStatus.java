@@ -98,6 +98,10 @@ public enum OrderStatus {
         return this == CONFIRMED;
     }
 
+    public boolean isShipping() {
+        return this == SHIPPING;
+    }
+
     public boolean isNotPartialChanged() {
         return this != PARTIALLY_CONFIRMED && this != PARTIALLY_REFUNDED;
     }
