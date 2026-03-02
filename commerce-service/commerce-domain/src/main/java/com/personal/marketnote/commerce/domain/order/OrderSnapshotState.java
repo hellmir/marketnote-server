@@ -24,6 +24,13 @@ public class OrderSnapshotState {
     private final Long paidAmount;
     private final Long couponAmount;
     private final Long pointAmount;
+    private final String recipientName;
+    private final String address;
+    private final String addressDetail;
+    private final String zipCode;
+    private final String phoneNumber;
+    private final CourierCompany courierCompany;
+    private final String trackingNumber;
     private final List<OrderProductSnapshotState> orderProductStates;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
