@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum SettlementStatus {
     PENDING("정산 대기"),
     COMPLETED("정산 완료"),
-    FAILED("정산 실패");
+    FAILED("정산 실패"),
+    CANCELLED("정산 취소");
 
     private final String description;
 }

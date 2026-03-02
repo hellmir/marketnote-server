@@ -9,10 +9,12 @@ import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSe
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementDetailResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementsResult;
+import com.personal.marketnote.commerce.port.in.usecase.settlement.CancelSettlementUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.ExecuteSettlementUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.GetFailedSettlementsUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementDetailUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.settlement.ReExecuteSettlementUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.RetryFailedSettlementUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,6 +49,8 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class SettlementController {
     private final ExecuteSettlementUseCase executeSettlementUseCase;
     private final RetryFailedSettlementUseCase retryFailedSettlementUseCase;
+    private final CancelSettlementUseCase cancelSettlementUseCase;
+    private final ReExecuteSettlementUseCase reExecuteSettlementUseCase;
     private final GetFailedSettlementsUseCase getFailedSettlementsUseCase;
     private final GetSettlementUseCase getSettlementUseCase;
     private final GetSettlementDetailUseCase getSettlementDetailUseCase;
@@ -102,6 +106,60 @@ public class SettlementController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "정산 재시도 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 완료된 정산을 취소한다.
+     *
+     * @param id 정산 ID
+     * @return 취소 결과 응답
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @CancelSettlementApiDocs
+    public ResponseEntity<BaseResponse<Void>> cancelSettlement(
+            @PathVariable("id") Long id
+    ) {
+        cancelSettlementUseCase.cancelSettlement(id);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "정산 취소 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 취소된 정산을 재실행한다.
+     *
+     * @param id 정산 ID
+     * @return 재실행 결과 응답
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    @PostMapping("/{id}/re-execute")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ReExecuteSettlementApiDocs
+    public ResponseEntity<BaseResponse<Void>> reExecuteSettlement(
+            @PathVariable("id") Long id
+    ) {
+        reExecuteSettlementUseCase.reExecuteSettlement(id);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "정산 재실행 성공"
                 ),
                 HttpStatus.OK
         );

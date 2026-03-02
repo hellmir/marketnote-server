@@ -130,4 +130,49 @@ public class Settlement {
         }
         this.status = SettlementStatus.FAILED;
     }
+
+    /**
+     * 취소 상태인지 확인한다.
+     *
+     * @return 취소 상태이면 true
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public boolean isCancelled() {
+        return status == SettlementStatus.CANCELLED;
+    }
+
+    /**
+     * 완료된 정산을 취소한다.
+     * <p>
+     * COMPLETED → CANCELLED 상태 전이만 허용한다.
+     * </p>
+     *
+     * @throws InvalidSettlementStatusTransitionException 현재 상태가 COMPLETED가 아닌 경우
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public void cancel() {
+        if (!isCompleted()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.CANCELLED;
+    }
+
+    /**
+     * 취소된 정산을 대기 상태로 재설정한다.
+     * <p>
+     * CANCELLED → PENDING 상태 전이만 허용한다.
+     * </p>
+     *
+     * @throws InvalidSettlementStatusTransitionException 현재 상태가 CANCELLED가 아닌 경우
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public void resetCancelledToPending() {
+        if (!isCancelled()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.PENDING;
+    }
 }
