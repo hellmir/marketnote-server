@@ -2,16 +2,12 @@ package com.personal.marketnote.commerce.service.settlement;
 
 import com.personal.marketnote.commerce.domain.settlement.*;
 import com.personal.marketnote.commerce.exception.NoUnsettledAllocationException;
-import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
-import com.personal.marketnote.commerce.port.out.settlement.*;
+import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -35,25 +30,7 @@ class ExecuteSettlementUseCaseTest {
     private FindPaymentAllocationPort findPaymentAllocationPort;
 
     @Mock
-    private FindSettlementPort findSettlementPort;
-
-    @Mock
-    private SaveSettlementPort saveSettlementPort;
-
-    @Mock
-    private UpdateSettlementPort updateSettlementPort;
-
-    @Mock
-    private UpdatePaymentAllocationPort updatePaymentAllocationPort;
-
-    @Mock
-    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
-
-    @Captor
-    private ArgumentCaptor<Settlement> settlementCaptor;
-
-    @Captor
-    private ArgumentCaptor<List<Long>> allocationIdsCaptor;
+    private ProcessSellerSettlementService processSellerSettlementService;
 
     private PaymentAllocation createAllocation(Long id, Long sellerId, Long allocatedAmount) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
@@ -68,49 +45,19 @@ class ExecuteSettlementUseCaseTest {
                 .build());
     }
 
-    private Settlement createSavedSettlement(Long id, Long sellerId, Integer year, Integer month,
-                                             Long totalAllocatedAmount, Long pgFeeAmount,
-                                             Long platformFeeAmount, Long sellerPayoutAmount) {
-        return Settlement.from(SettlementSnapshotState.builder()
-                .id(id)
-                .sellerId(sellerId)
-                .year(year)
-                .month(month)
-                .totalAllocatedAmount(totalAllocatedAmount)
-                .pgFeeAmount(pgFeeAmount)
-                .platformFeeAmount(platformFeeAmount)
-                .sellerPayoutAmount(sellerPayoutAmount)
-                .status(SettlementStatus.PENDING)
-                .version(0L)
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .build());
-    }
-
     @Nested
     @DisplayName("정상 정산 실행")
     class SuccessfulSettlement {
 
         @Test
-        @DisplayName("단일 판매자 정산을 정상 처리한다")
-        void shouldExecuteSettlementForSingleSeller() {
+        @DisplayName("단일 판매자 정산 시 ProcessSellerSettlementService를 호출한다")
+        void shouldDelegateToProcessService() {
             // given
             PaymentAllocation allocation1 = createAllocation(1L, 10L, 5000L);
             PaymentAllocation allocation2 = createAllocation(2L, 10L, 3000L);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
                     .thenReturn(List.of(allocation1, allocation2));
-            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
-            when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
-                    });
-            when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
                     .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
@@ -119,43 +66,18 @@ class ExecuteSettlementUseCaseTest {
             executeSettlementService.executeSettlement(command);
 
             // then
-            verify(saveSettlementPort).save(settlementCaptor.capture());
-            Settlement savedSettlement = settlementCaptor.getValue();
-            assertThat(savedSettlement.getSellerId()).isEqualTo(10L);
-            assertThat(savedSettlement.getTotalAllocatedAmount()).isEqualTo(8000L);
-            assertThat(savedSettlement.getPgFeeAmount()).isEqualTo(240L);      // 8000 * 300 / 10000
-            assertThat(savedSettlement.getPlatformFeeAmount()).isEqualTo(400L); // 8000 * 500 / 10000
-            assertThat(savedSettlement.getSellerPayoutAmount()).isEqualTo(7360L); // 8000 - 240 - 400
-
-            verify(updatePaymentAllocationPort).assignSettlement(allocationIdsCaptor.capture(), eq(1L));
-            assertThat(allocationIdsCaptor.getValue()).containsExactlyInAnyOrder(1L, 2L);
-
-            verify(recordLedgerEntryUseCase).recordPgSettlement(1L, 8000L, 240L);
-            verify(recordLedgerEntryUseCase).recordSellerSettlement(1L, 7760L, 7360L, 400L); // 7760 = 7360 + 400
-            verify(updateSettlementPort).update(argThat(Settlement::isCompleted));
+            verify(processSellerSettlementService).process(eq(command), eq(10L), anyList());
         }
 
         @Test
-        @DisplayName("다중 판매자 정산 시 각각 독립 Settlement를 생성한다")
-        void shouldExecuteSettlementForMultipleSellers() {
+        @DisplayName("다중 판매자 정산 시 각 판매자별로 ProcessSellerSettlementService를 호출한다")
+        void shouldProcessEachSellerIndependently() {
             // given
             PaymentAllocation seller10Alloc = createAllocation(1L, 10L, 10000L);
             PaymentAllocation seller20Alloc = createAllocation(2L, 20L, 20000L);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
                     .thenReturn(List.of(seller10Alloc, seller20Alloc));
-            when(findSettlementPort.existsBySellerIdAndYearAndMonth(anyLong(), eq(2026), eq(2)))
-                    .thenReturn(false);
-            when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        Long id = s.getSellerId().equals(10L) ? 1L : 2L;
-                        return createSavedSettlement(id, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
-                    });
-            when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
                     .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
@@ -164,72 +86,27 @@ class ExecuteSettlementUseCaseTest {
             executeSettlementService.executeSettlement(command);
 
             // then
-            verify(saveSettlementPort, times(2)).save(any(Settlement.class));
-            verify(recordLedgerEntryUseCase, times(2)).recordPgSettlement(anyLong(), anyLong(), anyLong());
-            verify(recordLedgerEntryUseCase, times(2)).recordSellerSettlement(anyLong(), anyLong(), anyLong(), anyLong());
-            verify(updateSettlementPort, times(2)).update(argThat(Settlement::isCompleted));
-        }
-
-        @Test
-        @DisplayName("PG 수수료가 0인 경우 정상 처리한다")
-        void shouldHandleZeroPgFee() {
-            // given
-            PaymentAllocation allocation = createAllocation(1L, 10L, 10000L);
-
-            when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(allocation));
-            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
-            when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
-                    });
-            when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
-
-            ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(0).platformFeeRate(500).build();
-
-            // when
-            executeSettlementService.executeSettlement(command);
-
-            // then
-            verify(saveSettlementPort).save(settlementCaptor.capture());
-            Settlement saved = settlementCaptor.getValue();
-            assertThat(saved.getPgFeeAmount()).isEqualTo(0L);
-            assertThat(saved.getPlatformFeeAmount()).isEqualTo(500L);
-            assertThat(saved.getSellerPayoutAmount()).isEqualTo(9500L);
-
-            verify(recordLedgerEntryUseCase).recordPgSettlement(1L, 10000L, 0L);
+            verify(processSellerSettlementService, times(2)).process(eq(command), anyLong(), anyList());
         }
     }
 
     @Nested
-    @DisplayName("수수료 계산 정합성")
-    class FeeCalculation {
+    @DisplayName("부분 실패 처리")
+    class PartialFailureHandling {
 
         @Test
-        @DisplayName("수수료 역산 정합성: totalAllocated = pgFee + platformFee + sellerPayout")
-        void shouldMaintainFeeIntegrity() {
+        @DisplayName("한 판매자 정산 실패 시 나머지 판매자 정산은 계속 진행된다")
+        void shouldContinueProcessingWhenOneSellerFails() {
             // given
-            PaymentAllocation allocation = createAllocation(1L, 10L, 10001L);
+            PaymentAllocation seller10Alloc = createAllocation(1L, 10L, 10000L);
+            PaymentAllocation seller20Alloc = createAllocation(2L, 20L, 20000L);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(allocation));
-            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
-            when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
-                    });
-            when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenReturn(List.of(seller10Alloc, seller20Alloc));
+
+            doThrow(new RuntimeException("분개 기록 실패"))
+                    .doNothing()
+                    .when(processSellerSettlementService).process(any(), anyLong(), anyList());
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
                     .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
@@ -238,60 +115,29 @@ class ExecuteSettlementUseCaseTest {
             executeSettlementService.executeSettlement(command);
 
             // then
-            verify(saveSettlementPort).save(settlementCaptor.capture());
-            Settlement saved = settlementCaptor.getValue();
-
-            long pgFee = saved.getPgFeeAmount();
-            long platformFee = saved.getPlatformFeeAmount();
-            long sellerPayout = saved.getSellerPayoutAmount();
-            long total = saved.getTotalAllocatedAmount();
-
-            // 역산 정합성: pgFee + platformFee + sellerPayout == totalAllocatedAmount
-            assertThat(pgFee + platformFee + sellerPayout).isEqualTo(total);
-
-            // basis point 내림: 10001 * 300 / 10000 = 300 (not 300.03)
-            assertThat(pgFee).isEqualTo(300L);
-            // 10001 * 500 / 10000 = 500
-            assertThat(platformFee).isEqualTo(500L);
-            // 10001 - 300 - 500 = 9201
-            assertThat(sellerPayout).isEqualTo(9201L);
+            verify(processSellerSettlementService, times(2)).process(eq(command), anyLong(), anyList());
         }
 
         @Test
-        @DisplayName("수수료율 합계가 100%일 때 판매자 지급액이 0이 되지 않고 정합성 유지")
-        void shouldHandleHighFeeRates() {
+        @DisplayName("모든 판매자 정산이 실패해도 예외를 던지지 않는다")
+        void shouldNotThrowWhenAllSellersFail() {
             // given
-            PaymentAllocation allocation = createAllocation(1L, 10L, 10000L);
+            PaymentAllocation seller10Alloc = createAllocation(1L, 10L, 10000L);
 
             when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(allocation));
-            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
-            when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
-                    });
-            when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
+                    .thenReturn(List.of(seller10Alloc));
 
-            // pgFeeRate=3000 (30%) + platformFeeRate=2000 (20%) = 50%
+            doThrow(new RuntimeException("분개 기록 실패"))
+                    .when(processSellerSettlementService).process(any(), anyLong(), anyList());
+
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(3000).platformFeeRate(2000).build();
+                    .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
 
-            // when
+            // when - 예외 없이 완료
             executeSettlementService.executeSettlement(command);
 
             // then
-            verify(saveSettlementPort).save(settlementCaptor.capture());
-            Settlement saved = settlementCaptor.getValue();
-            assertThat(saved.getPgFeeAmount()).isEqualTo(3000L);
-            assertThat(saved.getPlatformFeeAmount()).isEqualTo(2000L);
-            assertThat(saved.getSellerPayoutAmount()).isEqualTo(5000L);
-            assertThat(saved.getPgFeeAmount() + saved.getPlatformFeeAmount() + saved.getSellerPayoutAmount())
-                    .isEqualTo(saved.getTotalAllocatedAmount());
+            verify(processSellerSettlementService).process(eq(command), eq(10L), anyList());
         }
     }
 
@@ -313,31 +159,7 @@ class ExecuteSettlementUseCaseTest {
             assertThatThrownBy(() -> executeSettlementService.executeSettlement(command))
                     .isInstanceOf(NoUnsettledAllocationException.class);
 
-            verify(saveSettlementPort, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("이미 해당 기간 정산이 존재하면 SettlementAlreadyExistsException을 던진다")
-        void shouldThrowWhenSettlementAlreadyExists() {
-            // given
-            PaymentAllocation allocation = createAllocation(1L, 10L, 10000L);
-
-            when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(allocation));
-            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(true);
-
-            ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
-
-            // when & then
-            assertThatThrownBy(() -> executeSettlementService.executeSettlement(command))
-                    .isInstanceOf(SettlementAlreadyExistsException.class)
-                    .hasMessageContaining("10")
-                    .hasMessageContaining("2026")
-                    .hasMessageContaining("2");
-
-            verify(saveSettlementPort, never()).save(any());
+            verifyNoInteractions(processSellerSettlementService);
         }
 
         @Test
@@ -364,43 +186,6 @@ class ExecuteSettlementUseCaseTest {
             assertThatThrownBy(() -> executeSettlementService.executeSettlement(command))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("100%");
-        }
-    }
-
-    @Nested
-    @DisplayName("PaymentAllocation 정산 할당")
-    class AllocationAssignment {
-
-        @Test
-        @DisplayName("정산 완료 후 PaymentAllocation에 settlementId를 할당한다")
-        void shouldAssignSettlementIdToAllocations() {
-            // given
-            PaymentAllocation alloc1 = createAllocation(1L, 10L, 3000L);
-            PaymentAllocation alloc2 = createAllocation(2L, 10L, 7000L);
-
-            when(findPaymentAllocationPort.findUnsettledAllocations(2026, 2))
-                    .thenReturn(List.of(alloc1, alloc2));
-            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
-                    .thenReturn(false);
-            when(saveSettlementPort.save(any(Settlement.class)))
-                    .thenAnswer(invocation -> {
-                        Settlement s = invocation.getArgument(0);
-                        return createSavedSettlement(99L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
-                    });
-            when(updateSettlementPort.update(any(Settlement.class)))
-                    .thenAnswer(invocation -> invocation.getArgument(0));
-
-            ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
-
-            // when
-            executeSettlementService.executeSettlement(command);
-
-            // then
-            verify(updatePaymentAllocationPort).assignSettlement(allocationIdsCaptor.capture(), eq(99L));
-            assertThat(allocationIdsCaptor.getValue()).containsExactlyInAnyOrder(1L, 2L);
         }
     }
 }

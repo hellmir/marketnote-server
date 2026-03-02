@@ -89,6 +89,34 @@ public class Settlement {
         return status == SettlementStatus.COMPLETED;
     }
 
+    /**
+     * 실패 상태인지 확인한다.
+     *
+     * @return 실패 상태이면 true
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public boolean isFailed() {
+        return status == SettlementStatus.FAILED;
+    }
+
+    /**
+     * 실패한 정산을 대기 상태로 재설정한다.
+     * <p>
+     * FAILED → PENDING 상태 전이만 허용한다.
+     * </p>
+     *
+     * @throws InvalidSettlementStatusTransitionException 현재 상태가 FAILED가 아닌 경우
+     * @author 성효빈
+     * @since 2026-03-02
+     */
+    public void resetToPending() {
+        if (!isFailed()) {
+            throw new InvalidSettlementStatusTransitionException(status);
+        }
+        this.status = SettlementStatus.PENDING;
+    }
+
     public void complete() {
         if (!isPending()) {
             throw new InvalidSettlementStatusTransitionException(status);
