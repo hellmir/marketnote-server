@@ -1,7 +1,5 @@
 package com.personal.marketnote.commerce.domain.inventory;
 
-import com.personal.marketnote.commerce.domain.inventory.FulfillmentMapperCreateState;
-import com.personal.marketnote.commerce.domain.inventory.FulfillmentMapperSnapshotState;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

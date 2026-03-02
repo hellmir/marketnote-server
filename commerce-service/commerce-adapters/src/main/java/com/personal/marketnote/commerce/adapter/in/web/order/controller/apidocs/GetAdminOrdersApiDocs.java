@@ -15,32 +15,34 @@ import java.lang.annotation.*;
         summary = "(관리자) 주문 내역 조회",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 관리자가 전체 주문 내역을 판매자별, 기간별, 상태별로 조회합니다.
+                
                 - 모든 필터는 선택 사항이며, 필터를 지정하지 않으면 전체 주문을 조회합니다.
+                
                 - PAYMENT_PENDING 상태의 주문은 제외됩니다.
-
+                
                 ---
-
+                
                 ## Query Parameters
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | sellerId | number | 판매자 ID | N | 10 |
                 | startDate | string (ISO DateTime) | 조회 시작 일시 | N | 2026-02-01T00:00:00 |
                 | endDate | string (ISO DateTime) | 조회 종료 일시 | N | 2026-02-28T23:59:59 |
                 | orderStatus | string (enum) | 주문 상태 | N | PAID |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | orders | array | 주문 목록 | - |

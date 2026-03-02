@@ -18,23 +18,23 @@ import java.lang.annotation.*;
         summary = "(관리자) 정산 실행",
         description = """
                 작성일자: 2026-02-16
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 지정된 연/월에 대해 판매자별 정산을 실행합니다.
-
+                
                 - PG 수수료율과 플랫폼 수수료율은 basis point (1/10000) 단위입니다.
-
+                
                 - 예: pgFeeRate=300은 3%, platformFeeRate=500은 5%
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | year | number | 정산 연도 | Y | 2026 |

@@ -18,28 +18,28 @@ import java.lang.annotation.*;
         summary = "(관리자) 정산 목록 조회",
         description = """
                 작성일자: 2026-02-16
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
-                - 연/월 기준으로 정산 목록을 조회합니다.
-
+                
+                연/월 기준으로 정산 목록을 조회합니다.
+                
                 ---
-
+                
                 ## Query Parameters
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | year | number | 정산 연도 | Y | 2026 |
                 | month | number | 정산 월 | Y | 2 |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | settlements | array | 정산 목록 | [ ... ] |
