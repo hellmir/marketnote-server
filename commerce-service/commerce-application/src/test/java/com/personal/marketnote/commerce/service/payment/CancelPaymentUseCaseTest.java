@@ -5,6 +5,8 @@ import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.*;
+import com.personal.marketnote.commerce.domain.refund.Refund;
+import com.personal.marketnote.commerce.domain.refund.RefundType;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
@@ -15,6 +17,7 @@ import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusU
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
+import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -69,6 +72,9 @@ class CancelPaymentUseCaseTest {
 
     @Mock
     private ModifyUserPointPort modifyUserPointPort;
+
+    @Mock
+    private SaveRefundPort saveRefundPort;
 
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -657,6 +663,112 @@ class CancelPaymentUseCaseTest {
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("포인트 환불 실패")).when(modifyUserPointPort)
                     .refundOrderPoints(anyLong(), anyLong(), anyLong());
+
+            cancelPaymentService.cancel(command);
+
+            verify(updatePaymentPort).update(any());
+            verify(updatePspPaymentEventPort).update(any());
+            verify(changeOrderStatusUseCase).changeOrderStatus(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("환불 상세 기록 검증")
+    class RefundRecordTest {
+
+        private Payment createPaymentWithId(Long paymentId, Long orderId, UUID orderKey, Long amount, String pgPaymentKey) {
+            PaymentSnapshotState state = PaymentSnapshotState.builder()
+                    .id(paymentId)
+                    .orderId(orderId)
+                    .orderKey(orderKey)
+                    .pgPaymentKey(pgPaymentKey)
+                    .paymentAmount(amount)
+                    .successYn(true)
+                    .refundedYn(false)
+                    .refundAmount(0L)
+                    .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+                    .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+                    .build();
+            return Payment.from(state);
+        }
+
+        @Test
+        @DisplayName("전체 취소 성공 시 FULL_REFUND 환불 기록이 저장된다")
+        void shouldSaveFullRefundRecordOnFullCancel() {
+            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(saveRefundPort).save(argThat(refund ->
+                    refund.getRefundType() == RefundType.FULL_REFUND
+                            && refund.getRefundAmount().equals(50000L)
+                            && "SYSTEM".equals(refund.getProcessedBy())
+            ));
+        }
+
+        @Test
+        @DisplayName("부분 취소 성공 시 PARTIAL_REFUND 환불 기록이 저장된다")
+        void shouldSavePartialRefundRecordOnPartialCancel() {
+            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(saveRefundPort).save(argThat(refund ->
+                    refund.getRefundType() == RefundType.PARTIAL_REFUND
+                            && refund.getRefundAmount().equals(20000L)
+            ));
+        }
+
+        @Test
+        @DisplayName("환불 기록에 PG 응답 정보가 포함된다")
+        void shouldIncludePgResponseInRefundRecord() {
+            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(saveRefundPort).save(argThat(refund ->
+                    refund.getPgRawResponse() != null
+                            && refund.getPgRefundKey() != null
+            ));
+        }
+
+        @Test
+        @DisplayName("환불 기록 저장 실패 시에도 결제 취소는 정상 완료된다")
+        void shouldCompleteCancelEvenWhenRefundRecordSaveFails() {
+            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            doThrow(new RuntimeException("환불 기록 저장 실패")).when(saveRefundPort).save(any(Refund.class));
 
             cancelPaymentService.cancel(command);
 

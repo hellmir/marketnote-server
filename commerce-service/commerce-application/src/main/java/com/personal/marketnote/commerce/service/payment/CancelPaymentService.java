@@ -4,6 +4,9 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
+import com.personal.marketnote.commerce.domain.refund.Refund;
+import com.personal.marketnote.commerce.domain.refund.RefundCreateState;
+import com.personal.marketnote.commerce.domain.refund.RefundType;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
@@ -15,6 +18,7 @@ import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorCommand;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
+import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -41,6 +45,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
     private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
     private final ModifyUserPointPort modifyUserPointPort;
+    private final SaveRefundPort saveRefundPort;
 
     @Override
     public void cancel(CancelPaymentCommand command) {
@@ -105,6 +110,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         updatePaymentPort.update(payment);
         updatePspPaymentEventPort.update(event);
 
+        saveRefundRecord(payment, isFullCancel, cancelAmount, command.cancelReason(), vendorResult);
+
         if (isFullCancel) {
             changeOrderStatusUseCase.changeOrderStatus(
                     ChangeOrderStatusCommand.builder()
@@ -117,6 +124,30 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
+    }
+
+    private void saveRefundRecord(
+            Payment payment, boolean isFullCancel, Long cancelAmount,
+            String cancelReason, PaymentCancelVendorResult vendorResult
+    ) {
+        try {
+            RefundType refundType = isFullCancel ? RefundType.FULL_REFUND : RefundType.PARTIAL_REFUND;
+            RefundCreateState createState = RefundCreateState.builder()
+                    .paymentId(payment.getId())
+                    .orderId(payment.getOrderId())
+                    .refundType(refundType)
+                    .refundAmount(cancelAmount)
+                    .cancelReason(cancelReason)
+                    .processedBy("SYSTEM")
+                    .pgRefundKey(payment.getPgPaymentKey())
+                    .pgRawResponse(vendorResult.rawResponse())
+                    .build();
+            Refund refund = Refund.from(createState);
+            saveRefundPort.save(refund);
+        } catch (Exception e) {
+            log.error("환불 상세 기록 저장 실패 - orderId: {}, error: {}",
+                    payment.getOrderId(), e.getMessage(), e);
+        }
     }
 
     private void recordLedgerEntryForCancellation(
