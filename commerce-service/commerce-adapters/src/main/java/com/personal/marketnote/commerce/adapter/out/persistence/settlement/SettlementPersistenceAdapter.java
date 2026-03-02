@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.settlement.entit
 import com.personal.marketnote.commerce.adapter.out.persistence.settlement.mapper.SettlementEntityToDomainMapper;
 import com.personal.marketnote.commerce.adapter.out.persistence.settlement.repository.SettlementJpaRepository;
 import com.personal.marketnote.commerce.domain.settlement.Settlement;
+import com.personal.marketnote.commerce.domain.settlement.SettlementStatus;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPort;
@@ -52,6 +53,13 @@ public class SettlementPersistenceAdapter implements SaveSettlementPort, FindSet
     @Override
     public List<Settlement> findAllBySellerIdAndYear(Long sellerId, Integer year) {
         return settlementJpaRepository.findAllBySellerIdAndYear(sellerId, year).stream()
+                .map(SettlementEntityToDomainMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Settlement> findAllByStatus(SettlementStatus status) {
+        return settlementJpaRepository.findAllByStatus(status).stream()
                 .map(SettlementEntityToDomainMapper::toDomain)
                 .toList();
     }

@@ -234,7 +234,7 @@ class SettlementTest {
             // when & then
             assertThatThrownBy(settlement::complete)
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("PENDING");
+                    .hasMessageContaining("현재 상태");
         }
 
         @Test
@@ -253,7 +253,101 @@ class SettlementTest {
             // when & then
             assertThatThrownBy(settlement::fail)
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("PENDING");
+                    .hasMessageContaining("현재 상태");
         }
+
+        @Test
+        @DisplayName("FAILED 상태에서 resetToPending() 호출 시 PENDING 상태로 전이된다")
+        void shouldResetToPendingFromFailed() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.fail();
+            assertThat(settlement.isFailed()).isTrue();
+
+            // when
+            settlement.resetToPending();
+
+            // then
+            assertThat(settlement.isPending()).isTrue();
+            assertThat(settlement.isFailed()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PENDING 상태에서 resetToPending() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenResetToPendingFromPending() {
+            // given
+            Settlement settlement = createPendingSettlement();
+
+            // when & then
+            assertThatThrownBy(settlement::resetToPending)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("현재 상태");
+        }
+
+        @Test
+        @DisplayName("COMPLETED 상태에서 resetToPending() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenResetToPendingFromCompleted() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.complete();
+
+            // when & then
+            assertThatThrownBy(settlement::resetToPending)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("현재 상태");
+        }
+
+        @Test
+        @DisplayName("FAILED 상태에서 resetToPending 후 complete() 호출 시 COMPLETED 상태로 전이된다")
+        void shouldCompleteAfterResetFromFailed() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.fail();
+            settlement.resetToPending();
+
+            // when
+            settlement.complete();
+
+            // then
+            assertThat(settlement.isCompleted()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("술어 메서드")
+    class PredicateTest {
+
+        @Test
+        @DisplayName("isFailed()는 FAILED 상태에서 true를 반환한다")
+        void shouldReturnTrueWhenFailed() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.fail();
+
+            // then
+            assertThat(settlement.isFailed()).isTrue();
+            assertThat(settlement.isPending()).isFalse();
+            assertThat(settlement.isCompleted()).isFalse();
+        }
+
+        @Test
+        @DisplayName("isFailed()는 PENDING 상태에서 false를 반환한다")
+        void shouldReturnFalseWhenPending() {
+            // given
+            Settlement settlement = createPendingSettlement();
+
+            // then
+            assertThat(settlement.isFailed()).isFalse();
+        }
+    }
+
+    private Settlement createPendingSettlement() {
+        return Settlement.from(
+                SettlementCreateState.builder()
+                        .sellerId(10L).year(2026).month(2)
+                        .totalAllocatedAmount(100000L).pgFeeAmount(3000L)
+                        .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
+                        .build()
+        );
     }
 }
