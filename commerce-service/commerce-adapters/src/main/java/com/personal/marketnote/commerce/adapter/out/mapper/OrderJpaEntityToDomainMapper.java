@@ -3,10 +3,7 @@ package com.personal.marketnote.commerce.adapter.out.mapper;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderStatusHistoryJpaEntity;
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderProduct;
-import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
+import com.personal.marketnote.commerce.domain.order.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -87,6 +84,21 @@ public class OrderJpaEntityToDomainMapper {
                         .orderStatus(entity.getOrderStatus())
                         .isReviewed(entity.getIsReviewed())
                         .build());
+    }
+
+    public static OrderStatusHistory mapToOrderStatusHistoryDomain(
+            OrderStatusHistoryJpaEntity entity
+    ) {
+        return OrderStatusHistory.from(
+                OrderStatusHistorySnapshotState.builder()
+                        .id(entity.getId())
+                        .orderId(entity.getOrderJpaEntity().getId())
+                        .orderStatus(entity.getOrderStatus())
+                        .reasonCategory(entity.getReasonCategory())
+                        .reason(entity.getReason())
+                        .createdAt(entity.getCreatedAt())
+                        .build()
+        );
     }
 
     public static Optional<OrderProduct> mapToOrderProductDomain(OrderProductJpaEntity orderProductJpaEntity) {
