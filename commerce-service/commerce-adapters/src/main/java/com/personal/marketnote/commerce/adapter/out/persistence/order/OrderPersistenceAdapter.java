@@ -7,10 +7,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.Ord
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderHistoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderProductJpaRepository;
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderProduct;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
-import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
+import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 import com.personal.marketnote.commerce.port.out.order.*;
@@ -23,7 +20,7 @@ import java.util.*;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, FindOrderProductPort, UpdateOrderPort, UpdateOrderProductPort {
+public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, FindOrderProductPort, UpdateOrderPort, UpdateOrderProductPort, FindOrderStatusHistoryPort {
     private final OrderJpaRepository orderJpaRepository;
     private final OrderProductJpaRepository orderProductJpaRepository;
     private final OrderHistoryJpaRepository orderHistoryJpaRepository;
@@ -165,6 +162,20 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
         OrderProductJpaEntity orderProductJpaEntity
                 = findEntityByOrderIdAndPricePolicyId(orderProduct.getOrderId(), orderProduct.getPricePolicyId());
         orderProductJpaEntity.updateFrom(orderProduct);
+    }
+
+    @Override
+    public List<OrderStatusHistory> findAllByOrderId(Long orderId) {
+        List<OrderStatusHistoryJpaEntity> entities
+                = orderHistoryJpaRepository.findAllByOrderJpaEntityIdOrderByCreatedAtAsc(orderId);
+
+        if (FormatValidator.hasNoValue(entities)) {
+            return List.of();
+        }
+
+        return entities.stream()
+                .map(OrderJpaEntityToDomainMapper::mapToOrderStatusHistoryDomain)
+                .toList();
     }
 
     private OrderProductJpaEntity findEntityByOrderIdAndPricePolicyId(Long orderId, Long pricePolicyId) throws OrderProductNotFoundException {
