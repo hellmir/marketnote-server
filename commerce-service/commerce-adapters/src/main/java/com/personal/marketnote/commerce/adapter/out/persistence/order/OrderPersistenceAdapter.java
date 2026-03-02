@@ -7,7 +7,10 @@ import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.Ord
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderHistoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderProductJpaRepository;
-import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 import com.personal.marketnote.commerce.port.out.order.*;

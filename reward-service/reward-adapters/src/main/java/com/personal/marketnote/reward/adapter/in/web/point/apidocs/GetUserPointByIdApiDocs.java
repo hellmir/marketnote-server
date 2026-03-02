@@ -19,28 +19,28 @@ import java.lang.annotation.*;
         summary = "(관리자) 회원 포인트 정보 조회",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 관리자가 특정 회원의 포인트 정보를 조회합니다.
                 서비스 간 통신(commerce → reward)에서 포인트 잔액 확인 시 사용됩니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | userId (path) | number | 회원 ID | Y | 100 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
@@ -48,11 +48,11 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 시간 | "2026-03-02T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "회원 포인트 정보 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | userId | number | 회원 ID | 100 |

@@ -51,9 +51,9 @@ class GetSettlementDetailUseCaseTest {
     }
 
     private PaymentAllocation createAllocation(Long id, Long orderId, Long sellerId,
-                                                Long allocatedAmount, Long settlementId,
-                                                PaymentAllocationTransactionType transactionType,
-                                                PaymentAllocationTargetType targetType) {
+                                               Long allocatedAmount, Long settlementId,
+                                               PaymentAllocationTransactionType transactionType,
+                                               PaymentAllocationTargetType targetType) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
                 .id(id)
                 .orderId(orderId)

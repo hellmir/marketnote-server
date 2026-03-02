@@ -20,5 +20,6 @@ public record RecordLedgerEntryCommand(
             Long accountId,
             Long amount,
             TransactionType transactionType
-    ) {}
+    ) {
+    }
 }

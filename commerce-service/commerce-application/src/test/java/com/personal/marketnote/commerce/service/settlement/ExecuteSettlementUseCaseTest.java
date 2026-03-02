@@ -69,8 +69,8 @@ class ExecuteSettlementUseCaseTest {
     }
 
     private Settlement createSavedSettlement(Long id, Long sellerId, Integer year, Integer month,
-                                              Long totalAllocatedAmount, Long pgFeeAmount,
-                                              Long platformFeeAmount, Long sellerPayoutAmount) {
+                                             Long totalAllocatedAmount, Long pgFeeAmount,
+                                             Long platformFeeAmount, Long sellerPayoutAmount) {
         return Settlement.from(SettlementSnapshotState.builder()
                 .id(id)
                 .sellerId(sellerId)

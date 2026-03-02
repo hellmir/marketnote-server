@@ -1,8 +1,5 @@
 package com.personal.marketnote.commerce.domain.inventory;
 
-import com.personal.marketnote.commerce.domain.inventory.InventoryAdditionHistoryCreateState;
-import com.personal.marketnote.commerce.domain.inventory.InventoryAdditionHistorySnapshotState;
-import com.personal.marketnote.commerce.domain.inventory.Stock;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

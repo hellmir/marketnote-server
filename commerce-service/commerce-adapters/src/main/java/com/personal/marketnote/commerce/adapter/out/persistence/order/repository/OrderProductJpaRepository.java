@@ -2,9 +2,9 @@ package com.personal.marketnote.commerce.adapter.out.persistence.order.repositor
 
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductId;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductJpaEntity;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 

@@ -8,11 +8,7 @@ import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
-import com.personal.marketnote.commerce.exception.ExcessiveDiscountException;
-import com.personal.marketnote.commerce.exception.InsufficientPointException;
-import com.personal.marketnote.commerce.exception.OrderAmountMismatchException;
-import com.personal.marketnote.commerce.exception.PriceMismatchException;
-import com.personal.marketnote.commerce.exception.SellerMismatchException;
+import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
@@ -20,9 +16,9 @@ import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUs
 import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
-import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,18 +30,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

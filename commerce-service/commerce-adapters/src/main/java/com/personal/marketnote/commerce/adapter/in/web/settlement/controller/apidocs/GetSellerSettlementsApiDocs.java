@@ -18,30 +18,32 @@ import java.lang.annotation.*;
         summary = "(판매자) 나의 정산 내역 조회",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 판매자 본인의 정산 내역을 조회합니다.
+                
                 - year는 필수, month는 선택입니다.
+                
                 - month를 지정하면 해당 월의 정산만, 미지정 시 해당 연도 전체 정산을 조회합니다.
-
+                
                 ---
-
+                
                 ## Query Parameters
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | year | number | 정산 연도 | Y | 2026 |
                 | month | number | 정산 월 | N | 2 |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | settlements | array | 정산 목록 | [ ... ] |

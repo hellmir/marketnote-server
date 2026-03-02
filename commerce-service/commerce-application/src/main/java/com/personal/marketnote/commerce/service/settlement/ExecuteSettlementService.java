@@ -72,7 +72,7 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
     }
 
     private void processSellerSettlement(ExecuteSettlementCommand command, Long sellerId,
-                                          List<PaymentAllocation> sellerAllocations) {
+                                         List<PaymentAllocation> sellerAllocations) {
         Integer year = command.year();
         Integer month = command.month();
 
