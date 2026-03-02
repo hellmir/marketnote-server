@@ -298,6 +298,118 @@ class SettlementTest {
         }
 
         @Test
+        @DisplayName("COMPLETED 상태에서 cancel() 호출 시 CANCELLED 상태로 전이된다")
+        void shouldTransitionToCancelled() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.complete();
+
+            // when
+            settlement.cancel();
+
+            // then
+            assertThat(settlement.isCancelled()).isTrue();
+            assertThat(settlement.isCompleted()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PENDING 상태에서 cancel() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenCancelFromPending() {
+            // given
+            Settlement settlement = createPendingSettlement();
+
+            // when & then
+            assertThatThrownBy(settlement::cancel)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("현재 상태");
+        }
+
+        @Test
+        @DisplayName("FAILED 상태에서 cancel() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenCancelFromFailed() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.fail();
+
+            // when & then
+            assertThatThrownBy(settlement::cancel)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("현재 상태");
+        }
+
+        @Test
+        @DisplayName("CANCELLED 상태에서 cancel() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenCancelFromCancelled() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.complete();
+            settlement.cancel();
+
+            // when & then
+            assertThatThrownBy(settlement::cancel)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("현재 상태");
+        }
+
+        @Test
+        @DisplayName("CANCELLED 상태에서 resetCancelledToPending() 호출 시 PENDING 상태로 전이된다")
+        void shouldResetCancelledToPending() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.complete();
+            settlement.cancel();
+            assertThat(settlement.isCancelled()).isTrue();
+
+            // when
+            settlement.resetCancelledToPending();
+
+            // then
+            assertThat(settlement.isPending()).isTrue();
+            assertThat(settlement.isCancelled()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PENDING 상태에서 resetCancelledToPending() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenResetCancelledFromPending() {
+            // given
+            Settlement settlement = createPendingSettlement();
+
+            // when & then
+            assertThatThrownBy(settlement::resetCancelledToPending)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("현재 상태");
+        }
+
+        @Test
+        @DisplayName("COMPLETED 상태에서 resetCancelledToPending() 호출 시 IllegalStateException을 던진다")
+        void shouldThrowWhenResetCancelledFromCompleted() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.complete();
+
+            // when & then
+            assertThatThrownBy(settlement::resetCancelledToPending)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("현재 상태");
+        }
+
+        @Test
+        @DisplayName("CANCELLED → PENDING → COMPLETED 전체 흐름이 성공한다")
+        void shouldCompleteCancelReExecuteFlow() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.complete();
+            settlement.cancel();
+            settlement.resetCancelledToPending();
+
+            // when
+            settlement.complete();
+
+            // then
+            assertThat(settlement.isCompleted()).isTrue();
+        }
+
+        @Test
         @DisplayName("FAILED 상태에서 resetToPending 후 complete() 호출 시 COMPLETED 상태로 전이된다")
         void shouldCompleteAfterResetFromFailed() {
             // given
@@ -328,6 +440,21 @@ class SettlementTest {
             assertThat(settlement.isFailed()).isTrue();
             assertThat(settlement.isPending()).isFalse();
             assertThat(settlement.isCompleted()).isFalse();
+        }
+
+        @Test
+        @DisplayName("isCancelled()는 CANCELLED 상태에서 true를 반환한다")
+        void shouldReturnTrueWhenCancelled() {
+            // given
+            Settlement settlement = createPendingSettlement();
+            settlement.complete();
+            settlement.cancel();
+
+            // then
+            assertThat(settlement.isCancelled()).isTrue();
+            assertThat(settlement.isPending()).isFalse();
+            assertThat(settlement.isCompleted()).isFalse();
+            assertThat(settlement.isFailed()).isFalse();
         }
 
         @Test
