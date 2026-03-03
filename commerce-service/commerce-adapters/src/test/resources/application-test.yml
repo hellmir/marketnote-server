@@ -25,3 +25,9 @@ spring:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
       - org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration
+
+settlement:
+  scheduler:
+    enabled: false
+    pg-fee-rate: 300
+    platform-fee-rate: 500

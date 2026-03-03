@@ -73,6 +73,13 @@ kcp:
     payment-cancel-url: ${KCP_PAYMENT_CANCEL_URL:https://stg-spl.kcp.co.kr/gw/mod/v1/cancel}
   ret-url: ${KCP_RET_URL:https://marketnote-dev.vercel.app/payments/kcp/callback}
 
+settlement:
+  scheduler:
+    enabled: ${SETTLEMENT_SCHEDULER_ENABLED:false}
+    cron: ${SETTLEMENT_SCHEDULER_CRON:0 0 2 1 * *}
+    pg-fee-rate: ${SETTLEMENT_PG_FEE_RATE:300}
+    platform-fee-rate: ${SETTLEMENT_PLATFORM_FEE_RATE:500}
+
 management:
   endpoints:
     web:
