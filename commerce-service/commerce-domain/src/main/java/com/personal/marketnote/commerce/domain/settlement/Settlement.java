@@ -32,8 +32,8 @@ public class Settlement {
             throw new InvalidSettlementAmountException(
                     "판매자 지급액은 0보다 커야 합니다. sellerPayoutAmount=" + state.getSellerPayoutAmount());
         }
-        long pgFee = state.getPgFeeAmount() != null ? state.getPgFeeAmount() : 0L;
-        long platformFee = state.getPlatformFeeAmount() != null ? state.getPlatformFeeAmount() : 0L;
+        long pgFee = FormatValidator.hasValue(state.getPgFeeAmount()) ? state.getPgFeeAmount() : 0L;
+        long platformFee = FormatValidator.hasValue(state.getPlatformFeeAmount()) ? state.getPlatformFeeAmount() : 0L;
 
         if (pgFee < 0) {
             throw new InvalidSettlementAmountException(
