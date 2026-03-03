@@ -51,7 +51,6 @@ class GetProductInventoryUseCaseTest {
         List<Long> pricePolicyIds = List.of(1L, 2L, 3L);
         Map<Long, Integer> cacheInventories = new HashMap<>();
         cacheInventories.put(1L, 3);
-        cacheInventories.put(2L, -1);
 
         when(findCacheStockPort.findByPricePolicyIds(pricePolicyIds)).thenReturn(cacheInventories);
         when(findStockPort.findByPricePolicyIds(List.of(2L, 3L)))

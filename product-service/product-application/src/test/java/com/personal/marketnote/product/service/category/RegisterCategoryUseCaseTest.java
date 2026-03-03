@@ -89,23 +89,6 @@ class RegisterCategoryUseCaseTest {
     }
 
     @Test
-    @DisplayName("카테고리 등록 시 상위 카테고리 ID가 -1이면 검증 없이 저장한다")
-    void registerCategory_parentMinusOne_skipsFind() {
-        RegisterCategoryCommand command = RegisterCategoryCommand.of(-1L, "카테고리");
-        Category saved = buildCategory(300L, -1L, "카테고리");
-
-        when(saveCategoryPort.save(any(Category.class))).thenReturn(saved);
-
-        RegisterCategoryResult result = registerCategoryService.registerCategory(command);
-
-        assertThat(result.id()).isEqualTo(300L);
-        assertThat(result.parentCategoryId()).isEqualTo(-1L);
-        assertThat(result.name()).isEqualTo("카테고리");
-
-        verifyNoInteractions(findCategoryPort);
-    }
-
-    @Test
     @DisplayName("카테고리 등록 시 상위 카테고리 조회에 실패하면 예외를 전파한다")
     void registerCategory_findParentFails_propagates() {
         RegisterCategoryCommand command = RegisterCategoryCommand.of(12L, "카테고리");

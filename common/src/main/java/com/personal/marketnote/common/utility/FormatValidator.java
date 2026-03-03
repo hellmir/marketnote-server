@@ -3,8 +3,6 @@ package com.personal.marketnote.common.utility;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
-import static com.personal.marketnote.common.utility.NumberConstant.MINUS_ONE;
-
 public class FormatValidator {
     public static boolean isValid(CharSequence value, Pattern pattern) {
         return hasValue(value) && hasValue(pattern) && pattern.matcher(value).matches();
@@ -31,7 +29,7 @@ public class FormatValidator {
     }
 
     public static boolean hasValue(Number value) {
-        return value != null && !equals(value.toString(), MINUS_ONE);
+        return value != null;
     }
 
     public static boolean notEquals(Object value1, Object value2) {

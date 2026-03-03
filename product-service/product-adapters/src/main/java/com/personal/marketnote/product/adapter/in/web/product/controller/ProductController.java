@@ -30,7 +30,6 @@ import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
-import static com.personal.marketnote.common.utility.NumberConstant.MINUS_ONE;
 
 /**
  * 상품 컨트롤러
@@ -153,7 +152,7 @@ public class ProductController {
     public ResponseEntity<BaseResponse<GetProductsResponse>> getProducts(
             @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
-            @RequestParam(value = "cursor", required = false, defaultValue = MINUS_ONE) Long cursor,
+            @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) int pageSize,
             @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
             @RequestParam(required = false, defaultValue = "ORDER_NUM") ProductSortProperty sortProperty,
@@ -203,7 +202,7 @@ public class ProductController {
     public ResponseEntity<BaseResponse<GetAdminProductsResponse>> getAdminProducts(
             @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
-            @RequestParam(value = "cursor", required = false, defaultValue = MINUS_ONE) Long cursor,
+            @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) int pageSize,
             @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
             @RequestParam(required = false, defaultValue = "ORDER_NUM") ProductSortProperty sortProperty,
