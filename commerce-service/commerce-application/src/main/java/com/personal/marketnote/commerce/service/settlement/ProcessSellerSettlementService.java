@@ -6,7 +6,10 @@ import com.personal.marketnote.commerce.domain.settlement.SettlementCreateState;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
-import com.personal.marketnote.commerce.port.out.settlement.*;
+import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
+import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
+import com.personal.marketnote.commerce.port.out.settlement.UpdatePaymentAllocationPort;
+import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,15 +50,16 @@ public class ProcessSellerSettlementService {
      * 실패 시 해당 판매자의 정산만 FAILED 상태로 저장된다.
      * </p>
      *
-     * @param command            정산 실행 커맨드
+     * @param command            정산 실행 커맨드 (year, month)
      * @param sellerId           판매자 ID
      * @param sellerAllocations  판매자의 결제 배분 목록
-     * @author 성효빈
-     * @since 2026-03-02
+     * @param pgFeeRate          PG 수수료율 (basis point)
+     * @param platformFeeRate    플랫폼 수수료율 (basis point)
      */
     @Transactional(isolation = READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void process(ExecuteSettlementCommand command, Long sellerId,
-                        List<PaymentAllocation> sellerAllocations) {
+                        List<PaymentAllocation> sellerAllocations,
+                        Integer pgFeeRate, Integer platformFeeRate) {
         Integer year = command.year();
         Integer month = command.month();
 
@@ -67,8 +71,8 @@ public class ProcessSellerSettlementService {
                 .mapToLong(PaymentAllocation::getAllocatedAmount)
                 .sum();
 
-        long pgFeeAmount = Math.multiplyExact(totalAllocatedAmount, command.pgFeeRate()) / BASIS_POINT_DENOMINATOR;
-        long platformFeeAmount = Math.multiplyExact(totalAllocatedAmount, command.platformFeeRate()) / BASIS_POINT_DENOMINATOR;
+        long pgFeeAmount = Math.multiplyExact(totalAllocatedAmount, pgFeeRate) / BASIS_POINT_DENOMINATOR;
+        long platformFeeAmount = Math.multiplyExact(totalAllocatedAmount, platformFeeRate) / BASIS_POINT_DENOMINATOR;
         long sellerPayoutAmount = totalAllocatedAmount - pgFeeAmount - platformFeeAmount;
 
         Settlement settlement = Settlement.from(SettlementCreateState.builder()

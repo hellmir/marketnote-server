@@ -12,6 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class SettlementSchedulerProperties {
     private boolean enabled;
     private String cron = "0 0 2 1 * *";
-    private Integer pgFeeRate;
-    private Integer platformFeeRate;
+    private Integer defaultPgFeeRate;
+    private Integer defaultPlatformFeeRate;
 }

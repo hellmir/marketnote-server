@@ -29,5 +29,5 @@ spring:
 settlement:
   scheduler:
     enabled: false
-    pg-fee-rate: 300
-    platform-fee-rate: 500
+    default-pg-fee-rate: 300
+    default-platform-fee-rate: 500

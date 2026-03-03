@@ -77,8 +77,8 @@ settlement:
   scheduler:
     enabled: ${SETTLEMENT_SCHEDULER_ENABLED:false}
     cron: ${SETTLEMENT_SCHEDULER_CRON:0 0 2 1 * *}
-    pg-fee-rate: ${SETTLEMENT_PG_FEE_RATE:300}
-    platform-fee-rate: ${SETTLEMENT_PLATFORM_FEE_RATE:500}
+    default-pg-fee-rate: ${SETTLEMENT_DEFAULT_PG_FEE_RATE:300}
+    default-platform-fee-rate: ${SETTLEMENT_DEFAULT_PLATFORM_FEE_RATE:500}
 
 management:
   endpoints:

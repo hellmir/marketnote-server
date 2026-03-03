@@ -12,8 +12,6 @@ public class SettlementRequestToCommandMapper {
         return ExecuteSettlementCommand.builder()
                 .year(request.getYear())
                 .month(request.getMonth())
-                .pgFeeRate(request.getPgFeeRate())
-                .platformFeeRate(request.getPlatformFeeRate())
                 .build();
     }
 

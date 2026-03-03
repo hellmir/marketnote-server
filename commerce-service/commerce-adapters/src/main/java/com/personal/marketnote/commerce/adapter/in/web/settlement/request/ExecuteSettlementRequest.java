@@ -19,14 +19,4 @@ public class ExecuteSettlementRequest {
     @Min(value = 1, message = "월은 1 이상이어야 합니다")
     @Max(value = 12, message = "월은 12 이하여야 합니다")
     private Integer month;
-
-    @NotNull(message = "PG 수수료율은 필수입니다")
-    @Min(value = 0, message = "PG 수수료율은 0 이상이어야 합니다")
-    @Max(value = 10000, message = "PG 수수료율은 10000(100%) 이하여야 합니다")
-    private Integer pgFeeRate;
-
-    @NotNull(message = "플랫폼 수수료율은 필수입니다")
-    @Min(value = 0, message = "플랫폼 수수료율은 0 이상이어야 합니다")
-    @Max(value = 10000, message = "플랫폼 수수료율은 10000(100%) 이하여야 합니다")
-    private Integer platformFeeRate;
 }
