@@ -107,10 +107,10 @@ class ProcessSellerSettlementServiceTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
+                    .year(2026).month(2).build();
 
             // when
-            processSellerSettlementService.process(command, 10L, List.of(allocation1, allocation2));
+            processSellerSettlementService.process(command, 10L, List.of(allocation1, allocation2), 300, 500);
 
             // then
             verify(saveSettlementPort).save(settlementCaptor.capture());
@@ -148,10 +148,10 @@ class ProcessSellerSettlementServiceTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(0).platformFeeRate(500).build();
+                    .year(2026).month(2).build();
 
             // when
-            processSellerSettlementService.process(command, 10L, List.of(allocation));
+            processSellerSettlementService.process(command, 10L, List.of(allocation), 0, 500);
 
             // then
             verify(saveSettlementPort).save(settlementCaptor.capture());
@@ -179,10 +179,10 @@ class ProcessSellerSettlementServiceTest {
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
+                    .year(2026).month(2).build();
 
             // when
-            processSellerSettlementService.process(command, 10L, List.of(allocation));
+            processSellerSettlementService.process(command, 10L, List.of(allocation), 300, 500);
 
             // then
             verify(saveSettlementPort).save(settlementCaptor.capture());
@@ -211,10 +211,11 @@ class ProcessSellerSettlementServiceTest {
                     .thenReturn(true);
 
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
-                    .year(2026).month(2).pgFeeRate(300).platformFeeRate(500).build();
+                    .year(2026).month(2).build();
 
             // when & then
-            assertThatThrownBy(() -> processSellerSettlementService.process(command, 10L, List.of(allocation)))
+            assertThatThrownBy(() -> processSellerSettlementService.process(
+                    command, 10L, List.of(allocation), 300, 500))
                     .isInstanceOf(SettlementAlreadyExistsException.class);
 
             verify(saveSettlementPort, never()).save(any());

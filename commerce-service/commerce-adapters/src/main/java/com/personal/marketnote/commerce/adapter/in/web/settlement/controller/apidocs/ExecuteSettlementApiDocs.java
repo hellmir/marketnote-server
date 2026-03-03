@@ -17,30 +17,26 @@ import java.lang.annotation.*;
 @Operation(
         summary = "(관리자) 정산 실행",
         description = """
-                작성일자: 2026-02-16
-                
+                작성일자: 2026-03-02
+
                 작성자: 성효빈
-                
+
                 ---
-                
+
                 ## Description
-                
+
                 - 지정된 연/월에 대해 판매자별 정산을 실행합니다.
-                
-                - PG 수수료율과 플랫폼 수수료율은 basis point (1/10000) 단위입니다.
-                
-                - 예: pgFeeRate=300은 3%, platformFeeRate=500은 5%
-                
+
+                - 판매자별 정산 정책이 등록되어 있으면 해당 수수료율이 적용되고, 미등록 판매자는 시스템 기본 수수료율이 적용됩니다.
+
                 ---
-                
+
                 ## Request
-                
+
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | year | number | 정산 연도 | Y | 2026 |
                 | month | number | 정산 월 | Y | 2 |
-                | pgFeeRate | number | PG 수수료율 (basis point) | Y | 300 |
-                | platformFeeRate | number | 플랫폼 수수료율 (basis point) | Y | 500 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -50,9 +46,7 @@ import java.lang.annotation.*;
                         examples = @ExampleObject("""
                                 {
                                   "year": 2026,
-                                  "month": 2,
-                                  "pgFeeRate": 300,
-                                  "platformFeeRate": 500
+                                  "month": 2
                                 }
                                 """)
                 )
@@ -66,7 +60,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 200,
                                           "code": "SUC01",
-                                          "timestamp": "2026-02-16T12:00:00.000",
+                                          "timestamp": "2026-03-02T12:00:00.000",
                                           "content": null,
                                           "message": "정산 실행 성공"
                                         }

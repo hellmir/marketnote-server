@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.adapter.in.scheduler;
 
-import com.personal.marketnote.commerce.configuration.SettlementSchedulerProperties;
 import com.personal.marketnote.commerce.exception.NoUnsettledAllocationException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
 import com.personal.marketnote.commerce.port.in.usecase.settlement.ExecuteSettlementUseCase;
@@ -17,7 +16,6 @@ import java.time.YearMonth;
 @RequiredArgsConstructor
 public class SettlementScheduler {
     private final ExecuteSettlementUseCase executeSettlementUseCase;
-    private final SettlementSchedulerProperties properties;
     private final Clock commerceClock;
 
     @Scheduled(cron = "${settlement.scheduler.cron}", zone = "Asia/Seoul")
@@ -26,15 +24,12 @@ public class SettlementScheduler {
         int year = previousMonth.getYear();
         int month = previousMonth.getMonthValue();
 
-        log.info("월별 자동 정산 실행 시작 - year: {}, month: {}, pgFeeRate: {}, platformFeeRate: {}",
-                year, month, properties.getPgFeeRate(), properties.getPlatformFeeRate());
+        log.info("월별 자동 정산 실행 시작 - year: {}, month: {}", year, month);
 
         try {
             ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
                     .year(year)
                     .month(month)
-                    .pgFeeRate(properties.getPgFeeRate())
-                    .platformFeeRate(properties.getPlatformFeeRate())
                     .build();
 
             executeSettlementUseCase.executeSettlement(command);
