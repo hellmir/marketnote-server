@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.port.in.result.order;
 
-import com.personal.marketnote.commerce.domain.order.CourierCompany;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
@@ -23,13 +22,6 @@ public record GetOrderResult(
         Long paidAmount,
         Long couponAmount,
         Long pointAmount,
-        String recipientName,
-        String address,
-        String addressDetail,
-        String zipCode,
-        String phoneNumber,
-        CourierCompany courierCompany,
-        String trackingNumber,
         List<GetOrderProductResult> orderProducts
 ) {
     public static GetOrderResult from(
@@ -47,13 +39,6 @@ public record GetOrderResult(
                 .paidAmount(order.getPaidAmount())
                 .couponAmount(order.getCouponAmount())
                 .pointAmount(order.getPointAmount())
-                .recipientName(order.getRecipientName())
-                .address(order.getAddress())
-                .addressDetail(order.getAddressDetail())
-                .zipCode(order.getZipCode())
-                .phoneNumber(order.getPhoneNumber())
-                .courierCompany(order.getCourierCompany())
-                .trackingNumber(order.getTrackingNumber())
                 .orderProducts(order.getOrderProducts().stream()
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,

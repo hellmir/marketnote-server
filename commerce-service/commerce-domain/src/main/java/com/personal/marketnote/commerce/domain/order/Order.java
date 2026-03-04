@@ -24,13 +24,6 @@ public class Order {
     private Long paidAmount;
     private Long couponAmount;
     private Long pointAmount;
-    private String recipientName;
-    private String address;
-    private String addressDetail;
-    private String zipCode;
-    private String phoneNumber;
-    private CourierCompany courierCompany;
-    private String trackingNumber;
     private List<OrderProduct> orderProducts;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -50,11 +43,6 @@ public class Order {
                 .totalAmount(state.getTotalAmount())
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
-                .recipientName(state.getRecipientName())
-                .address(state.getAddress())
-                .addressDetail(state.getAddressDetail())
-                .zipCode(state.getZipCode())
-                .phoneNumber(state.getPhoneNumber())
                 .orderProducts(orderProducts)
                 .build();
     }
@@ -78,13 +66,6 @@ public class Order {
                 .paidAmount(state.getPaidAmount())
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
-                .recipientName(state.getRecipientName())
-                .address(state.getAddress())
-                .addressDetail(state.getAddressDetail())
-                .zipCode(state.getZipCode())
-                .phoneNumber(state.getPhoneNumber())
-                .courierCompany(state.getCourierCompany())
-                .trackingNumber(state.getTrackingNumber())
                 .orderProducts(orderProducts)
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
@@ -126,12 +107,4 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
-    public void registerTrackingInfo(CourierCompany courierCompany, String trackingNumber) {
-        this.courierCompany = courierCompany;
-        this.trackingNumber = trackingNumber;
-    }
-
-    public boolean hasTrackingInfo() {
-        return FormatValidator.hasValue(this.courierCompany) && FormatValidator.hasValue(this.trackingNumber);
-    }
 }
