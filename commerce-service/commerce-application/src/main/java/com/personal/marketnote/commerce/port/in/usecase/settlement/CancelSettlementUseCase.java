@@ -19,7 +19,7 @@ public interface CancelSettlementUseCase {
      * </p>
      *
      * @param settlementId 취소할 정산 ID
-     * @throws com.personal.marketnote.commerce.exception.SettlementNotFoundException 정산이 존재하지 않는 경우
+     * @throws com.personal.marketnote.commerce.exception.SettlementNotFoundException                        정산이 존재하지 않는 경우
      * @throws com.personal.marketnote.commerce.domain.settlement.InvalidSettlementStatusTransitionException 정산이 COMPLETED 상태가 아닌 경우
      */
     void cancelSettlement(Long settlementId);

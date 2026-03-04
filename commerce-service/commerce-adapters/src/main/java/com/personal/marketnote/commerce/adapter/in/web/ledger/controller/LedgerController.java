@@ -35,7 +35,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
  */
 @RestController
 @RequestMapping("/api/v1/admin/ledger")
-@Tag(name = "(관리자) 회계 장부 API", description = "관리자 회계 거래/잔액 조회 API")
+@Tag(name = "회계 API", description = "관리자 회계 거래/잔액 조회 API")
 @RequiredArgsConstructor
 public class LedgerController {
     private final GetLedgerTransactionsUseCase getLedgerTransactionsUseCase;

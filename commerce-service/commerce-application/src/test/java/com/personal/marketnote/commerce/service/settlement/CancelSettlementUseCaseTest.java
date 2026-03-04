@@ -1,7 +1,10 @@
 package com.personal.marketnote.commerce.service.settlement;
 
 import com.personal.marketnote.commerce.domain.ledger.*;
-import com.personal.marketnote.commerce.domain.settlement.*;
+import com.personal.marketnote.commerce.domain.settlement.InvalidSettlementStatusTransitionException;
+import com.personal.marketnote.commerce.domain.settlement.Settlement;
+import com.personal.marketnote.commerce.domain.settlement.SettlementSnapshotState;
+import com.personal.marketnote.commerce.domain.settlement.SettlementStatus;
 import com.personal.marketnote.commerce.exception.SettlementNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.ledger.RecordLedgerEntryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
@@ -73,7 +76,7 @@ class CancelSettlementUseCaseTest {
     }
 
     private Settlement createCompletedSettlement(Long id, Long sellerId, Long totalAllocatedAmount,
-                                                  Long pgFeeAmount, Long platformFeeAmount, Long sellerPayoutAmount) {
+                                                 Long pgFeeAmount, Long platformFeeAmount, Long sellerPayoutAmount) {
         return Settlement.from(SettlementSnapshotState.builder()
                 .id(id)
                 .sellerId(sellerId)

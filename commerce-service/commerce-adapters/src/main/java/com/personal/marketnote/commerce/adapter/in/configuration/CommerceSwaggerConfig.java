@@ -33,8 +33,11 @@ public class CommerceSwaggerConfig {
     private static final List<String> TAGS_ORDER = List.of(
             "재고 API",
             "주문 API",
-            "결제 API",
             "주문 상품 API",
+            "결제 API",
+            "회계 API",
+            "정산 정책 API",
+            "정산 API",
             "서버 정보 API"
     );
 

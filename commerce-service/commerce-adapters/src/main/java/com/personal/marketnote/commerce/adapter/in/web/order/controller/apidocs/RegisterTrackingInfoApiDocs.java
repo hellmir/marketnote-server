@@ -16,31 +16,31 @@ import java.lang.annotation.*;
         summary = "(관리자/판매자) 송장 정보 등록",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 주문의 송장 정보(택배사, 송장번호)를 등록/수정합니다.
-
+                
                 - 이미 송장 정보가 등록된 경우 덮어씁니다.
-
+                
                 - 배송 상태(SHIPPING)로 전환하기 전에 반드시 송장 정보를 등록해야 합니다.
-
+                
                 ---
-
+                
                 ## Path Parameters
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | id | number | 주문 ID | Y | 1 |
-
+                
                 ---
-
+                
                 ## Request Body
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | courierCompany | string (enum) | 택배사 (CJ_LOGISTICS, HANJIN, LOTTE, LOGEN, POST_OFFICE, ETC) | Y | CJ_LOGISTICS |

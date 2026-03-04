@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
         summary = "회계 거래 목록 조회",
         description = """
                 기간별, 거래 유형별로 회계 거래(분개 포함) 목록을 조회합니다.
-
+                
                 - startDate, endDate: 조회 기간 (ISO 8601, 선택)
                 - transactionType: 거래 유형 필터 (선택)
                   - PAYMENT_APPROVAL, PAYMENT_CANCELLATION, PAYMENT_PARTIAL_REFUND

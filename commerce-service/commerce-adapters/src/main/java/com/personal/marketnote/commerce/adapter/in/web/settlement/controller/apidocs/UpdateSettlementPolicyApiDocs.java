@@ -7,11 +7,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -20,15 +16,15 @@ import java.lang.annotation.Target;
         summary = "(관리자) 정산 정책 수정",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 정산 정책의 수수료율, 정산 주기, 최소 지급 금액을 수정합니다.
-
+                
                 - 수수료율은 basis point 단위입니다 (300 = 3%, 10000 = 100%).
                 """,
         parameters = {

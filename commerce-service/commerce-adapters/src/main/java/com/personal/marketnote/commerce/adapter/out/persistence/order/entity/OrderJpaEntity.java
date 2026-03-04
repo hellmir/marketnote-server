@@ -1,6 +1,9 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.order.entity;
 
-import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.CourierCompany;
+import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;

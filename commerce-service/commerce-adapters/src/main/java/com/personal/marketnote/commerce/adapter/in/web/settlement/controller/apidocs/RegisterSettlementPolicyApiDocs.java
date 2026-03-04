@@ -6,11 +6,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -19,17 +15,17 @@ import java.lang.annotation.Target;
         summary = "(관리자) 정산 정책 등록",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 판매자별 정산 정책(수수료율, 정산 주기, 최소 지급 금액)을 등록합니다.
-
+                
                 - 동일 판매자에 대해 활성 정책이 이미 존재하면 등록에 실패합니다.
-
+                
                 - 수수료율은 basis point 단위입니다 (300 = 3%, 10000 = 100%).
                 """,
         security = {@SecurityRequirement(name = "bearer")},

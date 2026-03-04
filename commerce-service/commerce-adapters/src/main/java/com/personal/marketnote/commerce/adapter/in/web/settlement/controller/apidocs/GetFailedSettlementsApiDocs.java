@@ -21,15 +21,15 @@ import java.lang.annotation.*;
         summary = "(관리자) 실패한 정산 목록 조회",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - FAILED 상태의 정산 목록을 조회합니다.
-
+                
                 - 재시도가 필요한 정산을 식별하기 위해 사용합니다.
                 """,
         security = {@SecurityRequirement(name = "bearer")},

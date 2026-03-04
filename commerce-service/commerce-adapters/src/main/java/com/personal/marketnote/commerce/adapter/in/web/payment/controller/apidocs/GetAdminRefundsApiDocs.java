@@ -1,4 +1,4 @@
-package com.personal.marketnote.commerce.adapter.in.web.refund.controller.apidocs;
+package com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,27 +21,27 @@ import java.lang.annotation.*;
         summary = "(관리자) 주문별 환불 목록 조회",
         description = """
                 작성일자: 2026-03-04
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 관리자가 주문 ID에 해당하는 환불 상세 목록을 조회합니다.
-
+                
                 ---
-
+                
                 ## Query Parameters
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | order-id | number | 주문 ID | Y | 1 |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | content | array | 환불 목록 | - |

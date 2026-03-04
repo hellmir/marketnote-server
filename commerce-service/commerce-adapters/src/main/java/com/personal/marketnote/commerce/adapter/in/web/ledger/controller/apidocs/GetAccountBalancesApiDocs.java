@@ -18,11 +18,11 @@ import java.lang.annotation.Target;
         summary = "계정과목별 잔액 조회",
         description = """
                 특정 시점 기준으로 계정과목별 DEBIT/CREDIT 누적 합계와 잔액을 조회합니다.
-
+                
                 잔액 계산 규칙:
                 - 자산(ASSET), 비용(EXPENSE): DEBIT 합계 - CREDIT 합계
                 - 부채(LIABILITY), 자본(EQUITY), 수익(REVENUE): CREDIT 합계 - DEBIT 합계
-
+                
                 - asOf: 기준 시점 (ISO 8601, 선택 — 미지정 시 현재 시점)
                 """,
         parameters = {
