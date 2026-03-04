@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettle
 import com.personal.marketnote.commerce.port.in.usecase.settlement.ExecuteSettlementUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.time.YearMonth;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "settlement.scheduler.enabled", havingValue = "true", matchIfMissing = false)
 public class SettlementScheduler {
     private final ExecuteSettlementUseCase executeSettlementUseCase;
     private final Clock commerceClock;
