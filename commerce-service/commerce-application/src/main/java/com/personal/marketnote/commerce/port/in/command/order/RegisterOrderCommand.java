@@ -10,11 +10,6 @@ public record RegisterOrderCommand(
         Long totalAmount,
         Long couponAmount,
         Long pointAmount,
-        String recipientName,
-        String address,
-        String addressDetail,
-        String zipCode,
-        String phoneNumber,
         List<OrderProductItemCommand> orderProducts
 ) {
 }

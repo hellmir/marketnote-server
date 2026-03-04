@@ -5,7 +5,6 @@ import com.personal.marketnote.commerce.adapter.in.web.order.mapper.AdminOrderRe
 import com.personal.marketnote.commerce.adapter.in.web.order.mapper.OrderRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
-import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterTrackingInfoRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
-import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_PRINCIPAL_POINTCUT;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
 /**
@@ -51,7 +49,6 @@ public class OrderController {
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
     private final GetAdminOrdersUseCase getAdminOrdersUseCase;
     private final GetOrderStatusHistoryUseCase getOrderStatusHistoryUseCase;
-    private final RegisterTrackingInfoUseCase registerTrackingInfoUseCase;
 
     /**
      * 주문 등록
@@ -356,35 +353,4 @@ public class OrderController {
         );
     }
 
-    /**
-     * 송장 정보 등록/수정
-     *
-     * @param id      주문 ID
-     * @param request 송장 정보 등록 요청 {@link RegisterTrackingInfoRequest}
-     * @return 송장 정보 등록 성공 응답
-     * @Author 성효빈
-     * @Date 2026-03-02
-     * @Description 주문의 송장 정보(택배사, 송장번호)를 등록/수정합니다.
-     */
-    @PutMapping("/api/v1/admin/orders/{id}/tracking")
-    @PreAuthorize(ADMIN_OR_SELLER_PRINCIPAL_POINTCUT)
-    @RegisterTrackingInfoApiDocs
-    public ResponseEntity<BaseResponse<Void>> registerTrackingInfo(
-            @PathVariable("id") Long id,
-            @Valid @RequestBody RegisterTrackingInfoRequest request
-    ) {
-        registerTrackingInfoUseCase.registerTrackingInfo(
-                OrderRequestToCommandMapper.mapToTrackingInfoCommand(id, request)
-        );
-
-        return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "송장 정보 등록 성공"
-                ),
-                HttpStatus.OK
-        );
-    }
 }

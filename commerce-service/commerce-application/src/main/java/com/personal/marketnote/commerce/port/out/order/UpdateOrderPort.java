@@ -19,12 +19,4 @@ public interface UpdateOrderPort {
      * @Description 주문 정보를 업데이트하고 상태 변경 이력을 저장합니다.
      */
     void update(Order order, OrderStatusHistory orderStatusHistory);
-
-    /**
-     * @param order 주문 도메인
-     * @Date 2026-03-02
-     * @Author 성효빈
-     * @Description 주문의 송장 정보(택배사, 송장번호)를 업데이트합니다.
-     */
-    void updateTrackingInfo(Order order);
 }

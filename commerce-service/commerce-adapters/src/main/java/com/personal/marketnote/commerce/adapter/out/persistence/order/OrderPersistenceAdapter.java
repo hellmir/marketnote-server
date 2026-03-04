@@ -148,12 +148,6 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
         orderHistoryJpaRepository.save(OrderStatusHistoryJpaEntity.from(orderStatusHistory, orderJpaEntity));
     }
 
-    @Override
-    public void updateTrackingInfo(Order order) throws OrderNotFoundException {
-        OrderJpaEntity orderJpaEntity = findEntityById(order.getId());
-        orderJpaEntity.updateTrackingInfo(order);
-    }
-
     private OrderJpaEntity findEntityById(Long id) throws OrderNotFoundException {
         return orderJpaRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
