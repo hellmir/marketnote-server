@@ -1,22 +1,19 @@
 package com.personal.marketnote.commerce.adapter.in.web.settlement.controller;
 
 import com.personal.marketnote.commerce.adapter.in.web.settlement.controller.apidocs.*;
+import com.personal.marketnote.commerce.adapter.in.web.settlement.mapper.SellerSettlementRequestToQueryMapper;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.mapper.SettlementRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.request.ExecuteSettlementRequest;
+import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSellerSettlementsResponse;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSettlementDetailResponse;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSettlementResponse;
 import com.personal.marketnote.commerce.adapter.in.web.settlement.response.GetSettlementsResponse;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementDetailResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementResult;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementsResult;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.CancelSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.ExecuteSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.GetFailedSettlementsUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementDetailUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.GetSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.ReExecuteSettlementUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.settlement.RetryFailedSettlementUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.settlement.*;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.ElementExtractor;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -26,24 +23,26 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
+import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_POINTCUT;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
 /**
- * 정산 컨트롤러 (관리자 전용)
+ * 정산 컨트롤러
  *
  * @Author 성효빈
  * @Date 2026-02-16
- * @Description 정산 관련 관리자 API를 제공합니다.
+ * @Description 정산 관련 API를 제공합니다.
  */
 @RestController
-@RequestMapping("/api/v1/admin/settlements")
-@Tag(name = "(관리자) 정산 API", description = "관리자 정산 관련 API")
+@Tag(name = "정산 API", description = "정산 관련 API")
 @RequiredArgsConstructor
 @Validated
 public class SettlementController {
@@ -54,6 +53,7 @@ public class SettlementController {
     private final GetFailedSettlementsUseCase getFailedSettlementsUseCase;
     private final GetSettlementUseCase getSettlementUseCase;
     private final GetSettlementDetailUseCase getSettlementDetailUseCase;
+    private final GetSellerSettlementsUseCase getSellerSettlementsUseCase;
 
     /**
      * 정산 실행
@@ -63,7 +63,7 @@ public class SettlementController {
      * @Date 2026-02-16
      * @Description 지정된 연/월에 대해 판매자별 정산을 실행합니다.
      */
-    @PostMapping
+    @PostMapping("/api/v1/admin/settlements")
     @PreAuthorize(ADMIN_POINTCUT)
     @ExecuteSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> executeSettlement(
@@ -92,7 +92,7 @@ public class SettlementController {
      * @author 성효빈
      * @since 2026-03-02
      */
-    @PostMapping("/{id}/retry")
+    @PostMapping("/api/v1/admin/settlements/{id}/retry")
     @PreAuthorize(ADMIN_POINTCUT)
     @RetryFailedSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> retrySettlement(
@@ -119,7 +119,7 @@ public class SettlementController {
      * @author 성효빈
      * @since 2026-03-02
      */
-    @PostMapping("/{id}/cancel")
+    @PostMapping("/api/v1/admin/settlements/{id}/cancel")
     @PreAuthorize(ADMIN_POINTCUT)
     @CancelSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> cancelSettlement(
@@ -146,7 +146,7 @@ public class SettlementController {
      * @author 성효빈
      * @since 2026-03-02
      */
-    @PostMapping("/{id}/re-execute")
+    @PostMapping("/api/v1/admin/settlements/{id}/re-execute")
     @PreAuthorize(ADMIN_POINTCUT)
     @ReExecuteSettlementApiDocs
     public ResponseEntity<BaseResponse<Void>> reExecuteSettlement(
@@ -172,7 +172,7 @@ public class SettlementController {
      * @author 성효빈
      * @since 2026-03-02
      */
-    @GetMapping("/failed")
+    @GetMapping("/api/v1/admin/settlements/failed")
     @PreAuthorize(ADMIN_POINTCUT)
     @GetFailedSettlementsApiDocs
     public ResponseEntity<BaseResponse<GetSettlementsResponse>> getFailedSettlements() {
@@ -199,7 +199,7 @@ public class SettlementController {
      * @Date 2026-02-16
      * @Description 연/월 기준으로 정산 목록을 조회합니다.
      */
-    @GetMapping
+    @GetMapping("/api/v1/admin/settlements")
     @PreAuthorize(ADMIN_POINTCUT)
     @GetSettlementsApiDocs
     public ResponseEntity<BaseResponse<GetSettlementsResponse>> getSettlements(
@@ -230,7 +230,7 @@ public class SettlementController {
      * @Date 2026-02-16
      * @Description 정산 ID로 정산 상세 정보를 조회합니다.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/api/v1/admin/settlements/{id}")
     @PreAuthorize(ADMIN_POINTCUT)
     @GetSettlementApiDocs
     public ResponseEntity<BaseResponse<GetSettlementResponse>> getSettlement(
@@ -258,7 +258,7 @@ public class SettlementController {
      * @Date 2026-03-02
      * @Description 정산 ID로 해당 정산에 포함된 결제 배분(PaymentAllocation) 목록을 조회합니다.
      */
-    @GetMapping("/{id}/allocations")
+    @GetMapping("/api/v1/admin/settlements/{id}/allocations")
     @PreAuthorize(ADMIN_POINTCUT)
     @GetSettlementDetailApiDocs
     public ResponseEntity<BaseResponse<List<GetSettlementDetailResponse>>> getSettlementAllocations(
@@ -272,6 +272,42 @@ public class SettlementController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "정산 내역 상세 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 나의 정산 내역 조회
+     *
+     * @param year      정산 연도
+     * @param month     정산 월 (선택)
+     * @param principal 인증된 사용자 정보
+     * @return 판매자 정산 내역 조회 응답 {@link GetSellerSettlementsResponse}
+     * @Author 성효빈
+     * @Date 2026-03-02
+     * @Description 판매자 본인의 정산 내역을 조회합니다.
+     */
+    @GetMapping("/api/v1/sellers/me/settlements")
+    @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
+    @GetSellerSettlementsApiDocs
+    public ResponseEntity<BaseResponse<GetSellerSettlementsResponse>> getMySettlements(
+            @RequestParam @NotNull @Min(2020) @Max(2100) Integer year,
+            @RequestParam(required = false) @Min(1) @Max(12) Integer month,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long sellerId = ElementExtractor.extractUserId(principal);
+
+        GetSettlementsResult result = getSellerSettlementsUseCase.getSellerSettlements(
+                SellerSettlementRequestToQueryMapper.mapToQuery(sellerId, year, month)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetSellerSettlementsResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "나의 정산 내역 조회 성공"
                 ),
                 HttpStatus.OK
         );

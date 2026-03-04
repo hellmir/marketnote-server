@@ -50,11 +50,11 @@ public class ProcessSellerSettlementService {
      * 실패 시 해당 판매자의 정산만 FAILED 상태로 저장된다.
      * </p>
      *
-     * @param command            정산 실행 커맨드 (year, month)
-     * @param sellerId           판매자 ID
-     * @param sellerAllocations  판매자의 결제 배분 목록
-     * @param pgFeeRate          PG 수수료율 (basis point)
-     * @param platformFeeRate    플랫폼 수수료율 (basis point)
+     * @param command           정산 실행 커맨드 (year, month)
+     * @param sellerId          판매자 ID
+     * @param sellerAllocations 판매자의 결제 배분 목록
+     * @param pgFeeRate         PG 수수료율 (basis point)
+     * @param platformFeeRate   플랫폼 수수료율 (basis point)
      */
     @Transactional(isolation = READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void process(ExecuteSettlementCommand command, Long sellerId,

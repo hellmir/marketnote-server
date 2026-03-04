@@ -1,6 +1,9 @@
 package com.personal.marketnote.commerce.port.in.result.order;
 
-import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.CourierCompany;
+import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import lombok.AccessLevel;
 import lombok.Builder;

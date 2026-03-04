@@ -1,19 +1,19 @@
 package com.personal.marketnote.commerce.adapter.in.web.order.controller;
 
 import com.personal.marketnote.commerce.adapter.in.web.order.controller.apidocs.*;
+import com.personal.marketnote.commerce.adapter.in.web.order.mapper.AdminOrderRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.mapper.OrderRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterTrackingInfoRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusFilter;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHistoryQuery;
 import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProductReviewStatusCommand;
 import com.personal.marketnote.commerce.port.in.result.order.*;
-import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.RegisterOrderUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.UpdateOrderProductUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.order.*;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +24,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
+import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_PRINCIPAL_POINTCUT;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
 /**
@@ -37,14 +41,17 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
  * @Description 주문 관련 API를 제공합니다.
  */
 @RestController
-@RequestMapping("/api/v1/orders")
 @Tag(name = "주문 API", description = "주문 관련 API")
 @RequiredArgsConstructor
+@Validated
 public class OrderController {
     private final RegisterOrderUseCase registerOrderUseCase;
     private final GetOrderUseCase getOrderUseCase;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
+    private final GetAdminOrdersUseCase getAdminOrdersUseCase;
+    private final GetOrderStatusHistoryUseCase getOrderStatusHistoryUseCase;
+    private final RegisterTrackingInfoUseCase registerTrackingInfoUseCase;
 
     /**
      * 주문 등록
@@ -56,7 +63,7 @@ public class OrderController {
      * @Date 2026-01-05
      * @Description 주문을 등록합니다.
      */
-    @PostMapping
+    @PostMapping("/api/v1/orders")
     @RegisterOrderApiDocs
     public ResponseEntity<BaseResponse<RegisterOrderResponse>> registerOrder(
             @Valid @RequestBody RegisterOrderRequest request,
@@ -89,7 +96,7 @@ public class OrderController {
      * @Date 2026-02-25
      * @Description 주문 ID로 주문 키를 조회합니다. 구매자 소유자 검증을 수행합니다.
      */
-    @GetMapping("/{id}/order-key")
+    @GetMapping("/api/v1/orders/{id}/order-key")
     @GetOrderKeyApiDocs
     public ResponseEntity<BaseResponse<GetOrderKeyResponse>> getOrderKey(
             @PathVariable("id") Long id,
@@ -119,7 +126,7 @@ public class OrderController {
      * @Date 2026-01-05
      * @Description 주문 정보를 조회합니다. 구매자 소유자 검증을 수행합니다.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/api/v1/orders/{id}")
     @GetOrderInfoApiDocs
     public ResponseEntity<BaseResponse<GetOrderResponse>> getOrder(
             @PathVariable("id") Long id,
@@ -148,7 +155,7 @@ public class OrderController {
      * @Date 2026-01-05
      * @Description 나의 주문 내역을 조회합니다.
      */
-    @GetMapping("/me")
+    @GetMapping("/api/v1/orders/me")
     @GetOrdersApiDocs
     public ResponseEntity<BaseResponse<GetMyOrdersResponse>> getMyOrderHistory(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
@@ -189,7 +196,7 @@ public class OrderController {
      * @Date 2026-01-19
      * @Description 나의 주문 내역 개수를 조회합니다.
      */
-    @GetMapping("/me/count")
+    @GetMapping("/api/v1/orders/me/count")
     @GetOrdersCountApiDocs
     public ResponseEntity<BaseResponse<GetOrderCountResponse>> getMyOrderCount(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
@@ -227,7 +234,7 @@ public class OrderController {
      * @Date 2026-01-05
      * @Description 주문 상태를 변경합니다. 구매자 역할일 경우 허용된 상태만 변경 가능합니다.
      */
-    @PatchMapping("/{id}")
+    @PatchMapping("/api/v1/orders/{id}")
     @ChangeOrderStatusApiDocs
     public ResponseEntity<BaseResponse<Void>> changeOrderStatus(
             @PathVariable("id") Long id,
@@ -262,7 +269,7 @@ public class OrderController {
      * @Date 2026-01-12
      * @Description 주문 상품의 리뷰 작성 여부를 업데이트합니다.
      */
-    @PatchMapping("/{orderId}/order-products/{pricePolicyId}/review")
+    @PatchMapping("/api/v1/orders/{orderId}/order-products/{pricePolicyId}/review")
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdateOrderProductReviewStatusApiDocs
     public ResponseEntity<BaseResponse<Void>> updateOrderProductReviewStatus(
@@ -280,6 +287,102 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "리뷰 작성 여부 업데이트 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 관리자 주문 내역 조회
+     *
+     * @param sellerId    판매자 ID (선택)
+     * @param startDate   조회 시작 일시 (선택)
+     * @param endDate     조회 종료 일시 (선택)
+     * @param orderStatus 주문 상태 (선택)
+     * @return 주문 내역 조회 응답 {@link GetAdminOrdersResponse}
+     * @Author 성효빈
+     * @Date 2026-03-02
+     * @Description 관리자가 전체 주문 내역을 판매자별, 기간별, 상태별로 조회합니다.
+     */
+    @GetMapping("/api/v1/admin/orders")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetAdminOrdersApiDocs
+    public ResponseEntity<BaseResponse<GetAdminOrdersResponse>> getAdminOrders(
+            @RequestParam(required = false) Long sellerId,
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate,
+            @RequestParam(required = false) OrderStatus orderStatus
+    ) {
+        GetAdminOrdersResult result = getAdminOrdersUseCase.getAdminOrders(
+                AdminOrderRequestToCommandMapper.mapToQuery(sellerId, startDate, endDate, orderStatus)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetAdminOrdersResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "관리자 주문 내역 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 주문 상태 이력 조회
+     *
+     * @param id 주문 ID
+     * @return 주문 상태 이력 조회 응답 {@link GetOrderStatusHistoryResponse}
+     * @Author 성효빈
+     * @Date 2026-03-02
+     * @Description 관리자가 특정 주문의 상태 변경 이력을 조회합니다.
+     */
+    @GetMapping("/api/v1/admin/orders/{id}/status-history")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetOrderStatusHistoryApiDocs
+    public ResponseEntity<BaseResponse<GetOrderStatusHistoryResponse>> getOrderStatusHistory(
+            @PathVariable("id") Long id
+    ) {
+        GetOrderStatusHistoryResult result = getOrderStatusHistoryUseCase.getOrderStatusHistory(id);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetOrderStatusHistoryResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "주문 상태 이력 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 송장 정보 등록/수정
+     *
+     * @param id      주문 ID
+     * @param request 송장 정보 등록 요청 {@link RegisterTrackingInfoRequest}
+     * @return 송장 정보 등록 성공 응답
+     * @Author 성효빈
+     * @Date 2026-03-02
+     * @Description 주문의 송장 정보(택배사, 송장번호)를 등록/수정합니다.
+     */
+    @PutMapping("/api/v1/admin/orders/{id}/tracking")
+    @PreAuthorize(ADMIN_OR_SELLER_PRINCIPAL_POINTCUT)
+    @RegisterTrackingInfoApiDocs
+    public ResponseEntity<BaseResponse<Void>> registerTrackingInfo(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody RegisterTrackingInfoRequest request
+    ) {
+        registerTrackingInfoUseCase.registerTrackingInfo(
+                OrderRequestToCommandMapper.mapToTrackingInfoCommand(id, request)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "송장 정보 등록 성공"
                 ),
                 HttpStatus.OK
         );

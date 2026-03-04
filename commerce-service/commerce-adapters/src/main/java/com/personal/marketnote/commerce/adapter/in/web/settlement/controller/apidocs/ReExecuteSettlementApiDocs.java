@@ -22,25 +22,25 @@ import java.lang.annotation.*;
         summary = "(관리자) 정산 재실행",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - CANCELLED 상태의 정산을 재실행합니다.
-
+                
                 - 분개를 재기록하고 COMPLETED 상태로 전이합니다.
-
+                
                 - PaymentAllocation은 취소 시에도 연결 상태가 유지되므로 재할당하지 않습니다.
-
+                
                 - 분개 기록 중 실패하면 정산을 FAILED 상태로 저장합니다.
-
+                
                 ---
-
+                
                 ## Path Variable
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | id | number | 정산 ID | Y | 1 |

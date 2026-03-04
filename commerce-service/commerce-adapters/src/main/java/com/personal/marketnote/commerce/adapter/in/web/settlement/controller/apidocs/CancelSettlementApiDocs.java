@@ -22,23 +22,23 @@ import java.lang.annotation.*;
         summary = "(관리자) 정산 취소",
         description = """
                 작성일자: 2026-03-02
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - COMPLETED 상태의 정산을 취소합니다.
-
+                
                 - 역분개(reverse journal entry)를 기록하고 CANCELLED 상태로 전이합니다.
-
+                
                 - PaymentAllocation의 settlementId는 유지됩니다 (재실행 시 추적 가능).
-
+                
                 ---
-
+                
                 ## Path Variable
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | id | number | 정산 ID | Y | 1 |
