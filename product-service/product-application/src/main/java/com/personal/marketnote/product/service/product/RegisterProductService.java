@@ -10,6 +10,7 @@ import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPriceP
 import com.personal.marketnote.product.port.in.result.product.RegisterProductResult;
 import com.personal.marketnote.product.port.in.usecase.pricepolicy.RegisterPricePolicyUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.RegisterProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.fulfillment.RegisterFulfillmentVendorGoodsPort;
 import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
 import com.personal.marketnote.product.port.out.product.SaveProductPort;
@@ -26,6 +27,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RegisterProductService implements RegisterProductUseCase {
     private final RegisterPricePolicyUseCase registerPricePolicyUseCase;
     private final SaveProductPort saveProductPort;
+    private final PublishProductEventPort publishProductEventPort;
     private final RegisterInventoryPort registerInventoryPort;
     private final RegisterFulfillmentVendorGoodsPort registerFulfillmentVendorGoodsPort;
 
@@ -66,10 +68,15 @@ public class RegisterProductService implements RegisterProductUseCase {
             RegisterProductCommand command,
             Long pricePolicyId
     ) {
-        // FIXME: Kafka 이벤트 Production으로 변경
+        // Kafka 이벤트 발행 (비동기)
+        publishProductEventPort.publishProductRegisteredEvent(
+                savedProduct.getId(), pricePolicyId, command.sellerId()
+        );
+
+        // TODO: Kafka 검증 완료 후 HTTP 호출 제거
         registerInventoryPort.registerInventory(savedProduct.getId(), pricePolicyId);
 
-        // FIXME: Kafka 이벤트 Production으로 변경
+        // FIXME: Kafka 이벤트 Production으로 변경 (#935)
         registerFulfillmentVendorGoodsPort.registerFulfillmentVendorGoods(
                 FulfillmentVendorGoodsCommandMapper.mapToRegisterCommand(savedProduct, command.fulfillmentVendorGoods())
         );

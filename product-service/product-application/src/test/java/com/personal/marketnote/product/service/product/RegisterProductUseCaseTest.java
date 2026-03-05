@@ -11,6 +11,7 @@ import com.personal.marketnote.product.port.in.command.RegisterProductCommand;
 import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPricePolicyResult;
 import com.personal.marketnote.product.port.in.result.product.RegisterProductResult;
 import com.personal.marketnote.product.port.in.usecase.pricepolicy.RegisterPricePolicyUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.fulfillment.RegisterFulfillmentVendorGoodsCommand;
 import com.personal.marketnote.product.port.out.fulfillment.RegisterFulfillmentVendorGoodsPort;
 import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
@@ -37,6 +38,8 @@ class RegisterProductUseCaseTest {
     private RegisterPricePolicyUseCase registerPricePolicyUseCase;
     @Mock
     private SaveProductPort saveProductPort;
+    @Mock
+    private PublishProductEventPort publishProductEventPort;
     @Mock
     private RegisterInventoryPort registerInventoryPort;
     @Mock
@@ -87,6 +90,7 @@ class RegisterProductUseCaseTest {
         assertThat(pricePolicyCommand.accumulatedPoint()).isEqualTo(command.accumulatedPoint());
         assertThat(pricePolicyCommand.optionIds()).isNull();
 
+        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId());
         verify(registerInventoryPort).registerInventory(10L, 100L);
 
         ArgumentCaptor<RegisterFulfillmentVendorGoodsCommand> fulfillmentCaptor =
@@ -103,6 +107,7 @@ class RegisterProductUseCaseTest {
         verifyNoMoreInteractions(
                 registerPricePolicyUseCase,
                 saveProductPort,
+                publishProductEventPort,
                 registerInventoryPort,
                 registerFulfillmentVendorGoodsPort
         );
@@ -121,6 +126,8 @@ class RegisterProductUseCaseTest {
         )).thenReturn(RegisterPricePolicyResult.of(101L));
 
         registerProductService.registerProduct(command);
+
+        verify(publishProductEventPort).publishProductRegisteredEvent(11L, 101L, command.sellerId());
 
         ArgumentCaptor<RegisterFulfillmentVendorGoodsCommand> fulfillmentCaptor =
                 ArgumentCaptor.forClass(RegisterFulfillmentVendorGoodsCommand.class);
@@ -148,7 +155,7 @@ class RegisterProductUseCaseTest {
         verify(registerPricePolicyUseCase).registerPricePolicy(
                 eq(command.sellerId()), eq(false), any(RegisterPricePolicyCommand.class)
         );
-        verifyNoInteractions(registerInventoryPort, registerFulfillmentVendorGoodsPort);
+        verifyNoInteractions(publishProductEventPort, registerInventoryPort, registerFulfillmentVendorGoodsPort);
     }
 
     @Test
@@ -167,6 +174,7 @@ class RegisterProductUseCaseTest {
         assertThatThrownBy(() -> registerProductService.registerProduct(command))
                 .isInstanceOf(IllegalStateException.class);
 
+        verify(publishProductEventPort).publishProductRegisteredEvent(30L, 200L, command.sellerId());
         verify(registerFulfillmentVendorGoodsPort, never()).registerFulfillmentVendorGoods(any());
     }
 
@@ -188,6 +196,7 @@ class RegisterProductUseCaseTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("godType");
 
+        verify(publishProductEventPort).publishProductRegisteredEvent(40L, 300L, command.sellerId());
         verify(registerInventoryPort).registerInventory(40L, 300L);
         verify(registerFulfillmentVendorGoodsPort, never()).registerFulfillmentVendorGoods(any());
     }
@@ -207,6 +216,7 @@ class RegisterProductUseCaseTest {
                 .isInstanceOf(ProductInfoNoValueException.class)
                 .hasMessageContaining("상품 ID가 존재하지 않습니다.");
 
+        verify(publishProductEventPort).publishProductRegisteredEvent(null, 400L, command.sellerId());
         verify(registerInventoryPort).registerInventory(null, 400L);
         verify(registerFulfillmentVendorGoodsPort, never()).registerFulfillmentVendorGoods(any());
     }
