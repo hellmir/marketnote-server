@@ -10,6 +10,7 @@ import com.personal.marketnote.product.port.in.command.RegisterPricePolicyComman
 import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPricePolicyResult;
 import com.personal.marketnote.product.port.in.usecase.pricepolicy.RegisterPricePolicyUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
 import com.personal.marketnote.product.port.out.pricepolicy.SavePricePolicyPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
@@ -32,6 +33,7 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
     private final FindProductPort findProductPort;
     private final SavePricePolicyPort savePricePolicyPort;
     private final UpdateOptionPricePolicyPort updateOptionPricePolicyPort;
+    private final PublishProductEventPort publishProductEventPort;
     private final RegisterInventoryPort registerInventoryPort;
 
     @Override
@@ -63,6 +65,9 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
+                    publishProductEventPort.publishPricePolicyCreatedEvent(productId, pricePolicyId);
+
+                    // TODO: Kafka 검증 완료 후 HTTP 호출 제거 (#1017)
                     registerInventoryPort.registerInventory(productId, pricePolicyId);
                 }
             });
@@ -70,6 +75,9 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             return;
         }
 
+        publishProductEventPort.publishPricePolicyCreatedEvent(productId, pricePolicyId);
+
+        // TODO: Kafka 검증 완료 후 HTTP 호출 제거 (#1017)
         registerInventoryPort.registerInventory(productId, pricePolicyId);
     }
 }
