@@ -90,7 +90,7 @@ class RegisterProductUseCaseTest {
         assertThat(pricePolicyCommand.accumulatedPoint()).isEqualTo(command.accumulatedPoint());
         assertThat(pricePolicyCommand.optionIds()).isNull();
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId());
+        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId(), "테스트 상품", "1");
         verify(registerInventoryPort).registerInventory(10L, 100L);
 
         ArgumentCaptor<RegisterFulfillmentVendorGoodsCommand> fulfillmentCaptor =
@@ -127,7 +127,7 @@ class RegisterProductUseCaseTest {
 
         registerProductService.registerProduct(command);
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(11L, 101L, command.sellerId());
+        verify(publishProductEventPort).publishProductRegisteredEvent(11L, 101L, command.sellerId(), "테스트 상품", "2");
 
         ArgumentCaptor<RegisterFulfillmentVendorGoodsCommand> fulfillmentCaptor =
                 ArgumentCaptor.forClass(RegisterFulfillmentVendorGoodsCommand.class);
@@ -174,7 +174,7 @@ class RegisterProductUseCaseTest {
         assertThatThrownBy(() -> registerProductService.registerProduct(command))
                 .isInstanceOf(IllegalStateException.class);
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(30L, 200L, command.sellerId());
+        verify(publishProductEventPort).publishProductRegisteredEvent(30L, 200L, command.sellerId(), "테스트 상품", "1");
         verify(registerFulfillmentVendorGoodsPort, never()).registerFulfillmentVendorGoods(any());
     }
 
@@ -196,7 +196,7 @@ class RegisterProductUseCaseTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("godType");
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(40L, 300L, command.sellerId());
+        verify(publishProductEventPort).publishProductRegisteredEvent(40L, 300L, command.sellerId(), "테스트 상품", "1");
         verify(registerInventoryPort).registerInventory(40L, 300L);
         verify(registerFulfillmentVendorGoodsPort, never()).registerFulfillmentVendorGoods(any());
     }
@@ -216,7 +216,7 @@ class RegisterProductUseCaseTest {
                 .isInstanceOf(ProductInfoNoValueException.class)
                 .hasMessageContaining("상품 ID가 존재하지 않습니다.");
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(null, 400L, command.sellerId());
+        verify(publishProductEventPort).publishProductRegisteredEvent(null, 400L, command.sellerId(), "테스트 상품", "1");
         verify(registerInventoryPort).registerInventory(null, 400L);
         verify(registerFulfillmentVendorGoodsPort, never()).registerFulfillmentVendorGoods(any());
     }

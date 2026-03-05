@@ -21,8 +21,8 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
     private final Clock clock;
 
     @Override
-    public void publishProductRegisteredEvent(Long productId, Long pricePolicyId, Long sellerId) {
-        ProductRegisteredEvent payload = new ProductRegisteredEvent(productId, pricePolicyId, sellerId);
+    public void publishProductRegisteredEvent(Long productId, Long pricePolicyId, Long sellerId, String productName, String godType) {
+        ProductRegisteredEvent payload = new ProductRegisteredEvent(productId, pricePolicyId, sellerId, productName, godType);
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
                 KafkaTopicConstants.PRODUCT_REGISTERED,
                 SOURCE,
