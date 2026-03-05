@@ -3,6 +3,7 @@ package com.personal.marketnote.product.adapter.out.event;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,29 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
                     } else {
                         log.info("Kafka 이벤트 발행 성공. topic={}, productId={}, pricePolicyId={}, sellerId={}, offset={}",
                                 KafkaTopicConstants.PRODUCT_REGISTERED, productId, pricePolicyId, sellerId,
+                                result.getRecordMetadata().offset());
+                    }
+                });
+    }
+
+    @Override
+    public void publishPricePolicyCreatedEvent(Long productId, Long pricePolicyId) {
+        PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(productId, pricePolicyId);
+        EventEnvelope<PricePolicyCreatedEvent> envelope = EventEnvelope.of(
+                KafkaTopicConstants.PRICE_POLICY_CREATED,
+                SOURCE,
+                payload,
+                clock
+        );
+
+        kafkaTemplate.send(KafkaTopicConstants.PRICE_POLICY_CREATED, productId.toString(), envelope)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Kafka 이벤트 발행 실패. topic={}, productId={}, pricePolicyId={}",
+                                KafkaTopicConstants.PRICE_POLICY_CREATED, productId, pricePolicyId, ex);
+                    } else {
+                        log.info("Kafka 이벤트 발행 성공. topic={}, productId={}, pricePolicyId={}, offset={}",
+                                KafkaTopicConstants.PRICE_POLICY_CREATED, productId, pricePolicyId,
                                 result.getRecordMetadata().offset());
                     }
                 });
