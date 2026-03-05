@@ -2,6 +2,7 @@ package com.personal.marketnote.product.adapter.out.event;
 
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -91,5 +92,55 @@ class ProductEventKafkaProducerTest {
         assertThat(payload.sellerId()).isEqualTo(30L);
         assertThat(payload.productName()).isEqualTo("상품명");
         assertThat(payload.godType()).isEqualTo("2");
+    }
+
+    @Test
+    @DisplayName("가격 정책 생성 이벤트 발행 시 올바른 토픽과 파티션 키로 전송된다")
+    void publishPricePolicyCreatedEvent_sendsToCorrectTopicWithProductIdKey() {
+        // given
+        setUpClock("2026-02-27T10:00:00Z");
+        when(kafkaTemplate.send(any(String.class), any(String.class), any()))
+                .thenReturn(new CompletableFuture<>());
+
+        // when
+        productEventKafkaProducer.publishPricePolicyCreatedEvent(1L, 2L);
+
+        // then
+        verify(kafkaTemplate).send(
+                eq(KafkaTopicConstants.PRICE_POLICY_CREATED),
+                eq("1"),
+                any(EventEnvelope.class)
+        );
+    }
+
+    @Test
+    @DisplayName("가격 정책 생성 이벤트 발행 시 EventEnvelope에 올바른 페이로드가 포함된다")
+    @SuppressWarnings("unchecked")
+    void publishPricePolicyCreatedEvent_envelopeContainsCorrectPayload() {
+        // given
+        setUpClock("2026-02-27T10:00:00Z");
+        when(kafkaTemplate.send(any(String.class), any(String.class), any()))
+                .thenReturn(new CompletableFuture<>());
+
+        // when
+        productEventKafkaProducer.publishPricePolicyCreatedEvent(10L, 20L);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(kafkaTemplate).send(
+                eq(KafkaTopicConstants.PRICE_POLICY_CREATED),
+                eq("10"),
+                envelopeCaptor.capture()
+        );
+
+        EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+        assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.PRICE_POLICY_CREATED);
+        assertThat(capturedEnvelope.source()).isEqualTo("product-service");
+        assertThat(capturedEnvelope.eventId()).isNotNull();
+        assertThat(capturedEnvelope.timestamp()).isNotNull();
+
+        PricePolicyCreatedEvent payload = (PricePolicyCreatedEvent) capturedEnvelope.payload();
+        assertThat(payload.productId()).isEqualTo(10L);
+        assertThat(payload.pricePolicyId()).isEqualTo(20L);
     }
 }
