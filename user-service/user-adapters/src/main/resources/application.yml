@@ -33,6 +33,11 @@ spring:
       port: 6379
       password: ${REDIS_PASSWORD:password}
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:172.0.0.0:9092,172.0.0.1:9092,172.0.0.2:9092}
+    consumer:
+      group-id: ${spring.application.name}
+
   jwt:
     secret: ${JWT_SECRET_KEY:dev-secret-change-me}
     admin-access-token: ${JWT_ADMIN_ACCESS_TOKEN:abc}

@@ -50,6 +50,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security") // Spring Security
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server") // OAuth 2.0 Resource server
 
+    // Spring Kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
     //querydsl 설정
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
     annotationProcessor("jakarta.persistence:jakarta.persistence-api:3.1.0")
@@ -85,6 +88,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test") // Spring Security 테스트 지원
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") // JUnit 테스트 런처
     testImplementation("org.awaitility:awaitility:4.2.0") // 비동기,스케줄링 테스트 지원
+    testImplementation("org.springframework.kafka:spring-kafka-test")
     // 🔹 추가 라이브러리
     // dotenv
     implementation("io.github.cdimascio:dotenv-java:$dotenvVersion")
