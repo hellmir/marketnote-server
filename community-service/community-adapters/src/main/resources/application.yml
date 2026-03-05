@@ -38,7 +38,7 @@ spring:
       password: ${REDIS_PASSWORD:password}
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:172.26.45.222:9092,172.26.21.200:9092,172.26.2.195:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:172.0.0.0:9092,172.0.0.1:9092,172.0.0.2:9092}
     consumer:
       group-id: ${spring.application.name}
 
