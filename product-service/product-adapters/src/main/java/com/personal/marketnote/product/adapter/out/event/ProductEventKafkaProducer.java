@@ -5,6 +5,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +64,28 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
                     } else {
                         log.info("Kafka 이벤트 발행 성공. topic={}, productId={}, pricePolicyId={}, offset={}",
                                 KafkaTopicConstants.PRICE_POLICY_CREATED, productId, pricePolicyId,
+                                result.getRecordMetadata().offset());
+                    }
+                });
+    }
+
+    @Override
+    public void publishProductUpdatedEvent(ProductUpdatedEvent payload) {
+        EventEnvelope<ProductUpdatedEvent> envelope = EventEnvelope.of(
+                KafkaTopicConstants.PRODUCT_UPDATED,
+                SOURCE,
+                payload,
+                clock
+        );
+
+        kafkaTemplate.send(KafkaTopicConstants.PRODUCT_UPDATED, payload.productId().toString(), envelope)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Kafka 이벤트 발행 실패. topic={}, productId={}",
+                                KafkaTopicConstants.PRODUCT_UPDATED, payload.productId(), ex);
+                    } else {
+                        log.info("Kafka 이벤트 발행 성공. topic={}, productId={}, offset={}",
+                                KafkaTopicConstants.PRODUCT_UPDATED, payload.productId(),
                                 result.getRecordMetadata().offset());
                     }
                 });
