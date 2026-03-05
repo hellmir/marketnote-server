@@ -1,13 +1,16 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.mapper.FulfillmentVendorGoodsCommandMapper;
+import com.personal.marketnote.product.mapper.ProductUpdatedEventMapper;
 import com.personal.marketnote.product.port.in.command.UpdateProductCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.UpdateProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsCommand;
 import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
@@ -28,6 +31,7 @@ public class UpdateProductService implements UpdateProductUseCase {
     private final FindProductPort findProductPort;
     private final UpdateProductPort updateProductPort;
     private final UpdateFulfillmentVendorGoodsPort updateFulfillmentVendorGoodsPort;
+    private final PublishProductEventPort publishProductEventPort;
 
     @Override
     public void update(Long userId, boolean isAdmin, UpdateProductCommand command) {
@@ -47,7 +51,12 @@ public class UpdateProductService implements UpdateProductUseCase {
         if (FormatValidator.hasValue(command.fulfillmentVendorGoods())) {
             UpdateFulfillmentVendorGoodsCommand updateCommand =
                     FulfillmentVendorGoodsCommandMapper.mapToUpdateCommand(product, command.fulfillmentVendorGoods());
-            runAfterCommit(() -> updateFulfillmentVendorGoodsPort.updateFulfillmentVendorGoods(updateCommand));
+            ProductUpdatedEvent productUpdatedEvent =
+                    ProductUpdatedEventMapper.mapToEvent(product, command.fulfillmentVendorGoods());
+            runAfterCommit(() -> {
+                updateFulfillmentVendorGoodsPort.updateFulfillmentVendorGoods(updateCommand);
+                publishProductEventPort.publishProductUpdatedEvent(productUpdatedEvent);
+            });
         }
     }
 

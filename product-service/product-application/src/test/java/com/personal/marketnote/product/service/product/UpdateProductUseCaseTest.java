@@ -8,8 +8,10 @@ import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductInfoNoValueException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.in.command.FulfillmentVendorGoodsOptionCommand;
+import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.product.port.in.command.UpdateProductCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsCommand;
 import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
@@ -38,6 +40,8 @@ class UpdateProductUseCaseTest {
     private UpdateProductPort updateProductPort;
     @Mock
     private UpdateFulfillmentVendorGoodsPort updateFulfillmentVendorGoodsPort;
+    @Mock
+    private PublishProductEventPort publishProductEventPort;
 
     @InjectMocks
     private UpdateProductService updateProductService;
@@ -55,7 +59,7 @@ class UpdateProductUseCaseTest {
                 .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
-        verifyNoInteractions(getProductUseCase, updateProductPort, updateFulfillmentVendorGoodsPort);
+        verifyNoInteractions(getProductUseCase, updateProductPort, updateFulfillmentVendorGoodsPort, publishProductEventPort);
     }
 
     @Test
@@ -87,7 +91,7 @@ class UpdateProductUseCaseTest {
                 .containsOnly(11L);
 
         verify(getProductUseCase).getProduct(11L);
-        verifyNoInteractions(findProductPort, updateFulfillmentVendorGoodsPort);
+        verifyNoInteractions(findProductPort, updateFulfillmentVendorGoodsPort, publishProductEventPort);
     }
 
     @Test
@@ -113,6 +117,15 @@ class UpdateProductUseCaseTest {
         UpdateFulfillmentVendorGoodsCommand expected =
                 buildExpectedUpdateCommand(command.id(), command.name(), options);
         assertThat(fulfillmentCaptor.getValue()).isEqualTo(expected);
+
+        ArgumentCaptor<ProductUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(ProductUpdatedEvent.class);
+        verify(publishProductEventPort).publishProductUpdatedEvent(eventCaptor.capture());
+
+        ProductUpdatedEvent capturedEvent = eventCaptor.getValue();
+        assertThat(capturedEvent.productId()).isEqualTo(20L);
+        assertThat(capturedEvent.productName()).isEqualTo("변경 상품");
+        assertThat(capturedEvent.godType()).isEqualTo(options.godType());
+        assertThat(capturedEvent.giftDiv()).isEqualTo(options.giftDiv());
     }
 
     @Test
@@ -127,7 +140,7 @@ class UpdateProductUseCaseTest {
                 .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(30L);
-        verifyNoInteractions(findProductPort, updateProductPort, updateFulfillmentVendorGoodsPort);
+        verifyNoInteractions(findProductPort, updateProductPort, updateFulfillmentVendorGoodsPort, publishProductEventPort);
     }
 
     @Test
@@ -147,7 +160,7 @@ class UpdateProductUseCaseTest {
                 .isSameAs(exception);
 
         verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort);
+        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
     }
 
     @Test
@@ -168,7 +181,7 @@ class UpdateProductUseCaseTest {
                 .hasMessageContaining("godType");
 
         verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort);
+        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
     }
 
     @Test
@@ -185,7 +198,7 @@ class UpdateProductUseCaseTest {
                 .hasMessageContaining("상품 ID가 존재하지 않습니다");
 
         verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort);
+        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
     }
 
     @Test
@@ -202,7 +215,7 @@ class UpdateProductUseCaseTest {
                 .hasMessageContaining("상품명이 존재하지 않습니다");
 
         verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort);
+        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
     }
 
     private UpdateProductCommand buildCommand(Long id, FulfillmentVendorGoodsOptionCommand fulfillmentVendorGoods) {
