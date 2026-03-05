@@ -65,6 +65,9 @@ dependencies {
     // UUID v7
     implementation("com.github.f4b6a3:uuid-creator:5.3.0")
 
+    // kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
