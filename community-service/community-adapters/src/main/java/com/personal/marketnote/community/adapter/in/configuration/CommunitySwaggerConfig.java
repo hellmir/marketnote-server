@@ -105,6 +105,9 @@ public class CommunitySwaggerConfig {
                         .description("""
                                 마켓노트 서비스 커뮤니티 API 서버입니다.
                                 
+                                ### 개발
+                                성효빈
+                                
                                 ### 서비스 목록
                                 - [회원 서비스](https://users.marketnote.store/swagger-ui/index.html)
                                 

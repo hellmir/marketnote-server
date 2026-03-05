@@ -1,9 +1,11 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.mapper.FulfillmentVendorGoodsCommandMapper;
 import com.personal.marketnote.product.mapper.ProductCommandToStateMapper;
+import com.personal.marketnote.product.port.in.command.FulfillmentVendorGoodsOptionCommand;
 import com.personal.marketnote.product.port.in.command.RegisterPricePolicyCommand;
 import com.personal.marketnote.product.port.in.command.RegisterProductCommand;
 import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPricePolicyResult;
@@ -25,6 +27,8 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
 public class RegisterProductService implements RegisterProductUseCase {
+    private static final String DEFAULT_GOD_TYPE = "1";
+
     private final RegisterPricePolicyUseCase registerPricePolicyUseCase;
     private final SaveProductPort saveProductPort;
     private final PublishProductEventPort publishProductEventPort;
@@ -69,14 +73,19 @@ public class RegisterProductService implements RegisterProductUseCase {
             Long pricePolicyId
     ) {
         // Kafka 이벤트 발행 (비동기)
+        FulfillmentVendorGoodsOptionCommand fulfillmentOptions = command.fulfillmentVendorGoods();
+        String godType = FormatValidator.hasValue(fulfillmentOptions) && FormatValidator.hasValue(fulfillmentOptions.godType())
+                ? fulfillmentOptions.godType()
+                : DEFAULT_GOD_TYPE;
+
         publishProductEventPort.publishProductRegisteredEvent(
-                savedProduct.getId(), pricePolicyId, command.sellerId()
+                savedProduct.getId(), pricePolicyId, command.sellerId(), savedProduct.getName(), godType
         );
 
         // TODO: Kafka 검증 완료 후 HTTP 호출 제거
         registerInventoryPort.registerInventory(savedProduct.getId(), pricePolicyId);
 
-        // FIXME: Kafka 이벤트 Production으로 변경 (#935)
+        // TODO: Kafka 검증 완료 후 HTTP 호출 제거 (#934)
         registerFulfillmentVendorGoodsPort.registerFulfillmentVendorGoods(
                 FulfillmentVendorGoodsCommandMapper.mapToRegisterCommand(savedProduct, command.fulfillmentVendorGoods())
         );
