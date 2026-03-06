@@ -5,6 +5,7 @@ import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.RegisterReferredUserCodeUseCase;
+import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RegisterReferredUserCodeService implements RegisterReferredUserCodeUseCase {
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserPort updateUserPort;
+    private final PublishUserEventPort publishUserEventPort;
     private final ModifyUserPointPort modifyUserPointPort;
 
     @Override
@@ -39,9 +41,12 @@ public class RegisterReferredUserCodeService implements RegisterReferredUserCode
         User referredUser = getUserUseCase.getUser(referredUserCode);
 
         // 추천한 회원/추천 받은 회원 포인트 적립 요청
-        // FIXME: Kafka 이벤트 Production으로 변경
         try {
-            runAfterCommit(() -> modifyUserPointPort.accrueReferralPoints(requestUser.getId(), referredUser.getId()));
+            runAfterCommit(() -> {
+                publishUserEventPort.publishUserReferralCompletedEvent(requestUser.getId(), referredUser.getId());
+                modifyUserPointPort.accrueReferralPoints(requestUser.getId(), referredUser.getId());
+                // TODO: Kafka 검증 완료 후 HTTP 호출 제거
+            });
         } catch (Exception e) {
             requestUser.removeReferredUserCode();
             updateUserPort.update(requestUser);
