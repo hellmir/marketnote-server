@@ -6,6 +6,7 @@ import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,8 @@ class RegisterReferredUserCodeUseCaseTest {
     @Mock
     private UpdateUserPort updateUserPort;
     @Mock
+    private PublishUserEventPort publishUserEventPort;
+    @Mock
     private ModifyUserPointPort modifyUserPointPort;
 
     @InjectMocks
@@ -53,7 +56,7 @@ class RegisterReferredUserCodeUseCaseTest {
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verifyNoMoreInteractions(getUserUseCase);
-        verifyNoInteractions(updateUserPort, modifyUserPointPort);
+        verifyNoInteractions(updateUserPort, publishUserEventPort, modifyUserPointPort);
     }
 
     @Test
@@ -82,11 +85,12 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(updateUserPort).update(requestUser);
         verify(getUserUseCase).getUser(referredUserCode);
-        verify(referredUser).getId();
-        verify(requestUser).getId();
+        verify(referredUser, times(2)).getId();
+        verify(requestUser, times(2)).getId();
+        verify(publishUserEventPort).publishUserReferralCompletedEvent(requestUserId, referredUserId);
         verify(modifyUserPointPort).accrueReferralPoints(requestUserId, referredUserId);
         verify(requestUser, never()).removeReferredUserCode();
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, modifyUserPointPort, referredUser);
+        verifyNoMoreInteractions(getUserUseCase, updateUserPort, publishUserEventPort, modifyUserPointPort, referredUser);
     }
 
     @Test
@@ -112,7 +116,7 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(getUserUseCase).getUser(requestUserId);
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(getUserUseCase, never()).getUser(referredUserCode);
-        verifyNoInteractions(updateUserPort, modifyUserPointPort);
+        verifyNoInteractions(updateUserPort, publishUserEventPort, modifyUserPointPort);
         verifyNoMoreInteractions(getUserUseCase);
     }
 
@@ -146,11 +150,12 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(updateUserPort, times(2)).update(requestUser);
         verify(getUserUseCase).getUser(referredUserCode);
-        verify(referredUser).getId();
-        verify(requestUser).getId();
+        verify(referredUser, times(2)).getId();
+        verify(requestUser, times(2)).getId();
+        verify(publishUserEventPort).publishUserReferralCompletedEvent(requestUserId, referredUserId);
         verify(modifyUserPointPort).accrueReferralPoints(requestUserId, referredUserId);
         verify(requestUser).removeReferredUserCode();
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, modifyUserPointPort, referredUser);
+        verifyNoMoreInteractions(getUserUseCase, updateUserPort, publishUserEventPort, modifyUserPointPort, referredUser);
     }
 
     @Test
@@ -171,7 +176,7 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
         verify(getUserUseCase, never()).getUser(referredUserCode);
-        verifyNoInteractions(updateUserPort, modifyUserPointPort);
+        verifyNoInteractions(updateUserPort, publishUserEventPort, modifyUserPointPort);
         verifyNoMoreInteractions(getUserUseCase);
     }
 
@@ -199,7 +204,7 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(updateUserPort).update(requestUser);
         verify(getUserUseCase).getUser(referredUserCode);
-        verifyNoInteractions(modifyUserPointPort);
+        verifyNoInteractions(publishUserEventPort, modifyUserPointPort);
         verify(requestUser, never()).removeReferredUserCode();
         verifyNoMoreInteractions(getUserUseCase, updateUserPort);
     }
