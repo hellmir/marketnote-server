@@ -15,6 +15,7 @@ import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.SignUpUseCase;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
+import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -44,6 +45,7 @@ public class SignUpService implements SignUpUseCase {
     private final VerifyCodePort verifyCodePort;
     private final SaveLoginHistoryPort saveLoginHistoryPort;
     private final ModifyUserPointPort modifyUserPointPort;
+    private final PublishUserEventPort publishUserEventPort;
 
     @Override
     public SignUpResult signUp(SignUpCommand signUpCommand, AuthVendor authVendor, String oidcId, String ipAddress) {
@@ -149,12 +151,14 @@ public class SignUpService implements SignUpUseCase {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    modifyUserPointPort.registerUserPoint(userId, userKey);
+                    publishUserEventPort.publishUserSignupCompletedEvent(userId, userKey);
+                    modifyUserPointPort.registerUserPoint(userId, userKey); // TODO: Kafka 검증 완료 후 HTTP 호출 제거
                 }
             });
             return;
         }
 
-        modifyUserPointPort.registerUserPoint(userId, userKey);
+        publishUserEventPort.publishUserSignupCompletedEvent(userId, userKey);
+        modifyUserPointPort.registerUserPoint(userId, userKey); // TODO: Kafka 검증 완료 후 HTTP 호출 제거
     }
 }
