@@ -11,6 +11,7 @@ import com.personal.marketnote.community.port.in.command.review.RegisterReviewCo
 import com.personal.marketnote.community.port.in.result.review.RegisterReviewResult;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.RegisterReviewUseCase;
+import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import com.personal.marketnote.community.port.out.order.UpdateOrderProductReviewStatusPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
@@ -28,6 +29,7 @@ public class RegisterReviewService implements RegisterReviewUseCase {
     private final GetReviewUseCase getReviewUseCase;
     private final SaveReviewPort saveReviewPort;
     private final UpdateReviewPort updateReviewPort;
+    private final PublishReviewEventPort publishReviewEventPort;
     private final UpdateOrderProductReviewStatusPort updateOrderProductReviewStatusPort;
 
     @Override
@@ -61,15 +63,18 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         }
 
         // 주문 상품의 리뷰 작성 여부를 true로 업데이트
-        // FIXME: Kafka 이벤트 Production으로 변경
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
+                    publishReviewEventPort.publishReviewRegisteredEvent(orderId, pricePolicyId);
+                    // TODO: Kafka 검증 완료 후 HTTP 호출 제거
                     updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
                 }
             });
         } else {
+            publishReviewEventPort.publishReviewRegisteredEvent(orderId, pricePolicyId);
+            // TODO: Kafka 검증 완료 후 HTTP 호출 제거
             updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
         }
 
