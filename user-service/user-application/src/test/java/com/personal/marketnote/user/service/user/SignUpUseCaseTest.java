@@ -12,6 +12,7 @@ import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
+import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -51,6 +52,8 @@ class SignUpUseCaseTest {
     private SaveLoginHistoryPort saveLoginHistoryPort;
     @Mock
     private ModifyUserPointPort modifyUserPointPort;
+    @Mock
+    private PublishUserEventPort publishUserEventPort;
 
     @InjectMocks
     private SignUpService signUpService;
@@ -87,6 +90,7 @@ class SignUpUseCaseTest {
         assertThat(result.roleId()).isEqualTo("ROLE_BUYER");
 
         verify(saveUserPort).save(any(User.class));
+        verify(publishUserEventPort).publishUserSignupCompletedEvent(1L, userKey.toString());
         verify(modifyUserPointPort).registerUserPoint(1L, userKey.toString());
         verify(saveLoginHistoryPort).saveLoginHistory(any(LoginHistory.class));
         verify(updateUserPort, never()).update(any());
@@ -121,6 +125,7 @@ class SignUpUseCaseTest {
 
         verify(updateUserPort).update(existingUser);
         verify(saveLoginHistoryPort).saveLoginHistory(any(LoginHistory.class));
+        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(anyLong(), anyString());
         verify(modifyUserPointPort, never()).registerUserPoint(anyLong(), anyString());
         verify(saveUserPort, never()).save(any());
     }
@@ -135,7 +140,7 @@ class SignUpUseCaseTest {
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1"))
                 .isInstanceOf(PasswordNoValueException.class);
 
-        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, findTermsPort, verifyCodePort, getUserUseCase);
+        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, publishUserEventPort, findTermsPort, verifyCodePort, getUserUseCase);
     }
 
     @Test
@@ -153,7 +158,7 @@ class SignUpUseCaseTest {
                 .isInstanceOf(UserExistsException.class);
 
         verify(verifyCodePort, never()).verify(anyString(), anyString());
-        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, findTermsPort, getUserUseCase);
+        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, publishUserEventPort, findTermsPort, getUserUseCase);
     }
 
     @Test
@@ -171,7 +176,7 @@ class SignUpUseCaseTest {
                 .isInstanceOf(UserExistsException.class);
 
         verify(verifyCodePort, never()).verify(anyString(), anyString());
-        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, findTermsPort, getUserUseCase);
+        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, publishUserEventPort, findTermsPort, getUserUseCase);
     }
 
     @Test
@@ -191,7 +196,7 @@ class SignUpUseCaseTest {
                 .isInstanceOf(UserExistsException.class);
 
         verify(verifyCodePort, never()).verify(anyString(), anyString());
-        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, findTermsPort, getUserUseCase);
+        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, modifyUserPointPort, publishUserEventPort, findTermsPort, getUserUseCase);
     }
 
     @Test
@@ -210,6 +215,7 @@ class SignUpUseCaseTest {
                 .isInstanceOf(InvalidVerificationCodeException.class);
 
         verify(saveUserPort, never()).save(any());
+        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(anyLong(), anyString());
         verify(modifyUserPointPort, never()).registerUserPoint(anyLong(), anyString());
         verify(saveLoginHistoryPort, never()).saveLoginHistory(any());
     }
@@ -237,6 +243,7 @@ class SignUpUseCaseTest {
 
         verify(updateUserPort, never()).update(any());
         verify(saveUserPort, never()).save(any());
+        verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(anyLong(), anyString());
         verify(modifyUserPointPort, never()).registerUserPoint(anyLong(), anyString());
     }
 
