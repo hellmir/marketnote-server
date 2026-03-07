@@ -1,5 +1,7 @@
 package com.personal.marketnote.reward.domain.point;
 
+import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
+import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -52,6 +54,31 @@ public class UserPoint {
 
     public void changeAmount(boolean isAccrual, Long amount) {
         this.amount = PointAmount.generateChangedAmount(isAccrual, this.amount, amount);
+    }
+
+    public void addPendingAmount(Long amount) {
+        validatePendingAmount(amount);
+        this.addExpectedAmount = Math.addExact(this.addExpectedAmount, amount);
+    }
+
+    public void deductPendingAmount(Long amount) {
+        validatePendingAmount(amount);
+        if (!hasSufficientPendingAmount(amount)) {
+            throw new InsufficientPendingPointAmountException(this.addExpectedAmount, amount);
+        }
+        this.addExpectedAmount = Math.subtractExact(this.addExpectedAmount, amount);
+    }
+
+    public boolean hasSufficientPendingAmount(Long amount) {
+        return this.addExpectedAmount >= amount;
+    }
+
+    private void validatePendingAmount(Long amount) {
+        if (amount <= 0) {
+            throw new InvalidPointAmountException(
+                    String.format("적립 예정 포인트 금액은 0보다 커야 합니다. 요청 금액: %d", amount)
+            );
+        }
     }
 
     public Long getAmountValue() {
