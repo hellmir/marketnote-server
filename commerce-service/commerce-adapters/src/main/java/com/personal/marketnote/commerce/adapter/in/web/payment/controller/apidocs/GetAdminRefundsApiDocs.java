@@ -28,7 +28,7 @@ import java.lang.annotation.*;
                 
                 ## Description
                 
-                - 관리자가 주문 ID에 해당하는 환불 상세 목록을 조회합니다.
+                관리자가 주문 ID에 해당하는 환불 상세 목록을 조회합니다.
                 
                 ---
                 

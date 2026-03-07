@@ -44,7 +44,6 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
     @Override
     public ApprovePaymentResult approve(ApprovePaymentCommand command) {
         UUID orderKey = UUID.fromString(command.orderKey());
-
         Payment payment = findPaymentPort.findByOrderKey(orderKey)
                 .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
 
@@ -55,30 +54,11 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
                 .orElseGet(() -> PspPaymentEvent.createReady(payment, vendorSiteCd, command.payType()));
         event.startExecution();
+        upsertEvent(event);
 
-        if (FormatValidator.hasValue(event.getId())) {
-            updatePspPaymentEventPort.update(event);
-        } else {
-            savePspPaymentEventPort.save(event);
-        }
-
-        Long serverAmount = payment.getPaymentAmount();
-
-        PaymentApprovalVendorCommand vendorCommand = PaymentApprovalVendorCommand.builder()
-                .encData(command.encData())
-                .encInfo(command.encInfo())
-                .ordrMony(String.valueOf(serverAmount))
-                .ordrNo(command.orderKey())
-                .payType(command.payType())
-                .build();
-
-        PaymentApprovalVendorResult vendorResult;
-        try {
-            vendorResult = paymentVendorPort.approvePayment(vendorCommand);
-        } catch (Exception e) {
-            handleFailure(payment, event, "KCP 통신 오류: " + e.getMessage());
-            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
-        }
+        PaymentApprovalVendorResult vendorResult = requestPaymentApprovalToPsp(
+                command, payment, event, payment.getPaymentAmount()
+        );
 
         if (vendorResult.isSuccess()) {
             return handleSuccess(payment, event, vendorResult);
@@ -86,6 +66,51 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
 
         handleFailure(payment, event, vendorResult.resMsg());
         throw PaymentApprovalException.kcpApprovalFailed(vendorResult.resCd(), vendorResult.resMsg());
+    }
+
+    private void verifyPaymentAmount(Order order, Payment payment) {
+        Long couponAmount = FormatValidator.hasValue(order.getCouponAmount())
+                ? order.getCouponAmount()
+                : 0L;
+        Long pointAmount = FormatValidator.hasValue(order.getPointAmount())
+                ? order.getPointAmount()
+                : 0L;
+        Long expectedAmount = order.getTotalAmount() - couponAmount - pointAmount;
+
+        if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount())) {
+            log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
+                    order.getId(), order.getTotalAmount(), couponAmount, pointAmount,
+                    expectedAmount, payment.getPaymentAmount());
+            throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount());
+        }
+    }
+
+    private void upsertEvent(PspPaymentEvent event) {
+        if (FormatValidator.hasValue(event.getId())) {
+            updatePspPaymentEventPort.update(event);
+            return;
+        }
+
+        savePspPaymentEventPort.save(event);
+    }
+
+    private PaymentApprovalVendorResult requestPaymentApprovalToPsp(
+            ApprovePaymentCommand command, Payment payment, PspPaymentEvent event, Long amount
+    ) {
+        PaymentApprovalVendorCommand vendorCommand = PaymentApprovalVendorCommand.builder()
+                .encData(command.encData())
+                .encInfo(command.encInfo())
+                .ordrMony(String.valueOf(amount))
+                .ordrNo(command.orderKey())
+                .payType(command.payType())
+                .build();
+
+        try {
+            return paymentVendorPort.approvePayment(vendorCommand);
+        } catch (Exception e) {
+            handleFailure(payment, event, "KCP 통신 오류: " + e.getMessage());
+            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
+        }
     }
 
     private ApprovePaymentResult handleSuccess(
@@ -165,19 +190,6 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
             throw new UnauthorizedOrderAccessException();
         }
         return order;
-    }
-
-    private void verifyPaymentAmount(Order order, Payment payment) {
-        Long couponAmount = FormatValidator.hasValue(order.getCouponAmount()) ? order.getCouponAmount() : 0L;
-        Long pointAmount = FormatValidator.hasValue(order.getPointAmount()) ? order.getPointAmount() : 0L;
-        Long expectedAmount = order.getTotalAmount() - couponAmount - pointAmount;
-
-        if (!expectedAmount.equals(payment.getPaymentAmount())) {
-            log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
-                    order.getId(), order.getTotalAmount(), couponAmount, pointAmount,
-                    expectedAmount, payment.getPaymentAmount());
-            throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount());
-        }
     }
 
     private Short parseInstallment(String quota) {

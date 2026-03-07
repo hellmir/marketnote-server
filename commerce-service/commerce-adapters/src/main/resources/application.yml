@@ -66,7 +66,7 @@ product-service:
 
 reward-service:
   base-url: ${REWARD_SERVICE_SERVER_ORIGIN:http://localhost:8084}
-  share-point-amount: ${REWARD_SHARE_POINT_AMOUNT:5000}
+  share-point-rate: ${REWARD_SHARE_POINT_RATE:0.1}
 
 kcp:
   site-cd: ${KCP_SITE_CD:T0000}

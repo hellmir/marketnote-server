@@ -35,6 +35,9 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @Transactional(isolation = READ_COMMITTED)
 @Slf4j
 public class CancelPaymentService implements CancelPaymentUseCase {
+    private static final String PSP_FULL_CANCEL_TYPE_CODE = "STSC";
+    private static final String PSP_PARTIAL_CANCEL_TYPE_CODE = "STPC";
+
     private final FindOrderPort findOrderPort;
     private final FindPaymentPort findPaymentPort;
     private final UpdatePaymentPort updatePaymentPort;
@@ -50,7 +53,6 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     @Override
     public void cancel(CancelPaymentCommand command) {
         UUID orderKeyUuid = UUID.fromString(command.orderKey());
-
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
                 .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
 
@@ -59,39 +61,21 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
                 .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
 
-        String tno = event.getPgPaymentKey();
+        String transactionNumber = event.getPgPaymentKey();
         boolean isFullCancel = command.isFullCancel();
-        String modType = isFullCancel ? "STSC" : "STPC";
+        String modType = isFullCancel
+                ? PSP_FULL_CANCEL_TYPE_CODE
+                : PSP_PARTIAL_CANCEL_TYPE_CODE;
 
         Long alreadyRefunded = FormatValidator.hasValue(payment.getRefundAmount()) ? payment.getRefundAmount() : 0L;
         Long refundableAmount = payment.getPaymentAmount() - alreadyRefunded;
 
-        Long cancelAmount;
-        if (isFullCancel) {
-            cancelAmount = refundableAmount;
-        } else {
-            cancelAmount = command.cancelAmount();
-            if (FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0L) {
-                throw new InvalidCancelAmountException("부분취소 금액은 0보다 커야 합니다");
-            }
-            if (cancelAmount > refundableAmount) {
-                throw new InvalidCancelAmountException(
-                        "취소 금액(" + cancelAmount + ")이 환불 가능 금액(" + refundableAmount + ")을 초과합니다"
-                );
-            }
-        }
-
+        Long cancelAmount = computeCancelAmount(isFullCancel, command.cancelAmount(), refundableAmount);
         Long remainAmount = refundableAmount - cancelAmount;
 
-        PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.builder()
-                .tno(tno)
-                .modType(modType)
-                .modMny(cancelAmount)
-                .remMny(remainAmount)
-                .modDesc(command.cancelReason())
-                .build();
-
-        PaymentCancelVendorResult vendorResult = paymentVendorPort.cancelPayment(vendorCommand);
+        PaymentCancelVendorResult vendorResult = requestPaymentCancellationToPsp(
+                transactionNumber, modType, cancelAmount, remainAmount, command.cancelReason()
+        );
 
         if (!vendorResult.isSuccess()) {
             throw new PaymentCancelException(
@@ -99,14 +83,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             );
         }
 
-        if (isFullCancel) {
-            payment.markAsRefunded();
-            event.cancel(vendorResult.rawResponse());
-        } else {
-            payment.markAsPartiallyRefunded(cancelAmount);
-            event.partialRefund(vendorResult.rawResponse());
-        }
-
+        updateDomain(isFullCancel, payment, event, vendorResult, cancelAmount);
         updatePaymentPort.update(payment);
         updatePspPaymentEventPort.update(event);
 
@@ -124,6 +101,52 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
+    }
+
+    private Long computeCancelAmount(boolean isFullCancel, Long partialCancelAmount, Long refundableAmount) {
+        if (isFullCancel) {
+            return refundableAmount;
+        }
+
+        if (FormatValidator.hasNoValue(partialCancelAmount) || partialCancelAmount <= 0L) {
+            throw new InvalidCancelAmountException("부분취소 금액은 0보다 커야 합니다");
+        }
+
+        if (partialCancelAmount > refundableAmount) {
+            throw new InvalidCancelAmountException(
+                    "취소 금액(" + partialCancelAmount + ")이 환불 가능 금액(" + refundableAmount + ")을 초과합니다"
+            );
+        }
+
+        return partialCancelAmount;
+    }
+
+    private PaymentCancelVendorResult requestPaymentCancellationToPsp(
+            String transactionNumber, String modType, Long cancelAmount, Long remainAmount, String cancelReason
+    ) {
+        PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.builder()
+                .tno(transactionNumber)
+                .modType(modType)
+                .modMny(cancelAmount)
+                .remMny(remainAmount)
+                .modDesc(cancelReason)
+                .build();
+
+        return paymentVendorPort.cancelPayment(vendorCommand);
+    }
+
+    private void updateDomain(
+            boolean isFullCancel, Payment payment, PspPaymentEvent event,
+            PaymentCancelVendorResult vendorResult, Long cancelAmount
+    ) {
+        if (isFullCancel) {
+            payment.markAsRefunded();
+            event.cancel(vendorResult.rawResponse());
+            return;
+        }
+
+        payment.markAsPartiallyRefunded(cancelAmount);
+        event.partialRefund(vendorResult.rawResponse());
     }
 
     private void saveRefundRecord(

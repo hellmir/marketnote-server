@@ -49,8 +49,8 @@ public class RewardServiceClient implements ModifyUserPointPort {
     @Value("${spring.jwt.admin-access-token}")
     private String adminAccessToken;
 
-    @Value("${reward-service.share-point-amount:5000}")
-    private long sharePointAmount;
+    @Value("${reward-service.share-point-rate}")
+    private float sharePointRate;
 
     private final RestTemplate restTemplate;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
@@ -123,18 +123,18 @@ public class RewardServiceClient implements ModifyUserPointPort {
     }
 
     @Override
-    public void accrueSharedPurchasePoints(List<Long> sharerIds) {
-        if (FormatValidator.hasNoValue(sharerIds)) {
+    public void accrueSharedPurchasePoints(List<Long> sharerIds, Long totalAmount) {
+        if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(totalAmount)) {
             return;
         }
 
         sharerIds.stream()
                 .filter(Objects::nonNull)
-                .forEach(this::accrueSharerPoint);
+                .forEach(sharerId -> accrueSharerPoint(sharerId, totalAmount));
     }
 
-    private void accrueSharerPoint(Long sharerId) {
-        if (sharePointAmount <= 0) {
+    private void accrueSharerPoint(Long sharerId, Long totalAmount) {
+        if (totalAmount <= 0) {
             return;
         }
 
@@ -143,6 +143,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
         ensureUserPointExists(uri, headers, sharerId);
 
+        long sharePointAmount = Math.round(totalAmount * sharePointRate);
         ModifyUserPointRequest request = ModifyUserPointRequest.of(sharePointAmount, sharerId);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
