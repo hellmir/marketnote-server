@@ -41,35 +41,35 @@ public class UpdateUserService implements UpdateUserUseCase {
             return;
         }
 
-        String password = updateUserInfoCommand.password();
-        if (updateUserInfoCommand.hasPassword()) {
-            user.updatePassword(password, passwordEncoder);
-            return;
-        }
-
-        String email = updateUserInfoCommand.email();
-        if (updateUserInfoCommand.hasEmail()) {
-            user.validateDifferentEmail(email);
-            validateDuplicateEmail(email);
-            user.updateEmail(email);
-
-            return;
-        }
-
-        String nickname = updateUserInfoCommand.nickname();
         if (updateUserInfoCommand.hasNickname()) {
-            user.validateDifferentNickname(nickname);
-            validateDuplicateNickname(nickname);
-            user.updateNickname(nickname);
+            String newNickname = updateUserInfoCommand.nickname();
+            user.validateDifferentNickname(newNickname);
+            validateDuplicateNickname(newNickname);
+            user.updateNickname(newNickname);
 
             return;
         }
 
-        String phoneNumber = updateUserInfoCommand.phoneNumber();
+        if (updateUserInfoCommand.hasPassword()) {
+            String newPassword = updateUserInfoCommand.password();
+            user.updatePassword(newPassword, passwordEncoder);
+            return;
+        }
+
+        if (updateUserInfoCommand.hasEmail()) {
+            String newEmail = updateUserInfoCommand.email();
+            user.validateDifferentEmail(newEmail);
+            validateDuplicateEmail(newEmail);
+            user.updateEmail(newEmail);
+
+            return;
+        }
+
         if (updateUserInfoCommand.hasPhoneNumber()) {
-            user.validateDifferentPhoneNumber(phoneNumber);
-            validateDuplicatePhoneNumber(phoneNumber);
-            user.updatePhoneNumber(phoneNumber);
+            String newPhoneNumber = updateUserInfoCommand.phoneNumber();
+            user.validateDifferentPhoneNumber(newPhoneNumber);
+            validateDuplicatePhoneNumber(newPhoneNumber);
+            user.updatePhoneNumber(newPhoneNumber);
 
             return;
         }

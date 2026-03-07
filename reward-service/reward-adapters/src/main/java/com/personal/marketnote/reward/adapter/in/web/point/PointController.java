@@ -6,6 +6,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.Role;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.*;
 import com.personal.marketnote.reward.adapter.in.web.point.mapper.PointRequestToCommandMapper;
+import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointByIdResponse;
@@ -16,10 +17,7 @@ import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCom
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointResult;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
-import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointHistoryUseCase;
-import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
-import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
-import com.personal.marketnote.reward.port.in.usecase.point.RegisterUserPointUseCase;
+import com.personal.marketnote.reward.port.in.usecase.point.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +42,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class PointController {
     private final RegisterUserPointUseCase registerUserPointUseCase;
     private final ModifyUserPointUseCase modifyUserPointUseCase;
+    private final ModifyPendingPointUseCase modifyPendingPointUseCase;
     private final GetUserPointUseCase getUserPointUseCase;
     private final GetUserPointHistoryUseCase getUserPointHistoryUseCase;
 
@@ -181,6 +180,30 @@ public class PointController {
         }
 
         throw new AccessDeniedException("권한이 없습니다.");
+    }
+
+    /**
+     * (관리자) 회원 적립 예정 포인트 추가/차감
+     */
+    @PatchMapping("/{userId}/points/pending")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ModifyPendingPointApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPointResponse>> modifyPendingPoint(
+            @PathVariable("userId") Long userId,
+            @RequestBody @Valid ModifyPendingPointRequest request
+    ) {
+        UpdateUserPointResult result = modifyPendingPointUseCase.modifyPending(
+                PointRequestToCommandMapper.mapToModifyPendingPointCommand(userId, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        UpdateUserPointResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "적립 예정 포인트 수정 성공"
+                )
+        );
     }
 
     /**

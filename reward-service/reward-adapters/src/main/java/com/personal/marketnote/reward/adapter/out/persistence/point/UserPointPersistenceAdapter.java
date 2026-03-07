@@ -45,8 +45,7 @@ public class UserPointPersistenceAdapter implements SaveUserPointPort, FindUserP
 
     @Override
     public UserPoint update(UserPoint userPoint) throws UserPointNotFoundException {
-        UserPointJpaEntity userPointJpaEntity
-                = findEntityByUserId(userPoint.getUserId());
+        UserPointJpaEntity userPointJpaEntity = findEntityByUserId(userPoint.getUserId());
         userPointJpaEntity.updateFrom(userPoint);
 
         return userPoint;
