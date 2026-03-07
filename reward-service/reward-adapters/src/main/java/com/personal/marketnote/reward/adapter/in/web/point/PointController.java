@@ -6,6 +6,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.Role;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.*;
 import com.personal.marketnote.reward.adapter.in.web.point.mapper.PointRequestToCommandMapper;
+import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
@@ -43,6 +44,7 @@ public class PointController {
     private final RegisterUserPointUseCase registerUserPointUseCase;
     private final ModifyUserPointUseCase modifyUserPointUseCase;
     private final ModifyPendingPointUseCase modifyPendingPointUseCase;
+    private final ConfirmPendingPointUseCase confirmPendingPointUseCase;
     private final GetUserPointUseCase getUserPointUseCase;
     private final GetUserPointHistoryUseCase getUserPointHistoryUseCase;
 
@@ -202,6 +204,37 @@ public class PointController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "적립 예정 포인트 수정 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 적립 예정 포인트 확정
+     *
+     * @param userId  회원 ID
+     * @param request 적립 예정 포인트 확정 요청 {@link ConfirmPendingPointRequest}
+     * @return 적립 예정 포인트 확정 응답 {@link UpdateUserPointResponse}
+     * @Author 성효빈
+     * @Date 2026-03-07
+     * @Description 적립 예정 포인트를 실제 포인트로 확정(전환)합니다.
+     */
+    @PostMapping("/{userId}/points/pending/confirm")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ConfirmPendingPointApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPointResponse>> confirmPendingPoint(
+            @PathVariable("userId") Long userId,
+            @RequestBody @Valid ConfirmPendingPointRequest request
+    ) {
+        UpdateUserPointResult result = confirmPendingPointUseCase.confirmPending(
+                PointRequestToCommandMapper.mapToConfirmPendingPointCommand(userId, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        UpdateUserPointResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "적립 예정 포인트 확정 성공"
                 )
         );
     }

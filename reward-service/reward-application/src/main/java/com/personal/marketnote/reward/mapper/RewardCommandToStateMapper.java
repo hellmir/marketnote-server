@@ -11,6 +11,7 @@ import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.port.in.command.attendance.RegisterAttendanceCommand;
 import com.personal.marketnote.reward.port.in.command.attendance.RegisterAttendancePolicyCommand;
 import com.personal.marketnote.reward.port.in.command.offerwall.RegisterOfferwallRewardCommand;
+import com.personal.marketnote.reward.port.in.command.point.ConfirmPendingPointCommand;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
@@ -94,6 +95,23 @@ public class RewardCommandToStateMapper {
                         ? -Math.abs(command.amount())
                         : Math.abs(command.amount()))
                 .isReflected(Boolean.FALSE)
+                .sourceType(command.sourceType())
+                .sourceId(command.sourceId())
+                .reason(command.reason())
+                .accumulatedAt(accumulatedAt)
+                .build();
+    }
+
+    public static UserPointHistoryCreateState mapToConfirmedPointHistoryCreateState(
+            ConfirmPendingPointCommand command,
+            Long totalAmount,
+            Long userId,
+            LocalDateTime accumulatedAt
+    ) {
+        return UserPointHistoryCreateState.builder()
+                .userId(userId)
+                .amount(Math.abs(totalAmount))
+                .isReflected(Boolean.TRUE)
                 .sourceType(command.sourceType())
                 .sourceId(command.sourceId())
                 .reason(command.reason())

@@ -1,6 +1,6 @@
 package com.personal.marketnote.reward.adapter.in.web.point.apidocs;
 
-import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
+import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.response.RegisterUserPointResponseSchema;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +18,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Operation(
-        summary = "(관리자) 회원 적립 예정 포인트 추가/차감",
+        summary = "(관리자) 적립 예정 포인트 확정",
         description = """
                 작성일자: 2026-03-07
                 
@@ -28,17 +28,13 @@ import java.lang.annotation.*;
                 
                 ## Description
                 
-                - 회원의 적립 예정 포인트를 추가하거나 차감합니다.
+                - 적립 예정 포인트를 실제 포인트로 확정(전환)합니다.
                 
-                - 포인트 차감 시에도 양수를 전송합니다.
+                - sourceType과 sourceId로 확정 대상 적립 예정 포인트 이력을 식별합니다.
                 
-                    - 예) 300 적립 예정 포인트를 추가하는 경우 -> changeType: "ACCRUAL", amount: 300 전송
+                - 확정 시 적립 예정 포인트에서 차감되고, 동일 금액이 실제 포인트에 적립됩니다.
                 
-                    - 예) 300 적립 예정 포인트를 차감하는 경우 -> changeType: "DEDUCTION", amount: 300 전송
-                
-                - 적립 예정 포인트는 0 미만이 될 수 없습니다.
-                
-                - 이력은 isReflected: false로 저장됩니다.
+                - 기존 pending 이력은 isReflected: true로 업데이트되고, 확정 이력이 새로 생성됩니다.
                 
                 ---
                 
@@ -47,11 +43,9 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | userId (path) | number | 회원 ID | Y | 100 |
-                | changeType | string | ACCRUAL: 추가, DEDUCTION: 차감 | Y | "ACCRUAL" |
-                | amount | number | 변경 포인트(양수, 1 이상) | Y | 500 |
                 | sourceType | string | 출처 유형 | Y | "ORDER" |
-                | sourceId | number | 출처 ID | Y | 123 |
-                | reason | string | 사유 | N | "주문 결제 적립 예정" |
+                | sourceId | number | 출처 ID (주문 ID) | Y | 123 |
+                | reason | string | 사유 | N | "구매 확정 포인트 적립" |
                 
                 ---
                 
@@ -63,7 +57,7 @@ import java.lang.annotation.*;
                 | code | string | 응답 코드 | "SUC01" |
                 | timestamp | string(datetime) | 응답 시간 | "2026-03-07T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
-                | message | string | 처리 결과 | "적립 예정 포인트 수정 성공" |
+                | message | string | 처리 결과 | "적립 예정 포인트 확정 성공" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -78,14 +72,12 @@ import java.lang.annotation.*;
         requestBody = @RequestBody(
                 required = true,
                 content = @Content(
-                        schema = @Schema(implementation = ModifyPendingPointRequest.class),
+                        schema = @Schema(implementation = ConfirmPendingPointRequest.class),
                         examples = @ExampleObject("""
                                 {
-                                  "changeType": "ACCRUAL",
-                                  "amount": 500,
                                   "sourceType": "ORDER",
                                   "sourceId": 123,
-                                  "reason": "주문 결제 적립 예정"
+                                  "reason": "구매 확정 포인트 적립"
                                 }
                                 """)
                 )
@@ -93,7 +85,7 @@ import java.lang.annotation.*;
         responses = {
                 @ApiResponse(
                         responseCode = "200",
-                        description = "적립 예정 포인트 수정 성공",
+                        description = "적립 예정 포인트 확정 성공",
                         content = @Content(
                                 schema = @Schema(implementation = RegisterUserPointResponseSchema.class),
                                 examples = @ExampleObject("""
@@ -103,13 +95,13 @@ import java.lang.annotation.*;
                                           "timestamp": "2026-03-07T12:00:00.000",
                                           "content": {
                                             "userId": 100,
-                                            "amount": 1000,
-                                            "addExpectedAmount": 500,
+                                            "amount": 1500,
+                                            "addExpectedAmount": 0,
                                             "expireExpectedAmount": 0,
                                             "createdAt": "2026-03-07T11:00:00",
                                             "modifiedAt": "2026-03-07T12:00:00"
                                           },
-                                          "message": "적립 예정 포인트 수정 성공"
+                                          "message": "적립 예정 포인트 확정 성공"
                                         }
                                         """)
                         )
@@ -131,7 +123,7 @@ import java.lang.annotation.*;
                 ),
                 @ApiResponse(
                         responseCode = "404",
-                        description = "회원 포인트 정보 없음",
+                        description = "확정 대상 적립 예정 포인트 이력 없음",
                         content = @Content(
                                 examples = @ExampleObject("""
                                         {
@@ -139,12 +131,12 @@ import java.lang.annotation.*;
                                           "code": "NOT_FOUND",
                                           "timestamp": "2026-03-07T12:00:00.000",
                                           "content": null,
-                                          "message": "회원 포인트 정보를 찾을 수 없습니다. 전송된 회원 ID: 101"
+                                          "message": "확정 대상 적립 예정 포인트 이력을 찾을 수 없습니다. userId=100, sourceType=ORDER, sourceId=123"
                                         }
                                         """)
                         )
                 )
         }
 )
-public @interface ModifyPendingPointApiDocs {
+public @interface ConfirmPendingPointApiDocs {
 }
