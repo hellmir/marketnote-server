@@ -81,6 +81,11 @@ public class UserPoint {
         }
     }
 
+    public void confirmPendingAmount(Long amount) {
+        deductPendingAmount(amount);
+        changeAmount(true, amount);
+    }
+
     public Long getAmountValue() {
         return amount.getValue();
     }

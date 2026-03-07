@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.port.out.point;
 
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 
 import java.util.List;
 
@@ -22,5 +23,16 @@ public interface FindUserPointHistoryPort {
      * @Description 회원 식별자와 필터 조건으로 포인트 이력을 조회합니다.
      */
     List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter);
+
+    /**
+     * @param userId     회원 식별자
+     * @param sourceType 포인트 출처 유형
+     * @param sourceId   포인트 출처 식별자
+     * @return 미반영 적립 예정 포인트 이력 목록 {@link UserPointHistory}
+     * @Date 2026-03-07
+     * @Author 성효빈
+     * @Description 미반영(isReflected = false) 적립 예정 포인트 이력을 출처 기준으로 조회합니다.
+     */
+    List<UserPointHistory> findUnreflectedByUserIdAndSource(Long userId, UserPointSourceType sourceType, Long sourceId);
 }
 
