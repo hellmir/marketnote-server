@@ -71,15 +71,13 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
         Order order = findOrderPort.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
-        if (!order.getBuyerId().equals(buyerId)) {
-            log.warn("거래 등록 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    orderId, order.getBuyerId(), buyerId);
+        if (!order.isBuyer(buyerId)) {
+            log.warn("거래 등록 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", orderId, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();
         }
 
         if (!order.isPaymentPending()) {
-            log.warn("결제 불가 주문 상태에서 거래 등록 시도 - orderId: {}, 주문 상태: {}",
-                    orderId, order.getOrderStatus());
+            log.warn("결제 불가 주문 상태에서 거래 등록 시도 - orderId: {}, 주문 상태: {}", orderId, order.getOrderStatus());
             throw new InvalidOrderStatusForPaymentException(order.getOrderStatus());
         }
     }
@@ -88,8 +86,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
         findPspPaymentEventPort.findByOrderKey(orderKey)
                 .filter(PspPaymentEvent::isActiveEvent)
                 .ifPresent(event -> {
-                    log.warn("중복 거래 등록 시도 - orderKey: {}, 기존 이벤트 상태: {}",
-                            orderKey, event.getPoStatus());
+                    log.warn("중복 거래 등록 시도 - orderKey: {}, 기존 이벤트 상태: {}", orderKey, event.getPoStatus());
                     throw new DuplicatePaymentReadyException(orderKey);
                 });
     }
@@ -97,6 +94,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
     private void saveReadyEvent(Payment payment, String payMethod) {
         String vendorSiteCd = paymentVendorPort.getVendorSiteCd();
         PspPaymentEvent readyEvent = PspPaymentEvent.createReady(payment, vendorSiteCd, payMethod);
+
         try {
             savePspPaymentEventPort.save(readyEvent);
         } catch (DataIntegrityViolationException e) {

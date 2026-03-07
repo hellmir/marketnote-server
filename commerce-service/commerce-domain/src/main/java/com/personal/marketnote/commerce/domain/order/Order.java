@@ -107,4 +107,7 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
+    public boolean isBuyer(Long buyerId) {
+        return FormatValidator.equals(this.buyerId, buyerId);
+    }
 }

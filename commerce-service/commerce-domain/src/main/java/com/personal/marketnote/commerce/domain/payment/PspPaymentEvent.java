@@ -96,28 +96,29 @@ public class PspPaymentEvent {
     }
 
     public void startExecution() {
-        if (!this.poStatus.isReady()) {
-            throw new InvalidPaymentStatusTransitionException("READY 상태에서만 EXECUTING으로 전이할 수 있습니다.", this.poStatus);
+        if (!poStatus.isReady()) {
+            throw new InvalidPaymentStatusTransitionException("READY 상태에서만 EXECUTING으로 전이할 수 있습니다.", poStatus);
         }
-        this.poStatus = PaymentEventStatus.EXECUTING;
+
+        poStatus = PaymentEventStatus.EXECUTING;
     }
 
     public void completeWithApproval(PaymentApprovalInfo info) {
-        if (!this.poStatus.isExecuting()) {
-            throw new InvalidPaymentStatusTransitionException("EXECUTING 상태에서만 승인 완료 처리할 수 있습니다.", this.poStatus);
+        if (!poStatus.isExecuting()) {
+            throw new InvalidPaymentStatusTransitionException("EXECUTING 상태에서만 승인 완료 처리할 수 있습니다.", poStatus);
         }
-        this.poStatus = PaymentEventStatus.COMPLETE;
-        this.pgPaymentKey = info.getPgPaymentKey();
-        this.method = info.getMethod();
-        this.cardNumber = info.getCardNumber();
-        this.approvalNumber = info.getApprovalNumber();
-        this.installment = info.getInstallment();
-        this.issueCompanyCode = info.getIssueCompanyCode();
-        this.issueCompanyName = info.getIssueCompanyName();
-        this.resultCode = info.getResultCode();
-        this.resultMessage = info.getResultMessage();
-        this.pgApprovalResult = info.getPgApprovalResult();
-        this.paidAt = parseAppTime(info.getAppTime());
+        poStatus = PaymentEventStatus.COMPLETE;
+        pgPaymentKey = info.getPgPaymentKey();
+        method = info.getMethod();
+        cardNumber = info.getCardNumber();
+        approvalNumber = info.getApprovalNumber();
+        installment = info.getInstallment();
+        issueCompanyCode = info.getIssueCompanyCode();
+        issueCompanyName = info.getIssueCompanyName();
+        resultCode = info.getResultCode();
+        resultMessage = info.getResultMessage();
+        pgApprovalResult = info.getPgApprovalResult();
+        paidAt = parseAppTime(info.getAppTime());
     }
 
     private LocalDateTime parseAppTime(String appTime) {
@@ -133,10 +134,10 @@ public class PspPaymentEvent {
     }
 
     public void failExecution(String resultCode, String resultMessage) {
-        if (!this.poStatus.isExecuting()) {
-            throw new InvalidPaymentStatusTransitionException("EXECUTING 상태에서만 실행 실패 처리할 수 있습니다.", this.poStatus);
+        if (!poStatus.isExecuting()) {
+            throw new InvalidPaymentStatusTransitionException("EXECUTING 상태에서만 실행 실패 처리할 수 있습니다.", poStatus);
         }
-        this.poStatus = PaymentEventStatus.READY;
+        poStatus = PaymentEventStatus.READY;
         this.resultCode = resultCode;
         this.resultMessage = resultMessage;
     }
@@ -146,30 +147,30 @@ public class PspPaymentEvent {
      * READY 또는 EXECUTING 상태면 true를 반환한다.
      */
     public boolean isActiveEvent() {
-        return this.poStatus.isReady() || this.poStatus.isExecuting();
+        return poStatus.isReady() || poStatus.isExecuting();
     }
 
     public void cancel(String pgCancelApprovalResult) {
-        if (!this.poStatus.isComplete()) {
-            throw new InvalidPaymentStatusTransitionException("COMPLETE 상태에서만 취소할 수 있습니다.", this.poStatus);
+        if (!poStatus.isComplete()) {
+            throw new InvalidPaymentStatusTransitionException("COMPLETE 상태에서만 취소할 수 있습니다.", poStatus);
         }
-        this.poStatus = PaymentEventStatus.CANCELLED;
+        poStatus = PaymentEventStatus.CANCELLED;
         this.pgCancelApprovalResult = pgCancelApprovalResult;
     }
 
     public void partialRefund(String pgCancelApprovalResult) {
-        if (!this.poStatus.isRefundable()) {
-            throw new InvalidPaymentStatusTransitionException("COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 부분 환불할 수 있습니다.", this.poStatus);
+        if (!poStatus.isRefundable()) {
+            throw new InvalidPaymentStatusTransitionException("COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 부분 환불할 수 있습니다.", poStatus);
         }
-        this.poStatus = PaymentEventStatus.PARTIALLY_REFUNDED;
+        poStatus = PaymentEventStatus.PARTIALLY_REFUNDED;
         this.pgCancelApprovalResult = pgCancelApprovalResult;
     }
 
     public void refund(String pgCancelApprovalResult) {
-        if (!this.poStatus.isRefundable()) {
-            throw new InvalidPaymentStatusTransitionException("COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 환불할 수 있습니다.", this.poStatus);
+        if (!poStatus.isRefundable()) {
+            throw new InvalidPaymentStatusTransitionException("COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 환불할 수 있습니다.", poStatus);
         }
-        this.poStatus = PaymentEventStatus.REFUNDED;
+        poStatus = PaymentEventStatus.REFUNDED;
         this.pgCancelApprovalResult = pgCancelApprovalResult;
     }
 }

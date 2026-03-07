@@ -60,37 +60,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(OrderCommandToStateMapper.mapToState(command));
         updateOrderPort.update(order, orderStatusHistory);
 
-        // FIXME: Payment Service의 Kafka 이벤트 Consumption으로 변경(주문 상태 PAID로 변경 / 결제 금액 업데이트 / 재고 감소 / 장바구니 상품 삭제)
         if (status.isPaid()) {
-            // 결제 완료 시 재고 차감
-            reduceProductInventoryUseCase.reduce(order.getOrderProducts(), status.getDescription());
-
-            List<Long> pricePolicyIds = order.getOrderProducts()
-                    .stream()
-                    .map(OrderProduct::getPricePolicyId)
-                    .toList();
-            List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
-            Long orderId = order.getId();
-            Long buyerId = order.getBuyerId();
-            Long pointAmount = order.getPointAmount();
-
-            runAfterCommit(() -> {
-                // 결제 완료 시 장바구니 상품 삭제
-                deleteOrderedCartProductsPort.delete(pricePolicyIds);
-
-                // 링크 공유 회원 포인트 적립
-                modifyUserPointPort.accrueSharedPurchasePoints(sharerIds);
-
-                // 포인트 사용 시 차감
-                if (FormatValidator.hasValue(pointAmount) && pointAmount > 0) {
-                    try {
-                        modifyUserPointPort.deductOrderPoints(buyerId, pointAmount, orderId);
-                    } catch (Exception e) {
-                        log.error("주문 포인트 차감 실패 - orderId: {}, buyerId: {}, pointAmount: {}, error: {}",
-                                orderId, buyerId, pointAmount, e.getMessage(), e);
-                    }
-                }
-            });
+            updatePaymentSubsequentProcesses(order, status);
         }
     }
 
@@ -127,6 +98,40 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
 
         order.changeAllProductsStatus(status);
+    }
+
+    private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {
+        // FIXME: Kafka 이벤트 Consumption으로 변경(주문 상태 PAID로 변경 / 결제 금액 업데이트 / 재고 감소 / 장바구니 상품 삭제)
+
+        // 결제 완료 시 재고 차감
+        reduceProductInventoryUseCase.reduce(order.getOrderProducts(), status.getDescription());
+
+        List<Long> pricePolicyIds = order.getOrderProducts()
+                .stream()
+                .map(OrderProduct::getPricePolicyId)
+                .toList();
+        List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
+        Long orderId = order.getId();
+        Long buyerId = order.getBuyerId();
+        Long pointAmount = order.getPointAmount();
+
+        runAfterCommit(() -> {
+            // 결제 완료 시 장바구니 상품 삭제
+            deleteOrderedCartProductsPort.delete(pricePolicyIds);
+
+            // 링크 공유 회원 포인트 적립
+            modifyUserPointPort.accrueSharedPurchasePoints(sharerIds, order.getTotalAmount());
+
+            // 포인트 사용 시 차감
+            if (FormatValidator.hasValue(pointAmount) && pointAmount > 0) {
+                try {
+                    modifyUserPointPort.deductOrderPoints(buyerId, pointAmount, orderId);
+                } catch (Exception e) {
+                    log.error("주문 포인트 차감 실패 - orderId: {}, buyerId: {}, pointAmount: {}, error: {}",
+                            orderId, buyerId, pointAmount, e.getMessage(), e);
+                }
+            }
+        });
     }
 
     private List<Long> extractSharerIds(List<OrderProduct> orderProducts) {

@@ -32,7 +32,6 @@ public class GetPaymentService implements GetPaymentUseCase {
     @Override
     public GetPaymentResult getPayment(Long buyerId, String orderKey) {
         UUID orderKeyUuid = UUID.fromString(orderKey);
-
         Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
                 .orElseThrow(() -> new PaymentNotFoundException(orderKey));
 
@@ -47,7 +46,8 @@ public class GetPaymentService implements GetPaymentUseCase {
     private void verifyOrderOwnership(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
-        if (!order.getBuyerId().equals(buyerId)) {
+
+        if (!order.isBuyer(buyerId)) {
             log.warn("결제 조회 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
                     orderId, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();

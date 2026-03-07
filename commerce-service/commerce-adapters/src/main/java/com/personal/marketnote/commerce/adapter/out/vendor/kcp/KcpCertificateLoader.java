@@ -62,6 +62,7 @@ public class KcpCertificateLoader {
         if (path.contains("..")) {
             throw new IllegalStateException("잘못된 인증서 경로입니다: " + path);
         }
+
         if (path.startsWith(CLASSPATH_PREFIX)) {
             String resourcePath = path.substring(CLASSPATH_PREFIX.length());
             ClassPathResource resource = new ClassPathResource(resourcePath);
@@ -69,6 +70,7 @@ public class KcpCertificateLoader {
                 return new String(is.readAllBytes(), StandardCharsets.UTF_8).trim();
             }
         }
+
         return Files.readString(Path.of(path)).trim();
     }
 }
