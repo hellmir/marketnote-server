@@ -98,6 +98,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             );
             restoreInventory(order);
             refundPoints(order);
+            revokePendingProductAccumulationPoints(order);
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
@@ -212,6 +213,15 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         } catch (Exception e) {
             log.error("재고 복구 실패 - orderId: {}, error: {}",
                     order.getId(), e.getMessage(), e);
+        }
+    }
+
+    private void revokePendingProductAccumulationPoints(Order order) {
+        try {
+            modifyUserPointPort.revokePendingPoints(order.getBuyerId(), order.getId());
+        } catch (Exception e) {
+            log.error("상품 적립 예정 포인트 회수 실패 - orderId: {}, buyerId: {}, error: {}",
+                    order.getId(), order.getBuyerId(), e.getMessage(), e);
         }
     }
 

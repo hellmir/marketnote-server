@@ -32,6 +32,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private static final String ORDER_POINT_REFUND_REASON = "주문 취소 포인트 환불";
     private static final String PRODUCT_ACCUMULATION_REASON = "상품 구매 적립";
     private static final String PENDING_POINT_CONFIRM_REASON = "구매 확정 포인트 적립";
+    private static final String PENDING_POINT_CANCEL_REASON = "결제 취소 적립 예정 포인트 회수";
 
     @Value("${reward-service.base-url}")
     private String rewardServiceBaseUrl;
@@ -143,6 +144,23 @@ public class RewardServiceClient implements ModifyUserPointPort {
     }
 
     @Override
+    public void revokePendingPoints(Long userId, Long orderId) {
+        if (FormatValidator.hasNoValue(userId) || FormatValidator.hasNoValue(orderId)) {
+            return;
+        }
+
+        URI uri = buildPendingPointCancelUri(userId);
+        HttpHeaders headers = buildHeaders();
+
+        CancelPendingPointRequest request = new CancelPendingPointRequest(
+                SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CANCEL_REASON
+        );
+        HttpEntity<CancelPendingPointRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.POST, userId, "적립 예정 포인트 취소");
+    }
+
+    @Override
     public void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId) {
         if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(totalAmount)) {
             return;
@@ -166,6 +184,14 @@ public class RewardServiceClient implements ModifyUserPointPort {
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
         sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, sharerId, "포인트 변경");
+    }
+
+    private URI buildPendingPointCancelUri(Long userId) {
+        return UriComponentsBuilder
+                .fromUriString(rewardServiceBaseUrl)
+                .path("/api/v1/users/{userId}/points/pending/cancel")
+                .buildAndExpand(userId)
+                .toUri();
     }
 
     private URI buildPendingPointConfirmUri(Long userId) {
@@ -241,6 +267,13 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
         log.error("{} 최종 실패 (비정상 응답) - userId: {}", operationName, userId);
         throw new RewardServiceRequestFailedException(new IOException(operationName + " 최종 실패"));
+    }
+
+    private record CancelPendingPointRequest(
+            String sourceType,
+            Long sourceId,
+            String reason
+    ) {
     }
 
     private record ConfirmPendingPointRequest(

@@ -6,6 +6,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.Role;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.*;
 import com.personal.marketnote.reward.adapter.in.web.point.mapper.PointRequestToCommandMapper;
+import com.personal.marketnote.reward.adapter.in.web.point.request.CancelPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
@@ -45,6 +46,7 @@ public class PointController {
     private final ModifyUserPointUseCase modifyUserPointUseCase;
     private final ModifyPendingPointUseCase modifyPendingPointUseCase;
     private final ConfirmPendingPointUseCase confirmPendingPointUseCase;
+    private final CancelPendingPointUseCase cancelPendingPointUseCase;
     private final GetUserPointUseCase getUserPointUseCase;
     private final GetUserPointHistoryUseCase getUserPointHistoryUseCase;
 
@@ -235,6 +237,37 @@ public class PointController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "적립 예정 포인트 확정 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 적립 예정 포인트 취소
+     *
+     * @param userId  회원 ID
+     * @param request 적립 예정 포인트 취소 요청 {@link CancelPendingPointRequest}
+     * @return 적립 예정 포인트 취소 응답 {@link UpdateUserPointResponse}
+     * @Author 성효빈
+     * @Date 2026-03-07
+     * @Description 적립 예정 포인트를 취소(회수)합니다. 취소 대상이 없으면 현재 포인트를 반환합니다.
+     */
+    @PostMapping("/{userId}/points/pending/cancel")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @CancelPendingPointApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPointResponse>> cancelPendingPoint(
+            @PathVariable("userId") Long userId,
+            @RequestBody @Valid CancelPendingPointRequest request
+    ) {
+        UpdateUserPointResult result = cancelPendingPointUseCase.cancelPending(
+                PointRequestToCommandMapper.mapToCancelPendingPointCommand(userId, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        UpdateUserPointResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "적립 예정 포인트 취소 성공"
                 )
         );
     }
