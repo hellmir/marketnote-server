@@ -12,6 +12,7 @@ public record ProductInfoResult(
         String brandName,
         Long price,
         Long discountPrice,
+        Long accumulatedPoint,
         List<ProductOptionInfoResult> selectedOptions
 ) {
     /**

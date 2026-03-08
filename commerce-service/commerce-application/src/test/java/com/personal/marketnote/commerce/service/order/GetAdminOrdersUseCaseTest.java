@@ -67,7 +67,7 @@ class GetAdminOrdersUseCaseTest {
     }
 
     private ProductInfoResult createProductInfo(Long id, String name, String brandName) {
-        return new ProductInfoResult(id, 10L, name, brandName, 50000L, null, List.of());
+        return new ProductInfoResult(id, 10L, name, brandName, 50000L, null, null, List.of());
     }
 
     @Test

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record ProductPricePolicyInfoResult(
         Long id,
         Long price,
-        Long discountPrice
+        Long discountPrice,
+        Long accumulatedPoint
 ) {
 }
