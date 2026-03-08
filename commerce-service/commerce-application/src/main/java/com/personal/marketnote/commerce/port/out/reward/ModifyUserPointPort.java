@@ -67,4 +67,13 @@ public interface ModifyUserPointPort {
      * @Description 구매 확정 시 적립 예정 포인트를 실제 포인트로 확정합니다.
      */
     void confirmPendingPoints(Long userId, Long orderId);
+
+    /**
+     * @param userId  회원 ID
+     * @param orderId 주문 ID (sourceId)
+     * @Date 2026-03-07
+     * @Author 성효빈
+     * @Description 결제 취소 시 적립 예정 포인트를 회수(취소)합니다.
+     */
+    void revokePendingPoints(Long userId, Long orderId);
 }
