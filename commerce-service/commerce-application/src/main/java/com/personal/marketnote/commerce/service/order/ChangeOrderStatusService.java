@@ -125,13 +125,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             // 결제 완료 시 장바구니 상품 삭제
             deleteOrderedCartProductsPort.delete(pricePolicyIds);
 
-            // 링크 공유 회원 포인트 적립
-            try {
-                modifyUserPointPort.accrueSharedPurchasePoints(sharerIds, totalAmount);
-            } catch (Exception e) {
-                log.error("공유 구매 포인트 적립 실패 - orderId: {}, buyerId: {}, error: {}",
-                        orderId, buyerId, e.getMessage(), e);
-            }
+            // 링크 공유 회원 적립 예정 포인트 추가
+            addPendingSharedPurchasePoints(sharerIds, totalAmount, orderId);
 
             // 포인트 사용 시 차감
             if (FormatValidator.hasValue(pointAmount) && pointAmount > 0) {
@@ -166,6 +161,19 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
 
         return totalAccumulatedPoint;
+    }
+
+    private void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId) {
+        if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(totalAmount)) {
+            return;
+        }
+
+        try {
+            modifyUserPointPort.addPendingSharedPurchasePoints(sharerIds, totalAmount, orderId);
+        } catch (Exception e) {
+            log.error("공유 구매 적립 예정 포인트 추가 실패 - orderId: {}, sharerIds: {}, error: {}",
+                    orderId, sharerIds, e.getMessage(), e);
+        }
     }
 
     private void addPendingProductAccumulationPoints(Long buyerId, Long totalAccumulatedPoint, Long orderId) {

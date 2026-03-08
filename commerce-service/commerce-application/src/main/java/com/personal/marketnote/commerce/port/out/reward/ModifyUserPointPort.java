@@ -13,11 +13,12 @@ public interface ModifyUserPointPort {
     /**
      * @param sharerIds   공유자 ID 목록
      * @param totalAmount 총 결제 금액
-     * @Date 2026-01-18
+     * @param orderId     주문 ID (sourceId)
+     * @Date 2026-03-07
      * @Author 성효빈
-     * @Description 공유 구매 포인트를 적립합니다.
+     * @Description 공유 구매 포인트를 적립 예정 포인트로 추가합니다.
      */
-    void accrueSharedPurchasePoints(List<Long> sharerIds, Long totalAmount);
+    void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId);
 
     /**
      * @param userId 회원 ID
