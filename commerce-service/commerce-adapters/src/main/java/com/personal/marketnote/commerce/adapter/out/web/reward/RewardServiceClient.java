@@ -161,6 +161,30 @@ public class RewardServiceClient implements ModifyUserPointPort {
     }
 
     @Override
+    public void revokePendingSharedPurchasePoints(List<Long> sharerIds, Long orderId) {
+        if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(orderId)) {
+            return;
+        }
+
+        sharerIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .forEach(sharerId -> revokeSharerPendingPoint(sharerId, orderId));
+    }
+
+    private void revokeSharerPendingPoint(Long sharerId, Long orderId) {
+        URI uri = buildPendingPointCancelUri(sharerId);
+        HttpHeaders headers = buildHeaders();
+
+        CancelPendingPointRequest request = new CancelPendingPointRequest(
+                SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CANCEL_REASON
+        );
+        HttpEntity<CancelPendingPointRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.POST, sharerId, "공유 적립 예정 포인트 취소");
+    }
+
+    @Override
     public void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId) {
         if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(totalAmount)) {
             return;

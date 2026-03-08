@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
@@ -26,6 +27,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -99,6 +102,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             restoreInventory(order);
             refundPoints(order);
             revokePendingProductAccumulationPoints(order);
+            revokePendingSharedPurchasePoints(order);
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
@@ -223,6 +227,28 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             log.error("상품 적립 예정 포인트 회수 실패 - orderId: {}, buyerId: {}, error: {}",
                     order.getId(), order.getBuyerId(), e.getMessage(), e);
         }
+    }
+
+    private void revokePendingSharedPurchasePoints(Order order) {
+        List<Long> sharerIds = extractSharerIds(order);
+        if (sharerIds.isEmpty()) {
+            return;
+        }
+
+        try {
+            modifyUserPointPort.revokePendingSharedPurchasePoints(sharerIds, order.getId());
+        } catch (Exception e) {
+            log.error("공유 적립 예정 포인트 회수 실패 - orderId: {}, sharerIds: {}, error: {}",
+                    order.getId(), sharerIds, e.getMessage(), e);
+        }
+    }
+
+    private List<Long> extractSharerIds(Order order) {
+        return order.getOrderProducts().stream()
+                .map(OrderProduct::getSharerId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
     }
 
     private void refundPoints(Order order) {
