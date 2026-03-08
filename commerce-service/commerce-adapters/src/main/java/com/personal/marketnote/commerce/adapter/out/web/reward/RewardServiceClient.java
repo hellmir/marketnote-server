@@ -31,6 +31,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 사용";
     private static final String ORDER_POINT_REFUND_REASON = "주문 취소 포인트 환불";
     private static final String PRODUCT_ACCUMULATION_REASON = "상품 구매 적립";
+    private static final String PENDING_POINT_CONFIRM_REASON = "구매 확정 포인트 적립";
 
     @Value("${reward-service.base-url}")
     private String rewardServiceBaseUrl;
@@ -91,7 +92,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         ModifyUserPointRequest request = ModifyUserPointRequest.deduction(amount, orderId);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
-        sendDeductionRequest(uri, httpEntity, userId);
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "포인트 변경");
     }
 
     @Override
@@ -106,7 +107,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         ModifyUserPointRequest request = ModifyUserPointRequest.refund(amount, orderId);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
-        sendDeductionRequest(uri, httpEntity, userId);
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "포인트 변경");
     }
 
     @Override
@@ -121,7 +122,24 @@ public class RewardServiceClient implements ModifyUserPointPort {
         ModifyUserPointRequest request = ModifyUserPointRequest.pendingAccrual(amount, orderId, PRODUCT_ACCUMULATION_REASON);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
-        sendDeductionRequest(uri, httpEntity, userId);
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "포인트 변경");
+    }
+
+    @Override
+    public void confirmPendingPoints(Long userId, Long orderId) {
+        if (FormatValidator.hasNoValue(userId) || FormatValidator.hasNoValue(orderId)) {
+            return;
+        }
+
+        URI uri = buildPendingPointConfirmUri(userId);
+        HttpHeaders headers = buildHeaders();
+
+        ConfirmPendingPointRequest request = new ConfirmPendingPointRequest(
+                SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CONFIRM_REASON
+        );
+        HttpEntity<ConfirmPendingPointRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.POST, userId, "적립 예정 포인트 확정");
     }
 
     @Override
@@ -147,7 +165,15 @@ public class RewardServiceClient implements ModifyUserPointPort {
         ModifyUserPointRequest request = ModifyUserPointRequest.pendingAccrual(sharePointAmount, orderId, SHARE_PURCHASE_REASON);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
-        sendDeductionRequest(uri, httpEntity, sharerId);
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, sharerId, "포인트 변경");
+    }
+
+    private URI buildPendingPointConfirmUri(Long userId) {
+        return UriComponentsBuilder
+                .fromUriString(rewardServiceBaseUrl)
+                .path("/api/v1/users/{userId}/points/pending/confirm")
+                .buildAndExpand(userId)
+                .toUri();
     }
 
     private URI buildPendingPointUri(Long userId) {
@@ -185,25 +211,26 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
     }
 
-    private void sendDeductionRequest(URI uri, HttpEntity<ModifyUserPointRequest> httpEntity, Long userId) {
+    private <T> void sendRequestWithRetry(URI uri, HttpEntity<T> httpEntity, HttpMethod method,
+                                          Long userId, String operationName) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
-                ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.PATCH, httpEntity, Void.class);
+                ResponseEntity<Void> response = restTemplate.exchange(uri, method, httpEntity, Void.class);
                 if (FormatValidator.hasValue(response) && response.getStatusCode().is2xxSuccessful()) {
                     return;
                 }
 
-                log.warn("포인트 차감 비정상 응답 - userId: {}, attempt: {}, status: {}",
-                        userId, attempt,
+                log.warn("{} 비정상 응답 - userId: {}, attempt: {}, status: {}",
+                        operationName, userId, attempt,
                         FormatValidator.hasValue(response) ? response.getStatusCode() : "empty");
             } catch (Exception e) {
-                log.warn("포인트 차감 요청 실패 - userId: {}, attempt: {}, error: {}",
-                        userId, attempt, e.getMessage(), e);
+                log.warn("{} 요청 실패 - userId: {}, attempt: {}, error: {}",
+                        operationName, userId, attempt, e.getMessage(), e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
-                    log.error("포인트 차감 최종 실패 - userId: {}", userId);
+                    log.error("{} 최종 실패 - userId: {}", operationName, userId);
                     throw new RewardServiceRequestFailedException(new IOException(e));
                 }
             }
@@ -211,6 +238,16 @@ public class RewardServiceClient implements ModifyUserPointPort {
             sleep(sleepMillis);
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
+
+        log.error("{} 최종 실패 (비정상 응답) - userId: {}", operationName, userId);
+        throw new RewardServiceRequestFailedException(new IOException(operationName + " 최종 실패"));
+    }
+
+    private record ConfirmPendingPointRequest(
+            String sourceType,
+            Long sourceId,
+            String reason
+    ) {
     }
 
     private record ModifyUserPointRequest(

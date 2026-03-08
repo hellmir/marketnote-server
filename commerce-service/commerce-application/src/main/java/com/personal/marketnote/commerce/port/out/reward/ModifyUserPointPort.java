@@ -58,4 +58,13 @@ public interface ModifyUserPointPort {
      * @Description 주문 결제 완료 시 상품 적립 포인트를 적립 예정 포인트로 추가합니다.
      */
     void addPendingProductAccumulationPoints(Long userId, Long amount, Long orderId);
+
+    /**
+     * @param userId  회원 ID
+     * @param orderId 주문 ID (sourceId)
+     * @Date 2026-03-07
+     * @Author 성효빈
+     * @Description 구매 확정 시 적립 예정 포인트를 실제 포인트로 확정합니다.
+     */
+    void confirmPendingPoints(Long userId, Long orderId);
 }
