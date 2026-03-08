@@ -67,6 +67,10 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         if (status.isPaid()) {
             updatePaymentSubsequentProcesses(order, status);
         }
+
+        if (status.isConfirmed() && !command.isPartialProductChange()) {
+            updateConfirmSubsequentProcesses(order);
+        }
     }
 
     private void validateBuyerRoleRestriction(ChangeOrderStatusCommand command) {
@@ -190,6 +194,22 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         } catch (Exception e) {
             log.error("상품 적립 예정 포인트 추가 실패 - orderId: {}, buyerId: {}, amount: {}, error: {}",
                     orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e);
+        }
+    }
+
+    private void updateConfirmSubsequentProcesses(Order order) {
+        Long orderId = order.getId();
+        Long buyerId = order.getBuyerId();
+
+        runAfterCommit(() -> confirmPendingPoints(buyerId, orderId));
+    }
+
+    private void confirmPendingPoints(Long buyerId, Long orderId) {
+        try {
+            modifyUserPointPort.confirmPendingPoints(buyerId, orderId);
+        } catch (Exception e) {
+            log.error("적립 예정 포인트 확정 실패 - orderId: {}, buyerId: {}, error: {}",
+                    orderId, buyerId, e.getMessage(), e);
         }
     }
 
