@@ -1,12 +1,7 @@
 package com.personal.marketnote.commerce.adapter.out.web.reward;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationSenderType;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationTargetType;
-import com.personal.marketnote.commerce.domain.servicecommunication.CommerceServiceCommunicationType;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
-import com.personal.marketnote.commerce.utility.ServiceCommunicationPayloadGenerator;
-import com.personal.marketnote.commerce.utility.ServiceCommunicationRecorder;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.RewardServiceRequestFailedException;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -29,7 +24,6 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 @RequiredArgsConstructor
 @Slf4j
 public class RewardServiceClient implements ModifyUserPointPort {
-    private static final String SOURCE_TYPE_USER = "USER";
     private static final String SOURCE_TYPE_ORDER = "ORDER";
     private static final String CHANGE_TYPE_ACCRUAL = "ACCRUAL";
     private static final String CHANGE_TYPE_DEDUCTION = "DEDUCTION";
@@ -37,12 +31,6 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 사용";
     private static final String ORDER_POINT_REFUND_REASON = "주문 취소 포인트 환불";
     private static final String PRODUCT_ACCUMULATION_REASON = "상품 구매 적립";
-    private static final CommerceServiceCommunicationTargetType TARGET_TYPE =
-            CommerceServiceCommunicationTargetType.USER_POINT;
-    private static final CommerceServiceCommunicationSenderType REQUEST_SENDER =
-            CommerceServiceCommunicationSenderType.COMMERCE;
-    private static final CommerceServiceCommunicationSenderType RESPONSE_SENDER =
-            CommerceServiceCommunicationSenderType.REWARD;
 
     @Value("${reward-service.base-url}")
     private String rewardServiceBaseUrl;
@@ -54,8 +42,6 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private float sharePointRate;
 
     private final RestTemplate restTemplate;
-    private final ServiceCommunicationRecorder serviceCommunicationRecorder;
-    private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
     @Override
     public Long getAvailablePoints(Long userId) {
@@ -139,163 +125,29 @@ public class RewardServiceClient implements ModifyUserPointPort {
     }
 
     @Override
-    public void accrueSharedPurchasePoints(List<Long> sharerIds, Long totalAmount) {
+    public void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId) {
         if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(totalAmount)) {
             return;
         }
 
         sharerIds.stream()
                 .filter(Objects::nonNull)
-                .forEach(sharerId -> accrueSharerPoint(sharerId, totalAmount));
+                .forEach(sharerId -> addPendingSharerPoint(sharerId, totalAmount, orderId));
     }
 
-    private void accrueSharerPoint(Long sharerId, Long totalAmount) {
+    private void addPendingSharerPoint(Long sharerId, Long totalAmount, Long orderId) {
         if (totalAmount <= 0) {
             return;
         }
 
-        URI uri = buildUserPointUri(sharerId);
+        URI uri = buildPendingPointUri(sharerId);
         HttpHeaders headers = buildHeaders();
 
-        ensureUserPointExists(uri, headers, sharerId);
-
         long sharePointAmount = Math.round(totalAmount * sharePointRate);
-        ModifyUserPointRequest request = ModifyUserPointRequest.of(sharePointAmount, sharerId);
+        ModifyUserPointRequest request = ModifyUserPointRequest.pendingAccrual(sharePointAmount, orderId, SHARE_PURCHASE_REASON);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
-        sendRequest(uri, httpEntity, sharerId);
-    }
-
-    private void ensureUserPointExists(URI uri, HttpHeaders headers, Long userId) {
-        try {
-            restTemplate.exchange(uri, HttpMethod.POST, new HttpEntity<>(headers), Void.class);
-        } catch (Exception e) {
-            String exception = e.getClass().getSimpleName();
-            JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                    HttpMethod.POST,
-                    uri,
-                    null,
-                    1
-            );
-            String requestPayload = requestPayloadJson.toString();
-            JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                    exception,
-                    e.getMessage(),
-                    1
-            );
-            String responsePayload = responsePayloadJson.toString();
-            recordCommunication(
-                    TARGET_TYPE,
-                    String.valueOf(userId),
-                    CommerceServiceCommunicationType.REQUEST,
-                    requestPayload,
-                    requestPayloadJson,
-                    exception
-            );
-            recordCommunication(
-                    TARGET_TYPE,
-                    String.valueOf(userId),
-                    CommerceServiceCommunicationType.RESPONSE,
-                    responsePayload,
-                    responsePayloadJson,
-                    exception
-            );
-            log.info("User point registration skipped: userId={}, message={}", userId, e.getMessage());
-        }
-    }
-
-    private void sendRequest(URI uri, HttpEntity<ModifyUserPointRequest> httpEntity, Long userId) {
-        long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
-        Exception error = new Exception();
-
-        for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
-            int attempt = i + 1;
-            try {
-                ResponseEntity<Void> response = restTemplate.exchange(uri, HttpMethod.PATCH, httpEntity, Void.class);
-                if (FormatValidator.hasValue(response) && response.getStatusCode().is2xxSuccessful()) {
-                    return;
-                }
-
-                String exception = FormatValidator.hasValue(response)
-                        ? response.getStatusCode().toString()
-                        : "EmptyResponse";
-                JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                        HttpMethod.PATCH,
-                        uri,
-                        httpEntity.getBody(),
-                        attempt
-                );
-                String requestPayload = requestPayloadJson.toString();
-                JsonNode responsePayloadJson =
-                        serviceCommunicationPayloadGenerator.buildResponsePayloadJson(response, attempt);
-                String responsePayload = responsePayloadJson.toString();
-                recordCommunication(
-                        TARGET_TYPE,
-                        String.valueOf(userId),
-                        CommerceServiceCommunicationType.REQUEST,
-                        requestPayload,
-                        requestPayloadJson,
-                        exception
-                );
-                recordCommunication(
-                        TARGET_TYPE,
-                        String.valueOf(userId),
-                        CommerceServiceCommunicationType.RESPONSE,
-                        responsePayload,
-                        responsePayloadJson,
-                        exception
-                );
-                log.warn(
-                        "Reward service responded with non-2xx status for userId={}, status={}",
-                        userId, response.getStatusCode()
-                );
-            } catch (Exception e) {
-                String exception = e.getClass().getSimpleName();
-                JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                        HttpMethod.PATCH,
-                        uri,
-                        httpEntity.getBody(),
-                        attempt
-                );
-                String requestPayload = requestPayloadJson.toString();
-                JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                        exception,
-                        e.getMessage(),
-                        attempt
-                );
-                String responsePayload = responsePayloadJson.toString();
-                recordCommunication(
-                        TARGET_TYPE,
-                        String.valueOf(userId),
-                        CommerceServiceCommunicationType.REQUEST,
-                        requestPayload,
-                        requestPayloadJson,
-                        exception
-                );
-                recordCommunication(
-                        TARGET_TYPE,
-                        String.valueOf(userId),
-                        CommerceServiceCommunicationType.RESPONSE,
-                        responsePayload,
-                        responsePayloadJson,
-                        exception
-                );
-                log.warn(
-                        "Failed to accrue user point on reward-service: userId={}, attempt={}, message={}",
-                        userId, i + 1, e.getMessage(), e
-                );
-                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
-                    error = e;
-                }
-            }
-
-            sleep(sleepMillis);
-            // exponential backoff 적용
-            sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
-        }
-
-        log.error("Failed to accrue user point: {} with error: {}", uri, error.getMessage(), error);
-        throw new RewardServiceRequestFailedException(new IOException());
+        sendDeductionRequest(uri, httpEntity, sharerId);
     }
 
     private URI buildPendingPointUri(Long userId) {
@@ -368,16 +220,6 @@ public class RewardServiceClient implements ModifyUserPointPort {
             Long sourceId,
             String reason
     ) {
-        private static ModifyUserPointRequest of(long amount, Long sourceId) {
-            return new ModifyUserPointRequest(
-                    CHANGE_TYPE_ACCRUAL,
-                    Math.abs(amount),
-                    SOURCE_TYPE_USER,
-                    sourceId,
-                    SHARE_PURCHASE_REASON
-            );
-        }
-
         private static ModifyUserPointRequest deduction(long amount, Long orderId) {
             return new ModifyUserPointRequest(
                     CHANGE_TYPE_DEDUCTION,
@@ -407,30 +249,5 @@ public class RewardServiceClient implements ModifyUserPointPort {
                     reason
             );
         }
-    }
-
-    private void recordCommunication(
-            CommerceServiceCommunicationTargetType targetType,
-            String targetId,
-            CommerceServiceCommunicationType communicationType,
-            String payload,
-            JsonNode payloadJson,
-            String exception
-    ) {
-        if (FormatValidator.hasNoValue(exception)) {
-            return;
-        }
-
-        CommerceServiceCommunicationSenderType sender =
-                communicationType == CommerceServiceCommunicationType.REQUEST ? REQUEST_SENDER : RESPONSE_SENDER;
-        serviceCommunicationRecorder.record(
-                targetType,
-                communicationType,
-                sender,
-                targetId,
-                payload,
-                payloadJson,
-                exception
-        );
     }
 }
