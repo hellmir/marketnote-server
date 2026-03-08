@@ -15,6 +15,8 @@ import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusU
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -25,6 +27,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -38,6 +41,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final GetOrderUseCase getOrderUseCase;
     private final UpdateOrderPort updateOrderPort;
     private final DeleteOrderedCartProductsPort deleteOrderedCartProductsPort;
+    private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final ModifyUserPointPort modifyUserPointPort;
 
     @Override
@@ -101,7 +105,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     }
 
     private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {
-        // FIXME: Kafka 이벤트 Consumption으로 변경(주문 상태 PAID로 변경 / 결제 금액 업데이트 / 재고 감소 / 장바구니 상품 삭제)
+        // FIXME: [#929] Kafka 이벤트 Consumption으로 변경(주문 상태 PAID로 변경 / 결제 금액 업데이트 / 재고 감소 / 장바구니 상품 삭제)
 
         // 결제 완료 시 재고 차감
         reduceProductInventoryUseCase.reduce(order.getOrderProducts(), status.getDescription());
@@ -114,13 +118,20 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         Long orderId = order.getId();
         Long buyerId = order.getBuyerId();
         Long pointAmount = order.getPointAmount();
+        Long totalAmount = order.getTotalAmount();
+        Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(order.getOrderProducts(), pricePolicyIds);
 
         runAfterCommit(() -> {
             // 결제 완료 시 장바구니 상품 삭제
             deleteOrderedCartProductsPort.delete(pricePolicyIds);
 
             // 링크 공유 회원 포인트 적립
-            modifyUserPointPort.accrueSharedPurchasePoints(sharerIds, order.getTotalAmount());
+            try {
+                modifyUserPointPort.accrueSharedPurchasePoints(sharerIds, totalAmount);
+            } catch (Exception e) {
+                log.error("공유 구매 포인트 적립 실패 - orderId: {}, buyerId: {}, error: {}",
+                        orderId, buyerId, e.getMessage(), e);
+            }
 
             // 포인트 사용 시 차감
             if (FormatValidator.hasValue(pointAmount) && pointAmount > 0) {
@@ -131,7 +142,47 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                             orderId, buyerId, pointAmount, e.getMessage(), e);
                 }
             }
+
+            // 상품 적립 포인트를 적립 예정 포인트로 추가
+            addPendingProductAccumulationPoints(buyerId, totalAccumulatedPoint, orderId);
         });
+    }
+
+    private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts, List<Long> pricePolicyIds) {
+        Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+
+        long totalAccumulatedPoint = 0L;
+        for (OrderProduct orderProduct : orderProducts) {
+            ProductInfoResult productInfo = productInfoMap.get(orderProduct.getPricePolicyId());
+            if (FormatValidator.hasNoValue(productInfo)) {
+                log.warn("상품 정보 조회 누락 - pricePolicyId: {}", orderProduct.getPricePolicyId());
+                continue;
+            }
+            if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
+                continue;
+            }
+            totalAccumulatedPoint = Math.addExact(totalAccumulatedPoint,
+                    Math.multiplyExact(productInfo.accumulatedPoint(), orderProduct.getQuantity()));
+        }
+
+        return totalAccumulatedPoint;
+    }
+
+    private void addPendingProductAccumulationPoints(Long buyerId, Long totalAccumulatedPoint, Long orderId) {
+        if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
+            return;
+        }
+
+        try {
+            modifyUserPointPort.addPendingProductAccumulationPoints(
+                    buyerId,
+                    totalAccumulatedPoint,
+                    orderId
+            );
+        } catch (Exception e) {
+            log.error("상품 적립 예정 포인트 추가 실패 - orderId: {}, buyerId: {}, amount: {}, error: {}",
+                    orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e);
+        }
     }
 
     private List<Long> extractSharerIds(List<OrderProduct> orderProducts) {

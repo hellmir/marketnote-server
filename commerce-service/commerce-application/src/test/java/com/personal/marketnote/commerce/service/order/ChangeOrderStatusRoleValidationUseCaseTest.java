@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductI
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,6 +40,8 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
     private UpdateOrderPort updateOrderPort;
     @Mock
     private DeleteOrderedCartProductsPort deleteOrderedCartProductsPort;
+    @Mock
+    private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock
     private ModifyUserPointPort modifyUserPointPort;
 

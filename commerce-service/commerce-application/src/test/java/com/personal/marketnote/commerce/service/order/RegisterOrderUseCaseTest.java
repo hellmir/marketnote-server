@@ -966,7 +966,7 @@ class RegisterOrderUseCaseTest {
 
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(Map.of(pricePolicyId,
-                            new ProductInfoResult(1L, 10L, "상품", "브랜드", 50000L, 40000L, List.of())));
+                            new ProductInfoResult(1L, 10L, "상품", "브랜드", 50000L, 40000L, null, List.of())));
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
@@ -981,7 +981,7 @@ class RegisterOrderUseCaseTest {
 
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(Map.of(pricePolicyId,
-                            new ProductInfoResult(1L, 10L, "상품", "브랜드", 50000L, null, List.of())));
+                            new ProductInfoResult(1L, 10L, "상품", "브랜드", 50000L, null, null, List.of())));
             mockInventoryAndSave(pricePolicyId, 100, 1L);
 
             assertThatCode(() -> registerOrderService.registerOrder(command))
@@ -1166,8 +1166,8 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             java.util.HashMap<Long, ProductInfoResult> productInfoMap = new java.util.HashMap<>();
-            productInfoMap.put(pricePolicyId1, new ProductInfoResult(1L, 10L, "상품1", "브랜드1", 50000L, null, List.of()));
-            productInfoMap.put(pricePolicyId2, new ProductInfoResult(2L, 20L, "상품2", "브랜드2", 50000L, null, List.of()));
+            productInfoMap.put(pricePolicyId1, new ProductInfoResult(1L, 10L, "상품1", "브랜드1", 50000L, null, null, List.of()));
+            productInfoMap.put(pricePolicyId2, new ProductInfoResult(2L, 20L, "상품2", "브랜드2", 50000L, null, null, List.of()));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(productInfoMap);
 
@@ -2299,7 +2299,7 @@ class RegisterOrderUseCaseTest {
 
     private void mockProductPrice(Long pricePolicyId, Long price) {
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, 10L, "테스트 상품", "테스트 브랜드", price, null, List.of()
+                1L, 10L, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                 .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -2307,7 +2307,7 @@ class RegisterOrderUseCaseTest {
 
     private void mockProductPriceWithSellerId(Long pricePolicyId, Long price, Long sellerId) {
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, sellerId, "테스트 상품", "테스트 브랜드", price, null, List.of()
+                1L, sellerId, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                 .thenReturn(Map.of(pricePolicyId, productInfo));
@@ -2318,7 +2318,7 @@ class RegisterOrderUseCaseTest {
         pricePolicyIdToPriceAndSellerId.forEach((pricePolicyId, priceAndSellerId) ->
                 result.put(pricePolicyId, new ProductInfoResult(
                         pricePolicyId, priceAndSellerId.getValue(), "테스트 상품", "테스트 브랜드",
-                        priceAndSellerId.getKey(), null, List.of()
+                        priceAndSellerId.getKey(), null, null, List.of()
                 ))
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
@@ -2329,7 +2329,7 @@ class RegisterOrderUseCaseTest {
         java.util.HashMap<Long, ProductInfoResult> result = new java.util.HashMap<>();
         pricePolicyIdToPrice.forEach((pricePolicyId, price) ->
                 result.put(pricePolicyId, new ProductInfoResult(
-                        pricePolicyId, 10L, "테스트 상품", "테스트 브랜드", price, null, List.of()
+                        pricePolicyId, 10L, "테스트 상품", "테스트 브랜드", price, null, null, List.of()
                 ))
         );
         when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
