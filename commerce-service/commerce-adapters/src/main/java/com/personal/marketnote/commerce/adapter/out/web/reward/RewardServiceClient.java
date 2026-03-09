@@ -33,6 +33,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private static final String PRODUCT_ACCUMULATION_REASON = "상품 구매 적립";
     private static final String PENDING_POINT_CONFIRM_REASON = "구매 확정 포인트 적립";
     private static final String PENDING_POINT_CANCEL_REASON = "결제 취소 적립 예정 포인트 회수";
+    private static final String PARTIAL_CANCEL_PRODUCT_ACCUMULATION_REASON = "부분 결제 취소 상품 적립 포인트 차감";
 
     @Value("${reward-service.base-url}")
     private String rewardServiceBaseUrl;
@@ -158,6 +159,23 @@ public class RewardServiceClient implements ModifyUserPointPort {
         HttpEntity<CancelPendingPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
         sendRequestWithRetry(uri, httpEntity, HttpMethod.POST, userId, "적립 예정 포인트 취소");
+    }
+
+    @Override
+    public void reducePartialPendingPoints(Long userId, Long amount, Long orderId) {
+        if (FormatValidator.hasNoValue(amount) || amount <= 0) {
+            return;
+        }
+
+        URI uri = buildPendingPointUri(userId);
+        HttpHeaders headers = buildHeaders();
+
+        ModifyUserPointRequest request = ModifyUserPointRequest.pendingDeduction(
+                amount, orderId, PARTIAL_CANCEL_PRODUCT_ACCUMULATION_REASON
+        );
+        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "부분 취소 적립 예정 포인트 차감");
     }
 
     @Override
@@ -337,6 +355,16 @@ public class RewardServiceClient implements ModifyUserPointPort {
         private static ModifyUserPointRequest pendingAccrual(long amount, Long orderId, String reason) {
             return new ModifyUserPointRequest(
                     CHANGE_TYPE_ACCRUAL,
+                    Math.abs(amount),
+                    SOURCE_TYPE_ORDER,
+                    orderId,
+                    reason
+            );
+        }
+
+        private static ModifyUserPointRequest pendingDeduction(long amount, Long orderId, String reason) {
+            return new ModifyUserPointRequest(
+                    CHANGE_TYPE_DEDUCTION,
                     Math.abs(amount),
                     SOURCE_TYPE_ORDER,
                     orderId,

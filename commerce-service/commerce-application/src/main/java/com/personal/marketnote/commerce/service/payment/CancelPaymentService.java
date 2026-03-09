@@ -19,15 +19,20 @@ import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorCommand;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
+import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -52,6 +57,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
     private final ModifyUserPointPort modifyUserPointPort;
     private final SaveRefundPort saveRefundPort;
+    private final FindProductByPricePolicyPort findProductByPricePolicyPort;
 
     @Override
     public void cancel(CancelPaymentCommand command) {
@@ -103,6 +109,13 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             refundPoints(order);
             revokePendingProductAccumulationPoints(order);
             revokePendingSharedPurchasePoints(order);
+        } else {
+            Long buyerId = order.getBuyerId();
+            Long orderId = order.getId();
+            List<OrderProduct> orderProducts = order.getOrderProducts();
+            Long paymentAmount = payment.getPaymentAmount();
+            runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(
+                    buyerId, orderId, orderProducts, paymentAmount, cancelAmount));
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
@@ -249,6 +262,70 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
+    }
+
+    private void reducePartialPendingProductAccumulationPoints(
+            Long buyerId, Long orderId, List<OrderProduct> orderProducts, Long paymentAmount, Long cancelAmount
+    ) {
+        try {
+            Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts);
+            if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
+                return;
+            }
+
+            Long proportionalPoint = calculateProportionalPoint(cancelAmount, paymentAmount, totalAccumulatedPoint);
+            if (proportionalPoint <= 0) {
+                return;
+            }
+
+            modifyUserPointPort.reducePartialPendingPoints(buyerId, proportionalPoint, orderId);
+        } catch (Exception e) {
+            log.error("부분 취소 상품 적립 예정 포인트 차감 실패 - orderId: {}, buyerId: {}, error: {}",
+                    orderId, buyerId, e.getMessage(), e);
+        }
+    }
+
+    private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts) {
+        List<Long> pricePolicyIds = orderProducts.stream()
+                .map(OrderProduct::getPricePolicyId)
+                .toList();
+        Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+
+        long total = 0L;
+        for (OrderProduct orderProduct : orderProducts) {
+            ProductInfoResult productInfo = productInfoMap.get(orderProduct.getPricePolicyId());
+            if (FormatValidator.hasNoValue(productInfo)) {
+                log.warn("상품 정보 조회 누락 - pricePolicyId: {}", orderProduct.getPricePolicyId());
+                continue;
+            }
+            if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
+                continue;
+            }
+            total = Math.addExact(total, Math.multiplyExact(productInfo.accumulatedPoint(), orderProduct.getQuantity()));
+        }
+        return total;
+    }
+
+    private Long calculateProportionalPoint(Long cancelAmount, Long paymentAmount, Long totalPoint) {
+        if (FormatValidator.hasNoValue(paymentAmount) || paymentAmount <= 0) {
+            return 0L;
+        }
+        long numerator = Math.multiplyExact(cancelAmount, totalPoint);
+        return (numerator + paymentAmount / 2) / paymentAmount;
+    }
+
+    private void runAfterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+            return;
+        }
+
+        action.run();
     }
 
     private void refundPoints(Order order) {
