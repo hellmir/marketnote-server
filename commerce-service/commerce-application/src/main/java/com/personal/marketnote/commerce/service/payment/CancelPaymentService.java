@@ -116,6 +116,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             Long paymentAmount = payment.getPaymentAmount();
             runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(
                     buyerId, orderId, orderProducts, paymentAmount, cancelAmount));
+            runAfterCommit(() -> reducePartialPendingSharedPurchasePoints(
+                    order, paymentAmount, cancelAmount));
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
@@ -262,6 +264,21 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
+    }
+
+    private void reducePartialPendingSharedPurchasePoints(Order order, Long paymentAmount, Long cancelAmount) {
+        List<Long> sharerIds = extractSharerIds(order);
+        if (sharerIds.isEmpty()) {
+            return;
+        }
+
+        try {
+            modifyUserPointPort.reducePartialPendingSharedPurchasePoints(
+                    sharerIds, paymentAmount, cancelAmount, order.getId());
+        } catch (Exception e) {
+            log.error("부분 취소 공유 적립 예정 포인트 차감 실패 - orderId: {}, sharerIds: {}, error: {}",
+                    order.getId(), sharerIds, e.getMessage(), e);
+        }
     }
 
     private void reducePartialPendingProductAccumulationPoints(

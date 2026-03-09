@@ -34,6 +34,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private static final String PENDING_POINT_CONFIRM_REASON = "구매 확정 포인트 적립";
     private static final String PENDING_POINT_CANCEL_REASON = "결제 취소 적립 예정 포인트 회수";
     private static final String PARTIAL_CANCEL_PRODUCT_ACCUMULATION_REASON = "부분 결제 취소 상품 적립 포인트 차감";
+    private static final String PARTIAL_CANCEL_SHARED_PURCHASE_REASON = "부분 결제 취소 링크 공유 적립 포인트 차감";
 
     @Value("${reward-service.base-url}")
     private String rewardServiceBaseUrl;
@@ -176,6 +177,43 @@ public class RewardServiceClient implements ModifyUserPointPort {
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
 
         sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "부분 취소 적립 예정 포인트 차감");
+    }
+
+    @Override
+    public void reducePartialPendingSharedPurchasePoints(List<Long> sharerIds, Long paymentAmount, Long cancelAmount, Long orderId) {
+        if (FormatValidator.hasNoValue(sharerIds)
+                || FormatValidator.hasNoValue(paymentAmount) || paymentAmount <= 0
+                || FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0) {
+            return;
+        }
+
+        long originalSharePoint = Math.round(paymentAmount * sharePointRate);
+        if (originalSharePoint <= 0) {
+            return;
+        }
+
+        long numerator = Math.multiplyExact(cancelAmount, originalSharePoint);
+        long proportionalPoint = (numerator + paymentAmount / 2) / paymentAmount;
+        if (proportionalPoint <= 0) {
+            return;
+        }
+
+        sharerIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .forEach(sharerId -> reduceSharerPartialPendingPoint(sharerId, proportionalPoint, orderId));
+    }
+
+    private void reduceSharerPartialPendingPoint(Long sharerId, Long amount, Long orderId) {
+        URI uri = buildPendingPointUri(sharerId);
+        HttpHeaders headers = buildHeaders();
+
+        ModifyUserPointRequest request = ModifyUserPointRequest.pendingDeduction(
+                amount, orderId, PARTIAL_CANCEL_SHARED_PURCHASE_REASON
+        );
+        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
+
+        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, sharerId, "부분 취소 공유 적립 예정 포인트 차감");
     }
 
     @Override
