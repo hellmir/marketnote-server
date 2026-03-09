@@ -6,6 +6,9 @@ import com.personal.marketnote.commerce.adapter.in.web.payment.request.ReadyPaym
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
+import com.personal.marketnote.common.utility.FormatValidator;
+
+import java.util.List;
 
 public class PaymentRequestToCommandMapper {
     private PaymentRequestToCommandMapper() {
@@ -31,12 +34,20 @@ public class PaymentRequestToCommandMapper {
     }
 
     public static CancelPaymentCommand mapToCommand(String orderKey, CancelPaymentRequest request, Long buyerId) {
+        List<CancelPaymentCommand.CancelProductItem> cancelProducts = FormatValidator.hasValue(request.getCancelProducts())
+                ? request.getCancelProducts().stream()
+                        .map(item -> new CancelPaymentCommand.CancelProductItem(
+                                item.getPricePolicyId(), item.getQuantity()))
+                        .toList()
+                : null;
+
         return CancelPaymentCommand.builder()
                 .buyerId(buyerId)
                 .orderKey(orderKey)
                 .cancelType(request.getCancelType())
                 .cancelAmount(request.getCancelAmount())
                 .cancelReason(request.getCancelReason())
+                .cancelProducts(cancelProducts)
                 .build();
     }
 }

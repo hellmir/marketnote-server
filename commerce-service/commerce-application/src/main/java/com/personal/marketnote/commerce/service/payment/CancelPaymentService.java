@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundCreateState;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
+import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -82,6 +84,10 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         Long cancelAmount = computeCancelAmount(isFullCancel, command.cancelAmount(), refundableAmount);
         Long remainAmount = refundableAmount - cancelAmount;
 
+        if (!isFullCancel && command.hasCancelProducts()) {
+            validateCancelProducts(order, command.cancelProducts());
+        }
+
         PaymentCancelVendorResult vendorResult = requestPaymentCancellationToPsp(
                 transactionNumber, modType, cancelAmount, remainAmount, command.cancelReason()
         );
@@ -110,6 +116,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             revokePendingProductAccumulationPoints(order);
             revokePendingSharedPurchasePoints(order);
         } else {
+            restorePartialCancelInventory(order, command);
             Long buyerId = order.getBuyerId();
             Long orderId = order.getId();
             List<OrderProduct> orderProducts = order.getOrderProducts();
@@ -232,6 +239,57 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         } catch (Exception e) {
             log.error("재고 복구 실패 - orderId: {}, error: {}",
                     order.getId(), e.getMessage(), e);
+        }
+    }
+
+    private void restorePartialCancelInventory(Order order, CancelPaymentCommand command) {
+        if (!command.hasCancelProducts()) {
+            return;
+        }
+
+        try {
+            List<OrderProduct> cancelTargetProducts = command.cancelProducts().stream()
+                    .map(item -> OrderProduct.from(
+                            OrderProductSnapshotState.builder()
+                                    .pricePolicyId(item.pricePolicyId())
+                                    .quantity(item.quantity())
+                                    .build()
+                    ))
+                    .toList();
+            restoreProductInventoryUseCase.restore(cancelTargetProducts, "주문 부분 취소에 의한 재고 복구");
+        } catch (Exception e) {
+            log.error("부분 취소 재고 복구 실패 - orderId: {}, error: {}",
+                    order.getId(), e.getMessage(), e);
+        }
+    }
+
+    private void validateCancelProducts(Order order, List<CancelPaymentCommand.CancelProductItem> cancelProducts) {
+        long distinctCount = cancelProducts.stream()
+                .map(CancelPaymentCommand.CancelProductItem::pricePolicyId)
+                .distinct()
+                .count();
+        if (distinctCount != cancelProducts.size()) {
+            throw new InvalidCancelProductException("중복된 상품이 포함되어 있습니다.");
+        }
+
+        Map<Long, Integer> orderQuantityByPricePolicyId = order.getOrderProducts().stream()
+                .collect(Collectors.toMap(OrderProduct::getPricePolicyId, OrderProduct::getQuantity, Integer::sum));
+
+        for (CancelPaymentCommand.CancelProductItem item : cancelProducts) {
+            if (FormatValidator.hasNoValue(item.quantity()) || item.quantity() <= 0) {
+                throw new InvalidCancelProductException(
+                        "취소 수량은 1 이상이어야 합니다. pricePolicyId=" + item.pricePolicyId());
+            }
+            Integer orderQuantity = orderQuantityByPricePolicyId.get(item.pricePolicyId());
+            if (FormatValidator.hasNoValue(orderQuantity)) {
+                throw new InvalidCancelProductException(
+                        "주문에 존재하지 않는 상품입니다. pricePolicyId=" + item.pricePolicyId());
+            }
+            if (item.quantity() > orderQuantity) {
+                throw new InvalidCancelProductException(
+                        "취소 수량이 주문 수량을 초과합니다. pricePolicyId=" + item.pricePolicyId()
+                                + ", 주문수량=" + orderQuantity + ", 취소수량=" + item.quantity());
+            }
         }
     }
 
