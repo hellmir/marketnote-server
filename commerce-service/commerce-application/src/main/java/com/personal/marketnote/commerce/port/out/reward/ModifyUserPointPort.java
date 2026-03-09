@@ -85,4 +85,14 @@ public interface ModifyUserPointPort {
      * @Description 결제 취소 시 공유자들의 적립 예정 포인트를 회수(취소)합니다.
      */
     void revokePendingSharedPurchasePoints(List<Long> sharerIds, Long orderId);
+
+    /**
+     * @param userId  회원 ID
+     * @param amount  차감할 적립 예정 포인트
+     * @param orderId 주문 ID (sourceId)
+     * @Date 2026-03-07
+     * @Author 성효빈
+     * @Description 부분 결제 취소 시 취소 금액에 비례한 적립 예정 포인트를 차감합니다.
+     */
+    void reducePartialPendingPoints(Long userId, Long amount, Long orderId);
 }
