@@ -17,7 +17,9 @@ import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusU
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
+import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -76,6 +79,9 @@ class CancelPaymentUseCaseTest {
 
     @Mock
     private SaveRefundPort saveRefundPort;
+
+    @Mock
+    private FindProductByPricePolicyPort findProductByPricePolicyPort;
 
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -863,6 +869,199 @@ class CancelPaymentUseCaseTest {
             verify(updatePspPaymentEventPort).update(any());
             verify(changeOrderStatusUseCase).changeOrderStatus(any());
         }
+    }
+
+    @Nested
+    @DisplayName("부분 취소 적립 예정 포인트 비례 차감 검증")
+    class PartialCancelPendingPointTest {
+
+        @Test
+        @DisplayName("부분 취소 시 취소 금액에 비례하여 적립 예정 포인트가 차감된다")
+        void shouldReducePendingPointsProportionally() {
+            // 결제금액 50000, 부분취소 20000 (40%), 적립포인트 1000 → 비례 400
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, createProductInfoWithPoint(500L)));
+
+            cancelPaymentService.cancel(command);
+
+            // 총 적립포인트 = 500 * 2 = 1000, 비례 = round(20000/50000 * 1000) = 400
+            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 400L, 1L);
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 적립 포인트가 0이면 차감이 호출되지 않는다")
+        void shouldNotReduceWhenAccumulatedPointIsZero() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, createProductInfoWithPoint(0L)));
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 상품 정보 조회 실패해도 결제 취소는 정상 완료된다")
+        void shouldCompleteCancelEvenWhenProductInfoFails() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenThrow(new RuntimeException("상품 서비스 장애"));
+
+            cancelPaymentService.cancel(command);
+
+            verify(updatePaymentPort).update(any());
+            verify(updatePspPaymentEventPort).update(any());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 포인트 차감 실패해도 결제 취소는 정상 완료된다")
+        void shouldCompleteCancelEvenWhenPendingPointReduceFails() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, createProductInfoWithPoint(500L)));
+            doThrow(new RuntimeException("포인트 차감 실패")).when(modifyUserPointPort)
+                    .reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
+
+            cancelPaymentService.cancel(command);
+
+            verify(updatePaymentPort).update(any());
+            verify(updatePspPaymentEventPort).update(any());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 상품 정보에 적립 포인트가 null이면 차감이 호출되지 않는다")
+        void shouldNotReduceWhenAccumulatedPointIsNull() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, createProductInfoWithPoint(null)));
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
+        }
+
+        @Test
+        @DisplayName("여러 상품의 적립 포인트를 합산하여 비례 차감한다")
+        void shouldSumAccumulatedPointsFromMultipleProducts() {
+            // 상품1: 300포인트 * 1개 = 300, 상품2: 200포인트 * 2개 = 400, 합계 = 700
+            // 결제금액 70000, 부분취소 35000 (50%) → 비례 350
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 70000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 70000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 35000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            List<OrderProductSnapshotState> productStates = List.of(
+                    OrderProductSnapshotState.builder()
+                            .pricePolicyId(100L).quantity(1).sellerId(10L).unitAmount(30000L).build(),
+                    OrderProductSnapshotState.builder()
+                            .pricePolicyId(200L).quantity(2).sellerId(10L).unitAmount(20000L).build()
+            );
+            OrderSnapshotState orderState = OrderSnapshotState.builder()
+                    .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
+                    .totalAmount(70000L).pointAmount(0L).orderProductStates(productStates).build();
+            Order order = Order.from(orderState);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L, 200L)))
+                    .thenReturn(Map.of(
+                            100L, createProductInfoWithPoint(300L),
+                            200L, createProductInfoWithPoint(200L)
+                    ));
+
+            cancelPaymentService.cancel(command);
+
+            // 합계 700, 비례 = round(35000/70000 * 700) = 350
+            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 350L, 1L);
+        }
+
+        @Test
+        @DisplayName("전체 취소 시에는 비례 차감이 아닌 기존 전체 회수가 호출된다")
+        void shouldUseFullRevokeOnFullCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort).revokePendingPoints(BUYER_ID, 1L);
+            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
+        }
+    }
+
+    private Order createOrderWithAccumulatedPoint(Long orderId, Long buyerId, Long totalAmount,
+                                                   Long pricePolicyId, int quantity, Long unitAmount) {
+        OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
+                .pricePolicyId(pricePolicyId)
+                .quantity(quantity)
+                .sellerId(10L)
+                .unitAmount(unitAmount)
+                .build();
+        OrderSnapshotState state = OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(ORDER_KEY)
+                .orderStatus(OrderStatus.PAID)
+                .totalAmount(totalAmount)
+                .pointAmount(0L)
+                .orderProductStates(List.of(productState))
+                .build();
+        return Order.from(state);
+    }
+
+    private ProductInfoResult createProductInfoWithPoint(Long accumulatedPoint) {
+        return new ProductInfoResult(1L, 10L, "테스트 상품", "테스트 브랜드", 25000L, null, accumulatedPoint, List.of());
     }
 
     private Payment createSuccessPayment(Long orderId, UUID orderKey, Long amount, String pgPaymentKey) {
