@@ -137,7 +137,43 @@ public class PspPaymentEvent {
         if (!poStatus.isExecuting()) {
             throw new InvalidPaymentStatusTransitionException("EXECUTING 상태에서만 실행 실패 처리할 수 있습니다.", poStatus);
         }
-        poStatus = PaymentEventStatus.READY;
+        poStatus = PaymentEventStatus.FAILED;
+        this.resultCode = resultCode;
+        this.resultMessage = resultMessage;
+    }
+
+    public void markUnknown(String resultCode, String resultMessage) {
+        if (!poStatus.isExecuting()) {
+            throw new InvalidPaymentStatusTransitionException("EXECUTING 상태에서만 UNKNOWN으로 전이할 수 있습니다.", poStatus);
+        }
+        poStatus = PaymentEventStatus.UNKNOWN;
+        this.resultCode = resultCode;
+        this.resultMessage = resultMessage;
+    }
+
+    public void resolveToComplete(PaymentApprovalInfo info) {
+        if (!poStatus.isUnknown()) {
+            throw new InvalidPaymentStatusTransitionException("UNKNOWN 상태에서만 COMPLETE로 해소할 수 있습니다.", poStatus);
+        }
+        poStatus = PaymentEventStatus.COMPLETE;
+        pgPaymentKey = info.getPgPaymentKey();
+        method = info.getMethod();
+        cardNumber = info.getCardNumber();
+        approvalNumber = info.getApprovalNumber();
+        installment = info.getInstallment();
+        issueCompanyCode = info.getIssueCompanyCode();
+        issueCompanyName = info.getIssueCompanyName();
+        resultCode = info.getResultCode();
+        resultMessage = info.getResultMessage();
+        pgApprovalResult = info.getPgApprovalResult();
+        paidAt = parseAppTime(info.getAppTime());
+    }
+
+    public void resolveToFailed(String resultCode, String resultMessage) {
+        if (!poStatus.isUnknown()) {
+            throw new InvalidPaymentStatusTransitionException("UNKNOWN 상태에서만 FAILED로 해소할 수 있습니다.", poStatus);
+        }
+        poStatus = PaymentEventStatus.FAILED;
         this.resultCode = resultCode;
         this.resultMessage = resultMessage;
     }
@@ -148,6 +184,14 @@ public class PspPaymentEvent {
      */
     public boolean isActiveEvent() {
         return poStatus.isReady() || poStatus.isExecuting();
+    }
+
+    /**
+     * 미해결 상태인지 확인한다.
+     * READY, EXECUTING, UNKNOWN 상태면 true — 중복 결제 방지에 사용된다.
+     */
+    public boolean isUnresolved() {
+        return isActiveEvent() || poStatus.isUnknown();
     }
 
     public void cancel(String pgCancelApprovalResult) {

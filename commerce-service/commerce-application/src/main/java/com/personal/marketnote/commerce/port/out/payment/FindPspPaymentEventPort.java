@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.port.out.payment;
 
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,4 +21,11 @@ public interface FindPspPaymentEventPort {
      * @Description 주문 키로 PSP 결제 이벤트를 조회합니다.
      */
     Optional<PspPaymentEvent> findByOrderKey(String orderKey);
+
+    /**
+     * UNKNOWN 상태의 PSP 결제 이벤트 전체를 조회합니다.
+     *
+     * @return UNKNOWN 상태의 PSP 결제 이벤트 목록
+     */
+    List<PspPaymentEvent> findAllByUnknownStatus();
 }
