@@ -1,16 +1,11 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
-import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
-import com.personal.marketnote.commerce.port.out.payment.*;
+import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,12 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,28 +31,10 @@ class ApprovePaymentUseCaseTest {
     private ApprovePaymentService approvePaymentService;
 
     @Mock
-    private FindOrderPort findOrderPort;
-
-    @Mock
-    private FindPaymentPort findPaymentPort;
-
-    @Mock
-    private UpdatePaymentPort updatePaymentPort;
-
-    @Mock
-    private FindPspPaymentEventPort findPspPaymentEventPort;
-
-    @Mock
-    private UpdatePspPaymentEventPort updatePspPaymentEventPort;
+    private PaymentApprovalTransactionHelper txHelper;
 
     @Mock
     private PaymentVendorPort paymentVendorPort;
-
-    @Mock
-    private ChangeOrderStatusUseCase changeOrderStatusUseCase;
-
-    @Mock
-    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -68,44 +45,25 @@ class ApprovePaymentUseCaseTest {
     class ApproveSuccessTest {
 
         @Test
-        @DisplayName("KCP 승인 성공 시 Payment가 성공 상태로 변경되고 주문이 PAID가 된다")
+        @DisplayName("KCP 승인 성공 시 commitSuccess가 호출되고 결과가 반환된다")
         void shouldApprovePaymentSuccessfully() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PaymentApprovalContext context = createContext();
             PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_123", "50000");
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
+            ApprovePaymentResult expectedResult = createExpectedResult("tno_123");
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
+            when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
+            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Short.class))).thenReturn(expectedResult);
 
             ApprovePaymentResult result = approvePaymentService.approve(command);
 
             assertThat(result.pgPaymentKey()).isEqualTo("tno_123");
             assertThat(result.resultCode()).isEqualTo("0000");
-            assertThat(result.orderId()).isEqualTo(1L);
-
-            verify(updatePaymentPort).update(argThat(p -> p.getSuccessYn() && "tno_123".equals(p.getPgPaymentKey())));
-            verify(changeOrderStatusUseCase).changeOrderStatus(argThat(c -> c.orderStatus() == OrderStatus.PAID));
-        }
-
-        @Test
-        @DisplayName("서버 DB의 금액이 KCP 승인 요청에 사용된다")
-        void shouldUseServerAmountForApproval() {
-            Payment payment = createPayment(1L, ORDER_KEY, 99000L);
-            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_456", "99000");
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 99000L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID, 99000L, 0L, 0L)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
-            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-
-            approvePaymentService.approve(command);
-
-            verify(paymentVendorPort).approvePayment(argThat(c -> "99000".equals(c.ordrMony())));
+            verify(txHelper).prepareExecution(command);
+            verify(txHelper).commitSuccess(eq(context), eq(vendorResult), eq((short) 0));
+            verify(txHelper, never()).commitFailure(any(), any(), any());
+            verify(txHelper, never()).commitUnknown(any(), any(), any());
         }
     }
 
@@ -114,107 +72,81 @@ class ApprovePaymentUseCaseTest {
     class ApproveFailureTest {
 
         @Test
-        @DisplayName("KCP 승인 응답 res_cd가 0000이 아닌 경우 Payment가 실패 상태로 변경된다")
-        void shouldMarkFailedWhenKcpReturnsError() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+        @DisplayName("KCP 승인 응답 res_cd가 0000이 아닌 경우 commitFailure가 호출된다")
+        void shouldCommitFailureWhenKcpReturnsError() {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PaymentApprovalContext context = createContext();
             PaymentApprovalVendorResult vendorResult = PaymentApprovalVendorResult.builder()
                     .resCd("8001")
                     .resMsg("카드 인증 실패")
                     .rawResponse("{}")
                     .build();
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
+            when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentApprovalException.class);
 
-            verify(updatePaymentPort).update(argThat(p -> Boolean.FALSE.equals(p.getSuccessYn())));
-            verify(changeOrderStatusUseCase).changeOrderStatus(argThat(c -> c.orderStatus() == OrderStatus.FAILED));
+            verify(txHelper).commitFailure(context, "8001", "카드 인증 실패");
+            verify(txHelper, never()).commitSuccess(any(), any(), any());
+            verify(txHelper, never()).commitUnknown(any(), any(), any());
         }
 
         @Test
-        @DisplayName("KCP 통신 중 예외 발생 시 결제 실패 처리된다")
-        void shouldHandleVendorCommunicationException() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+        @DisplayName("KCP 통신 중 예외 발생 시 commitUnknown이 호출된다")
+        void shouldCommitUnknownWhenVendorCommunicationFails() {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
+            PaymentApprovalContext context = createContext();
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
+            when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenThrow(new RuntimeException("Connection timeout"));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentApprovalException.class);
 
-            verify(updatePaymentPort).update(argThat(p -> Boolean.FALSE.equals(p.getSuccessYn())));
+            verify(txHelper).commitUnknown(eq(context), eq("UNKNOWN"), contains("Connection timeout"));
+            verify(txHelper, never()).commitSuccess(any(), any(), any());
+            verify(txHelper, never()).commitFailure(any(), any(), any());
         }
     }
 
     @Nested
-    @DisplayName("결제 미존재")
-    class PaymentNotFoundTest {
+    @DisplayName("검증 실패 (prepareExecution)")
+    class ValidationFailureTest {
 
         @Test
-        @DisplayName("orderKey에 해당하는 결제가 없으면 PaymentNotFoundException이 발생한다")
+        @DisplayName("결제를 찾을 수 없으면 PaymentNotFoundException이 발생한다")
         void shouldThrowWhenPaymentNotFound() {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.empty());
+            when(txHelper.prepareExecution(command)).thenThrow(new PaymentNotFoundException(ORDER_KEY_STR));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentNotFoundException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
-    }
-
-    @Nested
-    @DisplayName("거래 등록 미존재")
-    class PaymentEventNotFoundTest {
 
         @Test
-        @DisplayName("거래 등록(Ready)이 선행되지 않으면 PaymentEventNotFoundException이 발생한다")
+        @DisplayName("거래 등록이 없으면 PaymentEventNotFoundException이 발생한다")
         void shouldThrowWhenPaymentEventNotFound() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(txHelper.prepareExecution(command)).thenThrow(new PaymentEventNotFoundException(ORDER_KEY_STR));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentEventNotFoundException.class)
-                    .hasMessageContaining("거래 등록 정보를 찾을 수 없습니다");
+                    .isInstanceOf(PaymentEventNotFoundException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
-    }
-
-    @Nested
-    @DisplayName("주문 소유자 검증")
-    class OrderOwnerVerificationTest {
 
         @Test
-        @DisplayName("주문 소유자가 아닌 사용자가 결제 승인 시 UnauthorizedOrderAccessException이 발생한다")
+        @DisplayName("주문 소유자가 아니면 UnauthorizedOrderAccessException이 발생한다")
         void shouldThrowWhenBuyerIsNotOrderOwner() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
-            Long attackerBuyerId = 999L;
-            ApprovePaymentCommand command = ApprovePaymentCommand.builder()
-                    .buyerId(attackerBuyerId)
-                    .orderKey(ORDER_KEY_STR)
-                    .encData("enc_data_test")
-                    .encInfo("enc_info_test")
-                    .payType("PACA")
-                    .build();
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(txHelper.prepareExecution(command)).thenThrow(new UnauthorizedOrderAccessException());
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(UnauthorizedOrderAccessException.class);
@@ -223,70 +155,11 @@ class ApprovePaymentUseCaseTest {
         }
 
         @Test
-        @DisplayName("주문을 찾을 수 없으면 OrderNotFoundException이 발생한다")
-        void shouldThrowWhenOrderNotFound() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
-            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
-
-            verify(paymentVendorPort, never()).approvePayment(any());
-        }
-    }
-
-    @Nested
-    @DisplayName("결제 금액 검증")
-    class PaymentAmountVerificationTest {
-
-        @Test
-        @DisplayName("주문 금액과 결제 금액이 불일치하면 예외가 발생한다")
+        @DisplayName("결제 금액 불일치 시 PaymentAmountMismatchException이 발생한다")
         void shouldThrowWhenAmountMismatch() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            Order order = createOrder(1L, BUYER_ID, 60000L, 0L, 0L);
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-
-            assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(PaymentAmountMismatchException.class);
-
-            verify(paymentVendorPort, never()).approvePayment(any());
-        }
-
-        @Test
-        @DisplayName("쿠폰/포인트 할인 적용 후 금액이 일치하면 승인이 진행된다")
-        void shouldProceedWhenDiscountedAmountMatches() {
-            Payment payment = createPayment(1L, ORDER_KEY, 40000L);
-            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            Order order = createOrder(1L, BUYER_ID, 50000L, 5000L, 5000L);
-            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_disc", "40000");
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 40000L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
-            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-
-            ApprovePaymentResult result = approvePaymentService.approve(command);
-
-            assertThat(result.pgPaymentKey()).isEqualTo("tno_disc");
-            verify(paymentVendorPort).approvePayment(argThat(c -> "40000".equals(c.ordrMony())));
-        }
-
-        @Test
-        @DisplayName("쿠폰/포인트 할인 적용 후 금액이 불일치하면 예외가 발생한다")
-        void shouldThrowWhenDiscountedAmountMismatch() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
-            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            Order order = createOrder(1L, BUYER_ID, 60000L, 5000L, 3000L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(txHelper.prepareExecution(command)).thenThrow(new PaymentAmountMismatchException(60000L, 50000L));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentAmountMismatchException.class);
@@ -296,112 +169,52 @@ class ApprovePaymentUseCaseTest {
     }
 
     @Nested
-    @DisplayName("PspPaymentEvent 상태 전이 검증")
-    class EventStatusTransitionTest {
+    @DisplayName("트랜잭션 분리 검증")
+    class TransactionSeparationTest {
 
         @Test
-        @DisplayName("거래 등록된 이벤트가 EXECUTING 상태로 전이 후 update가 호출된다")
-        void shouldUpdateExistingEventToExecuting() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+        @DisplayName("승인 성공 시 prepareExecution → KCP호출 → commitSuccess 순서로 호출된다")
+        void shouldCallInCorrectOrder() {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_789", "50000");
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
+            PaymentApprovalContext context = createContext();
+            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_order", "50000");
+            ApprovePaymentResult expectedResult = createExpectedResult("tno_order");
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
+            when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
+            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Short.class))).thenReturn(expectedResult);
 
             approvePaymentService.approve(command);
 
-            verify(updatePspPaymentEventPort, times(2)).update(any());
+            var inOrder = inOrder(txHelper, paymentVendorPort);
+            inOrder.verify(txHelper).prepareExecution(command);
+            inOrder.verify(paymentVendorPort).approvePayment(any());
+            inOrder.verify(txHelper).commitSuccess(eq(context), eq(vendorResult), any(Short.class));
         }
 
         @Test
-        @DisplayName("승인 성공 시 이벤트가 COMPLETE 상태로 업데이트된다")
-        void shouldUpdateEventToCompleteOnSuccess() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+        @DisplayName("KCP 통신 예외 시 prepareExecution → KCP호출 → commitUnknown 순서로 호출된다")
+        void shouldCallCommitUnknownAfterCommunicationFailure() {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_999", "50000");
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
+            PaymentApprovalContext context = createContext();
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
-            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-
-            approvePaymentService.approve(command);
-
-            verify(updatePspPaymentEventPort, atLeastOnce()).update(argThat(e ->
-                    e.getPoStatus() == PaymentEventStatus.COMPLETE
-                            && "tno_999".equals(e.getPgPaymentKey())
-            ));
-        }
-    }
-
-    @Nested
-    @DisplayName("결제 승인 시 자동 분개")
-    class LedgerEntryRecordingTest {
-
-        private void setupSuccessScenario(Payment payment) {
-            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, payment.getPaymentAmount());
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
-        }
-
-        @Test
-        @DisplayName("결제 승인 성공 시 recordPaymentApproval이 orderId와 결제금액으로 호출된다")
-        void shouldRecordLedgerEntryOnPaymentApproval() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
-            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_ledger", "50000");
-            setupSuccessScenario(payment);
-            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-
-            approvePaymentService.approve(command);
-
-            verify(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
-        }
-
-        @Test
-        @DisplayName("분개 기록 실패 시에도 결제 승인은 정상적으로 완료된다")
-        void shouldCompletePaymentEvenWhenLedgerRecordingFails() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
-            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_fail", "50000");
-            setupSuccessScenario(payment);
-            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-
-            doThrow(new RuntimeException("분개 기록 실패"))
-                    .when(recordLedgerEntryUseCase).recordPaymentApproval(anyLong(), anyLong());
-
-            ApprovePaymentResult result = approvePaymentService.approve(command);
-
-            assertThat(result.pgPaymentKey()).isEqualTo("tno_fail");
-            verify(updatePaymentPort).update(argThat(p -> p.getSuccessYn()));
-            verify(changeOrderStatusUseCase).changeOrderStatus(argThat(c -> c.orderStatus() == OrderStatus.PAID));
-        }
-
-        @Test
-        @DisplayName("결제 실패 시 분개가 기록되지 않는다")
-        void shouldNotRecordLedgerEntryOnPaymentFailure() {
-            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
-            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
-            PaymentApprovalVendorResult vendorResult = PaymentApprovalVendorResult.builder()
-                    .resCd("8001")
-                    .resMsg("카드 인증 실패")
-                    .rawResponse("{}")
-                    .build();
-            setupSuccessScenario(payment);
-            when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
+            when(txHelper.prepareExecution(command)).thenReturn(context);
+            when(paymentVendorPort.approvePayment(any())).thenThrow(new RuntimeException("Timeout"));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentApprovalException.class);
 
-            verify(recordLedgerEntryUseCase, never()).recordPaymentApproval(anyLong(), anyLong());
+            var inOrder = inOrder(txHelper, paymentVendorPort);
+            inOrder.verify(txHelper).prepareExecution(command);
+            inOrder.verify(paymentVendorPort).approvePayment(any());
+            inOrder.verify(txHelper).commitUnknown(eq(context), eq("UNKNOWN"), any());
         }
+    }
+
+    private PaymentApprovalContext createContext() {
+        Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+        PspPaymentEvent event = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
+        return PaymentApprovalContext.of(payment, event);
     }
 
     private Payment createPayment(Long orderId, UUID orderKey, Long amount) {
@@ -437,21 +250,16 @@ class ApprovePaymentUseCaseTest {
                 .build();
     }
 
-    private Order createOrder(Long orderId, Long buyerId) {
-        return createOrder(orderId, buyerId, 50000L, 0L, 0L);
-    }
-
-    private Order createOrder(Long orderId, Long buyerId, Long totalAmount, Long couponAmount, Long pointAmount) {
-        OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAYMENT_PENDING)
-                .totalAmount(totalAmount)
-                .couponAmount(couponAmount)
-                .pointAmount(pointAmount)
+    private ApprovePaymentResult createExpectedResult(String tno) {
+        return ApprovePaymentResult.builder()
+                .orderId(1L)
+                .orderKey(ORDER_KEY_STR)
+                .pgPaymentKey(tno)
+                .amount(50000L)
+                .resultCode("0000")
+                .resultMessage("승인 성공")
+                .payMethod("PACA")
                 .build();
-        return Order.from(state);
     }
 
     private PaymentApprovalVendorResult createSuccessVendorResult(String tno, String amount) {

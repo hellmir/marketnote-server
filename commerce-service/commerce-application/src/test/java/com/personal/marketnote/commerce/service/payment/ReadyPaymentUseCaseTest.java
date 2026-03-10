@@ -287,6 +287,44 @@ class ReadyPaymentUseCaseTest {
         }
 
         @Test
+        @DisplayName("UNKNOWN 상태의 PspPaymentEvent가 존재하면 DuplicatePaymentReadyException이 발생한다")
+        void shouldThrowWhenUnknownEventExists() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+            PspPaymentEvent unknownEvent = createPspPaymentEvent(PaymentEventStatus.UNKNOWN);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(unknownEvent));
+
+            assertThatThrownBy(() -> readyPaymentService.ready(command))
+                    .isInstanceOf(DuplicatePaymentReadyException.class);
+
+            verify(paymentVendorPort, never()).registerTrade(any());
+        }
+
+        @Test
+        @DisplayName("FAILED 상태의 PspPaymentEvent가 존재해도 거래 등록은 정상 진행된다")
+        void shouldProceedWhenFailedEventExists() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ReadyPaymentCommand command = createReadyCommand(ORDER_KEY_STR);
+            TradeRegisterVendorResult vendorResult = createVendorResult();
+            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
+            PspPaymentEvent failedEvent = createPspPaymentEvent(PaymentEventStatus.FAILED);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(failedEvent));
+            when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
+
+            ReadyPaymentResult result = readyPaymentService.ready(command);
+
+            assertThat(result.orderKey()).isEqualTo(ORDER_KEY_STR);
+            verify(paymentVendorPort).registerTrade(any());
+        }
+
+        @Test
         @DisplayName("CANCELLED 상태의 PspPaymentEvent가 존재해도 거래 등록은 정상 진행된다")
         void shouldProceedWhenCancelledEventExists() {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
