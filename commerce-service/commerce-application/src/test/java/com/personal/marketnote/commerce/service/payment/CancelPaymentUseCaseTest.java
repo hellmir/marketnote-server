@@ -1361,7 +1361,7 @@ class CancelPaymentUseCaseTest {
     }
 
     private Order createOrderWithMultipleProducts(Long orderId, Long buyerId,
-                                                   List<Long> pricePolicyIds, List<Integer> quantities) {
+                                                  List<Long> pricePolicyIds, List<Integer> quantities) {
         List<OrderProductSnapshotState> productStates = new ArrayList<>();
         for (int i = 0; i < pricePolicyIds.size(); i++) {
             productStates.add(OrderProductSnapshotState.builder()
