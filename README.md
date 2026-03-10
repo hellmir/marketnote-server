@@ -112,7 +112,7 @@
 - Aligo
 
 #### System Notification
-- Slack(Jenkins/Grafana)
+- Slack(Jenkins/Grafana/Kafka)
 
 ## Tools
 
