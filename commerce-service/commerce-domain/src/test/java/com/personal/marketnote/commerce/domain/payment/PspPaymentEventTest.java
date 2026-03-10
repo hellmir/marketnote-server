@@ -109,13 +109,13 @@ class PspPaymentEventTest {
     class FailExecutionTest {
 
         @Test
-        @DisplayName("EXECUTING 상태에서 실패 정보와 함께 READY로 되돌아간다")
-        void shouldRevertToReadyWithFailInfo() {
+        @DisplayName("EXECUTING 상태에서 실패 정보와 함께 FAILED로 전이된다")
+        void shouldTransitionToFailedWithFailInfo() {
             PspPaymentEvent event = createExecutingEvent();
 
             event.failExecution("8001", "결제 실패");
 
-            assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.READY);
+            assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.FAILED);
             assertThat(event.getResultCode()).isEqualTo("8001");
             assertThat(event.getResultMessage()).isEqualTo("결제 실패");
         }
@@ -127,6 +127,131 @@ class PspPaymentEventTest {
 
             assertThatThrownBy(() -> event.failExecution("8001", "결제 실패"))
                     .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("markUnknown 메서드")
+    class MarkUnknownTest {
+
+        @Test
+        @DisplayName("EXECUTING 상태에서 UNKNOWN으로 전이되고 결과 정보가 저장된다")
+        void shouldTransitionToUnknownWithResultInfo() {
+            PspPaymentEvent event = createExecutingEvent();
+
+            event.markUnknown("UNKNOWN", "KCP 통신 오류: Connection timeout");
+
+            assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.UNKNOWN);
+            assertThat(event.getResultCode()).isEqualTo("UNKNOWN");
+            assertThat(event.getResultMessage()).isEqualTo("KCP 통신 오류: Connection timeout");
+        }
+
+        @Test
+        @DisplayName("EXECUTING이 아닌 상태에서는 예외가 발생한다")
+        void shouldThrowWhenNotExecuting() {
+            PspPaymentEvent event = createReadyEvent();
+
+            assertThatThrownBy(() -> event.markUnknown("UNKNOWN", "타임아웃"))
+                    .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("resolveToComplete 메서드")
+    class ResolveToCompleteTest {
+
+        @Test
+        @DisplayName("UNKNOWN 상태에서 승인 정보와 함께 COMPLETE로 전이된다")
+        void shouldTransitionToCompleteFromUnknown() {
+            PspPaymentEvent event = createUnknownEvent();
+
+            event.resolveToComplete(createApprovalInfo("20260304120000"));
+
+            assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.COMPLETE);
+            assertThat(event.getPgPaymentKey()).isEqualTo("tno_123");
+            assertThat(event.getApprovalNumber()).isEqualTo("12345678");
+            assertThat(event.getResultCode()).isEqualTo("0000");
+        }
+
+        @Test
+        @DisplayName("UNKNOWN이 아닌 상태에서는 예외가 발생한다")
+        void shouldThrowWhenNotUnknown() {
+            PspPaymentEvent event = createExecutingEvent();
+
+            assertThatThrownBy(() -> event.resolveToComplete(createApprovalInfo("20260304120000")))
+                    .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("resolveToFailed 메서드")
+    class ResolveToFailedTest {
+
+        @Test
+        @DisplayName("UNKNOWN 상태에서 실패 정보와 함께 FAILED로 전이된다")
+        void shouldTransitionToFailedFromUnknown() {
+            PspPaymentEvent event = createUnknownEvent();
+
+            event.resolveToFailed("8001", "KCP 가맹점 사이트 확인 결과 미승인");
+
+            assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.FAILED);
+            assertThat(event.getResultCode()).isEqualTo("8001");
+            assertThat(event.getResultMessage()).isEqualTo("KCP 가맹점 사이트 확인 결과 미승인");
+        }
+
+        @Test
+        @DisplayName("UNKNOWN이 아닌 상태에서는 예외가 발생한다")
+        void shouldThrowWhenNotUnknown() {
+            PspPaymentEvent event = createReadyEvent();
+
+            assertThatThrownBy(() -> event.resolveToFailed("8001", "미승인"))
+                    .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("isUnresolved 메서드")
+    class IsUnresolvedTest {
+
+        @Test
+        @DisplayName("READY 상태는 미해결 상태이다")
+        void shouldReturnTrueForReady() {
+            PspPaymentEvent event = createReadyEvent();
+
+            assertThat(event.isUnresolved()).isTrue();
+        }
+
+        @Test
+        @DisplayName("EXECUTING 상태는 미해결 상태이다")
+        void shouldReturnTrueForExecuting() {
+            PspPaymentEvent event = createExecutingEvent();
+
+            assertThat(event.isUnresolved()).isTrue();
+        }
+
+        @Test
+        @DisplayName("UNKNOWN 상태는 미해결 상태이다")
+        void shouldReturnTrueForUnknown() {
+            PspPaymentEvent event = createUnknownEvent();
+
+            assertThat(event.isUnresolved()).isTrue();
+        }
+
+        @Test
+        @DisplayName("COMPLETE 상태는 해결 상태이다")
+        void shouldReturnFalseForComplete() {
+            PspPaymentEvent event = createCompletedEvent();
+
+            assertThat(event.isUnresolved()).isFalse();
+        }
+
+        @Test
+        @DisplayName("FAILED 상태는 해결 상태이다")
+        void shouldReturnFalseForFailed() {
+            PspPaymentEvent event = createExecutingEvent();
+            event.failExecution("8001", "실패");
+
+            assertThat(event.isUnresolved()).isFalse();
         }
     }
 
@@ -252,6 +377,12 @@ class PspPaymentEventTest {
     private PspPaymentEvent createCompletedEvent() {
         PspPaymentEvent event = createExecutingEvent();
         event.completeWithApproval(createApprovalInfo("20260210153000"));
+        return event;
+    }
+
+    private PspPaymentEvent createUnknownEvent() {
+        PspPaymentEvent event = createExecutingEvent();
+        event.markUnknown("UNKNOWN", "KCP 통신 오류");
         return event;
     }
 
