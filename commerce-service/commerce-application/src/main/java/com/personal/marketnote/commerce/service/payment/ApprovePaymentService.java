@@ -34,7 +34,6 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
     private final FindOrderPort findOrderPort;
     private final FindPaymentPort findPaymentPort;
     private final UpdatePaymentPort updatePaymentPort;
-    private final SavePspPaymentEventPort savePspPaymentEventPort;
     private final FindPspPaymentEventPort findPspPaymentEventPort;
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final PaymentVendorPort paymentVendorPort;
@@ -50,11 +49,10 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
         verifyPaymentAmount(order, payment);
 
-        String vendorSiteCd = paymentVendorPort.getVendorSiteCd();
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseGet(() -> PspPaymentEvent.createReady(payment, vendorSiteCd, command.payType()));
+                .orElseThrow(() -> new PaymentEventNotFoundException(command.orderKey()));
         event.startExecution();
-        upsertEvent(event);
+        updatePspPaymentEventPort.update(event);
 
         PaymentApprovalVendorResult vendorResult = requestPaymentApprovalToPsp(
                 command, payment, event, payment.getPaymentAmount()
@@ -75,7 +73,10 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         Long pointAmount = FormatValidator.hasValue(order.getPointAmount())
                 ? order.getPointAmount()
                 : 0L;
-        Long expectedAmount = order.getTotalAmount() - couponAmount - pointAmount;
+        Long expectedAmount = Math.subtractExact(
+                Math.subtractExact(order.getTotalAmount(), couponAmount),
+                pointAmount
+        );
 
         if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount())) {
             log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
@@ -83,15 +84,6 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
                     expectedAmount, payment.getPaymentAmount());
             throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount());
         }
-    }
-
-    private void upsertEvent(PspPaymentEvent event) {
-        if (FormatValidator.hasValue(event.getId())) {
-            updatePspPaymentEventPort.update(event);
-            return;
-        }
-
-        savePspPaymentEventPort.save(event);
     }
 
     private PaymentApprovalVendorResult requestPaymentApprovalToPsp(
@@ -184,7 +176,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
         Order order = findOrderPort.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
-        if (!order.getBuyerId().equals(buyerId)) {
+        if (!order.isBuyer(buyerId)) {
             log.warn("결제 승인 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
                     orderId, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();
