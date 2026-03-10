@@ -3,13 +3,8 @@ package com.personal.marketnote.commerce.service.payment;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
-import com.personal.marketnote.commerce.domain.payment.Payment;
-import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
-import com.personal.marketnote.commerce.domain.payment.PaymentEventStatus;
-import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
-import com.personal.marketnote.commerce.exception.PaymentApprovalException;
-import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
-import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
+import com.personal.marketnote.commerce.domain.payment.*;
+import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
@@ -50,9 +45,6 @@ class ApprovePaymentUseCaseTest {
     private UpdatePaymentPort updatePaymentPort;
 
     @Mock
-    private SavePspPaymentEventPort savePspPaymentEventPort;
-
-    @Mock
     private FindPspPaymentEventPort findPspPaymentEventPort;
 
     @Mock
@@ -81,12 +73,11 @@ class ApprovePaymentUseCaseTest {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
             PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_123", "50000");
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             ApprovePaymentResult result = approvePaymentService.approve(command);
@@ -105,12 +96,11 @@ class ApprovePaymentUseCaseTest {
             Payment payment = createPayment(1L, ORDER_KEY, 99000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
             PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_456", "99000");
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 99000L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID, 99000L, 0L, 0L)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             approvePaymentService.approve(command);
@@ -133,12 +123,11 @@ class ApprovePaymentUseCaseTest {
                     .resMsg("카드 인증 실패")
                     .rawResponse("{}")
                     .build();
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
@@ -153,12 +142,11 @@ class ApprovePaymentUseCaseTest {
         void shouldHandleVendorCommunicationException() {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
             when(paymentVendorPort.approvePayment(any())).thenThrow(new RuntimeException("Connection timeout"));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
@@ -181,6 +169,28 @@ class ApprovePaymentUseCaseTest {
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentNotFoundException.class);
+
+            verify(paymentVendorPort, never()).approvePayment(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("거래 등록 미존재")
+    class PaymentEventNotFoundTest {
+
+        @Test
+        @DisplayName("거래 등록(Ready)이 선행되지 않으면 PaymentEventNotFoundException이 발생한다")
+        void shouldThrowWhenPaymentEventNotFound() {
+            Payment payment = createPayment(1L, ORDER_KEY, 50000L);
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> approvePaymentService.approve(command))
+                    .isInstanceOf(PaymentEventNotFoundException.class)
+                    .hasMessageContaining("거래 등록 정보를 찾을 수 없습니다");
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
@@ -243,8 +253,7 @@ class ApprovePaymentUseCaseTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("주문 금액과 결제 금액이 일치하지 않습니다");
+                    .isInstanceOf(PaymentAmountMismatchException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
@@ -256,12 +265,11 @@ class ApprovePaymentUseCaseTest {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
             Order order = createOrder(1L, BUYER_ID, 50000L, 5000L, 5000L);
             PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_disc", "40000");
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 40000L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             ApprovePaymentResult result = approvePaymentService.approve(command);
@@ -281,8 +289,7 @@ class ApprovePaymentUseCaseTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
 
             assertThatThrownBy(() -> approvePaymentService.approve(command))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("주문 금액과 결제 금액이 일치하지 않습니다");
+                    .isInstanceOf(PaymentAmountMismatchException.class);
 
             verify(paymentVendorPort, never()).approvePayment(any());
         }
@@ -293,28 +300,21 @@ class ApprovePaymentUseCaseTest {
     class EventStatusTransitionTest {
 
         @Test
-        @DisplayName("기존 이벤트가 없으면 새로 생성하고 save가 호출된다")
-        void shouldCreateNewEventWhenNotExists() {
+        @DisplayName("거래 등록된 이벤트가 EXECUTING 상태로 전이 후 update가 호출된다")
+        void shouldUpdateExistingEventToExecuting() {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
             PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_789", "50000");
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
 
-            java.util.concurrent.atomic.AtomicReference<PaymentEventStatus> statusAtSave = new java.util.concurrent.atomic.AtomicReference<>();
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> {
-                PspPaymentEvent e = invocation.getArgument(0);
-                statusAtSave.set(e.getPoStatus());
-                return e;
-            });
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             approvePaymentService.approve(command);
 
-            verify(savePspPaymentEventPort).save(any());
-            assertThat(statusAtSave.get()).isEqualTo(PaymentEventStatus.EXECUTING);
+            verify(updatePspPaymentEventPort, times(2)).update(any());
         }
 
         @Test
@@ -323,17 +323,16 @@ class ApprovePaymentUseCaseTest {
             Payment payment = createPayment(1L, ORDER_KEY, 50000L);
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
             PaymentApprovalVendorResult vendorResult = createSuccessVendorResult("tno_999", "50000");
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, 50000L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
 
             approvePaymentService.approve(command);
 
-            verify(updatePspPaymentEventPort).update(argThat(e ->
+            verify(updatePspPaymentEventPort, atLeastOnce()).update(argThat(e ->
                     e.getPoStatus() == PaymentEventStatus.COMPLETE
                             && "tno_999".equals(e.getPgPaymentKey())
             ));
@@ -345,11 +344,11 @@ class ApprovePaymentUseCaseTest {
     class LedgerEntryRecordingTest {
 
         private void setupSuccessScenario(Payment payment) {
+            PspPaymentEvent readyEvent = createReadyEvent(1L, ORDER_KEY_STR, payment.getPaymentAmount());
+
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
-            when(savePspPaymentEventPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(readyEvent));
         }
 
         @Test
@@ -412,6 +411,20 @@ class ApprovePaymentUseCaseTest {
                 .paymentAmount(amount)
                 .build();
         return Payment.from(state);
+    }
+
+    private PspPaymentEvent createReadyEvent(Long id, String orderKey, Long amount) {
+        PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
+                .id(id)
+                .orderId(1L)
+                .orderKey(orderKey)
+                .pgCompanyKey("NHN_KCP")
+                .pgShopKey("T0000")
+                .poStatus(PaymentEventStatus.READY)
+                .method("PACA")
+                .amount(amount)
+                .build();
+        return PspPaymentEvent.from(state);
     }
 
     private ApprovePaymentCommand createApproveCommand(String orderKey) {
