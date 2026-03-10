@@ -14,6 +14,7 @@ public class KcpProperties {
     private String certInfoPath;
     private String privateKeyPath;
     private Api api = new Api();
+    private Retry retry = new Retry();
     private String retUrl;
 
     @Getter
@@ -22,5 +23,14 @@ public class KcpProperties {
         private String tradeRegisterUrl;
         private String paymentApprovalUrl;
         private String paymentCancelUrl;
+    }
+
+    @Getter
+    @Setter
+    public static class Retry {
+        private int maxAttempts = 3;
+        private long initialDelayMs = 1000L;
+        private long backoffMultiplier = 2;
+        private int readTimeoutMaxAttempts = 2;
     }
 }

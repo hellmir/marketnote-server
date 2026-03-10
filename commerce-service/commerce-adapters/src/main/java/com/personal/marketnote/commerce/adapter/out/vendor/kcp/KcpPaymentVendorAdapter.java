@@ -10,6 +10,7 @@ import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendo
 import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendorCommunicationTargetType;
 import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendorCommunicationType;
 import com.personal.marketnote.commerce.domain.vendorcommunication.CommerceVendorName;
+import com.personal.marketnote.commerce.exception.PaymentVendorConnectionFailedException;
 import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.*;
 import com.personal.marketnote.commerce.utility.VendorCommunicationRecorder;
@@ -17,8 +18,12 @@ import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 @ServiceAdapter
 @RequiredArgsConstructor
@@ -96,35 +101,113 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
 
         recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.ordrNo(), request);
 
-        try {
-            KcpPaymentApprovalResponse response = kcpApiClient.approvePayment(request);
-            recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.ordrNo(), response);
+        return executeApprovalWithRetry(request, command.ordrNo());
+    }
 
-            return PaymentApprovalVendorResult.builder()
-                    .resCd(response.resCd())
-                    .resMsg(response.resMsg())
-                    .resEnMsg(response.resEnMsg())
-                    .tno(response.tno())
-                    .amount(response.amount())
-                    .payMethod(response.payMethod())
-                    .cardCd(response.cardCd())
-                    .cardName(response.cardName())
-                    .cardNo(response.cardNo())
-                    .appNo(response.appNo())
-                    .appTime(response.appTime())
-                    .noinf(response.noinf())
-                    .noinfType(response.noinfType())
-                    .quota(response.quota())
-                    .cardMny(response.cardMny())
-                    .couponMny(response.couponMny())
-                    .partcancYn(response.partcancYn())
-                    .cardBinType01(response.cardBinType01())
-                    .cardBinType02(response.cardBinType02())
-                    .rawResponse(kcpApiClient.toJsonNode(response).toString())
-                    .build();
-        } catch (KcpCommunicationException e) {
-            recordError(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.ordrNo(), e);
-            throw e;
+    private PaymentApprovalVendorResult executeApprovalWithRetry(
+            KcpPaymentApprovalRequest request, String orderNo
+    ) {
+        KcpProperties.Retry retryConfig = kcpProperties.getRetry();
+        long sleepMillis = retryConfig.getInitialDelayMs();
+        int maxAttempts = retryConfig.getMaxAttempts();
+        int readTimeoutAttemptCount = 0;
+        Exception lastException = null;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                KcpPaymentApprovalResponse response = kcpApiClient.approvePayment(request);
+                recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, orderNo, response);
+                return buildApprovalResult(response);
+            } catch (Exception e) {
+                lastException = e;
+                recordError(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, orderNo, e);
+
+                if (isConnectionFailure(e)) {
+                    log.warn("KCP 결제승인 연결 실패 - orderNo: {}, attempt: {}/{}, error: {}",
+                            orderNo, attempt, maxAttempts, e.getMessage());
+                    if (attempt < maxAttempts) {
+                        sleep(sleepMillis);
+                        sleepMillis *= retryConfig.getBackoffMultiplier();
+                        continue;
+                    }
+                    throw new PaymentVendorConnectionFailedException(
+                            "KCP 연결 실패: " + e.getMessage(), e
+                    );
+                }
+
+                if (isReadTimeout(e)) {
+                    readTimeoutAttemptCount++;
+                    log.warn("KCP 결제승인 읽기 타임아웃 - orderNo: {}, attempt: {}/{}, readTimeoutCount: {}/{}",
+                            orderNo, attempt, maxAttempts, readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts());
+                    if (readTimeoutAttemptCount < retryConfig.getReadTimeoutMaxAttempts() && attempt < maxAttempts) {
+                        sleep(sleepMillis);
+                        sleepMillis *= retryConfig.getBackoffMultiplier();
+                        continue;
+                    }
+                    throw new KcpCommunicationException(
+                            "KCP 결제승인 읽기 타임아웃 초과: " + e.getMessage(), e
+                    );
+                }
+
+                throw e;
+            }
+        }
+
+        throw new KcpCommunicationException("KCP 결제승인 재시도 소진", lastException);
+    }
+
+    private PaymentApprovalVendorResult buildApprovalResult(KcpPaymentApprovalResponse response) {
+        return PaymentApprovalVendorResult.builder()
+                .resCd(response.resCd())
+                .resMsg(response.resMsg())
+                .resEnMsg(response.resEnMsg())
+                .tno(response.tno())
+                .amount(response.amount())
+                .payMethod(response.payMethod())
+                .cardCd(response.cardCd())
+                .cardName(response.cardName())
+                .cardNo(response.cardNo())
+                .appNo(response.appNo())
+                .appTime(response.appTime())
+                .noinf(response.noinf())
+                .noinfType(response.noinfType())
+                .quota(response.quota())
+                .cardMny(response.cardMny())
+                .couponMny(response.couponMny())
+                .partcancYn(response.partcancYn())
+                .cardBinType01(response.cardBinType01())
+                .cardBinType02(response.cardBinType02())
+                .rawResponse(kcpApiClient.toJsonNode(response).toString())
+                .build();
+    }
+
+    private boolean isConnectionFailure(Throwable throwable) {
+        return hasCause(throwable, ConnectException.class)
+                || hasCause(throwable, UnknownHostException.class);
+    }
+
+    private boolean isReadTimeout(Throwable throwable) {
+        return hasCause(throwable, SocketTimeoutException.class);
+    }
+
+    private boolean hasCause(Throwable throwable, Class<? extends Throwable> causeType) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (causeType.isInstance(current)) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
+    private void sleep(long millis) {
+        try {
+            long jitteredSleepMillis = ThreadLocalRandom.current()
+                    .nextLong(Math.max(1L, millis) + 1);
+            Thread.sleep(jitteredSleepMillis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
