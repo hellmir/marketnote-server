@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.exception.PaymentApprovalException;
+import com.personal.marketnote.commerce.exception.PaymentVendorConnectionFailedException;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ApprovePaymentUseCase;
@@ -35,12 +36,16 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         // TX-1: 검증 + EXECUTING 커밋
         PaymentApprovalContext context = txHelper.prepareExecution(command);
 
-        // KCP 호출 (트랜잭션 외부)
+        // KCP 호출 (트랜잭션 외부 — 어댑터에서 재시도 수행)
         PaymentApprovalVendorResult vendorResult;
         try {
             vendorResult = paymentVendorPort.approvePayment(buildVendorCommand(command, context));
+        } catch (PaymentVendorConnectionFailedException e) {
+            // TX-2: 연결 실패 → FAILED (요청이 KCP에 도달하지 않음)
+            txHelper.commitFailure(context, "CONN_FAIL", e.getMessage());
+            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
         } catch (Exception e) {
-            // TX-2: UNKNOWN 커밋
+            // TX-2: 기타 통신 오류 → UNKNOWN (요청이 KCP에 도달했을 수 있음)
             txHelper.commitUnknown(context, "UNKNOWN", "KCP 통신 오류: " + e.getMessage());
             throw PaymentApprovalException.kcpApprovalRequestFailed(e);
         }

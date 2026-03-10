@@ -76,6 +76,11 @@ kcp:
     trade-register-url: ${KCP_TRADE_REGISTER_URL:https://testsmpay.kcp.co.kr/trade/register.do}
     payment-approval-url: ${KCP_PAYMENT_APPROVAL_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
     payment-cancel-url: ${KCP_PAYMENT_CANCEL_URL:https://stg-spl.kcp.co.kr/gw/mod/v1/cancel}
+  retry:
+    max-attempts: ${KCP_RETRY_MAX_ATTEMPTS:3}
+    initial-delay-ms: ${KCP_RETRY_INITIAL_DELAY_MS:1000}
+    backoff-multiplier: ${KCP_RETRY_BACKOFF_MULTIPLIER:2}
+    read-timeout-max-attempts: ${KCP_RETRY_READ_TIMEOUT_MAX_ATTEMPTS:2}
   ret-url: ${KCP_RET_URL:https://marketnote-dev.vercel.app/payments/kcp/callback}
 
 settlement:
