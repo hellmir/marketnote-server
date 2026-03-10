@@ -1,6 +1,5 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -109,6 +109,24 @@ class ApprovePaymentUseCaseTest {
             verify(txHelper, never()).commitSuccess(any(), any(), any());
             verify(txHelper, never()).commitFailure(any(), any(), any());
         }
+
+        @Test
+        @DisplayName("PaymentVendorConnectionFailedException 발생 시 commitFailure가 호출된다")
+        void shouldCommitFailureWhenConnectionFailed() {
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PaymentApprovalContext context = createContext();
+
+            when(txHelper.prepareExecution(command)).thenReturn(context);
+            when(paymentVendorPort.approvePayment(any()))
+                    .thenThrow(new PaymentVendorConnectionFailedException("KCP 연결 실패: Connection refused"));
+
+            assertThatThrownBy(() -> approvePaymentService.approve(command))
+                    .isInstanceOf(PaymentApprovalException.class);
+
+            verify(txHelper).commitFailure(eq(context), eq("CONN_FAIL"), contains("KCP 연결 실패"));
+            verify(txHelper, never()).commitSuccess(any(), any(), any());
+            verify(txHelper, never()).commitUnknown(any(), any(), any());
+        }
     }
 
     @Nested
@@ -186,7 +204,7 @@ class ApprovePaymentUseCaseTest {
 
             approvePaymentService.approve(command);
 
-            var inOrder = inOrder(txHelper, paymentVendorPort);
+            InOrder inOrder = inOrder(txHelper, paymentVendorPort);
             inOrder.verify(txHelper).prepareExecution(command);
             inOrder.verify(paymentVendorPort).approvePayment(any());
             inOrder.verify(txHelper).commitSuccess(eq(context), eq(vendorResult), any(Short.class));
@@ -204,10 +222,29 @@ class ApprovePaymentUseCaseTest {
             assertThatThrownBy(() -> approvePaymentService.approve(command))
                     .isInstanceOf(PaymentApprovalException.class);
 
-            var inOrder = inOrder(txHelper, paymentVendorPort);
+            InOrder inOrder = inOrder(txHelper, paymentVendorPort);
             inOrder.verify(txHelper).prepareExecution(command);
             inOrder.verify(paymentVendorPort).approvePayment(any());
             inOrder.verify(txHelper).commitUnknown(eq(context), eq("UNKNOWN"), any());
+        }
+
+        @Test
+        @DisplayName("연결 실패 예외 시 prepareExecution → KCP호출 → commitFailure 순서로 호출된다")
+        void shouldCallCommitFailureAfterConnectionFailure() {
+            ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
+            PaymentApprovalContext context = createContext();
+
+            when(txHelper.prepareExecution(command)).thenReturn(context);
+            when(paymentVendorPort.approvePayment(any()))
+                    .thenThrow(new PaymentVendorConnectionFailedException("Connection refused"));
+
+            assertThatThrownBy(() -> approvePaymentService.approve(command))
+                    .isInstanceOf(PaymentApprovalException.class);
+
+            InOrder inOrder = inOrder(txHelper, paymentVendorPort);
+            inOrder.verify(txHelper).prepareExecution(command);
+            inOrder.verify(paymentVendorPort).approvePayment(any());
+            inOrder.verify(txHelper).commitFailure(eq(context), eq("CONN_FAIL"), any());
         }
     }
 
