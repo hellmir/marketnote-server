@@ -84,7 +84,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
 
     private void verifyNoDuplicatePaymentReady(String orderKey) {
         findPspPaymentEventPort.findByOrderKey(orderKey)
-                .filter(PspPaymentEvent::isActiveEvent)
+                .filter(PspPaymentEvent::isUnresolved)
                 .ifPresent(event -> {
                     log.warn("중복 거래 등록 시도 - orderKey: {}, 기존 이벤트 상태: {}", orderKey, event.getPoStatus());
                     throw new DuplicatePaymentReadyException(orderKey);

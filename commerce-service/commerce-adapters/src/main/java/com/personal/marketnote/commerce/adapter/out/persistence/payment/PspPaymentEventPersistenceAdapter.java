@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.out.persistence.payment;
 import com.personal.marketnote.commerce.adapter.out.persistence.payment.entity.PspPaymentEventJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.payment.mapper.PspPaymentEventEntityToDomainMapper;
 import com.personal.marketnote.commerce.adapter.out.persistence.payment.repository.PspPaymentEventJpaRepository;
+import com.personal.marketnote.commerce.domain.payment.PaymentEventStatus;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePspPaymentEventPort;
@@ -11,6 +12,7 @@ import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @PersistenceAdapter
@@ -29,6 +31,13 @@ public class PspPaymentEventPersistenceAdapter implements SavePspPaymentEventPor
     public Optional<PspPaymentEvent> findByOrderKey(String orderKey) {
         return pspPaymentEventJpaRepository.findByOrderKey(orderKey)
                 .map(PspPaymentEventEntityToDomainMapper::toDomain);
+    }
+
+    @Override
+    public List<PspPaymentEvent> findAllByUnknownStatus() {
+        return pspPaymentEventJpaRepository.findAllByPoStatus(PaymentEventStatus.UNKNOWN).stream()
+                .map(PspPaymentEventEntityToDomainMapper::toDomain)
+                .toList();
     }
 
     @Override

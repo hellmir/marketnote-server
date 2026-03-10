@@ -1,187 +1,70 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
-import com.personal.marketnote.commerce.domain.payment.Payment;
-import com.personal.marketnote.commerce.domain.payment.PaymentApprovalInfo;
-import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
-import com.personal.marketnote.commerce.exception.*;
-import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
+import com.personal.marketnote.commerce.exception.PaymentApprovalException;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ApprovePaymentUseCase;
-import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
-import com.personal.marketnote.commerce.port.out.payment.*;
+import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorCommand;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorResult;
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
-
+/**
+ * 결제 승인 서비스
+ *
+ * <p>트랜잭션을 3단계로 분리하여 오케스트레이션만 수행한다:
+ * <ol>
+ *   <li>TX-1: 검증 + EXECUTING 커밋 (prepareExecution)</li>
+ *   <li>KCP 호출 (트랜잭션 외부)</li>
+ *   <li>TX-2: 결과 반영 커밋 (commitSuccess / commitFailure / commitUnknown)</li>
+ * </ol>
+ *
+ * <p>이 구조로 handleFailure/commitUnknown 후 예외 throw 시에도 상태 변경이 롤백되지 않는다. (#1161 해결)
+ */
 @UseCase
 @RequiredArgsConstructor
-@Transactional(isolation = READ_COMMITTED)
 @Slf4j
 public class ApprovePaymentService implements ApprovePaymentUseCase {
-    private final FindOrderPort findOrderPort;
-    private final FindPaymentPort findPaymentPort;
-    private final UpdatePaymentPort updatePaymentPort;
-    private final FindPspPaymentEventPort findPspPaymentEventPort;
-    private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
+    private final PaymentApprovalTransactionHelper txHelper;
     private final PaymentVendorPort paymentVendorPort;
-    private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
-    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @Override
     public ApprovePaymentResult approve(ApprovePaymentCommand command) {
-        UUID orderKey = UUID.fromString(command.orderKey());
-        Payment payment = findPaymentPort.findByOrderKey(orderKey)
-                .orElseThrow(() -> new PaymentNotFoundException(command.orderKey()));
+        // TX-1: 검증 + EXECUTING 커밋
+        PaymentApprovalContext context = txHelper.prepareExecution(command);
 
-        Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
-        verifyPaymentAmount(order, payment);
-
-        PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
-                .orElseThrow(() -> new PaymentEventNotFoundException(command.orderKey()));
-        event.startExecution();
-        updatePspPaymentEventPort.update(event);
-
-        PaymentApprovalVendorResult vendorResult = requestPaymentApprovalToPsp(
-                command, payment, event, payment.getPaymentAmount()
-        );
-
-        if (vendorResult.isSuccess()) {
-            return handleSuccess(payment, event, vendorResult);
+        // KCP 호출 (트랜잭션 외부)
+        PaymentApprovalVendorResult vendorResult;
+        try {
+            vendorResult = paymentVendorPort.approvePayment(buildVendorCommand(command, context));
+        } catch (Exception e) {
+            // TX-2: UNKNOWN 커밋
+            txHelper.commitUnknown(context, "UNKNOWN", "KCP 통신 오류: " + e.getMessage());
+            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
         }
 
-        handleFailure(payment, event, vendorResult.resMsg());
+        // TX-2: 성공 또는 실패 커밋
+        if (vendorResult.isSuccess()) {
+            Short installment = parseInstallment(vendorResult.quota());
+            return txHelper.commitSuccess(context, vendorResult, installment);
+        }
+
+        txHelper.commitFailure(context, vendorResult.resCd(), vendorResult.resMsg());
         throw PaymentApprovalException.kcpApprovalFailed(vendorResult.resCd(), vendorResult.resMsg());
     }
 
-    private void verifyPaymentAmount(Order order, Payment payment) {
-        Long couponAmount = FormatValidator.hasValue(order.getCouponAmount())
-                ? order.getCouponAmount()
-                : 0L;
-        Long pointAmount = FormatValidator.hasValue(order.getPointAmount())
-                ? order.getPointAmount()
-                : 0L;
-        Long expectedAmount = Math.subtractExact(
-                Math.subtractExact(order.getTotalAmount(), couponAmount),
-                pointAmount
-        );
-
-        if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount())) {
-            log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
-                    order.getId(), order.getTotalAmount(), couponAmount, pointAmount,
-                    expectedAmount, payment.getPaymentAmount());
-            throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount());
-        }
-    }
-
-    private PaymentApprovalVendorResult requestPaymentApprovalToPsp(
-            ApprovePaymentCommand command, Payment payment, PspPaymentEvent event, Long amount
+    private PaymentApprovalVendorCommand buildVendorCommand(
+            ApprovePaymentCommand command, PaymentApprovalContext context
     ) {
-        PaymentApprovalVendorCommand vendorCommand = PaymentApprovalVendorCommand.builder()
+        return PaymentApprovalVendorCommand.builder()
                 .encData(command.encData())
                 .encInfo(command.encInfo())
-                .ordrMony(String.valueOf(amount))
+                .ordrMony(String.valueOf(context.paymentAmount()))
                 .ordrNo(command.orderKey())
                 .payType(command.payType())
                 .build();
-
-        try {
-            return paymentVendorPort.approvePayment(vendorCommand);
-        } catch (Exception e) {
-            handleFailure(payment, event, "KCP 통신 오류: " + e.getMessage());
-            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
-        }
-    }
-
-    private ApprovePaymentResult handleSuccess(
-            Payment payment, PspPaymentEvent event, PaymentApprovalVendorResult vendorResult
-    ) {
-        payment.markAsSuccess(vendorResult.tno());
-        updatePaymentPort.update(payment);
-
-        Short installment = parseInstallment(vendorResult.quota());
-        PaymentApprovalInfo approvalInfo = PaymentApprovalInfo.builder()
-                .pgPaymentKey(vendorResult.tno())
-                .method(vendorResult.payMethod())
-                .cardNumber(vendorResult.cardNo())
-                .approvalNumber(vendorResult.appNo())
-                .installment(installment)
-                .issueCompanyCode(vendorResult.cardCd())
-                .issueCompanyName(vendorResult.cardName())
-                .resultCode(vendorResult.resCd())
-                .resultMessage(vendorResult.resMsg())
-                .pgApprovalResult(vendorResult.rawResponse())
-                .appTime(vendorResult.appTime())
-                .build();
-        event.completeWithApproval(approvalInfo);
-        updatePspPaymentEventPort.update(event);
-
-        changeOrderStatusUseCase.changeOrderStatus(
-                ChangeOrderStatusCommand.builder()
-                        .id(payment.getOrderId())
-                        .orderStatus(OrderStatus.PAID)
-                        .build()
-        );
-
-        recordLedgerEntryForPaymentApproval(payment);
-
-        return ApprovePaymentResult.builder()
-                .orderId(payment.getOrderId())
-                .orderKey(payment.getOrderKey().toString())
-                .pgPaymentKey(vendorResult.tno())
-                .amount(payment.getPaymentAmount())
-                .resultCode(vendorResult.resCd())
-                .resultMessage(vendorResult.resMsg())
-                .payMethod(vendorResult.payMethod())
-                .build();
-    }
-
-    private void handleFailure(Payment payment, PspPaymentEvent event, String reason) {
-        payment.markAsFailed();
-        updatePaymentPort.update(payment);
-
-        event.failExecution("FAIL", reason);
-        updatePspPaymentEventPort.update(event);
-
-        changeOrderStatusUseCase.changeOrderStatus(
-                ChangeOrderStatusCommand.builder()
-                        .id(payment.getOrderId())
-                        .orderStatus(OrderStatus.FAILED)
-                        .build()
-        );
-    }
-
-    private void recordLedgerEntryForPaymentApproval(Payment payment) {
-        try {
-            recordLedgerEntryUseCase.recordPaymentApproval(
-                    payment.getOrderId(), payment.getPaymentAmount()
-            );
-        } catch (Exception e) {
-            log.error("결제 승인 분개 기록 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
-        }
-    }
-
-    private Order findVerifiedOrder(Long orderId, Long buyerId) {
-        Order order = findOrderPort.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
-        if (!order.isBuyer(buyerId)) {
-            log.warn("결제 승인 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    orderId, order.getBuyerId(), buyerId);
-            throw new UnauthorizedOrderAccessException();
-        }
-        return order;
     }
 
     private Short parseInstallment(String quota) {
