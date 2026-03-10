@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
+import com.personal.marketnote.commerce.exception.InvalidCancelProductException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
@@ -30,11 +31,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
@@ -494,8 +491,8 @@ class CancelPaymentUseCaseTest {
         }
 
         @Test
-        @DisplayName("부분 취소 시 재고 복구가 호출되지 않는다")
-        void shouldNotRestoreInventoryOnPartialCancel() {
+        @DisplayName("부분 취소 시 취소 대상 상품 목록이 없으면 재고 복구가 호출되지 않는다")
+        void shouldNotRestoreInventoryOnPartialCancelWithoutCancelProducts() {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
@@ -509,6 +506,130 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyString());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 취소 대상 상품 목록이 빈 리스트이면 재고 복구가 호출되지 않는다")
+        void shouldNotRestoreInventoryOnPartialCancelWithEmptyCancelProducts() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, List.of());
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyString());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 취소 대상 상품 목록이 있으면 해당 상품의 재고 복구가 호출된다")
+        void shouldRestoreInventoryOnPartialCancelWithCancelProducts() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(restoreProductInventoryUseCase).restore(argThat(products ->
+                    products.size() == 1
+                            && products.get(0).getPricePolicyId().equals(100L)
+                            && products.get(0).getQuantity().equals(1)
+            ), eq("주문 부분 취소에 의한 재고 복구"));
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 취소 대상 상품의 pricePolicyId와 수량이 정확히 전달된다")
+        void shouldPassCorrectPricePolicyIdAndQuantityOnPartialCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1),
+                    new CancelPaymentCommand.CancelProductItem(200L, 2)
+            );
+            Order order = createOrderWithMultipleProducts(1L, BUYER_ID, List.of(100L, 200L), List.of(2, 3));
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 30000L, cancelProducts);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(restoreProductInventoryUseCase).restore(argThat(products ->
+                    products.size() == 2
+                            && products.get(0).getPricePolicyId().equals(100L)
+                            && products.get(0).getQuantity().equals(1)
+                            && products.get(1).getPricePolicyId().equals(200L)
+                            && products.get(1).getQuantity().equals(2)
+            ), eq("주문 부분 취소에 의한 재고 복구"));
+        }
+
+        @Test
+        @DisplayName("부분 취소 재고 복구 실패 시에도 결제 취소는 정상 완료된다")
+        void shouldCompleteCancelEvenWhenPartialInventoryRestoreFails() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
+                    .restore(anyList(), anyString());
+
+            cancelPaymentService.cancel(command);
+
+            verify(updatePaymentPort).update(any());
+            verify(updatePspPaymentEventPort).update(any());
+        }
+
+        @Test
+        @DisplayName("전액 취소 시 cancelProducts가 있어도 기존 전체 재고 복구가 수행된다")
+        void shouldUseFullRestoreOnFullCancelEvenWithCancelProducts() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = CancelPaymentCommand.builder()
+                    .buyerId(BUYER_ID)
+                    .orderKey(ORDER_KEY_STR)
+                    .cancelType(CancelPaymentCommand.CancelType.FULL)
+                    .cancelReason("고객 요청")
+                    .cancelProducts(cancelProducts)
+                    .build();
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            // 전액 취소는 기존 restoreInventory(order)가 호출되므로 전체 주문 상품 목록으로 복구
+            verify(restoreProductInventoryUseCase).restore(anyList(), eq("주문 전액 취소에 의한 재고 복구"));
         }
 
         @Test
@@ -531,6 +652,75 @@ class CancelPaymentUseCaseTest {
             verify(updatePaymentPort).update(any());
             verify(updatePspPaymentEventPort).update(any());
             verify(changeOrderStatusUseCase).changeOrderStatus(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("부분 취소 상품 검증")
+    class PartialCancelProductValidationTest {
+
+        @Test
+        @DisplayName("부분 취소 시 주문에 존재하지 않는 상품으로 요청하면 InvalidCancelProductException이 발생한다")
+        void shouldThrowWhenCancelProductNotInOrder() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(999L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+
+            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
+                    .isInstanceOf(InvalidCancelProductException.class)
+                    .hasMessageContaining("주문에 존재하지 않는 상품");
+
+            verify(paymentVendorPort, never()).cancelPayment(any());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 중복된 pricePolicyId가 포함되면 InvalidCancelProductException이 발생한다")
+        void shouldThrowWhenDuplicatePricePolicyIdInCancelProducts() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1),
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+
+            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
+                    .isInstanceOf(InvalidCancelProductException.class)
+                    .hasMessageContaining("중복된 상품");
+
+            verify(paymentVendorPort, never()).cancelPayment(any());
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 취소 수량이 주문 수량을 초과하면 InvalidCancelProductException이 발생한다")
+        void shouldThrowWhenCancelQuantityExceedsOrderQuantity() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 5)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+
+            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
+                    .isInstanceOf(InvalidCancelProductException.class)
+                    .hasMessageContaining("취소 수량이 주문 수량을 초과");
+
+            verify(paymentVendorPort, never()).cancelPayment(any());
         }
     }
 
@@ -1041,7 +1231,7 @@ class CancelPaymentUseCaseTest {
     }
 
     private Order createOrderWithAccumulatedPoint(Long orderId, Long buyerId, Long totalAmount,
-                                                   Long pricePolicyId, int quantity, Long unitAmount) {
+                                                  Long pricePolicyId, int quantity, Long unitAmount) {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
                 .pricePolicyId(pricePolicyId)
                 .quantity(quantity)
@@ -1155,6 +1345,42 @@ class CancelPaymentUseCaseTest {
                 .cancelAmount(cancelAmount)
                 .cancelReason("부분 취소")
                 .build();
+    }
+
+    private CancelPaymentCommand createPartialCancelCommandWithProducts(
+            String orderKey, Long cancelAmount, List<CancelPaymentCommand.CancelProductItem> cancelProducts
+    ) {
+        return CancelPaymentCommand.builder()
+                .buyerId(BUYER_ID)
+                .orderKey(orderKey)
+                .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
+                .cancelAmount(cancelAmount)
+                .cancelReason("부분 취소")
+                .cancelProducts(cancelProducts)
+                .build();
+    }
+
+    private Order createOrderWithMultipleProducts(Long orderId, Long buyerId,
+                                                   List<Long> pricePolicyIds, List<Integer> quantities) {
+        List<OrderProductSnapshotState> productStates = new ArrayList<>();
+        for (int i = 0; i < pricePolicyIds.size(); i++) {
+            productStates.add(OrderProductSnapshotState.builder()
+                    .pricePolicyId(pricePolicyIds.get(i))
+                    .quantity(quantities.get(i))
+                    .sellerId(10L)
+                    .unitAmount(25000L)
+                    .build());
+        }
+        OrderSnapshotState state = OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(ORDER_KEY)
+                .orderStatus(OrderStatus.PAID)
+                .totalAmount(50000L)
+                .pointAmount(0L)
+                .orderProductStates(productStates)
+                .build();
+        return Order.from(state);
     }
 
     private PaymentCancelVendorResult createSuccessVendorResult() {
