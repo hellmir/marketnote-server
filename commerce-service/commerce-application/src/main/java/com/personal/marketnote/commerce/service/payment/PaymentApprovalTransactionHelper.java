@@ -139,6 +139,8 @@ public class PaymentApprovalTransactionHelper {
                         .orderStatus(OrderStatus.FAILED)
                         .build()
         );
+
+        publishPaymentFailedEvent(payment, resultCode, resultMessage);
     }
 
     /**
@@ -192,6 +194,19 @@ public class PaymentApprovalTransactionHelper {
             );
         } catch (Exception e) {
             log.error("결제 승인 이벤트 발행 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
+        }
+    }
+
+    private void publishPaymentFailedEvent(Payment payment, String resultCode, String resultMessage) {
+        try {
+            publishPaymentEventPort.publishPaymentFailedEvent(
+                    payment.getOrderId(),
+                    payment.getOrderKey().toString(),
+                    resultCode,
+                    resultMessage
+            );
+        } catch (Exception e) {
+            log.error("결제 실패 이벤트 발행 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }
 

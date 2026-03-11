@@ -5,6 +5,7 @@ import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentApprovedEvent;
+import com.personal.marketnote.common.kafka.event.PaymentFailedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,28 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
         PaymentApprovedEvent payload = new PaymentApprovedEvent(orderId, orderKey, paymentAmount);
         String topic = KafkaTopicConstants.PAYMENT_APPROVED;
         EventEnvelope<PaymentApprovedEvent> envelope = EventEnvelope.of(
+                topic, SOURCE, payload, clock
+        );
+
+        kafkaTemplate.send(topic, orderId.toString(), envelope)
+                .whenComplete((result, ex) -> {
+                    if (FormatValidator.hasValue(ex)) {
+                        log.error("Kafka 이벤트 발행 실패. topic={}, orderId={}, orderKey={}",
+                                topic, orderId, orderKey, ex);
+                        return;
+                    }
+
+                    log.info("Kafka 이벤트 발행 성공. topic={}, orderId={}, orderKey={}, offset={}",
+                            topic, orderId, orderKey,
+                            result.getRecordMetadata().offset());
+                });
+    }
+
+    @Override
+    public void publishPaymentFailedEvent(Long orderId, String orderKey, String resultCode, String resultMessage) {
+        PaymentFailedEvent payload = new PaymentFailedEvent(orderId, orderKey, resultCode, resultMessage);
+        String topic = KafkaTopicConstants.PAYMENT_FAILED;
+        EventEnvelope<PaymentFailedEvent> envelope = EventEnvelope.of(
                 topic, SOURCE, payload, clock
         );
 
