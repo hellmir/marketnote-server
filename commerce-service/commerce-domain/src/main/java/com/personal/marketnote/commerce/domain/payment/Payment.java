@@ -50,28 +50,28 @@ public class Payment {
 
     public void markAsSuccess(String pgPaymentKey) {
         this.pgPaymentKey = pgPaymentKey;
-        this.successYn = true;
+        successYn = true;
     }
 
     public void markAsFailed() {
-        this.successYn = false;
+        successYn = false;
     }
 
     public void markAsRefunded() {
-        this.refundedYn = true;
-        this.refundAmount = this.paymentAmount;
+        refundedYn = true;
+        refundAmount = paymentAmount;
     }
 
     public void markAsPartiallyRefunded(Long amount) {
-        long newRefundAmount = this.refundAmount + amount;
-        if (newRefundAmount > this.paymentAmount) {
+        long newRefundAmount = refundAmount + amount;
+        if (newRefundAmount > paymentAmount) {
             throw new InvalidRefundAmountException(
-                    "누적 환불 금액이 결제 금액을 초과합니다. paymentAmount=" + this.paymentAmount
-                            + ", 현재 환불액=" + this.refundAmount + ", 요청 환불액=" + amount);
+                    "누적 환불 금액이 결제 금액을 초과합니다. paymentAmount=" + paymentAmount
+                            + ", 현재 환불액=" + refundAmount + ", 요청 환불액=" + amount);
         }
-        this.refundAmount = newRefundAmount;
-        if (this.refundAmount.equals(this.paymentAmount)) {
-            this.refundedYn = true;
+        refundAmount = newRefundAmount;
+        if (FormatValidator.equals(refundAmount, paymentAmount)) {
+            refundedYn = true;
         }
     }
 }

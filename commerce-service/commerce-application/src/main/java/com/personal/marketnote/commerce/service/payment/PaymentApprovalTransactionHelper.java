@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCo
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
@@ -45,6 +46,7 @@ public class PaymentApprovalTransactionHelper {
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+    private final PublishPaymentEventPort publishPaymentEventPort;
 
     /**
      * TX-1: 검증 + EXECUTING 상태 커밋
@@ -103,6 +105,8 @@ public class PaymentApprovalTransactionHelper {
         );
 
         recordLedgerEntryForPaymentApproval(payment);
+
+        publishPaymentApprovedEvent(payment);
 
         return ApprovePaymentResult.builder()
                 .orderId(payment.getOrderId())
@@ -177,6 +181,18 @@ public class PaymentApprovalTransactionHelper {
             throw new UnauthorizedOrderAccessException();
         }
         return order;
+    }
+
+    private void publishPaymentApprovedEvent(Payment payment) {
+        try {
+            publishPaymentEventPort.publishPaymentApprovedEvent(
+                    payment.getOrderId(),
+                    payment.getOrderKey().toString(),
+                    payment.getPaymentAmount()
+            );
+        } catch (Exception e) {
+            log.error("결제 승인 이벤트 발행 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
+        }
     }
 
     private void recordLedgerEntryForPaymentApproval(Payment payment) {

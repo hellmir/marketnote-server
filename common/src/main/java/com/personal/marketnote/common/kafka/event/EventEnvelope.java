@@ -2,10 +2,13 @@ package com.personal.marketnote.common.kafka.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.uuid.UuidCreator;
+import lombok.AccessLevel;
+import lombok.Builder;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 
+@Builder(access = AccessLevel.PRIVATE)
 public record EventEnvelope<T>(
         String eventId,
         String eventType,
@@ -15,13 +18,13 @@ public record EventEnvelope<T>(
 ) {
 
     public static <T> EventEnvelope<T> of(String eventType, String source, T payload, Clock clock) {
-        return new EventEnvelope<>(
-                UuidCreator.getTimeOrdered().toString(),
-                eventType,
-                source,
-                LocalDateTime.now(clock),
-                payload
-        );
+        return EventEnvelope.<T>builder()
+                .eventId(UuidCreator.getTimeOrdered().toString())
+                .eventType(eventType)
+                .source(source)
+                .timestamp(LocalDateTime.now(clock))
+                .payload(payload)
+                .build();
     }
 
     @SuppressWarnings("unchecked")
