@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.port.out.payment.vendor;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.Builder;
 
 @Builder
@@ -26,6 +27,6 @@ public record PaymentApprovalVendorResult(
         String rawResponse
 ) {
     public boolean isSuccess() {
-        return "0000".equals(resCd);
+        return FormatValidator.equals(resCd, "0000");
     }
 }

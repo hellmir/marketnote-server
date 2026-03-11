@@ -36,19 +36,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         // TX-1: 검증 + EXECUTING 커밋
         PaymentApprovalContext context = txHelper.prepareExecution(command);
 
-        // KCP 호출 (트랜잭션 외부 — 어댑터에서 재시도 수행)
-        PaymentApprovalVendorResult vendorResult;
-        try {
-            vendorResult = paymentVendorPort.approvePayment(buildVendorCommand(command, context));
-        } catch (PaymentVendorConnectionFailedException e) {
-            // TX-2: 연결 실패 → FAILED (요청이 KCP에 도달하지 않음)
-            txHelper.commitFailure(context, "CONN_FAIL", e.getMessage());
-            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
-        } catch (Exception e) {
-            // TX-2: 기타 통신 오류 → UNKNOWN (요청이 KCP에 도달했을 수 있음)
-            txHelper.commitUnknown(context, "UNKNOWN", "KCP 통신 오류: " + e.getMessage());
-            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
-        }
+        PaymentApprovalVendorResult vendorResult = requestPaymentApprovalToPsp(command, context);
 
         // TX-2: 성공 또는 실패 커밋
         if (vendorResult.isSuccess()) {
@@ -58,6 +46,23 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
 
         txHelper.commitFailure(context, vendorResult.resCd(), vendorResult.resMsg());
         throw PaymentApprovalException.kcpApprovalFailed(vendorResult.resCd(), vendorResult.resMsg());
+    }
+
+    private PaymentApprovalVendorResult requestPaymentApprovalToPsp(
+            ApprovePaymentCommand command, PaymentApprovalContext context
+    ) {
+        // KCP 호출 (트랜잭션 외부 — 어댑터에서 재시도 수행)
+        try {
+            return paymentVendorPort.approvePayment(buildVendorCommand(command, context));
+        } catch (PaymentVendorConnectionFailedException e) {
+            // TX-2: 연결 실패 → FAILED (요청이 KCP에 도달하지 않음)
+            txHelper.commitFailure(context, "CONN_FAIL", e.getMessage());
+            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
+        } catch (Exception e) {
+            // TX-2: 기타 통신 오류 → UNKNOWN (요청이 KCP에 도달했을 수 있음)
+            txHelper.commitUnknown(context, "UNKNOWN", "KCP 통신 오류: " + e.getMessage());
+            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
+        }
     }
 
     private PaymentApprovalVendorCommand buildVendorCommand(
