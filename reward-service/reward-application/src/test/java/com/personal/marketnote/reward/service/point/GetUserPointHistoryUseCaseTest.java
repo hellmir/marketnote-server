@@ -1,0 +1,222 @@
+package com.personal.marketnote.reward.service.point;
+
+import com.personal.marketnote.reward.domain.point.UserPointHistory;
+import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
+import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
+import com.personal.marketnote.reward.port.out.point.FindUserPointHistoryPort;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class GetUserPointHistoryUseCaseTest {
+
+    @InjectMocks
+    private GetUserPointHistoryService getUserPointHistoryService;
+
+    @Mock
+    private FindUserPointHistoryPort findUserPointHistoryPort;
+
+    private static final Long USER_ID = 1L;
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 3, 5, 10, 0);
+
+    private UserPointHistory createHistory(Long id, Long amount, UserPointSourceType sourceType, LocalDateTime accumulatedAt) {
+        return UserPointHistory.from(UserPointHistorySnapshotState.builder()
+                .id(id)
+                .userId(USER_ID)
+                .amount(amount)
+                .isReflected(Boolean.TRUE)
+                .sourceType(sourceType)
+                .sourceId(100L)
+                .reason("테스트")
+                .accumulatedAt(accumulatedAt)
+                .createdAt(accumulatedAt)
+                .build());
+    }
+
+    @Nested
+    @DisplayName("필터 지정 조회")
+    class FilterSpecifiedTest {
+
+        @Test
+        @DisplayName("전체 필터로 포인트 이력을 조회하면 모든 이력이 반환된다")
+        void shouldReturnAllHistoriesWithAllFilter() {
+            // given
+            List<UserPointHistory> histories = List.of(
+                    createHistory(1L, 500L, UserPointSourceType.ORDER, NOW),
+                    createHistory(2L, -200L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    USER_ID, UserPointHistoryFilter.ALL
+            );
+
+            // then
+            assertThat(result.histories()).hasSize(1);
+            assertThat(result.histories().getFirst().count()).isEqualTo(2);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL);
+        }
+
+        @Test
+        @DisplayName("적립 필터로 포인트 이력을 조회한다")
+        void shouldReturnHistoriesWithAccrualFilter() {
+            // given
+            List<UserPointHistory> histories = List.of(
+                    createHistory(1L, 500L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    USER_ID, UserPointHistoryFilter.ACCRUAL
+            );
+
+            // then
+            assertThat(result.histories()).hasSize(1);
+            assertThat(result.histories().getFirst().count()).isEqualTo(1);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL);
+        }
+
+        @Test
+        @DisplayName("차감 필터로 포인트 이력을 조회한다")
+        void shouldReturnHistoriesWithDeductionFilter() {
+            // given
+            List<UserPointHistory> histories = List.of(
+                    createHistory(1L, -300L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    USER_ID, UserPointHistoryFilter.DEDUCTION
+            );
+
+            // then
+            assertThat(result.histories()).hasSize(1);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION);
+        }
+    }
+
+    @Nested
+    @DisplayName("필터 미지정 조회")
+    class FilterNullTest {
+
+        @Test
+        @DisplayName("필터가 null이면 전체 필터로 조회한다")
+        void shouldUseAllFilterWhenFilterIsNull() {
+            // given
+            List<UserPointHistory> histories = List.of(
+                    createHistory(1L, 500L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(USER_ID, null);
+
+            // then
+            assertThat(result.histories()).hasSize(1);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL);
+        }
+    }
+
+    @Nested
+    @DisplayName("빈 결과")
+    class EmptyResultTest {
+
+        @Test
+        @DisplayName("이력이 없으면 빈 결과를 반환한다")
+        void shouldReturnEmptyResultWhenNoHistories() {
+            // given
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+                    .thenReturn(Collections.emptyList());
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    USER_ID, UserPointHistoryFilter.ALL
+            );
+
+            // then
+            assertThat(result.histories()).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("날짜별 그룹핑")
+    class DateGroupingTest {
+
+        @Test
+        @DisplayName("같은 날짜의 이력은 하나의 그룹으로 묶인다")
+        void shouldGroupHistoriesBySameDate() {
+            // given
+            LocalDateTime morning = LocalDateTime.of(2026, 3, 5, 9, 0);
+            LocalDateTime afternoon = LocalDateTime.of(2026, 3, 5, 15, 0);
+
+            List<UserPointHistory> histories = List.of(
+                    createHistory(1L, 500L, UserPointSourceType.ORDER, morning),
+                    createHistory(2L, 300L, UserPointSourceType.ATTENDENCE, afternoon)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    USER_ID, UserPointHistoryFilter.ALL
+            );
+
+            // then
+            assertThat(result.histories()).hasSize(1);
+            assertThat(result.histories().getFirst().count()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("다른 날짜의 이력은 별도 그룹으로 분리된다")
+        void shouldSeparateHistoriesByDifferentDate() {
+            // given
+            LocalDateTime day1 = LocalDateTime.of(2026, 3, 4, 10, 0);
+            LocalDateTime day2 = LocalDateTime.of(2026, 3, 5, 10, 0);
+
+            List<UserPointHistory> histories = List.of(
+                    createHistory(1L, 500L, UserPointSourceType.ORDER, day1),
+                    createHistory(2L, 300L, UserPointSourceType.ATTENDENCE, day2)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    USER_ID, UserPointHistoryFilter.ALL
+            );
+
+            // then
+            assertThat(result.histories()).hasSize(2);
+            assertThat(result.histories().getFirst().count()).isEqualTo(1);
+            assertThat(result.histories().get(1).count()).isEqualTo(1);
+        }
+    }
+}
