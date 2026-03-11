@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
@@ -8,7 +9,6 @@ import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductInfoNoValueException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.in.command.FulfillmentVendorGoodsOptionCommand;
-import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.product.port.in.command.UpdateProductCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;

@@ -21,38 +21,38 @@ import java.lang.annotation.*;
         summary = "(관리자) 적립 예정 포인트 취소",
         description = """
                 작성일자: 2026-03-07
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 적립 예정 포인트를 취소(회수)합니다.
-
+                
                 - sourceType과 sourceId로 취소 대상 적립 예정 포인트 이력을 식별합니다.
-
+                
                 - 취소 시 적립 예정 포인트에서 차감되고, 실제 포인트는 변경되지 않습니다.
-
+                
                 - 기존 pending 이력은 isReflected: true로 업데이트됩니다.
-
+                
                 - 취소 대상 이력이 없으면 현재 포인트를 그대로 반환합니다 (멱등성 보장).
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | userId (path) | number | 회원 ID | Y | 100 |
                 | sourceType | string | 출처 유형 | Y | "ORDER" |
                 | sourceId | number | 출처 ID (주문 ID) | Y | 123 |
                 | reason | string | 사유 | N | "결제 취소 적립 예정 포인트 회수" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
