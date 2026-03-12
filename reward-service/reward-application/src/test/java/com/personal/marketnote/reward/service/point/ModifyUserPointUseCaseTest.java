@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.reward.domain.point.*;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
 import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
@@ -256,6 +257,30 @@ class ModifyUserPointUseCaseTest {
 
             verify(updateUserPointPort, never()).update(any());
             verify(saveUserPointHistoryPort, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("포인트 이력 저장 시 중복이면 DuplicateUserPointHistoryException이 발생한다")
+        void shouldThrowWhenDuplicatePointHistory() {
+            // given
+            UserPoint userPoint = createUserPoint(1000L);
+            ModifyUserPointCommand command = createAccrualCommandWithUserId(500L);
+
+            when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+            when(updateUserPointPort.update(any(UserPoint.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+            when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
+                    .thenThrow(new DuplicateUserPointHistoryException(
+                            USER_ID, UserPointSourceType.ORDER, 100L, "상품 구매 적립"));
+
+            // expect
+            assertThatThrownBy(() -> modifyUserPointService.modify(command))
+                    .isInstanceOf(DuplicateUserPointHistoryException.class)
+                    .hasMessageContaining("이미 처리된 포인트 변경입니다");
+
+            verify(getUserPointUseCase).getUserPoint(USER_ID);
+            verify(updateUserPointPort).update(any(UserPoint.class));
+            verify(saveUserPointHistoryPort).save(any(UserPointHistory.class));
         }
     }
 }

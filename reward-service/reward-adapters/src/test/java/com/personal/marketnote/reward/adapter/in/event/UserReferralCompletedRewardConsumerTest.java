@@ -5,6 +5,7 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.UserReferralCompletedEvent;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -150,5 +151,56 @@ class UserReferralCompletedRewardConsumerTest {
 
         verify(modifyUserPointUseCase, times(2)).modify(any(ModifyUserPointCommand.class));
         verifyNoInteractions(acknowledgment);
+    }
+
+    @Test
+    @DisplayName("추천인 포인트 적립 중 DuplicateUserPointHistoryException 발생 시 멱등 처리하고 피추천인 적립은 정상 진행한다")
+    void handleUserReferralCompletedEvent_referrerDuplicate_idempotentAndContinuesReferred() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
+                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, "추천인 코드 등록 적립"))
+                .thenReturn(null);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(modifyUserPointUseCase, times(2)).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("피추천인 포인트 적립 중 DuplicateUserPointHistoryException 발생 시 멱등 처리하고 acknowledge한다")
+    void handleUserReferralCompletedEvent_referredDuplicate_idempotentAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
+                .thenReturn(null)
+                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, "신규 회원 초대 적립"));
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(modifyUserPointUseCase, times(2)).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("추천인과 피추천인 모두 중복이면 멱등 처리하고 acknowledge한다")
+    void handleUserReferralCompletedEvent_bothDuplicate_idempotentAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
+                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, "추천인 코드 등록 적립"))
+                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, "신규 회원 초대 적립"));
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(modifyUserPointUseCase, times(2)).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment).acknowledge();
     }
 }
