@@ -116,7 +116,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         //  [미전환] 공유 포인트 적립 (#1019), 포인트 차감 (#1020), 상품 포인트 적립 (#1131)
 
         // 결제 완료 시 재고 차감
-        reduceProductInventoryUseCase.reduce(order.getOrderProducts(), status.getDescription());
+        reduceProductInventoryUseCase.reduce(order.getOrderProducts(), order.getId(), status.getDescription());
 
         List<Long> pricePolicyIds = order.getOrderProducts()
                 .stream()

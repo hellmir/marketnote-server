@@ -7,6 +7,8 @@ import com.personal.marketnote.commerce.adapter.out.persistence.inventory.reposi
 import com.personal.marketnote.commerce.adapter.out.persistence.inventory.repository.InventoryJpaRepository;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
+import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistory;
+import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveInventoryDeductionHistoryPort;
@@ -14,6 +16,7 @@ import com.personal.marketnote.commerce.port.out.inventory.SaveInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.UpdateInventoryPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 import java.util.Set;
@@ -85,11 +88,20 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
 
     @Override
     public void save(InventoryDeductionHistories inventoryDeductionHistories) {
-        inventoryDeductionHistoryJpaRepository.saveAll(
-                inventoryDeductionHistories.getInventoryDeductionHistories()
-                        .stream()
-                        .map(InventoryDeductionHistoryJpaEntity::from)
-                        .toList()
-        );
+        try {
+            inventoryDeductionHistoryJpaRepository.saveAllAndFlush(
+                    inventoryDeductionHistories.getInventoryDeductionHistories()
+                            .stream()
+                            .map(InventoryDeductionHistoryJpaEntity::from)
+                            .toList()
+            );
+        } catch (DataIntegrityViolationException e) {
+            Long orderId = inventoryDeductionHistories.getInventoryDeductionHistories()
+                    .stream()
+                    .findFirst()
+                    .map(InventoryDeductionHistory::getOrderId)
+                    .orElse(null);
+            throw new DuplicateInventoryDeductionException(orderId);
+        }
     }
 }

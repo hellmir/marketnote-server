@@ -28,7 +28,7 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
     private final InventoryLockPort inventoryLockPort;
 
     @Override
-    public void reduce(List<OrderProduct> orderProducts, String reason) {
+    public void reduce(List<OrderProduct> orderProducts, Long orderId, String reason) {
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
                 .collect(
                         Collectors.groupingBy(
@@ -49,7 +49,7 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
                     productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
             );
             saveInventoryDeductionHistoryPort.save(
-                    InventoryDeductionHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, reason)
+                    InventoryDeductionHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
             );
             saveCacheStockPort.save(inventories);
         });

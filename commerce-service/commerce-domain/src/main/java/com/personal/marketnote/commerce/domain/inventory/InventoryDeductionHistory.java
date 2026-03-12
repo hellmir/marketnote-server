@@ -10,6 +10,7 @@ public class InventoryDeductionHistory {
     private Long id;
     private Long productId;
     private Long pricePolicyId;
+    private Long orderId;
     private Stock stock;
     private String reason;
 
@@ -17,6 +18,7 @@ public class InventoryDeductionHistory {
         return InventoryDeductionHistory.builder()
                 .productId(state.getProductId())
                 .pricePolicyId(state.getPricePolicyId())
+                .orderId(state.getOrderId())
                 .stock(Stock.of(
                         String.valueOf(state.getStock())
                 ))
@@ -29,6 +31,7 @@ public class InventoryDeductionHistory {
                 .id(state.getId())
                 .productId(state.getProductId())
                 .pricePolicyId(state.getPricePolicyId())
+                .orderId(state.getOrderId())
                 .stock(Stock.of(
                         String.valueOf(state.getStock())
                 ))

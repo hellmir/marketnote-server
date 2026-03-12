@@ -12,7 +12,13 @@ import org.hibernate.annotations.DynamicUpdate;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "inventory_deduction_history")
+@Table(
+        name = "inventory_deduction_history",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_inventory_deduction_order_policy",
+                columnNames = {"order_id", "price_policy_id"}
+        )
+)
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,6 +35,9 @@ public class InventoryDeductionHistoryJpaEntity extends BaseEntity {
     @Column(name = "price_policy_id", nullable = false)
     private Long pricePolicyId;
 
+    @Column(name = "order_id")
+    private Long orderId;
+
     @Column(name = "stock", nullable = false)
     private Integer stock;
 
@@ -38,11 +47,13 @@ public class InventoryDeductionHistoryJpaEntity extends BaseEntity {
     private InventoryDeductionHistoryJpaEntity(
             Long productId,
             Long pricePolicyId,
+            Long orderId,
             Integer stock,
             String reason
     ) {
         this.productId = productId;
         this.pricePolicyId = pricePolicyId;
+        this.orderId = orderId;
         this.stock = stock;
         this.reason = reason;
     }
@@ -51,6 +62,7 @@ public class InventoryDeductionHistoryJpaEntity extends BaseEntity {
         return new InventoryDeductionHistoryJpaEntity(
                 inventoryDeductionHistory.getProductId(),
                 inventoryDeductionHistory.getPricePolicyId(),
+                inventoryDeductionHistory.getOrderId(),
                 inventoryDeductionHistory.getStockValue(),
                 inventoryDeductionHistory.getReason()
         );
