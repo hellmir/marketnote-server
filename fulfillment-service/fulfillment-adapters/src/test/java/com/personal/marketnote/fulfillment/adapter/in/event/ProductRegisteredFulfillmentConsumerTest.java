@@ -5,6 +5,7 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
+import com.personal.marketnote.fulfillment.exception.FasstoGoodsAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.RegisterFasstoGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFasstoGoodsUseCase;
@@ -78,7 +79,7 @@ class ProductRegisteredFulfillmentConsumerTest {
 
         // then
         ArgumentCaptor<RegisterFasstoGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFasstoGoodsCommand.class);
-        verify(registerFasstoGoodsUseCase).registerGoods(captor.capture());
+        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
         RegisterFasstoGoodsCommand command = captor.getValue();
         assertThat(command.customerCode()).isEqualTo("CUST001");
@@ -105,7 +106,7 @@ class ProductRegisteredFulfillmentConsumerTest {
 
         // then
         ArgumentCaptor<RegisterFasstoGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFasstoGoodsCommand.class);
-        verify(registerFasstoGoodsUseCase).registerGoods(captor.capture());
+        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
         assertThat(captor.getValue().goods().get(0).godType()).isEqualTo("2");
         verify(acknowledgment).acknowledge();
@@ -124,7 +125,7 @@ class ProductRegisteredFulfillmentConsumerTest {
 
         // then
         ArgumentCaptor<RegisterFasstoGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFasstoGoodsCommand.class);
-        verify(registerFasstoGoodsUseCase).registerGoods(captor.capture());
+        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
         assertThat(captor.getValue().goods().get(0).godType()).isEqualTo("1");
         verify(acknowledgment).acknowledge();
@@ -181,13 +182,31 @@ class ProductRegisteredFulfillmentConsumerTest {
         when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RegisterFasstoGoodsFailedException(new IOException("Fassto API 오류")))
-                .when(registerFasstoGoodsUseCase).registerGoods(any(RegisterFasstoGoodsCommand.class));
+                .when(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verify(registerFasstoGoodsUseCase).registerGoods(any(RegisterFasstoGoodsCommand.class));
+        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("FasstoGoodsAlreadyRegisteredException 발생 시 warn 로그 후 acknowledge한다")
+    void handleEvent_alreadyRegistered_warnsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
+        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
+        doThrow(new FasstoGoodsAlreadyRegisteredException(1L))
+                .when(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+
+        // when
+        consumer.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
         verify(acknowledgment).acknowledge();
     }
 
@@ -199,14 +218,14 @@ class ProductRegisteredFulfillmentConsumerTest {
         when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RuntimeException("네트워크 오류"))
-                .when(registerFasstoGoodsUseCase).registerGoods(any(RegisterFasstoGoodsCommand.class));
+                .when(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("네트워크 오류");
 
-        verify(registerFasstoGoodsUseCase).registerGoods(any(RegisterFasstoGoodsCommand.class));
+        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();
     }
 }
