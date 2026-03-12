@@ -6,10 +6,12 @@ import com.personal.marketnote.reward.adapter.out.persistence.point.repository.U
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.out.point.FindUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointHistoryPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,10 +23,17 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
 
     @Override
     public UserPointHistory save(UserPointHistory history) {
-        UserPointHistoryJpaEntity saved = repository.save(
-                Objects.requireNonNull(UserPointHistoryJpaEntity.from(history))
-        );
-        return saved.toDomain();
+        try {
+            UserPointHistoryJpaEntity saved = repository.saveAndFlush(
+                    Objects.requireNonNull(UserPointHistoryJpaEntity.from(history))
+            );
+            return saved.toDomain();
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateUserPointHistoryException(
+                    history.getUserId(), history.getSourceType(),
+                    history.getSourceId(), history.getReason()
+            );
+        }
     }
 
     @Override
