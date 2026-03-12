@@ -13,6 +13,7 @@ import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusC
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
@@ -43,6 +44,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final DeleteOrderedCartProductsPort deleteOrderedCartProductsPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final ModifyUserPointPort modifyUserPointPort;
+    private final PublishOrderEventPort publishOrderEventPort;
 
     @Override
     public void changeOrderStatus(ChangeOrderStatusCommand command) {
@@ -109,7 +111,9 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     }
 
     private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {
-        // FIXME: [#929] Kafka 이벤트 Consumption으로 변경(주문 상태 PAID로 변경 / 결제 금액 업데이트 / 재고 감소 / 장바구니 상품 삭제)
+        // FIXME: [#929] Kafka 이벤트 전환 진행 중
+        //  [전환 완료 - 듀얼 라이트] 재고 차감 (#932)
+        //  [미전환] 장바구니 삭제 (#1018), 공유 포인트 적립 (#1019), 포인트 차감 (#1020), 상품 포인트 적립 (#1131)
 
         // 결제 완료 시 재고 차감
         reduceProductInventoryUseCase.reduce(order.getOrderProducts(), status.getDescription());
@@ -126,6 +130,9 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(order.getOrderProducts(), pricePolicyIds);
 
         runAfterCommit(() -> {
+            // Kafka 이벤트 발행 (듀얼 라이트)
+            publishOrderPaymentCompletedEvent(order);
+
             // 결제 완료 시 장바구니 상품 삭제
             deleteOrderedCartProductsPort.delete(pricePolicyIds);
 
@@ -210,6 +217,21 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         } catch (Exception e) {
             log.error("적립 예정 포인트 확정 실패 - orderId: {}, buyerId: {}, error: {}",
                     orderId, buyerId, e.getMessage(), e);
+        }
+    }
+
+    private void publishOrderPaymentCompletedEvent(Order order) {
+        try {
+            publishOrderEventPort.publishOrderPaymentCompletedEvent(
+                    order.getId(),
+                    order.getBuyerId(),
+                    order.getTotalAmount(),
+                    order.getPointAmount(),
+                    order.getOrderProducts()
+            );
+        } catch (Exception e) {
+            log.error("주문 결제 완료 이벤트 발행 실패 - orderId: {}, error: {}",
+                    order.getId(), e.getMessage(), e);
         }
     }
 

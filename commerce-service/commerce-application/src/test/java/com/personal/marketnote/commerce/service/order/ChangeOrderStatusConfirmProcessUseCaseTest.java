@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
@@ -41,6 +42,8 @@ class ChangeOrderStatusConfirmProcessUseCaseTest {
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock
     private ModifyUserPointPort modifyUserPointPort;
+    @Mock
+    private PublishOrderEventPort publishOrderEventPort;
 
     @InjectMocks
     private ChangeOrderStatusService changeOrderStatusService;
