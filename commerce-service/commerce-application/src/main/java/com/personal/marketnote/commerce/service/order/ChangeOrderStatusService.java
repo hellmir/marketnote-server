@@ -112,8 +112,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
     private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {
         // FIXME: [#929] Kafka 이벤트 전환 진행 중
-        //  [전환 완료 - 듀얼 라이트] 재고 차감 (#932)
-        //  [미전환] 장바구니 삭제 (#1018), 공유 포인트 적립 (#1019), 포인트 차감 (#1020), 상품 포인트 적립 (#1131)
+        //  [전환 완료 - 듀얼 라이트] 재고 차감 (#932), 장바구니 삭제 (#1018)
+        //  [미전환] 공유 포인트 적립 (#1019), 포인트 차감 (#1020), 상품 포인트 적립 (#1131)
 
         // 결제 완료 시 재고 차감
         reduceProductInventoryUseCase.reduce(order.getOrderProducts(), status.getDescription());
