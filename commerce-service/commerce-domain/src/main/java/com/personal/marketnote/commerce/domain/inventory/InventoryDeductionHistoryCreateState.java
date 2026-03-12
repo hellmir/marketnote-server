@@ -11,6 +11,7 @@ import lombok.Getter;
 public class InventoryDeductionHistoryCreateState {
     private final Long productId;
     private final Long pricePolicyId;
+    private final Long orderId;
     private final Integer stock;
     private final String reason;
 }

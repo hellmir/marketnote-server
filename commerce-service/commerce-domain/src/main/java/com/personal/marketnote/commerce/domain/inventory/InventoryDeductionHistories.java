@@ -17,6 +17,7 @@ public class InventoryDeductionHistories {
     public static InventoryDeductionHistories from(
             Map<Long, Integer> stocksByPricePolicyId,
             Map<Long, Long> productIdsByPricePolicyId,
+            Long orderId,
             String reason
     ) {
         return new InventoryDeductionHistories(
@@ -26,6 +27,7 @@ public class InventoryDeductionHistories {
                                 InventoryDeductionHistoryCreateState.builder()
                                         .productId(productIdsByPricePolicyId.get(entry.getKey()))
                                         .pricePolicyId(entry.getKey())
+                                        .orderId(orderId)
                                         .stock(entry.getValue())
                                         .reason(reason)
                                         .build()

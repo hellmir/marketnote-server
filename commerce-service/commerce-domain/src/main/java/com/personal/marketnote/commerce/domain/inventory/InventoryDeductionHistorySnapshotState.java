@@ -12,6 +12,7 @@ public class InventoryDeductionHistorySnapshotState {
     private final Long id;
     private final Long productId;
     private final Long pricePolicyId;
+    private final Long orderId;
     private final Integer stock;
     private final String reason;
 }
