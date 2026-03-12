@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.event.UserReferralCompletedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +53,8 @@ public class UserReferralCompletedRewardConsumer {
                 return;
             }
 
-            accrueReferrerPoint(payload.referredUserId(), payload.requestUserId());
-            accrueReferredPoint(payload.requestUserId(), payload.referredUserId());
+            accrueReferrerPointIdempotent(envelope.eventId(), payload.referredUserId(), payload.requestUserId());
+            accrueReferredPointIdempotent(envelope.eventId(), payload.requestUserId(), payload.referredUserId());
 
             log.info("Kafka 이벤트로 추천 포인트 적립 완료. requestUserId={}, referredUserId={}",
                     payload.requestUserId(), payload.referredUserId());
@@ -65,6 +66,24 @@ public class UserReferralCompletedRewardConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private void accrueReferrerPointIdempotent(String eventId, Long referredUserId, Long requestUserId) {
+        try {
+            accrueReferrerPoint(referredUserId, requestUserId);
+        } catch (DuplicateUserPointHistoryException e) {
+            log.info("이미 처리된 추천인 포인트 적립 이벤트 (멱등 처리). eventId={}, message={}",
+                    eventId, e.getMessage());
+        }
+    }
+
+    private void accrueReferredPointIdempotent(String eventId, Long requestUserId, Long referredUserId) {
+        try {
+            accrueReferredPoint(requestUserId, referredUserId);
+        } catch (DuplicateUserPointHistoryException e) {
+            log.info("이미 처리된 피추천인 포인트 적립 이벤트 (멱등 처리). eventId={}, message={}",
+                    eventId, e.getMessage());
+        }
     }
 
     private void accrueReferrerPoint(Long referredUserId, Long requestUserId) {

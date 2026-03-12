@@ -11,7 +11,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_point_history")
+@Table(
+        name = "user_point_history",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_user_point_history_source",
+                columnNames = {"user_id", "source_type", "source_id", "reason"}
+        )
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
