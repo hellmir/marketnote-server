@@ -9,6 +9,7 @@ import com.personal.marketnote.commerce.exception.UnauthorizedOrderStatusChangeE
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
@@ -44,6 +45,8 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock
     private ModifyUserPointPort modifyUserPointPort;
+    @Mock
+    private PublishOrderEventPort publishOrderEventPort;
 
     @InjectMocks
     private ChangeOrderStatusService changeOrderStatusService;
