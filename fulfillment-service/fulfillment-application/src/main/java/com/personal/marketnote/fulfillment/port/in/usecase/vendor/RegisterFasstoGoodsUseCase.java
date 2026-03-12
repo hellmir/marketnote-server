@@ -19,4 +19,6 @@ public interface RegisterFasstoGoodsUseCase {
      * @Description 파스토 상품을 등록합니다.
      */
     RegisterFasstoGoodsResult registerGoods(RegisterFasstoGoodsCommand command);
+
+    RegisterFasstoGoodsResult registerGoodsIdempotent(RegisterFasstoGoodsCommand command);
 }

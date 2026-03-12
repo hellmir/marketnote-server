@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
+import com.personal.marketnote.fulfillment.exception.FasstoGoodsAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.RegisterFasstoGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsItemCommand;
@@ -83,9 +84,12 @@ public class ProductRegisteredFulfillmentConsumer {
                     List.of(itemCommand)
             );
 
-            registerFasstoGoodsUseCase.registerGoods(command);
+            registerFasstoGoodsUseCase.registerGoodsIdempotent(command);
 
             log.info("Kafka 이벤트로 풀필먼트 상품 등록 완료. productId={}", payload.productId());
+        } catch (FasstoGoodsAlreadyRegisteredException e) {
+            log.warn("이미 Fassto에 등록된 상품입니다 (멱등 처리). eventId={}, key={}, message={}",
+                    envelope.eventId(), record.key(), e.getMessage());
         } catch (RegisterFasstoGoodsFailedException e) {
             log.warn("풀필먼트 상품 등록 실패 (듀얼 라이트 기간 HTTP 호출로 처리됨). eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage());
