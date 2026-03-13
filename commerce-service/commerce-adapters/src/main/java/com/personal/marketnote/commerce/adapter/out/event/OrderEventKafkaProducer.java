@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
+import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,28 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
                     log.info("Kafka 이벤트 발행 성공. topic={}, orderId={}, offset={}",
                             topic, orderId,
+                            result.getRecordMetadata().offset());
+                });
+    }
+
+    @Override
+    public void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds) {
+        OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+        String topic = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED;
+        EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
+                topic, SOURCE, payload, clock
+        );
+
+        kafkaTemplate.send(topic, orderId.toString(), envelope)
+                .whenComplete((result, ex) -> {
+                    if (FormatValidator.hasValue(ex)) {
+                        log.error("Kafka 이벤트 발행 실패. topic={}, orderId={}, buyerId={}",
+                                topic, orderId, buyerId, ex);
+                        return;
+                    }
+
+                    log.info("Kafka 이벤트 발행 성공. topic={}, orderId={}, buyerId={}, offset={}",
+                            topic, orderId, buyerId,
                             result.getRecordMetadata().offset());
                 });
     }

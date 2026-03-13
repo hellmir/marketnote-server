@@ -207,8 +207,21 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private void updateConfirmSubsequentProcesses(Order order) {
         Long orderId = order.getId();
         Long buyerId = order.getBuyerId();
+        List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
 
-        runAfterCommit(() -> confirmPendingPoints(buyerId, orderId));
+        runAfterCommit(() -> {
+            confirmPendingPoints(buyerId, orderId);
+            publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+        });
+    }
+
+    private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds) {
+        try {
+            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+        } catch (Exception e) {
+            log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
+                    orderId, buyerId, e.getMessage(), e);
+        }
     }
 
     private void confirmPendingPoints(Long buyerId, Long orderId) {
