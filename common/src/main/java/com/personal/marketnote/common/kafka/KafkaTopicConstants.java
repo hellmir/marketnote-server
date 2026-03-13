@@ -11,6 +11,7 @@ public final class KafkaTopicConstants {
     public static final String PAYMENT_FAILED = "commerce.payment.failed";
     public static final String PAYMENT_CANCELLED = "commerce.payment.cancelled";
     public static final String SETTLEMENT_EXECUTED = "commerce.settlement.executed";
+    public static final String ORDER_PURCHASE_CONFIRMED = "commerce.order.purchase-confirmed";
 
     // Product 이벤트
     public static final String PRODUCT_REGISTERED = "product.product.registered";

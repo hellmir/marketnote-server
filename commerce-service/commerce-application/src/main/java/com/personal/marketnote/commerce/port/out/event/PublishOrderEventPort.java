@@ -8,4 +8,6 @@ public interface PublishOrderEventPort {
 
     void publishOrderPaymentCompletedEvent(Long orderId, Long buyerId, Long totalAmount,
                                            Long pointAmount, List<OrderProduct> orderProducts);
+
+    void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds);
 }
