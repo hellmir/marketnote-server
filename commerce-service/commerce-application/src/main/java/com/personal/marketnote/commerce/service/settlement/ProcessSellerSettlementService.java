@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.settlement.SettlementCreateState;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishSettlementEventPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdatePaymentAllocationPort;
@@ -42,6 +43,7 @@ public class ProcessSellerSettlementService {
     private final UpdateSettlementPort updateSettlementPort;
     private final UpdatePaymentAllocationPort updatePaymentAllocationPort;
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+    private final PublishSettlementEventPort publishSettlementEventPort;
 
     /**
      * 개별 판매자의 정산을 독립 트랜잭션으로 처리한다.
@@ -101,7 +103,23 @@ public class ProcessSellerSettlementService {
         savedSettlement.complete();
         updateSettlementPort.update(savedSettlement);
 
+        publishSettlementExecutedEvent(settlementId, sellerId, totalAllocatedAmount,
+                pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
+
         log.info("정산 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}, total: {}, pgFee: {}, platformFee: {}, sellerPayout: {}",
                 settlementId, sellerId, year, month, totalAllocatedAmount, pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
+    }
+
+    private void publishSettlementExecutedEvent(Long settlementId, Long sellerId,
+                                                 Long totalAllocatedAmount, Long pgFeeAmount,
+                                                 Long platformFeeAmount, Long sellerPayoutAmount) {
+        try {
+            publishSettlementEventPort.publishSettlementExecutedEvent(
+                    settlementId, sellerId, totalAllocatedAmount,
+                    pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
+        } catch (Exception e) {
+            log.error("정산 실행 이벤트 발행 실패 - settlementId: {}, sellerId: {}, error: {}",
+                    settlementId, sellerId, e.getMessage(), e);
+        }
     }
 }
