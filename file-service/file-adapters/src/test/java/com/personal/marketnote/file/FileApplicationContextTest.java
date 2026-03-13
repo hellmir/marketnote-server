@@ -3,7 +3,7 @@ package com.personal.marketnote.file;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 })
 class FileApplicationContextTest {
 
-    @SpringBootConfiguration
+    @Configuration
     @EnableAutoConfiguration(exclude = {
             OAuth2ResourceServerAutoConfiguration.class,
             KafkaAutoConfiguration.class,

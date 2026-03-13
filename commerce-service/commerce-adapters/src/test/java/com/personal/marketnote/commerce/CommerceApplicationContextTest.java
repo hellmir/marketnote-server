@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.redisson.api.RedissonClient;
-import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
@@ -27,7 +27,7 @@ import org.springframework.test.context.TestPropertySource;
 })
 class CommerceApplicationContextTest {
 
-    @SpringBootConfiguration
+    @Configuration
     @EnableAutoConfiguration(exclude = {
             OAuth2ResourceServerAutoConfiguration.class,
             KafkaAutoConfiguration.class,

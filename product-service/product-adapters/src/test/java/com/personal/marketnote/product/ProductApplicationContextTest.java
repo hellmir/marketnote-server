@@ -2,7 +2,7 @@ package com.personal.marketnote.product;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.batch.BatchAutoConfiguration;
@@ -24,7 +24,7 @@ import org.springframework.test.context.TestPropertySource;
 })
 class ProductApplicationContextTest {
 
-    @SpringBootConfiguration
+    @Configuration
     @EnableAutoConfiguration(exclude = {
             OAuth2ResourceServerAutoConfiguration.class,
             KafkaAutoConfiguration.class,
