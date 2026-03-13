@@ -16,6 +16,7 @@ import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProduct
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.CancelPaymentUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorCommand;
@@ -60,6 +61,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private final ModifyUserPointPort modifyUserPointPort;
     private final SaveRefundPort saveRefundPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
+    private final PublishPaymentEventPort publishPaymentEventPort;
 
     @Override
     public void cancel(CancelPaymentCommand command) {
@@ -128,6 +130,16 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
+
+        Long orderId = order.getId();
+        String orderKey = command.orderKey();
+        Long buyerId = order.getBuyerId();
+        Long paymentAmount = payment.getPaymentAmount();
+        Long pointAmount = order.getPointAmount();
+        List<OrderProduct> orderProducts = order.getOrderProducts();
+        runAfterCommit(() -> publishPaymentCancelledEvent(
+                orderId, orderKey, buyerId, cancelAmount, paymentAmount,
+                pointAmount, isFullCancel, alreadyRefunded, orderProducts));
     }
 
     private Long computeCancelAmount(boolean isFullCancel, Long partialCancelAmount, Long refundableAmount) {
@@ -401,6 +413,20 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
 
         action.run();
+    }
+
+    private void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
+                                                Long cancelAmount, Long paymentAmount, Long pointAmount,
+                                                boolean isFullCancel, Long alreadyRefunded,
+                                                List<OrderProduct> orderProducts) {
+        try {
+            publishPaymentEventPort.publishPaymentCancelledEvent(
+                    orderId, orderKey, buyerId, cancelAmount, paymentAmount,
+                    pointAmount, isFullCancel, alreadyRefunded, orderProducts);
+        } catch (Exception e) {
+            log.error("결제 취소 이벤트 발행 실패 - orderId: {}, orderKey: {}, error: {}",
+                    orderId, orderKey, e.getMessage(), e);
+        }
     }
 
     private void refundPoints(Order order) {
