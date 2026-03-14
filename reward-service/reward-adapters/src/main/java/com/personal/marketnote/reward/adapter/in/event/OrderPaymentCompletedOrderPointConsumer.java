@@ -5,6 +5,11 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPointChangeType;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
+import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,6 +21,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OrderPaymentCompletedOrderPointConsumer {
+    private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 차감";
+
+    private final ModifyUserPointUseCase modifyUserPointUseCase;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -49,20 +57,9 @@ public class OrderPaymentCompletedOrderPointConsumer {
                 return;
             }
 
-            // FIXME: [#929][#1020] HTTP 제거 후 ModifyUserPointUseCase 활성화
-            //  현재 듀얼 라이트 기간: ChangeOrderStatusService.afterCommit()에서 HTTP로 처리 중
-            //  멱등성 보강 (#1212) 완료 후 아래 주석 해제:
-            //  ModifyUserPointCommand command = ModifyUserPointCommand.builder()
-            //          .userId(payload.buyerId())
-            //          .changeType(UserPointChangeType.DEDUCTION)
-            //          .amount(payload.pointAmount())
-            //          .sourceType(UserPointSourceType.ORDER)
-            //          .sourceId(payload.orderId())
-            //          .reason("주문 포인트 차감")
-            //          .build();
-            //  modifyUserPointUseCase.modify(command);
+            modifyUserPointIdempotent(envelope.eventId(), payload.buyerId(), payload.pointAmount(), payload.orderId());
 
-            log.info("주문 포인트 차감 이벤트 검증 완료 (듀얼 라이트). orderId={}, buyerId={}, pointAmount={}",
+            log.info("주문 포인트 차감 완료. orderId={}, buyerId={}, pointAmount={}",
                     payload.orderId(), payload.buyerId(), payload.pointAmount());
         } catch (Exception e) {
             log.error("주문 포인트 차감 이벤트 처리 실패. eventId={}, key={}, error={}",
@@ -71,5 +68,22 @@ public class OrderPaymentCompletedOrderPointConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private void modifyUserPointIdempotent(String eventId, Long buyerId, Long pointAmount, Long orderId) {
+        try {
+            ModifyUserPointCommand command = ModifyUserPointCommand.builder()
+                    .userId(buyerId)
+                    .changeType(UserPointChangeType.DEDUCTION)
+                    .amount(pointAmount)
+                    .sourceType(UserPointSourceType.ORDER)
+                    .sourceId(orderId)
+                    .reason(ORDER_POINT_DEDUCTION_REASON)
+                    .build();
+            modifyUserPointUseCase.modify(command);
+        } catch (DuplicateUserPointHistoryException e) {
+            log.info("이미 처리된 주문 포인트 차감 이벤트 (멱등 처리). eventId={}, buyerId={}, message={}",
+                    eventId, buyerId, e.getMessage());
+        }
     }
 }
