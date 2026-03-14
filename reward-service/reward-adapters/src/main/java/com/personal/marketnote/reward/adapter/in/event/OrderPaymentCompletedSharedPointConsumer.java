@@ -6,9 +6,15 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPointChangeType;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
+import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingPointUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -20,7 +26,13 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class OrderPaymentCompletedSharedPointConsumer {
+    private static final String SHARE_PURCHASE_REASON = "링크 공유 회원 상품 구매";
+
+    private final ModifyPendingPointUseCase modifyPendingPointUseCase;
     private final ObjectMapper objectMapper;
+
+    @Value("${reward.share-point-rate:0.1}")
+    private float sharePointRate;
 
     @KafkaListener(
             topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
@@ -47,6 +59,13 @@ public class OrderPaymentCompletedSharedPointConsumer {
                 return;
             }
 
+            if (FormatValidator.hasNoValue(payload.totalAmount()) || payload.totalAmount() <= 0) {
+                log.info("결제 금액이 없는 주문 (공유 포인트 적립 생략). orderId={}, totalAmount={}",
+                        payload.orderId(), payload.totalAmount());
+                acknowledgment.acknowledge();
+                return;
+            }
+
             List<Long> sharerIds = extractSharerIds(payload.orderProducts());
             if (sharerIds.isEmpty()) {
                 log.info("공유자가 없는 주문 (공유 포인트 적립 생략). orderId={}", payload.orderId());
@@ -54,23 +73,20 @@ public class OrderPaymentCompletedSharedPointConsumer {
                 return;
             }
 
-            // FIXME: [#929][#1019] HTTP 제거 후 ModifyPendingPointUseCase 활성화
-            //  현재 듀얼 라이트 기간: ChangeOrderStatusService.addPendingSharedPurchasePoints()가 HTTP로 처리 중
-            //  멱등성 보강 (#1211) 완료 후 아래 주석 해제:
-            //  for (Long sharerId : sharerIds) {
-            //      ModifyPendingPointCommand command = ModifyPendingPointCommand.builder()
-            //              .userId(sharerId)
-            //              .changeType(UserPointChangeType.ACCRUAL)
-            //              .amount(payload.totalAmount())
-            //              .sourceType(UserPointSourceType.ORDER)
-            //              .sourceId(payload.orderId())
-            //              .reason("공유 구매 적립 예정 포인트")
-            //              .build();
-            //      modifyPendingPointUseCase.modifyPending(command);
-            //  }
+            long sharePointAmount = Math.round(payload.totalAmount() * sharePointRate);
+            if (sharePointAmount <= 0) {
+                log.info("공유 포인트 적립 금액이 0 이하 (적립 생략). orderId={}, totalAmount={}, sharePointRate={}",
+                        payload.orderId(), payload.totalAmount(), sharePointRate);
+                acknowledgment.acknowledge();
+                return;
+            }
 
-            log.info("공유 포인트 적립 이벤트 검증 완료 (듀얼 라이트). orderId={}, sharerIds={}, totalAmount={}",
-                    payload.orderId(), sharerIds, payload.totalAmount());
+            for (Long sharerId : sharerIds) {
+                modifyPendingPointIdempotent(envelope.eventId(), sharerId, sharePointAmount, payload.orderId());
+            }
+
+            log.info("공유 포인트 적립 완료. orderId={}, sharerIds={}, sharePointAmount={}",
+                    payload.orderId(), sharerIds, sharePointAmount);
         } catch (Exception e) {
             log.error("공유 포인트 적립 이벤트 처리 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e);
@@ -78,6 +94,23 @@ public class OrderPaymentCompletedSharedPointConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private void modifyPendingPointIdempotent(String eventId, Long sharerId, long sharePointAmount, Long orderId) {
+        try {
+            ModifyPendingPointCommand command = ModifyPendingPointCommand.builder()
+                    .userId(sharerId)
+                    .changeType(UserPointChangeType.ACCRUAL)
+                    .amount(sharePointAmount)
+                    .sourceType(UserPointSourceType.ORDER)
+                    .sourceId(orderId)
+                    .reason(SHARE_PURCHASE_REASON)
+                    .build();
+            modifyPendingPointUseCase.modifyPending(command);
+        } catch (DuplicateUserPointHistoryException e) {
+            log.info("이미 처리된 공유 포인트 적립 이벤트 (멱등 처리). eventId={}, sharerId={}, message={}",
+                    eventId, sharerId, e.getMessage());
+        }
     }
 
     private List<Long> extractSharerIds(List<OrderProductItem> orderProducts) {
