@@ -29,8 +29,8 @@ class OrderPaymentCompletedCartConsumerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId,
-                                                                  Long totalAmount, Long pointAmount,
-                                                                  List<OrderProductItem> orderProducts) {
+                                                                 Long totalAmount, Long pointAmount,
+                                                                 List<OrderProductItem> orderProducts) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
                 orderId, buyerId, totalAmount, pointAmount, orderProducts
         );

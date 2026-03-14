@@ -137,9 +137,10 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         Long paymentAmount = payment.getPaymentAmount();
         Long pointAmount = order.getPointAmount();
         List<OrderProduct> orderProducts = order.getOrderProducts();
+        List<OrderProduct> cancelTargetProducts = resolveCancelProducts(isFullCancel, command);
         runAfterCommit(() -> publishPaymentCancelledEvent(
                 orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, isFullCancel, alreadyRefunded, orderProducts));
+                pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelTargetProducts));
     }
 
     private Long computeCancelAmount(boolean isFullCancel, Long partialCancelAmount, Long refundableAmount) {
@@ -415,14 +416,30 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         action.run();
     }
 
+    private List<OrderProduct> resolveCancelProducts(boolean isFullCancel, CancelPaymentCommand command) {
+        if (isFullCancel || !command.hasCancelProducts()) {
+            return null;
+        }
+
+        return command.cancelProducts().stream()
+                .map(item -> OrderProduct.from(
+                        OrderProductSnapshotState.builder()
+                                .pricePolicyId(item.pricePolicyId())
+                                .quantity(item.quantity())
+                                .build()
+                ))
+                .toList();
+    }
+
     private void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
                                                 Long cancelAmount, Long paymentAmount, Long pointAmount,
                                                 boolean isFullCancel, Long alreadyRefunded,
-                                                List<OrderProduct> orderProducts) {
+                                                List<OrderProduct> orderProducts,
+                                                List<OrderProduct> cancelProducts) {
         try {
             publishPaymentEventPort.publishPaymentCancelledEvent(
                     orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                    pointAmount, isFullCancel, alreadyRefunded, orderProducts);
+                    pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelProducts);
         } catch (Exception e) {
             log.error("결제 취소 이벤트 발행 실패 - orderId: {}, orderKey: {}, error: {}",
                     orderId, orderKey, e.getMessage(), e);

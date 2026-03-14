@@ -13,5 +13,6 @@ public interface PublishPaymentEventPort {
     void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
                                       Long cancelAmount, Long paymentAmount, Long pointAmount,
                                       boolean isFullCancel, Long alreadyRefunded,
-                                      List<OrderProduct> orderProducts);
+                                      List<OrderProduct> orderProducts,
+                                      List<OrderProduct> cancelProducts);
 }

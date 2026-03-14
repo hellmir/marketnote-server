@@ -73,7 +73,8 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
     public void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
                                              Long cancelAmount, Long paymentAmount, Long pointAmount,
                                              boolean isFullCancel, Long alreadyRefunded,
-                                             List<OrderProduct> orderProducts) {
+                                             List<OrderProduct> orderProducts,
+                                             List<OrderProduct> cancelProducts) {
         List<PaymentCancelledEvent.OrderProductItem> items = orderProducts.stream()
                 .map(op -> new PaymentCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
@@ -83,9 +84,20 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                 ))
                 .toList();
 
+        List<PaymentCancelledEvent.OrderProductItem> cancelItems = FormatValidator.hasValue(cancelProducts)
+                ? cancelProducts.stream()
+                .map(op -> new PaymentCancelledEvent.OrderProductItem(
+                        op.getPricePolicyId(),
+                        op.getSharerId(),
+                        op.getQuantity(),
+                        op.getUnitAmount()
+                ))
+                .toList()
+                : null;
+
         PaymentCancelledEvent payload = new PaymentCancelledEvent(
                 orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, isFullCancel, alreadyRefunded, items
+                pointAmount, isFullCancel, alreadyRefunded, items, cancelItems
         );
         String topic = KafkaTopicConstants.PAYMENT_CANCELLED;
         EventEnvelope<PaymentCancelledEvent> envelope = EventEnvelope.of(
