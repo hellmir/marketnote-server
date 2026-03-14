@@ -14,5 +14,6 @@ public interface PublishPaymentEventPort {
                                       Long cancelAmount, Long paymentAmount, Long pointAmount,
                                       boolean isFullCancel, Long alreadyRefunded,
                                       List<OrderProduct> orderProducts,
-                                      List<OrderProduct> cancelProducts);
+                                      List<OrderProduct> cancelProducts,
+                                      Long partialProductPendingDeduction);
 }

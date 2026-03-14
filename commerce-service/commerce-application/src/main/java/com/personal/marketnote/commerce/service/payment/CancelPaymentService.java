@@ -106,6 +106,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
 
         saveRefundRecord(payment, isFullCancel, cancelAmount, command.cancelReason(), vendorResult);
 
+        Long partialProductPendingDeduction = null;
         if (isFullCancel) {
             changeOrderStatusUseCase.changeOrderStatus(
                     ChangeOrderStatusCommand.builder()
@@ -119,14 +120,15 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             revokePendingSharedPurchasePoints(order);
         } else {
             restorePartialCancelInventory(order, command);
+            partialProductPendingDeduction = resolveProportionalDeductionPoint(
+                    order.getOrderProducts(), payment.getPaymentAmount(), cancelAmount);
             Long buyerId = order.getBuyerId();
             Long orderId = order.getId();
-            List<OrderProduct> orderProducts = order.getOrderProducts();
-            Long paymentAmount = payment.getPaymentAmount();
+            Long precomputedDeduction = partialProductPendingDeduction;
             runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(
-                    buyerId, orderId, orderProducts, paymentAmount, cancelAmount));
+                    buyerId, orderId, precomputedDeduction));
             runAfterCommit(() -> reducePartialPendingSharedPurchasePoints(
-                    order, paymentAmount, cancelAmount));
+                    order, payment.getPaymentAmount(), cancelAmount));
         }
 
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
@@ -138,9 +140,11 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         Long pointAmount = order.getPointAmount();
         List<OrderProduct> orderProducts = order.getOrderProducts();
         List<OrderProduct> cancelTargetProducts = resolveCancelProducts(isFullCancel, command);
+        Long finalPartialProductPendingDeduction = partialProductPendingDeduction;
         runAfterCommit(() -> publishPaymentCancelledEvent(
                 orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelTargetProducts));
+                pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelTargetProducts,
+                finalPartialProductPendingDeduction));
     }
 
     private Long computeCancelAmount(boolean isFullCancel, Long partialCancelAmount, Long refundableAmount) {
@@ -353,20 +357,14 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private void reducePartialPendingProductAccumulationPoints(
-            Long buyerId, Long orderId, List<OrderProduct> orderProducts, Long paymentAmount, Long cancelAmount
+            Long buyerId, Long orderId, Long precomputedDeduction
     ) {
         try {
-            Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts);
-            if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
+            if (FormatValidator.hasNoValue(precomputedDeduction) || precomputedDeduction <= 0) {
                 return;
             }
 
-            Long proportionalPoint = calculateProportionalPoint(cancelAmount, paymentAmount, totalAccumulatedPoint);
-            if (proportionalPoint <= 0) {
-                return;
-            }
-
-            modifyUserPointPort.reducePartialPendingPoints(buyerId, proportionalPoint, orderId);
+            modifyUserPointPort.reducePartialPendingPoints(buyerId, precomputedDeduction, orderId);
         } catch (Exception e) {
             log.error("부분 취소 상품 적립 예정 포인트 차감 실패 - orderId: {}, buyerId: {}, error: {}",
                     orderId, buyerId, e.getMessage(), e);
@@ -431,15 +429,38 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 .toList();
     }
 
+    private Long resolveProportionalDeductionPoint(
+            List<OrderProduct> orderProducts, Long paymentAmount, Long cancelAmount
+    ) {
+        try {
+            Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts);
+            if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
+                return null;
+            }
+
+            Long proportionalPoint = calculateProportionalPoint(cancelAmount, paymentAmount, totalAccumulatedPoint);
+            if (proportionalPoint <= 0) {
+                return null;
+            }
+
+            return proportionalPoint;
+        } catch (Exception e) {
+            log.error("부분 취소 비례 포인트 사전 계산 실패 - error: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
     private void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
                                                 Long cancelAmount, Long paymentAmount, Long pointAmount,
                                                 boolean isFullCancel, Long alreadyRefunded,
                                                 List<OrderProduct> orderProducts,
-                                                List<OrderProduct> cancelProducts) {
+                                                List<OrderProduct> cancelProducts,
+                                                Long partialProductPendingDeduction) {
         try {
             publishPaymentEventPort.publishPaymentCancelledEvent(
                     orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                    pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelProducts);
+                    pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelProducts,
+                    partialProductPendingDeduction);
         } catch (Exception e) {
             log.error("결제 취소 이벤트 발행 실패 - orderId: {}, orderKey: {}, error: {}",
                     orderId, orderKey, e.getMessage(), e);

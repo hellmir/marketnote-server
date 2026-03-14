@@ -50,7 +50,7 @@ class PaymentCancelledInventoryConsumerTest {
                                                                   List<OrderProductItem> cancelProducts) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 orderId, "order-key-1", 100L, 50000L, 80000L, 1000L,
-                isFullCancel, 0L, orderProducts, cancelProducts
+                isFullCancel, 0L, orderProducts, cancelProducts, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.payment.cancelled", "commerce-service",
