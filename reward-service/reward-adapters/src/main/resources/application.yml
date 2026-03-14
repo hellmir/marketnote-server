@@ -56,6 +56,9 @@ server:
     whitelabel:
       enabled: false
 
+reward:
+  share-point-rate: ${REWARD_SHARE_POINT_RATE:0.1}
+
 vendor:
   offerwall:
     adpopcorn:
