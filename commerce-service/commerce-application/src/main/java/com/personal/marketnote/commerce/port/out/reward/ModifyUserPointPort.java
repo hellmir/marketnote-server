@@ -14,7 +14,7 @@ public interface ModifyUserPointPort {
      * @param sharerIds   공유자 ID 목록
      * @param totalAmount 총 결제 금액
      * @param orderId     주문 ID (sourceId)
-     * @Date 2026-03-07
+     * @Date 2026-01-18
      * @Author 성효빈
      * @Description 공유 구매 포인트를 적립 예정 포인트로 추가합니다.
      */
@@ -53,7 +53,7 @@ public interface ModifyUserPointPort {
      * @param userId  회원 ID
      * @param amount  적립 예정 포인트
      * @param orderId 주문 ID (sourceId)
-     * @Date 2026-03-07
+     * @Date 2026-01-18
      * @Author 성효빈
      * @Description 주문 결제 완료 시 상품 적립 포인트를 적립 예정 포인트로 추가합니다.
      */
