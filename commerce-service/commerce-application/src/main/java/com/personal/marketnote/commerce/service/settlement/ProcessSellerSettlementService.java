@@ -111,8 +111,8 @@ public class ProcessSellerSettlementService {
     }
 
     private void publishSettlementExecutedEvent(Long settlementId, Long sellerId,
-                                                 Long totalAllocatedAmount, Long pgFeeAmount,
-                                                 Long platformFeeAmount, Long sellerPayoutAmount) {
+                                                Long totalAllocatedAmount, Long pgFeeAmount,
+                                                Long platformFeeAmount, Long sellerPayoutAmount) {
         try {
             publishSettlementEventPort.publishSettlementExecutedEvent(
                     settlementId, sellerId, totalAllocatedAmount,

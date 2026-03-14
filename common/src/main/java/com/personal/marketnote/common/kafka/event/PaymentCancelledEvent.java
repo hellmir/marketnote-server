@@ -11,7 +11,8 @@ public record PaymentCancelledEvent(
         Long pointAmount,
         boolean isFullCancel,
         Long alreadyRefunded,
-        List<OrderProductItem> orderProducts
+        List<OrderProductItem> orderProducts,
+        List<OrderProductItem> cancelProducts
 ) {
 
     public record OrderProductItem(
