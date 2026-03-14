@@ -82,6 +82,10 @@
 - Grafana
   <br>
 
+### Performance Testing
+- K6
+  <br>
+
 ## Vendors
 
 ### OAuth2
@@ -120,7 +124,7 @@
 - Intellij IDEA
   <br>
 
-### Automation Test
+### Test Automation
 - JUnit
 - Mockito
 - AssertJ
