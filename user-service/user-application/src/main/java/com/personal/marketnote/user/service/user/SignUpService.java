@@ -78,9 +78,13 @@ public class SignUpService implements SignUpUseCase {
                 )
         );
 
-        registerUserPointAfterCommit(
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        publishUserEventPort.publishUserSignupCompletedEvent(
                 signedUpUser.getId(), signedUpUser.getUserKey().toString()
         );
+
+        // 트랜잭션 커밋 후 HTTP 호출
+        registerUserPointHttpAfterCommit(signedUpUser.getId(), signedUpUser.getUserKey().toString());
 
         saveLoginHistoryPort.saveLoginHistory(
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)
@@ -146,19 +150,17 @@ public class SignUpService implements SignUpUseCase {
         throw new UserNotActiveException(SIXTH_ERROR_CODE, email);
     }
 
-    private void registerUserPointAfterCommit(Long userId, String userKey) {
+    private void registerUserPointHttpAfterCommit(Long userId, String userKey) {
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    publishUserEventPort.publishUserSignupCompletedEvent(userId, userKey);
                     modifyUserPointPort.registerUserPoint(userId, userKey); // TODO: Kafka 검증 완료 후 HTTP 호출 제거
                 }
             });
             return;
         }
 
-        publishUserEventPort.publishUserSignupCompletedEvent(userId, userKey);
         modifyUserPointPort.registerUserPoint(userId, userKey); // TODO: Kafka 검증 완료 후 HTTP 호출 제거
     }
 }

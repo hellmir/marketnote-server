@@ -55,18 +55,20 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             updateOptionPricePolicyPort.assignPricePolicyToOptions(productId, id, optionIds);
         }
 
-        registerInventoryAfterCommit(productId, id);
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        publishProductEventPort.publishPricePolicyCreatedEvent(productId, id);
+
+        // 트랜잭션 커밋 후 HTTP 호출
+        registerInventoryHttpAfterCommit(productId, id);
 
         return RegisterPricePolicyResult.of(id);
     }
 
-    private void registerInventoryAfterCommit(Long productId, Long pricePolicyId) {
+    private void registerInventoryHttpAfterCommit(Long productId, Long pricePolicyId) {
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    publishProductEventPort.publishPricePolicyCreatedEvent(productId, pricePolicyId);
-
                     // TODO: Kafka 검증 완료 후 HTTP 호출 제거 (#1017)
                     registerInventoryPort.registerInventory(productId, pricePolicyId);
                 }
@@ -74,8 +76,6 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
 
             return;
         }
-
-        publishProductEventPort.publishPricePolicyCreatedEvent(productId, pricePolicyId);
 
         // TODO: Kafka 검증 완료 후 HTTP 호출 제거 (#1017)
         registerInventoryPort.registerInventory(productId, pricePolicyId);

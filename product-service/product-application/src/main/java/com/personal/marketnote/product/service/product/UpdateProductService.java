@@ -53,10 +53,12 @@ public class UpdateProductService implements UpdateProductUseCase {
                     FulfillmentVendorGoodsCommandMapper.mapToUpdateCommand(product, command.fulfillmentVendorGoods());
             ProductUpdatedEvent productUpdatedEvent =
                     ProductUpdatedEventMapper.mapToEvent(product, command.fulfillmentVendorGoods());
-            runAfterCommit(() -> {
-                updateFulfillmentVendorGoodsPort.updateFulfillmentVendorGoods(updateCommand);
-                publishProductEventPort.publishProductUpdatedEvent(productUpdatedEvent);
-            });
+
+            // Outbox 이벤트 저장 (트랜잭션 내)
+            publishProductEventPort.publishProductUpdatedEvent(productUpdatedEvent);
+
+            // 트랜잭션 커밋 후 HTTP 호출
+            runAfterCommit(() -> updateFulfillmentVendorGoodsPort.updateFulfillmentVendorGoods(updateCommand));
         }
     }
 
