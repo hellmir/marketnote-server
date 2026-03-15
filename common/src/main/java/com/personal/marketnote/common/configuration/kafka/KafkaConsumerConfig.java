@@ -14,11 +14,14 @@ import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 @ConditionalOnProperty(prefix = "spring.kafka", name = "bootstrap-servers")
+@RequiredArgsConstructor
 public class KafkaConsumerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
@@ -36,6 +39,8 @@ public class KafkaConsumerConfig {
     @Value("${spring.kafka.consumer.max-poll-interval-ms:300000}")
     private int maxPollIntervalMs;
 
+    private final KafkaSaslProperties kafkaSaslProperties;
+
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -51,6 +56,7 @@ public class KafkaConsumerConfig {
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.personal.marketnote.common.kafka.event");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, EventEnvelope.class.getName());
+        kafkaSaslProperties.applyTo(props);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

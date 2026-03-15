@@ -33,6 +33,15 @@ public class SecurityPropertiesValidator {
     @Value("${spring.data.redis.password:#{null}}")
     private String redisPassword;
 
+    @Value("${spring.kafka.sasl.enabled:false}")
+    private boolean kafkaSaslEnabled;
+
+    @Value("${spring.kafka.sasl.username:}")
+    private String kafkaSaslUsername;
+
+    @Value("${spring.kafka.sasl.password:}")
+    private String kafkaSaslPassword;
+
     @PostConstruct
     public void validateSecurityProperties() {
         List<String> violations = new ArrayList<>();
@@ -40,6 +49,11 @@ public class SecurityPropertiesValidator {
         validateRequired(violations, "spring.jwt.secret (JWT_SECRET_KEY)", jwtSecret);
         validateRequired(violations, "spring.jwt.admin-access-token (JWT_ADMIN_ACCESS_TOKEN)", adminAccessToken);
         validateRequired(violations, "spring.datasource.password (DB_PASSWORD)", dbPassword);
+
+        if (kafkaSaslEnabled) {
+            validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);
+            validateRequired(violations, "spring.kafka.sasl.password (KAFKA_SASL_PASSWORD)", kafkaSaslPassword);
+        }
 
         if (!violations.isEmpty()) {
             String message = String.join("\n  - ", violations);
