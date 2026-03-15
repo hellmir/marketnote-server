@@ -1,7 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
-import com.personal.marketnote.reward.domain.exception.PendingPointHistoryNotFoundException;
 import com.personal.marketnote.reward.domain.exception.PendingPointReflectionMismatchException;
 import com.personal.marketnote.reward.domain.point.*;
 import com.personal.marketnote.reward.exception.UserPointNotFoundException;
@@ -160,21 +159,27 @@ class ConfirmPendingPointServiceTest {
     }
 
     @Test
-    @DisplayName("확정 대상 적립 예정 포인트 이력이 없으면 PendingPointHistoryNotFoundException이 발생한다")
-    void shouldThrowWhenNoPendingHistoryFound() {
+    @DisplayName("확정 대상 적립 예정 포인트 이력이 없으면 현재 포인트를 그대로 반환한다")
+    void shouldReturnCurrentPointWhenNoPendingHistoryFound() {
         // given
+        UserPoint userPoint = createUserPoint(1000L, 0L);
+
         when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
                 USER_ID, UserPointSourceType.ORDER, ORDER_ID
         )).thenReturn(Collections.emptyList());
+        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
 
         ConfirmPendingPointCommand command = createCommand();
 
-        // expect
-        assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
-                .isInstanceOf(PendingPointHistoryNotFoundException.class);
+        // when
+        UpdateUserPointResult result = confirmPendingPointService.confirmPending(command);
 
-        verify(getUserPointUseCase, never()).getUserPoint(anyLong());
+        // then
+        assertThat(result.amount()).isEqualTo(1000L);
+        assertThat(result.addExpectedAmount()).isEqualTo(0L);
+
         verify(updateUserPointPort, never()).update(any());
+        verify(updateUserPointHistoryPort, never()).markAsReflected(anyLong(), any(), anyLong());
         verify(saveUserPointHistoryPort, never()).save(any());
     }
 
