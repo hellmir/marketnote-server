@@ -26,10 +26,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("OrderPurchaseConfirmedSharedPointConsumer 테스트")
-class OrderPurchaseConfirmedSharedPointConsumerTest {
+@DisplayName("OrderPurchaseConfirmedProductPointConsumer 테스트")
+class OrderPurchaseConfirmedProductPointConsumerTest {
     @InjectMocks
-    private OrderPurchaseConfirmedSharedPointConsumer consumer;
+    private OrderPurchaseConfirmedProductPointConsumer consumer;
 
     @Mock
     private ConfirmPendingPointUseCase confirmPendingPointUseCase;
@@ -50,64 +50,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     }
 
     @Test
-    @DisplayName("구매 확정 이벤트 수신 시 각 공유자에 대해 적립 예정 포인트를 확정하고 acknowledge한다")
-    void handleOrderPurchaseConfirmedEvent_withSharers_confirmsAndAcknowledges() {
-        // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerIds);
-
-        // when
-        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
-
-        // then
-        ArgumentCaptor<ConfirmPendingPointCommand> captor = ArgumentCaptor.forClass(ConfirmPendingPointCommand.class);
-        verify(confirmPendingPointUseCase, times(2)).confirmPending(captor.capture());
-
-        List<ConfirmPendingPointCommand> commands = captor.getAllValues();
-        assertThat(commands.get(0).userId()).isEqualTo(200L);
-        assertThat(commands.get(0).sourceType()).isEqualTo(UserPointSourceType.ORDER);
-        assertThat(commands.get(0).sourceId()).isEqualTo(1L);
-        assertThat(commands.get(0).reason()).isEqualTo("구매 확정 공유 포인트 적립");
-
-        assertThat(commands.get(1).userId()).isEqualTo(300L);
-        assertThat(commands.get(1).sourceType()).isEqualTo(UserPointSourceType.ORDER);
-        assertThat(commands.get(1).sourceId()).isEqualTo(1L);
-
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("orderId가 null이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
-    void handleOrderPurchaseConfirmedEvent_nullOrderId_skipsAndAcknowledges() {
-        // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, 100L, sharerIds);
-
-        // when
-        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(confirmPendingPointUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("sharerIds가 null이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
-    void handleOrderPurchaseConfirmedEvent_nullSharerIds_skipsAndAcknowledges() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, null);
-
-        // when
-        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(confirmPendingPointUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("sharerIds가 빈 목록이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
-    void handleOrderPurchaseConfirmedEvent_emptySharerIds_skipsAndAcknowledges() {
+    @DisplayName("구매 확정 이벤트 수신 시 적립 예정 포인트를 확정하고 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_validEvent_confirmsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, List.of());
 
@@ -115,12 +59,48 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
         consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
 
         // then
+        ArgumentCaptor<ConfirmPendingPointCommand> captor = ArgumentCaptor.forClass(ConfirmPendingPointCommand.class);
+        verify(confirmPendingPointUseCase).confirmPending(captor.capture());
+
+        ConfirmPendingPointCommand command = captor.getValue();
+        assertThat(command.userId()).isEqualTo(100L);
+        assertThat(command.sourceType()).isEqualTo(UserPointSourceType.ORDER);
+        assertThat(command.sourceId()).isEqualTo(1L);
+        assertThat(command.reason()).isEqualTo("구매 확정 포인트 적립");
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 null이면 확정 없이 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_nullOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, 100L, List.of());
+
+        // when
+        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
+
+        // then
         verifyNoInteractions(confirmPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("envelope이 null이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
+    @DisplayName("buyerId가 null이면 확정 없이 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_nullBuyerId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, null, List.of());
+
+        // when
+        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(confirmPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("envelope이 null이면 확정 없이 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
@@ -139,8 +119,7 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("예상치 못한 예외 발생 시 acknowledge하지 않고 예외를 전파한다")
     void handleOrderPurchaseConfirmedEvent_unexpectedException_propagatesWithoutAcknowledge() {
         // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerIds);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, List.of());
         doThrow(new RuntimeException("DB 연결 실패"))
                 .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
 
