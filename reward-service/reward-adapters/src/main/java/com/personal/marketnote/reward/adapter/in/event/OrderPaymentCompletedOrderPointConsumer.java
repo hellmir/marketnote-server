@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OrderPaymentCompletedOrderPointConsumer {
-    private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 차감";
+    private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 사용";
 
     private final ModifyUserPointUseCase modifyUserPointUseCase;
     private final ObjectMapper objectMapper;
