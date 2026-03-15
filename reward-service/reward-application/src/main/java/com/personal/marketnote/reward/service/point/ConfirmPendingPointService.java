@@ -1,7 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.reward.domain.exception.PendingPointHistoryNotFoundException;
 import com.personal.marketnote.reward.domain.exception.PendingPointReflectionMismatchException;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
@@ -15,12 +14,14 @@ import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -33,7 +34,17 @@ public class ConfirmPendingPointService implements ConfirmPendingPointUseCase {
 
     @Override
     public UpdateUserPointResult confirmPending(ConfirmPendingPointCommand command) {
-        List<UserPointHistory> pendingHistories = findPendingHistories(command);
+        List<UserPointHistory> pendingHistories = findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
+                command.userId(), command.sourceType(), command.sourceId()
+        );
+
+        if (pendingHistories.isEmpty()) {
+            log.info("이미 확정 처리된 적립 예정 포인트 (멱등 처리). userId={}, sourceType={}, sourceId={}",
+                    command.userId(), command.sourceType(), command.sourceId());
+            UserPoint userPoint = getUserPointUseCase.getUserPoint(command.userId());
+            return UpdateUserPointResult.from(userPoint);
+        }
+
         Long totalAmount = calculateTotalPendingAmount(pendingHistories);
 
         UserPoint userPoint = getUserPointUseCase.getUserPoint(command.userId());
@@ -48,20 +59,6 @@ public class ConfirmPendingPointService implements ConfirmPendingPointUseCase {
         saveConfirmedHistory(command, totalAmount, updatedPoint);
 
         return UpdateUserPointResult.from(updatedPoint);
-    }
-
-    private List<UserPointHistory> findPendingHistories(ConfirmPendingPointCommand command) {
-        List<UserPointHistory> histories = findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
-                command.userId(), command.sourceType(), command.sourceId()
-        );
-
-        if (histories.isEmpty()) {
-            throw new PendingPointHistoryNotFoundException(
-                    command.userId(), command.sourceType().name(), command.sourceId()
-            );
-        }
-
-        return histories;
     }
 
     private Long calculateTotalPendingAmount(List<UserPointHistory> pendingHistories) {
