@@ -4,22 +4,24 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.util.backoff.ExponentialBackOff;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Slf4j
 @Configuration
 @ConditionalOnProperty(prefix = "spring.kafka", name = "bootstrap-servers")
+@EnableConfigurationProperties(KafkaSlackProperties.class)
 public class KafkaErrorHandler {
 
-    private static final long RETRY_INITIAL_INTERVAL_MS = 1000L;
-    private static final double RETRY_MULTIPLIER = 2.0;
-    private static final long RETRY_MAX_ELAPSED_TIME_MS = 10000L;
+    private static final long RETRY_INTERVAL_MS = 1000L;
+    // 최초 시도 1회 + 재시도 3회 = 총 4회 시도
+    private static final long RETRY_MAX_ATTEMPTS = 3L;
 
     @Bean
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(KafkaTemplate<String, Object> kafkaTemplate) {
@@ -35,8 +37,7 @@ public class KafkaErrorHandler {
 
     @Bean
     public CommonErrorHandler commonErrorHandler(DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
-        ExponentialBackOff backOff = new ExponentialBackOff(RETRY_INITIAL_INTERVAL_MS, RETRY_MULTIPLIER);
-        backOff.setMaxElapsedTime(RETRY_MAX_ELAPSED_TIME_MS);
+        FixedBackOff backOff = new FixedBackOff(RETRY_INTERVAL_MS, RETRY_MAX_ATTEMPTS);
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(deadLetterPublishingRecoverer, backOff);
         errorHandler.setRetryListeners((record, ex, deliveryAttempt) ->
                 log.warn("메시지 재시도 중. topic={}, key={}, attempt={}",
