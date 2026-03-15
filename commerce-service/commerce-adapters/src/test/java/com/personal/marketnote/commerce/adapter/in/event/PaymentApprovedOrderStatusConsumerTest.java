@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
@@ -79,6 +80,22 @@ class PaymentApprovedOrderStatusConsumerTest {
 
         // then
         verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("듀얼 라이트 기간 중 이미 PAID 상태인 주문에 대해 OrderStatusAlreadyChangedException 발생 시 정상 acknowledge한다")
+    void handlePaymentApprovedEvent_alreadyChanged_acknowledgesGracefully() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", 50000L);
+        doThrow(new OrderStatusAlreadyChangedException(PAID))
+                .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
+
+        // when
+        consumer.handlePaymentApprovedEvent(record, acknowledgment);
+
+        // then
+        verify(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
         verify(acknowledgment).acknowledge();
     }
 
