@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationE
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -36,15 +37,24 @@ public class PaymentCancelledInventoryConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PAYMENT_CANCELLED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
 
             log.info("결제 취소 이벤트 수신 (재고 복구). eventId={}, orderId={}, isFullCancel={}",
                     envelope.eventId(), payload.orderId(), payload.isFullCancel());
 
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId=null",
-                        envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

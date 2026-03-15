@@ -3,8 +3,8 @@ package com.personal.marketnote.commerce.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.SettlementExecutedEvent;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -28,15 +28,24 @@ public class SettlementExecutedLedgerConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.SETTLEMENT_EXECUTED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             SettlementExecutedEvent payload = envelope.getPayloadAs(SettlementExecutedEvent.class, objectMapper);
 
             log.info("정산 실행 이벤트 수신 (회계 분개). eventId={}, settlementId={}, sellerId={}",
                     envelope.eventId(), payload.settlementId(), payload.sellerId());
 
-            if (FormatValidator.hasNoValue(payload.settlementId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, settlementId=null",
-                        envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("settlementId", payload.settlementId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

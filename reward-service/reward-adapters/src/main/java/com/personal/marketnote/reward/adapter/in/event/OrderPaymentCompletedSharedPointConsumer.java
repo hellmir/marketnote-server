@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -44,6 +45,16 @@ public class OrderPaymentCompletedSharedPointConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.ORDER_PAYMENT_COMPLETED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
                     OrderPaymentCompletedEvent.class, objectMapper
@@ -52,9 +63,9 @@ public class OrderPaymentCompletedSharedPointConsumer {
             log.info("주문 결제 완료 이벤트 수신 (공유 포인트 적립). eventId={}, orderId={}, buyerId={}",
                     envelope.eventId(), payload.orderId(), payload.buyerId());
 
-            if (FormatValidator.hasNoValue(payload.orderId()) || FormatValidator.hasNoValue(payload.buyerId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId={}, buyerId={}",
-                        envelope.eventId(), payload.orderId(), payload.buyerId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()),
+                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

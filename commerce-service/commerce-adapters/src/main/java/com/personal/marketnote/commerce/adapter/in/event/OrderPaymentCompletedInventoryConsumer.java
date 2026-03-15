@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionExc
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -36,6 +37,16 @@ public class OrderPaymentCompletedInventoryConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.ORDER_PAYMENT_COMPLETED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
                     OrderPaymentCompletedEvent.class, objectMapper
@@ -45,9 +56,8 @@ public class OrderPaymentCompletedInventoryConsumer {
                     envelope.eventId(), payload.orderId(),
                     FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0);
 
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId=null",
-                        envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

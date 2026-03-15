@@ -5,8 +5,8 @@ import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProduct
 import com.personal.marketnote.commerce.port.in.usecase.order.UpdateOrderProductUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -31,15 +31,25 @@ public class ReviewRegisteredCommerceConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_REGISTERED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             ReviewRegisteredEvent payload = envelope.getPayloadAs(ReviewRegisteredEvent.class, objectMapper);
 
             log.info("리뷰 등록 이벤트 수신. eventId={}, orderId={}, pricePolicyId={}",
                     envelope.eventId(), payload.orderId(), payload.pricePolicyId());
 
-            if (FormatValidator.hasNoValue(payload.orderId()) || FormatValidator.hasNoValue(payload.pricePolicyId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId={}, pricePolicyId={}",
-                        envelope.eventId(), payload.orderId(), payload.pricePolicyId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()),
+                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

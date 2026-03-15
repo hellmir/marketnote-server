@@ -3,8 +3,8 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.UserReferralCompletedEvent;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
@@ -37,6 +37,16 @@ public class UserReferralCompletedRewardConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.USER_REFERRAL_COMPLETED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             UserReferralCompletedEvent payload = envelope.getPayloadAs(
                     UserReferralCompletedEvent.class, objectMapper
@@ -45,10 +55,9 @@ public class UserReferralCompletedRewardConsumer {
             log.info("추천코드 등록 완료 이벤트 수신. eventId={}, requestUserId={}, referredUserId={}",
                     envelope.eventId(), payload.requestUserId(), payload.referredUserId());
 
-            if (FormatValidator.hasNoValue(payload.requestUserId())
-                    || FormatValidator.hasNoValue(payload.referredUserId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, requestUserId={}, referredUserId={}",
-                        envelope.eventId(), payload.requestUserId(), payload.referredUserId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("requestUserId", payload.requestUserId()),
+                    EventPayloadValidator.id("referredUserId", payload.referredUserId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

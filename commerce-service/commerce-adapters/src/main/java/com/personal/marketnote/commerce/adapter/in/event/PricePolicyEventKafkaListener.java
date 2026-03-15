@@ -6,8 +6,8 @@ import com.personal.marketnote.commerce.port.in.command.inventory.RegisterInvent
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RegisterInventoryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -32,15 +32,25 @@ public class PricePolicyEventKafkaListener {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRICE_POLICY_CREATED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             PricePolicyCreatedEvent payload = envelope.getPayloadAs(PricePolicyCreatedEvent.class, objectMapper);
 
             log.info("가격 정책 등록 이벤트 수신. eventId={}, productId={}, pricePolicyId={}",
                     envelope.eventId(), payload.productId(), payload.pricePolicyId());
 
-            if (FormatValidator.hasNoValue(payload.productId()) || FormatValidator.hasNoValue(payload.pricePolicyId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, productId={}, pricePolicyId={}",
-                        envelope.eventId(), payload.productId(), payload.pricePolicyId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("productId", payload.productId()),
+                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
