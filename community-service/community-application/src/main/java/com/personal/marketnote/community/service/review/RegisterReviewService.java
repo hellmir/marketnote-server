@@ -62,18 +62,19 @@ public class RegisterReviewService implements RegisterReviewUseCase {
             );
         }
 
-        // 주문 상품의 리뷰 작성 여부를 true로 업데이트
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        publishReviewEventPort.publishReviewRegisteredEvent(orderId, pricePolicyId);
+
+        // 주문 상품의 리뷰 작성 여부를 true로 업데이트 (커밋 후 HTTP 호출)
         if (TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    publishReviewEventPort.publishReviewRegisteredEvent(orderId, pricePolicyId);
                     // TODO: Kafka 검증 완료 후 HTTP 호출 제거
                     updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
                 }
             });
         } else {
-            publishReviewEventPort.publishReviewRegisteredEvent(orderId, pricePolicyId);
             // TODO: Kafka 검증 완료 후 HTTP 호출 제거
             updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
         }

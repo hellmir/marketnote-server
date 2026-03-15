@@ -67,6 +67,14 @@ logging:
   level:
     org.springframework.security: ERROR
 
+outbox:
+  enabled: ${OUTBOX_ENABLED:true}
+  polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
+  batch-size: ${OUTBOX_BATCH_SIZE:100}
+  max-retries: ${OUTBOX_MAX_RETRIES:5}
+  retention-days: ${OUTBOX_RETENTION_DAYS:7}
+  cleanup-cron: ${OUTBOX_CLEANUP_CRON:0 0 3 * * ?}
+
 product-service:
   base-url: ${PRODUCT_SERVICE_SERVER_ORIGIN:http://localhost:8081}
 

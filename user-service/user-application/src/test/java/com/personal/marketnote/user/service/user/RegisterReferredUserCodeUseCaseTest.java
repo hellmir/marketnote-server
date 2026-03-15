@@ -121,8 +121,8 @@ class RegisterReferredUserCodeUseCaseTest {
     }
 
     @Test
-    @DisplayName("포인트 적립 요청이 실패하면 추천인 코드 등록 변경사항을 롤백한다")
-    void registerReferredUserCode_rewardAccrualFails_rollsBack() {
+    @DisplayName("포인트 적립 HTTP 요청이 실패해도 Outbox 이벤트는 롤백되지 않는다")
+    void registerReferredUserCode_rewardAccrualFails_outboxNotRolledBack() {
         // given
         Long requestUserId = 1L;
         String referredUserCode = "ref-123";
@@ -148,13 +148,13 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
         verify(requestUser).registerReferredUserCode(referredUserCode);
-        verify(updateUserPort, times(2)).update(requestUser);
+        verify(updateUserPort).update(requestUser);
         verify(getUserUseCase).getUser(referredUserCode);
         verify(referredUser, times(2)).getId();
         verify(requestUser, times(2)).getId();
         verify(publishUserEventPort).publishUserReferralCompletedEvent(requestUserId, referredUserId);
         verify(modifyUserPointPort).accrueReferralPoints(requestUserId, referredUserId);
-        verify(requestUser).removeReferredUserCode();
+        verify(requestUser, never()).removeReferredUserCode();
         verifyNoMoreInteractions(getUserUseCase, updateUserPort, publishUserEventPort, modifyUserPointPort, referredUser);
     }
 

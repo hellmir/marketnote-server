@@ -89,6 +89,14 @@ kcp:
     read-timeout-max-attempts: ${KCP_RETRY_READ_TIMEOUT_MAX_ATTEMPTS:2}
   ret-url: ${KCP_RET_URL:https://marketnote-dev.vercel.app/payments/kcp/callback}
 
+outbox:
+  enabled: ${OUTBOX_ENABLED:true}
+  polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
+  batch-size: ${OUTBOX_BATCH_SIZE:100}
+  max-retries: ${OUTBOX_MAX_RETRIES:5}
+  retention-days: ${OUTBOX_RETENTION_DAYS:7}
+  cleanup-cron: ${OUTBOX_CLEANUP_CRON:0 0 3 * * ?}
+
 settlement:
   scheduler:
     enabled: ${SETTLEMENT_SCHEDULER_ENABLED:false}

@@ -1,11 +1,14 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
+import com.personal.marketnote.common.outbox.OutboxEvent;
+import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,17 +16,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +34,10 @@ class OrderEventKafkaProducerTest {
     private OrderEventKafkaProducer orderEventKafkaProducer;
 
     @Mock
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private SaveOutboxEventPort saveOutboxEventPort;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @Mock
     private Clock clock;
@@ -67,12 +70,11 @@ class OrderEventKafkaProducerTest {
     }
 
     @Test
-    @DisplayName("주문 결제 완료 이벤트 발행 시 올바른 토픽과 파티션 키로 전송된다")
-    void publishOrderPaymentCompletedEvent_sendsToCorrectTopicWithOrderIdKey() {
+    @DisplayName("주문 결제 완료 이벤트 발행 시 올바른 토픽과 파티션 키로 Outbox에 저장된다")
+    void publishOrderPaymentCompletedEvent_savesToOutboxWithCorrectTopicAndPartitionKey() throws Exception {
         // given
         setUpClock("2026-03-05T10:00:00Z");
-        when(kafkaTemplate.send(any(String.class), any(String.class), any()))
-                .thenReturn(new CompletableFuture<>());
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         List<OrderProduct> orderProducts = createOrderProducts();
 
@@ -82,21 +84,23 @@ class OrderEventKafkaProducerTest {
         );
 
         // then
-        verify(kafkaTemplate).send(
-                eq(KafkaTopicConstants.ORDER_PAYMENT_COMPLETED),
-                eq("1"),
-                any(EventEnvelope.class)
-        );
+        ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+        verify(saveOutboxEventPort).save(outboxCaptor.capture());
+
+        OutboxEvent captured = outboxCaptor.getValue();
+        assertThat(captured.getTopic()).isEqualTo(KafkaTopicConstants.ORDER_PAYMENT_COMPLETED);
+        assertThat(captured.getPartitionKey()).isEqualTo("1");
+        assertThat(captured.getSource()).isEqualTo("commerce-service");
+        assertThat(captured.getEventId()).isNotNull();
     }
 
     @Test
     @DisplayName("주문 결제 완료 이벤트 발행 시 EventEnvelope에 올바른 페이로드가 포함된다")
     @SuppressWarnings("unchecked")
-    void publishOrderPaymentCompletedEvent_envelopeContainsCorrectPayload() {
+    void publishOrderPaymentCompletedEvent_envelopeContainsCorrectPayload() throws Exception {
         // given
         setUpClock("2026-03-05T10:00:00Z");
-        when(kafkaTemplate.send(any(String.class), any(String.class), any()))
-                .thenReturn(new CompletableFuture<>());
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         List<OrderProduct> orderProducts = createOrderProducts();
 
@@ -107,11 +111,7 @@ class OrderEventKafkaProducerTest {
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
-        verify(kafkaTemplate).send(
-                eq(KafkaTopicConstants.ORDER_PAYMENT_COMPLETED),
-                eq("10"),
-                envelopeCaptor.capture()
-        );
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
 
         EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
         assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.ORDER_PAYMENT_COMPLETED);

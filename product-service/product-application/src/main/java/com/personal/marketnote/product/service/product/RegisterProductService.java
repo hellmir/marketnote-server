@@ -48,40 +48,38 @@ public class RegisterProductService implements RegisterProductUseCase {
                 sellerId, false, RegisterPricePolicyCommand.from(productId, command)
         );
 
-        // 트랜잭션이 있는 경우 트랜잭션 커밋 후 외부 시스템 요청
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    registerExternalSystems(savedProduct, command, registerPricePolicyResult.id());
-                }
-            });
-
-            return RegisterProductResult.from(savedProduct);
-
-        }
-
-        // 트랜잭션이 없는 경우 직접 호출
-        registerExternalSystems(savedProduct, command, registerPricePolicyResult.id());
-
-        return RegisterProductResult.from(savedProduct);
-    }
-
-    private void registerExternalSystems(
-            Product savedProduct,
-            RegisterProductCommand command,
-            Long pricePolicyId
-    ) {
-        // Kafka 이벤트 발행 (비동기)
+        // Outbox 이벤트 저장 (트랜잭션 내)
         FulfillmentVendorGoodsOptionCommand fulfillmentOptions = command.fulfillmentVendorGoods();
         String godType = FormatValidator.hasValue(fulfillmentOptions) && FormatValidator.hasValue(fulfillmentOptions.godType())
                 ? fulfillmentOptions.godType()
                 : DEFAULT_GOD_TYPE;
 
         publishProductEventPort.publishProductRegisteredEvent(
-                savedProduct.getId(), pricePolicyId, command.sellerId(), savedProduct.getName(), godType
+                savedProduct.getId(), registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), godType
         );
 
+        // 트랜잭션 커밋 후 외부 시스템 HTTP 호출
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    registerExternalSystemsHttp(savedProduct, command, registerPricePolicyResult.id());
+                }
+            });
+
+            return RegisterProductResult.from(savedProduct);
+        }
+
+        registerExternalSystemsHttp(savedProduct, command, registerPricePolicyResult.id());
+
+        return RegisterProductResult.from(savedProduct);
+    }
+
+    private void registerExternalSystemsHttp(
+            Product savedProduct,
+            RegisterProductCommand command,
+            Long pricePolicyId
+    ) {
         // TODO: Kafka 검증 완료 후 HTTP 호출 제거
         registerInventoryPort.registerInventory(savedProduct.getId(), pricePolicyId);
 

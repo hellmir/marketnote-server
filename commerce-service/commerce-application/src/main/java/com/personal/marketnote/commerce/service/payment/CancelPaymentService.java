@@ -134,18 +134,14 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         String cancelId = isFullCancel ? null : UUID.randomUUID().toString();
         recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, cancelId);
 
-        Long orderId = order.getId();
-        String orderKey = command.orderKey();
-        Long buyerId = order.getBuyerId();
-        Long paymentAmount = payment.getPaymentAmount();
-        Long pointAmount = order.getPointAmount();
-        List<OrderProduct> orderProducts = order.getOrderProducts();
         List<OrderProduct> cancelTargetProducts = resolveCancelProducts(isFullCancel, command);
-        Long finalPartialProductPendingDeduction = partialProductPendingDeduction;
-        runAfterCommit(() -> publishPaymentCancelledEvent(
-                orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, isFullCancel, alreadyRefunded, cancelId, orderProducts, cancelTargetProducts,
-                finalPartialProductPendingDeduction));
+
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        publishPaymentCancelledEvent(
+                order.getId(), command.orderKey(), order.getBuyerId(), cancelAmount,
+                payment.getPaymentAmount(), order.getPointAmount(), isFullCancel, alreadyRefunded,
+                cancelId, order.getOrderProducts(), cancelTargetProducts,
+                partialProductPendingDeduction);
     }
 
     private Long computeCancelAmount(boolean isFullCancel, Long partialCancelAmount, Long refundableAmount) {

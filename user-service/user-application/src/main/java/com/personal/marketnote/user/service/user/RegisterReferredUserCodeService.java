@@ -40,18 +40,22 @@ public class RegisterReferredUserCodeService implements RegisterReferredUserCode
 
         User referredUser = getUserUseCase.getUser(referredUserCode);
 
-        // 추천한 회원/추천 받은 회원 포인트 적립 요청
+        // Outbox 이벤트 저장 (트랜잭션 내)
         try {
-            runAfterCommit(() -> {
-                publishUserEventPort.publishUserReferralCompletedEvent(requestUser.getId(), referredUser.getId());
-                modifyUserPointPort.accrueReferralPoints(requestUser.getId(), referredUser.getId());
-                // TODO: Kafka 검증 완료 후 HTTP 호출 제거
-            });
+            publishUserEventPort.publishUserReferralCompletedEvent(requestUser.getId(), referredUser.getId());
         } catch (Exception e) {
             requestUser.removeReferredUserCode();
             updateUserPort.update(requestUser);
             throw e;
         }
+
+        // 추천한 회원/추천 받은 회원 포인트 적립 요청 (커밋 후 HTTP 호출)
+        Long requestId = requestUser.getId();
+        Long referredId = referredUser.getId();
+        runAfterCommit(() -> {
+            modifyUserPointPort.accrueReferralPoints(requestId, referredId);
+            // TODO: Kafka 검증 완료 후 HTTP 호출 제거
+        });
     }
 
     private void runAfterCommit(Runnable action) {

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
@@ -8,10 +9,11 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentApprovedEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentFailedEvent;
+import com.personal.marketnote.common.outbox.OutboxEvent;
+import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 import java.util.List;
@@ -22,7 +24,8 @@ import java.util.List;
 public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
     private static final String SOURCE = "commerce-service";
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final SaveOutboxEventPort saveOutboxEventPort;
+    private final ObjectMapper objectMapper;
     private final Clock clock;
 
     @Override
@@ -33,18 +36,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                 topic, SOURCE, payload, clock
         );
 
-        kafkaTemplate.send(topic, orderId.toString(), envelope)
-                .whenComplete((result, ex) -> {
-                    if (FormatValidator.hasValue(ex)) {
-                        log.error("Kafka 이벤트 발행 실패. topic={}, orderId={}, orderKey={}",
-                                topic, orderId, orderKey, ex);
-                        return;
-                    }
-
-                    log.info("Kafka 이벤트 발행 성공. topic={}, orderId={}, orderKey={}, offset={}",
-                            topic, orderId, orderKey,
-                            result.getRecordMetadata().offset());
-                });
+        saveToOutbox(envelope, topic, orderId.toString());
     }
 
     @Override
@@ -55,18 +47,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                 topic, SOURCE, payload, clock
         );
 
-        kafkaTemplate.send(topic, orderId.toString(), envelope)
-                .whenComplete((result, ex) -> {
-                    if (FormatValidator.hasValue(ex)) {
-                        log.error("Kafka 이벤트 발행 실패. topic={}, orderId={}, orderKey={}",
-                                topic, orderId, orderKey, ex);
-                        return;
-                    }
-
-                    log.info("Kafka 이벤트 발행 성공. topic={}, orderId={}, orderKey={}, offset={}",
-                            topic, orderId, orderKey,
-                            result.getRecordMetadata().offset());
-                });
+        saveToOutbox(envelope, topic, orderId.toString());
     }
 
     @Override
@@ -107,17 +88,22 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                 topic, SOURCE, payload, clock
         );
 
-        kafkaTemplate.send(topic, orderId.toString(), envelope)
-                .whenComplete((result, ex) -> {
-                    if (FormatValidator.hasValue(ex)) {
-                        log.error("Kafka 이벤트 발행 실패. topic={}, orderId={}, orderKey={}",
-                                topic, orderId, orderKey, ex);
-                        return;
-                    }
+        saveToOutbox(envelope, topic, orderId.toString());
+    }
 
-                    log.info("Kafka 이벤트 발행 성공. topic={}, orderId={}, orderKey={}, offset={}",
-                            topic, orderId, orderKey,
-                            result.getRecordMetadata().offset());
-                });
+    private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
+        try {
+            String payloadJson = objectMapper.writeValueAsString(envelope);
+            OutboxEvent outboxEvent = OutboxEvent.of(
+                    envelope.eventId(), topic, partitionKey,
+                    envelope.eventType(), SOURCE, payloadJson, clock
+            );
+            saveOutboxEventPort.save(outboxEvent);
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
+                    topic, partitionKey, envelope.eventId());
+        } catch (Exception e) {
+            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
+                    topic, partitionKey, e.getMessage(), e);
+        }
     }
 }

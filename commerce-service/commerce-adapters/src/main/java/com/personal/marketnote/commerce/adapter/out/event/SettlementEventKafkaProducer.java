@@ -1,14 +1,15 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.port.out.event.PublishSettlementEventPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.SettlementExecutedEvent;
-import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.outbox.OutboxEvent;
+import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 
@@ -18,7 +19,8 @@ import java.time.Clock;
 public class SettlementEventKafkaProducer implements PublishSettlementEventPort {
     private static final String SOURCE = "commerce-service";
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final SaveOutboxEventPort saveOutboxEventPort;
+    private final ObjectMapper objectMapper;
     private final Clock clock;
 
     @Override
@@ -34,17 +36,18 @@ public class SettlementEventKafkaProducer implements PublishSettlementEventPort 
                 topic, SOURCE, payload, clock
         );
 
-        kafkaTemplate.send(topic, settlementId.toString(), envelope)
-                .whenComplete((result, ex) -> {
-                    if (FormatValidator.hasValue(ex)) {
-                        log.error("Kafka 이벤트 발행 실패. topic={}, settlementId={}, sellerId={}",
-                                topic, settlementId, sellerId, ex);
-                        return;
-                    }
-
-                    log.info("Kafka 이벤트 발행 성공. topic={}, settlementId={}, sellerId={}, offset={}",
-                            topic, settlementId, sellerId,
-                            result.getRecordMetadata().offset());
-                });
+        try {
+            String payloadJson = objectMapper.writeValueAsString(envelope);
+            OutboxEvent outboxEvent = OutboxEvent.of(
+                    envelope.eventId(), topic, settlementId.toString(),
+                    envelope.eventType(), SOURCE, payloadJson, clock
+            );
+            saveOutboxEventPort.save(outboxEvent);
+            log.info("Outbox 이벤트 저장. topic={}, settlementId={}, eventId={}",
+                    topic, settlementId, envelope.eventId());
+        } catch (Exception e) {
+            log.error("Outbox 이벤트 저장 실패. topic={}, settlementId={}, error={}",
+                    topic, settlementId, e.getMessage(), e);
+        }
     }
 }

@@ -129,10 +129,10 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         Long totalAmount = order.getTotalAmount();
         Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(order.getOrderProducts(), pricePolicyIds);
 
-        runAfterCommit(() -> {
-            // Kafka 이벤트 발행 (듀얼 라이트)
-            publishOrderPaymentCompletedEvent(order, totalAccumulatedPoint);
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        publishOrderPaymentCompletedEvent(order, totalAccumulatedPoint);
 
+        runAfterCommit(() -> {
             // 결제 완료 시 장바구니 상품 삭제
             deleteOrderedCartProductsPort.delete(pricePolicyIds);
 
@@ -209,10 +209,10 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         Long buyerId = order.getBuyerId();
         List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
 
-        runAfterCommit(() -> {
-            confirmPendingPoints(buyerId, orderId);
-            publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
-        });
+        // Outbox 이벤트 저장 (트랜잭션 내)
+        publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+
+        runAfterCommit(() -> confirmPendingPoints(buyerId, orderId));
     }
 
     private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds) {

@@ -1,15 +1,17 @@
 package com.personal.marketnote.product.adapter.out.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
+import com.personal.marketnote.common.outbox.OutboxEvent;
+import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 
@@ -19,75 +21,49 @@ import java.time.Clock;
 public class ProductEventKafkaProducer implements PublishProductEventPort {
     private static final String SOURCE = "product-service";
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final SaveOutboxEventPort saveOutboxEventPort;
+    private final ObjectMapper objectMapper;
     private final Clock clock;
 
     @Override
     public void publishProductRegisteredEvent(Long productId, Long pricePolicyId, Long sellerId, String productName, String godType) {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(productId, pricePolicyId, sellerId, productName, godType);
-        EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
-                KafkaTopicConstants.PRODUCT_REGISTERED,
-                SOURCE,
-                payload,
-                clock
-        );
+        String topic = KafkaTopicConstants.PRODUCT_REGISTERED;
+        EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
-        // TODO: Kafka 단독 전환 시 발행 실패 처리 보강 필요 (Outbox 패턴 또는 동기 전환)
-        kafkaTemplate.send(KafkaTopicConstants.PRODUCT_REGISTERED, productId.toString(), envelope)
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("Kafka 이벤트 발행 실패. topic={}, productId={}, pricePolicyId={}, sellerId={}",
-                                KafkaTopicConstants.PRODUCT_REGISTERED, productId, pricePolicyId, sellerId, ex);
-                    } else {
-                        log.info("Kafka 이벤트 발행 성공. topic={}, productId={}, pricePolicyId={}, sellerId={}, offset={}",
-                                KafkaTopicConstants.PRODUCT_REGISTERED, productId, pricePolicyId, sellerId,
-                                result.getRecordMetadata().offset());
-                    }
-                });
+        saveToOutbox(envelope, topic, productId.toString());
     }
 
     @Override
     public void publishPricePolicyCreatedEvent(Long productId, Long pricePolicyId) {
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(productId, pricePolicyId);
-        EventEnvelope<PricePolicyCreatedEvent> envelope = EventEnvelope.of(
-                KafkaTopicConstants.PRICE_POLICY_CREATED,
-                SOURCE,
-                payload,
-                clock
-        );
+        String topic = KafkaTopicConstants.PRICE_POLICY_CREATED;
+        EventEnvelope<PricePolicyCreatedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
-        kafkaTemplate.send(KafkaTopicConstants.PRICE_POLICY_CREATED, productId.toString(), envelope)
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("Kafka 이벤트 발행 실패. topic={}, productId={}, pricePolicyId={}",
-                                KafkaTopicConstants.PRICE_POLICY_CREATED, productId, pricePolicyId, ex);
-                    } else {
-                        log.info("Kafka 이벤트 발행 성공. topic={}, productId={}, pricePolicyId={}, offset={}",
-                                KafkaTopicConstants.PRICE_POLICY_CREATED, productId, pricePolicyId,
-                                result.getRecordMetadata().offset());
-                    }
-                });
+        saveToOutbox(envelope, topic, productId.toString());
     }
 
     @Override
     public void publishProductUpdatedEvent(ProductUpdatedEvent payload) {
-        EventEnvelope<ProductUpdatedEvent> envelope = EventEnvelope.of(
-                KafkaTopicConstants.PRODUCT_UPDATED,
-                SOURCE,
-                payload,
-                clock
-        );
+        String topic = KafkaTopicConstants.PRODUCT_UPDATED;
+        EventEnvelope<ProductUpdatedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
-        kafkaTemplate.send(KafkaTopicConstants.PRODUCT_UPDATED, payload.productId().toString(), envelope)
-                .whenComplete((result, ex) -> {
-                    if (ex != null) {
-                        log.error("Kafka 이벤트 발행 실패. topic={}, productId={}",
-                                KafkaTopicConstants.PRODUCT_UPDATED, payload.productId(), ex);
-                    } else {
-                        log.info("Kafka 이벤트 발행 성공. topic={}, productId={}, offset={}",
-                                KafkaTopicConstants.PRODUCT_UPDATED, payload.productId(),
-                                result.getRecordMetadata().offset());
-                    }
-                });
+        saveToOutbox(envelope, topic, payload.productId().toString());
+    }
+
+    private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
+        try {
+            String payloadJson = objectMapper.writeValueAsString(envelope);
+            OutboxEvent outboxEvent = OutboxEvent.of(
+                    envelope.eventId(), topic, partitionKey,
+                    envelope.eventType(), SOURCE, payloadJson, clock
+            );
+            saveOutboxEventPort.save(outboxEvent);
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
+                    topic, partitionKey, envelope.eventId());
+        } catch (Exception e) {
+            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
+                    topic, partitionKey, e.getMessage(), e);
+        }
     }
 }
