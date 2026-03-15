@@ -78,7 +78,7 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                1L, 50L, 80000L, 5000L, orderProducts
+                1L, 50L, 80000L, 5000L, orderProducts, 1500L
         );
 
         // then
@@ -102,7 +102,7 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                10L, 50L, 80000L, 5000L, orderProducts
+                10L, 50L, 80000L, 5000L, orderProducts, 1500L
         );
 
         // then
@@ -137,5 +137,7 @@ class OrderEventKafkaProducerTest {
         assertThat(secondItem.sharerId()).isNull();
         assertThat(secondItem.quantity()).isEqualTo(1);
         assertThat(secondItem.unitAmount()).isEqualTo(20000L);
+
+        assertThat(payload.totalAccumulatedPoint()).isEqualTo(1500L);
     }
 }

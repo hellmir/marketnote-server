@@ -7,7 +7,8 @@ import java.util.List;
 public interface PublishOrderEventPort {
 
     void publishOrderPaymentCompletedEvent(Long orderId, Long buyerId, Long totalAmount,
-                                           Long pointAmount, List<OrderProduct> orderProducts);
+                                           Long pointAmount, List<OrderProduct> orderProducts,
+                                           Long totalAccumulatedPoint);
 
     void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds);
 }

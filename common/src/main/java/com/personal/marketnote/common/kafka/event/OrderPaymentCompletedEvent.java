@@ -7,7 +7,8 @@ public record OrderPaymentCompletedEvent(
         Long buyerId,
         Long totalAmount,
         Long pointAmount,
-        List<OrderProductItem> orderProducts
+        List<OrderProductItem> orderProducts,
+        Long totalAccumulatedPoint
 ) {
 
     public record OrderProductItem(

@@ -27,7 +27,8 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
     @Override
     public void publishOrderPaymentCompletedEvent(Long orderId, Long buyerId, Long totalAmount,
-                                                  Long pointAmount, List<OrderProduct> orderProducts) {
+                                                  Long pointAmount, List<OrderProduct> orderProducts,
+                                                  Long totalAccumulatedPoint) {
         List<OrderProductItem> items = orderProducts.stream()
                 .map(op -> new OrderProductItem(
                         op.getPricePolicyId(),
@@ -38,7 +39,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 .toList();
 
         OrderPaymentCompletedEvent payload = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, pointAmount, items
+                orderId, buyerId, totalAmount, pointAmount, items, totalAccumulatedPoint
         );
         String topic = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED;
         EventEnvelope<OrderPaymentCompletedEvent> envelope = EventEnvelope.of(

@@ -131,7 +131,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
         runAfterCommit(() -> {
             // Kafka 이벤트 발행 (듀얼 라이트)
-            publishOrderPaymentCompletedEvent(order);
+            publishOrderPaymentCompletedEvent(order, totalAccumulatedPoint);
 
             // 결제 완료 시 장바구니 상품 삭제
             deleteOrderedCartProductsPort.delete(pricePolicyIds);
@@ -233,14 +233,15 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
     }
 
-    private void publishOrderPaymentCompletedEvent(Order order) {
+    private void publishOrderPaymentCompletedEvent(Order order, Long totalAccumulatedPoint) {
         try {
             publishOrderEventPort.publishOrderPaymentCompletedEvent(
                     order.getId(),
                     order.getBuyerId(),
                     order.getTotalAmount(),
                     order.getPointAmount(),
-                    order.getOrderProducts()
+                    order.getOrderProducts(),
+                    totalAccumulatedPoint
             );
         } catch (Exception e) {
             log.error("주문 결제 완료 이벤트 발행 실패 - orderId: {}, error: {}",

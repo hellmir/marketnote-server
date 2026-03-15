@@ -32,7 +32,7 @@ class OrderPaymentCompletedCartConsumerTest {
                                                                  Long totalAmount, Long pointAmount,
                                                                  List<OrderProductItem> orderProducts) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, pointAmount, orderProducts
+                orderId, buyerId, totalAmount, pointAmount, orderProducts, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.payment-completed", "commerce-service",
