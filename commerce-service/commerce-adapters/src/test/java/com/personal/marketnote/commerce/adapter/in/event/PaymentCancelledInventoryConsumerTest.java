@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationException;
+import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
@@ -28,6 +30,9 @@ class PaymentCancelledInventoryConsumerTest {
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Mock
+    private RestoreProductInventoryUseCase restoreProductInventoryUseCase;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -60,8 +65,8 @@ class PaymentCancelledInventoryConsumerTest {
     }
 
     @Test
-    @DisplayName("전체 취소 이벤트 수신 시 재고 복구 검증 후 acknowledge한다")
-    void handlePaymentCancelledEvent_fullCancel_validatesAndAcknowledges() {
+    @DisplayName("전체 취소 이벤트 수신 시 재고를 복구하고 acknowledge한다")
+    void handlePaymentCancelledEvent_fullCancel_restoresInventoryAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = createOrderProductItems();
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, orderProducts, null);
@@ -70,16 +75,44 @@ class PaymentCancelledInventoryConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(restoreProductInventoryUseCase).restore(argThat(products ->
+                products.size() == 2
+                        && products.get(0).getPricePolicyId().equals(100L)
+                        && products.get(0).getQuantity() == 2
+                        && products.get(1).getPricePolicyId().equals(101L)
+                        && products.get(1).getQuantity() == 1
+        ), eq(1L), eq("Kafka 전액 취소 재고 복구"));
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("부분 취소 이벤트 수신 시 cancelProducts 검증 후 acknowledge한다")
-    void handlePaymentCancelledEvent_partialCancel_validatesAndAcknowledges() {
+    @DisplayName("부분 취소 이벤트 수신 시 cancelProducts로 재고를 복구하고 acknowledge한다")
+    void handlePaymentCancelledEvent_partialCancel_restoresInventoryAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = createOrderProductItems();
         List<OrderProductItem> cancelProducts = createCancelProductItems();
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, orderProducts, cancelProducts);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(restoreProductInventoryUseCase).restore(argThat(products ->
+                products.size() == 1
+                        && products.get(0).getPricePolicyId().equals(100L)
+                        && products.get(0).getQuantity() == 1
+        ), eq(1L), eq("Kafka 부분 취소 재고 복구"));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("중복 재고 복구 시 DuplicateInventoryRestorationException을 catch하고 acknowledge한다")
+    void handlePaymentCancelledEvent_duplicateRestoration_catchesAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = createOrderProductItems();
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, orderProducts, null);
+        doThrow(new DuplicateInventoryRestorationException(1L))
+                .when(restoreProductInventoryUseCase).restore(anyList(), anyLong(), anyString());
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
@@ -99,6 +132,7 @@ class PaymentCancelledInventoryConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
         verify(acknowledgment).acknowledge();
     }
 
@@ -112,6 +146,7 @@ class PaymentCancelledInventoryConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
         verify(acknowledgment).acknowledge();
     }
 
@@ -125,6 +160,7 @@ class PaymentCancelledInventoryConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
         verify(acknowledgment).acknowledge();
     }
 
@@ -139,6 +175,7 @@ class PaymentCancelledInventoryConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
         verify(acknowledgment).acknowledge();
     }
 
@@ -153,6 +190,7 @@ class PaymentCancelledInventoryConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
         verify(acknowledgment).acknowledge();
     }
 
