@@ -52,10 +52,7 @@ public class OrderPaymentCompletedOutboundConsumer {
             }
 
             // FIXME: [#929][#1200] Fassto 출고 요청 구현 필요
-            //  신규 기능 (기존 HTTP 호출 없음). 아래 구현 필요:
-            //  1. OrderPaymentCompletedEvent에 배송지 정보 추가 또는 Commerce 서비스에서 주문 상세 조회
-            //  2. RegisterFasstoDeliveryUseCase.registerDelivery() 호출
-            //  3. 멱등성 보강 (#1216) — orderId 기반 출고 이력 조회 후 중복 skip
+            //  신규 기능 (기존 HTTP 호출 없음). 배송지 정보 추가 후 아래 코드 활성화:
             //
             //  FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
             //  RegisterFasstoDeliveryItemCommand itemCommand = RegisterFasstoDeliveryItemCommand.builder()
@@ -66,7 +63,11 @@ public class OrderPaymentCompletedOutboundConsumer {
             //  RegisterFasstoDeliveryCommand command = RegisterFasstoDeliveryCommand.of(
             //          fasstoAuthProperties.getCustomerCode(), accessToken.getValue(), List.of(itemCommand)
             //  );
-            //  registerFasstoDeliveryUseCase.registerDelivery(command);
+            //  registerFasstoDeliveryUseCase.registerDeliveryIdempotent(command);
+            //
+            //  [#1216] 멱등성 보강 완료: registerDeliveryIdempotent() 사용
+            //  — orderId 기반 출고 이력 DB 저장 (UNIQUE 제약) → 중복 시 FasstoDeliveryAlreadyRegisteredException
+            //  — Consumer에서 FasstoDeliveryAlreadyRegisteredException catch → warn + acknowledge
 
             log.info("Fassto 출고 요청 이벤트 검증 완료. orderId={}, orderProducts={}건",
                     payload.orderId(), payload.orderProducts().size());
