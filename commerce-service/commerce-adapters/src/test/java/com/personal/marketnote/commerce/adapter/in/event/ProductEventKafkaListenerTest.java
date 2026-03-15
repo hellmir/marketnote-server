@@ -99,6 +99,101 @@ class ProductEventKafkaListenerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleProductRegisteredEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "product.product.registered", 0, 0L, "key-1", null
+        );
+
+        // when
+        productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerInventoryUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleProductRegisteredEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        ProductRegisteredEvent event = new ProductRegisteredEvent(
+                1L, 2L, 3L, "테스트 상품", "1"
+        );
+        EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "product-service",
+                LocalDateTime.of(2026, 2, 27, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "product.product.registered", 0, 0L, "key-1", envelope
+        );
+
+        // when
+        productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerInventoryUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("productId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleProductRegisteredEvent_zeroProductId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 2L, 3L);
+
+        // when
+        productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerInventoryUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("productId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleProductRegisteredEvent_negativeProductId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 2L, 3L);
+
+        // when
+        productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerInventoryUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("pricePolicyId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleProductRegisteredEvent_zeroPricePolicyId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L, 3L);
+
+        // when
+        productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerInventoryUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("pricePolicyId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleProductRegisteredEvent_negativePricePolicyId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L, 3L);
+
+        // when
+        productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerInventoryUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("이미 재고가 존재하면 예외를 무시하고 acknowledge한다")
     void handleProductRegisteredEvent_inventoryAlreadyExists_acknowledges() {
         // given

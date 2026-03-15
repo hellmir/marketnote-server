@@ -175,6 +175,116 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.order.payment-completed", 0, 0L, "1", null
+        );
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
+                1L, 100L, 50000L, 0L, orderProducts, null
+        );
+        EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 8, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.order.payment-completed", 0, 0L, "1", envelope
+        );
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 100L, 50000L, orderProducts);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 100L, 50000L, orderProducts);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_zeroBuyerId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L, 50000L, orderProducts);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_negativeBuyerId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L, 50000L, orderProducts);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("중복 이벤트 수신 시 DuplicateUserPointHistoryException이 발생하면 멱등 처리하고 acknowledge한다")
     void handleOrderPaymentCompletedEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given

@@ -101,6 +101,71 @@ class PaymentFailedOrderStatusConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentFailedEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.failed", 0, 0L, "1", null
+        );
+
+        // when
+        consumer.handlePaymentFailedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentFailedEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        PaymentFailedEvent event = new PaymentFailedEvent(1L, "order-key-1", "CARD_ERROR", "카드 잔액 부족");
+        EventEnvelope<PaymentFailedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 5, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.failed", 0, 0L, "1", envelope
+        );
+
+        // when
+        consumer.handlePaymentFailedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentFailedEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, "order-key-1", "CARD_ERROR", "카드 잔액 부족");
+
+        // when
+        consumer.handlePaymentFailedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentFailedEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, "order-key-1", "CARD_ERROR", "카드 잔액 부족");
+
+        // when
+        consumer.handlePaymentFailedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("예상치 못한 예외 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
     void handlePaymentFailedEvent_unexpectedException_propagatesForRetry() {
         // given

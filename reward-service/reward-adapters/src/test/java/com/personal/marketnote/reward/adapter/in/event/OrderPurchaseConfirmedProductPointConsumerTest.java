@@ -100,6 +100,83 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
     }
 
     @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.of());
+        EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 8, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.order.purchase-confirmed", 0, 0L, "1", envelope
+        );
+
+        // when
+        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(confirmPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 100L, List.of());
+
+        // when
+        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(confirmPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 100L, List.of());
+
+        // when
+        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(confirmPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_zeroBuyerId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L, List.of());
+
+        // when
+        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(confirmPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_negativeBuyerId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L, List.of());
+
+        // when
+        consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(confirmPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("envelope이 null이면 확정 없이 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_nullEnvelope_skipsAndAcknowledges() {
         // given

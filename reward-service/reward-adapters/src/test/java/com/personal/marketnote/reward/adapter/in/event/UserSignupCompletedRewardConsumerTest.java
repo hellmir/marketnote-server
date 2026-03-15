@@ -96,6 +96,71 @@ class UserSignupCompletedRewardConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserSignupCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "user.user.signup-completed", 0, 0L, "1", null
+        );
+
+        // when
+        userSignupCompletedRewardConsumer.handleUserSignupCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserSignupCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        UserSignupCompletedEvent event = new UserSignupCompletedEvent(1L, "user-key-123");
+        EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "user-service",
+                LocalDateTime.of(2026, 3, 2, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "user.user.signup-completed", 0, 0L, "key-1", envelope
+        );
+
+        // when
+        userSignupCompletedRewardConsumer.handleUserSignupCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("userId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserSignupCompletedEvent_zeroUserId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, "user-key-123");
+
+        // when
+        userSignupCompletedRewardConsumer.handleUserSignupCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("userId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserSignupCompletedEvent_negativeUserId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, "user-key-123");
+
+        // when
+        userSignupCompletedRewardConsumer.handleUserSignupCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(registerUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("이미 포인트가 존재하면 예외를 무시하고 acknowledge한다")
     void handleUserSignupCompletedEvent_duplicateUserPoint_acknowledges() {
         // given

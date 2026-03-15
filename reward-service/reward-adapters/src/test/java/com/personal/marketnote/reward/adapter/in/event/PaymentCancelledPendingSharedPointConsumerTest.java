@@ -126,6 +126,64 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     }
 
     @Test
+    @DisplayName("eventType이 불일치하면 acknowledge한다")
+    void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        PaymentCancelledEvent event = new PaymentCancelledEvent(
+                1L, "order-key-1", 100L, 50000L, 80000L, 1000L,
+                true, 0L, null, orderProducts, null, null
+        );
+        EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 6, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.cancelled", 0, 0L, "1", envelope
+        );
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 acknowledge한다")
+    void handlePaymentCancelledEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, true, orderProducts);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 acknowledge한다")
+    void handlePaymentCancelledEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, 200L, 2, 10000L)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, true, orderProducts);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("envelope이 null이면 공유 적립 예정 포인트 회수 없이 acknowledge한다")
     void handlePaymentCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given

@@ -164,6 +164,86 @@ class PaymentCancelledPartialProductPointConsumerTest {
     }
 
     @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        PaymentCancelledEvent event = new PaymentCancelledEvent(
+                1L, "order-key-1", 100L, 30000L, 80000L, 1000L,
+                false, 0L, null, null, null, 1500L
+        );
+        EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 8, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.cancelled", 0, 0L, "1", envelope
+        );
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 100L, 1500L, false);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 100L, 1500L, false);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_zeroBuyerId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L, 1500L, false);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_negativeBuyerId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L, 1500L, false);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyPendingPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("envelope이 null이면 차감 없이 acknowledge한다")
     void handlePaymentCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
         // given
