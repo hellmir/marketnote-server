@@ -1,6 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
+import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationException;
+import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
@@ -20,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentCancelledInventoryConsumer {
     private final ObjectMapper objectMapper;
+    private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
 
     @KafkaListener(
             topics = KafkaTopicConstants.PAYMENT_CANCELLED,
@@ -46,9 +51,14 @@ public class PaymentCancelledInventoryConsumer {
 
             if (payload.isFullCancel()) {
                 handleFullCancelInventoryRestore(envelope, payload);
-            } else {
+            }
+
+            if (!payload.isFullCancel()) {
                 handlePartialCancelInventoryRestore(envelope, payload);
             }
+        } catch (DuplicateInventoryRestorationException e) {
+            log.info("이미 처리된 재고 복구 이벤트 (멱등 처리). eventId={}, message={}",
+                    envelope.eventId(), e.getMessage());
         } catch (Exception e) {
             log.error("재고 복구 이벤트 처리 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e);
@@ -65,13 +75,10 @@ public class PaymentCancelledInventoryConsumer {
             return;
         }
 
-        // FIXME: [#929][#1101] HTTP 제거 후 RestoreProductInventoryUseCase.restore() 활성화
-        //  현재 듀얼 라이트 기간: CancelPaymentService.restoreInventory()에서 동기로 재고 복구 처리 중
-        //  멱등성 보강(#1210) 완료 후 활성화
-        //  List<OrderProduct> orderProducts = convertToOrderProducts(payload.orderProducts());
-        //  restoreProductInventoryUseCase.restore(orderProducts, "Kafka 전액 취소 재고 복구");
+        List<OrderProduct> orderProducts = convertToOrderProducts(payload.orderProducts());
+        restoreProductInventoryUseCase.restore(orderProducts, payload.orderId(), "Kafka 전액 취소 재고 복구");
 
-        log.info("전체 취소 재고 복구 이벤트 검증 완료 (듀얼 라이트). orderId={}, orderProducts={}건",
+        log.info("전체 취소 재고 복구 완료. orderId={}, orderProducts={}건",
                 payload.orderId(), payload.orderProducts().size());
     }
 
@@ -84,13 +91,23 @@ public class PaymentCancelledInventoryConsumer {
             return;
         }
 
-        // FIXME: [#929][#1101] HTTP 제거 후 RestoreProductInventoryUseCase.restore() 활성화
-        //  현재 듀얼 라이트 기간: CancelPaymentService.restorePartialCancelInventory()에서 동기로 부분 재고 복구 처리 중
-        //  멱등성 보강(#1210) 완료 후 활성화
-        //  List<OrderProduct> cancelOrderProducts = convertToOrderProducts(cancelProducts);
-        //  restoreProductInventoryUseCase.restore(cancelOrderProducts, "Kafka 부분 취소 재고 복구");
+        List<OrderProduct> cancelOrderProducts = convertToOrderProducts(cancelProducts);
+        restoreProductInventoryUseCase.restore(cancelOrderProducts, payload.orderId(), "Kafka 부분 취소 재고 복구");
 
-        log.info("부분 취소 재고 복구 이벤트 검증 완료 (듀얼 라이트). orderId={}, cancelProducts={}건",
+        log.info("부분 취소 재고 복구 완료. orderId={}, cancelProducts={}건",
                 payload.orderId(), cancelProducts.size());
+    }
+
+    private List<OrderProduct> convertToOrderProducts(List<OrderProductItem> items) {
+        return items.stream()
+                .map(item -> OrderProduct.from(
+                        OrderProductSnapshotState.builder()
+                                .pricePolicyId(item.pricePolicyId())
+                                .quantity(item.quantity())
+                                .unitAmount(item.unitAmount())
+                                .sharerId(item.sharerId())
+                                .build()
+                ))
+                .toList();
     }
 }

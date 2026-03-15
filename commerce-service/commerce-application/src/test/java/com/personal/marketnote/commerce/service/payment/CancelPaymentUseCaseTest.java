@@ -487,7 +487,7 @@ class CancelPaymentUseCaseTest {
 
             cancelPaymentService.cancel(command);
 
-            verify(restoreProductInventoryUseCase).restore(anyList(), anyString());
+            verify(restoreProductInventoryUseCase).restore(anyList(), anyLong(), anyString());
         }
 
         @Test
@@ -505,7 +505,7 @@ class CancelPaymentUseCaseTest {
 
             cancelPaymentService.cancel(command);
 
-            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyString());
+            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
         }
 
         @Test
@@ -523,7 +523,7 @@ class CancelPaymentUseCaseTest {
 
             cancelPaymentService.cancel(command);
 
-            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyString());
+            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
         }
 
         @Test
@@ -548,7 +548,7 @@ class CancelPaymentUseCaseTest {
                     products.size() == 1
                             && products.get(0).getPricePolicyId().equals(100L)
                             && products.get(0).getQuantity().equals(1)
-            ), eq("주문 부분 취소에 의한 재고 복구"));
+            ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
         }
 
         @Test
@@ -577,7 +577,7 @@ class CancelPaymentUseCaseTest {
                             && products.get(0).getQuantity().equals(1)
                             && products.get(1).getPricePolicyId().equals(200L)
                             && products.get(1).getQuantity().equals(2)
-            ), eq("주문 부분 취소에 의한 재고 복구"));
+            ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
         }
 
         @Test
@@ -596,7 +596,7 @@ class CancelPaymentUseCaseTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
-                    .restore(anyList(), anyString());
+                    .restore(anyList(), anyLong(), anyString());
 
             cancelPaymentService.cancel(command);
 
@@ -629,7 +629,7 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             // 전액 취소는 기존 restoreInventory(order)가 호출되므로 전체 주문 상품 목록으로 복구
-            verify(restoreProductInventoryUseCase).restore(anyList(), eq("주문 전액 취소에 의한 재고 복구"));
+            verify(restoreProductInventoryUseCase).restore(anyList(), eq(1L), eq("주문 전액 취소에 의한 재고 복구"));
         }
 
         @Test
@@ -645,7 +645,7 @@ class CancelPaymentUseCaseTest {
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
-                    .restore(anyList(), anyString());
+                    .restore(anyList(), anyLong(), anyString());
 
             cancelPaymentService.cancel(command);
 

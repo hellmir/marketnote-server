@@ -251,7 +251,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private void restoreInventory(Order order) {
         try {
             restoreProductInventoryUseCase.restore(
-                    order.getOrderProducts(), "주문 전액 취소에 의한 재고 복구"
+                    order.getOrderProducts(), order.getId(), "주문 전액 취소에 의한 재고 복구"
             );
         } catch (Exception e) {
             log.error("재고 복구 실패 - orderId: {}, error: {}",
@@ -273,7 +273,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                                     .build()
                     ))
                     .toList();
-            restoreProductInventoryUseCase.restore(cancelTargetProducts, "주문 부분 취소에 의한 재고 복구");
+            restoreProductInventoryUseCase.restore(cancelTargetProducts, order.getId(), "주문 부분 취소에 의한 재고 복구");
         } catch (Exception e) {
             log.error("부분 취소 재고 복구 실패 - orderId: {}, error: {}",
                     order.getId(), e.getMessage(), e);

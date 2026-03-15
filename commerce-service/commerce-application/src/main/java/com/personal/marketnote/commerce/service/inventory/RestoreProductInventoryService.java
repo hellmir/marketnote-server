@@ -1,16 +1,15 @@
 package com.personal.marketnote.commerce.service.inventory;
 
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
+import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistories;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
-import com.personal.marketnote.commerce.port.out.inventory.InventoryLockPort;
-import com.personal.marketnote.commerce.port.out.inventory.SaveCacheStockPort;
-import com.personal.marketnote.commerce.port.out.inventory.UpdateInventoryPort;
+import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,11 +23,12 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RestoreProductInventoryService implements RestoreProductInventoryUseCase {
     private final FindInventoryPort findInventoryPort;
     private final UpdateInventoryPort updateInventoryPort;
+    private final SaveInventoryRestorationHistoryPort saveInventoryRestorationHistoryPort;
     private final SaveCacheStockPort saveCacheStockPort;
     private final InventoryLockPort inventoryLockPort;
 
     @Override
-    public void restore(List<OrderProduct> orderProducts, String reason) {
+    public void restore(List<OrderProduct> orderProducts, Long orderId, String reason) {
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
                 .collect(
                         Collectors.groupingBy(
@@ -43,6 +43,15 @@ public class RestoreProductInventoryService implements RestoreProductInventoryUs
             ));
 
             updateInventoryPort.update(inventories);
+
+            Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
+            inventories.forEach(inventory ->
+                    productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
+            );
+            saveInventoryRestorationHistoryPort.save(
+                    InventoryRestorationHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
+            );
+
             saveCacheStockPort.save(inventories);
         });
     }
