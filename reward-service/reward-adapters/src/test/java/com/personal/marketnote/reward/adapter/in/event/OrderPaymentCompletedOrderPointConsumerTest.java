@@ -46,7 +46,7 @@ class OrderPaymentCompletedOrderPointConsumerTest {
             Long orderId, Long buyerId, Long pointAmount
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, pointAmount, List.of()
+                orderId, buyerId, 50000L, pointAmount, List.of(), null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.payment-completed", "commerce-service",

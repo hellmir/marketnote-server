@@ -54,7 +54,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
             Long orderId, Long buyerId, Long totalAmount, List<OrderProductItem> orderProducts
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, 0L, orderProducts
+                orderId, buyerId, totalAmount, 0L, orderProducts, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.payment-completed", "commerce-service",
