@@ -100,6 +100,71 @@ class PaymentApprovedOrderStatusConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentApprovedEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.approved", 0, 0L, "1", null
+        );
+
+        // when
+        consumer.handlePaymentApprovedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentApprovedEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        PaymentApprovedEvent event = new PaymentApprovedEvent(1L, "order-key-1", 50000L);
+        EventEnvelope<PaymentApprovedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 5, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.approved", 0, 0L, "1", envelope
+        );
+
+        // when
+        consumer.handlePaymentApprovedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentApprovedEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, "order-key-1", 50000L);
+
+        // when
+        consumer.handlePaymentApprovedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentApprovedEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, "order-key-1", 50000L);
+
+        // when
+        consumer.handlePaymentApprovedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("예상치 못한 예외 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
     void handlePaymentApprovedEvent_unexpectedException_propagatesForRetry() {
         // given

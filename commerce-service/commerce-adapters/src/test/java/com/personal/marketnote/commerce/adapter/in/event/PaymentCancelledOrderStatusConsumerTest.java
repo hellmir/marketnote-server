@@ -119,6 +119,74 @@ class PaymentCancelledOrderStatusConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.cancelled", 0, 0L, "1", null
+        );
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        PaymentCancelledEvent event = new PaymentCancelledEvent(
+                1L, "order-key-1", 100L, 50000L, 50000L, 1000L,
+                true, 0L, null, List.of(), null, null
+        );
+        EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 6, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.payment.cancelled", 0, 0L, "1", envelope
+        );
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, "order-key-1", true, 50000L);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handlePaymentCancelledEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, "order-key-1", true, 50000L);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(changeOrderStatusUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("예상치 못한 예외 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
     void handlePaymentCancelledEvent_unexpectedException_propagatesForRetry() {
         // given

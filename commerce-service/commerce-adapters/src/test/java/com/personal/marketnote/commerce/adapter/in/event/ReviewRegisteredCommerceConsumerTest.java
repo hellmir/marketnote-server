@@ -97,6 +97,99 @@ class ReviewRegisteredCommerceConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleReviewRegisteredEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "community.review.registered", 0, 0L, "key-1", null
+        );
+
+        // when
+        reviewRegisteredCommerceConsumer.handleReviewRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(updateOrderProductUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleReviewRegisteredEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        ReviewRegisteredEvent event = new ReviewRegisteredEvent(1L, 2L);
+        EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "community-service",
+                LocalDateTime.of(2026, 3, 2, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "community.review.registered", 0, 0L, "key-1", envelope
+        );
+
+        // when
+        reviewRegisteredCommerceConsumer.handleReviewRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(updateOrderProductUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleReviewRegisteredEvent_zeroOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 2L);
+
+        // when
+        reviewRegisteredCommerceConsumer.handleReviewRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(updateOrderProductUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleReviewRegisteredEvent_negativeOrderId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 2L);
+
+        // when
+        reviewRegisteredCommerceConsumer.handleReviewRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(updateOrderProductUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("pricePolicyId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleReviewRegisteredEvent_zeroPricePolicyId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L);
+
+        // when
+        reviewRegisteredCommerceConsumer.handleReviewRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(updateOrderProductUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("pricePolicyId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleReviewRegisteredEvent_negativePricePolicyId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L);
+
+        // when
+        reviewRegisteredCommerceConsumer.handleReviewRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(updateOrderProductUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("예상치 못한 예외 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
     void handleReviewRegisteredEvent_unexpectedException_propagatesForRetry() {
         // given

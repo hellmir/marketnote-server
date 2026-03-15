@@ -117,6 +117,99 @@ class UserReferralCompletedRewardConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserReferralCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "user.user.referral-completed", 0, 0L, "1", null
+        );
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserReferralCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        UserReferralCompletedEvent event = new UserReferralCompletedEvent(1L, 2L);
+        EventEnvelope<UserReferralCompletedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "user-service",
+                LocalDateTime.of(2026, 3, 2, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "user.user.referral-completed", 0, 0L, "key-1", envelope
+        );
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("requestUserId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserReferralCompletedEvent_zeroRequestUserId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 2L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("requestUserId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserReferralCompletedEvent_negativeRequestUserId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 2L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("referredUserId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserReferralCompletedEvent_zeroReferredUserId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("referredUserId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleUserReferralCompletedEvent_negativeReferredUserId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("추천인 포인트 적립 중 예외 발생 시 acknowledge하지 않고 예외를 전파한다")
     void handleUserReferralCompletedEvent_referrerAccrualFails_propagatesWithoutAcknowledge() {
         // given

@@ -108,6 +108,76 @@ class OrderPaymentCompletedCartConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 처리를 건너뛰고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.order.payment-completed", 0, 0L, "1", null
+        );
+        Acknowledgment acknowledgment = mock(Acknowledgment.class);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 처리를 건너뛰고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> items = createOrderProductItems();
+        OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
+                1L, 50L, 80000L, 5000L, items, null
+        );
+        EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "commerce-service",
+                LocalDateTime.of(2026, 3, 5, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "commerce.order.payment-completed", 0, 0L, "1", envelope
+        );
+        Acknowledgment acknowledgment = mock(Acknowledgment.class);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 0이면 처리를 건너뛰고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_zeroBuyerId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> items = createOrderProductItems();
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L, 80000L, 5000L, items);
+        Acknowledgment acknowledgment = mock(Acknowledgment.class);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("buyerId가 음수이면 처리를 건너뛰고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_negativeBuyerId_skipsAndAcknowledges() {
+        // given
+        List<OrderProductItem> items = createOrderProductItems();
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L, 80000L, 5000L, items);
+        Acknowledgment acknowledgment = mock(Acknowledgment.class);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("예상치 못한 예외 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
     void handleOrderPaymentCompletedEvent_unexpectedException_propagatesForRetry() {
         // given

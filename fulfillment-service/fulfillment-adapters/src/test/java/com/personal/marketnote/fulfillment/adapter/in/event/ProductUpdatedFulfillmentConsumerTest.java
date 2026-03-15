@@ -206,6 +206,77 @@ class ProductUpdatedFulfillmentConsumerTest {
     }
 
     @Test
+    @DisplayName("envelope이 null이면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleEvent_nullEnvelope_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "product.product.updated", 0, 0L, "1", null
+        );
+
+        // when
+        consumer.handleProductUpdatedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(requestFasstoAuthUseCase, updateFasstoGoodsUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
+    void handleEvent_eventTypeMismatch_skipsAndAcknowledges() {
+        // given
+        ProductUpdatedEvent event = new ProductUpdatedEvent(
+                1L, "테스트", "1", "01",
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null
+        );
+        EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "wrong.event.type", "product-service",
+                LocalDateTime.of(2026, 2, 27, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "product.product.updated", 0, 0L, "key-1", envelope
+        );
+
+        // when
+        consumer.handleProductUpdatedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(requestFasstoAuthUseCase, updateFasstoGoodsUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("productId가 0이면 상품 수정을 호출하지 않고 acknowledge한다")
+    void handleEvent_zeroProductId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, "테스트", "1", "01");
+
+        // when
+        consumer.handleProductUpdatedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(requestFasstoAuthUseCase, updateFasstoGoodsUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("productId가 음수이면 상품 수정을 호출하지 않고 acknowledge한다")
+    void handleEvent_negativeProductId_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, "테스트", "1", "01");
+
+        // when
+        consumer.handleProductUpdatedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(requestFasstoAuthUseCase, updateFasstoGoodsUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("예상치 못한 예외 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
     void handleEvent_unexpectedException_propagatesForRetry() {
         // given
