@@ -5,6 +5,9 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.port.in.command.point.ConfirmPendingPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.ConfirmPendingPointUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,6 +19,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OrderPurchaseConfirmedProductPointConsumer {
+    private static final String CONFIRM_REASON = "구매 확정 포인트 적립";
+
+    private final ConfirmPendingPointUseCase confirmPendingPointUseCase;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -27,6 +33,13 @@ public class OrderPurchaseConfirmedProductPointConsumer {
             Acknowledgment acknowledgment
     ) {
         EventEnvelope<?> envelope = record.value();
+
+        if (FormatValidator.hasNoValue(envelope)) {
+            log.error("이벤트 envelope이 null. topic={}, partition={}, offset={}",
+                    record.topic(), record.partition(), record.offset());
+            acknowledgment.acknowledge();
+            return;
+        }
 
         try {
             OrderPurchaseConfirmedEvent payload = envelope.getPayloadAs(
@@ -43,18 +56,9 @@ public class OrderPurchaseConfirmedProductPointConsumer {
                 return;
             }
 
-            // FIXME: [#929][#1135] HTTP 제거 후 ConfirmPendingPointUseCase 활성화
-            //  현재 듀얼 라이트 기간: ChangeOrderStatusService.confirmPendingPoints()가 HTTP로 처리 중
-            //  멱등성 보강 (#1217) 완료 후 아래 주석 해제:
-            //  ConfirmPendingPointCommand command = ConfirmPendingPointCommand.builder()
-            //          .userId(payload.buyerId())
-            //          .sourceType(UserPointSourceType.ORDER)
-            //          .sourceId(payload.orderId())
-            //          .reason("구매 확정 포인트 적립")
-            //          .build();
-            //  confirmPendingPointUseCase.confirmPending(command);
+            confirmPending(payload.buyerId(), payload.orderId());
 
-            log.info("상품 적립 예정 포인트 확정 이벤트 검증 완료 (듀얼 라이트). orderId={}, buyerId={}",
+            log.info("상품 적립 예정 포인트 확정 완료. orderId={}, buyerId={}",
                     payload.orderId(), payload.buyerId());
         } catch (Exception e) {
             log.error("상품 적립 예정 포인트 확정 이벤트 처리 실패. eventId={}, key={}, error={}",
@@ -63,5 +67,15 @@ public class OrderPurchaseConfirmedProductPointConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private void confirmPending(Long buyerId, Long orderId) {
+        ConfirmPendingPointCommand command = ConfirmPendingPointCommand.builder()
+                .userId(buyerId)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(orderId)
+                .reason(CONFIRM_REASON)
+                .build();
+        confirmPendingPointUseCase.confirmPending(command);
     }
 }
