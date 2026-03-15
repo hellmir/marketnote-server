@@ -405,8 +405,8 @@ class CancelPaymentUseCaseTest {
         }
 
         @Test
-        @DisplayName("부분 취소 성공 시 부분 환불 역분개가 기록된다")
-        void shouldRecordReverseLedgerEntryOnPartialCancel() {
+        @DisplayName("부분 취소 성공 시 cancelId 기반 멱등성 키로 역분개가 기록된다")
+        void shouldRecordReverseLedgerEntryOnPartialCancelWithCancelId() {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
@@ -420,13 +420,25 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                    eq(1L), eq(20000L), eq("PAYMENT_PARTIAL_REFUND:1:20000:0")
+                    eq(1L), eq(20000L), argThat(key -> {
+                        String prefix = "PAYMENT_PARTIAL_REFUND:1:";
+                        if (!key.startsWith(prefix)) {
+                            return false;
+                        }
+                        String cancelId = key.substring(prefix.length());
+                        try {
+                            UUID.fromString(cancelId);
+                            return true;
+                        } catch (IllegalArgumentException e) {
+                            return false;
+                        }
+                    })
             );
         }
 
         @Test
-        @DisplayName("이미 부분환불된 상태에서 추가 부분 취소 시 누적 환불액이 멱등성 키에 포함된다")
-        void shouldIncludeAccumulatedRefundInIdempotencyKey() {
+        @DisplayName("이미 부분환불된 상태에서 추가 부분 취소 시에도 cancelId 기반 멱등성 키가 사용된다")
+        void shouldUseCancelIdBasedKeyRegardlessOfPriorRefundHistory() {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             payment.markAsPartiallyRefunded(10000L);
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
@@ -441,7 +453,11 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                    eq(1L), eq(20000L), eq("PAYMENT_PARTIAL_REFUND:1:20000:10000")
+                    eq(1L), eq(20000L), argThat(key ->
+                            key.startsWith("PAYMENT_PARTIAL_REFUND:1:")
+                                    && !key.contains("10000")
+                                    && !key.contains("20000")
+                    )
             );
         }
 
