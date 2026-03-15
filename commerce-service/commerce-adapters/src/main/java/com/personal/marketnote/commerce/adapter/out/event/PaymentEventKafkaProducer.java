@@ -73,6 +73,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
     public void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
                                              Long cancelAmount, Long paymentAmount, Long pointAmount,
                                              boolean isFullCancel, Long alreadyRefunded,
+                                             String cancelId,
                                              List<OrderProduct> orderProducts,
                                              List<OrderProduct> cancelProducts,
                                              Long partialProductPendingDeduction) {
@@ -98,7 +99,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
 
         PaymentCancelledEvent payload = new PaymentCancelledEvent(
                 orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, isFullCancel, alreadyRefunded, items, cancelItems,
+                pointAmount, isFullCancel, alreadyRefunded, cancelId, items, cancelItems,
                 partialProductPendingDeduction
         );
         String topic = KafkaTopicConstants.PAYMENT_CANCELLED;

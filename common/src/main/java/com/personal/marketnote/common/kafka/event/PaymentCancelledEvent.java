@@ -11,6 +11,7 @@ public record PaymentCancelledEvent(
         Long pointAmount,
         boolean isFullCancel,
         Long alreadyRefunded,
+        String cancelId,
         List<OrderProductItem> orderProducts,
         List<OrderProductItem> cancelProducts,
         Long partialProductPendingDeduction

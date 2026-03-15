@@ -131,7 +131,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                     order, payment.getPaymentAmount(), cancelAmount));
         }
 
-        recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, alreadyRefunded);
+        String cancelId = isFullCancel ? null : UUID.randomUUID().toString();
+        recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, cancelId);
 
         Long orderId = order.getId();
         String orderKey = command.orderKey();
@@ -143,7 +144,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         Long finalPartialProductPendingDeduction = partialProductPendingDeduction;
         runAfterCommit(() -> publishPaymentCancelledEvent(
                 orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelTargetProducts,
+                pointAmount, isFullCancel, alreadyRefunded, cancelId, orderProducts, cancelTargetProducts,
                 finalPartialProductPendingDeduction));
     }
 
@@ -218,7 +219,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private void recordLedgerEntryForCancellation(
-            Payment payment, boolean isFullCancel, Long cancelAmount, Long alreadyRefunded
+            Payment payment, boolean isFullCancel, Long cancelAmount, String cancelId
     ) {
         try {
             String idempotencyKey;
@@ -226,7 +227,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 idempotencyKey = "PAYMENT_CANCELLATION:" + payment.getOrderId();
             } else {
                 idempotencyKey = "PAYMENT_PARTIAL_REFUND:" + payment.getOrderId()
-                        + ":" + cancelAmount + ":" + alreadyRefunded;
+                        + ":" + cancelId;
             }
             recordLedgerEntryUseCase.recordPaymentCancellation(
                     payment.getOrderId(), cancelAmount, idempotencyKey
@@ -453,13 +454,14 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
                                                 Long cancelAmount, Long paymentAmount, Long pointAmount,
                                                 boolean isFullCancel, Long alreadyRefunded,
+                                                String cancelId,
                                                 List<OrderProduct> orderProducts,
                                                 List<OrderProduct> cancelProducts,
                                                 Long partialProductPendingDeduction) {
         try {
             publishPaymentEventPort.publishPaymentCancelledEvent(
                     orderId, orderKey, buyerId, cancelAmount, paymentAmount,
-                    pointAmount, isFullCancel, alreadyRefunded, orderProducts, cancelProducts,
+                    pointAmount, isFullCancel, alreadyRefunded, cancelId, orderProducts, cancelProducts,
                     partialProductPendingDeduction);
         } catch (Exception e) {
             log.error("결제 취소 이벤트 발행 실패 - orderId: {}, orderKey: {}, error: {}",

@@ -36,7 +36,7 @@ class PaymentCancelledPendingProductPointConsumerTest {
                                                                   boolean isFullCancel) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 orderId, "order-key-1", buyerId, 50000L, 80000L, 1000L,
-                isFullCancel, 0L, List.of(), null, null
+                isFullCancel, 0L, null, List.of(), null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.payment.cancelled", "commerce-service",

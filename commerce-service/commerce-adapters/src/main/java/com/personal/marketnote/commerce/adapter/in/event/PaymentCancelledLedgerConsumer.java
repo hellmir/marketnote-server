@@ -48,7 +48,7 @@ public class PaymentCancelledLedgerConsumer {
             //      idempotencyKey = "PAYMENT_CANCELLATION:" + payload.orderId();
             //  } else {
             //      idempotencyKey = "PAYMENT_PARTIAL_REFUND:" + payload.orderId()
-            //              + ":" + payload.cancelAmount() + ":" + payload.alreadyRefunded();
+            //              + ":" + payload.cancelId();
             //  }
             //  recordLedgerEntryUseCase.recordPaymentCancellation(
             //          payload.orderId(), payload.cancelAmount(), idempotencyKey

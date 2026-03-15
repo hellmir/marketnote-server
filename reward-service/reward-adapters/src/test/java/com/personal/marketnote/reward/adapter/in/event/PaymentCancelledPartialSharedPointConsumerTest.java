@@ -55,7 +55,7 @@ class PaymentCancelledPartialSharedPointConsumerTest {
                                                                   List<OrderProductItem> orderProducts) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 orderId, "order-key-1", 100L, cancelAmount, paymentAmount, 1000L,
-                isFullCancel, 0L, orderProducts, null, null
+                isFullCancel, 0L, null, orderProducts, null, null
         );
         EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.payment.cancelled", "commerce-service",
