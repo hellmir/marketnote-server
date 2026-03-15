@@ -11,15 +11,22 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 @ConditionalOnProperty(prefix = "spring.kafka", name = "bootstrap-servers")
+@EnableConfigurationProperties(KafkaSaslProperties.class)
+@RequiredArgsConstructor
 public class KafkaProducerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
+
+    private final KafkaSaslProperties kafkaSaslProperties;
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
@@ -30,6 +37,7 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.ACKS_CONFIG, "all");
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        kafkaSaslProperties.applyTo(props);
         return new DefaultKafkaProducerFactory<>(props);
     }
 
