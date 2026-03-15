@@ -3,6 +3,7 @@ package com.personal.marketnote.product.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,16 @@ public class OrderPaymentCompletedCartConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.ORDER_PAYMENT_COMPLETED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
                     OrderPaymentCompletedEvent.class, objectMapper
@@ -39,8 +50,8 @@ public class OrderPaymentCompletedCartConsumer {
                     envelope.eventId(), payload.orderId(), payload.buyerId(),
                     FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0);
 
-            if (FormatValidator.hasNoValue(payload.buyerId())) {
-                log.error("유효하지 않은 이벤트 페이로드: buyerId 누락. eventId={}", envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

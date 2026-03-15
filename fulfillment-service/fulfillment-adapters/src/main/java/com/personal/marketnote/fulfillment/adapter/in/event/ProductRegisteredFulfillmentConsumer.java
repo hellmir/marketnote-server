@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
@@ -44,15 +45,31 @@ public class ProductRegisteredFulfillmentConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_REGISTERED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             ProductRegisteredEvent payload = envelope.getPayloadAs(ProductRegisteredEvent.class, objectMapper);
 
             log.info("상품 등록 이벤트 수신 (풀필먼트). eventId={}, productId={}",
                     envelope.eventId(), payload.productId());
 
-            if (FormatValidator.hasNoValue(payload.productId()) || FormatValidator.hasNoValue(payload.productName())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, productId={}, productName={}",
-                        envelope.eventId(), payload.productId(), payload.productName());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("productId", payload.productId()))) {
+                acknowledgment.acknowledge();
+                return;
+            }
+
+            if (FormatValidator.hasNoValue(payload.productName())) {
+                log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}",
+                        envelope.eventId(), payload.productName());
                 acknowledgment.acknowledge();
                 return;
             }

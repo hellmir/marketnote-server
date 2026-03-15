@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
@@ -36,9 +37,12 @@ public class OrderPurchaseConfirmedSharedPointConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
-        if (FormatValidator.hasNoValue(envelope)) {
-            log.error("이벤트 envelope이 null. topic={}, partition={}, offset={}",
-                    record.topic(), record.partition(), record.offset());
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED)) {
             acknowledgment.acknowledge();
             return;
         }
@@ -51,9 +55,8 @@ public class OrderPurchaseConfirmedSharedPointConsumer {
             log.info("구매 확정 이벤트 수신 (공유 적립 예정 포인트 확정). eventId={}, orderId={}, sharerIds={}",
                     envelope.eventId(), payload.orderId(), payload.sharerIds());
 
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId=null",
-                        envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

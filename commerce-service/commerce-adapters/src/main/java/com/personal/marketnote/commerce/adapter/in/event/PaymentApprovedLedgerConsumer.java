@@ -3,8 +3,8 @@ package com.personal.marketnote.commerce.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentApprovedEvent;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -28,15 +28,24 @@ public class PaymentApprovedLedgerConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PAYMENT_APPROVED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             PaymentApprovedEvent payload = envelope.getPayloadAs(PaymentApprovedEvent.class, objectMapper);
 
             log.info("결제 승인 이벤트 수신 (회계 분개). eventId={}, orderId={}, orderKey={}, paymentAmount={}",
                     envelope.eventId(), payload.orderId(), payload.orderKey(), payload.paymentAmount());
 
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId=null",
-                        envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

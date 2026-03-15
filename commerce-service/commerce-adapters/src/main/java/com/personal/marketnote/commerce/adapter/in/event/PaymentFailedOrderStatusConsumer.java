@@ -7,8 +7,8 @@ import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusC
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentFailedEvent;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -33,15 +33,24 @@ public class PaymentFailedOrderStatusConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PAYMENT_FAILED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             PaymentFailedEvent payload = envelope.getPayloadAs(PaymentFailedEvent.class, objectMapper);
 
             log.info("결제 실패 이벤트 수신. eventId={}, orderId={}, orderKey={}, resultCode={}",
                     envelope.eventId(), payload.orderId(), payload.orderKey(), payload.resultCode());
 
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId=null",
-                        envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }

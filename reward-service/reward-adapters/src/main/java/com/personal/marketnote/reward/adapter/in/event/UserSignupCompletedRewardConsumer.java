@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.UserSignupCompletedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.exception.DuplicateUserPointException;
@@ -32,15 +33,31 @@ public class UserSignupCompletedRewardConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.USER_SIGNUP_COMPLETED)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
         try {
             UserSignupCompletedEvent payload = envelope.getPayloadAs(UserSignupCompletedEvent.class, objectMapper);
 
             log.info("회원가입 완료 이벤트 수신. eventId={}, userId={}, userKey={}",
                     envelope.eventId(), payload.userId(), payload.userKey());
 
-            if (FormatValidator.hasNoValue(payload.userId()) || FormatValidator.hasNoValue(payload.userKey())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, userId={}, userKey={}",
-                        envelope.eventId(), payload.userId(), payload.userKey());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("userId", payload.userId()))) {
+                acknowledgment.acknowledge();
+                return;
+            }
+
+            if (FormatValidator.hasNoValue(payload.userKey())) {
+                log.error("유효하지 않은 이벤트 페이로드. eventId={}, userKey=null",
+                        envelope.eventId());
                 acknowledgment.acknowledge();
                 return;
             }

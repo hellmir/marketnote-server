@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
@@ -36,9 +37,12 @@ public class PaymentCancelledPointRefundConsumer {
     ) {
         EventEnvelope<?> envelope = record.value();
 
-        if (FormatValidator.hasNoValue(envelope)) {
-            log.error("이벤트 envelope이 null. topic={}, partition={}, offset={}",
-                    record.topic(), record.partition(), record.offset());
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PAYMENT_CANCELLED)) {
             acknowledgment.acknowledge();
             return;
         }
@@ -51,9 +55,8 @@ public class PaymentCancelledPointRefundConsumer {
             log.info("결제 취소 이벤트 수신 (포인트 환불). eventId={}, orderId={}, buyerId={}, pointAmount={}, isFullCancel={}",
                     envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullCancel());
 
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId=null",
-                        envelope.eventId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("orderId", payload.orderId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -64,9 +67,8 @@ public class PaymentCancelledPointRefundConsumer {
                 return;
             }
 
-            if (FormatValidator.hasNoValue(payload.buyerId())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, orderId={}, buyerId=null",
-                        envelope.eventId(), payload.orderId());
+            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                    EventPayloadValidator.id("buyerId", payload.buyerId()))) {
                 acknowledgment.acknowledge();
                 return;
             }
