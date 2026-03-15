@@ -6,6 +6,11 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPointChangeType;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
+import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingPointUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,6 +26,9 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class PaymentCancelledPartialSharedPointConsumer {
+    private static final String PARTIAL_SHARED_DEDUCTION_REASON = "부분 결제 취소 공유 적립 예정 포인트 차감";
+
+    private final ModifyPendingPointUseCase modifyPendingPointUseCase;
     private final ObjectMapper objectMapper;
 
     @Value("${reward.share-point-rate:0.1}")
@@ -81,22 +89,11 @@ public class PaymentCancelledPartialSharedPointConsumer {
                 return;
             }
 
-            // FIXME: [#929][#1179] HTTP 제거 후 ModifyPendingPointUseCase 활성화
-            //  현재 듀얼 라이트 기간: CancelPaymentService.reducePartialPendingSharedPurchasePoints()에서 HTTP로 처리 중
-            //  아래 주석 해제 시 활성화:
-            //  for (Long sharerId : sharerIds) {
-            //      ModifyPendingPointCommand command = ModifyPendingPointCommand.builder()
-            //              .userId(sharerId)
-            //              .changeType(UserPointChangeType.DEDUCTION)
-            //              .amount(proportionalPoint)
-            //              .sourceType(UserPointSourceType.ORDER)
-            //              .sourceId(payload.orderId())
-            //              .reason("부분 결제 취소 공유 적립 예정 포인트 차감")
-            //              .build();
-            //      modifyPendingPointUseCase.modifyPending(command);
-            //  }
+            for (Long sharerId : sharerIds) {
+                modifyPendingPointIdempotent(envelope.eventId(), sharerId, proportionalPoint, payload.orderId());
+            }
 
-            log.info("부분 공유 적립 예정 포인트 차감 이벤트 검증 완료 (듀얼 라이트). orderId={}, sharerIds={}, proportionalPoint={}",
+            log.info("부분 공유 적립 예정 포인트 차감 완료. orderId={}, sharerIds={}, proportionalPoint={}",
                     payload.orderId(), sharerIds, proportionalPoint);
         } catch (Exception e) {
             log.error("부분 공유 적립 예정 포인트 차감 이벤트 처리 실패. eventId={}, key={}, error={}",
@@ -105,6 +102,23 @@ public class PaymentCancelledPartialSharedPointConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private void modifyPendingPointIdempotent(String eventId, Long sharerId, Long proportionalPoint, Long orderId) {
+        try {
+            ModifyPendingPointCommand command = ModifyPendingPointCommand.builder()
+                    .userId(sharerId)
+                    .changeType(UserPointChangeType.DEDUCTION)
+                    .amount(proportionalPoint)
+                    .sourceType(UserPointSourceType.ORDER)
+                    .sourceId(orderId)
+                    .reason(PARTIAL_SHARED_DEDUCTION_REASON)
+                    .build();
+            modifyPendingPointUseCase.modifyPending(command);
+        } catch (DuplicateUserPointHistoryException e) {
+            log.info("이미 처리된 부분 공유 적립 예정 포인트 차감 이벤트 (멱등 처리). eventId={}, sharerId={}, message={}",
+                    eventId, sharerId, e.getMessage());
+        }
     }
 
     private List<Long> extractSharerIds(List<OrderProductItem> orderProducts) {
@@ -122,6 +136,11 @@ public class PaymentCancelledPartialSharedPointConsumer {
     private Long calculateProportionalSharedPoint(Long paymentAmount, Long cancelAmount) {
         if (FormatValidator.hasNoValue(paymentAmount) || paymentAmount <= 0
                 || FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0) {
+            return null;
+        }
+
+        if (cancelAmount > paymentAmount) {
+            log.error("취소 금액이 결제 금액을 초과. cancelAmount={}, paymentAmount={}", cancelAmount, paymentAmount);
             return null;
         }
 
