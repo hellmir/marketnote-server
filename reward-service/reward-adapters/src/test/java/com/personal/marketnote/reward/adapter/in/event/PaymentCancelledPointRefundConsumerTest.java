@@ -3,10 +3,16 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
+import com.personal.marketnote.reward.domain.point.UserPointChangeType;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
+import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -16,15 +22,19 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentCancelledPointRefundConsumer 테스트")
 class PaymentCancelledPointRefundConsumerTest {
     @InjectMocks
     private PaymentCancelledPointRefundConsumer consumer;
+
+    @Mock
+    private ModifyUserPointUseCase modifyUserPointUseCase;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -46,8 +56,8 @@ class PaymentCancelledPointRefundConsumerTest {
     }
 
     @Test
-    @DisplayName("전체 취소 이벤트 수신 시 포인트 환불 검증 후 acknowledge한다")
-    void handlePaymentCancelledEvent_fullCancel_validatesAndAcknowledges() {
+    @DisplayName("전체 취소 이벤트 수신 시 포인트를 환불하고 acknowledge한다")
+    void handlePaymentCancelledEvent_fullCancel_refundsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, true);
 
@@ -55,6 +65,16 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        ArgumentCaptor<ModifyUserPointCommand> captor = ArgumentCaptor.forClass(ModifyUserPointCommand.class);
+        verify(modifyUserPointUseCase).modify(captor.capture());
+        ModifyUserPointCommand command = captor.getValue();
+
+        assertThat(command.userId()).isEqualTo(100L);
+        assertThat(command.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
+        assertThat(command.amount()).isEqualTo(1000L);
+        assertThat(command.sourceType()).isEqualTo(UserPointSourceType.ORDER);
+        assertThat(command.sourceId()).isEqualTo(1L);
+        assertThat(command.reason()).isEqualTo("주문 취소 포인트 환불");
         verify(acknowledgment).acknowledge();
     }
 
@@ -68,6 +88,7 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(modifyUserPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -81,6 +102,7 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(modifyUserPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -94,6 +116,7 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(modifyUserPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -107,6 +130,7 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(modifyUserPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -120,6 +144,7 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(modifyUserPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -133,6 +158,7 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(modifyUserPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -148,7 +174,41 @@ class PaymentCancelledPointRefundConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(modifyUserPointUseCase);
         verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("중복 이벤트 수신 시 DuplicateUserPointHistoryException이 발생하면 멱등 처리하고 acknowledge한다")
+    void handlePaymentCancelledEvent_duplicateEvent_idempotentAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, true);
+        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "주문 취소 포인트 환불"))
+                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("UseCase에서 예상치 못한 예외 발생 시 acknowledge하지 않고 예외를 전파한다")
+    void handlePaymentCancelledEvent_useCaseUnexpectedException_propagatesWithoutAcknowledge() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, true);
+        doThrow(new RuntimeException("DB 연결 실패"))
+                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+
+        // when & then
+        assertThatThrownBy(() -> consumer.handlePaymentCancelledEvent(record, acknowledgment))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("DB 연결 실패");
+
+        verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
