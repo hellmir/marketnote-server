@@ -3,7 +3,7 @@ global:
 
 route:
   receiver: 'slack-notifications'
-  group_by: ['alertname', 'kafka_consumer_group_id']
+  group_by: [ 'alertname', 'kafka_consumer_group_id', 'broker' ]
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 1h
@@ -36,6 +36,7 @@ receivers:
           {{ range .Alerts }}
           *Alert:* {{ .Annotations.summary }}
           *Description:* {{ .Annotations.description }}
+          *Broker:* {{ .Labels.broker }}
           *Consumer Group:* {{ .Labels.kafka_consumer_group_id }}
           *Topic:* {{ .Labels.topic }}
           {{ end }}
