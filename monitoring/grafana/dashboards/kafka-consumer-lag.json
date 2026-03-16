@@ -16,12 +16,30 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "links": [],
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "overview"
+      ],
+      "targetBlank": true,
+      "title": "Kafka Overview Dashboard",
+      "type": "dashboards"
+    }
+  ],
   "panels": [
     {
       "title": "Consumer Group별 총 Lag",
       "type": "stat",
-      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "datasource": "Prometheus",
       "targets": [
         {
@@ -34,9 +52,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 100 },
-              { "color": "red", "value": 1000 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
             ]
           },
           "mappings": [],
@@ -45,7 +72,9 @@
       },
       "options": {
         "reduceOptions": {
-          "calcs": ["lastNotNull"]
+          "calcs": [
+            "lastNotNull"
+          ]
         },
         "colorMode": "background",
         "graphMode": "area",
@@ -56,7 +85,12 @@
     {
       "title": "Consumer Group별 Lag 추이",
       "type": "timeseries",
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 5 },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
       "datasource": "Prometheus",
       "targets": [
         {
@@ -77,23 +111,47 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 100 },
-              { "color": "red", "value": 1000 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
             ]
           },
           "unit": "short"
         }
       },
       "options": {
-        "tooltip": { "mode": "multi", "sort": "desc" },
-        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"] }
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        }
       }
     },
     {
       "title": "토픽별 Lag 상세",
       "type": "timeseries",
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 5 },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
       "datasource": "Prometheus",
       "targets": [
         {
@@ -114,14 +172,29 @@
         }
       },
       "options": {
-        "tooltip": { "mode": "multi", "sort": "desc" },
-        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"] }
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        }
       }
     },
     {
       "title": "초당 메시지 소비량 (처리량)",
       "type": "timeseries",
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 15 },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 15
+      },
       "datasource": "Prometheus",
       "targets": [
         {
@@ -143,14 +216,30 @@
         }
       },
       "options": {
-        "tooltip": { "mode": "multi", "sort": "desc" },
-        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "mean", "max"] }
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        }
       }
     },
     {
       "title": "Consumer Group 상태 요약",
       "type": "table",
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 15 },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
       "datasource": "Prometheus",
       "targets": [
         {
@@ -172,27 +261,47 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Lag" },
+            "matcher": {
+              "id": "byName",
+              "options": "Lag"
+            },
             "properties": [
               {
                 "id": "thresholds",
                 "value": {
                   "mode": "absolute",
                   "steps": [
-                    { "color": "green", "value": null },
-                    { "color": "yellow", "value": 100 },
-                    { "color": "red", "value": 1000 }
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 100
+                    },
+                    {
+                      "color": "red",
+                      "value": 1000
+                    }
                   ]
                 }
               },
-              { "id": "custom.displayMode", "value": "color-background" }
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              }
             ]
           }
         ]
       },
       "options": {
         "showHeader": true,
-        "sortBy": [{ "displayName": "Lag", "desc": true }]
+        "sortBy": [
+          {
+            "displayName": "Lag",
+            "desc": true
+          }
+        ]
       },
       "transformations": [
         {
@@ -204,7 +313,12 @@
     {
       "title": "서비스별 총 Lag",
       "type": "piechart",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 25 },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 25
+      },
       "datasource": "Prometheus",
       "targets": [
         {
@@ -213,15 +327,28 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull"] },
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
         "pieType": "donut",
-        "tooltip": { "mode": "single" }
+        "tooltip": {
+          "mode": "single"
+        }
       }
     },
     {
       "title": "Lag 임계값 알림 상태",
       "type": "state-timeline",
-      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 25 },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 25
+      },
       "datasource": "Prometheus",
       "targets": [
         {
@@ -234,9 +361,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 100 },
-              { "color": "red", "value": 1000 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
             ]
           },
           "custom": {
@@ -254,12 +390,20 @@
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["kafka", "consumer-lag", "monitoring"],
+  "tags": [
+    "kafka",
+    "consumer-lag",
+    "monitoring"
+  ],
   "templating": {
     "list": [
       {
         "allValue": ".*",
-        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": "Prometheus",
         "definition": "label_values(kafka_consumer_fetch_manager_records_lag, kafka_consumer_group_id)",
         "includeAll": true,
@@ -271,7 +415,10 @@
       }
     ]
   },
-  "time": { "from": "now-3h", "to": "now" },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "Asia/Seoul",
   "title": "Kafka Consumer Lag Monitor",

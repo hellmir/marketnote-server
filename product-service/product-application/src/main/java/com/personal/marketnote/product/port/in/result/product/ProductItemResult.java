@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
@@ -39,7 +40,7 @@ public class ProductItemResult {
                 .brandName(product.getBrandName())
                 .pricePolicy(GetProductPricePolicyResult.from(product.getDefaultPricePolicy()))
                 .sales(product.getSales())
-                .productTags(product.getProductTags())
+                .productTags(getTopOrderedTags(product.getProductTags()))
                 .status(product.getStatus().name())
                 .orderNum(product.getOrderNum())
                 .build();
@@ -56,7 +57,7 @@ public class ProductItemResult {
                 .brandName(product.getBrandName())
                 .pricePolicy(GetProductPricePolicyResult.from(pricePolicy))
                 .sales(product.getSales())
-                .productTags(product.getProductTags())
+                .productTags(getTopOrderedTags(product.getProductTags()))
                 .status(product.getStatus().name())
                 .orderNum(product.getOrderNum())
                 .build();
@@ -74,7 +75,7 @@ public class ProductItemResult {
                 .brandName(product.getBrandName())
                 .pricePolicy(GetProductPricePolicyResult.from(pricePolicy))
                 .sales(product.getSales())
-                .productTags(product.getProductTags())
+                .productTags(getTopOrderedTags(product.getProductTags()))
                 .selectedOptions(selectedOptions.stream()
                         .map(ProductOptionItemResult::from)
                         .toList())
@@ -131,5 +132,14 @@ public class ProductItemResult {
 
     public Long getPricePolicyId() {
         return pricePolicy.id();
+    }
+
+    private static final int MAX_DISPLAY_TAGS = 2;
+
+    private static List<ProductTag> getTopOrderedTags(List<ProductTag> productTags) {
+        return productTags.stream()
+                .sorted(Comparator.comparingLong(ProductTag::getOrderNum))
+                .limit(MAX_DISPLAY_TAGS)
+                .toList();
     }
 }
