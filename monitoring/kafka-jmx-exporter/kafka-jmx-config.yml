@@ -1,0 +1,151 @@
+---
+# Prometheus JMX Exporter Configuration for Kafka Broker
+# Agent: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-1.3.0.jar=7071:/opt/kafka/config/jmx-exporter-config.yml
+
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+
+rules:
+  # ===== Broker Health =====
+
+  # Under-replicated partitions (0 = healthy)
+  - pattern: kafka.server<type=ReplicaManager, name=UnderReplicatedPartitions><>Value
+    name: kafka_server_replicamanager_underreplicatedpartitions
+    type: GAUGE
+
+  # Partition count per broker
+  - pattern: kafka.server<type=ReplicaManager, name=PartitionCount><>Value
+    name: kafka_server_replicamanager_partitioncount
+    type: GAUGE
+
+  # Leader count per broker
+  - pattern: kafka.server<type=ReplicaManager, name=LeaderCount><>Value
+    name: kafka_server_replicamanager_leadercount
+    type: GAUGE
+
+  # ISR shrink/expand rate
+  - pattern: kafka.server<type=ReplicaManager, name=IsrShrinksPerSec><>Count
+    name: kafka_server_replicamanager_isrshrinkspersec_count
+    type: COUNTER
+
+  - pattern: kafka.server<type=ReplicaManager, name=IsrExpandsPerSec><>Count
+    name: kafka_server_replicamanager_isrexpandspersec_count
+    type: COUNTER
+
+  # ===== Controller =====
+
+  # Active controller count (exactly 1 = healthy)
+  - pattern: kafka.controller<type=KafkaController, name=ActiveControllerCount><>Value
+    name: kafka_controller_kafkacontroller_activecontrollercount
+    type: GAUGE
+
+  # Offline partitions (0 = healthy)
+  - pattern: kafka.controller<type=KafkaController, name=OfflinePartitionsCount><>Value
+    name: kafka_controller_kafkacontroller_offlinepartitionscount
+    type: GAUGE
+
+  # ===== Topic Metrics =====
+
+  # Messages in per second (by topic)
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=MessagesInPerSec, topic=(.+)><>OneMinuteRate
+    name: kafka_server_brokertopicmetrics_messagesinpersec_oneminuterate
+    type: GAUGE
+    labels:
+      topic: "$1"
+
+  # Total messages in per second (all topics)
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=MessagesInPerSec><>OneMinuteRate
+    name: kafka_server_brokertopicmetrics_messagesinpersec_total_oneminuterate
+    type: GAUGE
+
+  # Bytes in per second (by topic)
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=BytesInPerSec, topic=(.+)><>OneMinuteRate
+    name: kafka_server_brokertopicmetrics_bytesinpersec_oneminuterate
+    type: GAUGE
+    labels:
+      topic: "$1"
+
+  # Bytes out per second (by topic)
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=BytesOutPerSec, topic=(.+)><>OneMinuteRate
+    name: kafka_server_brokertopicmetrics_bytesoutpersec_oneminuterate
+    type: GAUGE
+    labels:
+      topic: "$1"
+
+  # Total bytes in/out per second (all topics)
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=BytesInPerSec><>OneMinuteRate
+    name: kafka_server_brokertopicmetrics_bytesinpersec_total_oneminuterate
+    type: GAUGE
+
+  - pattern: kafka.server<type=BrokerTopicMetrics, name=BytesOutPerSec><>OneMinuteRate
+    name: kafka_server_brokertopicmetrics_bytesoutpersec_total_oneminuterate
+    type: GAUGE
+
+  # ===== Request Metrics =====
+
+  # Produce request rate
+  - pattern: kafka.network<type=RequestMetrics, name=RequestsPerSec, request=Produce, version=(.+)><>OneMinuteRate
+    name: kafka_network_requestmetrics_requestspersec_produce_oneminuterate
+    type: GAUGE
+
+  # Produce total time (ms)
+  - pattern: kafka.network<type=RequestMetrics, name=TotalTimeMs, request=Produce><>Mean
+    name: kafka_network_requestmetrics_totaltimems_produce_mean
+    type: GAUGE
+
+  - pattern: kafka.network<type=RequestMetrics, name=TotalTimeMs, request=Produce><>99thPercentile
+    name: kafka_network_requestmetrics_totaltimems_produce_p99
+    type: GAUGE
+
+  # Fetch request rate
+  - pattern: kafka.network<type=RequestMetrics, name=RequestsPerSec, request=FetchConsumer, version=(.+)><>OneMinuteRate
+    name: kafka_network_requestmetrics_requestspersec_fetchconsumer_oneminuterate
+    type: GAUGE
+
+  # Fetch total time (ms)
+  - pattern: kafka.network<type=RequestMetrics, name=TotalTimeMs, request=FetchConsumer><>Mean
+    name: kafka_network_requestmetrics_totaltimems_fetchconsumer_mean
+    type: GAUGE
+
+  # ===== Log Metrics =====
+
+  # Log flush rate and time
+  - pattern: kafka.log<type=LogFlushStats, name=LogFlushRateAndTimeMs><>Count
+    name: kafka_log_logflushstats_logflushratems_count
+    type: COUNTER
+
+  - pattern: kafka.log<type=LogFlushStats, name=LogFlushRateAndTimeMs><>Mean
+    name: kafka_log_logflushstats_logflushratems_mean
+    type: GAUGE
+
+  # Log size per topic
+  - pattern: kafka.log<type=Log, name=Size, topic=(.+), partition=(.+)><>Value
+    name: kafka_log_log_size
+    type: GAUGE
+    labels:
+      topic: "$1"
+      partition: "$2"
+
+  # ===== JVM Metrics =====
+
+  # JVM memory
+  - pattern: java.lang<type=Memory><HeapMemoryUsage>used
+    name: kafka_jvm_heap_memory_used
+    type: GAUGE
+
+  - pattern: java.lang<type=Memory><HeapMemoryUsage>max
+    name: kafka_jvm_heap_memory_max
+    type: GAUGE
+
+  # JVM GC
+  - pattern: java.lang<type=GarbageCollector, name=(.+)><>CollectionCount
+    name: kafka_jvm_gc_collection_count
+    type: COUNTER
+    labels:
+      gc: "$1"
+
+  - pattern: java.lang<type=GarbageCollector, name=(.+)><>CollectionTime
+    name: kafka_jvm_gc_collection_time_ms
+    type: COUNTER
+    labels:
+      gc: "$1"
