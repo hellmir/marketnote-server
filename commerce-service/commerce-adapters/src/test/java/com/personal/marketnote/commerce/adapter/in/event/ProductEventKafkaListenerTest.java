@@ -20,6 +20,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -207,6 +208,23 @@ class ProductEventKafkaListenerTest {
         // then
         verify(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
         verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("예상치 못한 예외 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
+    void handleProductRegisteredEvent_unexpectedException_propagatesForRetry() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L, 3L);
+        doThrow(new RuntimeException("네트워크 오류"))
+                .when(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
+
+        // when & then
+        assertThatThrownBy(() -> productEventKafkaListener.handleProductRegisteredEvent(record, acknowledgment))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("네트워크 오류");
+
+        verify(registerInventoryUseCase).registerInventory(any(RegisterInventoryCommand.class));
+        verify(acknowledgment, never()).acknowledge();
     }
 
 }
