@@ -5,6 +5,7 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
+import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.FasstoGoodsAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.RegisterFasstoGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsCommand;
@@ -160,18 +161,18 @@ class ProductRegisteredFulfillmentConsumerTest {
     }
 
     @Test
-    @DisplayName("Fassto 액세스 토큰이 null이면 상품 등록을 호출하지 않고 acknowledge한다")
-    void handleEvent_nullAccessToken_skipsAndAcknowledges() {
+    @DisplayName("Fassto 액세스 토큰이 null이면 FasstoAccessTokenIssuanceFailedException을 던진다")
+    void handleEvent_nullAccessToken_throwsException() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
         when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(null);
 
-        // when
-        consumer.handleProductRegisteredEvent(record, acknowledgment);
+        // when & then
+        assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
+                .isInstanceOf(FasstoAccessTokenIssuanceFailedException.class);
 
-        // then
         verifyNoInteractions(registerFasstoGoodsUseCase);
-        verify(acknowledgment).acknowledge();
+        verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
