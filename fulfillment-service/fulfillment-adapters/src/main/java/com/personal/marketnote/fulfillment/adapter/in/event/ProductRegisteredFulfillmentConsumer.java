@@ -8,6 +8,7 @@ import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
+import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.FasstoGoodsAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.RegisterFasstoGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsCommand;
@@ -76,10 +77,7 @@ public class ProductRegisteredFulfillmentConsumer {
 
             FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
             if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-                log.error("Fassto 액세스 토큰 발급 실패. eventId={}, productId={}",
-                        envelope.eventId(), payload.productId());
-                acknowledgment.acknowledge();
-                return;
+                throw new FasstoAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
             }
 
             String godType = FormatValidator.hasValue(payload.godType()) ? payload.godType() : DEFAULT_GOD_TYPE;

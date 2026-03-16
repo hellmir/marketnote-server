@@ -8,6 +8,7 @@ import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
+import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.UpdateFasstoGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFasstoGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFasstoGoodsItemCommand;
@@ -72,10 +73,7 @@ public class ProductUpdatedFulfillmentConsumer {
 
             FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
             if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-                log.error("Fassto 액세스 토큰 발급 실패. eventId={}, productId={}",
-                        envelope.eventId(), payload.productId());
-                acknowledgment.acknowledge();
-                return;
+                throw new FasstoAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
             }
 
             UpdateFasstoGoodsItemCommand itemCommand = UpdateFasstoGoodsItemCommand.of(
