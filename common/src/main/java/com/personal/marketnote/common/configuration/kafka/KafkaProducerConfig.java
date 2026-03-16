@@ -1,18 +1,22 @@
 package com.personal.marketnote.common.configuration.kafka;
 
+import com.personal.marketnote.common.utility.FormatValidator;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.MicrometerProducerListener;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +31,7 @@ public class KafkaProducerConfig {
     private String bootstrapServers;
 
     private final KafkaSaslProperties kafkaSaslProperties;
+    private final ObjectProvider<MeterRegistry> meterRegistryProvider;
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
@@ -38,7 +43,13 @@ public class KafkaProducerConfig {
         props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         props.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
         kafkaSaslProperties.applyTo(props);
-        return new DefaultKafkaProducerFactory<>(props);
+
+        DefaultKafkaProducerFactory<String, Object> factory = new DefaultKafkaProducerFactory<>(props);
+        MeterRegistry meterRegistry = meterRegistryProvider.getIfAvailable();
+        if (FormatValidator.hasValue(meterRegistry)) {
+            factory.addListener(new MicrometerProducerListener<>(meterRegistry));
+        }
+        return factory;
     }
 
     @Bean

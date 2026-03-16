@@ -74,3 +74,24 @@ scrape_configs:
           - 'file.marketnote.store:443'
         labels:
           service: 'file-service'
+
+  - job_name: 'kafka-broker'
+    metrics_path: '/metrics'
+    scheme: http
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - '172.26.45.222:7071'
+        labels:
+          broker: 'broker-1'
+          node_id: '1'
+      - targets:
+          - '172.26.21.200:7071'
+        labels:
+          broker: 'broker-2'
+          node_id: '2'
+      - targets:
+          - '172.26.2.195:7071'
+        labels:
+          broker: 'broker-3'
+          node_id: '3'
