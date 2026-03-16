@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-
 import org.springframework.kafka.support.SendResult;
 
 import java.time.Duration;
@@ -40,7 +39,15 @@ class DltReprocessServiceTest {
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @Mock
+    private DltAuditLogger dltAuditLogger;
+
+    @Mock
+    private DltMetricsCollector dltMetricsCollector;
+
+    @Mock
     private Consumer<String, Object> consumer;
+
+    private static final String OPERATOR = "admin@personal.com";
 
     @Test
     @DisplayName("DLT 토픽에서 메시지를 읽어 원본 토픽으로 재전송한다")
@@ -70,13 +77,16 @@ class DltReprocessServiceTest {
         when(kafkaTemplate.send(anyString(), anyString(), any())).thenReturn(future);
 
         // when
-        DltReprocessResult result = dltReprocessService.reprocess(originalTopic);
+        DltReprocessResult result = dltReprocessService.reprocess(originalTopic, OPERATOR);
 
         // then
         assertThat(result.reprocessedCount()).isEqualTo(2);
         assertThat(result.failedCount()).isEqualTo(0);
         verify(kafkaTemplate).send(originalTopic, "key-1", "value-1");
         verify(kafkaTemplate).send(originalTopic, "key-2", "value-2");
+        verify(dltAuditLogger).logReprocessStart(originalTopic, OPERATOR);
+        verify(dltAuditLogger).logReprocessComplete(originalTopic, OPERATOR, 2, 0);
+        verify(dltMetricsCollector, times(2)).incrementDltReprocessCount(originalTopic, "success");
         verify(consumer).close();
     }
 
@@ -96,12 +106,13 @@ class DltReprocessServiceTest {
         when(consumer.poll(any(Duration.class))).thenReturn(emptyRecords);
 
         // when
-        DltReprocessResult result = dltReprocessService.reprocess(originalTopic);
+        DltReprocessResult result = dltReprocessService.reprocess(originalTopic, OPERATOR);
 
         // then
         assertThat(result.reprocessedCount()).isEqualTo(0);
         assertThat(result.failedCount()).isEqualTo(0);
         verify(kafkaTemplate, never()).send(anyString(), anyString(), any());
+        verify(dltAuditLogger).logReprocessStart(originalTopic, OPERATOR);
         verify(consumer).close();
     }
 
@@ -116,12 +127,14 @@ class DltReprocessServiceTest {
         when(consumer.partitionsFor(dltTopic)).thenReturn(Collections.emptyList());
 
         // when
-        DltReprocessResult result = dltReprocessService.reprocess(originalTopic);
+        DltReprocessResult result = dltReprocessService.reprocess(originalTopic, OPERATOR);
 
         // then
         assertThat(result.reprocessedCount()).isEqualTo(0);
         assertThat(result.failedCount()).isEqualTo(0);
         verify(kafkaTemplate, never()).send(anyString(), anyString(), any());
+        verify(dltAuditLogger).logReprocessStart(originalTopic, OPERATOR);
+        verify(dltAuditLogger).logReprocessComplete(originalTopic, OPERATOR, 0, 0);
         verify(consumer).close();
     }
 
@@ -132,14 +145,14 @@ class DltReprocessServiceTest {
         String invalidTopic = "unknown.topic";
 
         // when & then
-        assertThatThrownBy(() -> dltReprocessService.reprocess(invalidTopic))
+        assertThatThrownBy(() -> dltReprocessService.reprocess(invalidTopic, OPERATOR))
                 .isInstanceOf(InvalidDltTopicException.class)
                 .hasMessageContaining(invalidTopic);
     }
 
     @Test
-    @DisplayName("메시지 재전송 실패 시 failedCount가 증가한다")
-    void reprocess_sendFailure_incrementsFailedCount() {
+    @DisplayName("메시지 재전송 실패 시 failedCount가 증가하고 실패 메트릭이 기록된다")
+    void reprocess_sendFailure_incrementsFailedCountAndMetrics() {
         // given
         String originalTopic = "commerce.payment.cancelled";
         String dltTopic = originalTopic + ".dlt";
@@ -165,11 +178,13 @@ class DltReprocessServiceTest {
         when(kafkaTemplate.send(anyString(), anyString(), any())).thenReturn(failedFuture);
 
         // when
-        DltReprocessResult result = dltReprocessService.reprocess(originalTopic);
+        DltReprocessResult result = dltReprocessService.reprocess(originalTopic, OPERATOR);
 
         // then
         assertThat(result.reprocessedCount()).isEqualTo(0);
         assertThat(result.failedCount()).isEqualTo(1);
+        verify(dltMetricsCollector).incrementDltReprocessCount(originalTopic, "failure");
+        verify(dltAuditLogger).logReprocessComplete(originalTopic, OPERATOR, 0, 1);
         verify(consumer).close();
     }
 }

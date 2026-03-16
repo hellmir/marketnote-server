@@ -25,6 +25,9 @@ class DeadLetterAlertConsumerTest {
     private DltSlackNotifier dltSlackNotifier;
 
     @Mock
+    private DltMetricsCollector dltMetricsCollector;
+
+    @Mock
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, Object> buildDltRecord(
@@ -43,8 +46,8 @@ class DeadLetterAlertConsumerTest {
     }
 
     @Test
-    @DisplayName("DLT 메시지 수신 시 원본 토픽 정보를 추출하여 Slack 알림을 전송하고 acknowledge한다")
-    void handleDeadLetterMessage_extractsHeadersAndNotifiesSlackAndAcknowledges() {
+    @DisplayName("DLT 메시지 수신 시 원본 토픽 정보를 추출하여 Slack 알림을 전송하고 메트릭을 증가시키고 acknowledge한다")
+    void handleDeadLetterMessage_extractsHeadersAndNotifiesSlackAndIncrementMetricsAndAcknowledges() {
         // given
         String originalTopic = "commerce.order.payment-completed";
         ConsumerRecord<String, Object> record = buildDltRecord(
@@ -61,6 +64,7 @@ class DeadLetterAlertConsumerTest {
                 eq("java.lang.RuntimeException"),
                 eq("DB 연결 오류")
         );
+        verify(dltMetricsCollector).incrementDltMessageCount(originalTopic);
         verify(acknowledgment).acknowledge();
     }
 
@@ -97,6 +101,7 @@ class DeadLetterAlertConsumerTest {
                 eq("UNKNOWN"),
                 eq("UNKNOWN")
         );
+        verify(dltMetricsCollector).incrementDltMessageCount("UNKNOWN");
         verify(acknowledgment).acknowledge();
     }
 }
