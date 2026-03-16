@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.outbox.adapter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.outbox.OutboxEventStatus;
 import com.personal.marketnote.common.outbox.entity.OutboxEventJpaEntity;
@@ -12,8 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -152,7 +151,8 @@ class OutboxEventPublisherTest {
                 .thenReturn(List.of(entity));
 
         when(objectMapper.readValue("invalid-json", Object.class))
-                .thenThrow(new JsonProcessingException("parse error") {});
+                .thenThrow(new JsonProcessingException("parse error") {
+                });
 
         // when
         outboxEventPublisher.publishPendingEvents();

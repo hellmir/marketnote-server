@@ -7,6 +7,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.in.web.product.controller.apidocs.*;
 import com.personal.marketnote.product.adapter.in.web.product.mapper.ProductRequestToCommandMapper;
 import com.personal.marketnote.product.adapter.in.web.product.request.RegisterProductRequest;
+import com.personal.marketnote.product.adapter.in.web.product.request.ReorderProductTagsRequest;
 import com.personal.marketnote.product.adapter.in.web.product.request.UpdateProductRequest;
 import com.personal.marketnote.product.adapter.in.web.product.response.*;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
@@ -53,6 +54,7 @@ public class ProductController {
     private final GetAdminProductDetailUseCase getAdminProductDetailUseCase;
     private final UpdateProductUseCase updateProductUseCase;
     private final DeleteProductUseCase deleteProductUseCase;
+    private final ReorderProductTagsUseCase reorderProductTagsUseCase;
     private final DeleteProductImageUseCase deleteProductImageUseCase;
 
     /**
@@ -354,6 +356,40 @@ public class ProductController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "상품 정보 수정 성공"
+                )
+        );
+    }
+
+    /**
+     * (판매자/관리자) 상품 태그 순서 변경
+     *
+     * @param id        상품 ID
+     * @param request   상품 태그 순서 변경 요청
+     * @param principal 인증된 사용자
+     * @Author 성효빈
+     * @Date 2026-03-17
+     * @Description 상품 태그의 순서를 변경합니다.
+     */
+    @PatchMapping("/{id}/tags/order")
+    @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
+    @ReorderProductTagsApiDocs
+    public ResponseEntity<BaseResponse<Void>> reorderProductTags(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ReorderProductTagsRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        reorderProductTagsUseCase.reorderProductTags(
+                ElementExtractor.extractUserId(principal),
+                AuthorityValidator.hasAdminRole(principal),
+                ProductRequestToCommandMapper.mapToCommand(id, request)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "상품 태그 순서 변경 성공"
                 )
         );
     }

@@ -51,8 +51,8 @@ class PaymentCancelledInventoryConsumerTest {
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, boolean isFullCancel,
-                                                                  List<OrderProductItem> orderProducts,
-                                                                  List<OrderProductItem> cancelProducts) {
+                                                                 List<OrderProductItem> orderProducts,
+                                                                 List<OrderProductItem> cancelProducts) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 orderId, "order-key-1", 100L, 50000L, 80000L, 1000L,
                 isFullCancel, 0L, null, orderProducts, cancelProducts, null

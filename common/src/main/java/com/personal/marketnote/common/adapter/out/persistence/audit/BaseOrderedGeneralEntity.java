@@ -14,4 +14,8 @@ public abstract class BaseOrderedGeneralEntity extends BaseGeneralEntity {
     public void setIdToOrderNum() {
         orderNum = getId();
     }
+
+    protected void updateOrderNum(Long orderNum) {
+        this.orderNum = orderNum;
+    }
 }
