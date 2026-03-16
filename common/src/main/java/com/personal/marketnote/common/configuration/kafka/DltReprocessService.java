@@ -1,6 +1,6 @@
 package com.personal.marketnote.common.configuration.kafka;
 
-import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.DltTopicRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -28,36 +28,40 @@ public class DltReprocessService {
     private static final int MAX_POLL_ITERATIONS = 100;
     private static final long SEND_TIMEOUT_SECONDS = 10L;
 
-    private static final Set<String> ALLOWED_TOPICS = Set.of(
-            KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
-            KafkaTopicConstants.PAYMENT_APPROVED,
-            KafkaTopicConstants.PAYMENT_FAILED,
-            KafkaTopicConstants.PAYMENT_CANCELLED,
-            KafkaTopicConstants.SETTLEMENT_EXECUTED,
-            KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
-            KafkaTopicConstants.PRODUCT_REGISTERED,
-            KafkaTopicConstants.PRICE_POLICY_CREATED,
-            KafkaTopicConstants.PRODUCT_UPDATED,
-            KafkaTopicConstants.USER_SIGNUP_COMPLETED,
-            KafkaTopicConstants.USER_REFERRAL_COMPLETED,
-            KafkaTopicConstants.REVIEW_REGISTERED
-    );
+    private final ConcurrentHashMap<String, Boolean> reprocessingTopics = new ConcurrentHashMap<>();
 
     private final ConsumerFactory<String, Object> consumerFactory;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final DltAuditLogger dltAuditLogger;
+    private final DltMetricsCollector dltMetricsCollector;
 
-    public DltReprocessResult reprocess(String originalTopic) {
-        if (!ALLOWED_TOPICS.contains(originalTopic)) {
+    public DltReprocessResult reprocess(String originalTopic, String operatorInfo) {
+        if (!DltTopicRegistry.isAllowed(originalTopic)) {
             throw new InvalidDltTopicException(originalTopic);
         }
 
-        String dltTopic = originalTopic + KafkaTopicConstants.DLT_SUFFIX;
+        if (reprocessingTopics.putIfAbsent(originalTopic, Boolean.TRUE) != null) {
+            throw new DltReprocessAlreadyInProgressException(originalTopic);
+        }
+
+        try {
+            return doReprocess(originalTopic, operatorInfo);
+        } finally {
+            reprocessingTopics.remove(originalTopic);
+        }
+    }
+
+    private DltReprocessResult doReprocess(String originalTopic, String operatorInfo) {
+        String dltTopic = DltTopicRegistry.toDltTopic(originalTopic);
         String groupId = "dlt-reprocessor-" + UUID.randomUUID();
+
+        dltAuditLogger.logReprocessStart(originalTopic, operatorInfo);
 
         try (Consumer<String, Object> consumer = consumerFactory.createConsumer(groupId, "")) {
             List<PartitionInfo> partitionInfos = consumer.partitionsFor(dltTopic);
             if (partitionInfos == null || partitionInfos.isEmpty()) {
                 log.info("DLT 토픽 파티션 없음. dltTopic={}", dltTopic);
+                dltAuditLogger.logReprocessComplete(originalTopic, operatorInfo, 0, 0);
                 return new DltReprocessResult(0, 0);
             }
 
@@ -79,10 +83,12 @@ public class DltReprocessService {
                         kafkaTemplate.send(originalTopic, record.key(), record.value())
                                 .get(SEND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
                         reprocessedCount++;
+                        dltMetricsCollector.incrementDltReprocessCount(originalTopic, "success");
                         log.info("DLT 메시지 재처리 성공. originalTopic={}, key={}, offset={}",
                                 originalTopic, record.key(), record.offset());
                     } catch (Exception e) {
                         failedCount++;
+                        dltMetricsCollector.incrementDltReprocessCount(originalTopic, "failure");
                         log.error("DLT 메시지 재처리 실패. originalTopic={}, key={}, offset={}",
                                 originalTopic, record.key(), record.offset(), e);
                     }
@@ -93,7 +99,13 @@ public class DltReprocessService {
 
             log.info("DLT 재처리 완료. dltTopic={}, reprocessed={}, failed={}",
                     dltTopic, reprocessedCount, failedCount);
+            dltAuditLogger.logReprocessComplete(originalTopic, operatorInfo, reprocessedCount, failedCount);
             return new DltReprocessResult(reprocessedCount, failedCount);
+        } catch (InvalidDltTopicException e) {
+            throw e;
+        } catch (Exception e) {
+            dltAuditLogger.logReprocessError(originalTopic, operatorInfo, e);
+            throw new DltReprocessFailedException(originalTopic);
         }
     }
 }
