@@ -1,0 +1,280 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Consumer Group별 총 Lag",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (kafka_consumer_group_id) (kafka_consumer_fetch_manager_records_lag{kafka_consumer_group_id=~\"$consumer_group\"})",
+          "legendFormat": "{{ kafka_consumer_group_id }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 1000 }
+            ]
+          },
+          "mappings": [],
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      }
+    },
+    {
+      "title": "Consumer Group별 Lag 추이",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 5 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (kafka_consumer_group_id) (kafka_consumer_fetch_manager_records_lag{kafka_consumer_group_id=~\"$consumer_group\"})",
+          "legendFormat": "{{ kafka_consumer_group_id }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "gradientMode": "scheme",
+            "pointSize": 5,
+            "showPoints": "never"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 1000 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"] }
+      }
+    },
+    {
+      "title": "토픽별 Lag 상세",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 5 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (kafka_consumer_group_id, topic) (kafka_consumer_fetch_manager_records_lag{kafka_consumer_group_id=~\"$consumer_group\"})",
+          "legendFormat": "{{ kafka_consumer_group_id }} / {{ topic }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 5,
+            "pointSize": 5,
+            "showPoints": "never"
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "max"] }
+      }
+    },
+    {
+      "title": "초당 메시지 소비량 (처리량)",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (kafka_consumer_group_id) (rate(kafka_consumer_fetch_manager_records_consumed_total{kafka_consumer_group_id=~\"$consumer_group\"}[1m]))",
+          "legendFormat": "{{ kafka_consumer_group_id }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "gradientMode": "scheme",
+            "pointSize": 5,
+            "showPoints": "never"
+          },
+          "unit": "ops"
+        }
+      },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull", "mean", "max"] }
+      }
+    },
+    {
+      "title": "Consumer Group 상태 요약",
+      "type": "table",
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 15 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (kafka_consumer_group_id) (kafka_consumer_fetch_manager_records_lag{kafka_consumer_group_id=~\"$consumer_group\"})",
+          "legendFormat": "{{ kafka_consumer_group_id }}",
+          "instant": true,
+          "refId": "Lag"
+        },
+        {
+          "expr": "sum by (kafka_consumer_group_id) (rate(kafka_consumer_fetch_manager_records_consumed_total{kafka_consumer_group_id=~\"$consumer_group\"}[5m]))",
+          "legendFormat": "{{ kafka_consumer_group_id }}",
+          "instant": true,
+          "refId": "Throughput"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Lag" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 100 },
+                    { "color": "red", "value": 1000 }
+                  ]
+                }
+              },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Lag", "desc": true }]
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        }
+      ]
+    },
+    {
+      "title": "서비스별 총 Lag",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 25 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (job) (kafka_consumer_fetch_manager_records_lag{kafka_consumer_group_id=~\"$consumer_group\"})",
+          "legendFormat": "{{ job }}"
+        }
+      ],
+      "options": {
+        "legend": { "displayMode": "table", "placement": "right", "calcs": ["lastNotNull"] },
+        "pieType": "donut",
+        "tooltip": { "mode": "single" }
+      }
+    },
+    {
+      "title": "Lag 임계값 알림 상태",
+      "type": "state-timeline",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 25 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (kafka_consumer_group_id) (kafka_consumer_fetch_manager_records_lag{kafka_consumer_group_id=~\"$consumer_group\"})",
+          "legendFormat": "{{ kafka_consumer_group_id }}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 100 },
+              { "color": "red", "value": 1000 }
+            ]
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 0
+          }
+        }
+      },
+      "options": {
+        "showValue": "auto",
+        "alignValue": "center",
+        "mergeValues": true
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["kafka", "consumer-lag", "monitoring"],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "datasource": "Prometheus",
+        "definition": "label_values(kafka_consumer_fetch_manager_records_lag, kafka_consumer_group_id)",
+        "includeAll": true,
+        "multi": true,
+        "name": "consumer_group",
+        "query": "label_values(kafka_consumer_fetch_manager_records_lag, kafka_consumer_group_id)",
+        "refresh": 2,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-3h", "to": "now" },
+  "timepicker": {},
+  "timezone": "Asia/Seoul",
+  "title": "Kafka Consumer Lag Monitor",
+  "uid": "kafka-consumer-lag",
+  "version": 1
+}

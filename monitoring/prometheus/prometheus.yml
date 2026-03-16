@@ -2,10 +2,75 @@ global:
   scrape_interval: 30s
   evaluation_interval: 30s
 
+rule_files:
+  - 'alert-rules.yml'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
 scrape_configs:
-  - job_name: 'marketnote'
+  - job_name: 'shop-user'
     metrics_path: '/actuator/prometheus'
+    scheme: https
     static_configs:
       - targets:
           - 'users.marketnote.store:443'
+        labels:
+          service: 'user-service'
+
+  - job_name: 'shop-product'
+    metrics_path: '/actuator/prometheus'
     scheme: https
+    static_configs:
+      - targets:
+          - 'product.marketnote.store:443'
+        labels:
+          service: 'product-service'
+
+  - job_name: 'shop-commerce'
+    metrics_path: '/actuator/prometheus'
+    scheme: https
+    static_configs:
+      - targets:
+          - 'commerce.marketnote.store:443'
+        labels:
+          service: 'commerce-service'
+
+  - job_name: 'shop-community'
+    metrics_path: '/actuator/prometheus'
+    scheme: https
+    static_configs:
+      - targets:
+          - 'community.marketnote.store:443'
+        labels:
+          service: 'community-service'
+
+  - job_name: 'marketnote'
+    metrics_path: '/actuator/prometheus'
+    scheme: https
+    static_configs:
+      - targets:
+          - 'reward.marketnote.store:443'
+        labels:
+          service: 'reward-service'
+
+  - job_name: 'shop-fulfillment'
+    metrics_path: '/actuator/prometheus'
+    scheme: https
+    static_configs:
+      - targets:
+          - 'fulfillment.marketnote.store:443'
+        labels:
+          service: 'fulfillment-service'
+
+  - job_name: 'shop-file'
+    metrics_path: '/actuator/prometheus'
+    scheme: https
+    static_configs:
+      - targets:
+          - 'file.marketnote.store:443'
+        labels:
+          service: 'file-service'

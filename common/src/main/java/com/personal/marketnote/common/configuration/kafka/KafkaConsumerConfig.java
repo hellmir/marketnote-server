@@ -1,8 +1,11 @@
 package com.personal.marketnote.common.configuration.kafka;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.MicrometerConsumerListener;
 import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -40,6 +44,7 @@ public class KafkaConsumerConfig {
     private int maxPollIntervalMs;
 
     private final KafkaSaslProperties kafkaSaslProperties;
+    private final ObjectProvider<MeterRegistry> meterRegistryProvider;
 
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
@@ -57,7 +62,13 @@ public class KafkaConsumerConfig {
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, EventEnvelope.class.getName());
         kafkaSaslProperties.applyTo(props);
-        return new DefaultKafkaConsumerFactory<>(props);
+
+        DefaultKafkaConsumerFactory<String, Object> factory = new DefaultKafkaConsumerFactory<>(props);
+        MeterRegistry meterRegistry = meterRegistryProvider.getIfAvailable();
+        if (FormatValidator.hasValue(meterRegistry)) {
+            factory.addListener(new MicrometerConsumerListener<>(meterRegistry));
+        }
+        return factory;
     }
 
     @Bean

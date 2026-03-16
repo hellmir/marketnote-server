@@ -1,0 +1,29 @@
+groups:
+  - name: kafka-consumer-lag
+    rules:
+      - alert: KafkaConsumerLagWarning
+        expr: sum by (kafka_consumer_group_id) (kafka_consumer_fetch_manager_records_lag) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Consumer Lag WARNING: {{ $labels.kafka_consumer_group_id }}"
+          description: "Consumer Group {{ $labels.kafka_consumer_group_id }}의 총 Lag이 {{ $value }}건입니다. 임계값: 100건"
+
+      - alert: KafkaConsumerLagCritical
+        expr: sum by (kafka_consumer_group_id) (kafka_consumer_fetch_manager_records_lag) > 1000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Consumer Lag CRITICAL: {{ $labels.kafka_consumer_group_id }}"
+          description: "Consumer Group {{ $labels.kafka_consumer_group_id }}의 총 Lag이 {{ $value }}건입니다. 임계값: 1000건. 즉시 확인이 필요합니다."
+
+      - alert: KafkaConsumerNoActivity
+        expr: sum by (kafka_consumer_group_id) (rate(kafka_consumer_fetch_manager_records_consumed_total[5m])) == 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Consumer 비활성: {{ $labels.kafka_consumer_group_id }}"
+          description: "Consumer Group {{ $labels.kafka_consumer_group_id }}가 10분간 메시지를 소비하지 않고 있습니다. Consumer 장애 여부를 확인하세요."

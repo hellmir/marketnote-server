@@ -68,6 +68,9 @@ dependencies {
     // kafka
     implementation("org.springframework.kafka:spring-kafka")
 
+    // micrometer (Kafka Consumer 메트릭 수집)
+    implementation("io.micrometer:micrometer-core")
+
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
