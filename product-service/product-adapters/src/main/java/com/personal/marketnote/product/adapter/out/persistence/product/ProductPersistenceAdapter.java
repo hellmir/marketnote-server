@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.mapper.ProductJpaEntityToDomainMapper;
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductTagJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
@@ -31,6 +32,7 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
     public Product save(Product product) {
         ProductJpaEntity savedEntity = productJpaRepository.save(ProductJpaEntity.from(product));
         savedEntity.setIdToOrderNum();
+        savedEntity.getProductTagJpaEntities().forEach(ProductTagJpaEntity::setIdToOrderNum);
 
         return ProductJpaEntityToDomainMapper.mapToDomain(savedEntity).get();
     }
@@ -217,6 +219,8 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
     public void update(Product product) throws ProductNotFoundException {
         ProductJpaEntity entity = findEntityById(product.getId());
         entity.updateFrom(product);
+        productJpaRepository.flush();
+        entity.getProductTagJpaEntities().forEach(ProductTagJpaEntity::setIdToOrderNum);
     }
 
     private ProductJpaEntity findEntityById(Long id) throws ProductNotFoundException {
