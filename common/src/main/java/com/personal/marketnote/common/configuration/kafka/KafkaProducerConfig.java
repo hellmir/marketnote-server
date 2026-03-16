@@ -2,6 +2,7 @@ package com.personal.marketnote.common.configuration.kafka;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.ObjectProvider;
@@ -15,8 +16,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.MicrometerProducerListener;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-
-import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;

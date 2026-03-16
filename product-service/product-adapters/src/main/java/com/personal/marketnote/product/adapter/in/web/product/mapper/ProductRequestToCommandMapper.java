@@ -4,10 +4,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.in.web.cart.request.GetMyOrderingProductsRequest;
 import com.personal.marketnote.product.adapter.in.web.category.request.RegisterProductCategoriesRequest;
 import com.personal.marketnote.product.adapter.in.web.option.request.UpdateProductOptionsRequest;
-import com.personal.marketnote.product.adapter.in.web.product.request.RegisterProductFulfillmentVendorGoodsRequest;
-import com.personal.marketnote.product.adapter.in.web.product.request.RegisterProductRequest;
-import com.personal.marketnote.product.adapter.in.web.product.request.UpdateProductFulfillmentVendorGoodsRequest;
-import com.personal.marketnote.product.adapter.in.web.product.request.UpdateProductRequest;
+import com.personal.marketnote.product.adapter.in.web.product.request.*;
 import com.personal.marketnote.product.port.in.command.*;
 
 import java.util.List;
@@ -151,6 +148,16 @@ public class ProductRequestToCommandMapper {
                 .isFindAllOptions(request.isFindAllOptions())
                 .tags(request.tags())
                 .fulfillmentVendorGoods(mapToCommand(request.fulfillmentVendorGoods()))
+                .build();
+    }
+
+    public static ReorderProductTagsCommand mapToCommand(Long productId, ReorderProductTagsRequest request) {
+        List<ReorderProductTagsCommand.TagOrderItem> tagOrders = request.tagOrders().stream()
+                .map(item -> new ReorderProductTagsCommand.TagOrderItem(item.tagId(), item.orderNum()))
+                .toList();
+        return ReorderProductTagsCommand.builder()
+                .productId(productId)
+                .tagOrders(tagOrders)
                 .build();
     }
 

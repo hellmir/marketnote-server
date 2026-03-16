@@ -42,7 +42,7 @@ class PaymentCancelledOrderStatusConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, String orderKey,
-                                                                  boolean isFullCancel, Long cancelAmount) {
+                                                                 boolean isFullCancel, Long cancelAmount) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 orderId, orderKey, 100L, cancelAmount, 50000L, 1000L,
                 isFullCancel, 0L, null, List.of(), null, null

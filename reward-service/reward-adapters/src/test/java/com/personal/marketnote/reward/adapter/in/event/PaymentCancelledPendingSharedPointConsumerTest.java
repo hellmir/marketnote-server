@@ -34,7 +34,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, boolean isFullCancel,
-                                                                  List<OrderProductItem> orderProducts) {
+                                                                 List<OrderProductItem> orderProducts) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 orderId, "order-key-1", 100L, 50000L, 80000L, 1000L,
                 isFullCancel, 0L, null, orderProducts, null, null

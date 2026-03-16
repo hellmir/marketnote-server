@@ -8,8 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Spy;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
@@ -33,7 +33,7 @@ class PaymentCancelledPendingProductPointConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId,
-                                                                  boolean isFullCancel) {
+                                                                 boolean isFullCancel) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 orderId, "order-key-1", buyerId, 50000L, 80000L, 1000L,
                 isFullCancel, 0L, null, List.of(), null, null

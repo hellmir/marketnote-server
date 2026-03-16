@@ -7,11 +7,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.inventory.entity
 import com.personal.marketnote.commerce.adapter.out.persistence.inventory.repository.InventoryDeductionHistoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.inventory.repository.InventoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.inventory.repository.InventoryRestorationHistoryJpaRepository;
-import com.personal.marketnote.commerce.domain.inventory.Inventory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
-import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistories;
-import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistory;
+import com.personal.marketnote.commerce.domain.inventory.*;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;

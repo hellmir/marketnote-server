@@ -448,12 +448,12 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
-                                                Long cancelAmount, Long paymentAmount, Long pointAmount,
-                                                boolean isFullCancel, Long alreadyRefunded,
-                                                String cancelId,
-                                                List<OrderProduct> orderProducts,
-                                                List<OrderProduct> cancelProducts,
-                                                Long partialProductPendingDeduction) {
+                                              Long cancelAmount, Long paymentAmount, Long pointAmount,
+                                              boolean isFullCancel, Long alreadyRefunded,
+                                              String cancelId,
+                                              List<OrderProduct> orderProducts,
+                                              List<OrderProduct> cancelProducts,
+                                              Long partialProductPendingDeduction) {
         try {
             publishPaymentEventPort.publishPaymentCancelledEvent(
                     orderId, orderKey, buyerId, cancelAmount, paymentAmount,

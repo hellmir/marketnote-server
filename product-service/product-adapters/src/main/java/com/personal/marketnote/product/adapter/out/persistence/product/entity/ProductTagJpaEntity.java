@@ -24,4 +24,8 @@ public class ProductTagJpaEntity extends BaseOrderedGeneralEntity {
     public static ProductTagJpaEntity from(ProductJpaEntity productJpaEntity, ProductTag productTag) {
         return new ProductTagJpaEntity(productJpaEntity, productTag.getName());
     }
+
+    public void changeOrderNum(Long orderNum) {
+        updateOrderNum(orderNum);
+    }
 }
