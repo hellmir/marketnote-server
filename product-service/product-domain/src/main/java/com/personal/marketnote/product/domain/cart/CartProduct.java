@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.domain.cart;
 
 import com.personal.marketnote.common.domain.BaseDomain;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import lombok.*;
 
@@ -43,6 +44,17 @@ public class CartProduct extends BaseDomain {
 
     public Long getPricePolicyId() {
         return pricePolicy.getId();
+    }
+
+    public void addQuantity(Short additionalQuantity) {
+        if (FormatValidator.hasNoValue(additionalQuantity) || additionalQuantity <= 0) {
+            throw new InvalidCartProductQuantityException("추가 수량은 1 이상이어야 합니다.");
+        }
+        int sum = this.quantity + additionalQuantity;
+        if (sum > Short.MAX_VALUE) {
+            throw new InvalidCartProductQuantityException("수량 한도를 초과했습니다.");
+        }
+        this.quantity = (short) sum;
     }
 
     public void updateQuantity(Short newQuantity) {
