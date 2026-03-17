@@ -205,6 +205,33 @@ class GlobalExceptionHandlerTest {
     }
 
     @Nested
+    @DisplayName("ArithmeticException 핸들러 정보 노출 방지")
+    class ArithmeticExceptionInfoLeakPreventionTest {
+
+        @Test
+        @DisplayName("ArithmeticException 핸들러는 500 INTERNAL_SERVER_ERROR를 반환한다")
+        void shouldReturn500ForArithmeticException() {
+            ArithmeticException exception = new ArithmeticException("/ by zero");
+
+            ResponseEntity<ErrorResponse> response = handler.handleArithmeticException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        @Test
+        @DisplayName("ArithmeticException 핸들러는 내부 정보를 노출하지 않고 고정 메시지를 반환한다")
+        void shouldNotExposeInternalInfoInArithmeticExceptionResponse() {
+            ArithmeticException exception = new ArithmeticException("/ by zero");
+
+            ResponseEntity<ErrorResponse> response = handler.handleArithmeticException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).doesNotContain("/ by zero");
+            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+        }
+    }
+
+    @Nested
     @DisplayName("스레드 안전성")
     class ThreadSafetyTest {
 

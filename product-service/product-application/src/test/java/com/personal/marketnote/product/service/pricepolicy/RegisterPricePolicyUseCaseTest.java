@@ -228,6 +228,70 @@ class RegisterPricePolicyUseCaseTest {
         verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 400L);
     }
 
+    @Test
+    @DisplayName("할인가가 0원이고 적립 포인트가 0원이면 적립률이 0%로 설정되어 정상 등록된다")
+    void registerPricePolicy_zeroDiscountPriceAndZeroPoint_setsZeroAccumulationRate() {
+        Long userId = 10L;
+        Long productId = 100L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 0L, 0L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(500L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("할인가가 0원이고 적립 포인트가 0보다 크면 적립률이 0%로 설정되어 정상 등록된다")
+    void registerPricePolicy_zeroDiscountPriceWithPoint_setsZeroAccumulationRate() {
+        Long userId = 11L;
+        Long productId = 110L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 0L, 500L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(600L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("정가와 할인가 모두 0원이면 할인률과 적립률이 0%로 설정되어 정상 등록된다")
+    void registerPricePolicy_zeroPriceAndZeroDiscountPrice_setsZeroRates() {
+        Long userId = 12L;
+        Long productId = 120L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 0L, 0L, 0L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(700L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getDiscountRate()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
     private RegisterPricePolicyCommand buildCommand(Long productId, List<Long> optionIds) {
         return RegisterPricePolicyCommand.of(
                 productId,
