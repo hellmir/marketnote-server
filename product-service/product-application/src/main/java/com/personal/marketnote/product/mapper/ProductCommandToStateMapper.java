@@ -11,9 +11,14 @@ import com.personal.marketnote.product.port.in.command.RegisterPricePolicyComman
 import com.personal.marketnote.product.port.in.command.RegisterProductCommand;
 import com.personal.marketnote.product.port.in.command.RegisterProductOptionsCommand;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.stream.Collectors;
 
 public class ProductCommandToStateMapper {
+
+    private static final BigDecimal HUNDRED = new BigDecimal("100");
+
     public static ProductCreateState mapToState(RegisterProductCommand command) {
         return ProductCreateState.builder()
                 .sellerId(command.sellerId())
@@ -55,21 +60,13 @@ public class ProductCommandToStateMapper {
     public static PricePolicyCreateState mapToState(
             Product product, RegisterPricePolicyCommand command
     ) {
-        java.math.BigDecimal price = java.math.BigDecimal.valueOf(command.price());
-        java.math.BigDecimal discountPrice = java.math.BigDecimal.valueOf(command.discountPrice());
-        java.math.BigDecimal hundred = new java.math.BigDecimal("100");
+        BigDecimal price = BigDecimal.valueOf(command.price());
+        BigDecimal discountPrice = BigDecimal.valueOf(command.discountPrice());
 
-        // discountRate = (price - discountPrice) / price * 100
-        java.math.BigDecimal discountRate = price.subtract(discountPrice)
-                .divide(price, 3, java.math.RoundingMode.HALF_UP)
-                .multiply(hundred)
-                .setScale(1, java.math.RoundingMode.HALF_UP);
-
-        // accumulationRate = accumulatedPoint / discountPrice * 100
-        java.math.BigDecimal accumulationRate = java.math.BigDecimal.valueOf(command.accumulatedPoint())
-                .divide(discountPrice, 3, java.math.RoundingMode.HALF_UP)
-                .multiply(hundred)
-                .setScale(1, java.math.RoundingMode.HALF_UP);
+        BigDecimal discountRate = calculateDiscountRate(price, discountPrice);
+        BigDecimal accumulationRate = calculateAccumulationRate(
+                BigDecimal.valueOf(command.accumulatedPoint()), discountPrice
+        );
 
         return
                 PricePolicyCreateState.builder()
@@ -82,5 +79,25 @@ public class ProductCommandToStateMapper {
                         .status(EntityStatus.ACTIVE)
                         .optionIds(command.optionIds())
                         .build();
+    }
+
+    private static BigDecimal calculateDiscountRate(BigDecimal price, BigDecimal discountPrice) {
+        if (price.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        return price.subtract(discountPrice)
+                .divide(price, 3, RoundingMode.HALF_UP)
+                .multiply(HUNDRED)
+                .setScale(1, RoundingMode.HALF_UP);
+    }
+
+    private static BigDecimal calculateAccumulationRate(BigDecimal accumulatedPoint, BigDecimal discountPrice) {
+        if (discountPrice.signum() == 0) {
+            return BigDecimal.ZERO;
+        }
+        return accumulatedPoint
+                .divide(discountPrice, 3, RoundingMode.HALF_UP)
+                .multiply(HUNDRED)
+                .setScale(1, RoundingMode.HALF_UP);
     }
 }
