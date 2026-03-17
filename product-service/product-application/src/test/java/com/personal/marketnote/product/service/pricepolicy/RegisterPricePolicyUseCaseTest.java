@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import com.personal.marketnote.product.exception.InvalidPricePolicyPriceException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.port.in.command.RegisterPricePolicyCommand;
 import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPricePolicyResult;
@@ -290,6 +291,22 @@ class RegisterPricePolicyUseCaseTest {
 
         assertThat(saved.getDiscountRate()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("현재 판매가가 정가를 초과하면 InvalidPricePolicyPriceException 예외를 던진다")
+    void registerPricePolicy_discountPriceExceedsPrice_throws() {
+        Long userId = 13L;
+        Long productId = 130L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 15000L, 200L, List.of());
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isInstanceOf(InvalidPricePolicyPriceException.class)
+                .hasMessageContaining("현재 판매가가 정가를 초과할 수 없습니다");
+
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort, registerInventoryPort);
     }
 
     private RegisterPricePolicyCommand buildCommand(Long productId, List<Long> optionIds) {
