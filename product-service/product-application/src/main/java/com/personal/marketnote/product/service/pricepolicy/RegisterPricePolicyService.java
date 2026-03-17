@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
+import com.personal.marketnote.product.exception.InvalidPricePolicyPriceException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.mapper.ProductCommandToStateMapper;
 import com.personal.marketnote.product.port.in.command.RegisterPricePolicyCommand;
@@ -45,6 +46,8 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             throw new NotProductOwnerException(FIRST_ERROR_CODE, productId);
         }
 
+        validateDiscountPriceNotExceedPrice(command);
+
         Product product = getProductUseCase.getProduct(productId);
 
         PricePolicy pricePolicy = PricePolicy.from(ProductCommandToStateMapper.mapToState(product, command));
@@ -62,6 +65,12 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         registerInventoryHttpAfterCommit(productId, id);
 
         return RegisterPricePolicyResult.of(id);
+    }
+
+    private void validateDiscountPriceNotExceedPrice(RegisterPricePolicyCommand command) {
+        if (command.discountPrice().compareTo(command.price()) > 0) {
+            throw new InvalidPricePolicyPriceException();
+        }
     }
 
     private void registerInventoryHttpAfterCommit(Long productId, Long pricePolicyId) {
