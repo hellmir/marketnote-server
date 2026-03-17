@@ -84,6 +84,124 @@ def buildMarketnoteTaskDefinition(env) {
     ]
 }
 
+@NonCPS
+def buildRedisTaskDefinition(env) {
+    [
+        family: "redis",
+        networkMode: "awsvpc",
+        requiresCompatibilities: ["FARGATE"],
+        cpu: "256",
+        memory: "512",
+        executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
+        taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
+        containerDefinitions: [[
+            name: "redis",
+            image: "redis:7.2",
+            portMappings: [[containerPort: 6379, protocol: "tcp"]],
+            essential: true,
+            command: [
+                "sh",
+                "-c",
+                "exec redis-server --appendonly yes --requirepass \\\"\$REDIS_PASSWORD\\\""
+            ],
+            environment: [
+                [name: "REDIS_SERVICE_NAME", value: "${env.REDIS_SERVICE_NAME}"],
+                [name: "REDIS_PASSWORD",     value: "${env.REDIS_PASSWORD}"]
+            ],
+            logConfiguration: [
+                logDriver: "awslogs",
+                options: [
+                    "awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_REDIS}",
+                    "awslogs-region": "${env.AWS_DEFAULT_REGION}",
+                    "awslogs-stream-prefix": "redis"
+                ]
+            ]
+        ]]
+    ]
+}
+
+@NonCPS
+def buildPrometheusTaskDefinition(env) {
+    [
+        family: "prometheus",
+        networkMode: "awsvpc",
+        requiresCompatibilities: ["FARGATE"],
+        cpu: "256",
+        memory: "512",
+        executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
+        taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
+        containerDefinitions: [[
+            name: "prometheus",
+            image: "${env.PROMETHEUS_IMAGE_URI}",
+            portMappings: [[containerPort: 9090, protocol: "tcp"]],
+            essential: true,
+            command: [
+                "--config.file=/etc/prometheus/prometheus.yml",
+                "--storage.tsdb.path=/prometheus",
+                "--storage.tsdb.retention.time=1d",
+                "--storage.tsdb.retention.size=512MB",
+                "--web.console.libraries=/usr/share/prometheus/console_libraries",
+                "--web.console.templates=/usr/share/prometheus/consoles"
+            ],
+            logConfiguration: [
+                logDriver: "awslogs",
+                options: [
+                    "awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_PROMETHEUS}",
+                    "awslogs-region": "${env.AWS_DEFAULT_REGION}",
+                    "awslogs-stream-prefix": "prometheus"
+                ]
+            ]
+        ]]
+    ]
+}
+
+@NonCPS
+def buildGrafanaTaskDefinition(env) {
+    [
+        family: "grafana",
+        networkMode: "awsvpc",
+        requiresCompatibilities: ["FARGATE"],
+        cpu: "256",
+        memory: "512",
+        executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
+        taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
+        containerDefinitions: [[
+            name: "grafana",
+            image: "grafana/grafana:latest",
+            portMappings: [[containerPort: 3000, protocol: "tcp"]],
+            essential: true,
+            environment: [
+                [name: "GF_SECURITY_ADMIN_PASSWORD",      value: "${env.GRAFANA_ADMIN_PASSWORD}"],
+                [name: "GF_SERVER_DOMAIN",                value: "${env.GRAFANA_DOMAIN}"],
+                [name: "GF_SERVER_ROOT_URL",              value: "${env.GRAFANA_ROOT_URL}"],
+                [name: "GF_SERVER_SERVE_FROM_SUB_PATH",   value: "${env.GRAFANA_SERVE_FROM_SUB_PATH?:'false'}"]
+            ],
+            logConfiguration: [
+                logDriver: "awslogs",
+                options: [
+                    "awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_GRAFANA}",
+                    "awslogs-region": "${env.AWS_DEFAULT_REGION}",
+                    "awslogs-stream-prefix": "grafana"
+                ]
+            ]
+        ]]
+    ]
+}
+
+@NonCPS
+def resolveServiceMapping(svc, credentials) {
+    def mappings = [
+        'user-service'       : [ecr: credentials.USER_SERVICE_ECR_REPOSITORY,        ecs: credentials.USER_SERVICE_ECS_SERVICE_NAME,        tg: credentials.USER_SERVICE_TARGET_GROUP_ARN,        origin: credentials.USER_SERVICE_SERVER_ORIGIN,        dbUrl: credentials.USER_SERVICE_DB_URL,        dbPw: credentials.USER_SERVICE_DB_PASSWORD],
+        'product-service'    : [ecr: credentials.PRODUCT_SERVICE_ECR_REPOSITORY,     ecs: credentials.PRODUCT_SERVICE_ECS_SERVICE_NAME,     tg: credentials.PRODUCT_SERVICE_TARGET_GROUP_ARN,     origin: credentials.PRODUCT_SERVICE_SERVER_ORIGIN,     dbUrl: credentials.PRODUCT_SERVICE_DB_URL,     dbPw: credentials.PRODUCT_SERVICE_DB_PASSWORD],
+        'commerce-service'   : [ecr: credentials.COMMERCE_SERVICE_ECR_REPOSITORY,    ecs: credentials.COMMERCE_SERVICE_ECS_SERVICE_NAME,    tg: credentials.COMMERCE_SERVICE_TARGET_GROUP_ARN,    origin: credentials.COMMERCE_SERVICE_SERVER_ORIGIN,    dbUrl: credentials.COMMERCE_SERVICE_DB_URL,    dbPw: credentials.COMMERCE_SERVICE_DB_PASSWORD],
+        'community-service'  : [ecr: credentials.COMMUNITY_SERVICE_ECR_REPOSITORY,   ecs: credentials.COMMUNITY_SERVICE_ECS_SERVICE_NAME,   tg: credentials.COMMUNITY_SERVICE_TARGET_GROUP_ARN,   origin: credentials.COMMUNITY_SERVICE_SERVER_ORIGIN,   dbUrl: credentials.COMMUNITY_SERVICE_DB_URL,   dbPw: credentials.COMMUNITY_SERVICE_DB_PASSWORD],
+        'reward-service'     : [ecr: credentials.REWARD_SERVICE_ECR_REPOSITORY,      ecs: credentials.REWARD_SERVICE_ECS_SERVICE_NAME,      tg: credentials.REWARD_SERVICE_TARGET_GROUP_ARN,      origin: credentials.REWARD_SERVICE_SERVER_ORIGIN,      dbUrl: credentials.REWARD_SERVICE_DB_URL,      dbPw: credentials.REWARD_SERVICE_DB_PASSWORD],
+        'fulfillment-service': [ecr: credentials.FULFILLMENT_SERVICE_ECR_REPOSITORY, ecs: credentials.FULFILLMENT_SERVICE_ECS_SERVICE_NAME, tg: credentials.FULFILLMENT_SERVICE_TARGET_GROUP_ARN, origin: credentials.FULFILLMENT_SERVICE_SERVER_ORIGIN, dbUrl: credentials.FULFILLMENT_SERVICE_DB_URL, dbPw: credentials.FULFILLMENT_SERVICE_DB_PASSWORD],
+        'file-service'       : [ecr: credentials.FILE_SERVICE_ECR_REPOSITORY,        ecs: credentials.FILE_SERVICE_ECS_SERVICE_NAME,        tg: credentials.FILE_SERVICE_TARGET_GROUP_ARN,        origin: credentials.FILE_SERVICE_SERVER_ORIGIN,        dbUrl: credentials.FILE_SERVICE_DB_URL,        dbPw: credentials.FILE_SERVICE_DB_PASSWORD],
+    ]
+    mappings[svc]
+}
+
 pipeline {
 	agent any
 
@@ -326,67 +444,33 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',  variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
                         string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_PASSWORD',         variable: 'FILE_SERVICE_DB_PASSWORD'),
 					]) {
-						def svc = env.SERVICE_NAME
-						if (svc == 'user-service') {
-							env.ECR_REPOSITORY = USER_SERVICE_ECR_REPOSITORY
-							env.ECS_SERVICE_NAME = USER_SERVICE_ECS_SERVICE_NAME
-							env.TARGET_GROUP_ARN = USER_SERVICE_TARGET_GROUP_ARN
-							env.SERVER_ORIGIN = USER_SERVICE_SERVER_ORIGIN
-							env.DB_URL = USER_SERVICE_DB_URL
-							env.DB_PASSWORD = USER_SERVICE_DB_PASSWORD
-						} else if (svc == 'product-service') {
-							env.ECR_REPOSITORY = PRODUCT_SERVICE_ECR_REPOSITORY
-							env.ECS_SERVICE_NAME = PRODUCT_SERVICE_ECS_SERVICE_NAME
-							env.TARGET_GROUP_ARN = PRODUCT_SERVICE_TARGET_GROUP_ARN
-							env.SERVER_ORIGIN = PRODUCT_SERVICE_SERVER_ORIGIN
-							env.DB_URL = PRODUCT_SERVICE_DB_URL
-                        	env.DB_PASSWORD = PRODUCT_SERVICE_DB_PASSWORD
-                        } else if (svc == 'commerce-service') {
-                           	env.ECR_REPOSITORY = COMMERCE_SERVICE_ECR_REPOSITORY
-                           	env.ECS_SERVICE_NAME = COMMERCE_SERVICE_ECS_SERVICE_NAME
-                           	env.TARGET_GROUP_ARN = COMMERCE_SERVICE_TARGET_GROUP_ARN
-                           	env.SERVER_ORIGIN = COMMERCE_SERVICE_SERVER_ORIGIN
-                           	env.DB_URL = COMMERCE_SERVICE_DB_URL
-                            env.DB_PASSWORD = COMMERCE_SERVICE_DB_PASSWORD
-                        } else if (svc == 'community-service') {
-                           	env.ECR_REPOSITORY = COMMUNITY_SERVICE_ECR_REPOSITORY
-                           	env.ECS_SERVICE_NAME = COMMUNITY_SERVICE_ECS_SERVICE_NAME
-                           	env.TARGET_GROUP_ARN = COMMUNITY_SERVICE_TARGET_GROUP_ARN
-                           	env.SERVER_ORIGIN = COMMUNITY_SERVICE_SERVER_ORIGIN
-                           	env.DB_URL = COMMUNITY_SERVICE_DB_URL
-                            env.DB_PASSWORD = COMMUNITY_SERVICE_DB_PASSWORD
-                        } else if (svc == 'reward-service') {
-                           	env.ECR_REPOSITORY = REWARD_SERVICE_ECR_REPOSITORY
-                           	env.ECS_SERVICE_NAME = REWARD_SERVICE_ECS_SERVICE_NAME
-                           	env.TARGET_GROUP_ARN = REWARD_SERVICE_TARGET_GROUP_ARN
-                           	env.SERVER_ORIGIN = REWARD_SERVICE_SERVER_ORIGIN
-                           	env.DB_URL = REWARD_SERVICE_DB_URL
-                            env.DB_PASSWORD = REWARD_SERVICE_DB_PASSWORD
-                        } else if (svc == 'fulfillment-service') {
-                           	env.ECR_REPOSITORY = FULFILLMENT_SERVICE_ECR_REPOSITORY
-                           	env.ECS_SERVICE_NAME = FULFILLMENT_SERVICE_ECS_SERVICE_NAME
-                           	env.TARGET_GROUP_ARN = FULFILLMENT_SERVICE_TARGET_GROUP_ARN
-                           	env.SERVER_ORIGIN = FULFILLMENT_SERVICE_SERVER_ORIGIN
-                           	env.DB_URL = FULFILLMENT_SERVICE_DB_URL
-                            env.DB_PASSWORD = FULFILLMENT_SERVICE_DB_PASSWORD
-                        } else if (svc == 'file-service') {
-                           	env.ECR_REPOSITORY = FILE_SERVICE_ECR_REPOSITORY
-                           	env.ECS_SERVICE_NAME = FILE_SERVICE_ECS_SERVICE_NAME
-                           	env.TARGET_GROUP_ARN = FILE_SERVICE_TARGET_GROUP_ARN
-                           	env.SERVER_ORIGIN = FILE_SERVICE_SERVER_ORIGIN
-                           	env.DB_URL = FILE_SERVICE_DB_URL
-                            env.DB_PASSWORD = FILE_SERVICE_DB_PASSWORD
-						}  else {
-							error "SERVICE_NAME not mapped: ${svc}"
-						}
+						def creds = [
+						USER_SERVICE_ECR_REPOSITORY: USER_SERVICE_ECR_REPOSITORY, USER_SERVICE_ECS_SERVICE_NAME: USER_SERVICE_ECS_SERVICE_NAME, USER_SERVICE_TARGET_GROUP_ARN: USER_SERVICE_TARGET_GROUP_ARN, USER_SERVICE_SERVER_ORIGIN: USER_SERVICE_SERVER_ORIGIN, USER_SERVICE_DB_URL: USER_SERVICE_DB_URL, USER_SERVICE_DB_PASSWORD: USER_SERVICE_DB_PASSWORD,
+						PRODUCT_SERVICE_ECR_REPOSITORY: PRODUCT_SERVICE_ECR_REPOSITORY, PRODUCT_SERVICE_ECS_SERVICE_NAME: PRODUCT_SERVICE_ECS_SERVICE_NAME, PRODUCT_SERVICE_TARGET_GROUP_ARN: PRODUCT_SERVICE_TARGET_GROUP_ARN, PRODUCT_SERVICE_SERVER_ORIGIN: PRODUCT_SERVICE_SERVER_ORIGIN, PRODUCT_SERVICE_DB_URL: PRODUCT_SERVICE_DB_URL, PRODUCT_SERVICE_DB_PASSWORD: PRODUCT_SERVICE_DB_PASSWORD,
+						COMMERCE_SERVICE_ECR_REPOSITORY: COMMERCE_SERVICE_ECR_REPOSITORY, COMMERCE_SERVICE_ECS_SERVICE_NAME: COMMERCE_SERVICE_ECS_SERVICE_NAME, COMMERCE_SERVICE_TARGET_GROUP_ARN: COMMERCE_SERVICE_TARGET_GROUP_ARN, COMMERCE_SERVICE_SERVER_ORIGIN: COMMERCE_SERVICE_SERVER_ORIGIN, COMMERCE_SERVICE_DB_URL: COMMERCE_SERVICE_DB_URL, COMMERCE_SERVICE_DB_PASSWORD: COMMERCE_SERVICE_DB_PASSWORD,
+						COMMUNITY_SERVICE_ECR_REPOSITORY: COMMUNITY_SERVICE_ECR_REPOSITORY, COMMUNITY_SERVICE_ECS_SERVICE_NAME: COMMUNITY_SERVICE_ECS_SERVICE_NAME, COMMUNITY_SERVICE_TARGET_GROUP_ARN: COMMUNITY_SERVICE_TARGET_GROUP_ARN, COMMUNITY_SERVICE_SERVER_ORIGIN: COMMUNITY_SERVICE_SERVER_ORIGIN, COMMUNITY_SERVICE_DB_URL: COMMUNITY_SERVICE_DB_URL, COMMUNITY_SERVICE_DB_PASSWORD: COMMUNITY_SERVICE_DB_PASSWORD,
+						REWARD_SERVICE_ECR_REPOSITORY: REWARD_SERVICE_ECR_REPOSITORY, REWARD_SERVICE_ECS_SERVICE_NAME: REWARD_SERVICE_ECS_SERVICE_NAME, REWARD_SERVICE_TARGET_GROUP_ARN: REWARD_SERVICE_TARGET_GROUP_ARN, REWARD_SERVICE_SERVER_ORIGIN: REWARD_SERVICE_SERVER_ORIGIN, REWARD_SERVICE_DB_URL: REWARD_SERVICE_DB_URL, REWARD_SERVICE_DB_PASSWORD: REWARD_SERVICE_DB_PASSWORD,
+						FULFILLMENT_SERVICE_ECR_REPOSITORY: FULFILLMENT_SERVICE_ECR_REPOSITORY, FULFILLMENT_SERVICE_ECS_SERVICE_NAME: FULFILLMENT_SERVICE_ECS_SERVICE_NAME, FULFILLMENT_SERVICE_TARGET_GROUP_ARN: FULFILLMENT_SERVICE_TARGET_GROUP_ARN, FULFILLMENT_SERVICE_SERVER_ORIGIN: FULFILLMENT_SERVICE_SERVER_ORIGIN, FULFILLMENT_SERVICE_DB_URL: FULFILLMENT_SERVICE_DB_URL, FULFILLMENT_SERVICE_DB_PASSWORD: FULFILLMENT_SERVICE_DB_PASSWORD,
+						FILE_SERVICE_ECR_REPOSITORY: FILE_SERVICE_ECR_REPOSITORY, FILE_SERVICE_ECS_SERVICE_NAME: FILE_SERVICE_ECS_SERVICE_NAME, FILE_SERVICE_TARGET_GROUP_ARN: FILE_SERVICE_TARGET_GROUP_ARN, FILE_SERVICE_SERVER_ORIGIN: FILE_SERVICE_SERVER_ORIGIN, FILE_SERVICE_DB_URL: FILE_SERVICE_DB_URL, FILE_SERVICE_DB_PASSWORD: FILE_SERVICE_DB_PASSWORD,
+					]
+					def mapping = resolveServiceMapping(env.SERVICE_NAME, creds)
+					if (!mapping) {
+						error "SERVICE_NAME not mapped: ${env.SERVICE_NAME}"
+					}
+					env.ECR_REPOSITORY   = mapping.ecr
+					env.ECS_SERVICE_NAME = mapping.ecs
+					env.TARGET_GROUP_ARN = mapping.tg
+					env.SERVER_ORIGIN    = mapping.origin
+					env.DB_URL           = mapping.dbUrl
+					env.DB_PASSWORD      = mapping.dbPw
 
-						if (!env.ECR_REPOSITORY?.trim())   error "ECR_REPOSITORY not resolved for ${env.SERVICE_NAME}"
-						if (!env.ECS_SERVICE_NAME?.trim()) error "ECS_SERVICE_NAME not resolved for ${env.SERVICE_NAME}"
-						if (!env.TARGET_GROUP_ARN?.trim()) error "TARGET_GROUP_ARN not resolved for ${env.SERVICE_NAME}"
+					if (!env.ECR_REPOSITORY?.trim())   error "ECR_REPOSITORY not resolved for ${env.SERVICE_NAME}"
+					if (!env.ECS_SERVICE_NAME?.trim()) error "ECS_SERVICE_NAME not resolved for ${env.SERVICE_NAME}"
+					if (!env.TARGET_GROUP_ARN?.trim()) error "TARGET_GROUP_ARN not resolved for ${env.SERVICE_NAME}"
 
-						echo "ECR_REPOSITORY   = ${env.ECR_REPOSITORY}"
-						echo "ECS_SERVICE_NAME = ${env.ECS_SERVICE_NAME}"
-						echo "TARGET_GROUP_ARN = ${env.TARGET_GROUP_ARN}"
+					echo "ECR_REPOSITORY   = ${env.ECR_REPOSITORY}"
+					echo "ECS_SERVICE_NAME = ${env.ECS_SERVICE_NAME}"
+					echo "TARGET_GROUP_ARN = ${env.TARGET_GROUP_ARN}"
 					}
 				}
 			}
@@ -437,38 +521,7 @@ pipeline {
 				          fi
 				        '''
 
-						def redisTask = [
-							family: "redis",
-							networkMode: "awsvpc",
-							requiresCompatibilities: ["FARGATE"],
-							cpu: "256",
-							memory: "512",
-							executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
-							taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
-							containerDefinitions: [[
-								name: "redis",
-								image: "redis:7.2",
-								portMappings: [[containerPort: 6379, protocol: "tcp"]],
-								essential: true,
-								command: [
-									"sh",
-									"-c",
-									"exec redis-server --appendonly yes --requirepass \\\"\$REDIS_PASSWORD\\\""
-								],
-								environment: [
-									[name: "REDIS_SERVICE_NAME", value: "${env.REDIS_SERVICE_NAME}"],
-									[name: "REDIS_PASSWORD",     value: "${env.REDIS_PASSWORD}"]
-								],
-								logConfiguration: [
-									logDriver: "awslogs",
-									options: [
-										"awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_REDIS}",
-										"awslogs-region": "${env.AWS_DEFAULT_REGION}",
-										"awslogs-stream-prefix": "redis"
-									]
-								]
-							]]
-						]
+						def redisTask = buildRedisTaskDefinition(env)
 
 						def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(redisTask))
 						writeFile file: 'redis-taskdef.json', text: json
@@ -793,37 +846,7 @@ pipeline {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
                         '''
-						def promTask = [
-							family: "prometheus",
-							networkMode: "awsvpc",
-							requiresCompatibilities: ["FARGATE"],
-							cpu: "256",
-							memory: "512",
-							executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
-							taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
-							containerDefinitions: [[
-								name: "prometheus",
-								image: "${env.PROMETHEUS_IMAGE_URI}",
-								portMappings: [[containerPort: 9090, protocol: "tcp"]],
-								essential: true,
-								command: [
-									"--config.file=/etc/prometheus/prometheus.yml",
-									"--storage.tsdb.path=/prometheus",
-									"--storage.tsdb.retention.time=1d",
-									"--storage.tsdb.retention.size=512MB",
-									"--web.console.libraries=/usr/share/prometheus/console_libraries",
-									"--web.console.templates=/usr/share/prometheus/consoles"
-								],
-								logConfiguration: [
-									logDriver: "awslogs",
-									options: [
-										"awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_PROMETHEUS}",
-										"awslogs-region": "${env.AWS_DEFAULT_REGION}",
-										"awslogs-stream-prefix": "prometheus"
-									]
-								]
-							]]
-						]
+						def promTask = buildPrometheusTaskDefinition(env)
 						def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(promTask))
 						writeFile file: 'prom-taskdef.json', text: json
 						sh 'aws ecs register-task-definition --cli-input-json file://prom-taskdef.json'
@@ -903,35 +926,7 @@ pipeline {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_GRAFANA" --region "$AWS_DEFAULT_REGION" || true
                         '''
-						def grafanaTask = [
-							family: "grafana",
-							networkMode: "awsvpc",
-							requiresCompatibilities: ["FARGATE"],
-							cpu: "256",
-							memory: "512",
-							executionRoleArn: "${env.ECS_TASK_EXECUTION_ROLE_ARN}",
-							taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
-							containerDefinitions: [[
-								name: "grafana",
-								image: "grafana/grafana:latest",
-								portMappings: [[containerPort: 3000, protocol: "tcp"]],
-								essential: true,
-								environment: [
-									[name: "GF_SECURITY_ADMIN_PASSWORD",      value: "${env.GRAFANA_ADMIN_PASSWORD}"],
-									[name: "GF_SERVER_DOMAIN",                value: "${env.GRAFANA_DOMAIN}"],
-									[name: "GF_SERVER_ROOT_URL",              value: "${env.GRAFANA_ROOT_URL}"],
-									[name: "GF_SERVER_SERVE_FROM_SUB_PATH",   value: "${env.GRAFANA_SERVE_FROM_SUB_PATH?:'false'}"]
-								],
-								logConfiguration: [
-									logDriver: "awslogs",
-									options: [
-										"awslogs-group": "${env.CLOUDWATCH_LOG_GROUP_GRAFANA}",
-										"awslogs-region": "${env.AWS_DEFAULT_REGION}",
-										"awslogs-stream-prefix": "grafana"
-									]
-								]
-							]]
-						]
+						def grafanaTask = buildGrafanaTaskDefinition(env)
 						def json = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(grafanaTask))
 						writeFile file: 'grafana-taskdef.json', text: json
 						sh 'aws ecs register-task-definition --cli-input-json file://grafana-taskdef.json'
