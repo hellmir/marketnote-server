@@ -127,9 +127,9 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
 
         List<ProductJpaEntity> hydratedEntities = loadProductsWithAssociations(entities);
 
-        return hydratedEntities.stream()
+        return new ArrayList<>(hydratedEntities.stream()
                 .map(entity -> ProductJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                .toList();
+                .toList());
     }
 
     private boolean isAsc(Pageable pageable) {
