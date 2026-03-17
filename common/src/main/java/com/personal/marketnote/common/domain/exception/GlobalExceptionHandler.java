@@ -27,10 +27,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     private static final String LOG_ERROR_MESSAGE = "Error exception occurred: {}";
     private static final String LOG_WARN_MESSAGE = "Warning exception occurred: {}";
@@ -42,7 +43,7 @@ public class GlobalExceptionHandler {
                 return new ParsedMessage(httpStatus.name(), "");
             }
 
-            String[] messages = errorMessage.split("::");
+            String[] messages = errorMessage.split("::", 2);
             if (messages.length > 1) {
                 return new ParsedMessage(messages[0].trim(), messages[1].trim());
             }
@@ -71,7 +72,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleIOException(IOException e) {
         HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
     @ExceptionHandler(NullPointerException.class)
@@ -100,7 +101,7 @@ public class GlobalExceptionHandler {
             HttpRequestMethodNotSupportedException e) {
         HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 HTTP 메서드입니다.");
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
@@ -121,14 +122,14 @@ public class GlobalExceptionHandler {
     ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "인증에 실패했습니다.");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
         HttpStatus httpStatus = HttpStatus.FORBIDDEN;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "접근이 거부되었습니다.");
     }
 
     @ExceptionHandler(BusinessSecurityException.class)
@@ -144,7 +145,7 @@ public class GlobalExceptionHandler {
 
         String fieldErrorMessage = e.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getDefaultMessage())
-                .collect(java.util.stream.Collectors.joining(", "));
+                .collect(Collectors.joining(", "));
 
         if (fieldErrorMessage.isEmpty()) {
             fieldErrorMessage = "요청 값이 올바르지 않습니다.";
@@ -173,28 +174,28 @@ public class GlobalExceptionHandler {
             HttpMediaTypeNotSupportedException e) {
         HttpStatus httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 미디어 타입입니다.");
     }
 
     @ExceptionHandler(MalformedJwtException.class)
     ResponseEntity<ErrorResponse> handleMalformedJwtException(MalformedJwtException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), "유효하지 않은 토큰입니다.");
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
     ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 토큰입니다.");
     }
 
     @ExceptionHandler(EntityExistsException.class)
     ResponseEntity<ErrorResponse> handleEntityExistsException(EntityExistsException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "이미 존재하는 데이터입니다.");
     }
 
     @ExceptionHandler(IllegalStateException.class)
@@ -207,15 +208,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MailException.class)
     ResponseEntity<ErrorResponse> handleMailException(MailException e) {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), "메일 발송에 실패했습니다.");
     }
 
     @ExceptionHandler(UncheckedIOException.class)
     ResponseEntity<ErrorResponse> handleUncheckedIOException(UncheckedIOException e) {
         HttpStatus httpStatus = HttpStatus.BAD_GATEWAY;
-        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
-        return buildErrorResponse(httpStatus, e.getMessage());
+        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
