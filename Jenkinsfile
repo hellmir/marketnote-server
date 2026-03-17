@@ -420,6 +420,8 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
+						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',           variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',       variable: 'AWS_SECRET_ACCESS_KEY'),
 						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',          variable: 'AWS_DEFAULT_REGION'),
 						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN', variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
 						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',           variable: 'ECS_TASK_ROLE_ARN'),
@@ -493,6 +495,8 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
+						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',       variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',   variable: 'AWS_SECRET_ACCESS_KEY'),
 						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',      variable: 'AWS_DEFAULT_REGION'),
 						string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',        variable: 'ECS_CLUSTER_NAME'),
 						string(credentialsId: 'MARKETNOTE_REDIS_SERVICE_NAME',      variable: 'REDIS_SERVICE_NAME'),
