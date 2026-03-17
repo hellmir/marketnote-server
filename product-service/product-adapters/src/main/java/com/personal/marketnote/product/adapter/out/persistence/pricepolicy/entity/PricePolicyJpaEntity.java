@@ -34,13 +34,13 @@ public class PricePolicyJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "discount_price", nullable = false)
     private Long discountPrice;
 
-    @Column(name = "discount_rate", nullable = false, precision = 3, scale = 1)
+    @Column(name = "discount_rate", nullable = false, precision = 4, scale = 1)
     private BigDecimal discountRate;
 
     @Column(name = "accumulated_point", nullable = false)
     private Long accumulatedPoint;
 
-    @Column(name = "accumulation_rate", nullable = false, precision = 3, scale = 1)
+    @Column(name = "accumulation_rate", nullable = false, precision = 4, scale = 1)
     private BigDecimal accumulationRate;
 
     @Column(name = "popularity", nullable = false, insertable = false, columnDefinition = "BIGINT DEFAULT 0")

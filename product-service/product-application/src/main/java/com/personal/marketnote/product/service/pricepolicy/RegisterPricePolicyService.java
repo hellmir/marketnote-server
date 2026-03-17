@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
+import com.personal.marketnote.product.exception.InvalidPricePolicyAccumulatedPointException;
 import com.personal.marketnote.product.exception.InvalidPricePolicyPriceException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.mapper.ProductCommandToStateMapper;
@@ -47,6 +48,7 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         }
 
         validateDiscountPriceNotExceedPrice(command);
+        validateAccumulatedPointNotExceedDiscountPrice(command);
 
         Product product = getProductUseCase.getProduct(productId);
 
@@ -70,6 +72,15 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
     private void validateDiscountPriceNotExceedPrice(RegisterPricePolicyCommand command) {
         if (command.discountPrice().compareTo(command.price()) > 0) {
             throw new InvalidPricePolicyPriceException();
+        }
+    }
+
+    private void validateAccumulatedPointNotExceedDiscountPrice(RegisterPricePolicyCommand command) {
+        if (command.discountPrice().compareTo(0L) <= 0) {
+            return;
+        }
+        if (command.accumulatedPoint().compareTo(command.discountPrice()) > 0) {
+            throw new InvalidPricePolicyAccumulatedPointException();
         }
     }
 
