@@ -81,6 +81,13 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
+    @ExceptionHandler(ArithmeticException.class)
+    ResponseEntity<ErrorResponse> handleArithmeticException(ArithmeticException e) {
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
