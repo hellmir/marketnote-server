@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PricePolicySnapshotState {
     private final Long id;
+    private final Long productId;
     private final Product product;
     private final Long price;
     private final Long discountPrice;
