@@ -1,15 +1,24 @@
 package com.personal.marketnote.common.domain.exception;
 
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import jakarta.persistence.EntityExistsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -42,6 +51,19 @@ class GlobalExceptionHandlerTest {
         }
 
         @Test
+        @DisplayName("메시지 본문에 ::이 포함되어도 코드와 메시지가 올바르게 분리된다")
+        void shouldHandleDoubleColonInMessageBody() {
+            IllegalArgumentException exception =
+                    new IllegalArgumentException("ERR_TEST_02::값 A::B는 유효하지 않습니다");
+
+            ResponseEntity<ErrorResponse> response = handler.handleIllegalArgumentException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getCode()).isEqualTo("ERR_TEST_02");
+            assertThat(response.getBody().getMessage()).isEqualTo("값 A::B는 유효하지 않습니다");
+        }
+
+        @Test
         @DisplayName("일반 메시지이면 HTTP 상태명이 코드로 사용된다")
         void shouldUseHttpStatusNameAsCodeForPlainMessage() {
             IllegalArgumentException exception = new IllegalArgumentException("잘못된 요청입니다");
@@ -68,15 +90,16 @@ class GlobalExceptionHandlerTest {
         }
 
         @Test
-        @DisplayName("IOException 핸들러는 500을 반환한다")
-        void shouldReturn500ForIOException() {
-            IOException exception = new IOException("ERR_IO_01::파일 처리 실패");
+        @DisplayName("IOException 핸들러는 500과 고정 메시지를 반환한다")
+        void shouldReturn500WithFixedMessageForIOException() {
+            IOException exception = new IOException("/var/log/app/secret.log (No such file or directory)");
 
             ResponseEntity<ErrorResponse> response = handler.handleIOException(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
             assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody().getCode()).isEqualTo("ERR_IO_01");
+            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("/var/log");
         }
 
         @Test
@@ -228,6 +251,165 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getMessage()).doesNotContain("/ by zero");
             assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("예외 메시지 정보 유출 방지")
+    class ExceptionMessageInfoLeakPreventionTest {
+
+        @Test
+        @DisplayName("HttpRequestMethodNotSupportedException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForHttpRequestMethodNotSupportedException() {
+            org.springframework.web.HttpRequestMethodNotSupportedException exception =
+                    new org.springframework.web.HttpRequestMethodNotSupportedException("DELETE", List.of("GET", "POST", "PUT"));
+
+            ResponseEntity<ErrorResponse> response = handler.handleHttpRequestMethodNotSupportedException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("지원하지 않는 HTTP 메서드입니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("GET");
+            assertThat(response.getBody().getMessage()).doesNotContain("POST");
+        }
+
+        @Test
+        @DisplayName("HttpMediaTypeNotSupportedException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForHttpMediaTypeNotSupportedException() {
+            org.springframework.web.HttpMediaTypeNotSupportedException exception =
+                    new org.springframework.web.HttpMediaTypeNotSupportedException("Content-Type 'text/xml' is not supported");
+
+            ResponseEntity<ErrorResponse> response = handler.handleHttpMediaTypeNotSupportedException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("지원하지 않는 미디어 타입입니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("text/xml");
+        }
+
+        @Test
+        @DisplayName("IOException 핸들러는 내부 파일 경로를 노출하지 않는다")
+        void shouldNotExposeFilePathInIOExceptionResponse() {
+            IOException exception = new IOException("/var/log/app/secret.log (No such file or directory)");
+
+            ResponseEntity<ErrorResponse> response = handler.handleIOException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).doesNotContain("/var/log");
+            assertThat(response.getBody().getMessage()).doesNotContain("secret.log");
+        }
+
+        @Test
+        @DisplayName("AuthenticationException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForAuthenticationException() {
+            BadCredentialsException exception =
+                    new BadCredentialsException("Full authentication is required to access this resource at /api/v1/internal");
+
+            ResponseEntity<ErrorResponse> response = handler.handleAuthenticationException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("인증에 실패했습니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("/api/v1/internal");
+        }
+
+        @Test
+        @DisplayName("AccessDeniedException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForAccessDeniedException() {
+            AccessDeniedException exception =
+                    new AccessDeniedException("Access denied for user 'admin' to resource /api/v1/admin/settings");
+
+            ResponseEntity<ErrorResponse> response = handler.handleAccessDeniedException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("접근이 거부되었습니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("/api/v1/admin");
+        }
+
+        @Test
+        @DisplayName("EntityExistsException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForEntityExistsException() {
+            EntityExistsException exception =
+                    new EntityExistsException("A different object with the same identifier value was already associated: [com.personal.marketnote.product.entity.ProductJpaEntity#123]");
+
+            ResponseEntity<ErrorResponse> response = handler.handleEntityExistsException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("이미 존재하는 데이터입니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("com.personal");
+        }
+
+        @Test
+        @DisplayName("MailException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForMailException() {
+            MailSendException exception =
+                    new MailSendException("Mail server connection failed; nested exception: javax.mail.MessagingException: Could not connect to SMTP host: smtp.internal.personal.com, port: 587");
+
+            ResponseEntity<ErrorResponse> response = handler.handleMailException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("메일 발송에 실패했습니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("smtp");
+        }
+
+        @Test
+        @DisplayName("MalformedJwtException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForMalformedJwtException() {
+            MalformedJwtException exception =
+                    new MalformedJwtException("Unable to read JSON value: {\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+
+            ResponseEntity<ErrorResponse> response = handler.handleMalformedJwtException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("유효하지 않은 토큰입니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("HS256");
+        }
+
+        @Test
+        @DisplayName("UnsupportedJwtException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForUnsupportedJwtException() {
+            UnsupportedJwtException exception =
+                    new UnsupportedJwtException("Signed JWSs are not supported. Use unsigned JWTs instead.");
+
+            ResponseEntity<ErrorResponse> response = handler.handleUnsupportedJwtException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("지원하지 않는 토큰입니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("JWS");
+        }
+
+        @Test
+        @DisplayName("UncheckedIOException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForUncheckedIOException() {
+            UncheckedIOException exception =
+                    new UncheckedIOException(new IOException("Connection reset by peer: /10.0.1.5:8080"));
+
+            ResponseEntity<ErrorResponse> response = handler.handleUncheckedIOException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("10.0.1.5");
+        }
+    }
+
+    @Nested
+    @DisplayName("Logger 필드 접근 제어자")
+    class LoggerFieldTest {
+
+        @Test
+        @DisplayName("Logger 필드는 private static final이다")
+        void loggerFieldShouldBePrivateStaticFinal() throws NoSuchFieldException {
+            Field logField = GlobalExceptionHandler.class.getDeclaredField("log");
+
+            assertThat(Modifier.isPrivate(logField.getModifiers())).isTrue();
+            assertThat(Modifier.isStatic(logField.getModifiers())).isTrue();
+            assertThat(Modifier.isFinal(logField.getModifiers())).isTrue();
         }
     }
 
