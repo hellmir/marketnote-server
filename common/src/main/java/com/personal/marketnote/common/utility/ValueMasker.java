@@ -9,14 +9,15 @@ public class ValueMasker {
         }
 
         int length = value.length();
-        String firstChar = value.substring(0, 1);
 
-        if (length < 3) {
-            return firstChar + WILD_CARD;
+        if (length <= 2) {
+            return value.substring(0, 1) + WILD_CARD;
         }
 
-        String lastChar = value.substring(length - 1);
+        if (length <= 4) {
+            return value.substring(0, 2) + WILD_CARD.repeat(2);
+        }
 
-        return firstChar + WILD_CARD + lastChar;
+        return value.substring(0, 3) + WILD_CARD.repeat(3);
     }
 }
