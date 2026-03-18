@@ -6,6 +6,7 @@ import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.ResizedFile;
+import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.mapper.FileCommandToDomainMapper;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
 import com.personal.marketnote.file.port.in.command.UpdateFilesCommand;
@@ -48,6 +49,13 @@ public class UpdateFilesService implements UpdateFileUseCase {
         String ownerType = updateFilesCommand.ownerType();
         Long ownerId = updateFilesCommand.ownerId();
         String sort = updateFilesCommand.fileInfo().getFirst().sort();
+
+        FileSort fileSort = FileSort.from(sort);
+        int maxCount = fileSort.getMaxCount();
+        int requestedCount = updateFilesCommand.fileInfo().size();
+        if (requestedCount > maxCount) {
+            throw new InvalidFileCountLimitException(maxCount, requestedCount);
+        }
 
         // 기존 파일 목록이 존재하는 경우 비활성화
         List<FileDomain> currentFiles = getFileUseCase.getFiles(OwnerType.from(ownerType), ownerId, sort);
