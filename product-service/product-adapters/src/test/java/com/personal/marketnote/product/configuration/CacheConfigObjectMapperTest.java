@@ -31,10 +31,10 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * CacheConfig ObjectMapper 직렬화/역직렬화 왕복 테스트
- * <p>
+ *
  * GenericJackson2JsonRedisSerializer는 역직렬화 시 Object.class로 읽으므로,
  * mapper.readValue(json, Object.class)로 테스트해야 실제 Redis 캐시 동작을 재현한다.
- * <p>
+ *
  * 근본 원인: stream().toList()가 반환하는 ImmutableCollections$ListN은 package-private 클래스로,
  * Jackson NON_FINAL defaultTyping에서 최상위 레벨 직렬화 시 타입 래퍼가 누락된다.
  * ArrayList는 공개 클래스이므로 ["java.util.ArrayList", [...]] 형태로 정상 직렬화된다.
