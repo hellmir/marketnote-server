@@ -664,6 +664,183 @@ class GetProductUseCaseTest {
     }
 
     @Test
+    @DisplayName("캐시 적립률 높은순 정렬로 첫 페이지 상품 목록을 조회한다")
+    void getProducts_accumulatedPointRateDescFirstPage_includesTotalElements() {
+        stubProductImageExecutor();
+        Product product1 = buildProduct(120L, false);
+        Product product2 = buildProduct(130L, false);
+        Product product3 = buildProduct(140L, false);
+
+        PricePolicy policy1 = buildPricePolicy(1201L, product1, null, List.of());
+        PricePolicy policy2 = buildPricePolicy(1301L, product2, null, List.of());
+        PricePolicy policy3 = buildPricePolicy(1401L, product3, null, List.of());
+
+        when(findPricePoliciesPort.findPricePolicies(
+                any(), any(), any(), any(), any(), any()
+        )).thenReturn(List.of(policy1, policy2, policy3));
+
+        when(findProductPort.findById(120L)).thenReturn(Optional.of(product1));
+        when(findProductPort.findById(130L)).thenReturn(Optional.of(product2));
+
+        when(getProductInventoryUseCase.getProductStocks(List.of(1201L, 1301L)))
+                .thenReturn(Map.of(1201L, 5, 1301L, 3));
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
+                .thenReturn(Optional.empty());
+
+        when(findProductReviewAggregatesPort.findByProductIds(List.of(120L, 130L)))
+                .thenReturn(Map.of());
+
+        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
+                isNull(), eq(ProductSearchTarget.NAME), isNull()
+        )).thenReturn(50L);
+
+        GetProductsResult result = getProductService.getProducts(
+                null,
+                null,
+                null,
+                2,
+                Sort.Direction.DESC,
+                ProductSortProperty.ACCUMULATED_POINT_RATE,
+                ProductSearchTarget.NAME,
+                null
+        );
+
+        assertThat(result.totalElements()).isEqualTo(50L);
+        assertThat(result.hasNext()).isTrue();
+        assertThat(result.nextCursor()).isEqualTo(1301L);
+        assertThat(result.products()).hasSize(2);
+
+        verify(findPricePoliciesPort).findPricePolicies(
+                isNull(), isNull(), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+        );
+    }
+
+    @Test
+    @DisplayName("캐시 적립률 낮은순 정렬로 상품 목록을 조회한다")
+    void getProducts_accumulatedPointRateAsc_callsFindPricePolicies() {
+        stubProductImageExecutor();
+        Product product = buildProduct(150L, false);
+        PricePolicy policy = buildPricePolicy(1501L, product, null, List.of());
+
+        when(findPricePoliciesPort.findPricePolicies(
+                any(), any(), any(), any(), any(), any()
+        )).thenReturn(List.of(policy));
+
+        when(findProductPort.findById(150L)).thenReturn(Optional.of(product));
+
+        when(getProductInventoryUseCase.getProductStocks(List.of(1501L)))
+                .thenReturn(Map.of(1501L, 2));
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
+                .thenReturn(Optional.empty());
+
+        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
+                isNull(), eq(ProductSearchTarget.NAME), isNull()
+        )).thenReturn(1L);
+
+        GetProductsResult result = getProductService.getProducts(
+                null,
+                null,
+                null,
+                10,
+                Sort.Direction.ASC,
+                ProductSortProperty.ACCUMULATED_POINT_RATE,
+                ProductSearchTarget.NAME,
+                null
+        );
+
+        assertThat(result.products()).hasSize(1);
+        assertThat(result.hasNext()).isFalse();
+
+        verify(findPricePoliciesPort).findPricePolicies(
+                isNull(), isNull(), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+        );
+    }
+
+    @Test
+    @DisplayName("카테고리별 캐시 적립률 높은순 정렬로 상품 목록을 조회한다")
+    void getProducts_accumulatedPointRateDescWithCategory_callsFindByCategoryId() {
+        stubProductImageExecutor();
+        Long categoryId = 8L;
+        Product product = buildProduct(160L, false);
+        PricePolicy policy = buildPricePolicy(1601L, product, null, List.of());
+
+        when(findPricePoliciesPort.findPricePoliciesByCategoryId(
+                eq(categoryId), any(), any(), any(), any(), any(), any()
+        )).thenReturn(List.of(policy));
+
+        when(findProductPort.findById(160L)).thenReturn(Optional.of(product));
+
+        when(getProductInventoryUseCase.getProductStocks(List.of(1601L)))
+                .thenReturn(Map.of(1601L, 10));
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
+                .thenReturn(Optional.empty());
+
+        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
+                eq(categoryId), eq(ProductSearchTarget.NAME), isNull()
+        )).thenReturn(15L);
+
+        GetProductsResult result = getProductService.getProducts(
+                categoryId,
+                null,
+                null,
+                10,
+                Sort.Direction.DESC,
+                ProductSortProperty.ACCUMULATED_POINT_RATE,
+                ProductSearchTarget.NAME,
+                null
+        );
+
+        assertThat(result.totalElements()).isEqualTo(15L);
+        assertThat(result.products()).hasSize(1);
+
+        verify(findPricePoliciesPort).findPricePoliciesByCategoryId(
+                eq(categoryId), isNull(), isNull(), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+        );
+        verify(findPricePoliciesPort, never()).findPricePolicies(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("캐시 적립률 높은순 정렬로 다음 페이지 상품 목록을 조회한다")
+    void getProducts_accumulatedPointRateDescWithCursor_skipsTotalElements() {
+        stubProductImageExecutor();
+        Product product = buildProduct(170L, false);
+        PricePolicy policy = buildPricePolicy(1701L, product, null, List.of());
+
+        when(findPricePoliciesPort.findPricePolicies(
+                any(), any(), any(), any(), any(), any()
+        )).thenReturn(List.of(policy));
+
+        when(findProductPort.findById(170L)).thenReturn(Optional.of(product));
+
+        when(getProductInventoryUseCase.getProductStocks(List.of(1701L)))
+                .thenReturn(Map.of(1701L, 7));
+
+        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
+                .thenReturn(Optional.empty());
+
+        GetProductsResult result = getProductService.getProducts(
+                null,
+                null,
+                500L,
+                10,
+                Sort.Direction.DESC,
+                ProductSortProperty.ACCUMULATED_POINT_RATE,
+                ProductSearchTarget.NAME,
+                null
+        );
+
+        assertThat(result.totalElements()).isNull();
+        assertThat(result.hasNext()).isFalse();
+        assertThat(result.nextCursor()).isEqualTo(1701L);
+        assertThat(result.products()).hasSize(1);
+
+        verify(findPricePoliciesPort, never()).countActivePricePoliciesByCategoryId(any(), any(), any());
+    }
+
+    @Test
     @DisplayName("리뷰 집계 값이 없으면 평점과 리뷰 수를 0으로 반환한다")
     void getProducts_reviewAggregateNullValues_returnsZero() {
         stubProductImageExecutor();
