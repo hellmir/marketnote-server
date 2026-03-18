@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import com.personal.marketnote.product.exception.InvalidPricePolicyAccumulatedPointException;
 import com.personal.marketnote.product.exception.InvalidPricePolicyPriceException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.port.in.command.RegisterPricePolicyCommand;
@@ -291,6 +292,43 @@ class RegisterPricePolicyUseCaseTest {
 
         assertThat(saved.getDiscountRate()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("적립금이 할인가와 같으면 적립률 100%로 정상 등록된다")
+    void registerPricePolicy_accumulatedPointEqualsDiscountPrice_registers100PercentRate() {
+        Long userId = 14L;
+        Long productId = 140L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 10000L, 10000L, List.of());
+        Product product = buildProduct(productId, userId);
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(productId)).thenReturn(product);
+        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(800L);
+
+        registerPricePolicyService.registerPricePolicy(userId, false, command);
+
+        ArgumentCaptor<PricePolicy> captor = ArgumentCaptor.forClass(PricePolicy.class);
+        verify(savePricePolicyPort).save(captor.capture());
+        PricePolicy saved = captor.getValue();
+
+        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(new BigDecimal("100.0"));
+    }
+
+    @Test
+    @DisplayName("적립금이 할인가를 초과하면 InvalidPricePolicyAccumulatedPointException 예외를 던진다")
+    void registerPricePolicy_accumulatedPointExceedsDiscountPrice_throws() {
+        Long userId = 15L;
+        Long productId = 150L;
+        RegisterPricePolicyCommand command = RegisterPricePolicyCommand.of(productId, 10000L, 1000L, 2000L, List.of());
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+
+        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
+                .isInstanceOf(InvalidPricePolicyAccumulatedPointException.class)
+                .hasMessageContaining("적립금이 현재 판매가를 초과할 수 없습니다");
+
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort, registerInventoryPort);
     }
 
     @Test
