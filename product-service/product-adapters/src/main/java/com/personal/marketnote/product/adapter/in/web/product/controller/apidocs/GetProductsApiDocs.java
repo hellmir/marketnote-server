@@ -51,7 +51,7 @@ import java.lang.annotation.*;
                 | cursor | number | 이전 페이지의 nextCursor 값, 전송하지 않는 경우 첫 데이터부터 조회 | N | 1 |
                 | page-size | number | 페이지 크기 | N | 4 |
                 | sortDirection | string | 정렬 방향(ASC, DESC) | N | DESC |
-                | sortProperty | string | 정렬 속성(ORDER_NUM, POPULARITY, DISCOUNT_PRICE, ACCUMULATED_POINT) | N | ORDER_NUM |
+                | sortProperty | string | 정렬 속성(ORDER_NUM, POPULARITY, DISCOUNT_PRICE, ACCUMULATED_POINT, ACCUMULATED_POINT_RATE) | N | ORDER_NUM |
                 | searchTarget | string | 검색 대상(NAME, BRAND_NAME) | N | NAME |
                 | searchKeyword | string | 검색 키워드 | N | "노트왕" |
                 
@@ -197,7 +197,7 @@ import java.lang.annotation.*;
                         schema = @Schema(
                                 type = "string",
                                 example = "ORDER_NUM",
-                                allowableValues = {"ORDER_NUM", "POPULARITY", "DISCOUNT_PRICE", "ACCUMULATED_POINT"},
+                                allowableValues = {"ORDER_NUM", "POPULARITY", "DISCOUNT_PRICE", "ACCUMULATED_POINT", "ACCUMULATED_POINT_RATE"},
                                 defaultValue = "ORDER_NUM"
                         )
                 ),
