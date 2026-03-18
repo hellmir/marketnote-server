@@ -30,7 +30,7 @@ public class UpdateUserInfoRequest {
             description = "닉네임",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @Pattern(regexp = NICKNAME_PATTERN, message = "닉네임은 한글만 가능하며, 6글자 이하여야 합니다.")
+    @Pattern(regexp = NICKNAME_PATTERN, message = "닉네임은 한글, 영어 대소문자, 숫자만 가능하며, 2~10글자여야 합니다.")
     private String nickname;
 
     @Schema(
