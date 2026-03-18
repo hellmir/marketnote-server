@@ -632,6 +632,38 @@ class GetProductUseCaseTest {
     }
 
     @Test
+    @DisplayName("캐시에서 복원된 가격 정책도 productId가 유지되어 정상 조회된다")
+    void getProducts_cachedPricePolicyWithProductId_worksCorrectly() {
+        stubProductImageExecutor();
+        Product product = buildProduct(10L, false);
+        PricePolicy cachedPolicy = buildPricePolicyWithProductIdOnly(100L, 10L);
+
+        when(findPricePoliciesPort.findPricePolicies(
+                any(), any(), any(), any(), any(), any()
+        )).thenReturn(List.of(cachedPolicy));
+        when(findProductPort.findById(10L)).thenReturn(Optional.of(product));
+        when(getProductInventoryUseCase.getProductStocks(List.of(100L)))
+                .thenReturn(Map.of(100L, 5));
+        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
+                .thenReturn(Optional.empty());
+        when(findProductReviewAggregatesPort.findByProductIds(List.of(10L)))
+                .thenReturn(Map.of());
+        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
+                isNull(), eq(ProductSearchTarget.NAME), isNull()
+        )).thenReturn(1L);
+
+        GetProductsResult result = getProductService.getProducts(
+                null, null, null, 10,
+                Sort.Direction.DESC, ProductSortProperty.POPULARITY,
+                ProductSearchTarget.NAME, null
+        );
+
+        assertThat(result.products()).hasSize(1);
+        assertThat(result.products().getFirst().getId()).isEqualTo(10L);
+        assertThat(result.products().getFirst().getStock()).isEqualTo(5);
+    }
+
+    @Test
     @DisplayName("리뷰 집계 값이 없으면 평점과 리뷰 수를 0으로 반환한다")
     void getProducts_reviewAggregateNullValues_returnsZero() {
         stubProductImageExecutor();
@@ -720,6 +752,22 @@ class GetProductUseCaseTest {
                         .status(EntityStatus.ACTIVE)
                         .optionIds(optionIds)
                         .productOptions(productOptions)
+                        .build()
+        );
+    }
+
+    private PricePolicy buildPricePolicyWithProductIdOnly(Long id, Long productId) {
+        return PricePolicy.from(
+                PricePolicySnapshotState.builder()
+                        .id(id)
+                        .productId(productId)
+                        .product(null)
+                        .price(10000L)
+                        .discountPrice(9000L)
+                        .discountRate(BigDecimal.valueOf(10))
+                        .accumulatedPoint(100L)
+                        .accumulationRate(BigDecimal.valueOf(1))
+                        .status(EntityStatus.ACTIVE)
                         .build()
         );
     }
