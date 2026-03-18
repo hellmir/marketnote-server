@@ -17,6 +17,7 @@ import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilePort;
 import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,15 +76,9 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
     }
 
     private List<FileJpaEntity> getEntities(OwnerType ownerType, Long ownerId, FileSort sort) {
-        String sortName = sort.name();
-        if (sort.isCatalogImage()) {
-            return fileJpaRepository.findTop1ByOwnerTypeAndOwnerIdAndSortOrderByOrderNumDesc(
-                    ownerType, ownerId, sortName
-            );
-        }
-
-        return fileJpaRepository.findTop5ByOwnerTypeAndOwnerIdAndSortOrderByOrderNumDesc(
-                ownerType, ownerId, sortName
+        return fileJpaRepository.findByOwnerTypeAndOwnerIdAndSort(
+                ownerType, ownerId, sort.name(),
+                PageRequest.of(0, sort.getMaxCount())
         );
     }
 
