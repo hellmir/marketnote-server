@@ -113,6 +113,19 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                                 )
                                AND pp.id > :cursor)
                         ))
+                     OR (:sortProperty = 'accumulatedPointRate' AND (
+                              COALESCE(pp.accumulationRate, 0) > (
+                                  SELECT COALESCE(pp6.accumulationRate, 0)
+                                  FROM PricePolicyJpaEntity pp6
+                                  WHERE pp6.id = :cursor
+                              )
+                           OR (COALESCE(pp.accumulationRate, 0) = (
+                                    SELECT COALESCE(pp6.accumulationRate, 0)
+                                    FROM PricePolicyJpaEntity pp6
+                                    WHERE pp6.id = :cursor
+                                )
+                               AND pp.id > :cursor)
+                        ))
                  )
               )
             ORDER BY
@@ -120,6 +133,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                 CASE WHEN :sortProperty = 'popularity' THEN p.sales END ASC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN COALESCE(pp.discountPrice, 0) END ASC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN COALESCE(pp.accumulatedPoint, 0) END ASC,
+                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN COALESCE(pp.accumulationRate, 0) END ASC,
                 p.id ASC
             """)
     List<ProductJpaEntity> findAllActiveByCursorAsc(
@@ -216,6 +230,19 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                                 )
                                AND pp.id < :cursor)
                         ))
+                     OR (:sortProperty = 'accumulatedPointRate' AND (
+                              COALESCE(pp.accumulationRate, 0) < (
+                                  SELECT COALESCE(pp6.accumulationRate, 0)
+                                  FROM PricePolicyJpaEntity pp6
+                                  WHERE pp6.id = :cursor
+                              )
+                           OR (COALESCE(pp.accumulationRate, 0) = (
+                                    SELECT COALESCE(pp6.accumulationRate, 0)
+                                    FROM PricePolicyJpaEntity pp6
+                                    WHERE pp6.id = :cursor
+                                )
+                               AND pp.id < :cursor)
+                        ))
                  )
               )
             ORDER BY
@@ -223,6 +250,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                 CASE WHEN :sortProperty = 'popularity' THEN p.sales END DESC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN COALESCE(pp.discountPrice, 0) END DESC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN COALESCE(pp.accumulatedPoint, 0) END DESC,
+                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN COALESCE(pp.accumulationRate, 0) END DESC,
                 p.id DESC
             """)
     List<ProductJpaEntity> findAllActiveByCursorDesc(
@@ -326,6 +354,19 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                                 )
                                AND pp.id > :cursor)
                         ))
+                     OR (:sortProperty = 'accumulatedPointRate' AND (
+                              COALESCE(pp.accumulationRate, 0) > (
+                                  SELECT COALESCE(pp6.accumulationRate, 0)
+                                  FROM PricePolicyJpaEntity pp6
+                                  WHERE pp6.id = :cursor
+                              )
+                           OR (COALESCE(pp.accumulationRate, 0) = (
+                                    SELECT COALESCE(pp6.accumulationRate, 0)
+                                    FROM PricePolicyJpaEntity pp6
+                                    WHERE pp6.id = :cursor
+                                )
+                               AND pp.id > :cursor)
+                        ))
                  )
               )
             ORDER BY
@@ -333,6 +374,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                 CASE WHEN :sortProperty = 'popularity' THEN p.sales END ASC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN COALESCE(pp.discountPrice, 0) END ASC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN COALESCE(pp.accumulatedPoint, 0) END ASC,
+                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN COALESCE(pp.accumulationRate, 0) END ASC,
                 p.id ASC
             """)
     List<ProductJpaEntity> findAllActiveByCategoryIdCursorAsc(
@@ -437,6 +479,19 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                                 )
                                AND pp.id < :cursor)
                         ))
+                     OR (:sortProperty = 'accumulatedPointRate' AND (
+                              COALESCE(pp.accumulationRate, 0) < (
+                                  SELECT COALESCE(pp6.accumulationRate, 0)
+                                  FROM PricePolicyJpaEntity pp6
+                                  WHERE pp6.id = :cursor
+                              )
+                           OR (COALESCE(pp.accumulationRate, 0) = (
+                                    SELECT COALESCE(pp6.accumulationRate, 0)
+                                    FROM PricePolicyJpaEntity pp6
+                                    WHERE pp6.id = :cursor
+                                )
+                               AND pp.id < :cursor)
+                        ))
                  )
               )
             ORDER BY
@@ -444,6 +499,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
                 CASE WHEN :sortProperty = 'popularity' THEN p.sales END DESC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN COALESCE(pp.discountPrice, 0) END DESC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN COALESCE(pp.accumulatedPoint, 0) END DESC,
+                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN COALESCE(pp.accumulationRate, 0) END DESC,
                 p.id DESC
             """)
     List<ProductJpaEntity> findAllActiveByCategoryIdCursorDesc(

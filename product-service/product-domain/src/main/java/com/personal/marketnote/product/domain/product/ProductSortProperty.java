@@ -8,6 +8,7 @@ public enum ProductSortProperty {
     ORDER_NUM("정렬 순서"),
     POPULARITY("인기도"),
     ACCUMULATED_POINT("적립금"),
+    ACCUMULATED_POINT_RATE("적립률"),
     DISCOUNT_PRICE("할인 가격");
 
     private final String description;
