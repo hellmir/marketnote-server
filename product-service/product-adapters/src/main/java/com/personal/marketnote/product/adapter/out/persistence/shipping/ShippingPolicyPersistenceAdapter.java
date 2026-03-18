@@ -7,8 +7,10 @@ import com.personal.marketnote.product.adapter.out.persistence.shipping.entity.S
 import com.personal.marketnote.product.adapter.out.persistence.shipping.repository.ShippingPolicyJpaRepository;
 import com.personal.marketnote.product.domain.shipping.ShippingPolicy;
 import com.personal.marketnote.product.exception.ShippingPolicyAlreadyExistsException;
+import com.personal.marketnote.product.exception.ShippingPolicyNotFoundException;
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import com.personal.marketnote.product.port.out.shipping.SaveShippingPolicyPort;
+import com.personal.marketnote.product.port.out.shipping.UpdateShippingPolicyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -16,7 +18,7 @@ import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort, FindShippingPolicyPort {
+public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort, FindShippingPolicyPort, UpdateShippingPolicyPort {
 
     private final ShippingPolicyJpaRepository shippingPolicyJpaRepository;
 
@@ -35,5 +37,14 @@ public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort,
     public Optional<ShippingPolicy> findActiveBySellerId(Long sellerId) {
         return shippingPolicyJpaRepository.findBySellerIdAndStatus(sellerId, EntityStatus.ACTIVE)
                 .flatMap(ShippingPolicyJpaEntityToDomainMapper::mapToDomain);
+    }
+
+    @Override
+    public void update(ShippingPolicy shippingPolicy) {
+        ShippingPolicyJpaEntity entity = shippingPolicyJpaRepository
+                .findById(shippingPolicy.getId())
+                .orElseThrow(() -> new ShippingPolicyNotFoundException(shippingPolicy.getSellerId()));
+
+        entity.updateFrom(shippingPolicy);
     }
 }
