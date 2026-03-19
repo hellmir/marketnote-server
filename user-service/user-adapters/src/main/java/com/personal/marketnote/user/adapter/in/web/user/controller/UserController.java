@@ -13,15 +13,20 @@ import com.personal.marketnote.user.adapter.in.web.user.response.*;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.result.WithdrawResult;
+import com.personal.marketnote.user.port.in.result.CheckNicknameResult;
 import com.personal.marketnote.user.port.in.usecase.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.utility.jwt.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import com.personal.marketnote.common.utility.RegularExpressionConstant;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -55,12 +60,14 @@ import static com.personal.marketnote.common.security.token.utility.TokenConstan
 @RequestMapping("/api/v1/users")
 @Tag(name = "회원 API", description = "회원 관련 API")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class UserController {
     private final SignUpUseCase signUpUseCase;
     private final SignInUseCase signInUseCase;
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final CheckNicknameUseCase checkNicknameUseCase;
     private final RegisterReferredUserCodeUseCase registerReferredUserCodeUseCase;
     private final SignOutUseCase signOutUseCase;
     private final WithdrawUseCase withdrawUseCase;
@@ -280,6 +287,38 @@ public class UserController {
         }
 
         return AuthVendor.NATIVE;
+    }
+
+    /**
+     * 닉네임 중복 여부 조회
+     *
+     * @param nickname 닉네임
+     * @return 닉네임 중복 여부 응답 {@link CheckNicknameResponse}
+     * @Author 성효빈
+     * @Date 2026-03-19
+     * @Description 닉네임 중복 여부를 조회합니다.
+     */
+    @GetMapping("/nickname/check")
+    @CheckNicknameApiDocs
+    public ResponseEntity<BaseResponse<CheckNicknameResponse>> checkNickname(
+            @RequestParam
+            @Pattern(regexp = RegularExpressionConstant.NICKNAME_PATTERN,
+                    message = "닉네임은 한글, 영어 대소문자, 숫자만 가능하며, 2~10글자여야 합니다.")
+            @NotBlank(message = "닉네임은 필수입니다")
+            String nickname
+    ) {
+        CheckNicknameResult checkNicknameResult = checkNicknameUseCase.checkNickname(nickname);
+        CheckNicknameResponse checkNicknameResponse = CheckNicknameResponse.from(checkNicknameResult);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        checkNicknameResponse,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "닉네임 중복 여부 조회 성공"
+                ),
+                HttpStatus.OK
+        );
     }
 
     /**
