@@ -98,14 +98,15 @@ public class GetOrderService implements GetOrderUseCase {
             return GetBuyerOrderProductsResult.of(List.of());
         }
 
-        Predicate<OrderProduct> reviewFilter = orderProduct
-                -> query.matchesReviewStatus(orderProduct.getIsReviewed());
+        Predicate<OrderProduct> orderProductFilter = orderProduct
+                -> orderProduct.isConfirmed()
+                && query.matchesReviewStatus(orderProduct.getIsReviewed());
         Map<Long, ProductInfoResult> orderedProductsByPricePolicyId
-                = findOrderedProductsByPricePolicyId(orders, reviewFilter);
+                = findOrderedProductsByPricePolicyId(orders, orderProductFilter);
 
         List<GetBuyerOrderProductResult> orderProducts = orders.stream()
                 .flatMap(order -> order.getOrderProducts().stream()
-                        .filter(reviewFilter)
+                        .filter(orderProductFilter)
                         .map(orderProduct -> GetBuyerOrderProductResult.from(
                                 order,
                                 orderProduct,

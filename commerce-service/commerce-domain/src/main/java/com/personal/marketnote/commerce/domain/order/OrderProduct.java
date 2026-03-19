@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,6 +52,10 @@ public class OrderProduct {
             throw new InvalidOrderProductStatusTransitionException(this.orderStatus, orderStatus);
         }
         this.orderStatus = orderStatus;
+    }
+
+    public boolean isConfirmed() {
+        return FormatValidator.hasValue(this.orderStatus) && this.orderStatus.isConfirmed();
     }
 
     public void updateReviewStatus(Boolean isReviewed) {

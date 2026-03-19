@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.adapter.in.web.payment.controller;
 
+import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.GetUnknownPaymentEventsApiDocs;
+import com.personal.marketnote.commerce.adapter.in.web.payment.controller.apidocs.ResolveUnknownPaymentEventApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.payment.request.ResolveUnknownPaymentRequest;
 import com.personal.marketnote.commerce.adapter.in.web.payment.response.GetUnknownPaymentEventsResponse;
 import com.personal.marketnote.commerce.adapter.in.web.payment.response.ResolveUnknownPaymentResponse;
@@ -9,8 +11,6 @@ import com.personal.marketnote.commerce.port.in.result.payment.ResolveUnknownPay
 import com.personal.marketnote.commerce.port.in.usecase.payment.GetUnknownPaymentEventsUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.ResolveUnknownPaymentUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
 @RestController
-@Tag(name = "관리자 결제 이벤트 API", description = "UNKNOWN 상태 결제 이벤트 관리")
+@Tag(name = "결제 이벤트 API", description = "UNKNOWN 상태 결제 이벤트 관리")
 @RequiredArgsConstructor
 public class AdminPaymentEventController {
     private final GetUnknownPaymentEventsUseCase getUnknownPaymentEventsUseCase;
@@ -33,8 +33,7 @@ public class AdminPaymentEventController {
 
     @GetMapping("/api/v1/admin/payments/events/unknown")
     @PreAuthorize(ADMIN_POINTCUT)
-    @SecurityRequirement(name = "bearer")
-    @Operation(summary = "UNKNOWN 상태 결제 이벤트 조회", description = "KCP 통신 장애로 승인 여부를 알 수 없는 결제 이벤트 목록을 조회합니다.")
+    @GetUnknownPaymentEventsApiDocs
     public ResponseEntity<BaseResponse<List<GetUnknownPaymentEventsResponse>>> getUnknownPaymentEvents() {
         List<GetUnknownPaymentEventsResult> results = getUnknownPaymentEventsUseCase.getUnknownPaymentEvents();
         List<GetUnknownPaymentEventsResponse> responses = results.stream()
@@ -48,8 +47,7 @@ public class AdminPaymentEventController {
 
     @PostMapping("/api/v1/admin/payments/events/{orderKey}/resolve")
     @PreAuthorize(ADMIN_POINTCUT)
-    @SecurityRequirement(name = "bearer")
-    @Operation(summary = "UNKNOWN 결제 이벤트 수동 해소", description = "관리자가 KCP 가맹점 사이트에서 확인한 결과를 바탕으로 UNKNOWN 이벤트를 COMPLETE 또는 FAILED로 해소합니다.")
+    @ResolveUnknownPaymentEventApiDocs
     public ResponseEntity<BaseResponse<ResolveUnknownPaymentResponse>> resolveUnknownPaymentEvent(
             @PathVariable("orderKey") String orderKey,
             @Valid @RequestBody ResolveUnknownPaymentRequest request

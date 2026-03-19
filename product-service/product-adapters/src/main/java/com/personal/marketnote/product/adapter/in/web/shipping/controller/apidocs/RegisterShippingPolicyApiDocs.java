@@ -19,33 +19,33 @@ import java.lang.annotation.*;
         summary = "(판매자/관리자) 배송비 정책 등록",
         description = """
                 작성일자: 2026-03-17
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 판매자의 배송비 정책을 등록합니다.
-
+                
                 - 판매자 1명당 배송비 정책은 1개만 등록할 수 있습니다.
-
+                
                 - 판매자 본인 또는 관리자만 가능합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | deliveryCompany | string | 배송업체 | Y | "한진택배" |
                 | shippingFee | number | 배송비 | Y | 3000 |
                 | freeShippingThreshold | number | 무료배송 기준금액 | Y | 20000 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 / 500: 그 외 |
@@ -53,9 +53,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-03-17T10:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "판매자 배송비 정책 등록 성공" |
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 배송비 정책 ID | 1 |

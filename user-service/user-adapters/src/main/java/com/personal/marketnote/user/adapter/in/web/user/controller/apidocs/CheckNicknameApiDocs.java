@@ -15,27 +15,27 @@ import java.lang.annotation.*;
         summary = "닉네임 중복 여부 조회",
         description = """
                 작성일자: 2026-03-19
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 닉네임 중복 여부를 조회합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | nickname | string | 닉네임 | 필수 | "향긋한스윗피" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 |
@@ -43,11 +43,11 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-03-19T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "닉네임 중복 여부 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | isDuplicated | boolean | 닉네임 중복 여부 | true / false |

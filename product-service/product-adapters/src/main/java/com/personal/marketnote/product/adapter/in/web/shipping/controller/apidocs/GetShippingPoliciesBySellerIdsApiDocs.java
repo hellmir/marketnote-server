@@ -9,11 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,23 +18,23 @@ import java.lang.annotation.Target;
         summary = "(관리자) 판매자별 배송비 정책 배치 조회",
         description = """
                 작성일자: 2026-03-19
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 판매자 ID 목록으로 배송비 정책을 배치 조회합니다.
-
+                
                 - 서비스 간 내부 통신용 API입니다.
-
+                
                 - 관리자 권한이 필요합니다.
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 401: 인증 실패 / 403: 인가 실패 / 500: 그 외 |
@@ -46,15 +42,15 @@ import java.lang.annotation.Target;
                 | timestamp | string(datetime) | 응답 일시 | "2026-03-19T10:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "판매자별 배송비 정책 배치 조회 성공" |
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | shippingPolicies | array | 배송비 정책 목록 | [ ... ] |
-
+                
                 ### Response > content > shippingPolicies[]
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | sellerId | number | 판매자 ID | 10 |
