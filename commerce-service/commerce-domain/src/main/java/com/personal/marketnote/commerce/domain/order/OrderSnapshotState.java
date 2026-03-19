@@ -24,6 +24,7 @@ public class OrderSnapshotState {
     private final Long paidAmount;
     private final Long couponAmount;
     private final Long pointAmount;
+    private final Long shippingFee;
     private final List<OrderProductSnapshotState> orderProductStates;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;

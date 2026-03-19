@@ -24,6 +24,7 @@ public class Order {
     private Long paidAmount;
     private Long couponAmount;
     private Long pointAmount;
+    private Long shippingFee;
     private List<OrderProduct> orderProducts;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -43,6 +44,7 @@ public class Order {
                 .totalAmount(state.getTotalAmount())
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
+                .shippingFee(state.getShippingFee())
                 .orderProducts(orderProducts)
                 .build();
     }
@@ -66,6 +68,7 @@ public class Order {
                 .paidAmount(state.getPaidAmount())
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
+                .shippingFee(state.getShippingFee())
                 .orderProducts(orderProducts)
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())

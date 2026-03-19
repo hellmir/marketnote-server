@@ -30,6 +30,7 @@ public class OrderRequestToCommandMapper {
                 .totalAmount(request.getTotalAmount())
                 .couponAmount(request.getCouponAmount())
                 .pointAmount(request.getPointAmount())
+                .shippingFee(request.getShippingFee())
                 .orderProducts(orderProducts)
                 .build();
     }

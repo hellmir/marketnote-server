@@ -59,6 +59,9 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "point_amount")
     private Long pointAmount;
 
+    @Column(name = "shipping_fee")
+    private Long shippingFee;
+
     @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     @Builder.Default
     private List<OrderProductJpaEntity> orderProductJpaEntities = new ArrayList<>();
@@ -73,6 +76,7 @@ public class OrderJpaEntity extends BaseEntity {
                 .paidAmount(order.getPaidAmount())
                 .couponAmount(order.getCouponAmount())
                 .pointAmount(order.getPointAmount())
+                .shippingFee(order.getShippingFee())
                 .build();
     }
 
@@ -86,6 +90,7 @@ public class OrderJpaEntity extends BaseEntity {
         paidAmount = order.getPaidAmount();
         couponAmount = order.getCouponAmount();
         pointAmount = order.getPointAmount();
+        shippingFee = order.getShippingFee();
 
         Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()
                 .stream()

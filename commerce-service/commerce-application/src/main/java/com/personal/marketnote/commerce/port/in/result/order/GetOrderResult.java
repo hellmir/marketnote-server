@@ -22,6 +22,7 @@ public record GetOrderResult(
         Long paidAmount,
         Long couponAmount,
         Long pointAmount,
+        Long shippingFee,
         List<GetOrderProductResult> orderProducts
 ) {
     public static GetOrderResult from(
@@ -39,6 +40,7 @@ public record GetOrderResult(
                 .paidAmount(order.getPaidAmount())
                 .couponAmount(order.getCouponAmount())
                 .pointAmount(order.getPointAmount())
+                .shippingFee(order.getShippingFee())
                 .orderProducts(order.getOrderProducts().stream()
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,

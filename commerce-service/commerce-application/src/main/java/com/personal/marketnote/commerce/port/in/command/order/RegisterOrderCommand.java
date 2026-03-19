@@ -10,6 +10,7 @@ public record RegisterOrderCommand(
         Long totalAmount,
         Long couponAmount,
         Long pointAmount,
+        Long shippingFee,
         List<OrderProductItemCommand> orderProducts
 ) {
 }

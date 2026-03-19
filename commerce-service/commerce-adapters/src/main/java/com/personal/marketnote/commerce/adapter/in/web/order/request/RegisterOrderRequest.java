@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.in.web.order.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +36,15 @@ public class RegisterOrderRequest {
     )
     @Min(value = 0, message = "포인트 사용 금액은 0 이상이어야 합니다.")
     private Long pointAmount;
+
+    @Schema(
+            name = "shippingFee",
+            description = "배송비(원)",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    @Min(value = 0, message = "배송비는 0 이상이어야 합니다.")
+    @Max(value = 1000000, message = "배송비는 1,000,000원을 초과할 수 없습니다.")
+    private Long shippingFee;
 
     @Schema(
             name = "orderProducts",

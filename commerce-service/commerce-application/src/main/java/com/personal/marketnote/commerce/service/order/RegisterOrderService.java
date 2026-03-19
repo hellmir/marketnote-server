@@ -89,6 +89,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 .totalAmount(command.totalAmount())
                                 .couponAmount(command.couponAmount())
                                 .pointAmount(command.pointAmount())
+                                .shippingFee(command.shippingFee())
                                 .orderProductStates(orderProductStates)
                                 .build()
                 )
@@ -96,12 +97,15 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
         long couponAmount = resolveAmount(command.couponAmount());
         long pointAmount = resolveAmount(command.pointAmount());
-        long paymentAmount = command.totalAmount() - couponAmount - pointAmount;
+        long shippingFee = resolveAmount(command.shippingFee());
+        long payableAmount = Math.addExact(command.totalAmount(), shippingFee);
+        long totalDiscount = Math.addExact(couponAmount, pointAmount);
+        long paymentAmount = Math.subtractExact(payableAmount, totalDiscount);
 
         if (paymentAmount < 0) {
-            log.error("결제 금액 음수 발생 - totalAmount: {}, coupon: {}, point: {}",
-                    command.totalAmount(), couponAmount, pointAmount);
-            throw new ExcessiveDiscountException(command.totalAmount(), couponAmount, pointAmount);
+            log.error("결제 금액 음수 발생 - totalAmount: {}, shippingFee: {}, coupon: {}, point: {}",
+                    command.totalAmount(), shippingFee, couponAmount, pointAmount);
+            throw new ExcessiveDiscountException(command.totalAmount(), shippingFee, couponAmount, pointAmount);
         }
 
         savePaymentPort.save(
@@ -168,18 +172,21 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     private void validateDiscountAmounts(RegisterOrderCommand command) {
         long couponAmount = resolveAmount(command.couponAmount());
         long pointAmount = resolveAmount(command.pointAmount());
+        long shippingFee = resolveAmount(command.shippingFee());
 
         long totalDiscount;
+        long payableAmount;
         try {
             totalDiscount = Math.addExact(couponAmount, pointAmount);
+            payableAmount = Math.addExact(command.totalAmount(), shippingFee);
         } catch (ArithmeticException e) {
-            log.warn("할인 금액 오버플로우 - 쿠폰: {}, 포인트: {}", couponAmount, pointAmount);
-            throw new ExcessiveDiscountException(command.totalAmount(), couponAmount, pointAmount);
+            log.warn("할인/배송비 금액 오버플로우 - 쿠폰: {}, 포인트: {}, 배송비: {}", couponAmount, pointAmount, shippingFee);
+            throw new ExcessiveDiscountException(command.totalAmount(), shippingFee, couponAmount, pointAmount);
         }
 
-        if (totalDiscount > command.totalAmount()) {
-            log.warn("할인 금액 초과 - 주문 총액: {}, 쿠폰: {}, 포인트: {}", command.totalAmount(), couponAmount, pointAmount);
-            throw new ExcessiveDiscountException(command.totalAmount(), couponAmount, pointAmount);
+        if (totalDiscount > payableAmount) {
+            log.warn("할인 금액 초과 - 주문 총액: {}, 배송비: {}, 쿠폰: {}, 포인트: {}", command.totalAmount(), shippingFee, couponAmount, pointAmount);
+            throw new ExcessiveDiscountException(command.totalAmount(), shippingFee, couponAmount, pointAmount);
         }
     }
 
