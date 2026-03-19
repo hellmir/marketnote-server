@@ -1206,7 +1206,7 @@ class RegisterOrderUseCaseTest {
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
                     .isInstanceOf(ExcessiveDiscountException.class)
-                    .hasMessageContaining("할인 금액이 주문 총액을 초과합니다");
+                    .hasMessageContaining("할인 금액이 주문 총액 + 배송비를 초과합니다");
         }
 
         @Test
