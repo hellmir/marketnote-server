@@ -15,26 +15,26 @@ import java.lang.annotation.*;
         summary = "배송 요청사항 목록 조회",
         description = """
                 작성일자: 2026-03-19
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
                 - 배송 요청사항 타입 목록을 조회합니다.
-
+                
                 - 배송지 등록/수정 화면에서 배송 요청사항 선택지를 표시하기 위해 사용합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 파라미터 없음
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 |
@@ -42,11 +42,11 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-03-19T12:00:00.000" |
                 | content | array | 응답 본문 | [ ... ] |
                 | message | string | 처리 결과 | "배송 요청사항 목록 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content[]
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | type | string | 배송 요청사항 타입 | "LEAVE_AT_DOOR" |

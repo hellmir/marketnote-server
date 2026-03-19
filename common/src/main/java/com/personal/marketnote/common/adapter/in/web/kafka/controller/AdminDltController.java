@@ -1,6 +1,9 @@
 package com.personal.marketnote.common.adapter.in.web.kafka.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.web.kafka.controller.apidocs.QueryDltMessagesApiDocs;
+import com.personal.marketnote.common.adapter.in.web.kafka.controller.apidocs.QueryDltTopicSummariesApiDocs;
+import com.personal.marketnote.common.adapter.in.web.kafka.controller.apidocs.ReprocessDltApiDocs;
 import com.personal.marketnote.common.adapter.in.web.kafka.request.ReprocessDltRequest;
 import com.personal.marketnote.common.adapter.in.web.kafka.response.DltMessageResponse;
 import com.personal.marketnote.common.adapter.in.web.kafka.response.DltTopicSummaryResponse;
@@ -10,8 +13,6 @@ import com.personal.marketnote.common.configuration.kafka.DltQueryService;
 import com.personal.marketnote.common.configuration.kafka.DltReprocessResult;
 import com.personal.marketnote.common.configuration.kafka.DltReprocessService;
 import com.personal.marketnote.common.utility.FormatValidator;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -34,7 +35,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
 @Validated
 @RestController
-@Tag(name = "관리자 DLT API", description = "Dead Letter Topic 관리 및 재처리")
+@Tag(name = "DLT API", description = "Dead Letter Topic 관리 및 재처리")
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "spring.kafka", name = "bootstrap-servers")
 public class AdminDltController {
@@ -45,8 +46,7 @@ public class AdminDltController {
 
     @PostMapping("/api/v1/admin/kafka/dlt/reprocess")
     @PreAuthorize(ADMIN_POINTCUT)
-    @SecurityRequirement(name = "bearer")
-    @Operation(summary = "DLT 메시지 수동 재처리", description = "지정된 원본 토픽의 DLT 메시지를 원본 토픽으로 재전송합니다.")
+    @ReprocessDltApiDocs
     public ResponseEntity<BaseResponse<ReprocessDltResponse>> reprocessDlt(
             @Valid @RequestBody ReprocessDltRequest request,
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
@@ -67,8 +67,7 @@ public class AdminDltController {
 
     @GetMapping("/api/v1/admin/kafka/dlt")
     @PreAuthorize(ADMIN_POINTCUT)
-    @SecurityRequirement(name = "bearer")
-    @Operation(summary = "DLT 메시지 조회", description = "지정된 원본 토픽의 DLT 메시지를 조회합니다.")
+    @QueryDltMessagesApiDocs
     public ResponseEntity<BaseResponse<List<DltMessageResponse>>> queryDltMessages(
             @RequestParam("original-topic") @NotBlank(message = "토픽명은 필수입니다") String topic,
             @RequestParam(value = "limit", defaultValue = "100") @Min(1) @Max(500) int limit,
@@ -90,8 +89,7 @@ public class AdminDltController {
 
     @GetMapping("/api/v1/admin/kafka/dlt/summary")
     @PreAuthorize(ADMIN_POINTCUT)
-    @SecurityRequirement(name = "bearer")
-    @Operation(summary = "전체 DLT 토픽 요약 조회", description = "전체 DLT 토픽의 메시지 건수를 조회합니다.")
+    @QueryDltTopicSummariesApiDocs
     public ResponseEntity<BaseResponse<List<DltTopicSummaryResponse>>> queryDltTopicSummaries(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {

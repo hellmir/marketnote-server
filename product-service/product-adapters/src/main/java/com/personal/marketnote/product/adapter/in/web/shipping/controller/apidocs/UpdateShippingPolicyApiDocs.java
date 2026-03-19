@@ -19,31 +19,31 @@ import java.lang.annotation.*;
         summary = "(판매자/관리자) 배송비 정책 수정",
         description = """
                 작성일자: 2026-03-19
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 판매자의 배송비 정책을 수정합니다.
-
+                
                 - 판매자 본인 또는 관리자만 가능합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | deliveryCompany | string | 배송업체 | Y | "CJ대한통운" |
                 | shippingFee | number | 배송비 | Y | 2500 |
                 | freeShippingThreshold | number | 무료배송 기준금액 | Y | 30000 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 정책 미존재 / 500: 그 외 |
@@ -51,9 +51,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-03-19T10:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "판매자 배송비 정책 수정 성공" |
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 배송비 정책 ID | 1 |

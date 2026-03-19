@@ -1,11 +1,7 @@
 package com.personal.marketnote.product.domain.shipping;
 
 import com.personal.marketnote.common.domain.BaseDomain;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
