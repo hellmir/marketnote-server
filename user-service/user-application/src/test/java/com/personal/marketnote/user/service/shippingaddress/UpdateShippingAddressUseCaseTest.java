@@ -131,7 +131,7 @@ class UpdateShippingAddressUseCaseTest {
                 .addressAlias(null)
                 .recipientName("이영희")
                 .recipientPhoneNumber("010-5555-6666")
-                .deliveryRequestType(DeliveryRequestType.CALL_BEFORE_DELIVERY)
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .deliveryRequestMessage(null)
                 .isDefault(false)
                 .build());

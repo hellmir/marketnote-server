@@ -179,7 +179,7 @@ class SetDefaultShippingAddressUseCaseTest {
                 .addressAlias("친구 집")
                 .recipientName("이영희")
                 .recipientPhoneNumber("010-5555-6666")
-                .deliveryRequestType(DeliveryRequestType.CALL_BEFORE_DELIVERY)
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .isDefault(true)
                 .build());
 

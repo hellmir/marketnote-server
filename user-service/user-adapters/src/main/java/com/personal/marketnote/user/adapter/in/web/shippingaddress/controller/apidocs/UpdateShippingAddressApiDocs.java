@@ -49,7 +49,7 @@ import java.lang.annotation.*;
                 | addressAlias | string | 주소 별명 (OTHER 타입 필수) | N | "친구집" |
                 | recipientName | string | 받는 분 | Y | "박구글" |
                 | recipientPhoneNumber | string | 휴대폰 번호 | Y | "01000000000" |
-                | deliveryRequestType | string(enum) | 배송 요청사항 타입 (NONE, LEAVE_AT_SECURITY, CALL_BEFORE_DELIVERY, LEAVE_AT_DOOR, LEAVE_AT_DELIVERY_BOX, CUSTOM) | N | "LEAVE_AT_DOOR" |
+                | deliveryRequestType | string(enum) | 배송 요청사항 타입 (NONE, LEAVE_AT_DOOR, RECEIVE_OR_LEAVE_AT_DOOR, LEAVE_AT_SECURITY, LEAVE_AT_DELIVERY_BOX, CUSTOM) | N | "LEAVE_AT_DOOR" |
                 | deliveryRequestMessage | string | 직접입력 메시지 (CUSTOM 시 필수, 최대 30자) | N | "공동현관 비밀번호 *1234" |
                 
                 ---

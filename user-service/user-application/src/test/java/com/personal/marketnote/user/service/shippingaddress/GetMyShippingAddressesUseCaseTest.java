@@ -73,7 +73,7 @@ class GetMyShippingAddressesUseCaseTest {
                 .addressAlias(null)
                 .recipientName("홍길동")
                 .recipientPhoneNumber("010-3333-3333")
-                .deliveryRequestType(DeliveryRequestType.CALL_BEFORE_DELIVERY)
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .deliveryRequestMessage(null)
                 .isDefault(true)
                 .build());
