@@ -14,6 +14,7 @@ import com.personal.marketnote.product.port.out.shipping.UpdateShippingPolicyPor
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.List;
 import java.util.Optional;
 
 @PersistenceAdapter
@@ -37,6 +38,16 @@ public class ShippingPolicyPersistenceAdapter implements SaveShippingPolicyPort,
     public Optional<ShippingPolicy> findActiveBySellerId(Long sellerId) {
         return shippingPolicyJpaRepository.findBySellerIdAndStatus(sellerId, EntityStatus.ACTIVE)
                 .flatMap(ShippingPolicyJpaEntityToDomainMapper::mapToDomain);
+    }
+
+    @Override
+    public List<ShippingPolicy> findActiveBySellerIds(List<Long> sellerIds) {
+        return shippingPolicyJpaRepository.findAllBySellerIdInAndStatus(sellerIds, EntityStatus.ACTIVE)
+                .stream()
+                .map(ShippingPolicyJpaEntityToDomainMapper::mapToDomain)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 
     @Override

@@ -2,16 +2,19 @@ package com.personal.marketnote.product.adapter.in.web.shipping.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.product.adapter.in.web.shipping.controller.apidocs.GetShippingPoliciesBySellerIdsApiDocs;
 import com.personal.marketnote.product.adapter.in.web.shipping.controller.apidocs.GetShippingPolicyApiDocs;
 import com.personal.marketnote.product.adapter.in.web.shipping.controller.apidocs.RegisterShippingPolicyApiDocs;
 import com.personal.marketnote.product.adapter.in.web.shipping.controller.apidocs.UpdateShippingPolicyApiDocs;
 import com.personal.marketnote.product.adapter.in.web.shipping.request.RegisterShippingPolicyRequest;
 import com.personal.marketnote.product.adapter.in.web.shipping.request.UpdateShippingPolicyRequest;
+import com.personal.marketnote.product.adapter.in.web.shipping.response.GetShippingPoliciesBySellerIdsResponse;
 import com.personal.marketnote.product.adapter.in.web.shipping.response.GetShippingPolicyResponse;
 import com.personal.marketnote.product.adapter.in.web.shipping.response.RegisterShippingPolicyResponse;
 import com.personal.marketnote.product.adapter.in.web.shipping.response.UpdateShippingPolicyResponse;
 import com.personal.marketnote.product.port.in.command.RegisterShippingPolicyCommand;
 import com.personal.marketnote.product.port.in.command.UpdateShippingPolicyCommand;
+import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicyBySellerResult;
 import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicyResult;
 import com.personal.marketnote.product.port.in.result.shipping.RegisterShippingPolicyResult;
 import com.personal.marketnote.product.port.in.result.shipping.UpdateShippingPolicyResult;
@@ -20,6 +23,7 @@ import com.personal.marketnote.product.port.in.usecase.shipping.RegisterShipping
 import com.personal.marketnote.product.port.in.usecase.shipping.UpdateShippingPolicyUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,10 +36,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_POINTCUT;
+import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
 /**
  * 배송비 정책 컨트롤러
@@ -80,6 +88,34 @@ public class ShippingPolicyController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "판매자 배송비 정책 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 판매자별 배송비 정책 배치 조회
+     *
+     * @param sellerIds 판매자 ID 목록
+     * @return 배송비 정책 배치 조회 응답 {@link GetShippingPoliciesBySellerIdsResponse}
+     * @Author 성효빈
+     * @Date 2026-03-19
+     * @Description 판매자 ID 목록으로 배송비 정책을 배치 조회합니다. 서비스 간 내부 통신용 API입니다.
+     */
+    @GetMapping("/sellers")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetShippingPoliciesBySellerIdsApiDocs
+    public ResponseEntity<BaseResponse<GetShippingPoliciesBySellerIdsResponse>> getShippingPoliciesBySellerIds(
+            @RequestParam @Size(max = 100, message = "판매자 ID는 최대 100개까지 조회 가능합니다") List<Long> sellerIds
+    ) {
+        List<GetShippingPolicyBySellerResult> results = getShippingPolicyUseCase.getShippingPolicies(sellerIds);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetShippingPoliciesBySellerIdsResponse.from(results),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "판매자별 배송비 정책 배치 조회 성공"
                 ),
                 HttpStatus.OK
         );
