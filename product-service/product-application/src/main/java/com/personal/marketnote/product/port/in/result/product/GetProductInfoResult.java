@@ -1,9 +1,12 @@
 package com.personal.marketnote.product.port.in.result.product;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductTag;
+import com.personal.marketnote.product.domain.shipping.ShippingPolicy;
 import com.personal.marketnote.product.port.in.result.pricepolicy.GetProductPricePolicyResult;
+import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicyResult;
 import lombok.Builder;
 
 import java.util.List;
@@ -23,9 +26,12 @@ public record GetProductInfoResult(
         List<ProductTag> productTags,
         Integer stock,
         Long orderNum,
-        String status
+        String status,
+        GetShippingPolicyResult shippingPolicy
 ) {
-    public static GetProductInfoResult from(Product product, PricePolicy pricePolicy, Integer stock) {
+    public static GetProductInfoResult from(
+            Product product, PricePolicy pricePolicy, Integer stock, ShippingPolicy shippingPolicy
+    ) {
         return GetProductInfoResult.builder()
                 .id(product.getId())
                 .sellerId(product.getSellerId())
@@ -41,6 +47,9 @@ public record GetProductInfoResult(
                 .stock(stock)
                 .orderNum(product.getOrderNum())
                 .status(product.getStatus().name())
+                .shippingPolicy(
+                        FormatValidator.hasValue(shippingPolicy) ? GetShippingPolicyResult.from(shippingPolicy) : null
+                )
                 .build();
     }
 }

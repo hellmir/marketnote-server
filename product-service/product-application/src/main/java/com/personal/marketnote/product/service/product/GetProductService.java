@@ -21,10 +21,12 @@ import com.personal.marketnote.product.port.in.usecase.product.GetProductInvento
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.out.file.FindProductImagesPort;
 import com.personal.marketnote.product.port.out.pricepolicy.FindPricePoliciesPort;
+import com.personal.marketnote.product.domain.shipping.ShippingPolicy;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.productoption.FindProductOptionCategoryPort;
 import com.personal.marketnote.product.port.out.result.ProductReviewAggregateResult;
 import com.personal.marketnote.product.port.out.review.FindProductReviewAggregatesPort;
+import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -54,6 +56,7 @@ public class GetProductService implements GetProductUseCase {
     private final FindPricePoliciesPort findPricePoliciesPort;
     private final FindProductImagesPort findProductImagesPort;
     private final FindProductReviewAggregatesPort findProductReviewAggregatesPort;
+    private final FindShippingPolicyPort findShippingPolicyPort;
 
     @Qualifier("productImageExecutor")
     private final Executor productImageExecutor;
@@ -134,8 +137,12 @@ public class GetProductService implements GetProductUseCase {
         // 상품 재고 수량 조회
         Map<Long, Integer> inventories = getProductInventoryUseCase.getProductStocks(List.of(pricePolicyId));
 
+        // 판매자 배송비 정책 조회
+        ShippingPolicy shippingPolicy = findShippingPolicyPort.findActiveBySellerId(product.getSellerId())
+                .orElse(null);
+
         GetProductInfoResult productInfo
-                = GetProductInfoResult.from(product, selectedPricePolicy, inventories.get(pricePolicyId));
+                = GetProductInfoResult.from(product, selectedPricePolicy, inventories.get(pricePolicyId), shippingPolicy);
 
         List<SelectableProductOptionCategoryItemResult> selectableCategories
                 = categories.stream()
