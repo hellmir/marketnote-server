@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum DeliveryRequestType {
     NONE("선택 안 함"),
-    LEAVE_AT_SECURITY("부재 시 경비실에 맡겨주세요"),
-    CALL_BEFORE_DELIVERY("배송 전에 꼭 연락주세요"),
-    LEAVE_AT_DOOR("집 앞에 놔주세요"),
-    LEAVE_AT_DELIVERY_BOX("택배함에 놔주세요"),
-    CUSTOM("직접입력");
+    LEAVE_AT_DOOR("문 앞에 놓아주세요"),
+    RECEIVE_OR_LEAVE_AT_DOOR("직접 받고 부재시 문 앞에 놓아 주세요"),
+    LEAVE_AT_SECURITY("경비실에 맡겨주세요"),
+    LEAVE_AT_DELIVERY_BOX("택배함에 넣어주세요"),
+    CUSTOM("직접 입력");
 
     private final String description;
 

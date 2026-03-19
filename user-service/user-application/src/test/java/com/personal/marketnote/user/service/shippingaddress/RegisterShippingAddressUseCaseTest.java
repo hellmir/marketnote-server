@@ -91,7 +91,7 @@ class RegisterShippingAddressUseCaseTest {
                 .addressAlias("친구 집")
                 .recipientName("김철수")
                 .recipientPhoneNumber("010-9876-5432")
-                .deliveryRequestType(DeliveryRequestType.CALL_BEFORE_DELIVERY)
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .isDefault(true)
                 .build();
 
