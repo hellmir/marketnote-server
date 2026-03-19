@@ -568,10 +568,10 @@ class GetBuyerOrderProductsUseCaseTest {
     class OrderStatusMappingTest {
 
         @Test
-        @DisplayName("주문 상품의 orderStatus가 정상이면 그대로 매핑된다")
+        @DisplayName("주문 상품의 orderStatus가 CONFIRMED이면 그대로 매핑된다")
         void mapsOrderProductStatusDirectly() {
             Long buyerId = 1L;
-            Order order = createOrderWithProductStatus(1L, buyerId, 100L, OrderStatus.SHIPPING, OrderStatus.PAID);
+            Order order = createOrderWithProductStatus(1L, buyerId, 100L, OrderStatus.CONFIRMED, OrderStatus.CONFIRMED);
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
@@ -581,31 +581,131 @@ class GetBuyerOrderProductsUseCaseTest {
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
-            assertThat(result.orderProducts().get(0).orderStatus()).isEqualTo(OrderStatus.SHIPPING);
+            assertThat(result.orderProducts().get(0).orderStatus()).isEqualTo(OrderStatus.CONFIRMED);
+        }
+    }
+
+    // ==================================================================================
+    // 구매 확정 필터링 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("구매 확정 필터링 검증")
+    class ConfirmedStatusFilterTest {
+
+        @Test
+        @DisplayName("주문 상품의 orderStatus가 CONFIRMED이면 결과에 포함된다")
+        void includesConfirmedOrderProduct() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.CONFIRMED)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
         }
 
         @Test
-        @DisplayName("주문 상품의 orderStatus가 PAYMENT_PENDING이면 주문의 orderStatus로 대체된다")
-        void fallsBackToOrderStatusWhenProductStatusIsPending() {
+        @DisplayName("주문 상품의 orderStatus가 PAID이면 결과에서 제외된다")
+        void excludesPaidOrderProduct() {
             Long buyerId = 1L;
-            Order order = createOrderWithProductStatus(1L, buyerId, 100L, OrderStatus.PAYMENT_PENDING, OrderStatus.PAID);
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.PAID)
+            ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
                     .thenReturn(List.of(order));
-            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
-            assertThat(result.orderProducts().get(0).orderStatus()).isEqualTo(OrderStatus.PAID);
+            assertThat(result.orderProducts()).isEmpty();
         }
 
         @Test
-        @DisplayName("주문 상품의 orderStatus가 null이면 주문의 orderStatus로 대체된다")
-        void fallsBackToOrderStatusWhenProductStatusIsNull() {
+        @DisplayName("주문 상품의 orderStatus가 DELIVERED이면 결과에서 제외된다")
+        void excludesDeliveredOrderProduct() {
             Long buyerId = 1L;
-            Order order = createOrderWithProductStatus(1L, buyerId, 100L, null, OrderStatus.PREPARING);
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.DELIVERED)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("주문 상품의 orderStatus가 SHIPPING이면 결과에서 제외된다")
+        void excludesShippingOrderProduct() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.SHIPPING)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("주문 상품의 orderStatus가 CANCELLED이면 결과에서 제외된다")
+        void excludesCancelledOrderProduct() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.CANCELLED)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("주문 상품의 orderStatus가 REFUNDED이면 결과에서 제외된다")
+        void excludesRefundedOrderProduct() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.REFUNDED)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("CONFIRMED 상품과 비 CONFIRMED 상품이 혼재하면 CONFIRMED만 반환한다")
+        void returnsOnlyConfirmedWhenMixed() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.CONFIRMED),
+                    productStateWithStatus(200L, null, OrderStatus.PAID),
+                    productStateWithStatus(300L, null, OrderStatus.SHIPPING)
+            ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
@@ -615,7 +715,96 @@ class GetBuyerOrderProductsUseCaseTest {
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 
-            assertThat(result.orderProducts().get(0).orderStatus()).isEqualTo(OrderStatus.PREPARING);
+            assertThat(result.orderProducts()).hasSize(1);
+            assertThat(result.orderProducts().get(0).pricePolicyId()).isEqualTo(100L);
+        }
+
+        @Test
+        @DisplayName("여러 주문에서 CONFIRMED 필터가 일관되게 적용된다")
+        void confirmedFilterAppliesToAllOrders() {
+            Long buyerId = 1L;
+            Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.CONFIRMED),
+                    productStateWithStatus(200L, null, OrderStatus.PAID)
+            ));
+            Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
+                    productStateWithStatus(300L, null, OrderStatus.SHIPPING),
+                    productStateWithStatus(400L, null, OrderStatus.CONFIRMED)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order1, order2));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(
+                            100L, createProductInfo(100L, "상품A"),
+                            400L, createProductInfo(400L, "상품D")
+                    ));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(2);
+            assertThat(result.orderProducts())
+                    .extracting(GetBuyerOrderProductResult::pricePolicyId)
+                    .containsExactlyInAnyOrder(100L, 400L);
+        }
+
+        @Test
+        @DisplayName("CONFIRMED 필터와 isReviewed 필터가 동시에 적용된다")
+        void confirmedAndReviewFilterApplyTogether() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, false, OrderStatus.CONFIRMED),
+                    productStateWithStatus(200L, true, OrderStatus.CONFIRMED),
+                    productStateWithStatus(300L, false, OrderStatus.PAID)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, false);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
+            assertThat(result.orderProducts().get(0).pricePolicyId()).isEqualTo(100L);
+        }
+
+        @Test
+        @DisplayName("모든 주문 상품이 CONFIRMED가 아니면 빈 목록을 반환한다")
+        void returnsEmptyWhenNoConfirmedProducts() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, OrderStatus.PAID),
+                    productStateWithStatus(200L, null, OrderStatus.SHIPPING),
+                    productStateWithStatus(300L, null, OrderStatus.DELIVERED)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("주문 상품의 orderStatus가 null이면 결과에서 제외된다")
+        void excludesNullStatusOrderProduct() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithStatus(100L, null, null)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
         }
     }
 
@@ -890,11 +1079,15 @@ class GetBuyerOrderProductsUseCaseTest {
     }
 
     private ProductStateInput productState(Long pricePolicyId, Boolean isReviewed) {
-        return new ProductStateInput(pricePolicyId, isReviewed, 1, OrderStatus.PAID);
+        return new ProductStateInput(pricePolicyId, isReviewed, 1, OrderStatus.CONFIRMED);
     }
 
     private ProductStateInput productStateWithQuantity(Long pricePolicyId, Boolean isReviewed, Integer quantity) {
-        return new ProductStateInput(pricePolicyId, isReviewed, quantity, OrderStatus.PAID);
+        return new ProductStateInput(pricePolicyId, isReviewed, quantity, OrderStatus.CONFIRMED);
+    }
+
+    private ProductStateInput productStateWithStatus(Long pricePolicyId, Boolean isReviewed, OrderStatus status) {
+        return new ProductStateInput(pricePolicyId, isReviewed, 1, status);
     }
 
     private Order createOrderWithReviewedProducts(Long orderId, Long buyerId, List<ProductStateInput> productInputs) {
