@@ -218,6 +218,86 @@ class PricePolicySearchQueryTest {
     }
 
     @Nested
+    @DisplayName("적립률 정렬 (sortProperty=accumulatedPointRate)")
+    class SortByAccumulatedPointRate {
+
+        private PricePolicyJpaEntity policyRate1;
+        private PricePolicyJpaEntity policyRate3;
+        private PricePolicyJpaEntity policyRate5;
+
+        @BeforeEach
+        void setUp() {
+            pricePolicyJpaRepository.deleteAll();
+
+            ProductJpaEntity product1 = saveProduct("상품A", "브랜드A");
+            ProductJpaEntity product2 = saveProduct("상품B", "브랜드B");
+            ProductJpaEntity product3 = saveProduct("상품C", "브랜드C");
+
+            policyRate1 = savePricePolicy(product1, BigDecimal.valueOf(1.0));
+            policyRate3 = savePricePolicy(product2, BigDecimal.valueOf(3.0));
+            policyRate5 = savePricePolicy(product3, BigDecimal.valueOf(5.0));
+        }
+
+        @Test
+        @DisplayName("적립률 오름차순 정렬 시 낮은 적립률부터 조회된다")
+        void sortsAscending() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, null, pageable, "accumulatedPointRate", "name", "", null
+            );
+
+            assertThat(results).hasSize(3);
+            assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
+            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
+            assertThat(results.get(2).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+        }
+
+        @Test
+        @DisplayName("적립률 내림차순 정렬 시 높은 적립률부터 조회된다")
+        void sortsDescending() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "accumulatedPointRate", "name", "", null
+            );
+
+            assertThat(results).hasSize(3);
+            assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
+            assertThat(results.get(2).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
+        }
+
+        @Test
+        @DisplayName("적립률 내림차순 커서 기반 페이징 시 커서 이후 데이터만 조회된다")
+        void cursorPaginationDesc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, policyRate5.getId(), pageable, "accumulatedPointRate", "name", "", null
+            );
+
+            assertThat(results).hasSize(2);
+            assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
+            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
+        }
+
+        @Test
+        @DisplayName("적립률 오름차순 커서 기반 페이징 시 커서 이후 데이터만 조회된다")
+        void cursorPaginationAsc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, policyRate1.getId(), pageable, "accumulatedPointRate", "name", "", null
+            );
+
+            assertThat(results).hasSize(2);
+            assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
+            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+        }
+    }
+
+    @Nested
     @DisplayName("pricePolicyIds 필터링")
     class PricePolicyIdsFilter {
 
@@ -267,13 +347,17 @@ class PricePolicySearchQueryTest {
     }
 
     private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity) {
+        return savePricePolicy(productEntity, BigDecimal.valueOf(1.0));
+    }
+
+    private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity, BigDecimal accumulationRate) {
         PricePolicy pricePolicy = PricePolicy.from(
                 PricePolicyCreateState.builder()
                         .price(10000L)
                         .discountPrice(9000L)
                         .discountRate(BigDecimal.valueOf(10.0))
                         .accumulatedPoint(100L)
-                        .accumulationRate(BigDecimal.valueOf(1.0))
+                        .accumulationRate(accumulationRate)
                         .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
