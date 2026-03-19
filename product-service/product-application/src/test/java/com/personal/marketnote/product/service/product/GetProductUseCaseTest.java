@@ -25,8 +25,12 @@ import com.personal.marketnote.product.port.out.file.FindProductImagesPort;
 import com.personal.marketnote.product.port.out.pricepolicy.FindPricePoliciesPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.productoption.FindProductOptionCategoryPort;
+import com.personal.marketnote.product.domain.shipping.ShippingPolicy;
+import com.personal.marketnote.product.domain.shipping.ShippingPolicySnapshotState;
+import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicyResult;
 import com.personal.marketnote.product.port.out.result.ProductReviewAggregateResult;
 import com.personal.marketnote.product.port.out.review.FindProductReviewAggregatesPort;
+import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,6 +66,8 @@ class GetProductUseCaseTest {
     private FindProductImagesPort findProductImagesPort;
     @Mock
     private FindProductReviewAggregatesPort findProductReviewAggregatesPort;
+    @Mock
+    private FindShippingPolicyPort findShippingPolicyPort;
     @Mock
     private Executor productImageExecutor;
 
@@ -874,6 +880,95 @@ class GetProductUseCaseTest {
         assertThat(result.products().getFirst().getTotalCount()).isEqualTo(0);
     }
 
+    @Test
+    @DisplayName("상품 상세 조회 시 판매자의 배송비 정책이 존재하면 배송비 정보를 포함한다")
+    void getProductInfo_withShippingPolicy_includesShippingInfo() {
+        stubProductImageExecutor();
+        Product product = buildProduct(7L, false);
+        PricePolicy defaultPolicy = buildPricePolicy(830L, product, null, List.of());
+
+        when(findProductPort.findActiveById(7L)).thenReturn(Optional.of(product));
+        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(7L))
+                .thenReturn(List.of());
+        when(findPricePoliciesPort.findByProductId(7L)).thenReturn(List.of(defaultPolicy));
+        when(getProductInventoryUseCase.getProductStocks(List.of(830L)))
+                .thenReturn(Map.of(830L, 10));
+        stubProductImagesEmpty(7L);
+
+        ShippingPolicy shippingPolicy = buildShippingPolicy(1L, 1L, "한진택배", 3000L, 20000L);
+        when(findShippingPolicyPort.findActiveBySellerId(1L))
+                .thenReturn(Optional.of(shippingPolicy));
+
+        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(7L, List.of());
+
+        GetShippingPolicyResult shippingResult = result.productInfo().shippingPolicy();
+        assertThat(shippingResult).isNotNull();
+        assertThat(shippingResult.deliveryCompany()).isEqualTo("한진택배");
+        assertThat(shippingResult.shippingFee()).isEqualTo(3000L);
+        assertThat(shippingResult.freeShippingThreshold()).isEqualTo(20000L);
+    }
+
+    @Test
+    @DisplayName("상품 상세 조회 시 판매자의 배송비 정책이 미등록이면 배송비 정보가 null이다")
+    void getProductInfo_withoutShippingPolicy_shippingInfoIsNull() {
+        stubProductImageExecutor();
+        Product product = buildProduct(8L, false);
+        PricePolicy defaultPolicy = buildPricePolicy(840L, product, null, List.of());
+
+        when(findProductPort.findActiveById(8L)).thenReturn(Optional.of(product));
+        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(8L))
+                .thenReturn(List.of());
+        when(findPricePoliciesPort.findByProductId(8L)).thenReturn(List.of(defaultPolicy));
+        when(getProductInventoryUseCase.getProductStocks(List.of(840L)))
+                .thenReturn(Map.of(840L, 5));
+        stubProductImagesEmpty(8L);
+
+        when(findShippingPolicyPort.findActiveBySellerId(1L))
+                .thenReturn(Optional.empty());
+
+        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(8L, List.of());
+
+        assertThat(result.productInfo().shippingPolicy()).isNull();
+    }
+
+    @Test
+    @DisplayName("가격 정책 ID로 상품 상세 조회 시 배송비 정보를 포함한다")
+    void getProductInfo_byPricePolicyId_includesShippingInfo() {
+        stubProductImageExecutor();
+        Product product = buildProduct(9L, true);
+        ProductOption option = buildOption(601L, "옵션");
+        List<ProductOption> optionList = List.of(option);
+
+        PricePolicy policyForLookup = buildPricePolicy(850L, product, null, optionList);
+        when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(850L)))
+                .thenReturn(List.of(policyForLookup));
+
+        when(findProductPort.findActiveById(9L)).thenReturn(Optional.of(product));
+        ProductOptionCategory category = buildOptionCategory(61L, product, optionList);
+        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(9L))
+                .thenReturn(List.of(category));
+
+        PricePolicy defaultPolicy = buildPricePolicy(849L, product, null, List.of());
+        PricePolicy selectedPolicy = buildPricePolicy(850L, product, List.of(601L), List.of());
+        when(findPricePoliciesPort.findByProductId(9L)).thenReturn(List.of(defaultPolicy, selectedPolicy));
+
+        when(getProductInventoryUseCase.getProductStocks(List.of(850L)))
+                .thenReturn(Map.of(850L, 8));
+        stubProductImagesEmpty(9L);
+
+        ShippingPolicy shippingPolicy = buildShippingPolicy(2L, 1L, "CJ대한통운", 2500L, 30000L);
+        when(findShippingPolicyPort.findActiveBySellerId(1L))
+                .thenReturn(Optional.of(shippingPolicy));
+
+        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(850L);
+
+        GetShippingPolicyResult shippingResult = result.productInfo().shippingPolicy();
+        assertThat(shippingResult).isNotNull();
+        assertThat(shippingResult.deliveryCompany()).isEqualTo("CJ대한통운");
+        assertThat(shippingResult.shippingFee()).isEqualTo(2500L);
+        assertThat(shippingResult.freeShippingThreshold()).isEqualTo(30000L);
+    }
+
     private Product buildProduct(Long id, boolean findAllOptions) {
         return Product.from(
                 ProductSnapshotState.builder()
@@ -971,6 +1066,21 @@ class GetProductUseCaseTest {
             task.run();
             return null;
         }).when(productImageExecutor).execute(any(Runnable.class));
+    }
+
+    private ShippingPolicy buildShippingPolicy(
+            Long id, Long sellerId, String deliveryCompany, Long shippingFee, Long freeShippingThreshold
+    ) {
+        return ShippingPolicy.from(
+                ShippingPolicySnapshotState.builder()
+                        .id(id)
+                        .sellerId(sellerId)
+                        .deliveryCompany(deliveryCompany)
+                        .shippingFee(shippingFee)
+                        .freeShippingThreshold(freeShippingThreshold)
+                        .status(EntityStatus.ACTIVE)
+                        .build()
+        );
     }
 
     private void stubProductImagesEmpty(Long productId) {
