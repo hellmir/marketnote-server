@@ -19,7 +19,9 @@ import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolic
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
+import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,10 +51,18 @@ class RegisterOrderUseCaseTest {
     @Mock
     private SavePaymentAllocationPort savePaymentAllocationPort;
     @Mock
+    private FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort;
+    @Mock
     private ModifyUserPointPort modifyUserPointPort;
 
     @InjectMocks
     private RegisterOrderService registerOrderService;
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
+                .thenReturn(Map.of());
+    }
 
     // ==================================================================================
     // 성공 케이스

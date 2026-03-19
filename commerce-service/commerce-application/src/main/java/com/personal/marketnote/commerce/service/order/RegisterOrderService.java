@@ -20,8 +20,10 @@ import com.personal.marketnote.commerce.port.out.order.SaveOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
+import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RegisterOrderService implements RegisterOrderUseCase {
     private final GetInventoryUseCase getInventoryUseCase;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
+    private final FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort;
     private final SaveOrderPort saveOrderPort;
     private final SavePaymentPort savePaymentPort;
     private final SavePaymentAllocationPort savePaymentAllocationPort;
@@ -53,6 +56,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         validateDiscountAmounts(command);
         validatePointBalance(command);
         validateUnitAmountsAgainstActualPrices(command);
+        validateShippingFee(command);
 
         Map<Long, Long> productIdsByPricePolicyId = command.orderProducts().stream()
                 .collect(Collectors.toMap(
@@ -243,6 +247,63 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                     command.buyerId(), pointAmount, availablePoints);
             throw new InsufficientPointException(pointAmount, availablePoints);
         }
+    }
+
+    private void validateShippingFee(RegisterOrderCommand command) {
+        long requestedShippingFee = resolveAmount(command.shippingFee());
+
+        List<Long> sellerIds = command.orderProducts().stream()
+                .map(OrderProductItemCommand::sellerId)
+                .distinct()
+                .toList();
+
+        if (sellerIds.isEmpty()) {
+            return;
+        }
+
+        Map<Long, ShippingPolicyInfoResult> shippingPolicies =
+                findShippingPolicyBySellerIdsPort.findBySellerIds(sellerIds);
+
+        if (shippingPolicies.isEmpty()) {
+            log.warn("[SHIPPING_VALIDATION_SKIPPED] product-service 응답 없음 - 배송비 검증 생략. sellerIds: {}", sellerIds);
+            return;
+        }
+
+        long calculatedShippingFee = calculateExpectedShippingFee(command.orderProducts(), shippingPolicies);
+
+        if (requestedShippingFee != calculatedShippingFee) {
+            log.warn("배송비 불일치 - 전송된 배송비: {}, 계산된 배송비: {}", requestedShippingFee, calculatedShippingFee);
+            throw new ShippingFeeMismatchException(requestedShippingFee, calculatedShippingFee);
+        }
+    }
+
+    private long calculateExpectedShippingFee(
+            List<OrderProductItemCommand> orderProducts,
+            Map<Long, ShippingPolicyInfoResult> shippingPolicies
+    ) {
+        Map<Long, Long> sellerAmounts = orderProducts.stream()
+                .collect(Collectors.groupingBy(
+                        OrderProductItemCommand::sellerId,
+                        Collectors.summingLong(item ->
+                                Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
+                ));
+
+        long totalShippingFee = 0L;
+        for (Map.Entry<Long, Long> entry : sellerAmounts.entrySet()) {
+            Long sellerId = entry.getKey();
+            Long sellerAmount = entry.getValue();
+
+            ShippingPolicyInfoResult policy = shippingPolicies.get(sellerId);
+            if (FormatValidator.hasNoValue(policy)) {
+                continue;
+            }
+
+            if (sellerAmount < policy.freeShippingThreshold()) {
+                totalShippingFee = Math.addExact(totalShippingFee, policy.shippingFee());
+            }
+        }
+
+        return totalShippingFee;
     }
 
     private long resolveAmount(Long amount) {
