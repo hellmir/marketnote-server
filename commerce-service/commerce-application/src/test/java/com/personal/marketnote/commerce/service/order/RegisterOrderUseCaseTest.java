@@ -18,6 +18,7 @@ import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
+import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
@@ -2276,6 +2277,384 @@ class RegisterOrderUseCaseTest {
     }
 
     // ==================================================================================
+    // 배송비 검증 케이스
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("배송비 검증 케이스")
+    class ShippingFeeValidationTest {
+
+        @Test
+        @DisplayName("배송비 정책이 있고 주문액이 무료배송 기준 미만이면 배송비가 부과된다")
+        void registerOrder_belowFreeShippingThreshold_chargesShippingFee() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long shippingFee = 3000L;
+            Long freeShippingThreshold = 20000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, shippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicy(sellerId, shippingFee, freeShippingThreshold);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("배송비 정책이 있고 주문액이 무료배송 기준 이상이면 배송비가 0원이다")
+        void registerOrder_aboveFreeShippingThreshold_freeShipping() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 25000L;
+            Long shippingFee = 0L;
+            Long freeShippingThreshold = 20000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, shippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicy(sellerId, 3000L, freeShippingThreshold);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("클라이언트 배송비와 서버 계산 배송비가 불일치하면 ShippingFeeMismatchException이 발생한다")
+        void registerOrder_shippingFeeMismatch_throwsException() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long wrongShippingFee = 0L;
+            Long freeShippingThreshold = 20000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, wrongShippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicy(sellerId, 3000L, freeShippingThreshold);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ShippingFeeMismatchException.class)
+                    .hasMessageContaining("배송비가 서버 계산 결과와 일치하지 않습니다");
+        }
+
+        @Test
+        @DisplayName("배송비 정책 조회 결과가 빈 Map이면 배송비 검증을 건너뛴다")
+        void registerOrder_emptyShippingPolicyMap_skipsValidation() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+            when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
+                    .thenReturn(Map.of());
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("배송비가 null이고 정책이 없으면 정상 등록된다")
+        void registerOrder_nullShippingFeeAndNoPolicy_succeeds() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(50000L)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .shippingFee(null)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("복수 판매자 주문 시 각 판매자별로 배송비가 계산되어 합산된다")
+        void registerOrder_multipleSellersBelowThreshold_sumsShippingFees() {
+            Long pricePolicyIdA = 100L;
+            Long pricePolicyIdB = 200L;
+            Long sellerIdA = 10L;
+            Long sellerIdB = 20L;
+            Long unitAmountA = 15000L;
+            Long unitAmountB = 10000L;
+            Long shippingFeeA = 3000L;
+            Long shippingFeeB = 2500L;
+
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(unitAmountA + unitAmountB)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .shippingFee(shippingFeeA + shippingFeeB)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(1L)
+                                    .sellerId(sellerIdA)
+                                    .pricePolicyId(pricePolicyIdA)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountA)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(2L)
+                                    .sellerId(sellerIdB)
+                                    .pricePolicyId(pricePolicyIdB)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountB)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+            ));
+            mockShippingPolicies(Map.of(
+                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L),
+                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L)
+            ));
+            mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("복수 판매자 중 일부만 무료배송 기준을 충족하면 나머지 판매자의 배송비만 부과된다")
+        void registerOrder_partialFreeShipping_chargesOnlyNonFree() {
+            Long pricePolicyIdA = 100L;
+            Long pricePolicyIdB = 200L;
+            Long sellerIdA = 10L;
+            Long sellerIdB = 20L;
+            Long unitAmountA = 25000L;
+            Long unitAmountB = 10000L;
+            Long shippingFeeB = 2500L;
+
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(unitAmountA + unitAmountB)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .shippingFee(shippingFeeB)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(1L)
+                                    .sellerId(sellerIdA)
+                                    .pricePolicyId(pricePolicyIdA)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountA)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(2L)
+                                    .sellerId(sellerIdB)
+                                    .pricePolicyId(pricePolicyIdB)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountB)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+            ));
+            mockShippingPolicies(Map.of(
+                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, 3000L, 20000L),
+                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L)
+            ));
+            mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("판매자의 배송비 정책이 없는 경우 해당 판매자 배송비는 0으로 처리된다")
+        void registerOrder_noShippingPolicyForSeller_treatsAsFreeShipping() {
+            Long pricePolicyIdA = 100L;
+            Long pricePolicyIdB = 200L;
+            Long sellerIdA = 10L;
+            Long sellerIdB = 20L;
+            Long unitAmountA = 15000L;
+            Long unitAmountB = 10000L;
+            Long shippingFeeA = 3000L;
+
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(unitAmountA + unitAmountB)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .shippingFee(shippingFeeA)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(1L)
+                                    .sellerId(sellerIdA)
+                                    .pricePolicyId(pricePolicyIdA)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountA)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(2L)
+                                    .sellerId(sellerIdB)
+                                    .pricePolicyId(pricePolicyIdB)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountB)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+            ));
+            mockShippingPolicies(Map.of(
+                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L)
+            ));
+            mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("동일 판매자의 복수 상품 금액이 합산되어 무료배송 기준과 비교된다")
+        void registerOrder_sameSellerMultipleProducts_sumsAmountForThreshold() {
+            Long pricePolicyIdA = 100L;
+            Long pricePolicyIdB = 200L;
+            Long sellerId = 10L;
+            Long unitAmountA = 12000L;
+            Long unitAmountB = 10000L;
+
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .totalAmount(unitAmountA + unitAmountB)
+                    .couponAmount(0L)
+                    .pointAmount(0L)
+                    .shippingFee(0L)
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(1L)
+                                    .sellerId(sellerId)
+                                    .pricePolicyId(pricePolicyIdA)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountA)
+                                    .build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(2L)
+                                    .sellerId(sellerId)
+                                    .pricePolicyId(pricePolicyIdB)
+                                    .quantity(1)
+                                    .unitAmount(unitAmountB)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPrices(Map.of(pricePolicyIdA, unitAmountA, pricePolicyIdB, unitAmountB));
+            mockShippingPolicy(sellerId, 3000L, 20000L);
+            mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+    }
+
+    // ==================================================================================
+    // 배송비 포함 결제 금액 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("배송비 포함 결제 금액 검증")
+    class ShippingFeePaymentAmountTest {
+
+        @Test
+        @DisplayName("배송비가 포함된 주문의 결제 금액이 totalAmount + shippingFee - couponAmount - pointAmount로 계산된다")
+        void registerOrder_withShippingFee_calculatesPaymentAmountCorrectly() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long shippingFee = 3000L;
+            Long couponAmount = 2000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicy(sellerId, shippingFee, 20000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            registerOrderService.registerOrder(command);
+
+            ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
+            verify(savePaymentPort).save(paymentCaptor.capture());
+            Payment savedPayment = paymentCaptor.getValue();
+            assertThat(savedPayment.getPaymentAmount()).isEqualTo(unitAmount + shippingFee - couponAmount);
+        }
+
+        @Test
+        @DisplayName("할인 금액이 totalAmount + shippingFee를 초과하면 ExcessiveDiscountException이 발생한다")
+        void registerOrder_discountExceedsTotalPlusShipping_throwsException() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long shippingFee = 3000L;
+            Long couponAmount = 20000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ExcessiveDiscountException.class)
+                    .hasMessageContaining("할인 금액이 주문 총액 + 배송비를 초과합니다");
+        }
+
+        @Test
+        @DisplayName("배송비가 포함되어 할인 금액이 totalAmount + shippingFee 이하가 되면 성공한다")
+        void registerOrder_discountWithinTotalPlusShipping_succeeds() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long shippingFee = 3000L;
+            Long couponAmount = 18000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, couponAmount, 0L, shippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicy(sellerId, shippingFee, 20000L);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+    }
+
+    // ==================================================================================
     // 헬퍼 메서드
     // ==================================================================================
 
@@ -2359,6 +2738,38 @@ class RegisterOrderUseCaseTest {
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
         verify(saveOrderPort).save(captor.capture());
         return captor.getValue();
+    }
+
+    private RegisterOrderCommand createCommandWithShippingFee(
+            Long buyerId, Long sellerId, Long pricePolicyId, Long unitAmount, Integer quantity,
+            Long couponAmount, Long pointAmount, Long shippingFee
+    ) {
+        return RegisterOrderCommand.builder()
+                .buyerId(buyerId)
+                .totalAmount(unitAmount * quantity)
+                .couponAmount(couponAmount)
+                .pointAmount(pointAmount)
+                .shippingFee(shippingFee)
+                .orderProducts(List.of(
+                        OrderProductItemCommand.builder()
+                                .productId(100L)
+                                .sellerId(sellerId)
+                                .pricePolicyId(pricePolicyId)
+                                .quantity(quantity)
+                                .unitAmount(unitAmount)
+                                .build()
+                ))
+                .build();
+    }
+
+    private void mockShippingPolicy(Long sellerId, Long shippingFee, Long freeShippingThreshold) {
+        when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
+                .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold)));
+    }
+
+    private void mockShippingPolicies(Map<Long, ShippingPolicyInfoResult> policies) {
+        when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
+                .thenReturn(policies);
     }
 
     private void mockInventoryMultiple(Map<Long, Integer> pricePolicyIdToStock) {
