@@ -8,6 +8,8 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
+
 import static com.personal.marketnote.common.utility.EntityConstant.BOOLEAN_DEFAULT_FALSE;
 
 @Entity
@@ -49,6 +51,9 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "review_yn", nullable = false, columnDefinition = BOOLEAN_DEFAULT_FALSE)
     private Boolean isReviewed;
 
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt;
+
     public static OrderProductJpaEntity from(OrderProduct orderProduct, OrderJpaEntity orderJpaEntity) {
         return OrderProductJpaEntity.builder()
                 .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
@@ -59,6 +64,7 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .unitAmount(orderProduct.getUnitAmount())
                 .imageUrl(orderProduct.getImageUrl())
                 .orderStatus(orderProduct.getOrderStatus())
+                .confirmedAt(orderProduct.getConfirmedAt())
                 .build();
     }
 
@@ -68,6 +74,7 @@ public class OrderProductJpaEntity extends BaseEntity {
         imageUrl = orderProduct.getImageUrl();
         orderStatus = orderProduct.getOrderStatus();
         isReviewed = orderProduct.getIsReviewed();
+        confirmedAt = orderProduct.getConfirmedAt();
     }
 
     public Long getPricePolicyId() {

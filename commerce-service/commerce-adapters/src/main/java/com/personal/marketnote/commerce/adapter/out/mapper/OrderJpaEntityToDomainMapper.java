@@ -85,6 +85,7 @@ public class OrderJpaEntityToDomainMapper {
                         .imageUrl(entity.getImageUrl())
                         .orderStatus(entity.getOrderStatus())
                         .isReviewed(entity.getIsReviewed())
+                        .confirmedAt(entity.getConfirmedAt())
                         .build());
     }
 
@@ -116,6 +117,7 @@ public class OrderJpaEntityToDomainMapper {
                                 .imageUrl(entity.getImageUrl())
                                 .orderStatus(entity.getOrderStatus())
                                 .isReviewed(entity.getIsReviewed())
+                                .confirmedAt(entity.getConfirmedAt())
                                 .build()
                 ));
     }
