@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,6 +47,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final ModifyUserPointPort modifyUserPointPort;
     private final PublishOrderEventPort publishOrderEventPort;
+    private final Clock clock;
 
     @Override
     public void changeOrderStatus(ChangeOrderStatusCommand command) {
@@ -101,13 +104,14 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
     private void changeOrderStatus(ChangeOrderStatusCommand command, Order order) {
         OrderStatus status = command.orderStatus();
+        LocalDateTime now = LocalDateTime.now(clock);
 
         if (command.isPartialProductChange()) {
-            order.changeProductsStatus(command.pricePolicyIds(), status);
+            order.changeProductsStatus(command.pricePolicyIds(), status, now);
             return;
         }
 
-        order.changeAllProductsStatus(status);
+        order.changeAllProductsStatus(status, now);
     }
 
     private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -18,5 +20,6 @@ public class OrderProductSnapshotState {
     private final String imageUrl;
     private final OrderStatus orderStatus;
     private final Boolean isReviewed;
+    private final LocalDateTime confirmedAt;
 }
 

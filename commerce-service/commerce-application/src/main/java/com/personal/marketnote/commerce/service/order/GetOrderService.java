@@ -19,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +38,7 @@ public class GetOrderService implements GetOrderUseCase {
     private final FindOrderPort findOrderPort;
     private final FindOrderProductPort findOrderProductPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
+    private final Clock clock;
 
     @Override
     public GetOrderResult getOrderAndOrderProducts(Long id) {
@@ -98,8 +101,10 @@ public class GetOrderService implements GetOrderUseCase {
             return GetBuyerOrderProductsResult.of(List.of());
         }
 
+        LocalDateTime reviewDeadlineNow = LocalDateTime.now(clock);
         Predicate<OrderProduct> orderProductFilter = orderProduct
                 -> orderProduct.isConfirmed()
+                && orderProduct.isWithinReviewDeadline(reviewDeadlineNow)
                 && query.matchesReviewStatus(orderProduct.getIsReviewed());
         Map<Long, ProductInfoResult> orderedProductsByPricePolicyId
                 = findOrderedProductsByPricePolicyId(orders, orderProductFilter);

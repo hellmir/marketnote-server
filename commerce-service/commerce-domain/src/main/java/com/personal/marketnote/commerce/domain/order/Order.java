@@ -79,10 +79,10 @@ public class Order {
         return this.orderStatus.isPending();
     }
 
-    public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus) {
+    public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
-                .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus));
+                .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
 
         if (
                 orderStatus.isRefunded()
@@ -105,8 +105,8 @@ public class Order {
         this.orderStatus = orderStatus;
     }
 
-    public void changeAllProductsStatus(OrderStatus orderStatus) {
-        orderProducts.forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus));
+    public void changeAllProductsStatus(OrderStatus orderStatus, LocalDateTime now) {
+        orderProducts.forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
         this.orderStatus = orderStatus;
     }
 
