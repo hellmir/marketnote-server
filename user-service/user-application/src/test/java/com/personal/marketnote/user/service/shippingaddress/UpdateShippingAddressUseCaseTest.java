@@ -115,6 +115,91 @@ class UpdateShippingAddressUseCaseTest {
     }
 
     @Test
+    @DisplayName("CUSTOM 타입으로 수정 시 배송 요청사항 메시지가 유지된다")
+    void updateShippingAddress_customTypeWithMessage_keepsMessage() {
+        // given
+        Long shippingAddressId = 3L;
+        Long userId = 300L;
+        String message = "현관 비밀번호 1234 입니다";
+
+        ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
+                .id(shippingAddressId)
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 201호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.NONE)
+                .deliveryRequestMessage(null)
+                .isDefault(true)
+                .build());
+
+        UpdateShippingAddressCommand command = UpdateShippingAddressCommand.builder()
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 201호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.CUSTOM)
+                .deliveryRequestMessage(message)
+                .build();
+
+        when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
+                .thenReturn(Optional.of(shippingAddress));
+
+        // when
+        updateShippingAddressService.updateShippingAddress(shippingAddressId, userId, command);
+
+        // then
+        assertThat(shippingAddress.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.CUSTOM);
+        assertThat(shippingAddress.getDeliveryRequestMessage()).isEqualTo(message);
+
+        verify(updateShippingAddressPort).update(shippingAddress);
+    }
+
+    @Test
+    @DisplayName("CUSTOM이 아닌 타입으로 수정 시 배송 요청사항 메시지가 무시된다")
+    void updateShippingAddress_nonCustomTypeWithMessage_clearsMessage() {
+        // given
+        Long shippingAddressId = 4L;
+        Long userId = 400L;
+
+        ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
+                .id(shippingAddressId)
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 201호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.CUSTOM)
+                .deliveryRequestMessage("기존 요청사항")
+                .isDefault(true)
+                .build());
+
+        UpdateShippingAddressCommand command = UpdateShippingAddressCommand.builder()
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 201호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+                .deliveryRequestMessage("이 메시지는 무시되어야 합니다")
+                .build();
+
+        when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
+                .thenReturn(Optional.of(shippingAddress));
+
+        // when
+        updateShippingAddressService.updateShippingAddress(shippingAddressId, userId, command);
+
+        // then
+        assertThat(shippingAddress.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
+        assertThat(shippingAddress.getDeliveryRequestMessage()).isNull();
+
+        verify(updateShippingAddressPort).update(shippingAddress);
+    }
+
+    @Test
     @DisplayName("수정 후 updateShippingAddressPort.update가 호출된다")
     void updateShippingAddress_afterUpdate_callsUpdatePort() {
         // given
