@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder(access = AccessLevel.PRIVATE)
@@ -28,7 +29,8 @@ public record GetBuyerOrderProductResult(
         String brandName,
         String productName,
         List<ProductOptionInfoResult> selectedOptions,
-        Boolean isReviewed
+        Boolean isReviewed,
+        LocalDateTime reviewDeadline
 ) {
     public static GetBuyerOrderProductResult from(
             Order order,
@@ -60,6 +62,7 @@ public record GetBuyerOrderProductResult(
                 .productName(orderProductResult.productName())
                 .selectedOptions(orderProductResult.selectedOptions())
                 .isReviewed(orderProductResult.isReviewed())
+                .reviewDeadline(orderProduct.calculateReviewDeadline())
                 .build();
     }
 }
