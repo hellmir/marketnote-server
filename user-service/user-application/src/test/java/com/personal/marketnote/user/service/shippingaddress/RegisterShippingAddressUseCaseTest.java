@@ -287,6 +287,112 @@ class RegisterShippingAddressUseCaseTest {
         verifyNoInteractions(updateShippingAddressPort);
     }
 
+    @Test
+    @DisplayName("CUSTOM 타입 선택 시 배송 요청사항 메시지(최대 60자)가 정상 저장된다")
+    void registerShippingAddress_customTypeWithValidMessage_savesWithMessage() {
+        // given
+        Long userId = 1L;
+        String message = "a".repeat(60);
+        RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 1001호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.CUSTOM)
+                .deliveryRequestMessage(message)
+                .isDefault(false)
+                .build();
+
+        when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
+                .thenReturn(false);
+        when(findShippingAddressPort.existsByUserId(userId))
+                .thenReturn(false);
+
+        ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true);
+        when(saveShippingAddressPort.save(any(ShippingAddress.class)))
+                .thenReturn(savedShippingAddress);
+
+        // when
+        RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
+
+        // then
+        assertThat(result.id()).isEqualTo(1L);
+
+        verify(saveShippingAddressPort).save(argThat(sa ->
+                sa.getDeliveryRequestType() == DeliveryRequestType.CUSTOM
+                        && message.equals(sa.getDeliveryRequestMessage())
+        ));
+    }
+
+    @Test
+    @DisplayName("CUSTOM 타입 선택 시 배송 요청사항 메시지가 60자를 초과하면 예외가 발생한다")
+    void registerShippingAddress_customTypeWithExceedingMessage_throwsIllegalArgumentException() {
+        // given
+        Long userId = 1L;
+        String message = "a".repeat(61);
+        RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 1001호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.CUSTOM)
+                .deliveryRequestMessage(message)
+                .isDefault(false)
+                .build();
+
+        when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
+                .thenReturn(false);
+        when(findShippingAddressPort.existsByUserId(userId))
+                .thenReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다");
+
+        verifyNoInteractions(saveShippingAddressPort);
+    }
+
+    @Test
+    @DisplayName("CUSTOM이 아닌 타입 선택 시 배송 요청사항 메시지가 무시된다")
+    void registerShippingAddress_nonCustomTypeWithMessage_clearsMessage() {
+        // given
+        Long userId = 1L;
+        RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 1001호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+                .deliveryRequestMessage("이 메시지는 무시되어야 합니다")
+                .isDefault(false)
+                .build();
+
+        when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
+                .thenReturn(false);
+        when(findShippingAddressPort.existsByUserId(userId))
+                .thenReturn(false);
+
+        ShippingAddress savedShippingAddress = createShippingAddress(1L, userId, ShippingAddressType.HOME, true);
+        when(saveShippingAddressPort.save(any(ShippingAddress.class)))
+                .thenReturn(savedShippingAddress);
+
+        // when
+        registerShippingAddressService.registerShippingAddress(command);
+
+        // then
+        verify(saveShippingAddressPort).save(argThat(sa ->
+                sa.getDeliveryRequestType() == DeliveryRequestType.LEAVE_AT_DOOR
+                        && sa.getDeliveryRequestMessage() == null
+        ));
+    }
+
     private ShippingAddress createShippingAddress(
             Long id,
             Long userId,
