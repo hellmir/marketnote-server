@@ -72,7 +72,15 @@ public class OrderProduct {
         if (FormatValidator.hasNoValue(confirmedAt)) {
             return true;
         }
-        return !confirmedAt.plusDays(REVIEW_DEADLINE_DAYS).isBefore(now);
+        LocalDateTime deadline = calculateReviewDeadline();
+        return !deadline.isBefore(now);
+    }
+
+    public LocalDateTime calculateReviewDeadline() {
+        if (FormatValidator.hasNoValue(confirmedAt)) {
+            return null;
+        }
+        return confirmedAt.plusDays(REVIEW_DEADLINE_DAYS);
     }
 
     public void updateReviewStatus(Boolean isReviewed) {

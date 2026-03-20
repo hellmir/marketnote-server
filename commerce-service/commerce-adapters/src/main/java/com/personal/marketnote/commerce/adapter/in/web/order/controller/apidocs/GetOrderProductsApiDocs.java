@@ -78,7 +78,8 @@ import java.lang.annotation.*;
                 | productName | string | 상품명 | "공책" |
                 | selectedOptions | array | 선택 옵션 목록 | [ ... ] |
                 | isReviewed | boolean | 리뷰 작성 여부 | false |
-                
+                | reviewDeadline | string(datetime) | 리뷰 작성기한 (구매 확정 후 30일) | "2026-02-25T14:30:00" |
+
                 ---
                 
                 ### Response > content > orderProducts > selectedOptions
@@ -132,7 +133,8 @@ import java.lang.annotation.*;
                                                     "status": "ACTIVE"
                                                   }
                                                 ],
-                                                "isReviewed": false
+                                                "isReviewed": false,
+                                                "reviewDeadline": "2026-02-25T14:30:00"
                                               }
                                             ]
                                           },
