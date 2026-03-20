@@ -46,8 +46,8 @@ public class RegisterShippingAddressRequest {
     @Schema(name = "deliveryRequestType", description = "배송 요청사항 타입", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private DeliveryRequestType deliveryRequestType;
 
-    @Schema(name = "deliveryRequestMessage", description = "배송 요청사항 직접입력 메시지 (최대 30자, CUSTOM 타입일 때 필수)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    @Size(max = 30, message = "배송 요청사항 메시지는 최대 30자까지 입력할 수 있습니다.")
+    @Schema(name = "deliveryRequestMessage", description = "배송 요청사항 직접입력 메시지 (최대 60자, CUSTOM 타입일 때 필수)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Size(max = 60, message = "배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다.")
     private String deliveryRequestMessage;
 
     @Schema(name = "isDefault", description = "기본 배송지 여부", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

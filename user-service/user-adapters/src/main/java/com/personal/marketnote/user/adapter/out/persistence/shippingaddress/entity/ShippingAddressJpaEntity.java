@@ -44,7 +44,7 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
     @Column(name = "delivery_request_type", nullable = false, length = 31)
     private DeliveryRequestType deliveryRequestType;
 
-    @Column(name = "delivery_request_message", length = 30)
+    @Column(name = "delivery_request_message", length = 60)
     private String deliveryRequestMessage;
 
     @Column(name = "is_default", nullable = false, columnDefinition = "boolean default false")

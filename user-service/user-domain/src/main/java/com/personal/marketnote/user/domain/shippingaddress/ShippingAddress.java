@@ -114,14 +114,17 @@ public class ShippingAddress extends BaseDomain {
             throw new IllegalArgumentException("기타 배송지에는 주소 별명이 필수입니다.");
         }
 
-        if (FormatValidator.hasValue(deliveryRequestType)
-                && deliveryRequestType.isCustom()
-                && FormatValidator.hasNoValue(deliveryRequestMessage)) {
+        if (FormatValidator.hasNoValue(deliveryRequestType) || !deliveryRequestType.isCustom()) {
+            this.deliveryRequestMessage = null;
+            return;
+        }
+
+        if (FormatValidator.hasNoValue(deliveryRequestMessage)) {
             throw new IllegalArgumentException("직접입력 선택 시 배송 요청사항 메시지는 필수입니다.");
         }
 
-        if (FormatValidator.hasValue(deliveryRequestMessage) && deliveryRequestMessage.length() > 30) {
-            throw new IllegalArgumentException("배송 요청사항 메시지는 최대 30자까지 입력할 수 있습니다.");
+        if (deliveryRequestMessage.length() > 60) {
+            throw new IllegalArgumentException("배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다.");
         }
     }
 }
