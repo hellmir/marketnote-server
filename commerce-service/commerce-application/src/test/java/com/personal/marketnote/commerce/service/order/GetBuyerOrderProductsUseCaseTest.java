@@ -563,6 +563,75 @@ class GetBuyerOrderProductsUseCaseTest {
 
             assertThat(result.orderProducts().get(0).isReviewed()).isTrue();
         }
+
+        @Test
+        @DisplayName("구매 확정일이 존재하면 reviewDeadline이 구매 확정일로부터 30일 후로 매핑된다")
+        void mapsReviewDeadlineFromConfirmedAt() {
+            Long buyerId = 1L;
+            LocalDateTime confirmedAt = LocalDateTime.of(2026, 2, 1, 10, 0, 0);
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, confirmedAt)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts().get(0).reviewDeadline())
+                    .isEqualTo(confirmedAt.plusDays(30));
+        }
+
+        @Test
+        @DisplayName("구매 확정일이 null이면 reviewDeadline이 null로 매핑된다")
+        void reviewDeadlineIsNullWhenConfirmedAtIsNull() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, null)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(100L, createProductInfo(100L, "상품A")));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts().get(0).reviewDeadline()).isNull();
+        }
+
+        @Test
+        @DisplayName("여러 상품의 구매 확정일이 다르면 각각의 reviewDeadline이 개별적으로 계산된다")
+        void mapsReviewDeadlineIndividuallyForEachProduct() {
+            Long buyerId = 1L;
+            LocalDateTime confirmedAt1 = LocalDateTime.of(2026, 2, 1, 10, 0, 0);
+            LocalDateTime confirmedAt2 = LocalDateTime.of(2026, 2, 15, 14, 0, 0);
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, confirmedAt1),
+                    productStateWithConfirmedAt(200L, confirmedAt2)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(
+                            100L, createProductInfo(100L, "상품A"),
+                            200L, createProductInfo(200L, "상품B")
+                    ));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(2);
+            assertThat(result.orderProducts().get(0).reviewDeadline())
+                    .isEqualTo(confirmedAt1.plusDays(30));
+            assertThat(result.orderProducts().get(1).reviewDeadline())
+                    .isEqualTo(confirmedAt2.plusDays(30));
+        }
     }
 
     // ==================================================================================
