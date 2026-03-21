@@ -37,6 +37,8 @@ class GetUserPointHistoryUseCaseTest {
     private FindUserPointHistoryPort findUserPointHistoryPort;
 
     private static final Long USER_ID = 1L;
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final int DEFAULT_FETCH_SIZE = DEFAULT_PAGE_SIZE + 1;
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 3, 5, 10, 0);
     private static final LocalDate DEFAULT_START_DATE = GetUserPointHistoryService.DEFAULT_START_DATE;
     private static final LocalDate DEFAULT_END_DATE = GetUserPointHistoryService.DEFAULT_END_DATE;
@@ -59,6 +61,7 @@ class GetUserPointHistoryUseCaseTest {
         return GetUserPointHistoryCommand.builder()
                 .userId(USER_ID)
                 .filter(filter)
+                .pageSize(DEFAULT_PAGE_SIZE)
                 .build();
     }
 
@@ -68,6 +71,7 @@ class GetUserPointHistoryUseCaseTest {
                 .filter(filter)
                 .startDate(startDate)
                 .endDate(endDate)
+                .pageSize(DEFAULT_PAGE_SIZE)
                 .build();
     }
 
@@ -84,7 +88,7 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(2L, -200L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(histories);
 
             // when
@@ -95,7 +99,9 @@ class GetUserPointHistoryUseCaseTest {
             // then
             assertThat(result.histories()).hasSize(1);
             assertThat(result.histories().getFirst().count()).isEqualTo(2);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE);
+            assertThat(result.totalElements()).isEqualTo(2L);
+            assertThat(result.hasNext()).isFalse();
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE);
         }
 
         @Test
@@ -106,7 +112,7 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(1L, 500L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(histories);
 
             // when
@@ -117,7 +123,7 @@ class GetUserPointHistoryUseCaseTest {
             // then
             assertThat(result.histories()).hasSize(1);
             assertThat(result.histories().getFirst().count()).isEqualTo(1);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, DEFAULT_START_DATE, DEFAULT_END_DATE);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE);
         }
 
         @Test
@@ -128,7 +134,7 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(1L, -300L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION, DEFAULT_START_DATE, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(histories);
 
             // when
@@ -138,7 +144,7 @@ class GetUserPointHistoryUseCaseTest {
 
             // then
             assertThat(result.histories()).hasSize(1);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION, DEFAULT_START_DATE, DEFAULT_END_DATE);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE);
         }
     }
 
@@ -154,7 +160,7 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(1L, 500L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(histories);
 
             // when
@@ -164,7 +170,7 @@ class GetUserPointHistoryUseCaseTest {
 
             // then
             assertThat(result.histories()).hasSize(1);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE);
         }
     }
 
@@ -176,7 +182,7 @@ class GetUserPointHistoryUseCaseTest {
         @DisplayName("이력이 없으면 빈 결과를 반환한다")
         void shouldReturnEmptyResultWhenNoHistories() {
             // given
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(Collections.emptyList());
 
             // when
@@ -186,6 +192,9 @@ class GetUserPointHistoryUseCaseTest {
 
             // then
             assertThat(result.histories()).isEmpty();
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.nextCursor()).isNull();
+            assertThat(result.totalElements()).isEqualTo(0L);
         }
     }
 
@@ -205,7 +214,7 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(2L, 300L, UserPointSourceType.ATTENDENCE, afternoon)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(histories);
 
             // when
@@ -230,7 +239,7 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(2L, 300L, UserPointSourceType.ATTENDENCE, day2)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(histories);
 
             // when
@@ -256,7 +265,7 @@ class GetUserPointHistoryUseCaseTest {
             LocalDate startDate = LocalDate.of(2026, 3, 1);
             LocalDate endDate = LocalDate.of(2026, 3, 31);
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, endDate))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, endDate, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(Collections.emptyList());
 
             // when
@@ -265,7 +274,7 @@ class GetUserPointHistoryUseCaseTest {
             );
 
             // then
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, endDate);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, endDate, null, DEFAULT_FETCH_SIZE);
         }
 
         @Test
@@ -274,7 +283,7 @@ class GetUserPointHistoryUseCaseTest {
             // given
             LocalDate startDate = LocalDate.of(2026, 3, 1);
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, DEFAULT_END_DATE))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(Collections.emptyList());
 
             // when
@@ -283,7 +292,7 @@ class GetUserPointHistoryUseCaseTest {
             );
 
             // then
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, DEFAULT_END_DATE);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE);
         }
 
         @Test
@@ -292,7 +301,7 @@ class GetUserPointHistoryUseCaseTest {
             // given
             LocalDate endDate = LocalDate.of(2026, 3, 31);
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, endDate))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, endDate, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(Collections.emptyList());
 
             // when
@@ -301,7 +310,7 @@ class GetUserPointHistoryUseCaseTest {
             );
 
             // then
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, endDate);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, endDate, null, DEFAULT_FETCH_SIZE);
         }
 
         @Test
@@ -330,7 +339,7 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(1L, 500L, UserPointSourceType.ORDER, LocalDateTime.of(2026, 3, 15, 10, 0))
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, startDate, endDate))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, startDate, endDate, null, DEFAULT_FETCH_SIZE))
                     .thenReturn(histories);
 
             // when
@@ -340,7 +349,8 @@ class GetUserPointHistoryUseCaseTest {
 
             // then
             assertThat(result.histories()).hasSize(1);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, startDate, endDate);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, startDate, endDate, null, DEFAULT_FETCH_SIZE);
         }
     }
+
 }

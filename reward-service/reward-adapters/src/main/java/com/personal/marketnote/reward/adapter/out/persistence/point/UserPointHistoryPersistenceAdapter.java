@@ -12,6 +12,7 @@ import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointHistoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,17 +39,31 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
     }
 
     @Override
-    public List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter, LocalDate startDate, LocalDate endDate) {
+    public List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter,
+                                               LocalDate startDate, LocalDate endDate,
+                                               Long cursor, int pageSize) {
         List<UserPointHistoryJpaEntity> histories = repository.findByUserIdAndDateRangeAndFilter(
                 userId,
                 startDate.atStartOfDay(),
                 endDate.plusDays(1).atStartOfDay(),
-                filter.getAmountFilterValue()
+                filter.getAmountFilterValue(),
+                cursor,
+                PageRequest.of(0, pageSize)
         );
 
         return histories.stream()
                 .map(UserPointHistoryJpaEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    public long countByUserId(Long userId, UserPointHistoryFilter filter, LocalDate startDate, LocalDate endDate) {
+        return repository.countByUserIdAndDateRangeAndFilter(
+                userId,
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay(),
+                filter.getAmountFilterValue()
+        );
     }
 
     @Override
