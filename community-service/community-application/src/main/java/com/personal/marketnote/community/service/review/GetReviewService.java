@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.personal.marketnote.common.domain.file.FileSort.REVIEW_IMAGE;
+import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
@@ -101,7 +102,7 @@ public class GetReviewService implements GetReviewUseCase {
             nextCursor = pagedReviews.getLast().getId();
         }
 
-        boolean isFirstPage = FormatValidator.hasNoValue(cursor);
+        boolean isFirstPage = FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE);
         Long totalElements = null;
         if (isFirstPage) {
             totalElements = findReviewPort.countActive(productId, isPhoto);
@@ -180,7 +181,7 @@ public class GetReviewService implements GetReviewUseCase {
             nextCursor = pagedReviews.getLast().getId();
         }
 
-        boolean isFirstPage = FormatValidator.hasNoValue(cursor);
+        boolean isFirstPage = FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE);
         Long totalElements = null;
         if (isFirstPage) {
             totalElements = findReviewPort.countActive(userId);
