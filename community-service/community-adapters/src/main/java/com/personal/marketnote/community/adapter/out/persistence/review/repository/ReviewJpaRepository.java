@@ -172,11 +172,11 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                  OR r.rating > (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                  OR (
                         r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
-                    AND r.id > :cursor
+                    AND r.id < :cursor
                  )
               )
               AND r.status = 'ACTIVE'
-            ORDER BY r.rating ASC, r.id ASC
+            ORDER BY r.rating ASC, r.id DESC
             """)
     List<ReviewJpaEntity> findProductReviewsByCursorOrderByRatingAsc(
             @Param("productId") Long productId,
@@ -400,11 +400,11 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                  OR r.rating > (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                  OR (
                         r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
-                    AND r.id > :cursor
+                    AND r.id < :cursor
                  )
               )
               AND r.status = 'ACTIVE'
-            ORDER BY r.rating ASC, r.id ASC
+            ORDER BY r.rating ASC, r.id DESC
             """)
     List<ReviewJpaEntity> findProductPhotoReviewsByCursorOrderByRatingAsc(
             @Param("productId") Long productId,
@@ -635,10 +635,10 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                  OR r.rating > (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                  OR (
                         r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
-                    AND r.id > :cursor
+                    AND r.id < :cursor
                  )
               )
-            ORDER BY r.rating ASC, r.id ASC
+            ORDER BY r.rating ASC, r.id DESC
             """)
     List<ReviewJpaEntity> findUserReviewsByCursorOrderByRatingAsc(
             @Param("userId") Long userId,
