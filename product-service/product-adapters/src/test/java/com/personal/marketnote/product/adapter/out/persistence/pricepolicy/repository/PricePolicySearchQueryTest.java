@@ -221,9 +221,11 @@ class PricePolicySearchQueryTest {
     @DisplayName("적립률 정렬 (sortProperty=accumulatedPointRate)")
     class SortByAccumulatedPointRate {
 
+        private PricePolicyJpaEntity policyRate5First;
+        private PricePolicyJpaEntity policyRate3First;
+        private PricePolicyJpaEntity policyRate3Second;
         private PricePolicyJpaEntity policyRate1;
-        private PricePolicyJpaEntity policyRate3;
-        private PricePolicyJpaEntity policyRate5;
+        private PricePolicyJpaEntity policyRate5Second;
 
         @BeforeEach
         void setUp() {
@@ -232,10 +234,14 @@ class PricePolicySearchQueryTest {
             ProductJpaEntity product1 = saveProduct("상품A", "브랜드A");
             ProductJpaEntity product2 = saveProduct("상품B", "브랜드B");
             ProductJpaEntity product3 = saveProduct("상품C", "브랜드C");
+            ProductJpaEntity product4 = saveProduct("상품D", "브랜드D");
+            ProductJpaEntity product5 = saveProduct("상품E", "브랜드E");
 
-            policyRate1 = savePricePolicy(product1, BigDecimal.valueOf(1.0));
-            policyRate3 = savePricePolicy(product2, BigDecimal.valueOf(3.0));
-            policyRate5 = savePricePolicy(product3, BigDecimal.valueOf(5.0));
+            policyRate5First = savePricePolicy(product1, BigDecimal.valueOf(5.0));
+            policyRate3First = savePricePolicy(product2, BigDecimal.valueOf(3.0));
+            policyRate3Second = savePricePolicy(product3, BigDecimal.valueOf(3.0));
+            policyRate1 = savePricePolicy(product4, BigDecimal.valueOf(1.0));
+            policyRate5Second = savePricePolicy(product5, BigDecimal.valueOf(5.0));
         }
 
         @Test
@@ -247,10 +253,12 @@ class PricePolicySearchQueryTest {
                     null, null, pageable, "accumulatedPointRate", "name", "", null
             );
 
-            assertThat(results).hasSize(3);
+            assertThat(results).hasSize(5);
             assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
             assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
-            assertThat(results.get(2).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+            assertThat(results.get(2).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
+            assertThat(results.get(3).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+            assertThat(results.get(4).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
         }
 
         @Test
@@ -262,10 +270,12 @@ class PricePolicySearchQueryTest {
                     null, null, pageable, "accumulatedPointRate", "name", "", null
             );
 
-            assertThat(results).hasSize(3);
+            assertThat(results).hasSize(5);
             assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
-            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
-            assertThat(results.get(2).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
+            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+            assertThat(results.get(2).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
+            assertThat(results.get(3).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
+            assertThat(results.get(4).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
         }
 
         @Test
@@ -274,12 +284,14 @@ class PricePolicySearchQueryTest {
             Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "accumulationRate"));
 
             List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
-                    null, policyRate5.getId(), pageable, "accumulatedPointRate", "name", "", null
+                    null, policyRate5Second.getId(), pageable, "accumulatedPointRate", "name", "", null
             );
 
-            assertThat(results).hasSize(2);
-            assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
-            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
+            assertThat(results).hasSize(4);
+            assertThat(results.get(0).getId()).isEqualTo(policyRate5First.getId());
+            assertThat(results.get(1).getId()).isEqualTo(policyRate3Second.getId());
+            assertThat(results.get(2).getId()).isEqualTo(policyRate3First.getId());
+            assertThat(results.get(3).getId()).isEqualTo(policyRate1.getId());
         }
 
         @Test
@@ -291,9 +303,97 @@ class PricePolicySearchQueryTest {
                     null, policyRate1.getId(), pageable, "accumulatedPointRate", "name", "", null
             );
 
-            assertThat(results).hasSize(2);
-            assertThat(results.get(0).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
-            assertThat(results.get(1).getAccumulationRate()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+            assertThat(results).hasSize(4);
+            assertThat(results.get(0).getId()).isEqualTo(policyRate3Second.getId());
+            assertThat(results.get(1).getId()).isEqualTo(policyRate3First.getId());
+            assertThat(results.get(2).getId()).isEqualTo(policyRate5Second.getId());
+            assertThat(results.get(3).getId()).isEqualTo(policyRate5First.getId());
+        }
+
+        @Test
+        @DisplayName("전체 정렬 순서를 검증한다: accumulationRate DESC → p.id DESC")
+        void fullSortOrderDesc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "accumulatedPointRate", "name", "", null
+            );
+
+            assertThat(results).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(
+                            policyRate5Second.getId(),
+                            policyRate5First.getId(),
+                            policyRate3Second.getId(),
+                            policyRate3First.getId(),
+                            policyRate1.getId()
+                    );
+        }
+
+        @Test
+        @DisplayName("전체 정렬 순서를 검증한다: accumulationRate ASC → p.id DESC")
+        void fullSortOrderAsc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, null, pageable, "accumulatedPointRate", "name", "", null
+            );
+
+            assertThat(results).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(
+                            policyRate1.getId(),
+                            policyRate3Second.getId(),
+                            policyRate3First.getId(),
+                            policyRate5Second.getId(),
+                            policyRate5First.getId()
+                    );
+        }
+
+        @Test
+        @DisplayName("적립률 내림차순 커서 기반 페이징이 동일 적립률 상품을 올바르게 분할한다")
+        void cursorPaginationSplitsSameRateDesc() {
+            Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> page1 = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "accumulatedPointRate", "name", "", null
+            );
+            assertThat(page1).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyRate5Second.getId(), policyRate5First.getId());
+
+            List<PricePolicyJpaEntity> page2 = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, page1.getLast().getId(), pageable, "accumulatedPointRate", "name", "", null
+            );
+            assertThat(page2).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyRate3Second.getId(), policyRate3First.getId());
+
+            List<PricePolicyJpaEntity> page3 = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, page2.getLast().getId(), pageable, "accumulatedPointRate", "name", "", null
+            );
+            assertThat(page3).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyRate1.getId());
+        }
+
+        @Test
+        @DisplayName("적립률 오름차순 커서 기반 페이징이 동일 적립률 상품을 올바르게 분할한다")
+        void cursorPaginationSplitsSameRateAsc() {
+            Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "accumulationRate"));
+
+            List<PricePolicyJpaEntity> page1 = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, null, pageable, "accumulatedPointRate", "name", "", null
+            );
+            assertThat(page1).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyRate1.getId(), policyRate3Second.getId());
+
+            List<PricePolicyJpaEntity> page2 = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, page1.getLast().getId(), pageable, "accumulatedPointRate", "name", "", null
+            );
+            assertThat(page2).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyRate3First.getId(), policyRate5Second.getId());
+
+            List<PricePolicyJpaEntity> page3 = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, page2.getLast().getId(), pageable, "accumulatedPointRate", "name", "", null
+            );
+            assertThat(page3).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyRate5First.getId());
         }
     }
 
