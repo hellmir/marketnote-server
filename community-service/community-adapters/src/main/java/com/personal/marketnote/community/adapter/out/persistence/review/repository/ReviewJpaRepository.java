@@ -97,6 +97,14 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                              WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
                             = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
                                WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating > (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
+                    )
+                    OR (
+                            (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
+                             WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
+                            = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
+                               WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                         AND r.id > :cursor
                     )
                  )
@@ -105,6 +113,7 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
             ORDER BY
                 (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
                  WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id) ASC,
+                r.rating ASC,
                 r.id ASC
             """)
     List<ReviewJpaEntity> findProductReviewsByCursorOrderByLikeCountAsc(
@@ -129,6 +138,14 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                              WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
                             = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
                                WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating < (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
+                    )
+                    OR (
+                            (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
+                             WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
+                            = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
+                               WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                         AND r.id < :cursor
                     )
                  )
@@ -137,6 +154,7 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
             ORDER BY
                 (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
                  WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id) DESC,
+                r.rating DESC,
                 r.id DESC
             """)
     List<ReviewJpaEntity> findProductReviewsByCursorOrderByLikeCountDesc(
@@ -305,6 +323,14 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                              WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
                             = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
                                WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating > (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
+                    )
+                    OR (
+                            (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
+                             WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
+                            = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
+                               WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                         AND r.id > :cursor
                     )
                  )
@@ -313,6 +339,7 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
             ORDER BY
                 (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
                  WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id) ASC,
+                r.rating ASC,
                 r.id ASC
             """)
     List<ReviewJpaEntity> findProductPhotoReviewsByCursorOrderByLikeCountAsc(
@@ -338,6 +365,14 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                              WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
                             = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
                                WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating < (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
+                    )
+                    OR (
+                            (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
+                             WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
+                            = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
+                               WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                         AND r.id < :cursor
                     )
                  )
@@ -346,6 +381,7 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
             ORDER BY
                 (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
                  WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id) DESC,
+                r.rating DESC,
                 r.id DESC
             """)
     List<ReviewJpaEntity> findProductPhotoReviewsByCursorOrderByLikeCountDesc(
@@ -526,6 +562,14 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                              WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
                             = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
                                WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating > (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
+                    )
+                    OR (
+                            (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
+                             WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
+                            = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
+                               WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                         AND r.id > :cursor
                     )
                  )
@@ -533,6 +577,7 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
             ORDER BY
                 (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
                  WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id) ASC,
+                r.rating ASC,
                 r.id ASC
             """)
     List<ReviewJpaEntity> findUserReviewsByCursorOrderByLikeCountAsc(
@@ -557,6 +602,14 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
                              WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
                             = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
                                WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating < (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
+                    )
+                    OR (
+                            (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
+                             WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id)
+                            = (SELECT COUNT(l2) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l2
+                               WHERE l2.id.targetType = 'REVIEW' AND l2.id.targetId = :cursor)
+                        AND r.rating = (SELECT r2.rating FROM ReviewJpaEntity r2 WHERE r2.id = :cursor)
                         AND r.id < :cursor
                     )
                  )
@@ -564,6 +617,7 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
             ORDER BY
                 (SELECT COUNT(l) FROM com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity l
                  WHERE l.id.targetType = 'REVIEW' AND l.id.targetId = r.id) DESC,
+                r.rating DESC,
                 r.id DESC
             """)
     List<ReviewJpaEntity> findUserReviewsByCursorOrderByLikeCountDesc(
