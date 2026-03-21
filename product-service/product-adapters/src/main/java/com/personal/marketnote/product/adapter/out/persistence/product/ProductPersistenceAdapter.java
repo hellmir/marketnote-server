@@ -7,8 +7,6 @@ import com.personal.marketnote.product.adapter.out.persistence.product.entity.Pr
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductTagJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
 import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductSearchTarget;
-import com.personal.marketnote.product.domain.product.ProductSortProperty;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.SaveProductPort;
@@ -17,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.util.*;
 
@@ -74,144 +70,12 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
     }
 
     @Override
-    public List<Product> findAllActive(
-            Long cursor,
-            Pageable pageable,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
-    ) {
-        boolean isAsc = isAsc(pageable);
-        String searchPattern = generateSearchPattern(searchKeyword);
-
-        List<ProductJpaEntity> entities = findEntities(
-                isAsc,
-                cursor,
-                pageable,
-                sortProperty,
-                searchTarget,
-                searchPattern
-        );
-
-        return loadProductsWithAssociations(entities).stream()
-                .map(entity -> ProductJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                .toList();
-    }
-
-    @Override
-    @Cacheable(
-            value = "product:list:first",
-            key = "#categoryId + ':' + #pageable.getPageSize() + ':' + #sortProperty.name() + ':' + #searchTarget.name()",
-            condition = "#cursor == null && (#searchKeyword == null || #searchKeyword.isBlank())"
-    )
-    public List<Product> findAllActiveByCategoryId(
-            Long categoryId,
-            Long cursor,
-            Pageable pageable,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
-    ) {
-        boolean isAsc = isAsc(pageable);
-        String searchPattern = generateSearchPattern(searchKeyword);
-
-        List<ProductJpaEntity> entities = findCategorizedEntities(
-                isAsc,
-                categoryId,
-                cursor,
-                pageable,
-                sortProperty,
-                searchTarget,
-                searchPattern
-        );
-
-        List<ProductJpaEntity> hydratedEntities = loadProductsWithAssociations(entities);
-
-        return new ArrayList<>(hydratedEntities.stream()
-                .map(entity -> ProductJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
-                .toList());
-    }
-
-    private boolean isAsc(Pageable pageable) {
-        return pageable.getSort()
-                .stream()
-                .findFirst()
-                .map(Sort.Order::isAscending)
-                .orElse(true);
-    }
-
-    private List<ProductJpaEntity> findEntities(
-            boolean isAsc,
-            Long cursor,
-            Pageable pageable,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchPattern
-    ) {
-        if (isAsc) {
-            return productJpaRepository.findAllActiveByCursorAsc(
-                    cursor,
-                    pageable,
-                    sortProperty.getCamelCaseValue(),
-                    searchTarget.getCamelCaseValue(),
-                    searchPattern
-            );
-        }
-
-        return productJpaRepository.findAllActiveByCursorDesc(
-                cursor,
-                pageable,
-                sortProperty.getCamelCaseValue(),
-                searchTarget.getCamelCaseValue(),
-                searchPattern
-        );
-    }
-
-    private List<ProductJpaEntity> findCategorizedEntities(
-            boolean isAsc,
-            Long categoryId,
-            Long cursor,
-            Pageable pageable,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchPattern
-    ) {
-        if (isAsc) {
-            return productJpaRepository.findAllActiveByCategoryIdCursorAsc(
-                    categoryId,
-                    cursor,
-                    pageable,
-                    sortProperty.getCamelCaseValue(),
-                    searchTarget.getCamelCaseValue(),
-                    searchPattern
-            );
-        }
-
-        return productJpaRepository.findAllActiveByCategoryIdCursorDesc(
-                categoryId,
-                cursor,
-                pageable,
-                sortProperty.getCamelCaseValue(),
-                searchTarget.getCamelCaseValue(),
-                searchPattern
-        );
-    }
-
-    @Override
     public List<Product> findByPricePolicyIds(List<Long> pricePolicyIds) {
         return loadProductsWithAssociations(productJpaRepository.findByPricePolicyIds(pricePolicyIds)).stream()
                 .map(ProductJpaEntityToDomainMapper::mapToDomain)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
-    }
-
-    private String generateSearchPattern(String searchKeyword) {
-        if (FormatValidator.hasValue(searchKeyword)) {
-            return "%" + searchKeyword + "%";
-        }
-
-        return null;
     }
 
     @Override
