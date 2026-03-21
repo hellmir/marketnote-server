@@ -4,6 +4,7 @@ import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -15,14 +16,16 @@ import java.util.List;
  */
 public interface FindUserPointHistoryPort {
     /**
-     * @param userId 회원 식별자
-     * @param filter 포인트 이력 필터
+     * @param userId    회원 식별자
+     * @param filter    포인트 이력 필터
+     * @param startDate 조회 시작일
+     * @param endDate   조회 종료일
      * @return 회원 포인트 이력 목록 {@link UserPointHistory}
      * @Date 2026-01-19
      * @Author 성효빈
-     * @Description 회원 식별자와 필터 조건으로 포인트 이력을 조회합니다.
+     * @Description 회원 식별자와 필터/기간 조건으로 포인트 이력을 조회합니다.
      */
-    List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter);
+    List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter, LocalDate startDate, LocalDate endDate);
 
     /**
      * @param userId     회원 식별자

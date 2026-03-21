@@ -15,6 +15,7 @@ import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPoint
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.UpdateUserPointResponse;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
+import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
 import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointResult;
@@ -32,6 +33,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
@@ -151,12 +153,18 @@ public class PointController {
     public ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> getUserPointHistories(
             @PathVariable("userId") Long userId,
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
-            @RequestParam(value = "filter", required = false) UserPointHistoryFilter filter
+            @RequestParam(value = "filter", required = false) UserPointHistoryFilter filter,
+            @RequestParam(value = "start-date", required = false) LocalDate startDate,
+            @RequestParam(value = "end-date", required = false) LocalDate endDate
     ) {
         validateAuthentication(userId, principal);
         GetUserPointHistoryResult result = getUserPointHistoryUseCase.getUserPointHistories(
-                userId,
-                filter
+                GetUserPointHistoryCommand.builder()
+                        .userId(userId)
+                        .filter(filter)
+                        .startDate(startDate)
+                        .endDate(endDate)
+                        .build()
         );
 
         return ResponseEntity.ok(

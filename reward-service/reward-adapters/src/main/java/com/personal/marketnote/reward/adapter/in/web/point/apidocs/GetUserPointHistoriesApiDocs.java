@@ -38,6 +38,8 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- | --- |
                 | userId (path) | number | 회원 ID | Y | 100 |
                 | filter | string | 조회 필터 (ALL/ACCRUAL/DEDUCTION) | 선택 | ACCRUAL |
+                | start-date | string(date) | 조회 시작일 (YYYY-MM-DD) | 선택 | 2026-03-01 |
+                | end-date | string(date) | 조회 종료일 (YYYY-MM-DD) | 선택 | 2026-03-31 |
                 
                 ---
                 
