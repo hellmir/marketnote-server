@@ -93,7 +93,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                      OR (:sortProperty = 'accumulatedPoint' AND (
                               pp.accumulatedPoint > (SELECT pp5.accumulatedPoint FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor)
                            OR (pp.accumulatedPoint = (SELECT pp5.accumulatedPoint FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor)
-                               AND pp.id > :cursor)
+                               AND p.id < (SELECT pp5.productJpaEntity.id FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor))
                         ))
                      OR (:sortProperty = 'accumulatedPointRate' AND (
                               pp.accumulationRate > (SELECT pp6.accumulationRate FROM PricePolicyJpaEntity pp6 WHERE pp6.id = :cursor)
@@ -107,6 +107,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END ASC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END ASC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END ASC,
+                CASE WHEN :sortProperty = 'accumulatedPoint' THEN p.id END DESC,
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN pp.accumulationRate END ASC,
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id ASC
@@ -201,7 +202,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                                     FROM PricePolicyJpaEntity pp5
                                     WHERE pp5.id = :cursor
                                 )
-                               AND pp.id < :cursor)
+                               AND p.id < (SELECT pp5.productJpaEntity.id FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor))
                         ))
                      OR (:sortProperty = 'accumulatedPointRate' AND (
                               pp.accumulationRate < (
@@ -223,6 +224,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END DESC,
                 CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END DESC,
                 CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END DESC,
+                CASE WHEN :sortProperty = 'accumulatedPoint' THEN p.id END DESC,
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN pp.accumulationRate END DESC,
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id DESC
