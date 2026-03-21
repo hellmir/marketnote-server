@@ -13,9 +13,17 @@ import java.util.Map;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetUserPointHistoryResult(
+        Long totalElements,
+        boolean hasNext,
+        Long nextCursor,
         List<UserPointHistoryByDateResult> histories
 ) {
-    public static GetUserPointHistoryResult from(List<UserPointHistory> histories) {
+    public static GetUserPointHistoryResult from(
+            Long totalElements,
+            boolean hasNext,
+            Long nextCursor,
+            List<UserPointHistory> histories
+    ) {
         Map<LocalDate, List<UserPointHistory>> historiesByDate = new LinkedHashMap<>();
 
         for (UserPointHistory history : histories) {
@@ -34,7 +42,6 @@ public record GetUserPointHistoryResult(
                 ))
                 .toList();
 
-        return new GetUserPointHistoryResult(groupedHistories);
+        return new GetUserPointHistoryResult(totalElements, hasNext, nextCursor, groupedHistories);
     }
 }
-

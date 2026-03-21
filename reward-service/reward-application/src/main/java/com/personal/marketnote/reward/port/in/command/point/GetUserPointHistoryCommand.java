@@ -10,6 +10,8 @@ public record GetUserPointHistoryCommand(
         Long userId,
         UserPointHistoryFilter filter,
         LocalDate startDate,
-        LocalDate endDate
+        LocalDate endDate,
+        Long cursor,
+        int pageSize
 ) {
 }

@@ -155,7 +155,9 @@ public class PointController {
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @RequestParam(value = "filter", required = false) UserPointHistoryFilter filter,
             @RequestParam(value = "start-date", required = false) LocalDate startDate,
-            @RequestParam(value = "end-date", required = false) LocalDate endDate
+            @RequestParam(value = "end-date", required = false) LocalDate endDate,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "page-size", required = false, defaultValue = "20") int pageSize
     ) {
         validateAuthentication(userId, principal);
         GetUserPointHistoryResult result = getUserPointHistoryUseCase.getUserPointHistories(
@@ -164,6 +166,8 @@ public class PointController {
                         .filter(filter)
                         .startDate(startDate)
                         .endDate(endDate)
+                        .cursor(cursor)
+                        .pageSize(pageSize)
                         .build()
         );
 
