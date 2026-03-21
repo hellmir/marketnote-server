@@ -62,7 +62,7 @@ class GetReviewUseCaseTest {
         when(findReviewPort.findProductReviews(
                 eq(productId),
                 eq(false),
-                isNull(),
+                eq(-1L),
                 any(Pageable.class),
                 eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
@@ -78,7 +78,7 @@ class GetReviewUseCaseTest {
                 userId,
                 productId,
                 false,
-                null,
+                -1L,
                 pageSize,
                 Sort.Direction.DESC,
                 ReviewSortProperty.ID
@@ -100,7 +100,7 @@ class GetReviewUseCaseTest {
         verify(findReviewPort).findProductReviews(
                 eq(productId),
                 eq(false),
-                isNull(),
+                eq(-1L),
                 pageableCaptor.capture(),
                 eq(ReviewSortProperty.ID)
         );
@@ -211,7 +211,7 @@ class GetReviewUseCaseTest {
         when(findReviewPort.findProductReviews(
                 eq(productId),
                 eq(false),
-                isNull(),
+                eq(-1L),
                 any(Pageable.class),
                 eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
@@ -221,7 +221,7 @@ class GetReviewUseCaseTest {
                 1L,
                 productId,
                 false,
-                null,
+                -1L,
                 pageSize,
                 Sort.Direction.DESC,
                 ReviewSortProperty.ID
@@ -248,7 +248,7 @@ class GetReviewUseCaseTest {
         when(findReviewPort.findProductReviews(
                 eq(productId),
                 eq(true),
-                isNull(),
+                eq(-1L),
                 any(Pageable.class),
                 eq(ReviewSortProperty.ID)
         )).thenReturn(reviews);
@@ -262,7 +262,7 @@ class GetReviewUseCaseTest {
                 userId,
                 productId,
                 true,
-                null,
+                -1L,
                 pageSize,
                 Sort.Direction.DESC,
                 ReviewSortProperty.ID

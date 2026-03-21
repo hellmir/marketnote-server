@@ -339,7 +339,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 null,
                 null,
-                null,
+                -1L,
                 2,
                 Sort.Direction.DESC,
                 ProductSortProperty.POPULARITY,
@@ -422,7 +422,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 null,
                 List.of(500L),
-                null,
+                -1L,
                 1,
                 Sort.Direction.DESC,
                 ProductSortProperty.POPULARITY,
@@ -462,7 +462,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 null,
                 null,
-                null,
+                -1L,
                 1,
                 Sort.Direction.DESC,
                 ProductSortProperty.POPULARITY,
@@ -491,7 +491,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 null,
                 null,
-                null,
+                -1L,
                 10,
                 Sort.Direction.DESC,
                 ProductSortProperty.POPULARITY,
@@ -530,7 +530,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 categoryId,
                 null,
-                null,
+                -1L,
                 1,
                 Sort.Direction.DESC,
                 ProductSortProperty.POPULARITY,
@@ -659,7 +659,7 @@ class GetProductUseCaseTest {
         )).thenReturn(1L);
 
         GetProductsResult result = getProductService.getProducts(
-                null, null, null, 10,
+                null, null, -1L, 10,
                 Sort.Direction.DESC, ProductSortProperty.POPULARITY,
                 ProductSearchTarget.NAME, null
         );
@@ -704,7 +704,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 null,
                 null,
-                null,
+                -1L,
                 2,
                 Sort.Direction.DESC,
                 ProductSortProperty.ACCUMULATED_POINT_RATE,
@@ -718,7 +718,7 @@ class GetProductUseCaseTest {
         assertThat(result.products()).hasSize(2);
 
         verify(findPricePoliciesPort).findPricePolicies(
-                isNull(), isNull(), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+                isNull(), eq(-1L), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
         );
     }
 
@@ -748,7 +748,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 null,
                 null,
-                null,
+                -1L,
                 10,
                 Sort.Direction.ASC,
                 ProductSortProperty.ACCUMULATED_POINT_RATE,
@@ -760,7 +760,7 @@ class GetProductUseCaseTest {
         assertThat(result.hasNext()).isFalse();
 
         verify(findPricePoliciesPort).findPricePolicies(
-                isNull(), isNull(), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+                isNull(), eq(-1L), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
         );
     }
 
@@ -791,7 +791,7 @@ class GetProductUseCaseTest {
         GetProductsResult result = getProductService.getProducts(
                 categoryId,
                 null,
-                null,
+                -1L,
                 10,
                 Sort.Direction.DESC,
                 ProductSortProperty.ACCUMULATED_POINT_RATE,
@@ -803,7 +803,7 @@ class GetProductUseCaseTest {
         assertThat(result.products()).hasSize(1);
 
         verify(findPricePoliciesPort).findPricePoliciesByCategoryId(
-                eq(categoryId), isNull(), isNull(), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+                eq(categoryId), isNull(), eq(-1L), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
         );
         verify(findPricePoliciesPort, never()).findPricePolicies(any(), any(), any(), any(), any(), any());
     }
