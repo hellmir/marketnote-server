@@ -962,6 +962,205 @@ class GetBuyerOrderProductsUseCaseTest {
     }
 
     // ==================================================================================
+    // 리뷰 작성기한 필터 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("리뷰 작성기한 필터 검증")
+    class ReviewDeadlineFilterTest {
+
+        // Clock = 2026-03-01T00:00:00Z → Asia/Seoul = 2026-03-01T09:00:00
+        private static final LocalDateTime NOW = LocalDateTime.of(2026, 3, 1, 9, 0, 0);
+        private static final LocalDateTime CONFIRMED_29_DAYS_AGO = NOW.minusDays(29);
+        private static final LocalDateTime CONFIRMED_30_DAYS_AGO = NOW.minusDays(30);
+        private static final LocalDateTime CONFIRMED_31_DAYS_AGO = NOW.minusDays(31);
+
+        @Test
+        @DisplayName("구매 확정 후 29일이면 결과에 포함된다")
+        void withinDeadline29DaysIncluded() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+            ProductInfoResult productInfo = createProductInfo(1L, "상품A");
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, productInfo));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("구매 확정 후 정확히 30일이면 결과에 포함된다")
+        void exactlyOnDeadlineIncluded() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, CONFIRMED_30_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+            ProductInfoResult productInfo = createProductInfo(1L, "상품A");
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, productInfo));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("구매 확정 후 31일이면 결과에서 제외된다")
+        void pastDeadline31DaysExcluded() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, CONFIRMED_31_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("confirmedAt이 null이면 기한 내로 간주하여 결과에 포함된다")
+        void nullConfirmedAtTreatedAsWithinDeadline() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, null)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+            ProductInfoResult productInfo = createProductInfo(1L, "상품A");
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, productInfo));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("기한 내 상품과 기한 만료 상품이 혼재하면 기한 내만 반환한다")
+        void mixedDeadlineReturnsOnlyWithin() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO),
+                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+            ProductInfoResult productInfo = createProductInfo(1L, "상품A");
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, productInfo));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
+            assertThat(result.orderProducts().get(0).pricePolicyId()).isEqualTo(100L);
+        }
+
+        @Test
+        @DisplayName("여러 주문에서 기한 필터가 일관되게 적용된다")
+        void deadlineFilterAppliedConsistentlyAcrossOrders() {
+            Long buyerId = 1L;
+            Order order1 = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO)
+            ));
+            Order order2 = createOrderWithReviewedProducts(2L, buyerId, List.of(
+                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+            ProductInfoResult productInfo = createProductInfo(1L, "상품A");
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order1, order2));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, productInfo));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
+            assertThat(result.orderProducts().get(0).pricePolicyId()).isEqualTo(100L);
+        }
+
+        @Test
+        @DisplayName("기한 필터와 리뷰 필터가 동시에 적용된다")
+        void deadlineAndReviewFilterAppliedTogether() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    new ProductStateInput(100L, true, 1, OrderStatus.CONFIRMED, CONFIRMED_29_DAYS_AGO),
+                    new ProductStateInput(200L, null, 1, OrderStatus.CONFIRMED, CONFIRMED_29_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, false);
+            ProductInfoResult productInfo200 = createProductInfo(2L, "상품B");
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(200L)))
+                    .thenReturn(Map.of(200L, productInfo200));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).hasSize(1);
+            assertThat(result.orderProducts().get(0).pricePolicyId()).isEqualTo(200L);
+        }
+
+        @Test
+        @DisplayName("모든 상품이 기한 만료이면 빈 목록을 반환한다")
+        void allExpiredReturnsEmpty() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, CONFIRMED_31_DAYS_AGO),
+                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+
+            GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(result.orderProducts()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("기한 만료 상품의 pricePolicyId는 상품 정보 조회에서 제외된다")
+        void expiredProductPricePolicyIdExcludedFromQuery() {
+            Long buyerId = 1L;
+            Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
+                    productStateWithConfirmedAt(100L, CONFIRMED_29_DAYS_AGO),
+                    productStateWithConfirmedAt(200L, CONFIRMED_31_DAYS_AGO)
+            ));
+            GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
+            ProductInfoResult productInfo = createProductInfo(1L, "상품A");
+
+            when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
+                    .thenReturn(List.of(order));
+            when(findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIdsCaptor.capture()))
+                    .thenReturn(Map.of(100L, productInfo));
+
+            getOrderService.getBuyerOrderProducts(query);
+
+            assertThat(pricePolicyIdsCaptor.getValue()).containsExactly(100L);
+        }
+    }
+
+    // ==================================================================================
     // 엣지 케이스
     // ==================================================================================
 
@@ -1081,19 +1280,23 @@ class GetBuyerOrderProductsUseCaseTest {
     }
 
     private record ProductStateInput(Long pricePolicyId, Boolean isReviewed, Integer quantity,
-                                     OrderStatus orderStatus) {
+                                     OrderStatus orderStatus, LocalDateTime confirmedAt) {
     }
 
     private ProductStateInput productState(Long pricePolicyId, Boolean isReviewed) {
-        return new ProductStateInput(pricePolicyId, isReviewed, 1, OrderStatus.CONFIRMED);
+        return new ProductStateInput(pricePolicyId, isReviewed, 1, OrderStatus.CONFIRMED, null);
     }
 
     private ProductStateInput productStateWithQuantity(Long pricePolicyId, Boolean isReviewed, Integer quantity) {
-        return new ProductStateInput(pricePolicyId, isReviewed, quantity, OrderStatus.CONFIRMED);
+        return new ProductStateInput(pricePolicyId, isReviewed, quantity, OrderStatus.CONFIRMED, null);
     }
 
     private ProductStateInput productStateWithStatus(Long pricePolicyId, Boolean isReviewed, OrderStatus status) {
-        return new ProductStateInput(pricePolicyId, isReviewed, 1, status);
+        return new ProductStateInput(pricePolicyId, isReviewed, 1, status, null);
+    }
+
+    private ProductStateInput productStateWithConfirmedAt(Long pricePolicyId, LocalDateTime confirmedAt) {
+        return new ProductStateInput(pricePolicyId, null, 1, OrderStatus.CONFIRMED, confirmedAt);
     }
 
     private Order createOrderWithReviewedProducts(Long orderId, Long buyerId, List<ProductStateInput> productInputs) {
@@ -1107,6 +1310,7 @@ class GetBuyerOrderProductsUseCaseTest {
                         .imageUrl("https://img.example.com/" + input.pricePolicyId())
                         .orderStatus(input.orderStatus())
                         .isReviewed(input.isReviewed())
+                        .confirmedAt(input.confirmedAt())
                         .build())
                 .toList();
 
