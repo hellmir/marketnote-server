@@ -5,6 +5,7 @@ import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.InvalidPointHistoryDateRangeException;
+import com.personal.marketnote.reward.exception.InvalidPointHistoryPageSizeException;
 import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.out.point.FindUserPointHistoryPort;
@@ -72,6 +73,15 @@ class GetUserPointHistoryUseCaseTest {
                 .startDate(startDate)
                 .endDate(endDate)
                 .pageSize(DEFAULT_PAGE_SIZE)
+                .build();
+    }
+
+    private GetUserPointHistoryCommand createCommand(UserPointHistoryFilter filter, Long cursor, int pageSize) {
+        return GetUserPointHistoryCommand.builder()
+                .userId(USER_ID)
+                .filter(filter)
+                .cursor(cursor)
+                .pageSize(pageSize)
                 .build();
     }
 
@@ -353,4 +363,196 @@ class GetUserPointHistoryUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("커서 기반 페이징")
+    class CursorPaginationTest {
+
+        @Test
+        @DisplayName("첫 페이지 요청 시 totalElements를 반환한다")
+        void shouldReturnTotalElementsOnFirstPage() {
+            // given
+            int pageSize = 5;
+            int fetchSize = pageSize + 1;
+            List<UserPointHistory> histories = List.of(
+                    createHistory(10L, 500L, UserPointSourceType.ORDER, NOW),
+                    createHistory(9L, 300L, UserPointSourceType.ATTENDENCE, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, fetchSize))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, pageSize)
+            );
+
+            // then
+            assertThat(result.totalElements()).isEqualTo(2L);
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.nextCursor()).isEqualTo(9L);
+        }
+
+        @Test
+        @DisplayName("두 번째 페이지 요청 시 totalElements가 null이다")
+        void shouldReturnNullTotalElementsOnSecondPage() {
+            // given
+            int pageSize = 5;
+            int fetchSize = pageSize + 1;
+            List<UserPointHistory> histories = List.of(
+                    createHistory(5L, 200L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, 10L, fetchSize))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, 10L, pageSize)
+            );
+
+            // then
+            assertThat(result.totalElements()).isNull();
+        }
+
+        @Test
+        @DisplayName("결과가 pageSize보다 많으면 hasNext가 true이다")
+        void shouldReturnHasNextTrueWhenMoreResultsThanPageSize() {
+            // given
+            int pageSize = 3;
+            int fetchSize = pageSize + 1;
+            List<UserPointHistory> histories = List.of(
+                    createHistory(10L, 500L, UserPointSourceType.ORDER, NOW),
+                    createHistory(9L, 300L, UserPointSourceType.ORDER, NOW),
+                    createHistory(8L, 200L, UserPointSourceType.ORDER, NOW),
+                    createHistory(7L, 100L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, fetchSize))
+                    .thenReturn(histories);
+            when(findUserPointHistoryPort.countByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+                    .thenReturn(10L);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, pageSize)
+            );
+
+            // then
+            assertThat(result.hasNext()).isTrue();
+            assertThat(result.nextCursor()).isEqualTo(8L);
+            assertThat(result.totalElements()).isEqualTo(10L);
+            assertThat(result.histories().getFirst().count()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("결과가 pageSize 이하이면 hasNext가 false이다")
+        void shouldReturnHasNextFalseWhenLessOrEqualResults() {
+            // given
+            int pageSize = 5;
+            int fetchSize = pageSize + 1;
+            List<UserPointHistory> histories = List.of(
+                    createHistory(10L, 500L, UserPointSourceType.ORDER, NOW),
+                    createHistory(9L, 300L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, fetchSize))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, pageSize)
+            );
+
+            // then
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.nextCursor()).isEqualTo(9L);
+            assertThat(result.totalElements()).isEqualTo(2L);
+        }
+
+        @Test
+        @DisplayName("빈 결과 시 nextCursor가 null이고 hasNext가 false이다")
+        void shouldReturnNullCursorAndNoNextWhenEmpty() {
+            // given
+            int pageSize = 5;
+            int fetchSize = pageSize + 1;
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, 5L, fetchSize))
+                    .thenReturn(Collections.emptyList());
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, 5L, pageSize)
+            );
+
+            // then
+            assertThat(result.hasNext()).isFalse();
+            assertThat(result.nextCursor()).isNull();
+            assertThat(result.totalElements()).isNull();
+        }
+
+        @Test
+        @DisplayName("nextCursor는 페이징된 결과의 마지막 항목 ID이다")
+        void shouldSetNextCursorToLastItemId() {
+            // given
+            int pageSize = 2;
+            int fetchSize = pageSize + 1;
+            List<UserPointHistory> histories = List.of(
+                    createHistory(10L, 500L, UserPointSourceType.ORDER, NOW),
+                    createHistory(9L, 300L, UserPointSourceType.ORDER, NOW),
+                    createHistory(8L, 200L, UserPointSourceType.ORDER, NOW)
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, fetchSize))
+                    .thenReturn(histories);
+            when(findUserPointHistoryPort.countByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
+                    .thenReturn(5L);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, pageSize)
+            );
+
+            // then
+            assertThat(result.nextCursor()).isEqualTo(9L);
+            assertThat(result.hasNext()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("pageSize 검증")
+    class PageSizeValidationTest {
+
+        @Test
+        @DisplayName("pageSize가 0이면 예외가 발생한다")
+        void shouldThrowExceptionWhenPageSizeIsZero() {
+            // when & then
+            assertThatThrownBy(() -> getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, 0)
+            )).isInstanceOf(InvalidPointHistoryPageSizeException.class);
+
+            verifyNoInteractions(findUserPointHistoryPort);
+        }
+
+        @Test
+        @DisplayName("pageSize가 음수이면 예외가 발생한다")
+        void shouldThrowExceptionWhenPageSizeIsNegative() {
+            // when & then
+            assertThatThrownBy(() -> getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, -1)
+            )).isInstanceOf(InvalidPointHistoryPageSizeException.class);
+
+            verifyNoInteractions(findUserPointHistoryPort);
+        }
+
+        @Test
+        @DisplayName("pageSize가 100 초과이면 예외가 발생한다")
+        void shouldThrowExceptionWhenPageSizeExceedsMax() {
+            // when & then
+            assertThatThrownBy(() -> getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, 101)
+            )).isInstanceOf(InvalidPointHistoryPageSizeException.class);
+
+            verifyNoInteractions(findUserPointHistoryPort);
+        }
+    }
 }
