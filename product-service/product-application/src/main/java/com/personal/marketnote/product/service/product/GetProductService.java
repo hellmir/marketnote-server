@@ -43,6 +43,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.personal.marketnote.common.domain.file.FileSort.*;
+import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @UseCase
@@ -175,7 +176,7 @@ public class GetProductService implements GetProductUseCase {
             ProductSearchTarget searchTarget,
             String searchKeyword
     ) {
-        boolean isFirstPage = FormatValidator.hasNoValue(cursor);
+        boolean isFirstPage = FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE);
 
         Pageable pageable = PageRequest.of(
                 0, pageSize + 1, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
