@@ -398,6 +398,186 @@ class PricePolicySearchQueryTest {
     }
 
     @Nested
+    @DisplayName("적립금 정렬 (sortProperty=accumulatedPoint)")
+    class SortByAccumulatedPoint {
+
+        private PricePolicyJpaEntity policyPoint1000First;
+        private PricePolicyJpaEntity policyPoint500First;
+        private PricePolicyJpaEntity policyPoint500Second;
+        private PricePolicyJpaEntity policyPoint2000;
+        private PricePolicyJpaEntity policyPoint1000Second;
+
+        @BeforeEach
+        void setUp() {
+            pricePolicyJpaRepository.deleteAll();
+
+            ProductJpaEntity product1 = saveProduct("상품A", "브랜드A");
+            ProductJpaEntity product2 = saveProduct("상품B", "브랜드B");
+            ProductJpaEntity product3 = saveProduct("상품C", "브랜드C");
+            ProductJpaEntity product4 = saveProduct("상품D", "브랜드D");
+            ProductJpaEntity product5 = saveProduct("상품E", "브랜드E");
+
+            policyPoint1000First = savePricePolicy(product1, 1000L);
+            policyPoint500First = savePricePolicy(product2, 500L);
+            policyPoint500Second = savePricePolicy(product3, 500L);
+            policyPoint2000 = savePricePolicy(product4, 2000L);
+            policyPoint1000Second = savePricePolicy(product5, 1000L);
+        }
+
+        @Test
+        @DisplayName("적립금 오름차순 정렬 시 낮은 적립금부터 조회된다")
+        void sortsAscending() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, null, pageable, "accumulatedPoint", "name", "", null
+            );
+
+            assertThat(results).hasSize(5);
+            assertThat(results.get(0).getAccumulatedPoint()).isEqualTo(500L);
+            assertThat(results.get(1).getAccumulatedPoint()).isEqualTo(500L);
+            assertThat(results.get(2).getAccumulatedPoint()).isEqualTo(1000L);
+            assertThat(results.get(3).getAccumulatedPoint()).isEqualTo(1000L);
+            assertThat(results.get(4).getAccumulatedPoint()).isEqualTo(2000L);
+        }
+
+        @Test
+        @DisplayName("적립금 내림차순 정렬 시 높은 적립금부터 조회된다")
+        void sortsDescending() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "accumulatedPoint", "name", "", null
+            );
+
+            assertThat(results).hasSize(5);
+            assertThat(results.get(0).getAccumulatedPoint()).isEqualTo(2000L);
+            assertThat(results.get(1).getAccumulatedPoint()).isEqualTo(1000L);
+            assertThat(results.get(2).getAccumulatedPoint()).isEqualTo(1000L);
+            assertThat(results.get(3).getAccumulatedPoint()).isEqualTo(500L);
+            assertThat(results.get(4).getAccumulatedPoint()).isEqualTo(500L);
+        }
+
+        @Test
+        @DisplayName("적립금 내림차순 커서 기반 페이징 시 커서 이후 데이터만 조회된다")
+        void cursorPaginationDesc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, policyPoint2000.getId(), pageable, "accumulatedPoint", "name", "", null
+            );
+
+            assertThat(results).hasSize(4);
+            assertThat(results.get(0).getId()).isEqualTo(policyPoint1000Second.getId());
+            assertThat(results.get(1).getId()).isEqualTo(policyPoint1000First.getId());
+            assertThat(results.get(2).getId()).isEqualTo(policyPoint500Second.getId());
+            assertThat(results.get(3).getId()).isEqualTo(policyPoint500First.getId());
+        }
+
+        @Test
+        @DisplayName("적립금 오름차순 커서 기반 페이징 시 커서 이후 데이터만 조회된다")
+        void cursorPaginationAsc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, policyPoint500Second.getId(), pageable, "accumulatedPoint", "name", "", null
+            );
+
+            assertThat(results).hasSize(4);
+            assertThat(results.get(0).getId()).isEqualTo(policyPoint500First.getId());
+            assertThat(results.get(1).getId()).isEqualTo(policyPoint1000Second.getId());
+            assertThat(results.get(2).getId()).isEqualTo(policyPoint1000First.getId());
+            assertThat(results.get(3).getId()).isEqualTo(policyPoint2000.getId());
+        }
+
+        @Test
+        @DisplayName("전체 정렬 순서를 검증한다: accumulatedPoint DESC → p.id DESC")
+        void fullSortOrderDesc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "accumulatedPoint", "name", "", null
+            );
+
+            assertThat(results).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(
+                            policyPoint2000.getId(),
+                            policyPoint1000Second.getId(),
+                            policyPoint1000First.getId(),
+                            policyPoint500Second.getId(),
+                            policyPoint500First.getId()
+                    );
+        }
+
+        @Test
+        @DisplayName("전체 정렬 순서를 검증한다: accumulatedPoint ASC → p.id DESC")
+        void fullSortOrderAsc() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, null, pageable, "accumulatedPoint", "name", "", null
+            );
+
+            assertThat(results).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(
+                            policyPoint500Second.getId(),
+                            policyPoint500First.getId(),
+                            policyPoint1000Second.getId(),
+                            policyPoint1000First.getId(),
+                            policyPoint2000.getId()
+                    );
+        }
+
+        @Test
+        @DisplayName("적립금 내림차순 커서 기반 페이징이 동일 적립금 상품을 올바르게 분할한다")
+        void cursorPaginationSplitsSamePointDesc() {
+            Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> page1 = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, null, pageable, "accumulatedPoint", "name", "", null
+            );
+            assertThat(page1).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyPoint2000.getId(), policyPoint1000Second.getId());
+
+            List<PricePolicyJpaEntity> page2 = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, page1.getLast().getId(), pageable, "accumulatedPoint", "name", "", null
+            );
+            assertThat(page2).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyPoint1000First.getId(), policyPoint500Second.getId());
+
+            List<PricePolicyJpaEntity> page3 = pricePolicyJpaRepository.findAllActiveByCursorDesc(
+                    null, page2.getLast().getId(), pageable, "accumulatedPoint", "name", "", null
+            );
+            assertThat(page3).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyPoint500First.getId());
+        }
+
+        @Test
+        @DisplayName("적립금 오름차순 커서 기반 페이징이 동일 적립금 상품을 올바르게 분할한다")
+        void cursorPaginationSplitsSamePointAsc() {
+            Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "accumulatedPoint"));
+
+            List<PricePolicyJpaEntity> page1 = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, null, pageable, "accumulatedPoint", "name", "", null
+            );
+            assertThat(page1).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyPoint500Second.getId(), policyPoint500First.getId());
+
+            List<PricePolicyJpaEntity> page2 = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, page1.getLast().getId(), pageable, "accumulatedPoint", "name", "", null
+            );
+            assertThat(page2).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyPoint1000Second.getId(), policyPoint1000First.getId());
+
+            List<PricePolicyJpaEntity> page3 = pricePolicyJpaRepository.findAllActiveByCursorAsc(
+                    null, page2.getLast().getId(), pageable, "accumulatedPoint", "name", "", null
+            );
+            assertThat(page3).extracting(PricePolicyJpaEntity::getId)
+                    .containsExactly(policyPoint2000.getId());
+        }
+    }
+
+    @Nested
     @DisplayName("pricePolicyIds 필터링")
     class PricePolicyIdsFilter {
 
@@ -448,6 +628,22 @@ class PricePolicySearchQueryTest {
 
     private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity) {
         return savePricePolicy(productEntity, BigDecimal.valueOf(1.0));
+    }
+
+    private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity, Long accumulatedPoint) {
+        PricePolicy pricePolicy = PricePolicy.from(
+                PricePolicyCreateState.builder()
+                        .price(10000L)
+                        .discountPrice(9000L)
+                        .discountRate(BigDecimal.valueOf(10.0))
+                        .accumulatedPoint(accumulatedPoint)
+                        .accumulationRate(BigDecimal.valueOf(1.0))
+                        .build()
+        );
+        PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
+        PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);
+        saved.setIdToOrderNum();
+        return saved;
     }
 
     private PricePolicyJpaEntity savePricePolicy(ProductJpaEntity productEntity, BigDecimal accumulationRate) {
