@@ -75,7 +75,7 @@ import java.lang.annotation.*;
                 
                     - "MISTAKE": 주문 실수
                 
-                    - "ETC": 기타
+                    - "ETC": 직접 입력
                 
                 ---
                 
