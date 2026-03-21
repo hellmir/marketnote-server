@@ -18,17 +18,19 @@ import com.personal.marketnote.product.port.out.pricepolicy.DeletePricePolicyPor
 import com.personal.marketnote.product.port.out.pricepolicy.FindPricePoliciesPort;
 import com.personal.marketnote.product.port.out.pricepolicy.FindPricePolicyPort;
 import com.personal.marketnote.product.port.out.pricepolicy.SavePricePolicyPort;
+import com.personal.marketnote.product.port.out.pricepolicy.UpdatePopularityPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindPricePolicyPort, FindPricePoliciesPort, DeletePricePolicyPort {
+public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindPricePolicyPort, FindPricePoliciesPort, DeletePricePolicyPort, UpdatePopularityPort {
     private final ProductJpaRepository productJpaRepository;
     private final PricePolicyJpaRepository pricePolicyJpaRepository;
     private final ProductOptionPricePolicyJpaRepository productOptionPricePolicyJpaRepository;
@@ -296,6 +298,12 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     public void deleteByIdInternal(Long productId, Long pricePolicyId) {
         productOptionPricePolicyJpaRepository.deleteByPricePolicyId(pricePolicyId);
         pricePolicyJpaRepository.findById(pricePolicyId).ifPresent(PricePolicyJpaEntity::deactivate);
+    }
+
+    @Override
+    @CacheEvict(value = "pricePolicy:list:first", allEntries = true)
+    public void updateWeeklyPopularity(LocalDateTime since) {
+        pricePolicyJpaRepository.updateWeeklyPopularity(since);
     }
 
     private List<PricePolicyJpaEntity> loadPricePoliciesWithAssociations(List<PricePolicyJpaEntity> baseEntities) {

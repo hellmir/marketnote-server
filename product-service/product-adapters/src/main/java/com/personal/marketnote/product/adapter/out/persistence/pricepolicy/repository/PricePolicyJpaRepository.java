@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -297,4 +298,18 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Transactional
     void deactivateByProductId(@Param("productId") Long productId);
+
+    @Query(value = """
+            UPDATE price_policy
+            SET popularity = COALESCE(
+                (SELECT SUM(op.quantity)
+                 FROM order_product op
+                 WHERE op.price_policy_id = price_policy.id
+                   AND op.confirmed_at >= :since
+                   AND op.order_status = 'CONFIRMED'),
+                0)
+            """, nativeQuery = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
+    void updateWeeklyPopularity(@Param("since") LocalDateTime since);
 }
