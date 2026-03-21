@@ -4,6 +4,7 @@ import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -87,4 +88,15 @@ public interface FindPricePoliciesPort {
      * @Description 카테고리 가격 정책 총 개수를 조회합니다.
      */
     long countActivePricePoliciesByCategoryId(Long categoryId, ProductSearchTarget searchTarget, String searchKeyword);
+
+    List<PricePolicy> findPricePoliciesByOffset(
+            List<Long> pricePolicyIds,
+            int page,
+            int pageSize,
+            Sort.Direction sortDirection,
+            ProductSortProperty sortProperty,
+            ProductSearchTarget searchTarget,
+            String searchKeyword,
+            Long categoryId
+    );
 }

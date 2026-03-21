@@ -1,29 +1,19 @@
 package com.personal.marketnote.product.adapter.in.web.product.response;
 
-import com.personal.marketnote.common.adapter.in.response.CursorResponse;
+import com.personal.marketnote.common.adapter.in.response.OffsetResponse;
 import com.personal.marketnote.product.port.in.result.product.GetAdminProductsResult;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
 
-import java.util.stream.Collectors;
-
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
-@Getter
-public class GetAdminProductsResponse {
-    private CursorResponse<ProductItemResponse> products;
-
+public record GetAdminProductsResponse(OffsetResponse<ProductItemResponse> products) {
     public static GetAdminProductsResponse from(GetAdminProductsResult result) {
         return new GetAdminProductsResponse(
-                new CursorResponse<>(
+                new OffsetResponse<>(
+                        result.page(),
+                        result.pageSize(),
                         result.totalElements(),
-                        result.hasNext(),
-                        result.nextCursor(),
+                        result.totalPages(),
                         result.products().stream()
                                 .map(ProductItemResponse::from)
-                                .collect(Collectors.toList())
+                                .toList()
                 )
         );
     }

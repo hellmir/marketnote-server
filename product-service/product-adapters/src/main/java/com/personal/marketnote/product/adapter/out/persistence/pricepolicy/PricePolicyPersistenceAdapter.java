@@ -22,6 +22,7 @@ import com.personal.marketnote.product.port.out.pricepolicy.UpdatePopularityPort
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -276,6 +277,48 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
                 searchTarget.getCamelCaseValue(),
                 searchPattern
         );
+    }
+
+    @Override
+    public List<PricePolicy> findPricePoliciesByOffset(
+            List<Long> pricePolicyIds,
+            int page,
+            int pageSize,
+            Sort.Direction sortDirection,
+            ProductSortProperty sortProperty,
+            ProductSearchTarget searchTarget,
+            String searchKeyword,
+            Long categoryId
+    ) {
+        String pattern = generateSearchPattern(searchKeyword);
+
+        boolean isAsc = sortDirection == Sort.Direction.ASC;
+
+        List<PricePolicyJpaEntity> entities = isAsc
+                ? pricePolicyJpaRepository.findAllActiveByOffsetAsc(
+                pricePolicyIds,
+                PageRequest.of(page, pageSize),
+                sortProperty.getCamelCaseValue(),
+                searchTarget.getCamelCaseValue(),
+                pattern,
+                categoryId
+        )
+                : pricePolicyJpaRepository.findAllActiveByOffsetDesc(
+                pricePolicyIds,
+                PageRequest.of(page, pageSize),
+                sortProperty.getCamelCaseValue(),
+                searchTarget.getCamelCaseValue(),
+                pattern,
+                categoryId
+        );
+
+        return new ArrayList<>(loadPricePoliciesWithAssociations(entities).stream()
+                .map(policyEntity -> PricePolicyJpaEntityToDomainMapper.mapToDomain(
+                        policyEntity, productOptionPricePolicyJpaRepository.findOptionIdsByPricePolicyId(policyEntity.getId())
+                ))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList());
     }
 
     private String generateSearchPattern(String searchKeyword) {
