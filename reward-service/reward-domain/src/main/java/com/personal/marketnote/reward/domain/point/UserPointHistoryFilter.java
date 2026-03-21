@@ -5,16 +5,18 @@ import lombok.Getter;
 
 @Getter
 public enum UserPointHistoryFilter {
-    ALL("전체"),
-    ACCRUAL("적립"),
-    DEDUCTION("사용");
+    ALL("전체", 0),
+    ACCRUAL("적립", 1),
+    DEDUCTION("사용", -1);
 
     private final String description;
     private final String camelCaseValue;
+    private final int amountFilterValue;
 
-    UserPointHistoryFilter(String description) {
+    UserPointHistoryFilter(String description, int amountFilterValue) {
         this.description = description;
         this.camelCaseValue = FormatConverter.snakeToCamel(name());
+        this.amountFilterValue = amountFilterValue;
     }
 
     public boolean isAll() {

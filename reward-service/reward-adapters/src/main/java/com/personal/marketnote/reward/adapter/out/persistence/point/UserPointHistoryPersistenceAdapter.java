@@ -13,6 +13,7 @@ import com.personal.marketnote.reward.port.out.point.UpdateUserPointHistoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,8 +38,13 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
     }
 
     @Override
-    public List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter) {
-        List<UserPointHistoryJpaEntity> histories = getHistories(userId, filter);
+    public List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter, LocalDate startDate, LocalDate endDate) {
+        List<UserPointHistoryJpaEntity> histories = repository.findByUserIdAndDateRangeAndFilter(
+                userId,
+                startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay(),
+                filter.getAmountFilterValue()
+        );
 
         return histories.stream()
                 .map(UserPointHistoryJpaEntity::toDomain)
@@ -61,15 +67,4 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
         return repository.markAsReflected(userId, sourceType, sourceId);
     }
 
-    private List<UserPointHistoryJpaEntity> getHistories(Long userId, UserPointHistoryFilter filter) {
-        if (filter.isAccrual()) {
-            return repository.findByUserIdAndAmountGreaterThanOrderByAccumulatedAtDesc(userId, 0L);
-        }
-
-        if (filter.isDeduction()) {
-            return repository.findByUserIdAndAmountLessThanOrderByAccumulatedAtDesc(userId, 0L);
-        }
-
-        return repository.findByUserIdOrderByAccumulatedAtDesc(userId);
-    }
 }

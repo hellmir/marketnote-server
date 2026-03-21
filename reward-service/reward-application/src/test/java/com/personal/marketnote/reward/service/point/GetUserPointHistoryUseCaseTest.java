@@ -4,6 +4,7 @@ import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.out.point.FindUserPointHistoryPort;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +35,8 @@ class GetUserPointHistoryUseCaseTest {
 
     private static final Long USER_ID = 1L;
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 3, 5, 10, 0);
+    private static final LocalDate DEFAULT_START_DATE = GetUserPointHistoryService.DEFAULT_START_DATE;
+    private static final LocalDate DEFAULT_END_DATE = GetUserPointHistoryService.DEFAULT_END_DATE;
 
     private UserPointHistory createHistory(Long id, Long amount, UserPointSourceType sourceType, LocalDateTime accumulatedAt) {
         return UserPointHistory.from(UserPointHistorySnapshotState.builder()
@@ -48,6 +52,22 @@ class GetUserPointHistoryUseCaseTest {
                 .build());
     }
 
+    private GetUserPointHistoryCommand createCommand(UserPointHistoryFilter filter) {
+        return GetUserPointHistoryCommand.builder()
+                .userId(USER_ID)
+                .filter(filter)
+                .build();
+    }
+
+    private GetUserPointHistoryCommand createCommand(UserPointHistoryFilter filter, LocalDate startDate, LocalDate endDate) {
+        return GetUserPointHistoryCommand.builder()
+                .userId(USER_ID)
+                .filter(filter)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+    }
+
     @Nested
     @DisplayName("필터 지정 조회")
     class FilterSpecifiedTest {
@@ -61,18 +81,18 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(2L, -200L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
                     .thenReturn(histories);
 
             // when
             GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
-                    USER_ID, UserPointHistoryFilter.ALL
+                    createCommand(UserPointHistoryFilter.ALL)
             );
 
             // then
             assertThat(result.histories()).hasSize(1);
             assertThat(result.histories().getFirst().count()).isEqualTo(2);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE);
         }
 
         @Test
@@ -83,18 +103,18 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(1L, 500L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, DEFAULT_START_DATE, DEFAULT_END_DATE))
                     .thenReturn(histories);
 
             // when
             GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
-                    USER_ID, UserPointHistoryFilter.ACCRUAL
+                    createCommand(UserPointHistoryFilter.ACCRUAL)
             );
 
             // then
             assertThat(result.histories()).hasSize(1);
             assertThat(result.histories().getFirst().count()).isEqualTo(1);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, DEFAULT_START_DATE, DEFAULT_END_DATE);
         }
 
         @Test
@@ -105,17 +125,17 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(1L, -300L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION, DEFAULT_START_DATE, DEFAULT_END_DATE))
                     .thenReturn(histories);
 
             // when
             GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
-                    USER_ID, UserPointHistoryFilter.DEDUCTION
+                    createCommand(UserPointHistoryFilter.DEDUCTION)
             );
 
             // then
             assertThat(result.histories()).hasSize(1);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION, DEFAULT_START_DATE, DEFAULT_END_DATE);
         }
     }
 
@@ -131,15 +151,17 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(1L, 500L, UserPointSourceType.ORDER, NOW)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
                     .thenReturn(histories);
 
             // when
-            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(USER_ID, null);
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(null)
+            );
 
             // then
             assertThat(result.histories()).hasSize(1);
-            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE);
         }
     }
 
@@ -151,12 +173,12 @@ class GetUserPointHistoryUseCaseTest {
         @DisplayName("이력이 없으면 빈 결과를 반환한다")
         void shouldReturnEmptyResultWhenNoHistories() {
             // given
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
                     .thenReturn(Collections.emptyList());
 
             // when
             GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
-                    USER_ID, UserPointHistoryFilter.ALL
+                    createCommand(UserPointHistoryFilter.ALL)
             );
 
             // then
@@ -180,12 +202,12 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(2L, 300L, UserPointSourceType.ATTENDENCE, afternoon)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
                     .thenReturn(histories);
 
             // when
             GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
-                    USER_ID, UserPointHistoryFilter.ALL
+                    createCommand(UserPointHistoryFilter.ALL)
             );
 
             // then
@@ -205,12 +227,12 @@ class GetUserPointHistoryUseCaseTest {
                     createHistory(2L, 300L, UserPointSourceType.ATTENDENCE, day2)
             );
 
-            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL))
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE))
                     .thenReturn(histories);
 
             // when
             GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
-                    USER_ID, UserPointHistoryFilter.ALL
+                    createCommand(UserPointHistoryFilter.ALL)
             );
 
             // then
@@ -219,4 +241,5 @@ class GetUserPointHistoryUseCaseTest {
             assertThat(result.histories().get(1).count()).isEqualTo(1);
         }
     }
+
 }
