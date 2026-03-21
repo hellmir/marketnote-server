@@ -18,7 +18,7 @@ public interface GetAdminProductsUseCase {
     /**
      * @param categoryId     카테고리 ID
      * @param pricePolicyIds 가격 정책 ID 목록
-     * @param cursor         커서(무한 스크롤 페이지 설정)
+     * @param page           페이지 번호
      * @param pageSize       페이지 크기
      * @param sortDirection  정렬 방향
      * @param sortProperty   정렬 속성
@@ -32,7 +32,7 @@ public interface GetAdminProductsUseCase {
     GetAdminProductsResult getAdminProducts(
             Long categoryId,
             List<Long> pricePolicyIds,
-            Long cursor,
+            int page,
             int pageSize,
             Sort.Direction sortDirection,
             ProductSortProperty sortProperty,

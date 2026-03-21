@@ -18,6 +18,7 @@ import com.personal.marketnote.product.port.in.result.product.*;
 import com.personal.marketnote.product.port.in.usecase.product.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -187,7 +188,7 @@ public class ProductController {
      *
      * @param categoryId     카테고리 ID
      * @param pricePolicyIds 가격 정책 ID 목록
-     * @param cursor         커서(무한 스크롤 페이지 설정)
+     * @param page           페이지 번호 (0-based)
      * @param pageSize       페이지 크기
      * @param sortDirection  정렬 방향
      * @param sortProperty   정렬 속성
@@ -204,8 +205,8 @@ public class ProductController {
     public ResponseEntity<BaseResponse<GetAdminProductsResponse>> getAdminProducts(
             @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(value = "page", required = false, defaultValue = "0") @Min(0) int page,
+            @RequestParam(value = "page-size", required = false, defaultValue = GET_PRODUCTS_DEFAULT_PAGE_SIZE) @Min(1) int pageSize,
             @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
             @RequestParam(required = false, defaultValue = "ORDER_NUM") ProductSortProperty sortProperty,
             @RequestParam(required = false, defaultValue = "NAME") ProductSearchTarget searchTarget,
@@ -214,7 +215,7 @@ public class ProductController {
         GetAdminProductsResult result = getAdminProductsUseCase.getAdminProducts(
                 categoryId,
                 pricePolicyIds,
-                cursor,
+                page,
                 pageSize,
                 sortDirection,
                 sortProperty,
