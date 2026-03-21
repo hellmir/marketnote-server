@@ -4,6 +4,7 @@ import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.InvalidPointHistoryDateRangeException;
 import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.out.point.FindUserPointHistoryPort;
@@ -21,7 +22,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -242,4 +245,102 @@ class GetUserPointHistoryUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("기간 필터 조회")
+    class DateRangeFilterTest {
+
+        @Test
+        @DisplayName("시작일과 종료일을 지정하면 해당 기간이 Port에 전달된다")
+        void shouldPassDateRangeToPort() {
+            // given
+            LocalDate startDate = LocalDate.of(2026, 3, 1);
+            LocalDate endDate = LocalDate.of(2026, 3, 31);
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, endDate))
+                    .thenReturn(Collections.emptyList());
+
+            // when
+            getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, startDate, endDate)
+            );
+
+            // then
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, endDate);
+        }
+
+        @Test
+        @DisplayName("시작일만 지정하면 종료일은 기본값으로 설정된다")
+        void shouldUseDefaultEndDateWhenOnlyStartDateProvided() {
+            // given
+            LocalDate startDate = LocalDate.of(2026, 3, 1);
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, DEFAULT_END_DATE))
+                    .thenReturn(Collections.emptyList());
+
+            // when
+            getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, startDate, null)
+            );
+
+            // then
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, startDate, DEFAULT_END_DATE);
+        }
+
+        @Test
+        @DisplayName("종료일만 지정하면 시작일은 기본값으로 설정된다")
+        void shouldUseDefaultStartDateWhenOnlyEndDateProvided() {
+            // given
+            LocalDate endDate = LocalDate.of(2026, 3, 31);
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, endDate))
+                    .thenReturn(Collections.emptyList());
+
+            // when
+            getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, null, endDate)
+            );
+
+            // then
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, endDate);
+        }
+
+        @Test
+        @DisplayName("시작일이 종료일보다 늦으면 예외가 발생한다")
+        void shouldThrowExceptionWhenStartDateIsAfterEndDate() {
+            // given
+            LocalDate startDate = LocalDate.of(2026, 3, 31);
+            LocalDate endDate = LocalDate.of(2026, 3, 1);
+
+            // when & then
+            assertThatThrownBy(() -> getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ALL, startDate, endDate)
+            )).isInstanceOf(InvalidPointHistoryDateRangeException.class);
+
+            verifyNoInteractions(findUserPointHistoryPort);
+        }
+
+        @Test
+        @DisplayName("기간 필터와 타입 필터를 함께 적용한다")
+        void shouldApplyDateRangeWithTypeFilter() {
+            // given
+            LocalDate startDate = LocalDate.of(2026, 3, 1);
+            LocalDate endDate = LocalDate.of(2026, 3, 31);
+
+            List<UserPointHistory> histories = List.of(
+                    createHistory(1L, 500L, UserPointSourceType.ORDER, LocalDateTime.of(2026, 3, 15, 10, 0))
+            );
+
+            when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, startDate, endDate))
+                    .thenReturn(histories);
+
+            // when
+            GetUserPointHistoryResult result = getUserPointHistoryService.getUserPointHistories(
+                    createCommand(UserPointHistoryFilter.ACCRUAL, startDate, endDate)
+            );
+
+            // then
+            assertThat(result.histories()).hasSize(1);
+            verify(findUserPointHistoryPort).findByUserId(USER_ID, UserPointHistoryFilter.ACCRUAL, startDate, endDate);
+        }
+    }
 }
