@@ -31,6 +31,12 @@ public class Order {
     private String address;
     private String addressDetail;
     private String requestMessage;
+    private String pickupRecipientName;
+    private String pickupRecipientPhoneNumber;
+    private String pickupZipCode;
+    private String pickupAddress;
+    private String pickupAddressDetail;
+    private String pickupRequestMessage;
     private List<OrderProduct> orderProducts;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -87,10 +93,41 @@ public class Order {
                 .address(state.getAddress())
                 .addressDetail(state.getAddressDetail())
                 .requestMessage(state.getRequestMessage())
+                .pickupRecipientName(state.getPickupRecipientName())
+                .pickupRecipientPhoneNumber(state.getPickupRecipientPhoneNumber())
+                .pickupZipCode(state.getPickupZipCode())
+                .pickupAddress(state.getPickupAddress())
+                .pickupAddressDetail(state.getPickupAddressDetail())
+                .pickupRequestMessage(state.getPickupRequestMessage())
                 .orderProducts(orderProducts)
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
+    }
+
+    public void applyPickupAddress(
+            String pickupRecipientName,
+            String pickupRecipientPhoneNumber,
+            String pickupZipCode,
+            String pickupAddress,
+            String pickupAddressDetail,
+            String pickupRequestMessage
+    ) {
+        if (FormatValidator.hasValue(pickupRecipientName)) {
+            this.pickupRecipientName = pickupRecipientName;
+            this.pickupRecipientPhoneNumber = pickupRecipientPhoneNumber;
+            this.pickupZipCode = pickupZipCode;
+            this.pickupAddress = pickupAddress;
+            this.pickupAddressDetail = pickupAddressDetail;
+            this.pickupRequestMessage = pickupRequestMessage;
+            return;
+        }
+
+        this.pickupRecipientName = recipientName;
+        this.pickupRecipientPhoneNumber = recipientPhoneNumber;
+        this.pickupZipCode = zipCode;
+        this.pickupAddress = address;
+        this.pickupAddressDetail = addressDetail;
     }
 
     public boolean isPaymentPending() {

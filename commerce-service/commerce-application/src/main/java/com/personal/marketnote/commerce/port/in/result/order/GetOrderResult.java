@@ -29,6 +29,12 @@ public record GetOrderResult(
         String address,
         String addressDetail,
         String requestMessage,
+        String pickupRecipientName,
+        String pickupRecipientPhoneNumber,
+        String pickupZipCode,
+        String pickupAddress,
+        String pickupAddressDetail,
+        String pickupRequestMessage,
         List<GetOrderProductResult> orderProducts
 ) {
     public static GetOrderResult from(
@@ -53,6 +59,12 @@ public record GetOrderResult(
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
                 .requestMessage(order.getRequestMessage())
+                .pickupRecipientName(order.getPickupRecipientName())
+                .pickupRecipientPhoneNumber(order.getPickupRecipientPhoneNumber())
+                .pickupZipCode(order.getPickupZipCode())
+                .pickupAddress(order.getPickupAddress())
+                .pickupAddressDetail(order.getPickupAddressDetail())
+                .pickupRequestMessage(order.getPickupRequestMessage())
                 .orderProducts(order.getOrderProducts().stream()
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,
