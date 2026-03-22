@@ -176,8 +176,8 @@ class ProductRegisteredFulfillmentConsumerTest {
     }
 
     @Test
-    @DisplayName("RegisterFasstoGoodsFailedException 발생 시 warn 로그 후 acknowledge한다")
-    void handleEvent_registerFasstoGoodsFailed_warnsAndAcknowledges() {
+    @DisplayName("RegisterFasstoGoodsFailedException 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
+    void handleEvent_registerFasstoGoodsFailed_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
         when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
@@ -185,12 +185,12 @@ class ProductRegisteredFulfillmentConsumerTest {
         doThrow(new RegisterFasstoGoodsFailedException(new IOException("Fassto API 오류")))
                 .when(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
 
-        // when
-        consumer.handleProductRegisteredEvent(record, acknowledgment);
+        // when & then
+        assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
+                .isInstanceOf(RegisterFasstoGoodsFailedException.class);
 
-        // then
         verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
-        verify(acknowledgment).acknowledge();
+        verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
