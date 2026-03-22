@@ -3,10 +3,12 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.UserReferralCompletedEvent;
+import com.personal.marketnote.reward.domain.point.ReferralBonusTier;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.GetReferralStatusUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
@@ -22,8 +24,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.REFERRED_USER_POINT_AMOUNT;
-import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.REFERRER_USER_POINT_AMOUNT;
+import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,6 +37,9 @@ class UserReferralCompletedRewardConsumerTest {
 
     @Mock
     private ModifyUserPointUseCase modifyUserPointUseCase;
+
+    @Mock
+    private GetReferralStatusUseCase getReferralStatusUseCase;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -57,6 +61,7 @@ class UserReferralCompletedRewardConsumerTest {
     void handleUserReferralCompletedEvent_success_accruesBothAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
@@ -67,23 +72,23 @@ class UserReferralCompletedRewardConsumerTest {
 
         List<ModifyUserPointCommand> commands = captor.getAllValues();
 
-        // 추천인 포인트 적립 (referredUserId=2에게 2,000원)
+        // 추천인 포인트 적립 (referredUserId=2에게 500원)
         ModifyUserPointCommand referrerCommand = commands.get(0);
         assertThat(referrerCommand.userId()).isEqualTo(2L);
         assertThat(referrerCommand.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         assertThat(referrerCommand.amount()).isEqualTo((long) REFERRER_USER_POINT_AMOUNT);
         assertThat(referrerCommand.sourceType()).isEqualTo(UserPointSourceType.USER);
         assertThat(referrerCommand.sourceId()).isEqualTo(1L);
-        assertThat(referrerCommand.reason()).isEqualTo("추천인 코드 등록 적립");
+        assertThat(referrerCommand.reason()).isEqualTo(REFERRER_POINT_REASON);
 
-        // 피추천인 포인트 적립 (requestUserId=1에게 3,000원)
+        // 피추천인 포인트 적립 (requestUserId=1에게 500원)
         ModifyUserPointCommand referredCommand = commands.get(1);
         assertThat(referredCommand.userId()).isEqualTo(1L);
         assertThat(referredCommand.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         assertThat(referredCommand.amount()).isEqualTo((long) REFERRED_USER_POINT_AMOUNT);
         assertThat(referredCommand.sourceType()).isEqualTo(UserPointSourceType.USER);
         assertThat(referredCommand.sourceId()).isEqualTo(2L);
-        assertThat(referredCommand.reason()).isEqualTo("신규 회원 초대 적립");
+        assertThat(referredCommand.reason()).isEqualTo(REFERRED_POINT_REASON);
 
         verify(acknowledgment).acknowledge();
     }
@@ -214,6 +219,7 @@ class UserReferralCompletedRewardConsumerTest {
     void handleUserReferralCompletedEvent_referrerAccrualFails_propagatesWithoutAcknowledge() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         doThrow(new RuntimeException("DB 연결 실패"))
                 .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
 
@@ -232,6 +238,7 @@ class UserReferralCompletedRewardConsumerTest {
     void handleUserReferralCompletedEvent_referredAccrualFails_propagatesWithoutAcknowledge() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
                 .thenReturn(null)
                 .thenThrow(new RuntimeException("포인트 잔액 부족"));
@@ -251,8 +258,9 @@ class UserReferralCompletedRewardConsumerTest {
     void handleUserReferralCompletedEvent_referrerDuplicate_idempotentAndContinuesReferred() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, "추천인 코드 등록 적립"))
+                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, REFERRER_POINT_REASON))
                 .thenReturn(null);
 
         // when
@@ -268,9 +276,10 @@ class UserReferralCompletedRewardConsumerTest {
     void handleUserReferralCompletedEvent_referredDuplicate_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
                 .thenReturn(null)
-                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, "신규 회원 초대 적립"));
+                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, REFERRED_POINT_REASON));
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
@@ -285,15 +294,156 @@ class UserReferralCompletedRewardConsumerTest {
     void handleUserReferralCompletedEvent_bothDuplicate_idempotentAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, "추천인 코드 등록 적립"))
-                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, "신규 회원 초대 적립"));
+                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, REFERRER_POINT_REASON))
+                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, REFERRED_POINT_REASON));
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
 
         // then
         verify(modifyUserPointUseCase, times(2)).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment).acknowledge();
+    }
+
+    // === 누적 보너스 관련 테스트 ===
+
+    @Test
+    @DisplayName("최대 초대 수(20명)에 도달한 추천인은 추천인 포인트를 적립하지 않고 피추천인만 적립한다")
+    void handleUserReferralCompletedEvent_maxReached_skipsReferrerAndAccruesReferred() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(20L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<ModifyUserPointCommand> captor = ArgumentCaptor.forClass(ModifyUserPointCommand.class);
+        verify(modifyUserPointUseCase, times(1)).modify(captor.capture());
+
+        ModifyUserPointCommand referredCommand = captor.getValue();
+        assertThat(referredCommand.userId()).isEqualTo(1L);
+        assertThat(referredCommand.reason()).isEqualTo(REFERRED_POINT_REASON);
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("초대 수가 정확히 5가 되면 TIER_1 보너스를 추가 적립한다")
+    void handleUserReferralCompletedEvent_count5_accruesTier1Bonus() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(4L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<ModifyUserPointCommand> captor = ArgumentCaptor.forClass(ModifyUserPointCommand.class);
+        verify(modifyUserPointUseCase, times(3)).modify(captor.capture());
+
+        List<ModifyUserPointCommand> commands = captor.getAllValues();
+
+        // 추천인 기본 적립
+        assertThat(commands.get(0).userId()).isEqualTo(2L);
+        assertThat(commands.get(0).amount()).isEqualTo((long) REFERRER_USER_POINT_AMOUNT);
+        assertThat(commands.get(0).reason()).isEqualTo(REFERRER_POINT_REASON);
+
+        // TIER_1 보너스 적립
+        assertThat(commands.get(1).userId()).isEqualTo(2L);
+        assertThat(commands.get(1).amount()).isEqualTo((long) ReferralBonusTier.TIER_1.getBonusAmount());
+        assertThat(commands.get(1).sourceId()).isEqualTo(2L);
+        assertThat(commands.get(1).reason()).isEqualTo(ReferralBonusTier.TIER_1.getReason());
+
+        // 피추천인 기본 적립
+        assertThat(commands.get(2).userId()).isEqualTo(1L);
+        assertThat(commands.get(2).reason()).isEqualTo(REFERRED_POINT_REASON);
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("초대 수가 정확히 10이 되면 TIER_2 보너스를 추가 적립한다")
+    void handleUserReferralCompletedEvent_count10_accruesTier2Bonus() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(9L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<ModifyUserPointCommand> captor = ArgumentCaptor.forClass(ModifyUserPointCommand.class);
+        verify(modifyUserPointUseCase, times(3)).modify(captor.capture());
+
+        List<ModifyUserPointCommand> commands = captor.getAllValues();
+
+        // TIER_2 보너스 적립
+        assertThat(commands.get(1).userId()).isEqualTo(2L);
+        assertThat(commands.get(1).amount()).isEqualTo((long) ReferralBonusTier.TIER_2.getBonusAmount());
+        assertThat(commands.get(1).reason()).isEqualTo(ReferralBonusTier.TIER_2.getReason());
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("초대 수가 정확히 20이 되면 TIER_3 보너스를 추가 적립한다")
+    void handleUserReferralCompletedEvent_count20_accruesTier3Bonus() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(19L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<ModifyUserPointCommand> captor = ArgumentCaptor.forClass(ModifyUserPointCommand.class);
+        verify(modifyUserPointUseCase, times(3)).modify(captor.capture());
+
+        List<ModifyUserPointCommand> commands = captor.getAllValues();
+
+        // TIER_3 보너스 적립
+        assertThat(commands.get(1).userId()).isEqualTo(2L);
+        assertThat(commands.get(1).amount()).isEqualTo((long) ReferralBonusTier.TIER_3.getBonusAmount());
+        assertThat(commands.get(1).reason()).isEqualTo(ReferralBonusTier.TIER_3.getReason());
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("보너스 단계에 해당하지 않는 초대 수이면 보너스를 적립하지 않는다")
+    void handleUserReferralCompletedEvent_nonTierCount_noBonusAccrued() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(6L);
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(modifyUserPointUseCase, times(2)).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("보너스 적립 시 DuplicateUserPointHistoryException이 발생하면 멱등 처리하고 피추천인 적립은 정상 진행한다")
+    void handleUserReferralCompletedEvent_bonusDuplicate_idempotentAndContinues() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
+        when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(4L);
+        when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
+                .thenReturn(null)  // 추천인 기본 적립 성공
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        2L, UserPointSourceType.USER, 2L, ReferralBonusTier.TIER_1.getReason()))  // 보너스 중복
+                .thenReturn(null);  // 피추천인 적립 성공
+
+        // when
+        userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
+
+        // then
+        verify(modifyUserPointUseCase, times(3)).modify(any(ModifyUserPointCommand.class));
         verify(acknowledgment).acknowledge();
     }
 }
