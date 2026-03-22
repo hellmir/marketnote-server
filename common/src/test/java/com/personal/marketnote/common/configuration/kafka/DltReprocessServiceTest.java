@@ -234,7 +234,7 @@ class DltReprocessServiceTest {
 
         DltMessageResolutionJpaEntity resolvedEntity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now()
+                DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic)).thenReturn(List.of(resolvedEntity));
 
@@ -277,11 +277,11 @@ class DltReprocessServiceTest {
 
         DltMessageResolutionJpaEntity resolved1 = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now()
+                DltResolutionStatus.RETRIED, OPERATOR, LocalDateTime.now(), null
         );
         DltMessageResolutionJpaEntity resolved2 = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, 0, 1L,
-                DltResolutionStatus.DISCARDED, OPERATOR, LocalDateTime.now()
+                DltResolutionStatus.DISCARDED, OPERATOR, LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic))
                 .thenReturn(List.of(resolved1, resolved2));

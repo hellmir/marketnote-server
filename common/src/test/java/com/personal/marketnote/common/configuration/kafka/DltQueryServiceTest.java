@@ -229,7 +229,7 @@ class DltQueryServiceTest {
 
         DltMessageResolutionJpaEntity retriedEntity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now()
+                DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic)).thenReturn(List.of(retriedEntity));
 
@@ -272,11 +272,11 @@ class DltQueryServiceTest {
 
         DltMessageResolutionJpaEntity retriedEntity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, 0, 0L,
-                DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now()
+                DltResolutionStatus.RETRIED, "admin@personal.com", LocalDateTime.now(), null
         );
         DltMessageResolutionJpaEntity discardedEntity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, 0, 1L,
-                DltResolutionStatus.DISCARDED, "admin@personal.com", LocalDateTime.now()
+                DltResolutionStatus.DISCARDED, "admin@personal.com", LocalDateTime.now(), null
         );
         when(resolutionRepository.findByOriginalTopic(originalTopic))
                 .thenReturn(List.of(retriedEntity, discardedEntity));

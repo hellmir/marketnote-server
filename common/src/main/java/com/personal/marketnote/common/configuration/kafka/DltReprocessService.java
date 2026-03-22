@@ -100,7 +100,7 @@ public class DltReprocessService {
                         dltMetricsCollector.incrementDltReprocessCount(originalTopic, "success");
                         try {
                             saveResolution(originalTopic, dltTopic, record.partition(), record.offset(),
-                                    DltResolutionStatus.RETRIED, operatorInfo);
+                                    DltResolutionStatus.RETRIED, operatorInfo, null);
                         } catch (Exception se) {
                             log.warn("DLT resolution 저장 실패. originalTopic={}, partition={}, offset={}",
                                     originalTopic, record.partition(), record.offset(), se);
@@ -141,10 +141,11 @@ public class DltReprocessService {
 
     private void saveResolution(String originalTopic, String dltTopic,
                                 int partition, long offset,
-                                DltResolutionStatus resolution, String operatorInfo) {
+                                DltResolutionStatus resolution, String operatorInfo,
+                                String reason) {
         DltMessageResolutionJpaEntity entity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, partition, offset,
-                resolution, operatorInfo, LocalDateTime.now()
+                resolution, operatorInfo, LocalDateTime.now(), reason
         );
         resolutionRepository.save(entity);
     }

@@ -38,4 +38,16 @@ public class DltMetricsCollector {
                 .register(meterRegistry)
                 .increment();
     }
+
+    public void incrementDltResolveCount(String originalTopic, String action) {
+        if (FormatValidator.hasNoValue(meterRegistry)) {
+            return;
+        }
+        Counter.builder("kafka.dlt.resolve.total")
+                .tag("original_topic", originalTopic)
+                .tag("action", action)
+                .description("DLT 메시지 해결 건수")
+                .register(meterRegistry)
+                .increment();
+    }
 }
