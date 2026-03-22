@@ -62,6 +62,24 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "shipping_fee")
     private Long shippingFee;
 
+    @Column(name = "delivery_recipient_name", length = 50)
+    private String recipientName;
+
+    @Column(name = "delivery_recipient_phone_number", length = 20)
+    private String recipientPhoneNumber;
+
+    @Column(name = "delivery_zip_code", length = 10)
+    private String zipCode;
+
+    @Column(name = "delivery_address", length = 255)
+    private String address;
+
+    @Column(name = "delivery_address_detail", length = 255)
+    private String addressDetail;
+
+    @Column(name = "delivery_request_message", length = 100)
+    private String requestMessage;
+
     @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     @Builder.Default
     private List<OrderProductJpaEntity> orderProductJpaEntities = new ArrayList<>();
@@ -77,6 +95,12 @@ public class OrderJpaEntity extends BaseEntity {
                 .couponAmount(order.getCouponAmount())
                 .pointAmount(order.getPointAmount())
                 .shippingFee(order.getShippingFee())
+                .recipientName(order.getRecipientName())
+                .recipientPhoneNumber(order.getRecipientPhoneNumber())
+                .zipCode(order.getZipCode())
+                .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
+                .requestMessage(order.getRequestMessage())
                 .build();
     }
 

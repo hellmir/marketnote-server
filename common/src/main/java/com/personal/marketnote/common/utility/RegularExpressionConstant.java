@@ -8,4 +8,7 @@ public class RegularExpressionConstant {
     public static final String PHONE_NUMBER_PATTERN = "^01[016789]-\\d{3,4}-\\d{4}$";
     public static final String POSITIVE_INTEGER_PATTERN = "^([1-9]\\d*)$";
     public static final String ZERO_OR_POSITIVE_INTEGER_PATTERN = "^(0|[1-9]\\d*)$";
+    public static final String RECIPIENT_NAME_PATTERN = "^[가-힣a-zA-Z\\s]{1,50}$";
+    public static final String ZIP_CODE_PATTERN = "^\\d{5}$";
+    public static final String NO_HTML_TAG_PATTERN = "^[^<>]*$";
 }

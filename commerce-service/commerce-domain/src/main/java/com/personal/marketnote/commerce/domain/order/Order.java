@@ -25,6 +25,12 @@ public class Order {
     private Long couponAmount;
     private Long pointAmount;
     private Long shippingFee;
+    private String recipientName;
+    private String recipientPhoneNumber;
+    private String zipCode;
+    private String address;
+    private String addressDetail;
+    private String requestMessage;
     private List<OrderProduct> orderProducts;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -45,6 +51,12 @@ public class Order {
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
                 .shippingFee(state.getShippingFee())
+                .recipientName(state.getRecipientName())
+                .recipientPhoneNumber(state.getRecipientPhoneNumber())
+                .zipCode(state.getZipCode())
+                .address(state.getAddress())
+                .addressDetail(state.getAddressDetail())
+                .requestMessage(state.getRequestMessage())
                 .orderProducts(orderProducts)
                 .build();
     }
@@ -69,6 +81,12 @@ public class Order {
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
                 .shippingFee(state.getShippingFee())
+                .recipientName(state.getRecipientName())
+                .recipientPhoneNumber(state.getRecipientPhoneNumber())
+                .zipCode(state.getZipCode())
+                .address(state.getAddress())
+                .addressDetail(state.getAddressDetail())
+                .requestMessage(state.getRequestMessage())
                 .orderProducts(orderProducts)
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
