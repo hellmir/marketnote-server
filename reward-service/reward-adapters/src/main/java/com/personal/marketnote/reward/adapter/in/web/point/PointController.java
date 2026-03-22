@@ -11,12 +11,14 @@ import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendin
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
+import com.personal.marketnote.reward.adapter.in.web.point.response.GetReferralStatusResponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointByIdResponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.UpdateUserPointResponse;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
 import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
+import com.personal.marketnote.reward.port.in.result.point.GetReferralStatusResult;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointResult;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
@@ -51,6 +53,7 @@ public class PointController {
     private final CancelPendingPointUseCase cancelPendingPointUseCase;
     private final GetUserPointUseCase getUserPointUseCase;
     private final GetUserPointHistoryUseCase getUserPointHistoryUseCase;
+    private final GetReferralStatusUseCase getReferralStatusUseCase;
 
     /**
      * (관리자) 회원 포인트 정보 생성
@@ -280,6 +283,34 @@ public class PointController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "적립 예정 포인트 취소 성공"
+                )
+        );
+    }
+
+    /**
+     * 친구 초대 현황 조회
+     *
+     * @param principal 인증된 사용자 정보
+     * @return 친구 초대 현황 응답 {@link GetReferralStatusResponse}
+     * @Author 성효빈
+     * @Date 2026-03-21
+     * @Description 나의 친구 초대 현황(초대 수, 총 캐시, 보너스 달성 현황)을 조회합니다.
+     */
+    @GetMapping("/me/referral-status")
+    @GetReferralStatusApiDocs
+    public ResponseEntity<BaseResponse<GetReferralStatusResponse>> getReferralStatus(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        GetReferralStatusResult result = getReferralStatusUseCase.getReferralStatus(
+                ElementExtractor.extractUserId(principal)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetReferralStatusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "친구 초대 현황 조회 성공"
                 )
         );
     }

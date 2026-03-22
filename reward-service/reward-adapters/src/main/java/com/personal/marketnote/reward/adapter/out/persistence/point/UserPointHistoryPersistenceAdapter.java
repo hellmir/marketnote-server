@@ -7,6 +7,7 @@ import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
+import com.personal.marketnote.reward.port.out.point.CountReferralPort;
 import com.personal.marketnote.reward.port.out.point.FindUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointHistoryPort;
@@ -18,9 +19,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.*;
+
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryPort, FindUserPointHistoryPort, UpdateUserPointHistoryPort {
+public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryPort, FindUserPointHistoryPort, UpdateUserPointHistoryPort, CountReferralPort {
     private final UserPointHistoryJpaRepository repository;
 
     @Override
@@ -82,4 +85,17 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
         return repository.markAsReflected(userId, sourceType, sourceId);
     }
 
+    @Override
+    public long countCompletedReferrals(Long userId) {
+        return repository.countByUserIdAndSourceTypeAndReason(
+                userId, UserPointSourceType.USER, REFERRER_POINT_REASON
+        );
+    }
+
+    @Override
+    public long sumReferralEarnedAmount(Long userId) {
+        return repository.sumReferralEarnedAmount(
+                userId, UserPointSourceType.USER, REFERRER_POINT_REASON, REFERRAL_BONUS_REASON_PREFIX
+        );
+    }
 }
