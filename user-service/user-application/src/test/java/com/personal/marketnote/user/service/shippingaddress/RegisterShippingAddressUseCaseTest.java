@@ -393,6 +393,42 @@ class RegisterShippingAddressUseCaseTest {
         ));
     }
 
+    @Test
+    @DisplayName("OTHER 타입 배송지 등록 시 주소 별명 없이도 정상 등록된다")
+    void registerShippingAddress_otherTypeWithoutAlias_succeedsWithoutAlias() {
+        // given
+        Long userId = 1L;
+        RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
+                .userId(userId)
+                .addressType(ShippingAddressType.OTHER)
+                .address("서울시 마포구 월드컵로 456")
+                .addressDetail("201동 502호")
+                .addressAlias(null)
+                .recipientName("김철수")
+                .recipientPhoneNumber("010-9876-5432")
+                .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
+                .isDefault(false)
+                .build();
+
+        when(findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER))
+                .thenReturn(1L);
+        when(findShippingAddressPort.existsByUserId(userId))
+                .thenReturn(true);
+
+        ShippingAddress savedShippingAddress = createShippingAddress(5L, userId, ShippingAddressType.OTHER, false);
+        when(saveShippingAddressPort.save(any(ShippingAddress.class)))
+                .thenReturn(savedShippingAddress);
+
+        // when
+        RegisterShippingAddressResult result = registerShippingAddressService.registerShippingAddress(command);
+
+        // then
+        assertThat(result.id()).isEqualTo(5L);
+        assertThat(result.addressType()).isEqualTo(ShippingAddressType.OTHER);
+
+        verify(saveShippingAddressPort).save(any(ShippingAddress.class));
+    }
+
     private ShippingAddress createShippingAddress(
             Long id,
             Long userId,
