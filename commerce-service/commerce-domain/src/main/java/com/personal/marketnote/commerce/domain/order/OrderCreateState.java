@@ -17,12 +17,7 @@ public class OrderCreateState {
     private final Long couponAmount;
     private final Long pointAmount;
     private final Long shippingFee;
-    private final String recipientName;
-    private final String recipientPhoneNumber;
-    private final String zipCode;
-    private final String address;
-    private final String addressDetail;
-    private final String requestMessage;
+    private final ShippingAddress shippingAddress;
     private final List<OrderProductCreateState> orderProductStates;
 }
 

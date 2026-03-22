@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.port.in.command.order;
 
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.Builder;
 
@@ -16,12 +17,7 @@ public record ChangeOrderStatusCommand(
         String reason,
         String role,
         Long buyerId,
-        String pickupRecipientName,
-        String pickupRecipientPhoneNumber,
-        String pickupZipCode,
-        String pickupAddress,
-        String pickupAddressDetail,
-        String pickupRequestMessage
+        ShippingAddress pickupAddress
 ) {
     private static final String BUYER_ROLE = "BUYER";
 

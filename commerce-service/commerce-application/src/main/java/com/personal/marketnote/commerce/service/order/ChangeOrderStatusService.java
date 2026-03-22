@@ -120,14 +120,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             return;
         }
 
-        order.applyPickupAddress(
-                command.pickupRecipientName(),
-                command.pickupRecipientPhoneNumber(),
-                command.pickupZipCode(),
-                command.pickupAddress(),
-                command.pickupAddressDetail(),
-                command.pickupRequestMessage()
-        );
+        order.applyPickupAddress(command.pickupAddress());
     }
 
     private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {

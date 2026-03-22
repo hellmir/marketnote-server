@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderProductsQuery;
 import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrderProductResult;
 import com.personal.marketnote.commerce.port.in.result.order.GetBuyerOrderProductsResult;
@@ -1392,6 +1393,7 @@ class GetBuyerOrderProductsUseCaseTest {
                 .totalAmount(100000L)
                 .couponAmount(0L)
                 .pointAmount(0L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -1422,6 +1424,7 @@ class GetBuyerOrderProductsUseCaseTest {
                 .totalAmount(100000L)
                 .couponAmount(0L)
                 .pointAmount(0L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(productStates)
                 .createdAt(createdAt)
                 .modifiedAt(createdAt)
@@ -1453,6 +1456,7 @@ class GetBuyerOrderProductsUseCaseTest {
                 .totalAmount(100000L)
                 .couponAmount(0L)
                 .pointAmount(0L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())

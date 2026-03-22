@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.exception.InvalidOrderDateRangeException;
 import com.personal.marketnote.commerce.port.in.command.order.GetAdminOrdersQuery;
 import com.personal.marketnote.commerce.port.in.result.order.GetAdminOrdersResult;
@@ -50,6 +51,7 @@ class GetAdminOrdersUseCaseTest {
                 .paidAmount(95000L)
                 .couponAmount(3000L)
                 .pointAmount(2000L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(id)
@@ -279,6 +281,7 @@ class GetAdminOrdersUseCaseTest {
                 .paidAmount(95000L)
                 .couponAmount(3000L)
                 .pointAmount(2000L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))

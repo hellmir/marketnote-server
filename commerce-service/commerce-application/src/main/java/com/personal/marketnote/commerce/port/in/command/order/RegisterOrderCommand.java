@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.port.in.command.order;
 
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import lombok.Builder;
 
 import java.util.List;
@@ -11,12 +12,7 @@ public record RegisterOrderCommand(
         Long couponAmount,
         Long pointAmount,
         Long shippingFee,
-        String recipientName,
-        String recipientPhoneNumber,
-        String zipCode,
-        String address,
-        String addressDetail,
-        String requestMessage,
+        ShippingAddress shippingAddress,
         List<OrderProductItemCommand> orderProducts
 ) {
 }

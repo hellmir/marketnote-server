@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.Ord
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderStatusHistoryJpaEntity;
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,18 +31,8 @@ public class OrderJpaEntityToDomainMapper {
                                     .couponAmount(entity.getCouponAmount())
                                     .pointAmount(entity.getPointAmount())
                                     .shippingFee(entity.getShippingFee())
-                                    .recipientName(entity.getRecipientName())
-                                    .recipientPhoneNumber(entity.getRecipientPhoneNumber())
-                                    .zipCode(entity.getZipCode())
-                                    .address(entity.getAddress())
-                                    .addressDetail(entity.getAddressDetail())
-                                    .requestMessage(entity.getRequestMessage())
-                                    .pickupRecipientName(entity.getPickupRecipientName())
-                                    .pickupRecipientPhoneNumber(entity.getPickupRecipientPhoneNumber())
-                                    .pickupZipCode(entity.getPickupZipCode())
-                                    .pickupAddress(entity.getPickupAddress())
-                                    .pickupAddressDetail(entity.getPickupAddressDetail())
-                                    .pickupRequestMessage(entity.getPickupRequestMessage())
+                                    .shippingAddress(mapToShippingAddress(entity))
+                                    .pickupAddress(mapToPickupAddress(entity))
                                     .orderProductStates(productStates)
                                     .createdAt(entity.getCreatedAt())
                                     .modifiedAt(entity.getModifiedAt())
@@ -75,18 +66,8 @@ public class OrderJpaEntityToDomainMapper {
                                     .couponAmount(entity.getCouponAmount())
                                     .pointAmount(entity.getPointAmount())
                                     .shippingFee(entity.getShippingFee())
-                                    .recipientName(entity.getRecipientName())
-                                    .recipientPhoneNumber(entity.getRecipientPhoneNumber())
-                                    .zipCode(entity.getZipCode())
-                                    .address(entity.getAddress())
-                                    .addressDetail(entity.getAddressDetail())
-                                    .requestMessage(entity.getRequestMessage())
-                                    .pickupRecipientName(entity.getPickupRecipientName())
-                                    .pickupRecipientPhoneNumber(entity.getPickupRecipientPhoneNumber())
-                                    .pickupZipCode(entity.getPickupZipCode())
-                                    .pickupAddress(entity.getPickupAddress())
-                                    .pickupAddressDetail(entity.getPickupAddressDetail())
-                                    .pickupRequestMessage(entity.getPickupRequestMessage())
+                                    .shippingAddress(mapToShippingAddress(entity))
+                                    .pickupAddress(mapToPickupAddress(entity))
                                     .orderProductStates(productStates)
                                     .createdAt(entity.getCreatedAt())
                                     .modifiedAt(entity.getModifiedAt())
@@ -125,6 +106,32 @@ public class OrderJpaEntityToDomainMapper {
                         .reason(entity.getReason())
                         .createdAt(entity.getCreatedAt())
                         .build()
+        );
+    }
+
+    private static ShippingAddress mapToShippingAddress(OrderJpaEntity entity) {
+        return ShippingAddress.of(
+                entity.getRecipientName(),
+                entity.getRecipientPhoneNumber(),
+                entity.getZipCode(),
+                entity.getAddress(),
+                entity.getAddressDetail(),
+                entity.getRequestMessage()
+        );
+    }
+
+    private static ShippingAddress mapToPickupAddress(OrderJpaEntity entity) {
+        if (FormatValidator.hasNoValue(entity.getPickupRecipientName())) {
+            return null;
+        }
+
+        return ShippingAddress.of(
+                entity.getPickupRecipientName(),
+                entity.getPickupRecipientPhoneNumber(),
+                entity.getPickupZipCode(),
+                entity.getPickupAddress(),
+                entity.getPickupAddressDetail(),
+                entity.getPickupRequestMessage()
         );
     }
 
