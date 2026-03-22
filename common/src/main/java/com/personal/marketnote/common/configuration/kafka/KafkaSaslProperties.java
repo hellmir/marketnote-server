@@ -1,5 +1,8 @@
 package com.personal.marketnote.common.configuration.kafka;
 
+import com.personal.marketnote.common.configuration.kafka.exception.KafkaSaslPasswordNotConfiguredException;
+import com.personal.marketnote.common.configuration.kafka.exception.KafkaSaslUsernameNotConfiguredException;
+import com.personal.marketnote.common.configuration.kafka.exception.UnsupportedKafkaSaslMechanismException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -38,12 +41,10 @@ public class KafkaSaslProperties {
 
     private void validateCredentials() {
         if (username == null || username.isBlank()) {
-            throw new IllegalStateException(
-                    "Kafka SASL 인증이 활성화되었으나 username이 설정되지 않았습니다. KAFKA_SASL_USERNAME 환경변수를 확인하세요.");
+            throw new KafkaSaslUsernameNotConfiguredException();
         }
         if (password == null || password.isBlank()) {
-            throw new IllegalStateException(
-                    "Kafka SASL 인증이 활성화되었으나 password가 설정되지 않았습니다. KAFKA_SASL_PASSWORD 환경변수를 확인하세요.");
+            throw new KafkaSaslPasswordNotConfiguredException();
         }
     }
 
@@ -63,8 +64,6 @@ public class KafkaSaslProperties {
         if ("PLAIN".equals(mechanism)) {
             return "org.apache.kafka.common.security.plain.PlainLoginModule";
         }
-        throw new IllegalStateException(
-                "지원하지 않는 SASL mechanism입니다: " + mechanism
-                        + ". 지원 목록: " + SUPPORTED_MECHANISMS);
+        throw new UnsupportedKafkaSaslMechanismException(mechanism, SUPPORTED_MECHANISMS);
     }
 }

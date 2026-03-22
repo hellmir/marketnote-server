@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.configuration.security;
 
+import com.personal.marketnote.common.configuration.security.exception.SecurityConfigurationValidationException;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +58,7 @@ public class SecurityPropertiesValidator {
 
         if (!violations.isEmpty()) {
             String message = String.join("\n  - ", violations);
-            throw new IllegalStateException(
-                    "보안 설정 검증 실패. 다음 환경변수를 확인하세요:\n  - " + message);
+            throw new SecurityConfigurationValidationException(message);
         }
 
         log.info("보안 설정 검증 완료: 필수 시크릿이 올바르게 설정되었습니다.");
