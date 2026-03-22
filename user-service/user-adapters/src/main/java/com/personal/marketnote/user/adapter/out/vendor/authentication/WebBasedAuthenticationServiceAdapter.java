@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.out.SecurityAdapter;
 import com.personal.marketnote.common.domain.exception.token.InvalidRefreshTokenException;
 import com.personal.marketnote.common.utility.FormatConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.user.adapter.exception.HashAlgorithmNotAvailableException;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieName;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieObject;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieUtils;
@@ -174,7 +175,7 @@ public class WebBasedAuthenticationServiceAdapter {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 algorithm not available", e);
+            throw new HashAlgorithmNotAvailableException(e);
         }
     }
 }
