@@ -54,4 +54,35 @@ class DltAuditLoggerTest {
         assertThatCode(() -> dltAuditLogger.logSummaryQuery("admin@personal.com"))
                 .doesNotThrowAnyException();
     }
+
+    @Test
+    @DisplayName("DLT 메시지 해결 감사 로그를 기록한다")
+    void logResolve_logsWithoutException() {
+        // when & then
+        assertThatCode(() -> dltAuditLogger.logResolve(
+                "commerce.order.payment-completed", 0, 5L,
+                "RETRY", "일시적 장애 복구", "admin@personal.com"
+        )).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("이미 처리된 DLT 메시지 해결 시도 감사 로그를 기록한다")
+    void logResolveAlreadyResolved_logsWithoutException() {
+        // when & then
+        assertThatCode(() -> dltAuditLogger.logResolveAlreadyResolved(
+                "commerce.order.payment-completed", 0, 5L,
+                "RETRIED", "admin@personal.com"
+        )).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("DLT 메시지 해결 에러 감사 로그를 기록한다")
+    void logResolveError_logsWithoutException() {
+        // when & then
+        assertThatCode(() -> dltAuditLogger.logResolveError(
+                "commerce.order.payment-completed", 0, 5L,
+                "RETRY", "admin@personal.com",
+                new RuntimeException("전송 실패")
+        )).doesNotThrowAnyException();
+    }
 }
