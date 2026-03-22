@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
@@ -31,12 +32,14 @@ public class OrderRequestToCommandMapper {
                 .couponAmount(request.getCouponAmount())
                 .pointAmount(request.getPointAmount())
                 .shippingFee(request.getShippingFee())
-                .recipientName(request.getRecipientName())
-                .recipientPhoneNumber(request.getRecipientPhoneNumber())
-                .zipCode(request.getZipCode())
-                .address(request.getAddress())
-                .addressDetail(request.getAddressDetail())
-                .requestMessage(request.getRequestMessage())
+                .shippingAddress(ShippingAddress.of(
+                        request.getRecipientName(),
+                        request.getRecipientPhoneNumber(),
+                        request.getZipCode(),
+                        request.getAddress(),
+                        request.getAddressDetail(),
+                        request.getRequestMessage()
+                ))
                 .orderProducts(orderProducts)
                 .build();
     }
@@ -50,13 +53,14 @@ public class OrderRequestToCommandMapper {
                 .reason(request.getReason())
                 .role(role)
                 .buyerId(buyerId)
-                .pickupRecipientName(request.getPickupRecipientName())
-                .pickupRecipientPhoneNumber(request.getPickupRecipientPhoneNumber())
-                .pickupZipCode(request.getPickupZipCode())
-                .pickupAddress(request.getPickupAddress())
-                .pickupAddressDetail(request.getPickupAddressDetail())
-                .pickupRequestMessage(request.getPickupRequestMessage())
+                .pickupAddress(ShippingAddress.of(
+                        request.getPickupRecipientName(),
+                        request.getPickupRecipientPhoneNumber(),
+                        request.getPickupZipCode(),
+                        request.getPickupAddress(),
+                        request.getPickupAddressDetail(),
+                        request.getPickupRequestMessage()
+                ))
                 .build();
     }
 }
-

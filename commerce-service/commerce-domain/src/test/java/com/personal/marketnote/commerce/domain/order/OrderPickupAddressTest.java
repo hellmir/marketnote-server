@@ -24,21 +24,23 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    "회수 수령인",
-                    "01099998888",
-                    "54321",
-                    "회수지 주소",
-                    "회수지 상세주소",
-                    "부재시 경비실에 맡겨주세요"
+                    ShippingAddress.of(
+                            "회수 수령인",
+                            "01099998888",
+                            "54321",
+                            "회수지 주소",
+                            "회수지 상세주소",
+                            "부재시 경비실에 맡겨주세요"
+                    )
             );
 
             // then
-            assertThat(order.getPickupRecipientName()).isEqualTo("회수 수령인");
-            assertThat(order.getPickupRecipientPhoneNumber()).isEqualTo("01099998888");
-            assertThat(order.getPickupZipCode()).isEqualTo("54321");
-            assertThat(order.getPickupAddress()).isEqualTo("회수지 주소");
-            assertThat(order.getPickupAddressDetail()).isEqualTo("회수지 상세주소");
-            assertThat(order.getPickupRequestMessage()).isEqualTo("부재시 경비실에 맡겨주세요");
+            assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("회수 수령인");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber()).isEqualTo("01099998888");
+            assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
+            assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
+            assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
+            assertThat(order.getPickupAddress().getRequestMessage()).isEqualTo("부재시 경비실에 맡겨주세요");
         }
 
         @Test
@@ -48,14 +50,14 @@ class OrderPickupAddressTest {
             Order order = createOrderWithDeliveryAddress();
 
             // when
-            order.applyPickupAddress(null, null, null, null, null, null);
+            order.applyPickupAddress(null);
 
             // then
-            assertThat(order.getPickupRecipientName()).isEqualTo("배송 수령인");
-            assertThat(order.getPickupRecipientPhoneNumber()).isEqualTo("01012345678");
-            assertThat(order.getPickupZipCode()).isEqualTo("12345");
-            assertThat(order.getPickupAddress()).isEqualTo("서울시 강남구");
-            assertThat(order.getPickupAddressDetail()).isEqualTo("테헤란로 123");
+            assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("배송 수령인");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber()).isEqualTo("01012345678");
+            assertThat(order.getPickupAddress().getZipCode()).isEqualTo("12345");
+            assertThat(order.getPickupAddress().getAddress()).isEqualTo("서울시 강남구");
+            assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("테헤란로 123");
         }
 
         @Test
@@ -65,10 +67,10 @@ class OrderPickupAddressTest {
             Order order = createOrderWithDeliveryAddress();
 
             // when
-            order.applyPickupAddress(null, null, null, null, null, null);
+            order.applyPickupAddress(null);
 
             // then
-            assertThat(order.getPickupRequestMessage()).isNull();
+            assertThat(order.getPickupAddress().getRequestMessage()).isNull();
         }
 
         @Test
@@ -79,21 +81,23 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    "회수 수령인",
-                    "01099998888",
-                    "54321",
-                    "회수지 주소",
-                    "회수지 상세주소",
-                    "회수 요청사항"
+                    ShippingAddress.of(
+                            "회수 수령인",
+                            "01099998888",
+                            "54321",
+                            "회수지 주소",
+                            "회수지 상세주소",
+                            "회수 요청사항"
+                    )
             );
 
             // then
-            assertThat(order.getRecipientName()).isEqualTo("배송 수령인");
-            assertThat(order.getRecipientPhoneNumber()).isEqualTo("01012345678");
-            assertThat(order.getZipCode()).isEqualTo("12345");
-            assertThat(order.getAddress()).isEqualTo("서울시 강남구");
-            assertThat(order.getAddressDetail()).isEqualTo("테헤란로 123");
-            assertThat(order.getRequestMessage()).isEqualTo("문 앞에 놓아주세요");
+            assertThat(order.getShippingAddress().getRecipientName()).isEqualTo("배송 수령인");
+            assertThat(order.getShippingAddress().getRecipientPhoneNumber()).isEqualTo("01012345678");
+            assertThat(order.getShippingAddress().getZipCode()).isEqualTo("12345");
+            assertThat(order.getShippingAddress().getAddress()).isEqualTo("서울시 강남구");
+            assertThat(order.getShippingAddress().getAddressDetail()).isEqualTo("테헤란로 123");
+            assertThat(order.getShippingAddress().getRequestMessage()).isEqualTo("문 앞에 놓아주세요");
         }
 
         @Test
@@ -107,29 +111,20 @@ class OrderPickupAddressTest {
                     .orderNumber("ORD-1")
                     .orderStatus(OrderStatus.REFUND_REQUESTED)
                     .totalAmount(50000L)
-                    .recipientName("배송 수령인")
-                    .recipientPhoneNumber("01012345678")
-                    .zipCode("12345")
-                    .address("서울시 강남구")
-                    .addressDetail("테헤란로 123")
-                    .pickupRecipientName("회수 수령인")
-                    .pickupRecipientPhoneNumber("01099998888")
-                    .pickupZipCode("54321")
-                    .pickupAddress("회수지 주소")
-                    .pickupAddressDetail("회수지 상세주소")
-                    .pickupRequestMessage("회수 요청사항")
+                    .shippingAddress(ShippingAddress.of("배송 수령인", "01012345678", "12345", "서울시 강남구", "테헤란로 123", null))
+                    .pickupAddress(ShippingAddress.of("회수 수령인", "01099998888", "54321", "회수지 주소", "회수지 상세주소", "회수 요청사항"))
                     .orderProductStates(List.of())
                     .createdAt(LocalDateTime.now())
                     .modifiedAt(LocalDateTime.now())
                     .build());
 
             // then
-            assertThat(order.getPickupRecipientName()).isEqualTo("회수 수령인");
-            assertThat(order.getPickupRecipientPhoneNumber()).isEqualTo("01099998888");
-            assertThat(order.getPickupZipCode()).isEqualTo("54321");
-            assertThat(order.getPickupAddress()).isEqualTo("회수지 주소");
-            assertThat(order.getPickupAddressDetail()).isEqualTo("회수지 상세주소");
-            assertThat(order.getPickupRequestMessage()).isEqualTo("회수 요청사항");
+            assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("회수 수령인");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber()).isEqualTo("01099998888");
+            assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
+            assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
+            assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
+            assertThat(order.getPickupAddress().getRequestMessage()).isEqualTo("회수 요청사항");
         }
     }
 
@@ -141,12 +136,7 @@ class OrderPickupAddressTest {
                 .orderNumber("ORD-1")
                 .orderStatus(OrderStatus.DELIVERED)
                 .totalAmount(50000L)
-                .recipientName("배송 수령인")
-                .recipientPhoneNumber("01012345678")
-                .zipCode("12345")
-                .address("서울시 강남구")
-                .addressDetail("테헤란로 123")
-                .requestMessage("문 앞에 놓아주세요")
+                .shippingAddress(ShippingAddress.of("배송 수령인", "01012345678", "12345", "서울시 강남구", "테헤란로 123", "문 앞에 놓아주세요"))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(1L)

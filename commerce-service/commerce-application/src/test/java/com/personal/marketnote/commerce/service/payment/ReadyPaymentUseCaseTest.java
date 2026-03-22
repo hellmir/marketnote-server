@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.payment;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
@@ -479,6 +480,7 @@ class ReadyPaymentUseCaseTest {
                 .orderNumber("ORD-TEST-001")
                 .orderStatus(orderStatus)
                 .totalAmount(50000L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .build();
         return Order.from(state);
     }

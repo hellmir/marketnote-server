@@ -25,18 +25,8 @@ public class Order {
     private Long couponAmount;
     private Long pointAmount;
     private Long shippingFee;
-    private String recipientName;
-    private String recipientPhoneNumber;
-    private String zipCode;
-    private String address;
-    private String addressDetail;
-    private String requestMessage;
-    private String pickupRecipientName;
-    private String pickupRecipientPhoneNumber;
-    private String pickupZipCode;
-    private String pickupAddress;
-    private String pickupAddressDetail;
-    private String pickupRequestMessage;
+    private ShippingAddress shippingAddress;
+    private ShippingAddress pickupAddress;
     private List<OrderProduct> orderProducts;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -57,12 +47,7 @@ public class Order {
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
                 .shippingFee(state.getShippingFee())
-                .recipientName(state.getRecipientName())
-                .recipientPhoneNumber(state.getRecipientPhoneNumber())
-                .zipCode(state.getZipCode())
-                .address(state.getAddress())
-                .addressDetail(state.getAddressDetail())
-                .requestMessage(state.getRequestMessage())
+                .shippingAddress(state.getShippingAddress())
                 .orderProducts(orderProducts)
                 .build();
     }
@@ -87,47 +72,21 @@ public class Order {
                 .couponAmount(state.getCouponAmount())
                 .pointAmount(state.getPointAmount())
                 .shippingFee(state.getShippingFee())
-                .recipientName(state.getRecipientName())
-                .recipientPhoneNumber(state.getRecipientPhoneNumber())
-                .zipCode(state.getZipCode())
-                .address(state.getAddress())
-                .addressDetail(state.getAddressDetail())
-                .requestMessage(state.getRequestMessage())
-                .pickupRecipientName(state.getPickupRecipientName())
-                .pickupRecipientPhoneNumber(state.getPickupRecipientPhoneNumber())
-                .pickupZipCode(state.getPickupZipCode())
+                .shippingAddress(state.getShippingAddress())
                 .pickupAddress(state.getPickupAddress())
-                .pickupAddressDetail(state.getPickupAddressDetail())
-                .pickupRequestMessage(state.getPickupRequestMessage())
                 .orderProducts(orderProducts)
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
     }
 
-    public void applyPickupAddress(
-            String pickupRecipientName,
-            String pickupRecipientPhoneNumber,
-            String pickupZipCode,
-            String pickupAddress,
-            String pickupAddressDetail,
-            String pickupRequestMessage
-    ) {
-        if (FormatValidator.hasValue(pickupRecipientName)) {
-            this.pickupRecipientName = pickupRecipientName;
-            this.pickupRecipientPhoneNumber = pickupRecipientPhoneNumber;
-            this.pickupZipCode = pickupZipCode;
+    public void applyPickupAddress(ShippingAddress pickupAddress) {
+        if (FormatValidator.hasValue(pickupAddress) && pickupAddress.hasRecipientName()) {
             this.pickupAddress = pickupAddress;
-            this.pickupAddressDetail = pickupAddressDetail;
-            this.pickupRequestMessage = pickupRequestMessage;
             return;
         }
 
-        this.pickupRecipientName = recipientName;
-        this.pickupRecipientPhoneNumber = recipientPhoneNumber;
-        this.pickupZipCode = zipCode;
-        this.pickupAddress = address;
-        this.pickupAddressDetail = addressDetail;
+        this.pickupAddress = shippingAddress.withoutRequestMessage();
     }
 
     public boolean isPaymentPending() {

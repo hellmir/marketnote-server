@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
@@ -1207,7 +1208,9 @@ class CancelPaymentUseCaseTest {
             );
             OrderSnapshotState orderState = OrderSnapshotState.builder()
                     .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
-                    .totalAmount(70000L).pointAmount(0L).orderProductStates(productStates).build();
+                    .totalAmount(70000L).pointAmount(0L)
+                    .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
+                    .orderProductStates(productStates).build();
             Order order = Order.from(orderState);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -1375,6 +1378,7 @@ class CancelPaymentUseCaseTest {
                 .orderStatus(OrderStatus.PAID)
                 .totalAmount(totalAmount)
                 .pointAmount(0L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of(productState))
                 .build();
         return Order.from(state);
@@ -1430,6 +1434,7 @@ class CancelPaymentUseCaseTest {
                 .orderStatus(OrderStatus.PAID)
                 .totalAmount(50000L)
                 .pointAmount(pointAmount)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of(productState))
                 .build();
         return Order.from(state);
@@ -1453,6 +1458,7 @@ class CancelPaymentUseCaseTest {
                 .orderStatus(OrderStatus.PAID)
                 .totalAmount(50000L)
                 .pointAmount(pointAmount)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(productStates)
                 .build();
         return Order.from(state);
@@ -1508,6 +1514,7 @@ class CancelPaymentUseCaseTest {
                 .orderStatus(OrderStatus.PAID)
                 .totalAmount(50000L)
                 .pointAmount(0L)
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(productStates)
                 .build();
         return Order.from(state);
