@@ -31,6 +31,12 @@ public class OrderRequestToCommandMapper {
                 .couponAmount(request.getCouponAmount())
                 .pointAmount(request.getPointAmount())
                 .shippingFee(request.getShippingFee())
+                .recipientName(request.getRecipientName())
+                .recipientPhoneNumber(request.getRecipientPhoneNumber())
+                .zipCode(request.getZipCode())
+                .address(request.getAddress())
+                .addressDetail(request.getAddressDetail())
+                .requestMessage(request.getRequestMessage())
                 .orderProducts(orderProducts)
                 .build();
     }

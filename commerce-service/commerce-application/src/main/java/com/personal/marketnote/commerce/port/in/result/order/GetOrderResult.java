@@ -23,6 +23,12 @@ public record GetOrderResult(
         Long couponAmount,
         Long pointAmount,
         Long shippingFee,
+        String recipientName,
+        String recipientPhoneNumber,
+        String zipCode,
+        String address,
+        String addressDetail,
+        String requestMessage,
         List<GetOrderProductResult> orderProducts
 ) {
     public static GetOrderResult from(
@@ -41,6 +47,12 @@ public record GetOrderResult(
                 .couponAmount(order.getCouponAmount())
                 .pointAmount(order.getPointAmount())
                 .shippingFee(order.getShippingFee())
+                .recipientName(order.getRecipientName())
+                .recipientPhoneNumber(order.getRecipientPhoneNumber())
+                .zipCode(order.getZipCode())
+                .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
+                .requestMessage(order.getRequestMessage())
                 .orderProducts(order.getOrderProducts().stream()
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,
