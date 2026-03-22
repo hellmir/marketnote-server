@@ -1,5 +1,9 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
+import lombok.AccessLevel;
+import lombok.Builder;
+
+@Builder(access = AccessLevel.PRIVATE)
 public record RegisterFasstoGoodsItemCommand(
         String cstGodCd,
         String godNm,
@@ -37,6 +41,20 @@ public record RegisterFasstoGoodsItemCommand(
         String cstGodImgUrl,
         String externalGodImgUrl
 ) {
+    public static RegisterFasstoGoodsItemCommand ofMinimal(
+            String cstGodCd,
+            String godNm,
+            String godType,
+            String giftDiv
+    ) {
+        return RegisterFasstoGoodsItemCommand.builder()
+                .cstGodCd(cstGodCd)
+                .godNm(godNm)
+                .godType(godType)
+                .giftDiv(giftDiv)
+                .build();
+    }
+
     public static RegisterFasstoGoodsItemCommand of(
             String cstGodCd,
             String godNm,
