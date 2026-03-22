@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.port.out.commerce;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 
 public record UpdateCommerceInventoryItemCommand(
         Long productId,
@@ -8,13 +9,13 @@ public record UpdateCommerceInventoryItemCommand(
 ) {
     public UpdateCommerceInventoryItemCommand {
         if (FormatValidator.hasNoValue(productId)) {
-            throw new IllegalArgumentException("Product id is required for commerce inventory sync.");
+            throw new FasstoQueryParameterNoValueException("Product id", "commerce inventory sync");
         }
         if (FormatValidator.hasNoValue(stock)) {
-            throw new IllegalArgumentException("Stock is required for commerce inventory sync.");
+            throw new FasstoQueryParameterNoValueException("Stock", "commerce inventory sync");
         }
         if (stock < 0) {
-            throw new IllegalArgumentException("Stock cannot be negative for commerce inventory sync.");
+            throw new FasstoQueryParameterNoValueException("Stock (non-negative)", "commerce inventory sync");
         }
     }
 

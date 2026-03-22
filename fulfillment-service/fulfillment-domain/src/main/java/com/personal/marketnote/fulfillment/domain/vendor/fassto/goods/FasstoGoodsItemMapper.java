@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.goods;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.LinkedHashMap;
@@ -167,16 +168,16 @@ public class FasstoGoodsItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(cstGodCd)) {
-            throw new IllegalArgumentException("cstGodCd is required for goods request.");
+            throw new FasstoQueryParameterNoValueException("cstGodCd", "goods request");
         }
         if (FormatValidator.hasNoValue(godNm)) {
-            throw new IllegalArgumentException("godNm is required for goods request.");
+            throw new FasstoQueryParameterNoValueException("godNm", "goods request");
         }
         if (FormatValidator.hasNoValue(godType)) {
-            throw new IllegalArgumentException("godType is required for goods request.");
+            throw new FasstoQueryParameterNoValueException("godType", "goods request");
         }
         if (FormatValidator.hasNoValue(giftDiv)) {
-            throw new IllegalArgumentException("giftDiv is required for goods request.");
+            throw new FasstoQueryParameterNoValueException("giftDiv", "goods request");
         }
     }
 

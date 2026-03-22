@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.domain;
 
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.ParsingLocalDateTimeException;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,10 +21,10 @@ public class FasstoAccessToken {
 
     public static FasstoAccessToken of(String value, String expreDatetime) {
         if (FormatValidator.hasNoValue(value)) {
-            throw new IllegalArgumentException("Fassto access token value is required.");
+            throw new FasstoQueryParameterNoValueException("Fassto access token value");
         }
         if (FormatValidator.hasNoValue(expreDatetime)) {
-            throw new IllegalArgumentException("Fassto access token expiration is required.");
+            throw new FasstoQueryParameterNoValueException("Fassto access token expiration");
         }
 
         return FasstoAccessToken.builder()

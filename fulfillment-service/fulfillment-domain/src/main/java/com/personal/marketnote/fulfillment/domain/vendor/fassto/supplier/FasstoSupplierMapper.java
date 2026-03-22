@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.supplier;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.LinkedHashMap;
@@ -182,16 +183,16 @@ public class FasstoSupplierMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(customerCode)) {
-            throw new IllegalArgumentException("customerCode is required.");
+            throw new FasstoQueryParameterNoValueException("customerCode");
         }
         if (FormatValidator.hasNoValue(accessToken)) {
-            throw new IllegalArgumentException("accessToken is required.");
+            throw new FasstoQueryParameterNoValueException("accessToken");
         }
         if (FormatValidator.hasNoValue(supCd)) {
-            throw new IllegalArgumentException("supCd is required for supplier request.");
+            throw new FasstoQueryParameterNoValueException("supCd", "supplier request");
         }
         if (FormatValidator.hasNoValue(supNm)) {
-            throw new IllegalArgumentException("supNm is required for supplier request.");
+            throw new FasstoQueryParameterNoValueException("supNm", "supplier request");
         }
     }
 

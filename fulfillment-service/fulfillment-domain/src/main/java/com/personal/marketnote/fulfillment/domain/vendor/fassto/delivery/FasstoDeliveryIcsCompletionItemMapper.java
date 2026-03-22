@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.LinkedHashMap;
@@ -30,7 +31,7 @@ public class FasstoDeliveryIcsCompletionItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(ordNoList)) {
-            throw new IllegalArgumentException("ordNoList is required for delivery ics completion request.");
+            throw new FasstoQueryParameterNoValueException("ordNoList", "delivery ics completion request");
         }
     }
 }

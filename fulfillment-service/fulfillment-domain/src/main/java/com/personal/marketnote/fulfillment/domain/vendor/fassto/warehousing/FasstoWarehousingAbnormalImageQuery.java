@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.warehousing;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 @Getter
@@ -37,22 +38,22 @@ public class FasstoWarehousingAbnormalImageQuery {
 
     private void validate() {
         if (FormatValidator.hasNoValue(accessToken)) {
-            throw new IllegalArgumentException("accessToken is required.");
+            throw new FasstoQueryParameterNoValueException("accessToken");
         }
         if (FormatValidator.hasNoValue(slipNo)) {
-            throw new IllegalArgumentException("slipNo is required.");
+            throw new FasstoQueryParameterNoValueException("slipNo");
         }
         if (FormatValidator.hasNoValue(godCd)) {
-            throw new IllegalArgumentException("godCd is required.");
+            throw new FasstoQueryParameterNoValueException("godCd");
         }
         if (FormatValidator.hasNoValue(goodsSerialNo)) {
-            throw new IllegalArgumentException("goodsSerialNo is required.");
+            throw new FasstoQueryParameterNoValueException("goodsSerialNo");
         }
         if (FormatValidator.hasNoValue(fileSeq)) {
-            throw new IllegalArgumentException("fileSeq is required.");
+            throw new FasstoQueryParameterNoValueException("fileSeq");
         }
         if (FormatValidator.hasNoValue(imgNo)) {
-            throw new IllegalArgumentException("imgNo is required.");
+            throw new FasstoQueryParameterNoValueException("imgNo");
         }
     }
 }

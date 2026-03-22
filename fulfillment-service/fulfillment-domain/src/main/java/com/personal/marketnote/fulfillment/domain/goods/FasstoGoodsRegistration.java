@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.goods;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class FasstoGoodsRegistration {
 
     public static FasstoGoodsRegistration from(FasstoGoodsRegistrationCreateState state) {
         if (FormatValidator.hasNoValue(state.getProductId())) {
-            throw new IllegalArgumentException("productId는 필수입니다.");
+            throw new FasstoQueryParameterNoValueException("productId");
         }
         return FasstoGoodsRegistration.builder()
                 .productId(state.getProductId())

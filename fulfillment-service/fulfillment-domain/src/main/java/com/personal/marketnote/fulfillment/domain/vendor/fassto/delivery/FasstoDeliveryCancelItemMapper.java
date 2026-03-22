@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.LinkedHashMap;
@@ -35,10 +36,10 @@ public class FasstoDeliveryCancelItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(slipNo)) {
-            throw new IllegalArgumentException("slipNo is required for delivery cancel request.");
+            throw new FasstoQueryParameterNoValueException("slipNo", "delivery cancel request");
         }
         if (FormatValidator.hasNoValue(ordNo)) {
-            throw new IllegalArgumentException("ordNo is required for delivery cancel request.");
+            throw new FasstoQueryParameterNoValueException("ordNo", "delivery cancel request");
         }
     }
 }

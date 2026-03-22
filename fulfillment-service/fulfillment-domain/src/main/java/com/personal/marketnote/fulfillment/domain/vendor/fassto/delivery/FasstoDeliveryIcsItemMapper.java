@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.LinkedHashMap;
@@ -88,22 +89,22 @@ public class FasstoDeliveryIcsItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(ordDt)) {
-            throw new IllegalArgumentException("ordDt is required for delivery ics request.");
+            throw new FasstoQueryParameterNoValueException("ordDt", "delivery ics request");
         }
         if (FormatValidator.hasNoValue(ordNo)) {
-            throw new IllegalArgumentException("ordNo is required for delivery ics request.");
+            throw new FasstoQueryParameterNoValueException("ordNo", "delivery ics request");
         }
         if (FormatValidator.hasNoValue(platform)) {
-            throw new IllegalArgumentException("platform is required for delivery ics request.");
+            throw new FasstoQueryParameterNoValueException("platform", "delivery ics request");
         }
         if (FormatValidator.hasNoValue(logiCenter)) {
-            throw new IllegalArgumentException("logiCenter is required for delivery ics request.");
+            throw new FasstoQueryParameterNoValueException("logiCenter", "delivery ics request");
         }
         if (FormatValidator.hasNoValue(invoiceNo)) {
-            throw new IllegalArgumentException("invoiceNo is required for delivery ics request.");
+            throw new FasstoQueryParameterNoValueException("invoiceNo", "delivery ics request");
         }
         if (FormatValidator.hasNoValue(godCds)) {
-            throw new IllegalArgumentException("godCds is required for delivery ics request.");
+            throw new FasstoQueryParameterNoValueException("godCds", "delivery ics request");
         }
     }
 

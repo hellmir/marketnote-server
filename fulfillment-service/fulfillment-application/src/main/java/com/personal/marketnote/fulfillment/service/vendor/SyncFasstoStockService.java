@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFasstoStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFasstoStocksCommand;
@@ -37,13 +38,13 @@ public class SyncFasstoStockService implements SyncFasstoStockUseCase, SyncFasst
     @Override
     public void sync(SyncFasstoStockCommand command) {
         if (FormatValidator.hasNoValue(command)) {
-            throw new IllegalArgumentException("Sync Fassto stock command is required.");
+            throw new FasstoQueryParameterNoValueException("Sync Fassto stock command");
         }
         if (FormatValidator.hasNoValue(command.customerCode())) {
-            throw new IllegalArgumentException("Customer code is required for Fassto stock sync.");
+            throw new FasstoQueryParameterNoValueException("Customer code", "Fassto stock sync");
         }
         if (FormatValidator.hasNoValue(command.productIds())) {
-            throw new IllegalArgumentException("Product ids are required for Fassto stock sync.");
+            throw new FasstoQueryParameterNoValueException("Product ids", "Fassto stock sync");
         }
 
         List<Long> productIds = command.productIds().stream()
@@ -51,12 +52,12 @@ public class SyncFasstoStockService implements SyncFasstoStockUseCase, SyncFasst
                 .distinct()
                 .toList();
         if (FormatValidator.hasNoValue(productIds)) {
-            throw new IllegalArgumentException("Valid product ids are required for Fassto stock sync.");
+            throw new FasstoQueryParameterNoValueException("Valid product ids", "Fassto stock sync");
         }
 
         FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
         if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-            throw new IllegalArgumentException("Fassto access token is required for stock sync.");
+            throw new FasstoQueryParameterNoValueException("Fassto access token", "stock sync");
         }
 
         List<UpdateCommerceInventoryItemCommand> inventories = new ArrayList<>();
@@ -79,15 +80,15 @@ public class SyncFasstoStockService implements SyncFasstoStockUseCase, SyncFasst
     @Override
     public void syncAll(SyncFasstoAllStockCommand command) {
         if (FormatValidator.hasNoValue(command)) {
-            throw new IllegalArgumentException("Sync all Fassto stock command is required.");
+            throw new FasstoQueryParameterNoValueException("Sync all Fassto stock command");
         }
         if (FormatValidator.hasNoValue(command.customerCode())) {
-            throw new IllegalArgumentException("Customer code is required for Fassto stock sync.");
+            throw new FasstoQueryParameterNoValueException("Customer code", "Fassto stock sync");
         }
 
         FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
         if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-            throw new IllegalArgumentException("Fassto access token is required for stock sync.");
+            throw new FasstoQueryParameterNoValueException("Fassto access token", "stock sync");
         }
 
         GetFasstoStocksResult stocksResult = getFasstoStocksUseCase.getStocks(
