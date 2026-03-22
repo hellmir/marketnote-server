@@ -57,6 +57,7 @@ import java.lang.annotation.*;
                 | content[].errorFqcn | string | 예외 클래스명 | "NullPointerException" |
                 | content[].errorMessage | string | 에러 메시지 (최대 200자) | "Cannot invoke method on null" |
                 | content[].timestamp | number | 메시지 타임스탬프 (epoch millis) | 1710144000000 |
+                | content[].resolution | string | 처리 상태 (UNRESOLVED / RETRIED / DISCARDED) | "UNRESOLVED" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -94,7 +95,8 @@ import java.lang.annotation.*;
                                               "originalTopic": "order-payment-completed",
                                               "errorFqcn": "NullPointerException",
                                               "errorMessage": "Cannot invoke method on null",
-                                              "timestamp": 1710144000000
+                                              "timestamp": 1710144000000,
+                                              "resolution": "UNRESOLVED"
                                             }
                                           ],
                                           "message": "DLT 메시지 조회 완료"

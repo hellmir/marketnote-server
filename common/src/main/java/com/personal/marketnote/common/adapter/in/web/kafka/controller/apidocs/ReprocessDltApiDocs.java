@@ -51,6 +51,7 @@ import java.lang.annotation.*;
                 | dltTopic | string | DLT 토픽명 | "order-payment-completed.DLT" |
                 | reprocessedCount | number | 재처리 성공 건수 | 5 |
                 | failedCount | number | 재처리 실패 건수 | 0 |
+                | skippedCount | number | 이미 처리되어 스킵된 건수 | 2 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -78,7 +79,8 @@ import java.lang.annotation.*;
                                             "originalTopic": "order-payment-completed",
                                             "dltTopic": "order-payment-completed.DLT",
                                             "reprocessedCount": 5,
-                                            "failedCount": 0
+                                            "failedCount": 0,
+                                            "skippedCount": 2
                                           },
                                           "message": "DLT 메시지 재처리 완료"
                                         }
