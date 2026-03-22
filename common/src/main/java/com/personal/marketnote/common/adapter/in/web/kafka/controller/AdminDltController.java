@@ -4,14 +4,20 @@ import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.web.kafka.controller.apidocs.QueryDltMessagesApiDocs;
 import com.personal.marketnote.common.adapter.in.web.kafka.controller.apidocs.QueryDltTopicSummariesApiDocs;
 import com.personal.marketnote.common.adapter.in.web.kafka.controller.apidocs.ReprocessDltApiDocs;
+import com.personal.marketnote.common.adapter.in.web.kafka.controller.apidocs.ResolveDltApiDocs;
 import com.personal.marketnote.common.adapter.in.web.kafka.request.ReprocessDltRequest;
+import com.personal.marketnote.common.adapter.in.web.kafka.request.ResolveDltRequest;
 import com.personal.marketnote.common.adapter.in.web.kafka.response.DltMessageResponse;
 import com.personal.marketnote.common.adapter.in.web.kafka.response.DltTopicSummaryResponse;
 import com.personal.marketnote.common.adapter.in.web.kafka.response.ReprocessDltResponse;
+import com.personal.marketnote.common.adapter.in.web.kafka.response.ResolveDltResponse;
 import com.personal.marketnote.common.configuration.kafka.DltAuditLogger;
 import com.personal.marketnote.common.configuration.kafka.DltQueryService;
 import com.personal.marketnote.common.configuration.kafka.DltReprocessResult;
 import com.personal.marketnote.common.configuration.kafka.DltReprocessService;
+import com.personal.marketnote.common.configuration.kafka.DltResolveCommand;
+import com.personal.marketnote.common.configuration.kafka.DltResolveResult;
+import com.personal.marketnote.common.configuration.kafka.DltResolveService;
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -41,6 +47,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class AdminDltController {
 
     private final DltReprocessService dltReprocessService;
+    private final DltResolveService dltResolveService;
     private final DltQueryService dltQueryService;
     private final DltAuditLogger dltAuditLogger;
 
@@ -60,6 +67,31 @@ public class AdminDltController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "DLT 메시지 재처리 완료"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/api/v1/admin/kafka/dlt/resolve")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ResolveDltApiDocs
+    public ResponseEntity<BaseResponse<ResolveDltResponse>> resolveDlt(
+            @Valid @RequestBody ResolveDltRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        String operatorInfo = resolveOperatorInfo(principal);
+        DltResolveCommand command = new DltResolveCommand(
+                request.originalTopic(), request.partition(), request.offset(),
+                request.action(), request.reason()
+        );
+        DltResolveResult result = dltResolveService.resolve(command, operatorInfo);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        ResolveDltResponse.from(command, result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "DLT 메시지 해결 완료"
                 ),
                 HttpStatus.OK
         );
