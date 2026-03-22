@@ -85,6 +85,10 @@ logging:
   level:
     org.springframework.security: ERROR
 
+kafka:
+  slack:
+    webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
+
 management:
   endpoints:
     web:
