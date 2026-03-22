@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.warehousing;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 @Getter
@@ -49,16 +50,16 @@ public class FasstoWarehousingQuery {
 
     private void validate() {
         if (FormatValidator.hasNoValue(customerCode)) {
-            throw new IllegalArgumentException("customerCode is required.");
+            throw new FasstoQueryParameterNoValueException("customerCode");
         }
         if (FormatValidator.hasNoValue(accessToken)) {
-            throw new IllegalArgumentException("accessToken is required.");
+            throw new FasstoQueryParameterNoValueException("accessToken");
         }
         if (FormatValidator.hasNoValue(startDate)) {
-            throw new IllegalArgumentException("startDate is required.");
+            throw new FasstoQueryParameterNoValueException("startDate");
         }
         if (FormatValidator.hasNoValue(endDate)) {
-            throw new IllegalArgumentException("endDate is required.");
+            throw new FasstoQueryParameterNoValueException("endDate");
         }
     }
 }

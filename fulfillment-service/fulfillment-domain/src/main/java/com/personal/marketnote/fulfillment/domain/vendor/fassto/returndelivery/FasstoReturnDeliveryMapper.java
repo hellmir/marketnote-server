@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.List;
@@ -44,13 +45,13 @@ public class FasstoReturnDeliveryMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(customerCode)) {
-            throw new IllegalArgumentException("customerCode is required.");
+            throw new FasstoQueryParameterNoValueException("customerCode");
         }
         if (FormatValidator.hasNoValue(accessToken)) {
-            throw new IllegalArgumentException("accessToken is required.");
+            throw new FasstoQueryParameterNoValueException("accessToken");
         }
         if (FormatValidator.hasNoValue(returnDeliveryRequests)) {
-            throw new IllegalArgumentException("returnDeliveryRequests is required.");
+            throw new FasstoQueryParameterNoValueException("returnDeliveryRequests");
         }
     }
 }

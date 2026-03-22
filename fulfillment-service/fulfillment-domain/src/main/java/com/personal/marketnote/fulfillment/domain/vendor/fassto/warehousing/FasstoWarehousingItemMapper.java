@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.warehousing;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.LinkedHashMap;
@@ -112,20 +113,20 @@ public class FasstoWarehousingItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(ordDt)) {
-            throw new IllegalArgumentException("ordDt is required for warehousing request.");
+            throw new FasstoQueryParameterNoValueException("ordDt", "warehousing request");
         }
         if (FormatValidator.hasNoValue(inWay)) {
-            throw new IllegalArgumentException("inWay is required for warehousing request.");
+            throw new FasstoQueryParameterNoValueException("inWay", "warehousing request");
         }
         if (FormatValidator.hasNoValue(godCds)) {
-            throw new IllegalArgumentException("godCds is required for warehousing request.");
+            throw new FasstoQueryParameterNoValueException("godCds", "warehousing request");
         }
     }
 
     private void validateForUpdate() {
         validate();
         if (FormatValidator.hasNoValue(slipNo)) {
-            throw new IllegalArgumentException("slipNo is required for warehousing update.");
+            throw new FasstoQueryParameterNoValueException("slipNo", "warehousing update");
         }
     }
 

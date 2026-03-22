@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery.FasstoDeliveryGoodsMapper;
 import lombok.*;
 
@@ -101,22 +102,22 @@ public class FasstoReturnDeliveryItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(ordDt)) {
-            throw new IllegalArgumentException("ordDt is required for return delivery request.");
+            throw new FasstoQueryParameterNoValueException("ordDt", "return delivery request");
         }
         if (FormatValidator.hasNoValue(parcelCd)) {
-            throw new IllegalArgumentException("parcelCd is required for return delivery request.");
+            throw new FasstoQueryParameterNoValueException("parcelCd", "return delivery request");
         }
         if (FormatValidator.hasNoValue(invoiceNo)) {
-            throw new IllegalArgumentException("invoiceNo is required for return delivery request.");
+            throw new FasstoQueryParameterNoValueException("invoiceNo", "return delivery request");
         }
         if (FormatValidator.hasNoValue(custNm)) {
-            throw new IllegalArgumentException("custNm is required for return delivery request.");
+            throw new FasstoQueryParameterNoValueException("custNm", "return delivery request");
         }
         if (FormatValidator.hasNoValue(custTelNo)) {
-            throw new IllegalArgumentException("custTelNo is required for return delivery request.");
+            throw new FasstoQueryParameterNoValueException("custTelNo", "return delivery request");
         }
         if (FormatValidator.hasNoValue(custAddr)) {
-            throw new IllegalArgumentException("custAddr is required for return delivery request.");
+            throw new FasstoQueryParameterNoValueException("custAddr", "return delivery request");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.returndelivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery.FasstoDeliveryGoodsMapper;
 import lombok.*;
 
@@ -85,25 +86,25 @@ public class FasstoDirectReturnDeliveryItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(ordDt)) {
-            throw new IllegalArgumentException("ordDt is required for direct return delivery request.");
+            throw new FasstoQueryParameterNoValueException("ordDt", "direct return delivery request");
         }
         if (FormatValidator.hasNoValue(orgParcelCd)) {
-            throw new IllegalArgumentException("orgParcelCd is required for direct return delivery request.");
+            throw new FasstoQueryParameterNoValueException("orgParcelCd", "direct return delivery request");
         }
         if (FormatValidator.hasNoValue(orgInvoiceNo)) {
-            throw new IllegalArgumentException("orgInvoiceNo is required for direct return delivery request.");
+            throw new FasstoQueryParameterNoValueException("orgInvoiceNo", "direct return delivery request");
         }
         if (FormatValidator.hasNoValue(inWay)) {
-            throw new IllegalArgumentException("inWay is required for direct return delivery request.");
+            throw new FasstoQueryParameterNoValueException("inWay", "direct return delivery request");
         }
         if (FormatValidator.hasNoValue(custNm)) {
-            throw new IllegalArgumentException("custNm is required for direct return delivery request.");
+            throw new FasstoQueryParameterNoValueException("custNm", "direct return delivery request");
         }
         if (FormatValidator.hasNoValue(rtnGubun)) {
-            throw new IllegalArgumentException("rtnGubun is required for direct return delivery request.");
+            throw new FasstoQueryParameterNoValueException("rtnGubun", "direct return delivery request");
         }
         if (FormatValidator.hasNoValue(rtnReason)) {
-            throw new IllegalArgumentException("rtnReason is required for direct return delivery request.");
+            throw new FasstoQueryParameterNoValueException("rtnReason", "direct return delivery request");
         }
     }
 

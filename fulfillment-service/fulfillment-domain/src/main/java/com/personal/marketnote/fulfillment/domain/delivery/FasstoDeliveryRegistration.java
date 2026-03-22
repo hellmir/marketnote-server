@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.delivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public class FasstoDeliveryRegistration {
 
     public static FasstoDeliveryRegistration from(FasstoDeliveryRegistrationCreateState state) {
         if (FormatValidator.hasNoValue(state.getOrderId())) {
-            throw new IllegalArgumentException("orderId는 필수입니다.");
+            throw new FasstoQueryParameterNoValueException("orderId");
         }
         return FasstoDeliveryRegistration.builder()
                 .orderId(state.getOrderId())

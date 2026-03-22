@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.delivery;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 import java.util.LinkedHashMap;
@@ -132,32 +133,32 @@ public class FasstoDeliveryItemMapper {
 
     private void validate() {
         if (FormatValidator.hasNoValue(ordDt)) {
-            throw new IllegalArgumentException("ordDt is required for delivery request.");
+            throw new FasstoQueryParameterNoValueException("ordDt", "delivery request");
         }
         if (FormatValidator.hasNoValue(ordNo)) {
-            throw new IllegalArgumentException("ordNo is required for delivery request.");
+            throw new FasstoQueryParameterNoValueException("ordNo", "delivery request");
         }
         if (FormatValidator.hasNoValue(custNm)) {
-            throw new IllegalArgumentException("custNm is required for delivery request.");
+            throw new FasstoQueryParameterNoValueException("custNm", "delivery request");
         }
         if (FormatValidator.hasNoValue(custTelNo)) {
-            throw new IllegalArgumentException("custTelNo is required for delivery request.");
+            throw new FasstoQueryParameterNoValueException("custTelNo", "delivery request");
         }
         if (FormatValidator.hasNoValue(custAddr)) {
-            throw new IllegalArgumentException("custAddr is required for delivery request.");
+            throw new FasstoQueryParameterNoValueException("custAddr", "delivery request");
         }
         if (FormatValidator.hasNoValue(outWay)) {
-            throw new IllegalArgumentException("outWay is required for delivery request.");
+            throw new FasstoQueryParameterNoValueException("outWay", "delivery request");
         }
         if (FormatValidator.hasNoValue(godCds)) {
-            throw new IllegalArgumentException("godCds is required for delivery request.");
+            throw new FasstoQueryParameterNoValueException("godCds", "delivery request");
         }
     }
 
     private void validateForUpdate() {
         validate();
         if (FormatValidator.hasNoValue(slipNo)) {
-            throw new IllegalArgumentException("slipNo is required for delivery update request.");
+            throw new FasstoQueryParameterNoValueException("slipNo", "delivery update request");
         }
     }
 

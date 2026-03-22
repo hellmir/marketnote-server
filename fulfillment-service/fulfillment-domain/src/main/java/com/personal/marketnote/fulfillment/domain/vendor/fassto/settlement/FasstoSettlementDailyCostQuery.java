@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.domain.vendor.fassto.settlement;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import lombok.*;
 
 @Getter
@@ -31,16 +32,16 @@ public class FasstoSettlementDailyCostQuery {
 
     private void validate() {
         if (FormatValidator.hasNoValue(yearMonth)) {
-            throw new IllegalArgumentException("yearMonth is required.");
+            throw new FasstoQueryParameterNoValueException("yearMonth");
         }
         if (FormatValidator.hasNoValue(whCd)) {
-            throw new IllegalArgumentException("whCd is required.");
+            throw new FasstoQueryParameterNoValueException("whCd");
         }
         if (FormatValidator.hasNoValue(customerCode)) {
-            throw new IllegalArgumentException("customerCode is required.");
+            throw new FasstoQueryParameterNoValueException("customerCode");
         }
         if (FormatValidator.hasNoValue(accessToken)) {
-            throw new IllegalArgumentException("accessToken is required.");
+            throw new FasstoQueryParameterNoValueException("accessToken");
         }
     }
 }
