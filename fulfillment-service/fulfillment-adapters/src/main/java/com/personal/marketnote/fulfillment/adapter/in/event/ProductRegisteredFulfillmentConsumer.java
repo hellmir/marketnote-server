@@ -10,7 +10,6 @@ import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
 import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.FasstoGoodsAlreadyRegisteredException;
-import com.personal.marketnote.fulfillment.exception.RegisterFasstoGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsItemCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFasstoGoodsUseCase;
@@ -101,11 +100,8 @@ public class ProductRegisteredFulfillmentConsumer {
         } catch (FasstoGoodsAlreadyRegisteredException e) {
             log.warn("이미 Fassto에 등록된 상품입니다 (멱등 처리). eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage());
-        } catch (RegisterFasstoGoodsFailedException e) {
-            log.warn("풀필먼트 상품 등록 실패 (듀얼 라이트 기간 HTTP 호출로 처리됨). eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage());
         }
-        // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
+        // 그 외 예외(RegisterFasstoGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();
     }
