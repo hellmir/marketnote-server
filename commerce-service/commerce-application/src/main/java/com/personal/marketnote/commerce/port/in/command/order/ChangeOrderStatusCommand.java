@@ -15,7 +15,13 @@ public record ChangeOrderStatusCommand(
         OrderStatusReasonCategory reasonCategory,
         String reason,
         String role,
-        Long buyerId
+        Long buyerId,
+        String pickupRecipientName,
+        String pickupRecipientPhoneNumber,
+        String pickupZipCode,
+        String pickupAddress,
+        String pickupAddressDetail,
+        String pickupRequestMessage
 ) {
     private static final String BUYER_ROLE = "BUYER";
 

@@ -66,6 +66,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
 
         changeOrderStatus(command, order);
+        applyPickupAddressIfRefundRequested(command, order);
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(OrderCommandToStateMapper.mapToState(command));
         updateOrderPort.update(order, orderStatusHistory);
 
@@ -112,6 +113,21 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
 
         order.changeAllProductsStatus(status, now);
+    }
+
+    private void applyPickupAddressIfRefundRequested(ChangeOrderStatusCommand command, Order order) {
+        if (!command.orderStatus().isRefundRequested()) {
+            return;
+        }
+
+        order.applyPickupAddress(
+                command.pickupRecipientName(),
+                command.pickupRecipientPhoneNumber(),
+                command.pickupZipCode(),
+                command.pickupAddress(),
+                command.pickupAddressDetail(),
+                command.pickupRequestMessage()
+        );
     }
 
     private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {

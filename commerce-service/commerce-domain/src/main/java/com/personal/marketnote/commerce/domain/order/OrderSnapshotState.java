@@ -31,6 +31,12 @@ public class OrderSnapshotState {
     private final String address;
     private final String addressDetail;
     private final String requestMessage;
+    private final String pickupRecipientName;
+    private final String pickupRecipientPhoneNumber;
+    private final String pickupZipCode;
+    private final String pickupAddress;
+    private final String pickupAddressDetail;
+    private final String pickupRequestMessage;
     private final List<OrderProductSnapshotState> orderProductStates;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;

@@ -80,6 +80,24 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "delivery_request_message", length = 100)
     private String requestMessage;
 
+    @Column(name = "pickup_recipient_name", length = 50)
+    private String pickupRecipientName;
+
+    @Column(name = "pickup_recipient_phone_number", length = 20)
+    private String pickupRecipientPhoneNumber;
+
+    @Column(name = "pickup_zip_code", length = 10)
+    private String pickupZipCode;
+
+    @Column(name = "pickup_address", length = 255)
+    private String pickupAddress;
+
+    @Column(name = "pickup_address_detail", length = 255)
+    private String pickupAddressDetail;
+
+    @Column(name = "pickup_request_message", length = 60)
+    private String pickupRequestMessage;
+
     @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     @Builder.Default
     private List<OrderProductJpaEntity> orderProductJpaEntities = new ArrayList<>();
@@ -101,6 +119,12 @@ public class OrderJpaEntity extends BaseEntity {
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
                 .requestMessage(order.getRequestMessage())
+                .pickupRecipientName(order.getPickupRecipientName())
+                .pickupRecipientPhoneNumber(order.getPickupRecipientPhoneNumber())
+                .pickupZipCode(order.getPickupZipCode())
+                .pickupAddress(order.getPickupAddress())
+                .pickupAddressDetail(order.getPickupAddressDetail())
+                .pickupRequestMessage(order.getPickupRequestMessage())
                 .build();
     }
 
@@ -115,6 +139,12 @@ public class OrderJpaEntity extends BaseEntity {
         couponAmount = order.getCouponAmount();
         pointAmount = order.getPointAmount();
         shippingFee = order.getShippingFee();
+        pickupRecipientName = order.getPickupRecipientName();
+        pickupRecipientPhoneNumber = order.getPickupRecipientPhoneNumber();
+        pickupZipCode = order.getPickupZipCode();
+        pickupAddress = order.getPickupAddress();
+        pickupAddressDetail = order.getPickupAddressDetail();
+        pickupRequestMessage = order.getPickupRequestMessage();
 
         Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()
                 .stream()

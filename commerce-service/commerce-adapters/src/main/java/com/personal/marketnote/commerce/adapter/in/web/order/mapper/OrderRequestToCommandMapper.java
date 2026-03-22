@@ -50,6 +50,12 @@ public class OrderRequestToCommandMapper {
                 .reason(request.getReason())
                 .role(role)
                 .buyerId(buyerId)
+                .pickupRecipientName(request.getPickupRecipientName())
+                .pickupRecipientPhoneNumber(request.getPickupRecipientPhoneNumber())
+                .pickupZipCode(request.getPickupZipCode())
+                .pickupAddress(request.getPickupAddress())
+                .pickupAddressDetail(request.getPickupAddressDetail())
+                .pickupRequestMessage(request.getPickupRequestMessage())
                 .build();
     }
 }
