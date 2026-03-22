@@ -1,6 +1,8 @@
 package com.personal.marketnote.community.domain.post;
 
 import com.personal.marketnote.common.utility.FormatConverter;
+import com.personal.marketnote.community.domain.post.exception.InvalidPostCategoryException;
+import com.personal.marketnote.community.domain.post.exception.InvalidPostCategoryForBoardException;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -25,31 +27,31 @@ public enum Board {
             return Arrays.stream(NoticePostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("게시판에 맞지 않는 카테고리입니다. 카테고리명: " + categoryCode));
+                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
         }
 
         if (this == FAQ) {
             return Arrays.stream(FaqPostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("게시판에 맞지 않는 카테고리입니다. 카테고리명: " + categoryCode));
+                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
         }
 
         if (this == PRODUCT_INQUERY) {
             return Arrays.stream(ProductInqueryPostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("게시판에 맞지 않는 카테고리입니다. 카테고리명: " + categoryCode));
+                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
         }
 
         if (this == ONE_ON_ONE_INQUERY) {
             return Arrays.stream(OneOnOneInqueryPostCategory.values())
                     .filter(category -> category.isMe(categoryCode))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("게시판에 맞지 않는 카테고리입니다. 카테고리명: " + categoryCode));
+                    .orElseThrow(() -> new InvalidPostCategoryForBoardException(categoryCode));
         }
 
-        throw new IllegalArgumentException("유효하지 않은 카테고리명입니다. 카테고리명: " + categoryCode);
+        throw new InvalidPostCategoryException(categoryCode);
     }
 
     public boolean isAdminRequired() {

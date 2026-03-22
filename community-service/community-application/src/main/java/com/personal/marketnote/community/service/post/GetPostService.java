@@ -5,6 +5,7 @@ import com.personal.marketnote.common.application.file.port.in.result.GetFileRes
 import com.personal.marketnote.common.utility.AuthorityValidator;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.post.*;
+import com.personal.marketnote.community.exception.PostBoardMismatchException;
 import com.personal.marketnote.community.exception.PostNotFoundException;
 import com.personal.marketnote.community.port.in.command.post.GetPostQuery;
 import com.personal.marketnote.community.port.in.command.post.GetPostsQuery;
@@ -250,7 +251,7 @@ public class GetPostService implements GetPostUseCase {
 
     private void validateQueryMatchesPost(GetPostQuery query, Post post) {
         if (!Objects.equals(query.board(), post.getBoard())) {
-            throw new IllegalArgumentException("요청한 게시판과 실제 게시판이 일치하지 않습니다.");
+            throw new PostBoardMismatchException();
         }
     }
 
