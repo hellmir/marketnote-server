@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderAmount;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
@@ -47,10 +48,7 @@ class GetAdminOrdersUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD" + id)
                 .orderStatus(status)
-                .totalAmount(100000L)
-                .paidAmount(95000L)
-                .couponAmount(3000L)
-                .pointAmount(2000L)
+                .amount(OrderAmount.of(100000L, 95000L, 3000L, 2000L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
@@ -277,10 +275,7 @@ class GetAdminOrdersUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD1")
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .paidAmount(95000L)
-                .couponAmount(3000L)
-                .pointAmount(2000L)
+                .amount(OrderAmount.of(100000L, 95000L, 3000L, 2000L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))

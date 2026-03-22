@@ -109,11 +109,11 @@ public class OrderJpaEntity extends BaseEntity {
                 .orderKey(order.getOrderKey())
                 .orderNumber(order.getOrderNumber())
                 .orderStatus(order.getOrderStatus())
-                .totalAmount(order.getTotalAmount())
-                .paidAmount(order.getPaidAmount())
-                .couponAmount(order.getCouponAmount())
-                .pointAmount(order.getPointAmount())
-                .shippingFee(order.getShippingFee())
+                .totalAmount(order.getAmount().getTotalAmount())
+                .paidAmount(order.getAmount().getPaidAmount())
+                .couponAmount(order.getAmount().getCouponAmount())
+                .pointAmount(order.getAmount().getPointAmount())
+                .shippingFee(order.getAmount().getShippingFee())
                 .recipientName(order.getShippingAddress().getRecipientName())
                 .recipientPhoneNumber(order.getShippingAddress().getRecipientPhoneNumber())
                 .zipCode(order.getShippingAddress().getZipCode())
@@ -135,11 +135,11 @@ public class OrderJpaEntity extends BaseEntity {
 
     public void updateFrom(Order order) {
         orderStatus = order.getOrderStatus();
-        totalAmount = order.getTotalAmount();
-        paidAmount = order.getPaidAmount();
-        couponAmount = order.getCouponAmount();
-        pointAmount = order.getPointAmount();
-        shippingFee = order.getShippingFee();
+        totalAmount = order.getAmount().getTotalAmount();
+        paidAmount = order.getAmount().getPaidAmount();
+        couponAmount = order.getAmount().getCouponAmount();
+        pointAmount = order.getAmount().getPointAmount();
+        shippingFee = order.getAmount().getShippingFee();
         pickupRecipientName = resolvePickupField(order, ShippingAddress::getRecipientName);
         pickupRecipientPhoneNumber = resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber);
         pickupZipCode = resolvePickupField(order, ShippingAddress::getZipCode);

@@ -221,7 +221,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getTotalAmount()).isEqualTo(totalAmount);
+            assertThat(result.getAmount().getTotalAmount()).isEqualTo(totalAmount);
         }
 
         @Test
@@ -235,7 +235,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getPaidAmount()).isEqualTo(paidAmount);
+            assertThat(result.getAmount().getPaidAmount()).isEqualTo(paidAmount);
         }
 
         @Test
@@ -249,7 +249,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getCouponAmount()).isEqualTo(couponAmount);
+            assertThat(result.getAmount().getCouponAmount()).isEqualTo(couponAmount);
         }
 
         @Test
@@ -263,7 +263,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getPointAmount()).isEqualTo(pointAmount);
+            assertThat(result.getAmount().getPointAmount()).isEqualTo(pointAmount);
         }
 
         @Test
@@ -653,7 +653,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getTotalAmount()).isEqualTo(0L);
+            assertThat(result.getAmount().getTotalAmount()).isEqualTo(0L);
         }
 
         @Test
@@ -666,7 +666,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getTotalAmount()).isNull();
+            assertThat(result.getAmount().getTotalAmount()).isNull();
         }
 
         @Test
@@ -680,7 +680,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getTotalAmount()).isEqualTo(largeTotalAmount);
+            assertThat(result.getAmount().getTotalAmount()).isEqualTo(largeTotalAmount);
         }
 
         @Test
@@ -739,9 +739,7 @@ class GetOrderUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -756,9 +754,7 @@ class GetOrderUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -773,9 +769,7 @@ class GetOrderUseCaseTest {
                 .orderKey(orderKey)
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -790,9 +784,7 @@ class GetOrderUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber(orderNumber)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -807,9 +799,7 @@ class GetOrderUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(status)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -826,9 +816,7 @@ class GetOrderUseCaseTest {
                 .orderStatus(OrderStatus.CANCELLED)
                 .statusChangeReasonCategory(reasonCategory)
                 .statusChangeReason(reason)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -843,10 +831,7 @@ class GetOrderUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(totalAmount)
-                .paidAmount(paidAmount)
-                .couponAmount(couponAmount)
-                .pointAmount(pointAmount)
+                .amount(OrderAmount.of(totalAmount, paidAmount, couponAmount, pointAmount, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -872,9 +857,7 @@ class GetOrderUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
@@ -889,9 +872,7 @@ class GetOrderUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(createdAt)

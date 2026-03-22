@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderAmount;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
@@ -251,9 +252,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
@@ -279,9 +278,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(OrderStatus.PAID)
-                .totalAmount(100000L)
-                .couponAmount(0L)
-                .pointAmount(0L)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())

@@ -138,8 +138,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
         Long orderId = order.getId();
         Long buyerId = order.getBuyerId();
-        Long pointAmount = order.getPointAmount();
-        Long totalAmount = order.getTotalAmount();
+        Long pointAmount = order.getAmount().getPointAmount();
+        Long totalAmount = order.getAmount().getTotalAmount();
         Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(order.getOrderProducts(), pricePolicyIds);
 
         // Outbox 이벤트 저장 (트랜잭션 내)
@@ -251,8 +251,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             publishOrderEventPort.publishOrderPaymentCompletedEvent(
                     order.getId(),
                     order.getBuyerId(),
-                    order.getTotalAmount(),
-                    order.getPointAmount(),
+                    order.getAmount().getTotalAmount(),
+                    order.getAmount().getPointAmount(),
                     order.getOrderProducts(),
                     totalAccumulatedPoint
             );
