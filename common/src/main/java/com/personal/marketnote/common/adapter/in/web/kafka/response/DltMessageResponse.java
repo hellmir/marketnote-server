@@ -11,11 +11,12 @@ public record DltMessageResponse(
         String originalTopic,
         String errorFqcn,
         String errorMessage,
-        long timestamp
+        long timestamp,
+        String resolution
 ) {
     private static final int MAX_ERROR_MESSAGE_LENGTH = 200;
 
-    public static DltMessageResponse from(ConsumerRecord<String, Object> record) {
+    public static DltMessageResponse from(ConsumerRecord<String, Object> record, String resolution) {
         String fqcn = DltHeaderExtractor.extractExceptionFqcn(record);
         String simpleName = fqcn.contains(".") ? fqcn.substring(fqcn.lastIndexOf('.') + 1) : fqcn;
         String message = DltHeaderExtractor.extractExceptionMessage(record);
@@ -31,7 +32,8 @@ public record DltMessageResponse(
                 DltHeaderExtractor.extractOriginalTopic(record),
                 simpleName,
                 truncatedMessage,
-                record.timestamp()
+                record.timestamp(),
+                resolution
         );
     }
 }

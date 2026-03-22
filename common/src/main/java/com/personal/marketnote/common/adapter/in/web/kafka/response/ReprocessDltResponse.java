@@ -7,14 +7,16 @@ public record ReprocessDltResponse(
         String originalTopic,
         String dltTopic,
         int reprocessedCount,
-        int failedCount
+        int failedCount,
+        int skippedCount
 ) {
     public static ReprocessDltResponse from(String originalTopic, DltReprocessResult result) {
         return new ReprocessDltResponse(
                 originalTopic,
                 originalTopic + KafkaTopicConstants.DLT_SUFFIX,
                 result.reprocessedCount(),
-                result.failedCount()
+                result.failedCount(),
+                result.skippedCount()
         );
     }
 }

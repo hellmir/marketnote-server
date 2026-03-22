@@ -15,10 +15,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -30,6 +27,7 @@ public class DltQueryService {
     private static final int MAX_POLL_ITERATIONS = 50;
 
     private final ConsumerFactory<String, Object> consumerFactory;
+    private final DltMessageResolutionJpaRepository resolutionRepository;
 
     public List<DltMessageResponse> queryDltMessages(String originalTopic, int limit) {
         if (!DltTopicRegistry.isAllowed(originalTopic)) {
@@ -38,6 +36,7 @@ public class DltQueryService {
 
         String dltTopic = DltTopicRegistry.toDltTopic(originalTopic);
         String groupId = "dlt-query-" + UUID.randomUUID();
+        Map<String, String> resolutionMap = buildResolutionMap(originalTopic);
 
         try (Consumer<String, Object> consumer = consumerFactory.createConsumer(groupId, "")) {
             List<PartitionInfo> partitionInfos = consumer.partitionsFor(dltTopic);
@@ -61,7 +60,8 @@ public class DltQueryService {
                     if (messages.size() >= limit) {
                         break;
                     }
-                    messages.add(DltMessageResponse.from(record));
+                    String resolution = resolveStatus(resolutionMap, record.partition(), record.offset());
+                    messages.add(DltMessageResponse.from(record, resolution));
                 }
                 pollIteration++;
                 if (messages.size() >= limit) {
@@ -88,6 +88,20 @@ public class DltQueryService {
 
             return summaries;
         }
+    }
+
+    private Map<String, String> buildResolutionMap(String originalTopic) {
+        List<DltMessageResolutionJpaEntity> resolutions = resolutionRepository.findByOriginalTopic(originalTopic);
+        Map<String, String> map = new HashMap<>();
+        for (DltMessageResolutionJpaEntity entity : resolutions) {
+            map.put(entity.toResolutionKey(), entity.getResolution().name());
+        }
+        return map;
+    }
+
+    private String resolveStatus(Map<String, String> resolutionMap, int partition, long offset) {
+        String key = partition + ":" + offset;
+        return resolutionMap.getOrDefault(key, DltResolutionStatus.UNRESOLVED);
     }
 
     private long calculateMessageCount(Consumer<String, Object> consumer, String dltTopic) {
