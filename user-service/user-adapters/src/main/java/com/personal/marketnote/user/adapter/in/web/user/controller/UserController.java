@@ -5,6 +5,7 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RegularExpressionConstant;
+import com.personal.marketnote.user.adapter.exception.HashAlgorithmNotAvailableException;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.*;
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
@@ -255,7 +256,7 @@ public class UserController {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 algorithm not available", e);
+            throw new HashAlgorithmNotAvailableException(e);
         }
     }
 

@@ -3,6 +3,9 @@ package com.personal.marketnote.user.utility.jwt;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.utility.jwt.claims.TokenClaims;
+import com.personal.marketnote.user.utility.jwt.exception.InvalidJwtGenerationParametersException;
+import com.personal.marketnote.user.utility.jwt.exception.InvalidJwtTokenTypeException;
+import com.personal.marketnote.user.utility.jwt.exception.InvalidOAuth2VendorException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.jackson.io.JacksonDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -111,14 +114,13 @@ public class JwtUtil {
             return apple.toUpperCase();
         }
 
-        throw new IllegalArgumentException("존재하지 않는 OAuth2 공급 업체입니다. issuer: " + iss);
+        throw new InvalidOAuth2VendorException(iss);
     }
 
     private JwtTokenType extractTokenType(Claims claims, JwtTokenType expectedTokenType) {
         JwtTokenType fromClaim = JwtTokenType.from(claims.get(TOKEN_TYPE_CLAIM_KEY, String.class));
         if (expectedTokenType != fromClaim) {
-            throw new IllegalArgumentException(
-                    String.format("Expected parsing %s, but just attempted to parse %s", expectedTokenType, fromClaim));
+            throw new InvalidJwtTokenTypeException(expectedTokenType, fromClaim);
         }
 
         return fromClaim;
@@ -145,7 +147,7 @@ public class JwtUtil {
         }
 
         if (!messages.isEmpty()) {
-            throw new IllegalArgumentException(String.join("\n", messages.toArray(new String[0])));
+            throw new InvalidJwtGenerationParametersException(String.join("\n", messages.toArray(new String[0])));
         }
     }
 
