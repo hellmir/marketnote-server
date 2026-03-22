@@ -2,6 +2,7 @@ package com.personal.marketnote.community.adapter.out.web.commerce;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationSenderType;
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationTargetType;
@@ -38,10 +39,8 @@ public class CommerceServiceClient implements UpdateOrderProductReviewStatusPort
     @Value("${commerce-service.base-url}")
     private String commerceServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -56,7 +55,7 @@ public class CommerceServiceClient implements UpdateOrderProductReviewStatusPort
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", uri.getPath());
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         String targetId = orderId + ":" + pricePolicyId;

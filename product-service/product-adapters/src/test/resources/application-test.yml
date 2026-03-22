@@ -16,6 +16,8 @@ spring:
     redis:
       host: localhost
       port: 6379
+  hmac:
+    secret-key: test-hmac-secret-key
   sql:
     init:
       mode: never

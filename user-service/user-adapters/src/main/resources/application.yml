@@ -52,6 +52,9 @@ spring:
     refresh-token:
       ttl: ${REFRESH_TOKEN_EXPIRATION_TIME:1209600000}
 
+  hmac:
+    secret-key: ${HMAC_SECRET_KEY:dev-hmac-secret-change-me}
+
   mail:
     host: ${SES_SMTP_HOST:email-smtp.${SES_REGION:ap-northeast-2}.amazonaws.com}
     port: ${SES_SMTP_PORT:587}

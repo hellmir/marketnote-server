@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.adapter.out.web.commerce;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.CommerceServiceRequestFailedException;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.out.web.commerce.request.SyncFulfillmentVendorInventoryRequest;
 import com.personal.marketnote.fulfillment.domain.servicecommunication.FulfillmentServiceCommunicationSenderType;
@@ -44,10 +45,8 @@ public class CommerceServiceClient implements UpdateCommerceInventoryPort {
     @Value("${commerce-service.base-url}")
     private String commerceServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -56,12 +55,11 @@ public class CommerceServiceClient implements UpdateCommerceInventoryPort {
         if (FormatValidator.hasNoValue(command) || FormatValidator.hasNoValue(command.inventories())) {
             throw new IllegalArgumentException("Update commerce inventory command is required.");
         }
-        if (FormatValidator.hasNoValue(commerceServiceBaseUrl) || FormatValidator.hasNoValue(adminAccessToken)) {
+        if (FormatValidator.hasNoValue(commerceServiceBaseUrl)) {
             throw new CommerceServiceRequestFailedException(new IOException());
         }
 
         String baseUrl = Objects.requireNonNull(commerceServiceBaseUrl, "commerceServiceBaseUrl");
-        String accessToken = Objects.requireNonNull(adminAccessToken, "adminAccessToken");
 
         URI uri = UriComponentsBuilder
                 .fromUriString(baseUrl)
@@ -70,7 +68,7 @@ public class CommerceServiceClient implements UpdateCommerceInventoryPort {
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
 
         SyncFulfillmentVendorInventoryRequest request = SyncFulfillmentVendorInventoryRequest.from(command);
         HttpEntity<SyncFulfillmentVendorInventoryRequest> httpEntity = new HttpEntity<>(request, headers);

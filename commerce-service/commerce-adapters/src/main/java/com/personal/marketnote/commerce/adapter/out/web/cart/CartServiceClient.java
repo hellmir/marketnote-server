@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProducts
 import com.personal.marketnote.commerce.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.commerce.utility.ServiceCommunicationRecorder;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +40,8 @@ public class CartServiceClient implements DeleteOrderedCartProductsPort {
     @Value("${product-service.base-url:http://localhost:8081}")
     private String cartServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -56,7 +55,7 @@ public class CartServiceClient implements DeleteOrderedCartProductsPort {
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "DELETE", uri.getPath());
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         sendRequest(uri, httpEntity, pricePolicyIds);

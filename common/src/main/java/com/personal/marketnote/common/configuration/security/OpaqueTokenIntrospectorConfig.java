@@ -1,6 +1,9 @@
 package com.personal.marketnote.common.configuration.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.security.hmac.HmacAuthenticationFilter;
+import com.personal.marketnote.common.security.hmac.HmacHeaderConstants;
+import com.personal.marketnote.common.security.hmac.HmacNonceValidator;
 import com.personal.marketnote.common.security.token.resolver.JsonBearerTokenResolver;
 import com.personal.marketnote.common.utility.http.client.resttemplate.RestTemplateErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +17,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,6 +26,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,6 +37,19 @@ import java.util.List;
 @EnableMethodSecurity
 @Profile({"qa.test", "prod"})
 public class OpaqueTokenIntrospectorConfig {
+    @Bean
+    public HmacNonceValidator hmacNonceValidator(StringRedisTemplate stringRedisTemplate) {
+        return new HmacNonceValidator(stringRedisTemplate);
+    }
+
+    @Bean
+    public HmacAuthenticationFilter hmacAuthenticationFilter(
+            @Value("${spring.hmac.secret-key}") String hmacSecretKey,
+            HmacNonceValidator hmacNonceValidator,
+            Clock clock) {
+        return new HmacAuthenticationFilter(hmacSecretKey, hmacNonceValidator, clock);
+    }
+
     @Bean
     public BearerTokenResolver bearerTokenResolver() {
         return new JsonBearerTokenResolver();
@@ -43,8 +63,10 @@ public class OpaqueTokenIntrospectorConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    BearerTokenResolver resolver,
-                                                   AuthenticationEntryPoint entryPoint) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+                                                   AuthenticationEntryPoint entryPoint,
+                                                   HmacAuthenticationFilter hmacAuthenticationFilter) throws Exception {
+        http.addFilterBefore(hmacAuthenticationFilter, BearerTokenAuthenticationFilter.class)
+                .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.deny())
@@ -95,7 +117,10 @@ public class OpaqueTokenIntrospectorConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of(
                 "Authorization", "Content-Type", "Accept",
-                "X-Requested-With", "X-HTTP-Method-Override"));
+                "X-Requested-With", "X-HTTP-Method-Override",
+                HmacHeaderConstants.HEADER_SIGNATURE,
+                HmacHeaderConstants.HEADER_TIMESTAMP,
+                HmacHeaderConstants.HEADER_NONCE));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

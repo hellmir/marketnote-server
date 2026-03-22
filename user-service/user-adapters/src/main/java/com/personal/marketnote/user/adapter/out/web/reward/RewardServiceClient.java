@@ -3,6 +3,7 @@ package com.personal.marketnote.user.adapter.out.web.reward;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.RewardServiceRequestFailedException;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationSenderType;
 import com.personal.marketnote.user.domain.servicecommunication.UserServiceCommunicationTargetType;
@@ -39,10 +40,8 @@ public class RewardServiceClient implements ModifyUserPointPort {
     @Value("${reward-service.base-url}")
     private String rewardServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -53,7 +52,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildRegisterUserPointUri(userId, userKey);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("POST", uri.getPath());
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
@@ -165,12 +164,13 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildUserPointUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders postHeaders = buildHeaders("POST", uri.getPath());
 
-        ensureUserPointExists(uri, headers, userId);
+        ensureUserPointExists(uri, postHeaders, userId);
 
+        HttpHeaders patchHeaders = buildHeaders("PATCH", uri.getPath());
         ModifyUserPointRequest request = ModifyUserPointRequest.from(userId, amount, reason);
-        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
+        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, patchHeaders);
 
         sendRequest(uri, httpEntity, userId, amount);
     }
@@ -328,9 +328,9 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 .toUri();
     }
 
-    private HttpHeaders buildHeaders() {
+    private HttpHeaders buildHeaders(String httpMethod, String requestPath) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, httpMethod, requestPath);
         headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;
     }

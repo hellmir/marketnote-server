@@ -5,6 +5,7 @@ import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.request.RegisterInventoryRequest;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.CommerceServiceRequestFailedException;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.response.GetInventoriesResponse;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationSenderType;
@@ -50,10 +51,8 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
     @Value("${commerce-service.base-url}")
     private String commerceServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -66,7 +65,7 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
         HttpEntity<RegisterInventoryRequest> httpEntity
                 = new HttpEntity<>(new RegisterInventoryRequest(productId, pricePolicyId), headers);
 
@@ -148,7 +147,7 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
 
         try {
             return sendRequest(uri, headers).inventories();

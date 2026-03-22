@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.common.domain.file.FileSort;
@@ -50,10 +51,8 @@ public class FileServiceClient implements FindProductImagesPort, DeleteProductIm
     @Value("${file-service.base-url:http://localhost:9000}")
     private String fileServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -69,7 +68,7 @@ public class FileServiceClient implements FindProductImagesPort, DeleteProductIm
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         return sendRequest(uri, httpEntity, productId, sort);
@@ -169,7 +168,7 @@ public class FileServiceClient implements FindProductImagesPort, DeleteProductIm
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "DELETE", uri.getPath());
         sendRequest(uri, new HttpEntity<>(headers), String.valueOf(fileId));
     }
 

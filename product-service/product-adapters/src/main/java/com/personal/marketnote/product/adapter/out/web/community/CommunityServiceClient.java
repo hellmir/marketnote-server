@@ -3,6 +3,7 @@ package com.personal.marketnote.product.adapter.out.web.community;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.response.GetProductReviewAggregatesResponse;
 import com.personal.marketnote.product.adapter.out.response.ProductReviewAggregateItemResponse;
@@ -47,10 +48,8 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
     @Value("${community-service.base-url}")
     private String communityServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -68,7 +67,7 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
 
         return sendRequest(uri, new HttpEntity<>(headers));
     }
