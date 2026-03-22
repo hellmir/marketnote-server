@@ -2,6 +2,7 @@ package com.personal.marketnote.community.service.board;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.community.domain.post.*;
+import com.personal.marketnote.community.exception.InvalidBoardException;
 import com.personal.marketnote.community.port.in.result.board.GetBoardCategoriesResult;
 import com.personal.marketnote.community.port.in.result.board.GetBoardsResult;
 import com.personal.marketnote.community.port.in.usecase.board.GetBoardUseCase;
@@ -32,7 +33,7 @@ public class GetBoardService implements GetBoardUseCase {
             return GetBoardCategoriesResult.from(OneOnOneInqueryPostCategory.values());
         }
 
-        throw new IllegalArgumentException("유효하지 않은 게시판입니다. 전송된 게시판: " + board);
+        throw new InvalidBoardException(board.name());
     }
 
     @Override

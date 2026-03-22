@@ -1,5 +1,6 @@
 package com.personal.marketnote.community.domain.review;
 
+import com.personal.marketnote.community.domain.review.exception.InvalidRatingPointException;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -81,7 +82,7 @@ public class ProductReviewAggregate {
             return;
         }
 
-        throw new IllegalArgumentException("평점은 1 이상 5 이하의 정수만 가능합니다. 전송된 평점: " + point);
+        throw new InvalidRatingPointException(point);
     }
 
     public void addPoint(int point) {
@@ -112,7 +113,7 @@ public class ProductReviewAggregate {
             return;
         }
 
-        throw new IllegalArgumentException("평점은 1 이상 5 이하의 정수만 가능합니다. 전송된 평점: " + point);
+        throw new InvalidRatingPointException(point);
     }
 
     public void computeRating(Float point) {

@@ -7,6 +7,7 @@ import com.personal.marketnote.community.domain.post.Board;
 import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.domain.post.PostSnapshotState;
 import com.personal.marketnote.community.domain.post.PostTargetType;
+import com.personal.marketnote.community.exception.PostBoardMismatchException;
 import com.personal.marketnote.community.exception.PostNotFoundException;
 import com.personal.marketnote.community.port.in.command.post.GetPostQuery;
 import com.personal.marketnote.community.port.in.result.post.PostItemResult;
@@ -86,15 +87,15 @@ class GetPostUseCaseTest {
     }
 
     @Test
-    @DisplayName("요청한 게시판과 게시글의 게시판이 일치하지 않으면 IllegalArgumentException이 발생한다")
-    void getPost_boardMismatch_throwsIllegalArgumentException() {
+    @DisplayName("요청한 게시판과 게시글의 게시판이 일치하지 않으면 PostBoardMismatchException이 발생한다")
+    void getPost_boardMismatch_throwsPostBoardMismatchException() {
         Long postId = 1L;
         Post post = buildOneOnOnePost(postId, 1L);
         mockFindByIdWithReplies(postId, post);
         GetPostQuery query = buildQuery(Board.NOTICE, null, 1L, postId);
 
         assertThatThrownBy(() -> getPostService.getPost(query))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(PostBoardMismatchException.class)
                 .hasMessageContaining("게시판");
     }
 
