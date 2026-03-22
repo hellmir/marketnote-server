@@ -3,6 +3,7 @@ package com.personal.marketnote.user.security.token.support;
 import com.personal.marketnote.common.domain.exception.token.InvalidAccessTokenException;
 import com.personal.marketnote.common.domain.exception.token.InvalidRefreshTokenException;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
+import com.personal.marketnote.user.exception.GoogleOAuth2ResponseParsingException;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2AuthenticationInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2UserInfo;
@@ -130,7 +131,7 @@ public class RestTemplateGoogleTokenProcessor implements TokenProcessor {
                     .name(jsonObject.getString("name"))
                     .build();
         } catch (JSONException e) {
-            throw new RuntimeException("구글 로그인 서비스에서 줘야 할 걸 안 줌:\n" + jsonObject, e);
+            throw new GoogleOAuth2ResponseParsingException(jsonObject.toString(), e);
         }
     }
 

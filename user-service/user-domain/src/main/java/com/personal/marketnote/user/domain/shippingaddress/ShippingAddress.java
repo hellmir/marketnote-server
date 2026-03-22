@@ -2,6 +2,10 @@ package com.personal.marketnote.user.domain.shippingaddress;
 
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.user.domain.shippingaddress.exception.DeliveryRequestMessageNoValueException;
+import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidDeliveryRequestMessageLengthException;
+import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidShippingAddressDeletionException;
+import com.personal.marketnote.user.domain.shippingaddress.exception.ShippingAddressCompanyNameNoValueException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -76,10 +80,10 @@ public class ShippingAddress extends BaseDomain {
 
     public void delete() {
         if (addressType == ShippingAddressType.HOME) {
-            throw new IllegalArgumentException("집 배송지는 삭제할 수 없습니다.");
+            throw new InvalidShippingAddressDeletionException("집 배송지는 삭제할 수 없습니다.");
         }
         if (isDefault) {
-            throw new IllegalArgumentException("기본 배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 설정한 후 삭제해주세요.");
+            throw new InvalidShippingAddressDeletionException("기본 배송지는 삭제할 수 없습니다. 다른 배송지를 기본으로 설정한 후 삭제해주세요.");
         }
         deactivate();
     }
@@ -107,7 +111,7 @@ public class ShippingAddress extends BaseDomain {
 
     private void validate() {
         if (addressType == ShippingAddressType.COMPANY && FormatValidator.hasNoValue(companyName)) {
-            throw new IllegalArgumentException("회사 배송지에는 회사명이 필수입니다.");
+            throw new ShippingAddressCompanyNameNoValueException();
         }
 
         if (FormatValidator.hasNoValue(deliveryRequestType) || !deliveryRequestType.isCustom()) {
@@ -116,11 +120,11 @@ public class ShippingAddress extends BaseDomain {
         }
 
         if (FormatValidator.hasNoValue(deliveryRequestMessage)) {
-            throw new IllegalArgumentException("직접입력 선택 시 배송 요청사항 메시지는 필수입니다.");
+            throw new DeliveryRequestMessageNoValueException();
         }
 
         if (deliveryRequestMessage.length() > 60) {
-            throw new IllegalArgumentException("배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다.");
+            throw new InvalidDeliveryRequestMessageLengthException();
         }
     }
 }

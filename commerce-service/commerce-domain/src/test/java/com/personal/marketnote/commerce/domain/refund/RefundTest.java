@@ -72,7 +72,7 @@ class RefundTest {
     class CreateValidationFailureTest {
 
         @Test
-        @DisplayName("결제 ID가 null이면 IllegalArgumentException이 발생한다")
+        @DisplayName("결제 ID가 null이면 RefundPaymentIdNoValueException이 발생한다")
         void shouldThrowWhenPaymentIdIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
@@ -84,12 +84,12 @@ class RefundTest {
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(RefundPaymentIdNoValueException.class)
                     .hasMessageContaining("결제 ID");
         }
 
         @Test
-        @DisplayName("주문 ID가 null이면 IllegalArgumentException이 발생한다")
+        @DisplayName("주문 ID가 null이면 RefundOrderIdNoValueException이 발생한다")
         void shouldThrowWhenOrderIdIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
@@ -101,12 +101,12 @@ class RefundTest {
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(RefundOrderIdNoValueException.class)
                     .hasMessageContaining("주문 ID");
         }
 
         @Test
-        @DisplayName("환불 유형이 null이면 IllegalArgumentException이 발생한다")
+        @DisplayName("환불 유형이 null이면 RefundTypeNoValueException이 발생한다")
         void shouldThrowWhenRefundTypeIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
@@ -118,12 +118,12 @@ class RefundTest {
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(RefundTypeNoValueException.class)
                     .hasMessageContaining("환불 유형");
         }
 
         @Test
-        @DisplayName("환불 금액이 null이면 IllegalArgumentException이 발생한다")
+        @DisplayName("환불 금액이 null이면 InvalidRefundAmountException이 발생한다")
         void shouldThrowWhenRefundAmountIsNull() {
             // given
             RefundCreateState state = RefundCreateState.builder()
@@ -135,12 +135,12 @@ class RefundTest {
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidRefundAmountException.class)
                     .hasMessageContaining("환불 금액");
         }
 
         @Test
-        @DisplayName("환불 금액이 0이면 IllegalArgumentException이 발생한다")
+        @DisplayName("환불 금액이 0이면 InvalidRefundAmountException이 발생한다")
         void shouldThrowWhenRefundAmountIsZero() {
             // given
             RefundCreateState state = RefundCreateState.builder()
@@ -152,12 +152,12 @@ class RefundTest {
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidRefundAmountException.class)
                     .hasMessageContaining("환불 금액");
         }
 
         @Test
-        @DisplayName("환불 금액이 음수이면 IllegalArgumentException이 발생한다")
+        @DisplayName("환불 금액이 음수이면 InvalidRefundAmountException이 발생한다")
         void shouldThrowWhenRefundAmountIsNegative() {
             // given
             RefundCreateState state = RefundCreateState.builder()
@@ -169,7 +169,7 @@ class RefundTest {
 
             // when & then
             assertThatThrownBy(() -> Refund.from(state))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(InvalidRefundAmountException.class)
                     .hasMessageContaining("환불 금액");
         }
     }

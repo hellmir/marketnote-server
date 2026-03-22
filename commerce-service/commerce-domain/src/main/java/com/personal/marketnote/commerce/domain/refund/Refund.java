@@ -36,7 +36,10 @@ public class Refund {
      *
      * @param state 환불 생성 상태 객체
      * @return 새 환불 도메인 객체
-     * @throws IllegalArgumentException 환불 금액이 0 이하이거나, 환불 유형 또는 결제 ID가 null인 경우
+     * @throws RefundPaymentIdNoValueException 결제 ID가 null인 경우
+     * @throws RefundOrderIdNoValueException 주문 ID가 null인 경우
+     * @throws RefundTypeNoValueException 환불 유형이 null인 경우
+     * @throws InvalidRefundAmountException 환불 금액이 0 이하인 경우
      */
     public static Refund from(RefundCreateState state) {
         validate(state);
@@ -93,16 +96,16 @@ public class Refund {
 
     private static void validate(RefundCreateState state) {
         if (FormatValidator.hasNoValue(state.getPaymentId())) {
-            throw new IllegalArgumentException("결제 ID는 필수입니다");
+            throw new RefundPaymentIdNoValueException();
         }
         if (FormatValidator.hasNoValue(state.getOrderId())) {
-            throw new IllegalArgumentException("주문 ID는 필수입니다");
+            throw new RefundOrderIdNoValueException();
         }
         if (FormatValidator.hasNoValue(state.getRefundType())) {
-            throw new IllegalArgumentException("환불 유형은 필수입니다");
+            throw new RefundTypeNoValueException();
         }
         if (FormatValidator.hasNoValue(state.getRefundAmount()) || state.getRefundAmount() <= 0) {
-            throw new IllegalArgumentException("환불 금액은 0보다 커야 합니다");
+            throw new InvalidRefundAmountException();
         }
     }
 }

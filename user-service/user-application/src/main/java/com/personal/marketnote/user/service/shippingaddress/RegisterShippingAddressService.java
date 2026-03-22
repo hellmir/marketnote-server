@@ -12,6 +12,7 @@ import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShip
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
+import com.personal.marketnote.user.exception.TooManyOtherAddressesException;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,9 +93,7 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
             case OTHER -> {
                 long count = findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER);
                 if (count >= MAX_OTHER_ADDRESS_COUNT) {
-                    throw new IllegalArgumentException(
-                            String.format("%s:: 기타 배송지는 최대 %d개까지 등록할 수 있습니다.", SECOND_ERROR_CODE, MAX_OTHER_ADDRESS_COUNT)
-                    );
+                    throw new TooManyOtherAddressesException(SECOND_ERROR_CODE, MAX_OTHER_ADDRESS_COUNT);
                 }
             }
         }

@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.exception.InvalidOrderDateRangeException;
 import com.personal.marketnote.commerce.port.in.command.order.GetAdminOrdersQuery;
 import com.personal.marketnote.commerce.port.in.result.order.GetAdminOrdersResult;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -296,7 +297,7 @@ class GetAdminOrdersUseCaseTest {
     }
 
     @Test
-    @DisplayName("endDate가 startDate보다 이전이면 IllegalArgumentException이 발생한다")
+    @DisplayName("endDate가 startDate보다 이전이면 InvalidOrderDateRangeException이 발생한다")
     void shouldThrowWhenEndDateBeforeStartDate() {
         // given
         LocalDateTime startDate = LocalDateTime.of(2026, 2, 28, 0, 0);
@@ -304,7 +305,7 @@ class GetAdminOrdersUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> GetAdminOrdersQuery.of(null, startDate, endDate, null))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidOrderDateRangeException.class)
                 .hasMessageContaining("종료일은 시작일 이후여야 합니다");
     }
 

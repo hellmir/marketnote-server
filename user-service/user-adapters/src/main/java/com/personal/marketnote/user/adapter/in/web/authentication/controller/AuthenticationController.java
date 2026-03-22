@@ -3,6 +3,7 @@ package com.personal.marketnote.user.adapter.in.web.authentication.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.user.adapter.exception.HashAlgorithmNotAvailableException;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.Oauth2LoginApiDocs;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.RefreshAccessTokenApiDocs;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.SendEmailVerificationApiDocs;
@@ -159,7 +160,7 @@ public class AuthenticationController {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 algorithm not available", e);
+            throw new HashAlgorithmNotAvailableException(e);
         }
     }
 

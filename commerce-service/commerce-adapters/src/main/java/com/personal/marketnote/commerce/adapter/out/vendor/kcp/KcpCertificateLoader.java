@@ -1,5 +1,10 @@
 package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
 
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.InvalidKcpCertificatePathException;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCertificateLoadFailedException;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCertificatePathNotConfiguredException;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpPrivateKeyLoadFailedException;
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpPrivateKeyPathNotConfiguredException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
@@ -26,20 +31,20 @@ public class KcpCertificateLoader {
     public String loadCertInfo() {
         String certInfoPath = kcpProperties.getCertInfoPath();
         if (FormatValidator.hasNoValue(certInfoPath)) {
-            throw new IllegalStateException("KCP 인증서 경로(kcp.cert-info-path)가 설정되지 않았습니다");
+            throw new KcpCertificatePathNotConfiguredException();
         }
 
         try {
             return readContent(certInfoPath);
         } catch (IOException e) {
-            throw new IllegalStateException("KCP 인증서 파일 로드 실패: " + certInfoPath, e);
+            throw new KcpCertificateLoadFailedException(certInfoPath, e);
         }
     }
 
     public PrivateKey loadPrivateKey() {
         String privateKeyPath = kcpProperties.getPrivateKeyPath();
         if (FormatValidator.hasNoValue(privateKeyPath)) {
-            throw new IllegalStateException("KCP 개인키 경로(kcp.private-key-path)가 설정되지 않았습니다");
+            throw new KcpPrivateKeyPathNotConfiguredException();
         }
 
         try {
@@ -54,13 +59,13 @@ public class KcpCertificateLoader {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(keySpec);
         } catch (Exception e) {
-            throw new IllegalStateException("KCP 개인키 파일 로드 실패: " + privateKeyPath, e);
+            throw new KcpPrivateKeyLoadFailedException(privateKeyPath, e);
         }
     }
 
     private String readContent(String path) throws IOException {
         if (path.contains("..")) {
-            throw new IllegalStateException("잘못된 인증서 경로입니다: " + path);
+            throw new InvalidKcpCertificatePathException(path);
         }
 
         if (path.startsWith(CLASSPATH_PREFIX)) {
