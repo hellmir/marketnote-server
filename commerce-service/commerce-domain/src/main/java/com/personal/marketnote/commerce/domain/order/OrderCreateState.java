@@ -13,10 +13,7 @@ import java.util.List;
 public class OrderCreateState {
     private final Long buyerId;
     private final Long sharerId;
-    private final Long totalAmount;
-    private final Long couponAmount;
-    private final Long pointAmount;
-    private final Long shippingFee;
+    private final OrderAmount amount;
     private final ShippingAddress shippingAddress;
     private final List<OrderProductCreateState> orderProductStates;
 }

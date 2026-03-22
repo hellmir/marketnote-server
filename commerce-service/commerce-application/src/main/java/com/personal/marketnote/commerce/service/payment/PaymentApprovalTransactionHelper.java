@@ -155,20 +155,20 @@ public class PaymentApprovalTransactionHelper {
     }
 
     private void verifyPaymentAmount(Order order, Payment payment) {
-        Long couponAmount = FormatValidator.hasValue(order.getCouponAmount())
-                ? order.getCouponAmount()
+        Long couponAmount = FormatValidator.hasValue(order.getAmount().getCouponAmount())
+                ? order.getAmount().getCouponAmount()
                 : 0L;
-        Long pointAmount = FormatValidator.hasValue(order.getPointAmount())
-                ? order.getPointAmount()
+        Long pointAmount = FormatValidator.hasValue(order.getAmount().getPointAmount())
+                ? order.getAmount().getPointAmount()
                 : 0L;
         Long expectedAmount = Math.subtractExact(
-                Math.subtractExact(order.getTotalAmount(), couponAmount),
+                Math.subtractExact(order.getAmount().getTotalAmount(), couponAmount),
                 pointAmount
         );
 
         if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount())) {
             log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
-                    order.getId(), order.getTotalAmount(), couponAmount, pointAmount,
+                    order.getId(), order.getAmount().getTotalAmount(), couponAmount, pointAmount,
                     expectedAmount, payment.getPaymentAmount());
             throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount());
         }

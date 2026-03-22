@@ -139,7 +139,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         // Outbox 이벤트 저장 (트랜잭션 내)
         publishPaymentCancelledEvent(
                 order.getId(), command.orderKey(), order.getBuyerId(), cancelAmount,
-                payment.getPaymentAmount(), order.getPointAmount(), isFullCancel, alreadyRefunded,
+                payment.getPaymentAmount(), order.getAmount().getPointAmount(), isFullCancel, alreadyRefunded,
                 cancelId, order.getOrderProducts(), cancelTargetProducts,
                 partialProductPendingDeduction);
     }
@@ -466,7 +466,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private void refundPoints(Order order) {
-        Long pointAmount = order.getPointAmount();
+        Long pointAmount = order.getAmount().getPointAmount();
         if (FormatValidator.hasNoValue(pointAmount) || pointAmount <= 0) {
             return;
         }

@@ -26,11 +26,7 @@ public class OrderJpaEntityToDomainMapper {
                                     .orderKey(entity.getOrderKey())
                                     .orderNumber(entity.getOrderNumber())
                                     .orderStatus(entity.getOrderStatus())
-                                    .totalAmount(entity.getTotalAmount())
-                                    .paidAmount(entity.getPaidAmount())
-                                    .couponAmount(entity.getCouponAmount())
-                                    .pointAmount(entity.getPointAmount())
-                                    .shippingFee(entity.getShippingFee())
+                                    .amount(mapToOrderAmount(entity))
                                     .shippingAddress(mapToShippingAddress(entity))
                                     .pickupAddress(mapToPickupAddress(entity))
                                     .orderProductStates(productStates)
@@ -61,11 +57,7 @@ public class OrderJpaEntityToDomainMapper {
                                     .orderStatus(entity.getOrderStatus())
                                     .statusChangeReasonCategory(orderStatusInfo.getReasonCategory())
                                     .statusChangeReason(orderStatusInfo.getReason())
-                                    .totalAmount(entity.getTotalAmount())
-                                    .paidAmount(entity.getPaidAmount())
-                                    .couponAmount(entity.getCouponAmount())
-                                    .pointAmount(entity.getPointAmount())
-                                    .shippingFee(entity.getShippingFee())
+                                    .amount(mapToOrderAmount(entity))
                                     .shippingAddress(mapToShippingAddress(entity))
                                     .pickupAddress(mapToPickupAddress(entity))
                                     .orderProductStates(productStates)
@@ -106,6 +98,16 @@ public class OrderJpaEntityToDomainMapper {
                         .reason(entity.getReason())
                         .createdAt(entity.getCreatedAt())
                         .build()
+        );
+    }
+
+    private static OrderAmount mapToOrderAmount(OrderJpaEntity entity) {
+        return OrderAmount.of(
+                entity.getTotalAmount(),
+                entity.getPaidAmount(),
+                entity.getCouponAmount(),
+                entity.getPointAmount(),
+                entity.getShippingFee()
         );
     }
 

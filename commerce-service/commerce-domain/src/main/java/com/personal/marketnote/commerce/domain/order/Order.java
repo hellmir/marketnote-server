@@ -20,11 +20,7 @@ public class Order {
     private OrderStatus orderStatus;
     private OrderStatusReasonCategory statusChangeReasonCategory;
     private String statusChangeReason;
-    private Long totalAmount;
-    private Long paidAmount;
-    private Long couponAmount;
-    private Long pointAmount;
-    private Long shippingFee;
+    private OrderAmount amount;
     private ShippingAddress shippingAddress;
     private ShippingAddress pickupAddress;
     private List<OrderProduct> orderProducts;
@@ -43,10 +39,7 @@ public class Order {
                 .orderKey(RandomCodeGenerator.generateOrderKey())
                 .orderNumber(RandomCodeGenerator.generateOrderNumber())
                 .orderStatus(OrderStatus.PAYMENT_PENDING)
-                .totalAmount(state.getTotalAmount())
-                .couponAmount(state.getCouponAmount())
-                .pointAmount(state.getPointAmount())
-                .shippingFee(state.getShippingFee())
+                .amount(state.getAmount())
                 .shippingAddress(state.getShippingAddress())
                 .orderProducts(orderProducts)
                 .build();
@@ -67,11 +60,7 @@ public class Order {
                 .orderStatus(state.getOrderStatus())
                 .statusChangeReasonCategory(state.getStatusChangeReasonCategory())
                 .statusChangeReason(state.getStatusChangeReason())
-                .totalAmount(state.getTotalAmount())
-                .paidAmount(state.getPaidAmount())
-                .couponAmount(state.getCouponAmount())
-                .pointAmount(state.getPointAmount())
-                .shippingFee(state.getShippingFee())
+                .amount(state.getAmount())
                 .shippingAddress(state.getShippingAddress())
                 .pickupAddress(state.getPickupAddress())
                 .orderProducts(orderProducts)
