@@ -70,4 +70,21 @@ public interface UserPointHistoryJpaRepository extends JpaRepository<UserPointHi
             @Param("sourceType") UserPointSourceType sourceType,
             @Param("sourceId") Long sourceId
     );
+
+    long countByUserIdAndSourceTypeAndReason(
+            Long userId, UserPointSourceType sourceType, String reason
+    );
+
+    @Query("""
+            SELECT COALESCE(SUM(h.amount), 0) FROM UserPointHistoryJpaEntity h
+            WHERE h.userId = :userId
+              AND h.sourceType = :sourceType
+              AND (h.reason = :basicReason OR h.reason LIKE :bonusReasonPattern)
+            """)
+    long sumReferralEarnedAmount(
+            @Param("userId") Long userId,
+            @Param("sourceType") UserPointSourceType sourceType,
+            @Param("basicReason") String basicReason,
+            @Param("bonusReasonPattern") String bonusReasonPattern
+    );
 }
