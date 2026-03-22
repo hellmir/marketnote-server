@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.web.fulfillment.request.RegisterFasstoGoodsItemRequest;
 import com.personal.marketnote.product.adapter.out.web.fulfillment.request.UpdateFasstoGoodsItemRequest;
@@ -52,10 +53,8 @@ public class FulfillmentServiceClient implements
     @Value("${fulfillment-service.fassto.customer-code}")
     private String fulfillmentVendorCustomerCode;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -73,7 +72,7 @@ public class FulfillmentServiceClient implements
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
         headers.add("accessToken", fulfillmentVendorAccessToken);
 
         List<RegisterFasstoGoodsItemRequest> payload = List.of(RegisterFasstoGoodsItemRequest.from(command));
@@ -99,7 +98,7 @@ public class FulfillmentServiceClient implements
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
         headers.add("accessToken", fulfillmentVendorAccessToken);
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
@@ -125,7 +124,7 @@ public class FulfillmentServiceClient implements
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
         headers.add("accessToken", fulfillmentVendorAccessToken);
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
@@ -151,7 +150,7 @@ public class FulfillmentServiceClient implements
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PUT", uri.getPath());
         headers.add("accessToken", fulfillmentVendorAccessToken);
 
         List<UpdateFasstoGoodsItemRequest> payload = List.of(UpdateFasstoGoodsItemRequest.from(command));
@@ -168,7 +167,7 @@ public class FulfillmentServiceClient implements
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
         HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;

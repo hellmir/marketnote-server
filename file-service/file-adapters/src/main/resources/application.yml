@@ -13,6 +13,9 @@ spring:
     secret: ${JWT_SECRET_KEY:dev-secret-change-me}
     admin-access-token: ${JWT_ADMIN_ACCESS_TOKEN:abc}
 
+  hmac:
+    secret-key: ${HMAC_SECRET_KEY:dev-hmac-secret-change-me}
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5432/marketnote_file}

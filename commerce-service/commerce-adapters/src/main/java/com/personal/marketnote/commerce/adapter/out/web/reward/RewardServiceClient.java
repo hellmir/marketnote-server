@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.RewardServiceRequestFailedException;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,18 +40,16 @@ public class RewardServiceClient implements ModifyUserPointPort {
     @Value("${reward-service.base-url}")
     private String rewardServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     @Value("${reward-service.share-point-rate}")
     private float sharePointRate;
 
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
 
     @Override
     public Long getAvailablePoints(Long userId) {
         URI uri = buildUserPointUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("GET", uri.getPath());
 
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception lastError = null;
@@ -90,7 +89,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildUserPointUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
 
         ModifyUserPointRequest request = ModifyUserPointRequest.deduction(amount, orderId);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
@@ -105,7 +104,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildUserPointUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
 
         ModifyUserPointRequest request = ModifyUserPointRequest.refund(amount, orderId);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
@@ -120,7 +119,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
 
         ModifyUserPointRequest request = ModifyUserPointRequest.pendingAccrual(amount, orderId, PRODUCT_ACCUMULATION_REASON);
         HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
@@ -135,7 +134,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointConfirmUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("POST", uri.getPath());
 
         ConfirmPendingPointRequest request = new ConfirmPendingPointRequest(
                 SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CONFIRM_REASON
@@ -152,7 +151,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointCancelUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("POST", uri.getPath());
 
         CancelPendingPointRequest request = new CancelPendingPointRequest(
                 SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CANCEL_REASON
@@ -169,7 +168,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(userId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
 
         ModifyUserPointRequest request = ModifyUserPointRequest.pendingDeduction(
                 amount, orderId, PARTIAL_CANCEL_PRODUCT_ACCUMULATION_REASON
@@ -206,7 +205,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
     private void reduceSharerPartialPendingPoint(Long sharerId, Long amount, Long orderId) {
         URI uri = buildPendingPointUri(sharerId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
 
         ModifyUserPointRequest request = ModifyUserPointRequest.pendingDeduction(
                 amount, orderId, PARTIAL_CANCEL_SHARED_PURCHASE_REASON
@@ -230,7 +229,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
     private void revokeSharerPendingPoint(Long sharerId, Long orderId) {
         URI uri = buildPendingPointCancelUri(sharerId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("POST", uri.getPath());
 
         CancelPendingPointRequest request = new CancelPendingPointRequest(
                 SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CANCEL_REASON
@@ -257,7 +256,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(sharerId);
-        HttpHeaders headers = buildHeaders();
+        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
 
         long sharePointAmount = Math.round(totalAmount * sharePointRate);
         ModifyUserPointRequest request = ModifyUserPointRequest.pendingAccrual(sharePointAmount, orderId, SHARE_PURCHASE_REASON);
@@ -298,9 +297,9 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 .toUri();
     }
 
-    private HttpHeaders buildHeaders() {
+    private HttpHeaders buildHeaders(String httpMethod, String requestPath) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, httpMethod, requestPath);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         return headers;

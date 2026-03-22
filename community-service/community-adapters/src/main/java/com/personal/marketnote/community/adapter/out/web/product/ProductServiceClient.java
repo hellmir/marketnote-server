@@ -3,6 +3,7 @@ package com.personal.marketnote.community.adapter.out.web.product;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.adapter.out.web.product.response.OrderedProductsResponse;
 import com.personal.marketnote.community.adapter.out.web.product.response.ProductsInfoResponse;
@@ -47,10 +48,8 @@ public class ProductServiceClient implements FindProductByPricePolicyPort {
     @Value("${product-service.base-url:http://localhost:8081}")
     private String productServiceBaseUrl;
 
-    @Value("${spring.jwt.admin-access-token}")
-    private String adminAccessToken;
-
     private final RestTemplate restTemplate;
+    private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
 
@@ -68,7 +67,7 @@ public class ProductServiceClient implements FindProductByPricePolicyPort {
                 .toUri();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminAccessToken);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
         return sendRequest(uri, request);

@@ -18,7 +18,8 @@ public class SecurityPropertiesValidator {
     private static final Logger log = LoggerFactory.getLogger(SecurityPropertiesValidator.class);
 
     private static final Set<String> WEAK_DEFAULTS = Set.of(
-            "dev-secret-change-me", "abc", "def", "ghi",
+            "dev-secret-change-me", "dev-hmac-secret-change-me",
+            "abc", "def", "ghi",
             "change-me", "password", "root", "secret", "test"
     );
 
@@ -33,6 +34,9 @@ public class SecurityPropertiesValidator {
 
     @Value("${spring.data.redis.password:#{null}}")
     private String redisPassword;
+
+    @Value("${spring.hmac.secret-key:}")
+    private String hmacSecretKey;
 
     @Value("${spring.kafka.sasl.enabled:false}")
     private boolean kafkaSaslEnabled;
@@ -50,6 +54,7 @@ public class SecurityPropertiesValidator {
         validateRequired(violations, "spring.jwt.secret (JWT_SECRET_KEY)", jwtSecret);
         validateRequired(violations, "spring.jwt.admin-access-token (JWT_ADMIN_ACCESS_TOKEN)", adminAccessToken);
         validateRequired(violations, "spring.datasource.password (DB_PASSWORD)", dbPassword);
+        validateRequired(violations, "spring.hmac.secret-key (HMAC_SECRET_KEY)", hmacSecretKey);
 
         if (kafkaSaslEnabled) {
             validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);
