@@ -12,6 +12,7 @@ import com.personal.marketnote.file.adapter.out.persistence.file.repository.Resi
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.ResizedFile;
 import com.personal.marketnote.file.exception.FileNotFoundException;
+import com.personal.marketnote.file.exception.InvalidFileS3UrlsSizeException;
 import com.personal.marketnote.file.port.out.file.FindFilePort;
 import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilePort;
@@ -35,7 +36,7 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
             return List.of();
         }
         if (FormatValidator.hasNoValue(s3Urls) || s3Urls.size() != files.size()) {
-            throw new IllegalArgumentException("s3Urls size must match fileDomains size");
+            throw new InvalidFileS3UrlsSizeException();
         }
 
         List<FileJpaEntity> toSave = new ArrayList<>(files.size());
@@ -118,5 +119,3 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
         }
     }
 }
-
-
