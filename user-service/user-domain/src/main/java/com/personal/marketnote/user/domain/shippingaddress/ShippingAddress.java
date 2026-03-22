@@ -110,10 +110,6 @@ public class ShippingAddress extends BaseDomain {
             throw new IllegalArgumentException("회사 배송지에는 회사명이 필수입니다.");
         }
 
-        if (addressType == ShippingAddressType.OTHER && FormatValidator.hasNoValue(addressAlias)) {
-            throw new IllegalArgumentException("기타 배송지에는 주소 별명이 필수입니다.");
-        }
-
         if (FormatValidator.hasNoValue(deliveryRequestType) || !deliveryRequestType.isCustom()) {
             this.deliveryRequestMessage = null;
             return;

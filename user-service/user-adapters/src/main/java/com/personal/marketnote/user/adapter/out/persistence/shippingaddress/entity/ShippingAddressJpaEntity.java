@@ -31,7 +31,7 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
     @Column(name = "company_name", length = 63)
     private String companyName;
 
-    @Column(name = "address_alias", length = 31)
+    @Column(name = "address_alias")
     private String addressAlias;
 
     @Column(name = "recipient_name", nullable = false, length = 31)

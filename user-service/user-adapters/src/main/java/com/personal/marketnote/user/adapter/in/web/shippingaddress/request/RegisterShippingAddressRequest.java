@@ -29,8 +29,8 @@ public class RegisterShippingAddressRequest {
     @Size(max = 63, message = "회사명은 최대 63자까지 입력할 수 있습니다.")
     private String companyName;
 
-    @Schema(name = "addressAlias", description = "주소 별명 (OTHER 타입일 때 필수, 최대 31자)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    @Size(max = 31, message = "주소 별명은 최대 31자까지 입력할 수 있습니다.")
+    @Schema(name = "addressAlias", description = "주소 별명 (최대 255자)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Size(max = 255, message = "주소 별명은 최대 255자까지 입력할 수 있습니다.")
     private String addressAlias;
 
     @Schema(name = "recipientName", description = "받는 분 (최대 31자)", requiredMode = Schema.RequiredMode.REQUIRED)
