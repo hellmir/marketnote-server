@@ -63,6 +63,7 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "FASSTO_API_KEY",                    value: env.FASSTO_API_KEY],
                 [name: "FASSTO_CUSTOMER_CODE",              value: env.FASSTO_CUSTOMER_CODE],
                 [name: "KAFKA_BOOTSTRAP_SERVERS",           value: env.KAFKA_BOOTSTRAP_SERVERS],
+                [name: "KAFKA_SLACK_WEBHOOK_URL",           value: env.KAFKA_SLACK_WEBHOOK_URL],
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -688,6 +689,7 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_FASSTO_API_KEY',                     variable: 'FASSTO_API_KEY'),
                         string(credentialsId: 'MARKETNOTE_QA_FASSTO_CUSTOMER_CODE',               variable: 'FASSTO_CUSTOMER_CODE'),
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_BOOTSTRAP_SERVERS',            variable: 'KAFKA_BOOTSTRAP_SERVERS'),
+                        string(credentialsId: 'MARKETNOTE_QA_KAFKA_SLACK_WEBHOOK_URL',            variable: 'KAFKA_SLACK_WEBHOOK_URL'),
                     ]) {
                         sh '''
                           LG="$CLOUDWATCH_LOG_GROUP"

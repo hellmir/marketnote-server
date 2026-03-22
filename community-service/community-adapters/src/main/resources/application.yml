@@ -67,6 +67,10 @@ logging:
   level:
     org.springframework.security: ERROR
 
+kafka:
+  slack:
+    webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
+
 outbox:
   enabled: ${OUTBOX_ENABLED:true}
   polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
