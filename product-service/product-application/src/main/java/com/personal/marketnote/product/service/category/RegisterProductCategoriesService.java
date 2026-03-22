@@ -3,6 +3,7 @@ package com.personal.marketnote.product.service.category;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.product.domain.category.Category;
 import com.personal.marketnote.product.domain.product.Product;
+import com.personal.marketnote.product.exception.InvalidProductCategoryException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.port.in.command.RegisterProductCategoriesCommand;
 import com.personal.marketnote.product.port.in.result.category.RegisterProductCategoriesResult;
@@ -47,7 +48,7 @@ public class RegisterProductCategoriesService implements RegisterProductCategori
         Set<Long> foundIds = foundCategories.stream().map(Category::getId).collect(Collectors.toSet());
 
         if (!foundIds.containsAll(categoryIds)) {
-            throw new IllegalArgumentException("ERR02::비활성 상태이거나 존재하지 않는 카테고리 ID가 포함되어 있습니다.");
+            throw new InvalidProductCategoryException();
         }
 
         replaceProductCategoriesPort.replaceProductCategories(product.getId(), categoryIds);

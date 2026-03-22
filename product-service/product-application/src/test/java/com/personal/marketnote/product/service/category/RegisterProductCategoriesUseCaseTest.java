@@ -5,6 +5,7 @@ import com.personal.marketnote.product.domain.category.Category;
 import com.personal.marketnote.product.domain.category.CategorySnapshotState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import com.personal.marketnote.product.exception.InvalidProductCategoryException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.port.in.command.RegisterProductCategoriesCommand;
 import com.personal.marketnote.product.port.in.result.category.RegisterProductCategoriesResult;
@@ -74,8 +75,8 @@ class RegisterProductCategoriesUseCaseTest {
                 .thenReturn(List.of(buildCategory(1L, "카테고리1"), buildCategory(2L, "카테고리2")));
 
         assertThatThrownBy(() -> registerProductCategoriesService.registerProductCategories(userId, false, command))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("ERR02");
+                .isInstanceOf(InvalidProductCategoryException.class)
+                .hasMessageContaining("ERR_PRODUCT_CATEGORY_01");
 
         verify(replaceProductCategoriesPort, never()).replaceProductCategories(anyLong(), any());
     }

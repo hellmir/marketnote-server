@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
+import com.personal.marketnote.product.exception.FulfillmentVendorGoodsTypeNoValueException;
 import com.personal.marketnote.product.exception.ProductInfoNoValueException;
 import com.personal.marketnote.product.port.in.command.FulfillmentVendorGoodsOptionCommand;
 import com.personal.marketnote.product.port.in.command.RegisterPricePolicyCommand;
@@ -193,7 +194,7 @@ class RegisterProductUseCaseTest {
         )).thenReturn(RegisterPricePolicyResult.of(300L));
 
         assertThatThrownBy(() -> registerProductService.registerProduct(command))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FulfillmentVendorGoodsTypeNoValueException.class)
                 .hasMessageContaining("godType");
 
         verify(publishProductEventPort).publishProductRegisteredEvent(40L, 300L, command.sellerId(), "테스트 상품", "1");

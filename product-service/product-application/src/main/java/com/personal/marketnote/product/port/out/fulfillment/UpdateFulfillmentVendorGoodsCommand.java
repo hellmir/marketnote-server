@@ -1,6 +1,10 @@
 package com.personal.marketnote.product.port.out.fulfillment;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.product.exception.FulfillmentVendorGoodsCustomCodeNoValueException;
+import com.personal.marketnote.product.exception.FulfillmentVendorGoodsGiftDivisionNoValueException;
+import com.personal.marketnote.product.exception.FulfillmentVendorGoodsNameNoValueException;
+import com.personal.marketnote.product.exception.FulfillmentVendorGoodsTypeNoValueException;
 import lombok.Builder;
 
 @Builder
@@ -43,16 +47,16 @@ public record UpdateFulfillmentVendorGoodsCommand(
 ) {
     public UpdateFulfillmentVendorGoodsCommand {
         if (FormatValidator.hasNoValue(cstGodCd)) {
-            throw new IllegalArgumentException("cstGodCd is required for Fassto goods update.");
+            throw new FulfillmentVendorGoodsCustomCodeNoValueException();
         }
         if (FormatValidator.hasNoValue(godNm)) {
-            throw new IllegalArgumentException("godNm is required for Fassto goods update.");
+            throw new FulfillmentVendorGoodsNameNoValueException();
         }
         if (FormatValidator.hasNoValue(godType)) {
-            throw new IllegalArgumentException("godType is required for Fassto goods update.");
+            throw new FulfillmentVendorGoodsTypeNoValueException();
         }
         if (FormatValidator.hasNoValue(giftDiv)) {
-            throw new IllegalArgumentException("giftDiv is required for Fassto goods update.");
+            throw new FulfillmentVendorGoodsGiftDivisionNoValueException();
         }
     }
 }

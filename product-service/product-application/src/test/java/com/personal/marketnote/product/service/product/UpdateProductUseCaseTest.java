@@ -5,6 +5,7 @@ import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
+import com.personal.marketnote.product.exception.FulfillmentVendorGoodsTypeNoValueException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductInfoNoValueException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
@@ -177,7 +178,7 @@ class UpdateProductUseCaseTest {
         when(getProductUseCase.getProduct(50L)).thenReturn(product);
 
         assertThatThrownBy(() -> updateProductService.update(userId, false, command))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(FulfillmentVendorGoodsTypeNoValueException.class)
                 .hasMessageContaining("godType");
 
         verify(updateProductPort).update(product);
