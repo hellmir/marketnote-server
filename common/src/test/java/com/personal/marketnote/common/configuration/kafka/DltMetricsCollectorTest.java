@@ -103,5 +103,44 @@ class DltMetricsCollectorTest {
         // when & then (예외 발생하지 않음)
         collector.incrementDltMessageCount("commerce.order.payment-completed");
         collector.incrementDltReprocessCount("commerce.order.payment-completed", "success");
+        collector.incrementDltResolveCount("commerce.order.payment-completed", "retry");
+    }
+
+    @Test
+    @DisplayName("DLT 메시지 해결 retry 카운터를 증가시킨다")
+    void incrementDltResolveCount_retry_incrementsCounter() {
+        // given
+        MeterRegistry meterRegistry = new SimpleMeterRegistry();
+        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+
+        // when
+        collector.incrementDltResolveCount("commerce.order.payment-completed", "retry");
+
+        // then
+        Counter counter = meterRegistry.find("kafka.dlt.resolve.total")
+                .tag("original_topic", "commerce.order.payment-completed")
+                .tag("action", "retry")
+                .counter();
+        assertThat(counter).isNotNull();
+        assertThat(counter.count()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("DLT 메시지 해결 discard 카운터를 증가시킨다")
+    void incrementDltResolveCount_discard_incrementsCounter() {
+        // given
+        MeterRegistry meterRegistry = new SimpleMeterRegistry();
+        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+
+        // when
+        collector.incrementDltResolveCount("commerce.payment.cancelled", "discard");
+
+        // then
+        Counter counter = meterRegistry.find("kafka.dlt.resolve.total")
+                .tag("original_topic", "commerce.payment.cancelled")
+                .tag("action", "discard")
+                .counter();
+        assertThat(counter).isNotNull();
+        assertThat(counter.count()).isEqualTo(1.0);
     }
 }
