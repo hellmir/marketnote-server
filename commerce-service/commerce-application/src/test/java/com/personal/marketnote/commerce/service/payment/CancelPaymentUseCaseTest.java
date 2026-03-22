@@ -1246,6 +1246,120 @@ class CancelPaymentUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("부분 취소 공유 적립 예정 포인트 비례 차감 검증")
+    class PartialCancelSharedPurchasePointTest {
+
+        @Test
+        @DisplayName("부분 취소 시 공유자가 있으면 공유 적립 예정 포인트 비례 차감이 호출된다")
+        void shouldReduceSharedPendingPointsOnPartialCancelWithSharers() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L, 300L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
+                    eq(List.of(200L, 300L)), eq(50000L), eq(20000L), eq(1L)
+            );
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 공유자가 없으면 공유 적립 예정 포인트 비례 차감이 호출되지 않는다")
+        void shouldNotReduceSharedPendingPointsWhenNoSharers() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort, never()).reducePartialPendingSharedPurchasePoints(
+                    anyList(), anyLong(), anyLong(), anyLong()
+            );
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 중복 공유자가 있으면 중복 제거 후 공유 적립 예정 포인트 비례 차감이 호출된다")
+        void shouldDeduplicateSharerIdsOnPartialCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L, 200L, 300L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
+                    argThat(ids -> ids.size() == 2 && ids.contains(200L) && ids.contains(300L)),
+                    eq(50000L), eq(20000L), eq(1L)
+            );
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 공유 적립 예정 포인트 차감 실패해도 결제 취소는 정상 완료된다")
+        void shouldCompleteCancelEvenWhenSharedPointReduceFails() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            doThrow(new RuntimeException("공유 포인트 차감 실패")).when(modifyUserPointPort)
+                    .reducePartialPendingSharedPurchasePoints(anyList(), anyLong(), anyLong(), anyLong());
+
+            cancelPaymentService.cancel(command);
+
+            verify(updatePaymentPort).update(any());
+            verify(updatePspPaymentEventPort).update(any());
+        }
+
+        @Test
+        @DisplayName("전체 취소 시에는 비례 차감이 아닌 전체 회수가 호출된다")
+        void shouldUseFullRevokeInsteadOfPartialReduceOnFullCancel() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L, 300L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort).revokePendingSharedPurchasePoints(
+                    eq(List.of(200L, 300L)), eq(1L)
+            );
+            verify(modifyUserPointPort, never()).reducePartialPendingSharedPurchasePoints(
+                    anyList(), anyLong(), anyLong(), anyLong()
+            );
+        }
+    }
+
     private Order createOrderWithAccumulatedPoint(Long orderId, Long buyerId, Long totalAmount,
                                                   Long pricePolicyId, int quantity, Long unitAmount) {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
