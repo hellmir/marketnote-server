@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
 
+import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpSignatureGenerationFailedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ public class KcpSignatureGenerator {
             byte[] signedBytes = signature.sign();
             return Base64.getEncoder().encodeToString(signedBytes);
         } catch (Exception e) {
-            throw new IllegalStateException("KCP 서명 생성 실패: tno=" + tno, e);
+            throw new KcpSignatureGenerationFailedException(tno, e);
         }
     }
 }
