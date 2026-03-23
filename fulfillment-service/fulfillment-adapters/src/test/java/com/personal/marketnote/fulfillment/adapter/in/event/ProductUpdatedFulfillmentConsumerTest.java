@@ -189,8 +189,8 @@ class ProductUpdatedFulfillmentConsumerTest {
     }
 
     @Test
-    @DisplayName("UpdateFasstoGoodsFailedException 발생 시 warn 로그 후 acknowledge한다")
-    void handleEvent_updateFasstoGoodsFailed_warnsAndAcknowledges() {
+    @DisplayName("UpdateFasstoGoodsFailedException 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
+    void handleEvent_updateFasstoGoodsFailed_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1", "01");
         when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
@@ -198,12 +198,12 @@ class ProductUpdatedFulfillmentConsumerTest {
         doThrow(new UpdateFasstoGoodsFailedException(new IOException("Fassto API 오류")))
                 .when(updateFasstoGoodsUseCase).updateGoods(any(UpdateFasstoGoodsCommand.class));
 
-        // when
-        consumer.handleProductUpdatedEvent(record, acknowledgment);
+        // when & then
+        assertThatThrownBy(() -> consumer.handleProductUpdatedEvent(record, acknowledgment))
+                .isInstanceOf(UpdateFasstoGoodsFailedException.class);
 
-        // then
         verify(updateFasstoGoodsUseCase).updateGoods(any(UpdateFasstoGoodsCommand.class));
-        verify(acknowledgment).acknowledge();
+        verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
