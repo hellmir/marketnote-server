@@ -10,11 +10,9 @@ import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessExcepti
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderStatusChangeException;
 import com.personal.marketnote.commerce.mapper.OrderCommandToStateMapper;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
-import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
@@ -40,10 +38,8 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @Transactional(isolation = READ_COMMITTED)
 @Slf4j
 public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
-    private final ReduceProductInventoryUseCase reduceProductInventoryUseCase;
     private final GetOrderUseCase getOrderUseCase;
     private final UpdateOrderPort updateOrderPort;
-    private final DeleteOrderedCartProductsPort deleteOrderedCartProductsPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final ModifyUserPointPort modifyUserPointPort;
     private final PublishOrderEventPort publishOrderEventPort;
@@ -71,7 +67,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         updateOrderPort.update(order, orderStatusHistory);
 
         if (status.isPaid()) {
-            updatePaymentSubsequentProcesses(order, status);
+            updatePaymentSubsequentProcesses(order);
         }
 
         if (status.isConfirmed() && !command.isPartialProductChange()) {
@@ -123,45 +119,22 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         order.applyPickupAddress(command.pickupAddress());
     }
 
-    private void updatePaymentSubsequentProcesses(Order order, OrderStatus status) {
-        // FIXME: [#929] Kafka 이벤트 전환 진행 중
-        //  [전환 완료 - 듀얼 라이트] 재고 차감 (#932), 장바구니 삭제 (#1018)
-        //  [미전환] 공유 포인트 적립 (#1019), 포인트 차감 (#1020), 상품 포인트 적립 (#1131)
-
-        // 결제 완료 시 재고 차감
-        reduceProductInventoryUseCase.reduce(order.getOrderProducts(), order.getId(), status.getDescription());
+    private void updatePaymentSubsequentProcesses(Order order) {
+        // [#929] 재고 차감(#932), 장바구니 삭제(#1018), 공유 포인트 적립(#1019), 포인트 차감(#1020)은 Kafka Consumer로 전환 완료
+        // [미전환] 상품 적립 포인트 (#1131)
 
         List<Long> pricePolicyIds = order.getOrderProducts()
                 .stream()
                 .map(OrderProduct::getPricePolicyId)
                 .toList();
-        List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
         Long orderId = order.getId();
         Long buyerId = order.getBuyerId();
-        Long pointAmount = order.getAmount().getPointAmount();
-        Long totalAmount = order.getAmount().getTotalAmount();
         Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(order.getOrderProducts(), pricePolicyIds);
 
         // Outbox 이벤트 저장 (트랜잭션 내)
         publishOrderPaymentCompletedEvent(order, totalAccumulatedPoint);
 
         runAfterCommit(() -> {
-            // 결제 완료 시 장바구니 상품 삭제
-            deleteOrderedCartProductsPort.delete(pricePolicyIds);
-
-            // 링크 공유 회원 적립 예정 포인트 추가
-            addPendingSharedPurchasePoints(sharerIds, totalAmount, orderId);
-
-            // 포인트 사용 시 차감
-            if (FormatValidator.hasValue(pointAmount) && pointAmount > 0) {
-                try {
-                    modifyUserPointPort.deductOrderPoints(buyerId, pointAmount, orderId);
-                } catch (Exception e) {
-                    log.error("주문 포인트 차감 실패 - orderId: {}, buyerId: {}, pointAmount: {}, error: {}",
-                            orderId, buyerId, pointAmount, e.getMessage(), e);
-                }
-            }
-
             // 상품 적립 포인트를 적립 예정 포인트로 추가
             addPendingProductAccumulationPoints(buyerId, totalAccumulatedPoint, orderId);
         });
@@ -185,19 +158,6 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
 
         return totalAccumulatedPoint;
-    }
-
-    private void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId) {
-        if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(totalAmount)) {
-            return;
-        }
-
-        try {
-            modifyUserPointPort.addPendingSharedPurchasePoints(sharerIds, totalAmount, orderId);
-        } catch (Exception e) {
-            log.error("공유 구매 적립 예정 포인트 추가 실패 - orderId: {}, sharerIds: {}, error: {}",
-                    orderId, sharerIds, e.getMessage(), e);
-        }
     }
 
     private void addPendingProductAccumulationPoints(Long buyerId, Long totalAccumulatedPoint, Long orderId) {

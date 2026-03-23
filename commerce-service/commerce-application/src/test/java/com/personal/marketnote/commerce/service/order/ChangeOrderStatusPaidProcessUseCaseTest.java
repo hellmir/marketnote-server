@@ -7,10 +7,8 @@ import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
-import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
@@ -40,13 +38,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ChangeOrderStatusPaidProcessUseCaseTest {
     @Mock
-    private ReduceProductInventoryUseCase reduceProductInventoryUseCase;
-    @Mock
     private GetOrderUseCase getOrderUseCase;
     @Mock
     private UpdateOrderPort updateOrderPort;
-    @Mock
-    private DeleteOrderedCartProductsPort deleteOrderedCartProductsPort;
     @Mock
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock
@@ -58,94 +52,6 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
 
     @InjectMocks
     private ChangeOrderStatusService changeOrderStatusService;
-
-    @Nested
-    @DisplayName("PAID 상태 변경 시 공유 구매 적립 예정 포인트 추가")
-    class SharedPurchasePendingPointTest {
-
-        @Test
-        @DisplayName("공유자가 있는 주문이 PAID로 변경되면 addPendingSharedPurchasePoints가 호출된다")
-        void shouldCallAddPendingSharedPurchasePointsWhenSharerExists() {
-            // given
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Long sharerId = 200L;
-            Long totalAmount = 50000L;
-            Long pricePolicyId = 10L;
-
-            Order order = createOrderWithSharer(orderId, buyerId, sharerId, pricePolicyId, totalAmount);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, createProductInfoResult()));
-
-            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
-
-            // when
-            changeOrderStatusService.changeOrderStatus(command);
-
-            // then
-            verify(modifyUserPointPort).addPendingSharedPurchasePoints(
-                    List.of(sharerId), totalAmount, orderId
-            );
-        }
-
-        @Test
-        @DisplayName("공유자가 없는 주문이 PAID로 변경되면 addPendingSharedPurchasePoints가 호출되지 않는다")
-        void shouldNotCallAddPendingSharedPurchasePointsWhenNoSharer() {
-            // given
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Long pricePolicyId = 10L;
-
-            Order order = createOrderWithoutSharer(orderId, buyerId, pricePolicyId);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, createProductInfoResult()));
-
-            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
-
-            // when
-            changeOrderStatusService.changeOrderStatus(command);
-
-            // then
-            verify(modifyUserPointPort, never()).addPendingSharedPurchasePoints(
-                    anyList(), anyLong(), anyLong()
-            );
-        }
-
-        @Test
-        @DisplayName("addPendingSharedPurchasePoints 호출 실패 시 예외가 전파되지 않는다")
-        void shouldNotPropagateExceptionWhenAddPendingSharedPurchasePointsFails() {
-            // given
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Long sharerId = 200L;
-            Long totalAmount = 50000L;
-            Long pricePolicyId = 10L;
-
-            Order order = createOrderWithSharer(orderId, buyerId, sharerId, pricePolicyId, totalAmount);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, createProductInfoResult()));
-            doThrow(new RuntimeException("리워드 서비스 요청 실패"))
-                    .when(modifyUserPointPort).addPendingSharedPurchasePoints(anyList(), anyLong(), anyLong());
-
-            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(orderId)
-                    .orderStatus(OrderStatus.PAID)
-                    .build();
-
-            // when & then
-            assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
-        }
-    }
 
     @Nested
     @DisplayName("PAID 상태 변경 시 상품 구매 적립 예정 포인트 추가")
