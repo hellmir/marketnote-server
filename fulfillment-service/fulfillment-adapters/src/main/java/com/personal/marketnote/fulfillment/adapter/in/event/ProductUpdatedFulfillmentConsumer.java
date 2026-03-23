@@ -9,7 +9,6 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
 import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
-import com.personal.marketnote.fulfillment.exception.UpdateFasstoGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFasstoGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFasstoGoodsItemCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFasstoAuthUseCase;
@@ -52,29 +51,28 @@ public class ProductUpdatedFulfillmentConsumer {
             return;
         }
 
-        try {
-            ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
+        ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
 
-            log.info("상품 수정 이벤트 수신 (풀필먼트). eventId={}, productId={}",
-                    envelope.eventId(), payload.productId());
+        log.info("상품 수정 이벤트 수신 (풀필먼트). eventId={}, productId={}",
+                envelope.eventId(), payload.productId());
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("productId", payload.productId()))) {
-                acknowledgment.acknowledge();
-                return;
-            }
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId()))) {
+            acknowledgment.acknowledge();
+            return;
+        }
 
-            if (FormatValidator.hasNoValue(payload.productName())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}",
-                        envelope.eventId(), payload.productName());
-                acknowledgment.acknowledge();
-                return;
-            }
+        if (FormatValidator.hasNoValue(payload.productName())) {
+            log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}",
+                    envelope.eventId(), payload.productName());
+            acknowledgment.acknowledge();
+            return;
+        }
 
-            FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
-            if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-                throw new FasstoAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
-            }
+        FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
+        if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
+            throw new FasstoAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
+        }
 
             UpdateFasstoGoodsItemCommand itemCommand = UpdateFasstoGoodsItemCommand.of(
                     String.valueOf(payload.productId()),
@@ -120,14 +118,10 @@ public class ProductUpdatedFulfillmentConsumer {
                     List.of(itemCommand)
             );
 
-            updateFasstoGoodsUseCase.updateGoods(command);
+        updateFasstoGoodsUseCase.updateGoods(command);
 
-            log.info("Kafka 이벤트로 풀필먼트 상품 수정 완료. productId={}", payload.productId());
-        } catch (UpdateFasstoGoodsFailedException e) {
-            log.warn("풀필먼트 상품 수정 실패 (듀얼 라이트 기간 HTTP 호출로 처리됨). eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage());
-        }
-        // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
+        log.info("Kafka 이벤트로 풀필먼트 상품 수정 완료. productId={}", payload.productId());
+        // 예외(UpdateFasstoGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();
     }

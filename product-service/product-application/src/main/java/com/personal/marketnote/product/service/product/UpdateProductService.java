@@ -5,20 +5,15 @@ import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
-import com.personal.marketnote.product.mapper.FulfillmentVendorGoodsCommandMapper;
 import com.personal.marketnote.product.mapper.ProductUpdatedEventMapper;
 import com.personal.marketnote.product.port.in.command.UpdateProductCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.UpdateProductUseCase;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
-import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsCommand;
-import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -30,7 +25,6 @@ public class UpdateProductService implements UpdateProductUseCase {
     private final GetProductUseCase getProductUseCase;
     private final FindProductPort findProductPort;
     private final UpdateProductPort updateProductPort;
-    private final UpdateFulfillmentVendorGoodsPort updateFulfillmentVendorGoodsPort;
     private final PublishProductEventPort publishProductEventPort;
 
     @Override
@@ -49,30 +43,10 @@ public class UpdateProductService implements UpdateProductUseCase {
         updateProductPort.update(product);
 
         if (FormatValidator.hasValue(command.fulfillmentVendorGoods())) {
-            UpdateFulfillmentVendorGoodsCommand updateCommand =
-                    FulfillmentVendorGoodsCommandMapper.mapToUpdateCommand(product, command.fulfillmentVendorGoods());
             ProductUpdatedEvent productUpdatedEvent =
                     ProductUpdatedEventMapper.mapToEvent(product, command.fulfillmentVendorGoods());
 
-            // Outbox 이벤트 저장 (트랜잭션 내)
             publishProductEventPort.publishProductUpdatedEvent(productUpdatedEvent);
-
-            // 트랜잭션 커밋 후 HTTP 호출
-            runAfterCommit(() -> updateFulfillmentVendorGoodsPort.updateFulfillmentVendorGoods(updateCommand));
         }
-    }
-
-    private void runAfterCommit(Runnable action) {
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    action.run();
-                }
-            });
-            return;
-        }
-
-        action.run();
     }
 }

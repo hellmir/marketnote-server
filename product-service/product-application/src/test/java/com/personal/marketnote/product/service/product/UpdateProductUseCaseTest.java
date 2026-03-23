@@ -5,7 +5,6 @@ import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
-import com.personal.marketnote.product.exception.FulfillmentVendorGoodsTypeNoValueException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductInfoNoValueException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
@@ -13,8 +12,6 @@ import com.personal.marketnote.product.port.in.command.FulfillmentVendorGoodsOpt
 import com.personal.marketnote.product.port.in.command.UpdateProductCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
-import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsCommand;
-import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductPort;
 import org.junit.jupiter.api.DisplayName;
@@ -40,8 +37,6 @@ class UpdateProductUseCaseTest {
     @Mock
     private UpdateProductPort updateProductPort;
     @Mock
-    private UpdateFulfillmentVendorGoodsPort updateFulfillmentVendorGoodsPort;
-    @Mock
     private PublishProductEventPort publishProductEventPort;
 
     @InjectMocks
@@ -60,7 +55,7 @@ class UpdateProductUseCaseTest {
                 .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
-        verifyNoInteractions(getProductUseCase, updateProductPort, updateFulfillmentVendorGoodsPort, publishProductEventPort);
+        verifyNoInteractions(getProductUseCase, updateProductPort, publishProductEventPort);
     }
 
     @Test
@@ -92,7 +87,7 @@ class UpdateProductUseCaseTest {
                 .containsOnly(11L);
 
         verify(getProductUseCase).getProduct(11L);
-        verifyNoInteractions(findProductPort, updateFulfillmentVendorGoodsPort, publishProductEventPort);
+        verifyNoInteractions(findProductPort, publishProductEventPort);
     }
 
     @Test
@@ -110,14 +105,6 @@ class UpdateProductUseCaseTest {
 
         verify(findProductPort).existsByIdAndSellerId(20L, userId);
         verify(updateProductPort).update(product);
-
-        ArgumentCaptor<UpdateFulfillmentVendorGoodsCommand> fulfillmentCaptor =
-                ArgumentCaptor.forClass(UpdateFulfillmentVendorGoodsCommand.class);
-        verify(updateFulfillmentVendorGoodsPort).updateFulfillmentVendorGoods(fulfillmentCaptor.capture());
-
-        UpdateFulfillmentVendorGoodsCommand expected =
-                buildExpectedUpdateCommand(command.id(), command.name(), options);
-        assertThat(fulfillmentCaptor.getValue()).isEqualTo(expected);
 
         ArgumentCaptor<ProductUpdatedEvent> eventCaptor = ArgumentCaptor.forClass(ProductUpdatedEvent.class);
         verify(publishProductEventPort).publishProductUpdatedEvent(eventCaptor.capture());
@@ -141,7 +128,7 @@ class UpdateProductUseCaseTest {
                 .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(30L);
-        verifyNoInteractions(findProductPort, updateProductPort, updateFulfillmentVendorGoodsPort, publishProductEventPort);
+        verifyNoInteractions(findProductPort, updateProductPort, publishProductEventPort);
     }
 
     @Test
@@ -161,28 +148,7 @@ class UpdateProductUseCaseTest {
                 .isSameAs(exception);
 
         verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
-    }
-
-    @Test
-    @DisplayName("풀필먼트 서비스 동기화 시 옵션 필수값이 없으면 예외를 던진다")
-    void update_missingFulfillmentRequiredFields_throws() {
-        Long userId = 4L;
-        FulfillmentVendorGoodsOptionCommand options = FulfillmentVendorGoodsOptionCommand.builder()
-                .giftDiv("01")
-                .build();
-        UpdateProductCommand command = buildCommand(50L, options);
-        Product product = buildProduct(50L, "기존 상품");
-
-        when(findProductPort.existsByIdAndSellerId(50L, userId)).thenReturn(true);
-        when(getProductUseCase.getProduct(50L)).thenReturn(product);
-
-        assertThatThrownBy(() -> updateProductService.update(userId, false, command))
-                .isInstanceOf(FulfillmentVendorGoodsTypeNoValueException.class)
-                .hasMessageContaining("godType");
-
-        verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
+        verifyNoInteractions(publishProductEventPort);
     }
 
     @Test
@@ -199,7 +165,7 @@ class UpdateProductUseCaseTest {
                 .hasMessageContaining("상품 ID가 존재하지 않습니다");
 
         verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
+        verifyNoInteractions(publishProductEventPort);
     }
 
     @Test
@@ -216,7 +182,7 @@ class UpdateProductUseCaseTest {
                 .hasMessageContaining("상품명이 존재하지 않습니다");
 
         verify(updateProductPort).update(product);
-        verifyNoInteractions(updateFulfillmentVendorGoodsPort, publishProductEventPort);
+        verifyNoInteractions(publishProductEventPort);
     }
 
     private UpdateProductCommand buildCommand(Long id, FulfillmentVendorGoodsOptionCommand fulfillmentVendorGoods) {
@@ -292,47 +258,4 @@ class UpdateProductUseCaseTest {
                 .build();
     }
 
-    private UpdateFulfillmentVendorGoodsCommand buildExpectedUpdateCommand(
-            Long productId,
-            String productName,
-            FulfillmentVendorGoodsOptionCommand options
-    ) {
-        return UpdateFulfillmentVendorGoodsCommand.builder()
-                .cstGodCd(String.valueOf(productId))
-                .godNm(productName)
-                .godType(options.godType())
-                .giftDiv(options.giftDiv())
-                .godOptCd1(options.godOptCd1())
-                .godOptCd2(options.godOptCd2())
-                .invGodNmUseYn(options.invGodNmUseYn())
-                .invGodNm(options.invGodNm())
-                .supCd(options.supCd())
-                .cateCd(options.cateCd())
-                .seasonCd(options.seasonCd())
-                .genderCd(options.genderCd())
-                .makeYr(options.makeYr())
-                .godPr(options.godPr())
-                .inPr(options.inPr())
-                .salPr(options.salPr())
-                .dealTemp(options.dealTemp())
-                .pickFac(options.pickFac())
-                .godBarcd(options.godBarcd())
-                .boxWeight(options.boxWeight())
-                .origin(options.origin())
-                .distTermMgtYn(options.distTermMgtYn())
-                .useTermDay(options.useTermDay())
-                .outCanDay(options.outCanDay())
-                .inCanDay(options.inCanDay())
-                .boxDiv(options.boxDiv())
-                .bufGodYn(options.bufGodYn())
-                .loadingDirection(options.loadingDirection())
-                .subMate(options.subMate())
-                .useYn(options.useYn())
-                .safetyStock(options.safetyStock())
-                .feeYn(options.feeYn())
-                .saleUnitQty(options.saleUnitQty())
-                .cstGodImgUrl(options.cstGodImgUrl())
-                .externalGodImgUrl(options.externalGodImgUrl())
-                .build();
-    }
 }
