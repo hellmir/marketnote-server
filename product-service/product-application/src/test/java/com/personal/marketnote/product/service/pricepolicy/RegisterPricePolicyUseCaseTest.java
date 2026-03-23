@@ -11,7 +11,6 @@ import com.personal.marketnote.product.port.in.command.RegisterPricePolicyComman
 import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPricePolicyResult;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
-import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
 import com.personal.marketnote.product.port.out.pricepolicy.SavePricePolicyPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
@@ -44,8 +43,6 @@ class RegisterPricePolicyUseCaseTest {
     private UpdateOptionPricePolicyPort updateOptionPricePolicyPort;
     @Mock
     private PublishProductEventPort publishProductEventPort;
-    @Mock
-    private RegisterInventoryPort registerInventoryPort;
 
     @InjectMocks
     private RegisterPricePolicyService registerPricePolicyService;
@@ -67,8 +64,7 @@ class RegisterPricePolicyUseCaseTest {
                 getProductUseCase,
                 savePricePolicyPort,
                 updateOptionPricePolicyPort,
-                publishProductEventPort,
-                registerInventoryPort
+                publishProductEventPort
         );
     }
 
@@ -107,7 +103,6 @@ class RegisterPricePolicyUseCaseTest {
 
         verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 100L, optionIds);
         verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 100L);
-        verify(registerInventoryPort).registerInventory(productId, 100L);
     }
 
     @Test
@@ -125,7 +120,6 @@ class RegisterPricePolicyUseCaseTest {
 
         assertThat(result.id()).isEqualTo(200L);
         verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 200L);
-        verify(registerInventoryPort).registerInventory(productId, 200L);
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verifyNoInteractions(findProductPort);
     }
@@ -146,7 +140,6 @@ class RegisterPricePolicyUseCaseTest {
 
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 250L);
-        verify(registerInventoryPort).registerInventory(productId, 250L);
     }
 
     @Test
@@ -164,7 +157,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isSameAs(exception);
 
         verify(savePricePolicyPort, never()).save(any(PricePolicy.class));
-        verifyNoInteractions(updateOptionPricePolicyPort, publishProductEventPort, registerInventoryPort);
+        verifyNoInteractions(updateOptionPricePolicyPort, publishProductEventPort);
     }
 
     @Test
@@ -184,7 +177,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isSameAs(exception);
 
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
-        verifyNoInteractions(publishProductEventPort, registerInventoryPort);
+        verifyNoInteractions(publishProductEventPort);
     }
 
     @Test
@@ -205,29 +198,6 @@ class RegisterPricePolicyUseCaseTest {
         assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
                 .isSameAs(exception);
 
-        verify(registerInventoryPort, never()).registerInventory(anyLong(), anyLong());
-    }
-
-    @Test
-    @DisplayName("가격 정책 등록 시 재고 등록에 실패하면 예외를 전파한다")
-    void registerPricePolicy_registerInventoryFails_propagates() {
-        Long userId = 8L;
-        Long productId = 80L;
-        List<Long> optionIds = List.of(501L);
-        RegisterPricePolicyCommand command = buildCommand(productId, optionIds);
-        Product product = buildProduct(productId, userId);
-        RuntimeException exception = new RuntimeException("inventory fail");
-
-        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
-        when(getProductUseCase.getProduct(productId)).thenReturn(product);
-        when(savePricePolicyPort.save(any(PricePolicy.class))).thenReturn(400L);
-        doThrow(exception).when(registerInventoryPort).registerInventory(productId, 400L);
-
-        assertThatThrownBy(() -> registerPricePolicyService.registerPricePolicy(userId, false, command))
-                .isSameAs(exception);
-
-        verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 400L, optionIds);
-        verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 400L);
     }
 
     @Test
@@ -328,7 +298,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isInstanceOf(InvalidPricePolicyAccumulatedPointException.class)
                 .hasMessageContaining("적립금이 현재 판매가를 초과할 수 없습니다");
 
-        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort, registerInventoryPort);
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort);
     }
 
     @Test
@@ -344,7 +314,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isInstanceOf(InvalidPricePolicyPriceException.class)
                 .hasMessageContaining("현재 판매가가 정가를 초과할 수 없습니다");
 
-        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort, registerInventoryPort);
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort);
     }
 
     private RegisterPricePolicyCommand buildCommand(Long productId, List<Long> optionIds) {
