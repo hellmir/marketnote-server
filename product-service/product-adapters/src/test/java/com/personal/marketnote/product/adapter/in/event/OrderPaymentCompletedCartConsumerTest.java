@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
+import com.personal.marketnote.product.port.in.command.DeleteCartProductCommand;
+import com.personal.marketnote.product.port.in.usecase.cart.DeleteCartProductUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
@@ -24,6 +27,9 @@ import static org.mockito.Mockito.*;
 class OrderPaymentCompletedCartConsumerTest {
     @InjectMocks
     private OrderPaymentCompletedCartConsumer consumer;
+
+    @Mock
+    private DeleteCartProductUseCase deleteCartProductUseCase;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -50,8 +56,8 @@ class OrderPaymentCompletedCartConsumerTest {
     }
 
     @Test
-    @DisplayName("주문 결제 완료 이벤트 수신 시 이벤트를 검증하고 acknowledge한다")
-    void handleOrderPaymentCompletedEvent_success_validatesAndAcknowledges() {
+    @DisplayName("주문 결제 완료 이벤트 수신 시 장바구니 삭제 UseCase를 호출하고 acknowledge한다")
+    void handleOrderPaymentCompletedEvent_success_deletesCartAndAcknowledges() {
         // given
         List<OrderProductItem> items = createOrderProductItems();
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 50L, 80000L, 5000L, items);
@@ -61,6 +67,9 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verify(deleteCartProductUseCase).deleteCartProducts(
+                DeleteCartProductCommand.of(50L, List.of(100L, 101L))
+        );
         verify(acknowledgment).acknowledge();
     }
 
@@ -76,6 +85,7 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(deleteCartProductUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -90,6 +100,7 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(deleteCartProductUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -104,6 +115,7 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(deleteCartProductUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -120,6 +132,7 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(deleteCartProductUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -144,6 +157,7 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(deleteCartProductUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -159,6 +173,7 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(deleteCartProductUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -174,6 +189,7 @@ class OrderPaymentCompletedCartConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(deleteCartProductUseCase);
         verify(acknowledgment).acknowledge();
     }
 

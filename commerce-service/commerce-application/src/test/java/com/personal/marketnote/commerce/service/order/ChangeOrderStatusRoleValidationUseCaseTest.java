@@ -9,10 +9,8 @@ import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderStatusChangeException;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
-import com.personal.marketnote.commerce.port.out.order.DeleteOrderedCartProductsPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
@@ -40,13 +38,9 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ChangeOrderStatusRoleValidationUseCaseTest {
     @Mock
-    private ReduceProductInventoryUseCase reduceProductInventoryUseCase;
-    @Mock
     private GetOrderUseCase getOrderUseCase;
     @Mock
     private UpdateOrderPort updateOrderPort;
-    @Mock
-    private DeleteOrderedCartProductsPort deleteOrderedCartProductsPort;
     @Mock
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock
