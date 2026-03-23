@@ -63,7 +63,7 @@ public class PricePolicyEventKafkaListener {
             log.info("Kafka 이벤트로 재고 등록 완료. productId={}, pricePolicyId={}",
                     payload.productId(), payload.pricePolicyId());
         } catch (InventoryAlreadyExistsException e) {
-            log.info("재고가 이미 존재합니다 (듀얼 라이트 중복). eventId={}, key={}",
+            log.info("재고가 이미 존재합니다 (멱등 처리). eventId={}, key={}",
                     envelope.eventId(), record.key());
         }
         // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리

@@ -13,14 +13,11 @@ import com.personal.marketnote.product.port.in.result.pricepolicy.RegisterPriceP
 import com.personal.marketnote.product.port.in.usecase.pricepolicy.RegisterPricePolicyUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
-import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
 import com.personal.marketnote.product.port.out.pricepolicy.SavePricePolicyPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -36,7 +33,6 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
     private final SavePricePolicyPort savePricePolicyPort;
     private final UpdateOptionPricePolicyPort updateOptionPricePolicyPort;
     private final PublishProductEventPort publishProductEventPort;
-    private final RegisterInventoryPort registerInventoryPort;
 
     @Override
     public RegisterPricePolicyResult registerPricePolicy(
@@ -63,9 +59,6 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         // Outbox 이벤트 저장 (트랜잭션 내)
         publishProductEventPort.publishPricePolicyCreatedEvent(productId, id);
 
-        // 트랜잭션 커밋 후 HTTP 호출
-        registerInventoryHttpAfterCommit(productId, id);
-
         return RegisterPricePolicyResult.of(id);
     }
 
@@ -82,22 +75,5 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         if (command.accumulatedPoint().compareTo(command.discountPrice()) > 0) {
             throw new InvalidPricePolicyAccumulatedPointException();
         }
-    }
-
-    private void registerInventoryHttpAfterCommit(Long productId, Long pricePolicyId) {
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    // TODO: Kafka 검증 완료 후 HTTP 호출 제거 (#1017)
-                    registerInventoryPort.registerInventory(productId, pricePolicyId);
-                }
-            });
-
-            return;
-        }
-
-        // TODO: Kafka 검증 완료 후 HTTP 호출 제거 (#1017)
-        registerInventoryPort.registerInventory(productId, pricePolicyId);
     }
 }
