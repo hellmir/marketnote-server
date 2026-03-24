@@ -13,7 +13,6 @@ import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.CancelPaymentUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
@@ -56,7 +55,6 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final PaymentVendorPort paymentVendorPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
-    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
     private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
     private final ModifyUserPointPort modifyUserPointPort;
     private final SaveRefundPort saveRefundPort;
@@ -131,8 +129,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                     order, payment.getPaymentAmount(), cancelAmount));
         }
 
+        // [#929][#1034] 결제 취소 역분개는 Kafka Consumer(PaymentCancelledLedgerConsumer)로 전환 완료
         String cancelId = isFullCancel ? null : UUID.randomUUID().toString();
-        recordLedgerEntryForCancellation(payment, isFullCancel, cancelAmount, cancelId);
 
         List<OrderProduct> cancelTargetProducts = resolveCancelProducts(isFullCancel, command);
 
@@ -210,26 +208,6 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             saveRefundPort.save(refund);
         } catch (Exception e) {
             log.error("환불 상세 기록 저장 실패 - orderId: {}, error: {}",
-                    payment.getOrderId(), e.getMessage(), e);
-        }
-    }
-
-    private void recordLedgerEntryForCancellation(
-            Payment payment, boolean isFullCancel, Long cancelAmount, String cancelId
-    ) {
-        try {
-            String idempotencyKey;
-            if (isFullCancel) {
-                idempotencyKey = "PAYMENT_CANCELLATION:" + payment.getOrderId();
-            } else {
-                idempotencyKey = "PAYMENT_PARTIAL_REFUND:" + payment.getOrderId()
-                        + ":" + cancelId;
-            }
-            recordLedgerEntryUseCase.recordPaymentCancellation(
-                    payment.getOrderId(), cancelAmount, idempotencyKey
-            );
-        } catch (Exception e) {
-            log.error("결제 취소 역분개 기록 실패 - orderId: {}, error: {}",
                     payment.getOrderId(), e.getMessage(), e);
         }
     }

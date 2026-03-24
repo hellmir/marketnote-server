@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -25,6 +27,9 @@ class PaymentCancelledLedgerConsumerTest {
     @InjectMocks
     private PaymentCancelledLedgerConsumer consumer;
 
+    @Mock
+    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -32,9 +37,15 @@ class PaymentCancelledLedgerConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, boolean isFullCancel) {
+        return buildRecord(orderId, isFullCancel, 50000L, "cancel-id-1");
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
+            Long orderId, boolean isFullCancel, Long cancelAmount, String cancelId
+    ) {
         PaymentCancelledEvent event = new PaymentCancelledEvent(
-                orderId, "order-key-1", 1L, 50000L, 100000L, 0L,
-                isFullCancel, 0L, "cancel-id-1",
+                orderId, "order-key-1", 1L, cancelAmount, 100000L, 0L,
+                isFullCancel, 0L, cancelId,
                 List.of(new PaymentCancelledEvent.OrderProductItem(1L, null, 2, 50000L)),
                 null, null
         );
@@ -46,8 +57,8 @@ class PaymentCancelledLedgerConsumerTest {
     }
 
     @Test
-    @DisplayName("듀얼 라이트 기간 중 전체 취소 이벤트 수신 시 페이로드 검증을 완료하고 acknowledge한다")
-    void handlePaymentCancelledEvent_fullCancel_validatesAndAcknowledges() {
+    @DisplayName("전체 취소 이벤트 수신 시 역분개를 기록하고 acknowledge한다")
+    void handlePaymentCancelledEvent_fullCancel_recordsLedgerAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true);
 
@@ -55,21 +66,41 @@ class PaymentCancelledLedgerConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
-        // TODO: [#929][#1023] RecordLedgerEntryUseCase 활성화 시
-        //  recordLedgerEntryUseCase.recordPaymentCancellation() 호출 검증 추가
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                1L, 50000L, "PAYMENT_CANCELLATION:1"
+        );
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("듀얼 라이트 기간 중 부분 취소 이벤트 수신 시 페이로드 검증을 완료하고 acknowledge한다")
-    void handlePaymentCancelledEvent_partialCancel_validatesAndAcknowledges() {
+    @DisplayName("부분 취소 이벤트 수신 시 역분개를 기록하고 acknowledge한다")
+    void handlePaymentCancelledEvent_partialCancel_recordsLedgerAndAcknowledges() {
         // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, 30000L, "cancel-id-abc");
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                1L, 30000L, "PAYMENT_PARTIAL_REFUND:1:cancel-id-abc"
+        );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("이미 처리된 역분개 이벤트는 멱등 처리하고 acknowledge한다")
+    void handlePaymentCancelledEvent_duplicate_idempotentAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true);
+        doThrow(new DuplicateLedgerTransactionException("PAYMENT_CANCELLATION:1"))
+                .when(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1");
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1");
         verify(acknowledgment).acknowledge();
     }
 
@@ -83,6 +114,7 @@ class PaymentCancelledLedgerConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -96,6 +128,7 @@ class PaymentCancelledLedgerConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -109,6 +142,7 @@ class PaymentCancelledLedgerConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -124,7 +158,7 @@ class PaymentCancelledLedgerConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -150,7 +184,7 @@ class PaymentCancelledLedgerConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
