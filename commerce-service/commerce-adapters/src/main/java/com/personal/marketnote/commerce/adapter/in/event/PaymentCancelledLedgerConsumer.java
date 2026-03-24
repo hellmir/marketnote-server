@@ -1,10 +1,13 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PaymentCancelledLedgerConsumer {
     private final ObjectMapper objectMapper;
+    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @KafkaListener(
             topics = KafkaTopicConstants.PAYMENT_CANCELLED,
@@ -38,39 +42,39 @@ public class PaymentCancelledLedgerConsumer {
             return;
         }
 
-        try {
-            PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
+        PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
 
-            log.info("결제 취소 이벤트 수신 (회계 역분개). eventId={}, orderId={}, isFullCancel={}, cancelAmount={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel(), payload.cancelAmount());
+        log.info("결제 취소 이벤트 수신 (회계 역분개). eventId={}, orderId={}, isFullCancel={}, cancelAmount={}",
+                envelope.eventId(), payload.orderId(), payload.isFullCancel(), payload.cancelAmount());
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
-                acknowledgment.acknowledge();
-                return;
-            }
-
-            // FIXME: [#929][#1023] HTTP 제거 후 RecordLedgerEntryUseCase.recordPaymentCancellation() 활성화
-            //  현재 듀얼 라이트 기간: CancelPaymentService.recordLedgerEntryForCancellation()에서 동기로 역분개 처리 중
-            //  String idempotencyKey;
-            //  if (payload.isFullCancel()) {
-            //      idempotencyKey = "PAYMENT_CANCELLATION:" + payload.orderId();
-            //  } else {
-            //      idempotencyKey = "PAYMENT_PARTIAL_REFUND:" + payload.orderId()
-            //              + ":" + payload.cancelId();
-            //  }
-            //  recordLedgerEntryUseCase.recordPaymentCancellation(
-            //          payload.orderId(), payload.cancelAmount(), idempotencyKey
-            //  );
-
-            log.info("결제 취소 역분개 이벤트 검증 완료 (듀얼 라이트). orderId={}, isFullCancel={}, cancelAmount={}",
-                    payload.orderId(), payload.isFullCancel(), payload.cancelAmount());
-        } catch (Exception e) {
-            log.error("결제 취소 역분개 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
-            throw e;
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
+            acknowledgment.acknowledge();
+            return;
         }
 
+        String idempotencyKey = resolveIdempotencyKey(payload);
+
+        try {
+            recordLedgerEntryUseCase.recordPaymentCancellation(
+                    payload.orderId(), payload.cancelAmount(), idempotencyKey
+            );
+            log.info("결제 취소 역분개 완료. orderId={}, isFullCancel={}, cancelAmount={}, idempotencyKey={}",
+                    payload.orderId(), payload.isFullCancel(), payload.cancelAmount(), idempotencyKey);
+        } catch (DuplicateLedgerTransactionException e) {
+            log.info("이미 처리된 결제 취소 역분개 이벤트 (멱등 처리). eventId={}, message={}",
+                    envelope.eventId(), e.getMessage());
+        }
+        // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
+
         acknowledgment.acknowledge();
+    }
+
+    private String resolveIdempotencyKey(PaymentCancelledEvent payload) {
+        if (payload.isFullCancel()) {
+            return "PAYMENT_CANCELLATION:" + payload.orderId();
+        }
+        return "PAYMENT_PARTIAL_REFUND:" + payload.orderId()
+                + ":" + (FormatValidator.hasValue(payload.cancelId()) ? payload.cancelId() : "unknown");
     }
 }

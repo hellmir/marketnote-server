@@ -15,7 +15,6 @@ import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
@@ -66,9 +65,6 @@ class CancelPaymentUseCaseTest {
 
     @Mock
     private ChangeOrderStatusUseCase changeOrderStatusUseCase;
-
-    @Mock
-    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @Mock
     private RestoreProductInventoryUseCase restoreProductInventoryUseCase;
@@ -382,109 +378,7 @@ class CancelPaymentUseCaseTest {
         }
     }
 
-    @Nested
-    @DisplayName("분개 기록 검증")
-    class LedgerEntryRecordingTest {
-
-        @Test
-        @DisplayName("전체 취소 성공 시 역분개가 기록된다")
-        void shouldRecordReverseLedgerEntryOnFullCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                    eq(1L), eq(50000L), eq("PAYMENT_CANCELLATION:1")
-            );
-        }
-
-        @Test
-        @DisplayName("부분 취소 성공 시 cancelId 기반 멱등성 키로 역분개가 기록된다")
-        void shouldRecordReverseLedgerEntryOnPartialCancelWithCancelId() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                    eq(1L), eq(20000L), argThat(key -> {
-                        String prefix = "PAYMENT_PARTIAL_REFUND:1:";
-                        if (!key.startsWith(prefix)) {
-                            return false;
-                        }
-                        String cancelId = key.substring(prefix.length());
-                        try {
-                            UUID.fromString(cancelId);
-                            return true;
-                        } catch (IllegalArgumentException e) {
-                            return false;
-                        }
-                    })
-            );
-        }
-
-        @Test
-        @DisplayName("이미 부분환불된 상태에서 추가 부분 취소 시에도 cancelId 기반 멱등성 키가 사용된다")
-        void shouldUseCancelIdBasedKeyRegardlessOfPriorRefundHistory() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            payment.markAsPartiallyRefunded(10000L);
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(recordLedgerEntryUseCase).recordPaymentCancellation(
-                    eq(1L), eq(20000L), argThat(key ->
-                            key.startsWith("PAYMENT_PARTIAL_REFUND:1:")
-                                    && !key.contains("10000")
-                                    && !key.contains("20000")
-                    )
-            );
-        }
-
-        @Test
-        @DisplayName("역분개 실패 시에도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenLedgerRecordingFails() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            doThrow(new RuntimeException("분개 실패")).when(recordLedgerEntryUseCase)
-                    .recordPaymentCancellation(anyLong(), anyLong(), anyString());
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-            verify(changeOrderStatusUseCase).changeOrderStatus(any());
-        }
-    }
+    // [#929][#1034] 분개 기록은 Kafka Consumer(PaymentCancelledLedgerConsumer)로 전환 완료
 
     @Nested
     @DisplayName("재고 복구 검증")
