@@ -5,7 +5,6 @@ import com.personal.marketnote.commerce.domain.settlement.Settlement;
 import com.personal.marketnote.commerce.domain.settlement.SettlementCreateState;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishSettlementEventPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
@@ -42,7 +41,6 @@ public class ProcessSellerSettlementService {
     private final SaveSettlementPort saveSettlementPort;
     private final UpdateSettlementPort updateSettlementPort;
     private final UpdatePaymentAllocationPort updatePaymentAllocationPort;
-    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
     private final PublishSettlementEventPort publishSettlementEventPort;
 
     /**
@@ -95,11 +93,7 @@ public class ProcessSellerSettlementService {
                 .toList();
         updatePaymentAllocationPort.assignSettlement(allocationIds, settlementId);
 
-        recordLedgerEntryUseCase.recordPgSettlement(settlementId, totalAllocatedAmount, pgFeeAmount);
-
-        long sellerSettlementDebit = sellerPayoutAmount + platformFeeAmount;
-        recordLedgerEntryUseCase.recordSellerSettlement(settlementId, sellerSettlementDebit, sellerPayoutAmount, platformFeeAmount);
-
+        // [#929][#1035] 정산 분개는 Kafka Consumer(SettlementExecutedLedgerConsumer)로 전환 완료
         savedSettlement.complete();
         updateSettlementPort.update(savedSettlement);
 

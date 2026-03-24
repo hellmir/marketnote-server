@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.SettlementExecutedEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -24,6 +26,9 @@ class SettlementExecutedLedgerConsumerTest {
     @InjectMocks
     private SettlementExecutedLedgerConsumer consumer;
 
+    @Mock
+    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -42,8 +47,8 @@ class SettlementExecutedLedgerConsumerTest {
     }
 
     @Test
-    @DisplayName("듀얼 라이트 기간 중 정산 실행 이벤트 수신 시 페이로드 검증을 완료하고 acknowledge한다")
-    void handleSettlementExecutedEvent_success_validatesAndAcknowledges() {
+    @DisplayName("정산 실행 이벤트 수신 시 PG/판매자 분개를 기록하고 acknowledge한다")
+    void handleSettlementExecutedEvent_success_recordsLedgerAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L);
 
@@ -51,8 +56,24 @@ class SettlementExecutedLedgerConsumerTest {
         consumer.handleSettlementExecutedEvent(record, acknowledgment);
 
         // then
-        // TODO: [#929][#1024] RecordLedgerEntryUseCase 활성화 시
-        //  recordLedgerEntryUseCase.recordPgSettlement(), recordSellerSettlement() 호출 검증 추가
+        verify(recordLedgerEntryUseCase).recordPgSettlement(1L, 100000L, 3000L);
+        verify(recordLedgerEntryUseCase).recordSellerSettlement(1L, 97000L, 90000L, 7000L);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("이미 처리된 정산 분개 이벤트는 멱등 처리하고 acknowledge한다")
+    void handleSettlementExecutedEvent_duplicate_idempotentAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L);
+        doThrow(new DuplicateLedgerTransactionException("PG_SETTLEMENT:1"))
+                .when(recordLedgerEntryUseCase).recordPgSettlement(1L, 100000L, 3000L);
+
+        // when
+        consumer.handleSettlementExecutedEvent(record, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPgSettlement(1L, 100000L, 3000L);
         verify(acknowledgment).acknowledge();
     }
 
@@ -66,6 +87,7 @@ class SettlementExecutedLedgerConsumerTest {
         consumer.handleSettlementExecutedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -79,6 +101,7 @@ class SettlementExecutedLedgerConsumerTest {
         consumer.handleSettlementExecutedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -92,6 +115,7 @@ class SettlementExecutedLedgerConsumerTest {
         consumer.handleSettlementExecutedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -107,7 +131,7 @@ class SettlementExecutedLedgerConsumerTest {
         consumer.handleSettlementExecutedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -130,7 +154,7 @@ class SettlementExecutedLedgerConsumerTest {
         consumer.handleSettlementExecutedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 

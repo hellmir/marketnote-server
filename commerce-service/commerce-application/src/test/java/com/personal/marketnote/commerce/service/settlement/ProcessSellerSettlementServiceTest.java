@@ -3,7 +3,7 @@ package com.personal.marketnote.commerce.service.settlement;
 import com.personal.marketnote.commerce.domain.settlement.*;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishSettlementEventPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdatePaymentAllocationPort;
@@ -46,7 +46,7 @@ class ProcessSellerSettlementServiceTest {
     private UpdatePaymentAllocationPort updatePaymentAllocationPort;
 
     @Mock
-    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+    private PublishSettlementEventPort publishSettlementEventPort;
 
     @Captor
     private ArgumentCaptor<Settlement> settlementCaptor;
@@ -127,8 +127,7 @@ class ProcessSellerSettlementServiceTest {
             verify(updatePaymentAllocationPort).assignSettlement(allocationIdsCaptor.capture(), eq(1L));
             assertThat(allocationIdsCaptor.getValue()).containsExactlyInAnyOrder(1L, 2L);
 
-            verify(recordLedgerEntryUseCase).recordPgSettlement(1L, 8000L, 240L);
-            verify(recordLedgerEntryUseCase).recordSellerSettlement(1L, 7760L, 7360L, 400L);
+            // [#929][#1035] 분개는 Kafka Consumer로 전환 완료
             verify(updateSettlementPort).update(argThat(Settlement::isCompleted));
         }
 
