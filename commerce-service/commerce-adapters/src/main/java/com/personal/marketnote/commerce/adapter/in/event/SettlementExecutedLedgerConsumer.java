@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SettlementExecutedLedgerConsumer {
     private final ObjectMapper objectMapper;
+    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @KafkaListener(
             topics = KafkaTopicConstants.SETTLEMENT_EXECUTED,
@@ -38,36 +41,36 @@ public class SettlementExecutedLedgerConsumer {
             return;
         }
 
-        try {
-            SettlementExecutedEvent payload = envelope.getPayloadAs(SettlementExecutedEvent.class, objectMapper);
+        SettlementExecutedEvent payload = envelope.getPayloadAs(SettlementExecutedEvent.class, objectMapper);
 
-            log.info("정산 실행 이벤트 수신 (회계 분개). eventId={}, settlementId={}, sellerId={}",
-                    envelope.eventId(), payload.settlementId(), payload.sellerId());
+        log.info("정산 실행 이벤트 수신 (회계 분개). eventId={}, settlementId={}, sellerId={}",
+                envelope.eventId(), payload.settlementId(), payload.sellerId());
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("settlementId", payload.settlementId()))) {
-                acknowledgment.acknowledge();
-                return;
-            }
-
-            // FIXME: [#929][#1024] HTTP 제거 후 RecordLedgerEntryUseCase 활성화
-            //  현재 듀얼 라이트 기간: ProcessSellerSettlementService.process()에서 동기로 분개 처리 중
-            //  recordLedgerEntryUseCase.recordPgSettlement(
-            //          payload.settlementId(), payload.totalAllocatedAmount(), payload.pgFeeAmount()
-            //  );
-            //  long sellerSettlementDebit = payload.sellerPayoutAmount() + payload.platformFeeAmount();
-            //  recordLedgerEntryUseCase.recordSellerSettlement(
-            //          payload.settlementId(), sellerSettlementDebit,
-            //          payload.sellerPayoutAmount(), payload.platformFeeAmount()
-            //  );
-
-            log.info("정산 실행 분개 이벤트 검증 완료 (듀얼 라이트). settlementId={}, sellerId={}, totalAllocated={}",
-                    payload.settlementId(), payload.sellerId(), payload.totalAllocatedAmount());
-        } catch (Exception e) {
-            log.error("정산 실행 분개 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
-            throw e;
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("settlementId", payload.settlementId()))) {
+            acknowledgment.acknowledge();
+            return;
         }
+
+        try {
+            recordLedgerEntryUseCase.recordPgSettlement(
+                    payload.settlementId(), payload.totalAllocatedAmount(), payload.pgFeeAmount()
+            );
+
+            long sellerSettlementDebit = Math.addExact(payload.sellerPayoutAmount(), payload.platformFeeAmount());
+            recordLedgerEntryUseCase.recordSellerSettlement(
+                    payload.settlementId(), sellerSettlementDebit,
+                    payload.sellerPayoutAmount(), payload.platformFeeAmount()
+            );
+
+            log.info("정산 분개 완료. settlementId={}, totalAllocated={}, pgFee={}, sellerPayout={}, platformFee={}",
+                    payload.settlementId(), payload.totalAllocatedAmount(), payload.pgFeeAmount(),
+                    payload.sellerPayoutAmount(), payload.platformFeeAmount());
+        } catch (DuplicateLedgerTransactionException e) {
+            log.info("이미 처리된 정산 분개 이벤트 (멱등 처리). eventId={}, message={}",
+                    envelope.eventId(), e.getMessage());
+        }
+        // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();
     }
