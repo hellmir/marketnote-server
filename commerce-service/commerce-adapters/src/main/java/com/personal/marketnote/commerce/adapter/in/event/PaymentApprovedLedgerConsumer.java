@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PaymentApprovedLedgerConsumer {
     private final ObjectMapper objectMapper;
+    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
     @KafkaListener(
             topics = KafkaTopicConstants.PAYMENT_APPROVED,
@@ -38,30 +41,25 @@ public class PaymentApprovedLedgerConsumer {
             return;
         }
 
-        try {
-            PaymentApprovedEvent payload = envelope.getPayloadAs(PaymentApprovedEvent.class, objectMapper);
+        PaymentApprovedEvent payload = envelope.getPayloadAs(PaymentApprovedEvent.class, objectMapper);
 
-            log.info("결제 승인 이벤트 수신 (회계 분개). eventId={}, orderId={}, orderKey={}, paymentAmount={}",
-                    envelope.eventId(), payload.orderId(), payload.orderKey(), payload.paymentAmount());
+        log.info("결제 승인 이벤트 수신 (회계 분개). eventId={}, orderId={}, orderKey={}, paymentAmount={}",
+                envelope.eventId(), payload.orderId(), payload.orderKey(), payload.paymentAmount());
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
-                acknowledgment.acknowledge();
-                return;
-            }
-
-            // FIXME: [#929][#933] HTTP 제거 후 RecordLedgerEntryUseCase.recordPaymentApproval() 활성화
-            //  현재 듀얼 라이트 기간: PaymentApprovalTransactionHelper.commitSuccess()에서 동기로 분개 처리 중
-            //  활성화 시 PaymentApprovedEvent에 paymentId 필드 추가 필요
-            //  recordLedgerEntryUseCase.recordPaymentApproval(paymentId, payload.paymentAmount());
-
-            log.info("결제 승인 분개 이벤트 검증 완료 (듀얼 라이트). orderId={}, orderKey={}, paymentAmount={}",
-                    payload.orderId(), payload.orderKey(), payload.paymentAmount());
-        } catch (Exception e) {
-            log.error("결제 승인 분개 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
-            throw e;
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("orderId", payload.orderId()))) {
+            acknowledgment.acknowledge();
+            return;
         }
+
+        try {
+            recordLedgerEntryUseCase.recordPaymentApproval(payload.orderId(), payload.paymentAmount());
+            log.info("결제 승인 분개 완료. orderId={}, paymentAmount={}", payload.orderId(), payload.paymentAmount());
+        } catch (DuplicateLedgerTransactionException e) {
+            log.info("이미 처리된 결제 승인 분개 이벤트 (멱등 처리). eventId={}, message={}",
+                    envelope.eventId(), e.getMessage());
+        }
+        // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();
     }
