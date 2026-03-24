@@ -16,14 +16,11 @@ import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.SignUpUseCase;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
-import com.personal.marketnote.user.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,7 +41,6 @@ public class SignUpService implements SignUpUseCase {
     private final UpdateUserPort updateUserPort;
     private final VerifyCodePort verifyCodePort;
     private final SaveLoginHistoryPort saveLoginHistoryPort;
-    private final ModifyUserPointPort modifyUserPointPort;
     private final PublishUserEventPort publishUserEventPort;
 
     @Override
@@ -79,12 +75,10 @@ public class SignUpService implements SignUpUseCase {
         );
 
         // Outbox 이벤트 저장 (트랜잭션 내)
+        // [#929][#1036] 포인트 초기화는 Kafka Consumer(UserSignupCompletedRewardConsumer)로 전환 완료
         publishUserEventPort.publishUserSignupCompletedEvent(
                 signedUpUser.getId(), signedUpUser.getUserKey().toString()
         );
-
-        // 트랜잭션 커밋 후 HTTP 호출
-        registerUserPointHttpAfterCommit(signedUpUser.getId(), signedUpUser.getUserKey().toString());
 
         saveLoginHistoryPort.saveLoginHistory(
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)
@@ -150,17 +144,4 @@ public class SignUpService implements SignUpUseCase {
         throw new UserNotActiveException(SIXTH_ERROR_CODE, email);
     }
 
-    private void registerUserPointHttpAfterCommit(Long userId, String userKey) {
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    modifyUserPointPort.registerUserPoint(userId, userKey); // TODO: Kafka 검증 완료 후 HTTP 호출 제거
-                }
-            });
-            return;
-        }
-
-        modifyUserPointPort.registerUserPoint(userId, userKey); // TODO: Kafka 검증 완료 후 HTTP 호출 제거
-    }
 }
