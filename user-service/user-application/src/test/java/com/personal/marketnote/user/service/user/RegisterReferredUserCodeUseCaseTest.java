@@ -1,13 +1,11 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
-import com.personal.marketnote.common.exception.RewardServiceRequestFailedException;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
-import com.personal.marketnote.user.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
@@ -32,8 +29,6 @@ class RegisterReferredUserCodeUseCaseTest {
     private UpdateUserPort updateUserPort;
     @Mock
     private PublishUserEventPort publishUserEventPort;
-    @Mock
-    private ModifyUserPointPort modifyUserPointPort;
 
     @InjectMocks
     private RegisterReferredUserCodeService registerReferredUserCodeService;
@@ -56,12 +51,12 @@ class RegisterReferredUserCodeUseCaseTest {
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verifyNoMoreInteractions(getUserUseCase);
-        verifyNoInteractions(updateUserPort, publishUserEventPort, modifyUserPointPort);
+        verifyNoInteractions(updateUserPort, publishUserEventPort);
     }
 
     @Test
-    @DisplayName("추천인 코드 등록 성공 시 포인트 적립을 요청한다")
-    void registerReferredUserCode_success_accruesPoints() {
+    @DisplayName("추천인 코드 등록 성공 시 Outbox 이벤트를 발행한다")
+    void registerReferredUserCode_success_publishesEvent() {
         // given
         Long requestUserId = 1L;
         String referredUserCode = "ref-123";
@@ -85,12 +80,11 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(updateUserPort).update(requestUser);
         verify(getUserUseCase).getUser(referredUserCode);
-        verify(referredUser, times(2)).getId();
-        verify(requestUser, times(2)).getId();
+        verify(referredUser).getId();
+        verify(requestUser).getId();
         verify(publishUserEventPort).publishUserReferralCompletedEvent(requestUserId, referredUserId);
-        verify(modifyUserPointPort).accrueReferralPoints(requestUserId, referredUserId);
         verify(requestUser, never()).removeReferredUserCode();
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, publishUserEventPort, modifyUserPointPort, referredUser);
+        verifyNoMoreInteractions(getUserUseCase, updateUserPort, publishUserEventPort, referredUser);
     }
 
     @Test
@@ -116,46 +110,8 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(getUserUseCase).getUser(requestUserId);
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(getUserUseCase, never()).getUser(referredUserCode);
-        verifyNoInteractions(updateUserPort, publishUserEventPort, modifyUserPointPort);
+        verifyNoInteractions(updateUserPort, publishUserEventPort);
         verifyNoMoreInteractions(getUserUseCase);
-    }
-
-    @Test
-    @DisplayName("포인트 적립 HTTP 요청이 실패해도 Outbox 이벤트는 롤백되지 않는다")
-    void registerReferredUserCode_rewardAccrualFails_outboxNotRolledBack() {
-        // given
-        Long requestUserId = 1L;
-        String referredUserCode = "ref-123";
-        Long referredUserId = 2L;
-        User requestUser = spy(UserTestObjectFactory.createDefaultUser(
-                requestUserId, EntityStatus.ACTIVE, false, List.of()
-        ));
-        User referredUser = mock(User.class);
-        RewardServiceRequestFailedException exception
-                = new RewardServiceRequestFailedException(new IOException("fail"));
-
-        when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
-        when(getUserUseCase.getUser(requestUserId)).thenReturn(requestUser);
-        when(getUserUseCase.getUser(referredUserCode)).thenReturn(referredUser);
-        when(referredUser.getId()).thenReturn(referredUserId);
-        doThrow(exception).when(modifyUserPointPort)
-                .accrueReferralPoints(requestUserId, referredUserId);
-
-        // expect
-        assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
-                .isSameAs(exception);
-
-        verify(getUserUseCase).existsUser(referredUserCode);
-        verify(getUserUseCase).getUser(requestUserId);
-        verify(requestUser).registerReferredUserCode(referredUserCode);
-        verify(updateUserPort).update(requestUser);
-        verify(getUserUseCase).getUser(referredUserCode);
-        verify(referredUser, times(2)).getId();
-        verify(requestUser, times(2)).getId();
-        verify(publishUserEventPort).publishUserReferralCompletedEvent(requestUserId, referredUserId);
-        verify(modifyUserPointPort).accrueReferralPoints(requestUserId, referredUserId);
-        verify(requestUser, never()).removeReferredUserCode();
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, publishUserEventPort, modifyUserPointPort, referredUser);
     }
 
     @Test
@@ -176,7 +132,7 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
         verify(getUserUseCase, never()).getUser(referredUserCode);
-        verifyNoInteractions(updateUserPort, publishUserEventPort, modifyUserPointPort);
+        verifyNoInteractions(updateUserPort, publishUserEventPort);
         verifyNoMoreInteractions(getUserUseCase);
     }
 
@@ -204,7 +160,7 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(updateUserPort).update(requestUser);
         verify(getUserUseCase).getUser(referredUserCode);
-        verifyNoInteractions(publishUserEventPort, modifyUserPointPort);
+        verifyNoInteractions(publishUserEventPort);
         verify(requestUser, never()).removeReferredUserCode();
         verifyNoMoreInteractions(getUserUseCase, updateUserPort);
     }
