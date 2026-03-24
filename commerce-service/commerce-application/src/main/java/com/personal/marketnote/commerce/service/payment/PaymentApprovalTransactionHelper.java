@@ -9,7 +9,6 @@ import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
-import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -45,7 +44,6 @@ public class PaymentApprovalTransactionHelper {
     private final FindPspPaymentEventPort findPspPaymentEventPort;
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
-    private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
     private final PublishPaymentEventPort publishPaymentEventPort;
 
     /**
@@ -104,8 +102,7 @@ public class PaymentApprovalTransactionHelper {
                         .build()
         );
 
-        recordLedgerEntryForPaymentApproval(payment);
-
+        // [#929][#1033] 결제 승인 분개는 Kafka Consumer(PaymentApprovedLedgerConsumer)로 전환 완료
         publishPaymentApprovedEvent(payment);
 
         return ApprovePaymentResult.builder()
@@ -210,13 +207,4 @@ public class PaymentApprovalTransactionHelper {
         }
     }
 
-    private void recordLedgerEntryForPaymentApproval(Payment payment) {
-        try {
-            recordLedgerEntryUseCase.recordPaymentApproval(
-                    payment.getOrderId(), payment.getPaymentAmount()
-            );
-        } catch (Exception e) {
-            log.error("결제 승인 분개 기록 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
-        }
-    }
 }

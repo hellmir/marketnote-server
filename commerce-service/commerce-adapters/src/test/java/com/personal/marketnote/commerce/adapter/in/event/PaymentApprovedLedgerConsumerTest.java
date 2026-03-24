@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
+import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentApprovedEvent;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -24,6 +26,9 @@ class PaymentApprovedLedgerConsumerTest {
     @InjectMocks
     private PaymentApprovedLedgerConsumer consumer;
 
+    @Mock
+    private RecordLedgerEntryUseCase recordLedgerEntryUseCase;
+
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -40,8 +45,8 @@ class PaymentApprovedLedgerConsumerTest {
     }
 
     @Test
-    @DisplayName("듀얼 라이트 기간 중 결제 승인 이벤트 수신 시 페이로드 검증을 완료하고 acknowledge한다")
-    void handlePaymentApprovedEvent_success_validatesAndAcknowledges() {
+    @DisplayName("결제 승인 이벤트 수신 시 분개를 기록하고 acknowledge한다")
+    void handlePaymentApprovedEvent_success_recordsLedgerAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", 50000L);
 
@@ -49,8 +54,23 @@ class PaymentApprovedLedgerConsumerTest {
         consumer.handlePaymentApprovedEvent(record, acknowledgment);
 
         // then
-        // TODO: [#929][#933] RecordLedgerEntryUseCase 활성화 시
-        //  recordLedgerEntryUseCase.recordPaymentApproval() 호출 검증 추가
+        verify(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("이미 처리된 분개 이벤트는 멱등 처리하고 acknowledge한다")
+    void handlePaymentApprovedEvent_duplicate_idempotentAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", 50000L);
+        doThrow(new DuplicateLedgerTransactionException("PG_SETTLEMENT:1"))
+                .when(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
+
+        // when
+        consumer.handlePaymentApprovedEvent(record, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentApproval(1L, 50000L);
         verify(acknowledgment).acknowledge();
     }
 
@@ -64,6 +84,7 @@ class PaymentApprovedLedgerConsumerTest {
         consumer.handlePaymentApprovedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -77,6 +98,7 @@ class PaymentApprovedLedgerConsumerTest {
         consumer.handlePaymentApprovedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -90,6 +112,7 @@ class PaymentApprovedLedgerConsumerTest {
         consumer.handlePaymentApprovedEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -105,7 +128,7 @@ class PaymentApprovedLedgerConsumerTest {
         consumer.handlePaymentApprovedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -126,7 +149,7 @@ class PaymentApprovedLedgerConsumerTest {
         consumer.handlePaymentApprovedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(objectMapper);
+        verifyNoInteractions(objectMapper, recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
     }
 
