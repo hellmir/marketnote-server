@@ -69,7 +69,7 @@ public class UserSignupCompletedRewardConsumer {
 
             log.info("Kafka 이벤트로 포인트 초기화 완료. userId={}", payload.userId());
         } catch (DuplicateUserPointException e) {
-            log.info("포인트가 이미 존재합니다 (듀얼 라이트 중복). eventId={}, key={}",
+            log.info("포인트가 이미 존재합니다 (멱등 처리). eventId={}, key={}",
                     envelope.eventId(), record.key());
         }
         // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
