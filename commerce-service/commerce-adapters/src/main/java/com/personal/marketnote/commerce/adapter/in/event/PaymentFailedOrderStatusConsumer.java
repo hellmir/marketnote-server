@@ -64,7 +64,7 @@ public class PaymentFailedOrderStatusConsumer {
             log.info("Kafka 이벤트로 주문 상태 FAILED 변경 완료. orderId={}, orderKey={}",
                     payload.orderId(), payload.orderKey());
         } catch (OrderStatusAlreadyChangedException e) {
-            log.warn("듀얼 라이트: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
+            log.info("이미 주문 상태가 변경됨 (멱등 처리). eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage());
         } catch (Exception e) {
             log.error("주문 상태 FAILED 변경 실패. eventId={}, key={}, error={}",

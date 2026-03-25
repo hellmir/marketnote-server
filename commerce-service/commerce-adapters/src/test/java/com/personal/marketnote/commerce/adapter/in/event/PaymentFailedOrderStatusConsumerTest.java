@@ -85,7 +85,7 @@ class PaymentFailedOrderStatusConsumerTest {
     }
 
     @Test
-    @DisplayName("듀얼 라이트 기간 중 이미 FAILED 상태인 주문에 대해 OrderStatusAlreadyChangedException 발생 시 정상 acknowledge한다")
+    @DisplayName("이미 FAILED 상태인 주문에 대해 OrderStatusAlreadyChangedException 발생 시 멱등 처리하고 acknowledge한다")
     void handlePaymentFailedEvent_alreadyChanged_acknowledgesGracefully() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", "CARD_ERROR", "카드 잔액 부족");
