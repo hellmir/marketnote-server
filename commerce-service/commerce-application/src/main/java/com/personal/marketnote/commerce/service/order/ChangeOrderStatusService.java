@@ -183,9 +183,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
 
         // Outbox 이벤트 저장 (트랜잭션 내)
+        // [#929][#1190] 적립 예정 포인트 확정은 Kafka Consumer로 전환 완료
         publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
-
-        runAfterCommit(() -> confirmPendingPoints(buyerId, orderId));
     }
 
     private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds) {
@@ -193,15 +192,6 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
         } catch (Exception e) {
             log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
-                    orderId, buyerId, e.getMessage(), e);
-        }
-    }
-
-    private void confirmPendingPoints(Long buyerId, Long orderId) {
-        try {
-            modifyUserPointPort.confirmPendingPoints(buyerId, orderId);
-        } catch (Exception e) {
-            log.error("적립 예정 포인트 확정 실패 - orderId: {}, buyerId: {}, error: {}",
                     orderId, buyerId, e.getMessage(), e);
         }
     }
