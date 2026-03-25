@@ -12,13 +12,10 @@ import com.personal.marketnote.community.port.in.result.review.RegisterReviewRes
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.RegisterReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
-import com.personal.marketnote.community.port.out.order.UpdateOrderProductReviewStatusPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -30,7 +27,6 @@ public class RegisterReviewService implements RegisterReviewUseCase {
     private final SaveReviewPort saveReviewPort;
     private final UpdateReviewPort updateReviewPort;
     private final PublishReviewEventPort publishReviewEventPort;
-    private final UpdateOrderProductReviewStatusPort updateOrderProductReviewStatusPort;
 
     @Override
     public RegisterReviewResult registerReview(RegisterReviewCommand command) {
@@ -63,21 +59,8 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         }
 
         // Outbox 이벤트 저장 (트랜잭션 내)
+        // [#929][#1038] 주문상품 리뷰 상태 업데이트는 Kafka Consumer(ReviewRegisteredCommerceConsumer)로 전환 완료
         publishReviewEventPort.publishReviewRegisteredEvent(orderId, pricePolicyId);
-
-        // 주문 상품의 리뷰 작성 여부를 true로 업데이트 (커밋 후 HTTP 호출)
-        if (TransactionSynchronizationManager.isActualTransactionActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    // TODO: Kafka 검증 완료 후 HTTP 호출 제거
-                    updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
-                }
-            });
-        } else {
-            // TODO: Kafka 검증 완료 후 HTTP 호출 제거
-            updateOrderProductReviewStatusPort.update(orderId, pricePolicyId, true);
-        }
 
         return RegisterReviewResult.from(savedReview);
     }
