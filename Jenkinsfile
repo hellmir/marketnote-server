@@ -64,6 +64,11 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "FASSTO_CUSTOMER_CODE",              value: env.FASSTO_CUSTOMER_CODE],
                 [name: "KAFKA_BOOTSTRAP_SERVERS",           value: env.KAFKA_BOOTSTRAP_SERVERS],
                 [name: "KAFKA_SLACK_WEBHOOK_URL",           value: env.KAFKA_SLACK_WEBHOOK_URL],
+                [name: "KAFKA_SASL_ENABLED",                value: env.KAFKA_SASL_ENABLED],
+                [name: "KAFKA_SASL_MECHANISM",              value: env.KAFKA_SASL_MECHANISM],
+                [name: "KAFKA_SASL_PROTOCOL",               value: env.KAFKA_SASL_PROTOCOL],
+                [name: "KAFKA_SASL_USERNAME",               value: env.KAFKA_SASL_USERNAME],
+                [name: "KAFKA_SASL_PASSWORD",               value: env.KAFKA_SASL_PASSWORD],
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -690,6 +695,11 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_FASSTO_CUSTOMER_CODE',               variable: 'FASSTO_CUSTOMER_CODE'),
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_BOOTSTRAP_SERVERS',            variable: 'KAFKA_BOOTSTRAP_SERVERS'),
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SLACK_WEBHOOK_URL',            variable: 'KAFKA_SLACK_WEBHOOK_URL'),
+                        string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_ENABLED',                 variable: 'KAFKA_SASL_ENABLED'),
+                        string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_MECHANISM',               variable: 'KAFKA_SASL_MECHANISM'),
+                        string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PROTOCOL',                variable: 'KAFKA_SASL_PROTOCOL'),
+                        string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_USERNAME',                variable: 'KAFKA_SASL_USERNAME'),
+                        string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PASSWORD',                variable: 'KAFKA_SASL_PASSWORD'),
                     ]) {
                         sh '''
                           LG="$CLOUDWATCH_LOG_GROUP"
