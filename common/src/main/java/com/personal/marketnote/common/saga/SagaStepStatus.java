@@ -31,4 +31,16 @@ public enum SagaStepStatus {
     public boolean isCompensated() {
         return this == COMPENSATED;
     }
+
+    public boolean isTerminal() {
+        return this == SUCCEEDED || this == COMPENSATED;
+    }
+
+    public boolean canProcess() {
+        return this == PENDING;
+    }
+
+    public boolean canCompensate() {
+        return this == SUCCEEDED || this == FAILED;
+    }
 }
