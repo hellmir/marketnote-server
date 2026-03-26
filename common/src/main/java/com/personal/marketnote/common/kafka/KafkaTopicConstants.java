@@ -25,6 +25,9 @@ public final class KafkaTopicConstants {
     // Community 이벤트
     public static final String REVIEW_REGISTERED = "community.review.registered";
 
+    // SAGA 응답
+    public static final String SAGA_RESPONSE = "saga.response";
+
     // Dead Letter Topic 접미사
     public static final String DLT_SUFFIX = ".dlt";
 }
