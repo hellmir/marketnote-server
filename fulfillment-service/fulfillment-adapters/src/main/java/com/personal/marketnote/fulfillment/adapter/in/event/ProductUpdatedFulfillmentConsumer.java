@@ -74,49 +74,49 @@ public class ProductUpdatedFulfillmentConsumer {
             throw new FasstoAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
         }
 
-            UpdateFasstoGoodsItemCommand itemCommand = UpdateFasstoGoodsItemCommand.of(
-                    String.valueOf(payload.productId()),
-                    payload.productName(),
-                    payload.godType(),
-                    payload.giftDiv(),
-                    payload.godOptCd1(),
-                    payload.godOptCd2(),
-                    payload.invGodNmUseYn(),
-                    payload.invGodNm(),
-                    payload.supCd(),
-                    payload.cateCd(),
-                    payload.seasonCd(),
-                    payload.genderCd(),
-                    payload.makeYr(),
-                    payload.godPr(),
-                    payload.inPr(),
-                    payload.salPr(),
-                    payload.dealTemp(),
-                    payload.pickFac(),
-                    payload.godBarcd(),
-                    payload.boxWeight(),
-                    payload.origin(),
-                    payload.distTermMgtYn(),
-                    payload.useTermDay(),
-                    payload.outCanDay(),
-                    payload.inCanDay(),
-                    payload.boxDiv(),
-                    payload.bufGodYn(),
-                    payload.loadingDirection(),
-                    payload.subMate(),
-                    payload.useYn(),
-                    payload.safetyStock(),
-                    payload.feeYn(),
-                    payload.saleUnitQty(),
-                    payload.cstGodImgUrl(),
-                    payload.externalGodImgUrl()
-            );
+        UpdateFasstoGoodsItemCommand itemCommand = UpdateFasstoGoodsItemCommand.of(
+                String.valueOf(payload.productId()),
+                payload.productName(),
+                payload.godType(),
+                payload.giftDiv(),
+                payload.godOptCd1(),
+                payload.godOptCd2(),
+                payload.invGodNmUseYn(),
+                payload.invGodNm(),
+                payload.supCd(),
+                payload.cateCd(),
+                payload.seasonCd(),
+                payload.genderCd(),
+                payload.makeYr(),
+                payload.godPr(),
+                payload.inPr(),
+                payload.salPr(),
+                payload.dealTemp(),
+                payload.pickFac(),
+                payload.godBarcd(),
+                payload.boxWeight(),
+                payload.origin(),
+                payload.distTermMgtYn(),
+                payload.useTermDay(),
+                payload.outCanDay(),
+                payload.inCanDay(),
+                payload.boxDiv(),
+                payload.bufGodYn(),
+                payload.loadingDirection(),
+                payload.subMate(),
+                payload.useYn(),
+                payload.safetyStock(),
+                payload.feeYn(),
+                payload.saleUnitQty(),
+                payload.cstGodImgUrl(),
+                payload.externalGodImgUrl()
+        );
 
-            UpdateFasstoGoodsCommand command = UpdateFasstoGoodsCommand.of(
-                    fasstoAuthProperties.getCustomerCode(),
-                    accessToken.getValue(),
-                    List.of(itemCommand)
-            );
+        UpdateFasstoGoodsCommand command = UpdateFasstoGoodsCommand.of(
+                fasstoAuthProperties.getCustomerCode(),
+                accessToken.getValue(),
+                List.of(itemCommand)
+        );
 
         updateFasstoGoodsUseCase.updateGoods(command);
 

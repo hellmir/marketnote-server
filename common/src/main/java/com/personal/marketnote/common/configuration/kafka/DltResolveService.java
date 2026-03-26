@@ -82,7 +82,7 @@ public class DltResolveService {
     }
 
     private void retryMessage(String originalTopic, String dltTopic,
-                               int partition, long offset) throws Exception {
+                              int partition, long offset) throws Exception {
         ConsumerRecord<String, Object> record = readDltMessage(dltTopic, partition, offset);
         kafkaTemplate.send(originalTopic, record.key(), record.value())
                 .get(SEND_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -106,9 +106,9 @@ public class DltResolveService {
     }
 
     private DltResolveResult saveResolution(String originalTopic, String dltTopic,
-                                             int partition, long offset,
-                                             DltResolutionStatus resolution, String reason,
-                                             String operatorInfo) {
+                                            int partition, long offset,
+                                            DltResolutionStatus resolution, String reason,
+                                            String operatorInfo) {
         DltMessageResolutionJpaEntity entity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, partition, offset,
                 resolution, operatorInfo, LocalDateTime.now(), reason

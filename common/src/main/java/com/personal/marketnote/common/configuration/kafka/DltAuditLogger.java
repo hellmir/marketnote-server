@@ -34,19 +34,19 @@ public class DltAuditLogger {
     }
 
     public void logResolve(String originalTopic, int partition, long offset,
-                            String action, String reason, String operatorInfo) {
+                           String action, String reason, String operatorInfo) {
         log.info("[DLT-AUDIT] action=RESOLVE, topic={}, partition={}, offset={}, resolution={}, reason={}, operator={}",
                 originalTopic, partition, offset, action, reason, operatorInfo);
     }
 
     public void logResolveAlreadyResolved(String originalTopic, int partition, long offset,
-                                           String existingResolution, String operatorInfo) {
+                                          String existingResolution, String operatorInfo) {
         log.info("[DLT-AUDIT] action=RESOLVE_ALREADY_RESOLVED, topic={}, partition={}, offset={}, existingResolution={}, operator={}",
                 originalTopic, partition, offset, existingResolution, operatorInfo);
     }
 
     public void logResolveError(String originalTopic, int partition, long offset,
-                                 String action, String operatorInfo, Exception ex) {
+                                String action, String operatorInfo, Exception ex) {
         log.error("[DLT-AUDIT] action=RESOLVE_ERROR, topic={}, partition={}, offset={}, resolution={}, operator={}, error={}",
                 originalTopic, partition, offset, action, operatorInfo, ex.getMessage(), ex);
     }

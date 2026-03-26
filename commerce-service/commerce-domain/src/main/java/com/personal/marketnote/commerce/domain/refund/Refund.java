@@ -37,9 +37,9 @@ public class Refund {
      * @param state 환불 생성 상태 객체
      * @return 새 환불 도메인 객체
      * @throws RefundPaymentIdNoValueException 결제 ID가 null인 경우
-     * @throws RefundOrderIdNoValueException 주문 ID가 null인 경우
-     * @throws RefundTypeNoValueException 환불 유형이 null인 경우
-     * @throws InvalidRefundAmountException 환불 금액이 0 이하인 경우
+     * @throws RefundOrderIdNoValueException   주문 ID가 null인 경우
+     * @throws RefundTypeNoValueException      환불 유형이 null인 경우
+     * @throws InvalidRefundAmountException    환불 금액이 0 이하인 경우
      */
     public static Refund from(RefundCreateState state) {
         validate(state);

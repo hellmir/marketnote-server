@@ -19,7 +19,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.*;
+import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.REFERRAL_BONUS_REASON_PREFIX;
+import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.REFERRER_POINT_REASON;
 
 @PersistenceAdapter
 @RequiredArgsConstructor

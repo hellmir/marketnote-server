@@ -20,10 +20,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
                 name = "uk_saga_instance_saga_id",
                 columnNames = {"saga_id"}
         ),
-        indexes = @Index(
-                name = "idx_saga_instance_type_status",
-                columnList = "saga_type, status"
-        )
+        indexes = {
+                @Index(name = "idx_saga_instance_type_status", columnList = "saga_type, status"),
+                @Index(name = "idx_saga_instance_status_modified_at", columnList = "status, modified_at")
+        }
 )
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

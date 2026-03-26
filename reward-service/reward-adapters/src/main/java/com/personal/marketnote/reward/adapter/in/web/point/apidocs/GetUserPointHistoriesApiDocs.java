@@ -19,23 +19,23 @@ import java.lang.annotation.*;
         summary = "(관리자/본인) 회원 포인트 내역 조회",
         description = """
                 작성일자: 2026-01-19
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 회원 포인트 적립/사용 내역을 일자별로 조회합니다.
-
+                
                 - 관리자 또는 본인만 조회할 수 있습니다.
-
+                
                 - 커서 기반 페이징을 지원합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | userId (path) | number | 회원 ID | Y | 100 |
@@ -44,11 +44,11 @@ import java.lang.annotation.*;
                 | end-date | string(date) | 조회 종료일 (YYYY-MM-DD) | 선택 | 2026-03-31 |
                 | cursor | number | 이전 페이지 마지막 항목 ID (미입력 시 첫 페이지) | 선택 | 25 |
                 | page-size | number | 페이지 크기 (기본값: 20) | 선택 | 20 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
@@ -56,28 +56,28 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 시간 | "2026-01-19T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "회원 포인트 내역 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content > histories (CursorResponse)
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | totalElements | number | 전체 건수 (첫 페이지만) | 15 |
                 | hasNext | boolean | 다음 페이지 존재 여부 | true |
                 | nextCursor | number | 다음 커서 (마지막 항목 ID) | 11 |
                 | items | array | 일자별 포인트 내역 | [ ... ] |
-
+                
                 ### Response > content > histories > items
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | date | string(date) | 발생일자 | "2026-01-19" |
                 | count | number | 개수 | 2 |
                 | histories | array | 포인트 내역 | [ ... ] |
-
+                
                 ### Response > content > histories > items > histories
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 포인트 내역 ID | 1 |

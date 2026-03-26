@@ -2,6 +2,7 @@ package com.personal.marketnote.common.saga.adapter;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.saga.SagaInstance;
+import com.personal.marketnote.common.saga.SagaStatus;
 import com.personal.marketnote.common.saga.SagaStep;
 import com.personal.marketnote.common.saga.entity.SagaInstanceJpaEntity;
 import com.personal.marketnote.common.saga.entity.SagaStepJpaEntity;
@@ -15,13 +16,17 @@ import com.personal.marketnote.common.saga.port.UpdateSagaPort;
 import com.personal.marketnote.common.saga.repository.SagaInstanceJpaRepository;
 import com.personal.marketnote.common.saga.repository.SagaStepJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class SagaPersistenceAdapter implements SaveSagaPort, FindSagaPort, UpdateSagaPort {
+
+    private static final int TIMEOUT_BATCH_SIZE = 100;
 
     private final SagaInstanceJpaRepository sagaInstanceJpaRepository;
     private final SagaStepJpaRepository sagaStepJpaRepository;
@@ -65,5 +70,25 @@ public class SagaPersistenceAdapter implements SaveSagaPort, FindSagaPort, Updat
         SagaStepJpaEntity entity = sagaStepJpaRepository.findById(step.getId())
                 .orElseThrow(() -> new SagaStepNotFoundException(step.getId()));
         entity.updateFrom(step);
+    }
+
+    @Override
+    public List<SagaInstance> findTimedOutProcessingInstances(LocalDateTime cutoff) {
+        PageRequest pageRequest = PageRequest.of(0, TIMEOUT_BATCH_SIZE);
+        return sagaInstanceJpaRepository
+                .findByStatusAndModifiedAtBefore(SagaStatus.PROCESSING, cutoff, pageRequest)
+                .stream()
+                .map(SagaInstanceJpaEntityToDomainMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<SagaInstance> findTimedOutCompensatingInstances(LocalDateTime cutoff) {
+        PageRequest pageRequest = PageRequest.of(0, TIMEOUT_BATCH_SIZE);
+        return sagaInstanceJpaRepository
+                .findByStatusAndModifiedAtBefore(SagaStatus.COMPENSATING, cutoff, pageRequest)
+                .stream()
+                .map(SagaInstanceJpaEntityToDomainMapper::toDomain)
+                .toList();
     }
 }
