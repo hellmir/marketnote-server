@@ -69,6 +69,7 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "KAFKA_SASL_PROTOCOL",               value: env.KAFKA_SASL_PROTOCOL],
                 [name: "KAFKA_SASL_USERNAME",               value: env.KAFKA_SASL_USERNAME],
                 [name: "KAFKA_SASL_PASSWORD",               value: env.KAFKA_SASL_PASSWORD],
+                [name: "HMAC_SECRET_KEY",                   value: env.HMAC_SECRET_KEY],
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -700,6 +701,7 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PROTOCOL',                variable: 'KAFKA_SASL_PROTOCOL'),
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_USERNAME',                variable: 'KAFKA_SASL_USERNAME'),
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PASSWORD',                variable: 'KAFKA_SASL_PASSWORD'),
+                        string(credentialsId: 'MARKETNOTE_QA_HMAC_SECRET_KEY',                    variable: 'HMAC_SECRET_KEY'),
                     ]) {
                         sh '''
                           LG="$CLOUDWATCH_LOG_GROUP"

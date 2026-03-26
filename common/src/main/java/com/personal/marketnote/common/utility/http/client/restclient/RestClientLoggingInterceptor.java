@@ -4,10 +4,10 @@ import com.personal.marketnote.common.utility.PerformanceMeasurer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.HttpRequest;
 
 import java.io.IOException;
 import java.net.URI;

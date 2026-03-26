@@ -13,6 +13,7 @@ import com.personal.marketnote.common.saga.port.FindSagaPort;
 import com.personal.marketnote.common.saga.port.SaveSagaPort;
 import com.personal.marketnote.common.saga.port.UpdateSagaPort;
 import com.personal.marketnote.common.utility.FormatValidator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,9 +22,11 @@ import java.time.Clock;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Slf4j
 public class SagaOrchestrator {
 
     private static final String SOURCE = "saga-orchestrator";
@@ -111,6 +114,61 @@ public class SagaOrchestrator {
             return;
         }
         handleCompensationFailure(instance, step, response);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void handleProcessingTimeout(String sagaId) {
+        SagaInstance instance = findSagaInstance(sagaId);
+
+        if (instance.isTerminal()) {
+            return;
+        }
+        if (!instance.isProcessing()) {
+            return;
+        }
+
+        List<SagaStep> steps = findSagaPort.findStepsBySagaInstanceId(instance.getId());
+        Optional<SagaStep> currentStepOpt = findProcessingStep(steps);
+        if (currentStepOpt.isEmpty()) {
+            return;
+        }
+        SagaStep currentStep = currentStepOpt.get();
+
+        log.warn("SAGA PROCESSING 타임아웃 처리. sagaId={}, sagaType={}, stepName={}",
+                instance.getSagaId(), instance.getSagaType(), currentStep.getStepName());
+
+        currentStep.fail("TIMEOUT");
+        updateSagaPort.updateStep(currentStep);
+
+        startCompensation(instance, steps);
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void handleCompensationTimeout(String sagaId) {
+        SagaInstance instance = findSagaInstance(sagaId);
+
+        if (instance.isTerminal()) {
+            return;
+        }
+        if (!instance.isCompensating()) {
+            return;
+        }
+
+        List<SagaStep> steps = findSagaPort.findStepsBySagaInstanceId(instance.getId());
+        List<SagaStep> compensatingSteps = steps.stream()
+                .filter(SagaStep::isCompensating)
+                .toList();
+
+        for (SagaStep step : compensatingSteps) {
+            step.failCompensation("COMPENSATION_TIMEOUT");
+            updateSagaPort.updateStep(step);
+        }
+
+        instance.failCompensation();
+        updateSagaPort.update(instance);
+
+        log.warn("SAGA COMPENSATING 타임아웃 처리. sagaId={}, sagaType={}, 관리자 개입이 필요합니다.",
+                instance.getSagaId(), instance.getSagaType());
     }
 
     private void handleStepSuccess(SagaInstance instance, SagaStep currentStep, String response) {
@@ -244,6 +302,12 @@ public class SagaOrchestrator {
     private SagaInstance findSagaInstance(String sagaId) {
         return findSagaPort.findBySagaId(sagaId)
                 .orElseThrow(() -> new SagaInstanceNotFoundException(sagaId));
+    }
+
+    private Optional<SagaStep> findProcessingStep(List<SagaStep> steps) {
+        return steps.stream()
+                .filter(SagaStep::isProcessing)
+                .findFirst();
     }
 
     private SagaStep findStepByName(List<SagaStep> steps, String stepName) {

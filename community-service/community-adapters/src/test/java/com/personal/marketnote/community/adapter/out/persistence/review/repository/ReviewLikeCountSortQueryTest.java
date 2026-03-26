@@ -10,7 +10,6 @@ import com.personal.marketnote.community.domain.like.LikeCreateState;
 import com.personal.marketnote.community.domain.like.LikeTargetType;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewCreateState;
-import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

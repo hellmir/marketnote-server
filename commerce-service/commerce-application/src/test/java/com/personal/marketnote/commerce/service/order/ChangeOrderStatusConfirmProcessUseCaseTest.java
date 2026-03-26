@@ -1,20 +1,11 @@
 package com.personal.marketnote.commerce.service.order;
 
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderAmount;
-import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
-import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
+import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,11 +17,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ChangeOrderStatusConfirmProcessUseCaseTest {

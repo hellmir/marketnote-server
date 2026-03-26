@@ -71,10 +71,10 @@ public class DltMessageResolutionJpaEntity {
     }
 
     public static DltMessageResolutionJpaEntity of(String originalTopic, String dltTopic,
-                                                    int partitionNumber, long offsetNumber,
-                                                    DltResolutionStatus resolution,
-                                                    String resolvedBy, LocalDateTime resolvedAt,
-                                                    String reason) {
+                                                   int partitionNumber, long offsetNumber,
+                                                   DltResolutionStatus resolution,
+                                                   String resolvedBy, LocalDateTime resolvedAt,
+                                                   String reason) {
         return new DltMessageResolutionJpaEntity(
                 originalTopic, dltTopic, partitionNumber, offsetNumber,
                 resolution, resolvedBy, resolvedAt, reason

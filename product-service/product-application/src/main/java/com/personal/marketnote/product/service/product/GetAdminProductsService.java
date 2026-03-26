@@ -115,7 +115,7 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
         Product product = FormatValidator.hasValue(pricePolicy.getProduct())
                 ? pricePolicy.getProduct()
                 : findProductPort.findById(pricePolicy.getProductId())
-                        .orElseThrow(() -> new ProductNotFoundException(pricePolicy.getProductId()));
+                .orElseThrow(() -> new ProductNotFoundException(pricePolicy.getProductId()));
 
         if (!product.isFindAllOptionsYn()) {
             return ProductItemResult.from(product, pricePolicy);

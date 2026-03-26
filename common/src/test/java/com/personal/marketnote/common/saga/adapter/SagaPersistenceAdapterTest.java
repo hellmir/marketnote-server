@@ -1,11 +1,6 @@
 package com.personal.marketnote.common.saga.adapter;
 
-import com.personal.marketnote.common.saga.SagaInstance;
-import com.personal.marketnote.common.saga.SagaInstanceSnapshotState;
-import com.personal.marketnote.common.saga.SagaStatus;
-import com.personal.marketnote.common.saga.SagaStep;
-import com.personal.marketnote.common.saga.SagaStepSnapshotState;
-import com.personal.marketnote.common.saga.SagaStepStatus;
+import com.personal.marketnote.common.saga.*;
 import com.personal.marketnote.common.saga.entity.SagaInstanceJpaEntity;
 import com.personal.marketnote.common.saga.entity.SagaStepJpaEntity;
 import com.personal.marketnote.common.saga.exception.SagaInstanceNotFoundException;
@@ -29,10 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SagaPersistenceAdapter 테스트")
@@ -371,9 +363,9 @@ class SagaPersistenceAdapterTest {
     }
 
     private SagaStep createSagaStep(Long id, Long sagaInstanceId, String stepName,
-                                     int stepIndex, SagaStepStatus status, String request,
-                                     String response, String compensationRequest,
-                                     String compensationResponse) {
+                                    int stepIndex, SagaStepStatus status, String request,
+                                    String response, String compensationRequest,
+                                    String compensationResponse) {
         return SagaStep.from(new SagaStepSnapshotState(
                 id, sagaInstanceId, stepName, stepIndex, status, request,
                 response, compensationRequest, compensationResponse,
@@ -382,8 +374,8 @@ class SagaPersistenceAdapterTest {
     }
 
     private SagaInstanceJpaEntity createSagaInstanceEntity(Long id, String sagaId, String sagaType,
-                                                            SagaStatus status, int currentStepIndex,
-                                                            String payload) {
+                                                           SagaStatus status, int currentStepIndex,
+                                                           String payload) {
         SagaInstance instance = createSagaInstance(null, sagaId, sagaType, status,
                 currentStepIndex, payload, null);
         SagaInstanceJpaEntity entity = SagaInstanceJpaEntity.from(instance);
@@ -394,10 +386,10 @@ class SagaPersistenceAdapterTest {
     }
 
     private SagaStepJpaEntity createSagaStepEntity(Long id, Long sagaInstanceId, String stepName,
-                                                    int stepIndex, SagaStepStatus status,
-                                                    String request, String response,
-                                                    String compensationRequest,
-                                                    String compensationResponse) {
+                                                   int stepIndex, SagaStepStatus status,
+                                                   String request, String response,
+                                                   String compensationRequest,
+                                                   String compensationResponse) {
         SagaStep step = createSagaStep(null, sagaInstanceId, stepName, stepIndex, status,
                 request, null, null, null);
         SagaStepJpaEntity entity = SagaStepJpaEntity.from(step);

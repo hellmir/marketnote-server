@@ -2,8 +2,8 @@ package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
+import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFasstoStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFasstoStocksCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFasstoAllStockCommand;

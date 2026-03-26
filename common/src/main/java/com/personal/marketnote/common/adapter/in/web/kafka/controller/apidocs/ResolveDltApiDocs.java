@@ -24,22 +24,22 @@ import java.lang.annotation.*;
         summary = "(관리자) DLT 메시지별 선택적 재처리/폐기",
         description = """
                 작성일자: 2026-03-14
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 지정된 DLT 메시지를 개별적으로 재처리(RETRY) 또는 폐기(DISCARD)합니다.
                 - RETRY: 원본 토픽으로 재발행 후 RETRIED 상태 저장
                 - DISCARD: 재발행 없이 DISCARDED 상태만 저장
                 - 이미 처리된 메시지는 멱등하게 기존 상태를 반환합니다.
-
+                
                 ---
-
+                
                 ## Request Body
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | originalTopic | string | 원본 토픽명 | Y | "commerce.order.payment-completed" |
@@ -47,11 +47,11 @@ import java.lang.annotation.*;
                 | offset | long | DLT 메시지 오프셋 번호 | Y | 5 |
                 | action | string | 처리 액션 (RETRY / DISCARD) | Y | "RETRY" |
                 | reason | string | 처리 사유 (최대 500자) | N | "일시적 DB 타임아웃 복구" |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | originalTopic | string | 원본 토픽명 | "commerce.order.payment-completed" |

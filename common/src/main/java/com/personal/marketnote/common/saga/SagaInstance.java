@@ -107,6 +107,14 @@ public class SagaInstance {
         this.status = SagaStatus.FAILED;
     }
 
+    public boolean isProcessing() {
+        return status.isProcessing();
+    }
+
+    public boolean isCompensating() {
+        return status.isCompensating();
+    }
+
     public boolean isTerminal() {
         return status.isTerminal();
     }

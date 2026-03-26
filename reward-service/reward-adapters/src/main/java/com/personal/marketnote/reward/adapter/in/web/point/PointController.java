@@ -10,11 +10,7 @@ import com.personal.marketnote.reward.adapter.in.web.point.request.CancelPending
 import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetReferralStatusResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointByIdResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.UpdateUserPointResponse;
+import com.personal.marketnote.reward.adapter.in.web.point.response.*;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
 import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
