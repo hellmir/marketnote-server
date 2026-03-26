@@ -3,7 +3,6 @@ package com.personal.marketnote.product.port.out.pricepolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -37,7 +36,8 @@ public interface FindPricePoliciesPort {
     /**
      * @param pricePolicyIds 가격 정책 ID 목록
      * @param cursor         커서
-     * @param pageable       페이지네이션 정보
+     * @param pageSize       페이지 크기
+     * @param isAsc          오름차순 여부
      * @param sortProperty   정렬 속성
      * @param searchTarget   검색 대상
      * @param searchKeyword  검색 키워드
@@ -49,7 +49,8 @@ public interface FindPricePoliciesPort {
     List<PricePolicy> findPricePolicies(
             List<Long> pricePolicyIds,
             Long cursor,
-            Pageable pageable,
+            int pageSize,
+            boolean isAsc,
             ProductSortProperty sortProperty,
             ProductSearchTarget searchTarget,
             String searchKeyword
@@ -59,7 +60,8 @@ public interface FindPricePoliciesPort {
      * @param categoryId     카테고리 ID
      * @param pricePolicyIds 가격 정책 ID 목록
      * @param cursor         커서
-     * @param pageable       페이지네이션 정보
+     * @param pageSize       페이지 크기
+     * @param isAsc          오름차순 여부
      * @param sortProperty   정렬 속성
      * @param searchTarget   검색 대상
      * @param searchKeyword  검색 키워드
@@ -72,7 +74,8 @@ public interface FindPricePoliciesPort {
             Long categoryId,
             List<Long> pricePolicyIds,
             Long cursor,
-            Pageable pageable,
+            int pageSize,
+            boolean isAsc,
             ProductSortProperty sortProperty,
             ProductSearchTarget searchTarget,
             String searchKeyword

@@ -157,23 +157,19 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     @Override
     @Cacheable(
             value = "pricePolicy:list:first",
-            key = "#pageable.getPageSize() + ':' + #sortProperty.name() + ':' + #searchTarget.name()",
+            key = "#pageSize + ':' + #isAsc + ':' + #sortProperty.name() + ':' + #searchTarget.name()",
             condition = "#cursor == null && (#searchKeyword == null || #searchKeyword.isBlank())"
     )
     public List<PricePolicy> findPricePolicies(
             List<Long> pricePolicyIds,
             Long cursor,
-            Pageable pageable,
+            int pageSize,
+            boolean isAsc,
             ProductSortProperty sortProperty,
             ProductSearchTarget searchTarget,
             String searchKeyword
     ) {
-        boolean isAsc = pageable.getSort()
-                .stream()
-                .findFirst()
-                .map(Sort.Order::isAscending)
-                .orElse(true);
-
+        Pageable pageable = PageRequest.of(0, pageSize);
         String pattern = generateSearchPattern(searchKeyword);
 
         List<PricePolicyJpaEntity> entities = isAsc
@@ -208,24 +204,20 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     @Override
     @Cacheable(
             value = "pricePolicy:list:first",
-            key = "#categoryId + ':' + #pageable.getPageSize() + ':' + #sortProperty.name() + ':' + #searchTarget.name()",
+            key = "#categoryId + ':' + #pageSize + ':' + #isAsc + ':' + #sortProperty.name() + ':' + #searchTarget.name()",
             condition = "#cursor == null && (#searchKeyword == null || #searchKeyword.isBlank())"
     )
     public List<PricePolicy> findPricePoliciesByCategoryId(
             Long categoryId,
             List<Long> pricePolicyIds,
             Long cursor,
-            Pageable pageable,
+            int pageSize,
+            boolean isAsc,
             ProductSortProperty sortProperty,
             ProductSearchTarget searchTarget,
             String searchKeyword
     ) {
-        boolean isAsc = pageable.getSort()
-                .stream()
-                .findFirst()
-                .map(Sort.Order::isAscending)
-                .orElse(true);
-
+        Pageable pageable = PageRequest.of(0, pageSize);
         String pattern = generateSearchPattern(searchKeyword);
 
         List<PricePolicyJpaEntity> entities = isAsc
