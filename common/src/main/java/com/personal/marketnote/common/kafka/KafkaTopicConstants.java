@@ -28,6 +28,11 @@ public final class KafkaTopicConstants {
     // SAGA 응답
     public static final String SAGA_RESPONSE = "saga.response";
 
+    // OrderPayment SAGA 스텝
+    public static final String SAGA_ORDER_PAYMENT_INVENTORY = "saga.order-payment.inventory";
+    public static final String SAGA_ORDER_PAYMENT_LEDGER = "saga.order-payment.ledger";
+    public static final String SAGA_ORDER_PAYMENT_COMPLETED = "saga.order-payment.completed";
+
     // Dead Letter Topic 접미사
     public static final String DLT_SUFFIX = ".dlt";
 }

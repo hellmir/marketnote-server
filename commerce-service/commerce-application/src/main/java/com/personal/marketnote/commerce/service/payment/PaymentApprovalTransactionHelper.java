@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentApprovalInfo;
@@ -8,6 +9,7 @@ import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentSagaContext;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
@@ -17,12 +19,18 @@ import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort
 import com.personal.marketnote.commerce.port.out.payment.UpdatePaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.UpdatePspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorResult;
+import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.commerce.service.saga.OrderPaymentSagaStarter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -45,6 +53,8 @@ public class PaymentApprovalTransactionHelper {
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final PublishPaymentEventPort publishPaymentEventPort;
+    private final FindProductByPricePolicyPort findProductByPricePolicyPort;
+    private final Optional<OrderPaymentSagaStarter> orderPaymentSagaStarter;
 
     /**
      * TX-1: 검증 + EXECUTING 상태 커밋
@@ -95,6 +105,21 @@ public class PaymentApprovalTransactionHelper {
         event.completeWithApproval(approvalInfo);
         updatePspPaymentEventPort.update(event);
 
+        Order order = findOrderPort.findById(payment.getOrderId())
+                .orElseThrow(() -> new OrderNotFoundException(payment.getOrderId()));
+
+        if (orderPaymentSagaStarter.isPresent()) {
+            changeOrderStatusUseCase.changeOrderStatus(
+                    ChangeOrderStatusCommand.builder()
+                            .id(payment.getOrderId())
+                            .orderStatus(OrderStatus.PAID)
+                            .skipSubsequentProcesses(true)
+                            .build()
+            );
+            startOrderPaymentSaga(order, payment);
+            return buildApprovePaymentResult(payment, vendorResult);
+        }
+
         changeOrderStatusUseCase.changeOrderStatus(
                 ChangeOrderStatusCommand.builder()
                         .id(payment.getOrderId())
@@ -105,6 +130,11 @@ public class PaymentApprovalTransactionHelper {
         // [#929][#1033] 결제 승인 분개는 Kafka Consumer(PaymentApprovedLedgerConsumer)로 전환 완료
         publishPaymentApprovedEvent(payment);
 
+        return buildApprovePaymentResult(payment, vendorResult);
+    }
+
+    private ApprovePaymentResult buildApprovePaymentResult(Payment payment,
+                                                            PaymentApprovalVendorResult vendorResult) {
         return ApprovePaymentResult.builder()
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
@@ -180,6 +210,56 @@ public class PaymentApprovalTransactionHelper {
             throw new UnauthorizedOrderAccessException();
         }
         return order;
+    }
+
+    private void startOrderPaymentSaga(Order order, Payment payment) {
+        List<OrderProduct> orderProducts = order.getOrderProducts();
+        List<Long> pricePolicyIds = orderProducts.stream()
+                .map(OrderProduct::getPricePolicyId)
+                .toList();
+        Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts, pricePolicyIds);
+
+        List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
+                .map(op -> new OrderPaymentSagaContext.OrderProductItem(
+                        op.getPricePolicyId(), op.getSharerId(), op.getQuantity(), op.getUnitAmount()))
+                .toList();
+
+        Long pointAmount = FormatValidator.hasValue(order.getAmount().getPointAmount())
+                ? order.getAmount().getPointAmount()
+                : 0L;
+
+        OrderPaymentSagaContext sagaContext = new OrderPaymentSagaContext(
+                order.getId(),
+                order.getOrderKey().toString(),
+                order.getBuyerId(),
+                payment.getPaymentAmount(),
+                order.getAmount().getTotalAmount(),
+                pointAmount,
+                totalAccumulatedPoint,
+                sagaOrderProducts
+        );
+
+        orderPaymentSagaStarter.get().start(sagaContext);
+    }
+
+    private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts,
+                                                 List<Long> pricePolicyIds) {
+        Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+
+        long totalAccumulatedPoint = 0L;
+        for (OrderProduct orderProduct : orderProducts) {
+            ProductInfoResult productInfo = productInfoMap.get(orderProduct.getPricePolicyId());
+            if (FormatValidator.hasNoValue(productInfo)) {
+                continue;
+            }
+            if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
+                continue;
+            }
+            totalAccumulatedPoint = Math.addExact(totalAccumulatedPoint,
+                    Math.multiplyExact(productInfo.accumulatedPoint(), orderProduct.getQuantity()));
+        }
+
+        return totalAccumulatedPoint;
     }
 
     private void publishPaymentApprovedEvent(Payment payment) {
