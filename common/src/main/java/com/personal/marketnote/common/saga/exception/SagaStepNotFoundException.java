@@ -4,4 +4,8 @@ public class SagaStepNotFoundException extends RuntimeException {
     public SagaStepNotFoundException(Long id) {
         super("SagaStep을 찾을 수 없습니다. id: " + id);
     }
+
+    public SagaStepNotFoundException(String stepName) {
+        super("SagaStep을 찾을 수 없습니다. stepName: " + stepName);
+    }
 }
