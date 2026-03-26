@@ -14,6 +14,7 @@ import com.personal.marketnote.common.saga.port.SaveSagaPort;
 import com.personal.marketnote.common.saga.port.UpdateSagaPort;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "true")
 @Slf4j
 public class SagaOrchestrator {
 

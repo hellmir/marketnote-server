@@ -16,6 +16,7 @@ import com.personal.marketnote.common.saga.port.UpdateSagaPort;
 import com.personal.marketnote.common.saga.repository.SagaInstanceJpaRepository;
 import com.personal.marketnote.common.saga.repository.SagaStepJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @PersistenceAdapter
+@ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class SagaPersistenceAdapter implements SaveSagaPort, FindSagaPort, UpdateSagaPort {
 

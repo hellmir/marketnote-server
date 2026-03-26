@@ -104,6 +104,12 @@ outbox:
   retention-days: ${OUTBOX_RETENTION_DAYS:7}
   cleanup-cron: ${OUTBOX_CLEANUP_CRON:0 0 3 * * ?}
 
+saga:
+  enabled: ${SAGA_ENABLED:false}
+  timeout-ms: ${SAGA_TIMEOUT_MS:60000}
+  compensation-timeout-ms: ${SAGA_COMPENSATION_TIMEOUT_MS:120000}
+  check-interval-ms: ${SAGA_CHECK_INTERVAL_MS:30000}
+
 settlement:
   scheduler:
     enabled: ${SETTLEMENT_SCHEDULER_ENABLED:false}
