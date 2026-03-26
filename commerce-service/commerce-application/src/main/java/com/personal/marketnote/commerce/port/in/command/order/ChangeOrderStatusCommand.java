@@ -17,7 +17,8 @@ public record ChangeOrderStatusCommand(
         String reason,
         String role,
         Long buyerId,
-        ShippingAddress pickupAddress
+        ShippingAddress pickupAddress,
+        Boolean skipSubsequentProcesses
 ) {
     private static final String BUYER_ROLE = "BUYER";
 
@@ -42,5 +43,9 @@ public record ChangeOrderStatusCommand(
      */
     public boolean isInternalCall() {
         return FormatValidator.hasNoValue(role);
+    }
+
+    public boolean shouldSkipSubsequentProcesses() {
+        return Boolean.TRUE.equals(skipSubsequentProcesses);
     }
 }

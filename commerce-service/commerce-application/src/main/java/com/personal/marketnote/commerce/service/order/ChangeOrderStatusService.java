@@ -66,7 +66,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(OrderCommandToStateMapper.mapToState(command));
         updateOrderPort.update(order, orderStatusHistory);
 
-        if (status.isPaid()) {
+        if (status.isPaid() && !command.shouldSkipSubsequentProcesses()) {
             updatePaymentSubsequentProcesses(order);
         }
 
