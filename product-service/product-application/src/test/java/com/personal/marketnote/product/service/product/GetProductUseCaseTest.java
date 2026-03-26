@@ -312,7 +312,7 @@ class GetProductUseCaseTest {
         PricePolicy policy3 = buildPricePolicy(300L, product3, null, List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy1, policy2, policy3));
 
         when(findProductPort.findById(10L)).thenReturn(Optional.of(product1));
@@ -375,7 +375,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(400L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePoliciesByCategoryId(
-                eq(5L), any(), any(), any(), any(), any(), any()
+                eq(5L), any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
         when(findProductPort.findById(40L)).thenReturn(Optional.of(product));
         when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
@@ -410,7 +410,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(500L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
         when(findProductPort.findById(50L)).thenReturn(Optional.of(product));
         when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
@@ -446,7 +446,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(600L, product, List.of(301L, 302L), List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
         when(findProductPort.findById(60L)).thenReturn(Optional.of(product));
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(60L))
@@ -480,7 +480,7 @@ class GetProductUseCaseTest {
     @DisplayName("상품 목록 조회 결과가 없으면 빈 결과를 반환한다")
     void getProducts_emptyResult_returnsEmpty() {
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of());
         when(getProductInventoryUseCase.getProductStocks(List.of()))
                 .thenReturn(Map.of());
@@ -516,7 +516,7 @@ class GetProductUseCaseTest {
         PricePolicy policy2 = buildPricePolicy(702L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePoliciesByCategoryId(
-                eq(categoryId), any(), any(), any(), any(), any(), any()
+                eq(categoryId), any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy1, policy2));
         when(findProductPort.findById(70L)).thenReturn(Optional.of(product));
         when(getProductInventoryUseCase.getProductStocks(List.of(701L)))
@@ -552,7 +552,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(801L, product, List.of(), List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
         when(findProductPort.findById(80L)).thenReturn(Optional.of(product));
         when(getProductInventoryUseCase.getProductStocks(List.of(801L)))
@@ -584,7 +584,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(901L, product, List.of(1L), List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
         when(findProductPort.findById(90L)).thenReturn(Optional.of(product));
         when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(90L))
@@ -617,7 +617,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(1001L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
         when(findProductPort.findById(100L)).thenReturn(Optional.empty());
 
@@ -645,7 +645,7 @@ class GetProductUseCaseTest {
         PricePolicy cachedPolicy = buildPricePolicyWithProductIdOnly(100L, 10L);
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(cachedPolicy));
         when(findProductPort.findById(10L)).thenReturn(Optional.of(product));
         when(getProductInventoryUseCase.getProductStocks(List.of(100L)))
@@ -682,7 +682,7 @@ class GetProductUseCaseTest {
         PricePolicy policy3 = buildPricePolicy(1401L, product3, null, List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy1, policy2, policy3));
 
         when(findProductPort.findById(120L)).thenReturn(Optional.of(product1));
@@ -718,7 +718,7 @@ class GetProductUseCaseTest {
         assertThat(result.products()).hasSize(2);
 
         verify(findPricePoliciesPort).findPricePolicies(
-                isNull(), eq(-1L), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+                isNull(), eq(-1L), anyInt(), anyBoolean(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
         );
     }
 
@@ -730,7 +730,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(1501L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
 
         when(findProductPort.findById(150L)).thenReturn(Optional.of(product));
@@ -760,7 +760,7 @@ class GetProductUseCaseTest {
         assertThat(result.hasNext()).isFalse();
 
         verify(findPricePoliciesPort).findPricePolicies(
-                isNull(), eq(-1L), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+                isNull(), eq(-1L), anyInt(), anyBoolean(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
         );
     }
 
@@ -773,7 +773,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(1601L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePoliciesByCategoryId(
-                eq(categoryId), any(), any(), any(), any(), any(), any()
+                eq(categoryId), any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
 
         when(findProductPort.findById(160L)).thenReturn(Optional.of(product));
@@ -803,9 +803,9 @@ class GetProductUseCaseTest {
         assertThat(result.products()).hasSize(1);
 
         verify(findPricePoliciesPort).findPricePoliciesByCategoryId(
-                eq(categoryId), isNull(), eq(-1L), any(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+                eq(categoryId), isNull(), eq(-1L), anyInt(), anyBoolean(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
         );
-        verify(findPricePoliciesPort, never()).findPricePolicies(any(), any(), any(), any(), any(), any());
+        verify(findPricePoliciesPort, never()).findPricePolicies(any(), any(), anyInt(), anyBoolean(), any(), any(), any());
     }
 
     @Test
@@ -816,7 +816,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(1701L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
 
         when(findProductPort.findById(170L)).thenReturn(Optional.of(product));
@@ -854,7 +854,7 @@ class GetProductUseCaseTest {
         PricePolicy policy = buildPricePolicy(1101L, product, null, List.of());
 
         when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), any(), any(), any(), any()
+                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
         )).thenReturn(List.of(policy));
         when(findProductPort.findById(110L)).thenReturn(Optional.of(product));
         when(getProductInventoryUseCase.getProductStocks(List.of(1101L)))

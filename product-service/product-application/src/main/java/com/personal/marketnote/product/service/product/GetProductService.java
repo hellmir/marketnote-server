@@ -29,8 +29,6 @@ import com.personal.marketnote.product.port.out.review.FindProductReviewAggregat
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -177,11 +175,7 @@ public class GetProductService implements GetProductUseCase {
             String searchKeyword
     ) {
         boolean isFirstPage = FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE);
-
-        Pageable pageable = PageRequest.of(
-                0, pageSize + 1, Sort.by(sortDirection, sortProperty.getCamelCaseValue())
-        );
-
+        boolean isAsc = sortDirection.isAscending();
         boolean isCategorized = FormatValidator.hasValue(categoryId);
 
         List<PricePolicy> pricePolicies = isCategorized
@@ -189,7 +183,8 @@ public class GetProductService implements GetProductUseCase {
                 categoryId,
                 pricePolicyIds,
                 cursor,
-                pageable,
+                pageSize + 1,
+                isAsc,
                 sortProperty,
                 searchTarget,
                 searchKeyword
@@ -197,7 +192,8 @@ public class GetProductService implements GetProductUseCase {
                 : findPricePoliciesPort.findPricePolicies(
                 pricePolicyIds,
                 cursor,
-                pageable,
+                pageSize + 1,
+                isAsc,
                 sortProperty,
                 searchTarget,
                 searchKeyword
