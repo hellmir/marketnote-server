@@ -6,5 +6,7 @@ public interface SagaDefinition<T> {
 
     String getSagaType();
 
+    Class<T> getContextType();
+
     List<SagaStepDefinition<T>> getSteps();
 }

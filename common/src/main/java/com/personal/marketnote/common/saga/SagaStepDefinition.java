@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 public record SagaStepDefinition<T>(
         String stepName,
+        String topic,
         Function<T, String> action,
         Function<T, String> compensation
 ) {
