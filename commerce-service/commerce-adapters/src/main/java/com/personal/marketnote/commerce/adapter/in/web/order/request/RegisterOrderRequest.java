@@ -62,6 +62,26 @@ public class RegisterOrderRequest {
     private String requestMessage;
 
     @Schema(
+            name = "deliveryRequestType",
+            description = "배송 요청사항 타입 (NONE, LEAVE_AT_DOOR, RECEIVE_OR_LEAVE_AT_DOOR, LEAVE_AT_SECURITY, LEAVE_AT_DELIVERY_BOX, CUSTOM)",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    @Pattern(
+            regexp = "NONE|LEAVE_AT_DOOR|RECEIVE_OR_LEAVE_AT_DOOR|LEAVE_AT_SECURITY|LEAVE_AT_DELIVERY_BOX|CUSTOM",
+            message = "유효하지 않은 배송 요청사항 타입입니다."
+    )
+    private String deliveryRequestType;
+
+    @Schema(
+            name = "deliveryRequestMessage",
+            description = "배송 요청사항 직접입력 메시지 (최대 60자, CUSTOM 타입일 때 필수)",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    @Size(max = 60, message = "배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다.")
+    @Pattern(regexp = RegularExpressionConstant.NO_HTML_TAG_PATTERN, message = "배송 요청사항 메시지에 허용되지 않는 문자가 포함되어 있습니다.")
+    private String deliveryRequestMessage;
+
+    @Schema(
             name = "orderProducts",
             description = "주문 상품 목록",
             requiredMode = Schema.RequiredMode.REQUIRED

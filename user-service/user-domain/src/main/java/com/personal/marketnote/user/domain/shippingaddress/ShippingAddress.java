@@ -109,11 +109,20 @@ public class ShippingAddress extends BaseDomain {
         validate();
     }
 
+    public void updateDeliveryRequest(DeliveryRequestType deliveryRequestType, String deliveryRequestMessage) {
+        this.deliveryRequestType = deliveryRequestType;
+        this.deliveryRequestMessage = deliveryRequestMessage;
+        validateDeliveryRequest();
+    }
+
     private void validate() {
         if (addressType == ShippingAddressType.COMPANY && FormatValidator.hasNoValue(companyName)) {
             throw new ShippingAddressCompanyNameNoValueException();
         }
+        validateDeliveryRequest();
+    }
 
+    private void validateDeliveryRequest() {
         if (FormatValidator.hasNoValue(deliveryRequestType) || !deliveryRequestType.isCustom()) {
             this.deliveryRequestMessage = null;
             return;
