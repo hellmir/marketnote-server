@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.adapter.out.web.user.response.ShippingAd
 import com.personal.marketnote.commerce.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
+import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
@@ -12,14 +13,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -35,7 +35,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_MA
 @ServiceAdapter
 @RequiredArgsConstructor
 @Slf4j
-public class UserShippingAddressServiceClient implements FindUserShippingAddressPort {
+public class UserShippingAddressServiceClient implements FindUserShippingAddressPort, UpdateUserShippingAddressDeliveryRequestPort {
 
     private static final ParameterizedTypeReference<BaseResponse<ShippingAddressInfoResponse>> RESPONSE_TYPE =
             new ParameterizedTypeReference<>() {
@@ -111,6 +111,36 @@ public class UserShippingAddressServiceClient implements FindUserShippingAddress
                 content.address(),
                 content.addressDetail()
         );
+    }
+
+    @Override
+    public void updateDeliveryRequest(Long shippingAddressId, Long userId, String deliveryRequestType, String deliveryRequestMessage) {
+        String path = "/api/v1/internal/shipping-addresses/" + shippingAddressId + "/delivery-request";
+
+        URI uri = UriComponentsBuilder.fromUriString(userServiceBaseUrl)
+                .path(path)
+                .queryParam("userId", userId)
+                .build()
+                .toUri();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path);
+
+        Map<String, String> body = new HashMap<>();
+        body.put("deliveryRequestType", deliveryRequestType);
+        if (FormatValidator.hasValue(deliveryRequestMessage)) {
+            body.put("deliveryRequestMessage", deliveryRequestMessage);
+        }
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+
+        try {
+            restTemplate.exchange(uri, HttpMethod.PATCH, request, Void.class);
+        } catch (Exception e) {
+            log.warn("배송 요청사항 업데이트 실패 - shippingAddressId: {}, userId: {}, error: {}",
+                    shippingAddressId, userId, e.getMessage());
+        }
     }
 
     private void sleepWithJitter() {

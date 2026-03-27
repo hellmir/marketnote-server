@@ -1,10 +1,14 @@
 package com.personal.marketnote.user.adapter.in.web.shippingaddress.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.user.adapter.in.web.shippingaddress.request.UpdateDeliveryRequestRequest;
 import com.personal.marketnote.user.adapter.in.web.shippingaddress.response.GetShippingAddressResponse;
+import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateDeliveryRequestCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetShippingAddressUseCase;
+import com.personal.marketnote.user.port.in.usecase.shippingaddress.UpdateDeliveryRequestUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,6 +34,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @Slf4j
 public class InternalShippingAddressController {
     private final GetShippingAddressUseCase getShippingAddressUseCase;
+    private final UpdateDeliveryRequestUseCase updateDeliveryRequestUseCase;
 
     /**
      * 배송지 정보 조회 (서비스 간 통신용)
@@ -52,6 +57,39 @@ public class InternalShippingAddressController {
                         DEFAULT_SUCCESS_CODE,
                         "배송지 조회 성공"
                 )
+        );
+    }
+
+    /**
+     * 배송 요청사항 수정 (서비스 간 통신용)
+     *
+     * @param id      배송지 ID
+     * @param userId  회원 ID
+     * @param request 배송 요청사항 수정 요청
+     */
+    @PatchMapping("/{id}/delivery-request")
+    public ResponseEntity<BaseResponse<Void>> updateDeliveryRequest(
+            @PathVariable Long id,
+            @RequestParam Long userId,
+            @Valid @RequestBody UpdateDeliveryRequestRequest request
+    ) {
+        updateDeliveryRequestUseCase.updateDeliveryRequest(
+                id,
+                userId,
+                UpdateDeliveryRequestCommand.builder()
+                        .deliveryRequestType(request.getDeliveryRequestType())
+                        .deliveryRequestMessage(request.getDeliveryRequestMessage())
+                        .build()
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "배송 요청사항 수정 성공"
+                ),
+                HttpStatus.OK
         );
     }
 }

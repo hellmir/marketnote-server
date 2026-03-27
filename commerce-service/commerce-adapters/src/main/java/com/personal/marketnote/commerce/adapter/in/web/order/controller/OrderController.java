@@ -13,8 +13,10 @@ import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHisto
 import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProductReviewStatusCommand;
 import com.personal.marketnote.commerce.port.in.result.order.*;
 import com.personal.marketnote.commerce.port.in.usecase.order.*;
+import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 @Validated
 public class OrderController {
     private final RegisterOrderUseCase registerOrderUseCase;
+    private final UpdateUserShippingAddressDeliveryRequestPort updateUserShippingAddressDeliveryRequestPort;
     private final GetOrderUseCase getOrderUseCase;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
@@ -72,6 +75,8 @@ public class OrderController {
                 OrderRequestToCommandMapper.mapToCommand(request, buyerId)
         );
 
+        updateDeliveryRequestIfPresent(request, buyerId);
+
         return new ResponseEntity<>(
                 BaseResponse.of(
                         RegisterOrderResponse.from(result),
@@ -80,6 +85,19 @@ public class OrderController {
                         "주문 등록 성공"
                 ),
                 HttpStatus.CREATED
+        );
+    }
+
+    private void updateDeliveryRequestIfPresent(RegisterOrderRequest request, Long buyerId) {
+        if (FormatValidator.hasNoValue(request.getDeliveryRequestType())) {
+            return;
+        }
+
+        updateUserShippingAddressDeliveryRequestPort.updateDeliveryRequest(
+                request.getShippingAddressId(),
+                buyerId,
+                request.getDeliveryRequestType(),
+                request.getDeliveryRequestMessage()
         );
     }
 
