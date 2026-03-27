@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -13,7 +14,8 @@ public class ShippingAddress {
     private String zipCode;
     private String address;
     private String addressDetail;
-    private String requestMessage;
+    private DeliveryRequestType deliveryRequestType;
+    private String deliveryRequestMessage;
 
     public static ShippingAddress of(
             String recipientName,
@@ -21,7 +23,8 @@ public class ShippingAddress {
             String zipCode,
             String address,
             String addressDetail,
-            String requestMessage
+            DeliveryRequestType deliveryRequestType,
+            String deliveryRequestMessage
     ) {
         return ShippingAddress.builder()
                 .recipientName(recipientName)
@@ -29,7 +32,8 @@ public class ShippingAddress {
                 .zipCode(zipCode)
                 .address(address)
                 .addressDetail(addressDetail)
-                .requestMessage(requestMessage)
+                .deliveryRequestType(deliveryRequestType)
+                .deliveryRequestMessage(deliveryRequestMessage)
                 .build();
     }
 
@@ -37,7 +41,7 @@ public class ShippingAddress {
         return FormatValidator.hasValue(recipientName);
     }
 
-    public ShippingAddress withoutRequestMessage() {
+    public ShippingAddress withoutDeliveryRequest() {
         return ShippingAddress.builder()
                 .recipientName(recipientName)
                 .recipientPhoneNumber(recipientPhoneNumber)

@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.port.out.user;
 
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+
 /**
  * 회원 서비스의 배송지 배송 요청사항 수정 포트
  *
@@ -17,5 +19,5 @@ public interface UpdateUserShippingAddressDeliveryRequestPort {
      * @Author 성효빈
      * @Description 배송지의 배송 요청사항을 수정합니다.
      */
-    void updateDeliveryRequest(Long shippingAddressId, Long userId, String deliveryRequestType, String deliveryRequestMessage);
+    void updateDeliveryRequest(Long shippingAddressId, Long userId, DeliveryRequestType deliveryRequestType, String deliveryRequestMessage);
 }

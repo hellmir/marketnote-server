@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,8 @@ class ShippingAddressTest {
                     "12345",
                     "서울시 강남구",
                     "테헤란로 123",
-                    "문 앞에 놓아주세요"
+                    DeliveryRequestType.LEAVE_AT_DOOR,
+                    null
             );
 
             // then
@@ -31,12 +33,13 @@ class ShippingAddressTest {
             assertThat(shippingAddress.getZipCode()).isEqualTo("12345");
             assertThat(shippingAddress.getAddress()).isEqualTo("서울시 강남구");
             assertThat(shippingAddress.getAddressDetail()).isEqualTo("테헤란로 123");
-            assertThat(shippingAddress.getRequestMessage()).isEqualTo("문 앞에 놓아주세요");
+            assertThat(shippingAddress.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
+            assertThat(shippingAddress.getDeliveryRequestMessage()).isNull();
         }
 
         @Test
-        @DisplayName("요청사항이 null이어도 정상 생성된다")
-        void shouldCreateWithNullRequestMessage() {
+        @DisplayName("배송 요청이 null이어도 정상 생성된다")
+        void shouldCreateWithNullDeliveryRequest() {
             // given & when
             ShippingAddress shippingAddress = ShippingAddress.of(
                     "홍길동",
@@ -44,12 +47,14 @@ class ShippingAddressTest {
                     "12345",
                     "서울시 강남구",
                     "테헤란로 123",
+                    null,
                     null
             );
 
             // then
             assertThat(shippingAddress.getRecipientName()).isEqualTo("홍길동");
-            assertThat(shippingAddress.getRequestMessage()).isNull();
+            assertThat(shippingAddress.getDeliveryRequestType()).isNull();
+            assertThat(shippingAddress.getDeliveryRequestMessage()).isNull();
         }
     }
 
@@ -62,7 +67,7 @@ class ShippingAddressTest {
         void shouldReturnTrueWhenRecipientNameExists() {
             // given
             ShippingAddress shippingAddress = ShippingAddress.of(
-                    "홍길동", "01012345678", "12345", "주소", "상세주소", null
+                    "홍길동", "01012345678", "12345", "주소", "상세주소", null, null
             );
 
             // when & then
@@ -74,7 +79,7 @@ class ShippingAddressTest {
         void shouldReturnFalseWhenRecipientNameIsNull() {
             // given
             ShippingAddress shippingAddress = ShippingAddress.of(
-                    null, null, null, null, null, null
+                    null, null, null, null, null, null, null
             );
 
             // when & then
@@ -83,12 +88,12 @@ class ShippingAddressTest {
     }
 
     @Nested
-    @DisplayName("요청사항 제외 복사 (withoutRequestMessage)")
-    class WithoutRequestMessageTest {
+    @DisplayName("배송 요청 제외 복사 (withoutDeliveryRequest)")
+    class WithoutDeliveryRequestTest {
 
         @Test
-        @DisplayName("요청사항을 제외하고 나머지 필드가 그대로 복사된다")
-        void shouldCopyAllFieldsExceptRequestMessage() {
+        @DisplayName("배송 요청을 제외하고 나머지 필드가 그대로 복사된다")
+        void shouldCopyAllFieldsExceptDeliveryRequest() {
             // given
             ShippingAddress original = ShippingAddress.of(
                     "홍길동",
@@ -96,11 +101,12 @@ class ShippingAddressTest {
                     "12345",
                     "서울시 강남구",
                     "테헤란로 123",
-                    "문 앞에 놓아주세요"
+                    DeliveryRequestType.LEAVE_AT_DOOR,
+                    null
             );
 
             // when
-            ShippingAddress copied = original.withoutRequestMessage();
+            ShippingAddress copied = original.withoutDeliveryRequest();
 
             // then
             assertThat(copied.getRecipientName()).isEqualTo("홍길동");
@@ -108,22 +114,25 @@ class ShippingAddressTest {
             assertThat(copied.getZipCode()).isEqualTo("12345");
             assertThat(copied.getAddress()).isEqualTo("서울시 강남구");
             assertThat(copied.getAddressDetail()).isEqualTo("테헤란로 123");
-            assertThat(copied.getRequestMessage()).isNull();
+            assertThat(copied.getDeliveryRequestType()).isNull();
+            assertThat(copied.getDeliveryRequestMessage()).isNull();
         }
 
         @Test
-        @DisplayName("원본 객체의 요청사항은 변경되지 않는다")
-        void shouldNotModifyOriginalRequestMessage() {
+        @DisplayName("원본 객체의 배송 요청은 변경되지 않는다")
+        void shouldNotModifyOriginalDeliveryRequest() {
             // given
             ShippingAddress original = ShippingAddress.of(
-                    "홍길동", "01012345678", "12345", "주소", "상세주소", "요청사항"
+                    "홍길동", "01012345678", "12345", "주소", "상세주소",
+                    DeliveryRequestType.CUSTOM, "요청사항"
             );
 
             // when
-            original.withoutRequestMessage();
+            original.withoutDeliveryRequest();
 
             // then
-            assertThat(original.getRequestMessage()).isEqualTo("요청사항");
+            assertThat(original.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.CUSTOM);
+            assertThat(original.getDeliveryRequestMessage()).isEqualTo("요청사항");
         }
     }
 }

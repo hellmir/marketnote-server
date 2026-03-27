@@ -36,7 +36,8 @@ public class OrderRequestToCommandMapper {
                         .shippingFee(request.getShippingFee())
                         .build())
                 .shippingAddressId(request.getShippingAddressId())
-                .requestMessage(request.getRequestMessage())
+                .deliveryRequestType(request.getDeliveryRequestType())
+                .deliveryRequestMessage(request.getDeliveryRequestMessage())
                 .orderProducts(orderProducts)
                 .build();
     }
@@ -56,6 +57,7 @@ public class OrderRequestToCommandMapper {
                         request.getPickupZipCode(),
                         request.getPickupAddress(),
                         request.getPickupAddressDetail(),
+                        null,
                         request.getPickupRequestMessage()
                 ))
                 .build();

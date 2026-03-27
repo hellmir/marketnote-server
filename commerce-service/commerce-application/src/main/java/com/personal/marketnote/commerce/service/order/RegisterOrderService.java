@@ -332,7 +332,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 null,
                 addressInfo.address(),
                 addressInfo.addressDetail(),
-                command.requestMessage()
+                command.deliveryRequestType(),
+                command.deliveryRequestMessage()
         );
     }
 

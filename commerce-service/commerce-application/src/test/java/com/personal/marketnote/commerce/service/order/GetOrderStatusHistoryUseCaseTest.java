@@ -43,7 +43,7 @@ class GetOrderStatusHistoryUseCaseTest {
                 .orderNumber("ORD" + id)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, 95000L, 3000L, 2000L, null))
-                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))

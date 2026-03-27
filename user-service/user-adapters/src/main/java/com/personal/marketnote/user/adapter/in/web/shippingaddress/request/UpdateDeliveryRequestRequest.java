@@ -1,7 +1,7 @@
 package com.personal.marketnote.user.adapter.in.web.shippingaddress.request;
 
 import com.personal.marketnote.common.utility.RegularExpressionConstant;
-import com.personal.marketnote.user.domain.shippingaddress.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

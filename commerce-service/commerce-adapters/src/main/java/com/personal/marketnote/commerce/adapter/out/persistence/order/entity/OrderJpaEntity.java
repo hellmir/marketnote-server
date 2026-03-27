@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static jakarta.persistence.CascadeType.MERGE;
@@ -78,8 +80,12 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "delivery_address_detail", length = 255)
     private String addressDetail;
 
-    @Column(name = "delivery_request_message", length = 100)
-    private String requestMessage;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_request_type", length = 31)
+    private DeliveryRequestType deliveryRequestType;
+
+    @Column(name = "delivery_request_message", length = 60)
+    private String deliveryRequestMessage;
 
     @Column(name = "pickup_recipient_name", length = 50)
     private String pickupRecipientName;
@@ -96,8 +102,12 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "pickup_address_detail", length = 255)
     private String pickupAddressDetail;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pickup_delivery_request_type", length = 31)
+    private DeliveryRequestType pickupDeliveryRequestType;
+
     @Column(name = "pickup_request_message", length = 60)
-    private String pickupRequestMessage;
+    private String pickupDeliveryRequestMessage;
 
     @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     @Builder.Default
@@ -119,13 +129,15 @@ public class OrderJpaEntity extends BaseEntity {
                 .zipCode(order.getShippingAddress().getZipCode())
                 .address(order.getShippingAddress().getAddress())
                 .addressDetail(order.getShippingAddress().getAddressDetail())
-                .requestMessage(order.getShippingAddress().getRequestMessage())
+                .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
+                .deliveryRequestMessage(order.getShippingAddress().getDeliveryRequestMessage())
                 .pickupRecipientName(resolvePickupField(order, ShippingAddress::getRecipientName))
                 .pickupRecipientPhoneNumber(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber))
                 .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
                 .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
                 .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
-                .pickupRequestMessage(resolvePickupField(order, ShippingAddress::getRequestMessage))
+                .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getDeliveryRequestType))
+                .pickupDeliveryRequestMessage(resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage))
                 .build();
     }
 
@@ -145,7 +157,8 @@ public class OrderJpaEntity extends BaseEntity {
         pickupZipCode = resolvePickupField(order, ShippingAddress::getZipCode);
         pickupAddress = resolvePickupField(order, ShippingAddress::getAddress);
         pickupAddressDetail = resolvePickupField(order, ShippingAddress::getAddressDetail);
-        pickupRequestMessage = resolvePickupField(order, ShippingAddress::getRequestMessage);
+        pickupDeliveryRequestType = resolvePickupField(order, ShippingAddress::getDeliveryRequestType);
+        pickupDeliveryRequestMessage = resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage);
 
         Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()
                 .stream()
@@ -162,7 +175,7 @@ public class OrderJpaEntity extends BaseEntity {
         });
     }
 
-    private static String resolvePickupField(Order order, java.util.function.Function<ShippingAddress, String> extractor) {
+    private static <T> T resolvePickupField(Order order, Function<ShippingAddress, T> extractor) {
         if (FormatValidator.hasNoValue(order.getPickupAddress())) {
             return null;
         }

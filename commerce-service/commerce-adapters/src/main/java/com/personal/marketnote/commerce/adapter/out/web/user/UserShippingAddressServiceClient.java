@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfo
 import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -114,7 +115,7 @@ public class UserShippingAddressServiceClient implements FindUserShippingAddress
     }
 
     @Override
-    public void updateDeliveryRequest(Long shippingAddressId, Long userId, String deliveryRequestType, String deliveryRequestMessage) {
+    public void updateDeliveryRequest(Long shippingAddressId, Long userId, DeliveryRequestType deliveryRequestType, String deliveryRequestMessage) {
         String path = "/api/v1/internal/shipping-addresses/" + shippingAddressId + "/delivery-request";
 
         URI uri = UriComponentsBuilder.fromUriString(userServiceBaseUrl)
@@ -128,7 +129,7 @@ public class UserShippingAddressServiceClient implements FindUserShippingAddress
         hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path);
 
         Map<String, String> body = new HashMap<>();
-        body.put("deliveryRequestType", deliveryRequestType);
+        body.put("deliveryRequestType", deliveryRequestType.name());
         if (FormatValidator.hasValue(deliveryRequestMessage)) {
             body.put("deliveryRequestMessage", deliveryRequestMessage);
         }

@@ -1,6 +1,6 @@
 package com.personal.marketnote.user.port.in.command.shippingaddress;
 
-import com.personal.marketnote.user.domain.shippingaddress.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import lombok.Builder;
 

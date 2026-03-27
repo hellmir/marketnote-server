@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.in.web.order.request;
 
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.utility.RegularExpressionConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -53,24 +54,11 @@ public class RegisterOrderRequest {
     private Long shippingAddressId;
 
     @Schema(
-            name = "requestMessage",
-            description = "배송 요청사항",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-    )
-    @Size(max = 100, message = "배송 요청사항은 100자를 초과할 수 없습니다.")
-    @Pattern(regexp = RegularExpressionConstant.NO_HTML_TAG_PATTERN, message = "배송 요청사항에 허용되지 않는 문자가 포함되어 있습니다.")
-    private String requestMessage;
-
-    @Schema(
             name = "deliveryRequestType",
             description = "배송 요청사항 타입 (NONE, LEAVE_AT_DOOR, RECEIVE_OR_LEAVE_AT_DOOR, LEAVE_AT_SECURITY, LEAVE_AT_DELIVERY_BOX, CUSTOM)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @Pattern(
-            regexp = "NONE|LEAVE_AT_DOOR|RECEIVE_OR_LEAVE_AT_DOOR|LEAVE_AT_SECURITY|LEAVE_AT_DELIVERY_BOX|CUSTOM",
-            message = "유효하지 않은 배송 요청사항 타입입니다."
-    )
-    private String deliveryRequestType;
+    private DeliveryRequestType deliveryRequestType;
 
     @Schema(
             name = "deliveryRequestMessage",

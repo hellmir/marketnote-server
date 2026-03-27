@@ -5,12 +5,14 @@ import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.AccessLevel;
 import lombok.Builder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetOrderResult(
@@ -30,13 +32,15 @@ public record GetOrderResult(
         String zipCode,
         String address,
         String addressDetail,
-        String requestMessage,
+        DeliveryRequestType deliveryRequestType,
+        String deliveryRequestMessage,
         String pickupRecipientName,
         String pickupRecipientPhoneNumber,
         String pickupZipCode,
         String pickupAddress,
         String pickupAddressDetail,
-        String pickupRequestMessage,
+        DeliveryRequestType pickupDeliveryRequestType,
+        String pickupDeliveryRequestMessage,
         List<GetOrderProductResult> orderProducts
 ) {
     public static GetOrderResult from(
@@ -60,13 +64,15 @@ public record GetOrderResult(
                 .zipCode(order.getShippingAddress().getZipCode())
                 .address(order.getShippingAddress().getAddress())
                 .addressDetail(order.getShippingAddress().getAddressDetail())
-                .requestMessage(order.getShippingAddress().getRequestMessage())
+                .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
+                .deliveryRequestMessage(order.getShippingAddress().getDeliveryRequestMessage())
                 .pickupRecipientName(resolvePickupField(order, ShippingAddress::getRecipientName))
                 .pickupRecipientPhoneNumber(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber))
                 .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
                 .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
                 .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
-                .pickupRequestMessage(resolvePickupField(order, ShippingAddress::getRequestMessage))
+                .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getDeliveryRequestType))
+                .pickupDeliveryRequestMessage(resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage))
                 .orderProducts(order.getOrderProducts().stream()
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,
@@ -78,7 +84,7 @@ public record GetOrderResult(
                 .build();
     }
 
-    private static String resolvePickupField(Order order, java.util.function.Function<ShippingAddress, String> extractor) {
+    private static <T> T resolvePickupField(Order order, Function<ShippingAddress, T> extractor) {
         if (FormatValidator.hasNoValue(order.getPickupAddress())) {
             return null;
         }
