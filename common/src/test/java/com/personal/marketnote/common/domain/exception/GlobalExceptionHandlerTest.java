@@ -399,6 +399,62 @@ class GlobalExceptionHandlerTest {
     }
 
     @Nested
+    @DisplayName("catch-all 핸들러 정보 노출 방지")
+    class CatchAllHandlerTest {
+
+        @Test
+        @DisplayName("미처리 예외에 대해 500 INTERNAL_SERVER_ERROR를 반환한다")
+        void shouldReturn500ForUnhandledException() {
+            Exception exception = new Exception("Unexpected error occurred in internal processing");
+
+            ResponseEntity<ErrorResponse> response = handler.handleException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getCode()).isEqualTo("INTERNAL_SERVER_ERROR");
+        }
+
+        @Test
+        @DisplayName("미처리 예외 응답에 원본 예외 메시지를 노출하지 않고 고정 메시지를 반환한다")
+        void shouldNotExposeOriginalMessageInCatchAllResponse() {
+            Exception exception = new Exception(
+                    "org.hibernate.query.sqm.UnknownPathException: Could not resolve attribute 'accumulatedPointRate' of 'com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity'");
+
+            ResponseEntity<ErrorResponse> response = handler.handleException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("com.personal");
+            assertThat(response.getBody().getMessage()).doesNotContain("PricePolicyJpaEntity");
+        }
+
+        @Test
+        @DisplayName("null 메시지 예외에도 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForNullMessageException() {
+            Exception exception = new Exception((String) null);
+
+            ResponseEntity<ErrorResponse> response = handler.handleException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+        }
+
+        @Test
+        @DisplayName("RuntimeException 직접 상속 커스텀 예외도 catch-all로 처리된다")
+        void shouldHandleDirectRuntimeExceptionSubclass() {
+            RuntimeException exception = new RuntimeException("Custom domain exception message") {
+            };
+
+            ResponseEntity<ErrorResponse> response = handler.handleException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
+            assertThat(response.getBody().getMessage()).doesNotContain("Custom domain exception");
+        }
+    }
+
+    @Nested
     @DisplayName("Logger 필드 접근 제어자")
     class LoggerFieldTest {
 
