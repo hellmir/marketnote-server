@@ -35,14 +35,8 @@ public class OrderRequestToCommandMapper {
                         .pointAmount(request.getPointAmount())
                         .shippingFee(request.getShippingFee())
                         .build())
-                .shippingAddress(ShippingAddress.of(
-                        request.getRecipientName(),
-                        request.getRecipientPhoneNumber(),
-                        request.getZipCode(),
-                        request.getAddress(),
-                        request.getAddressDetail(),
-                        request.getRequestMessage()
-                ))
+                .shippingAddressId(request.getShippingAddressId())
+                .requestMessage(request.getRequestMessage())
                 .orderProducts(orderProducts)
                 .build();
     }

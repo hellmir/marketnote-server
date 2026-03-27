@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.order.OrderAmount;
 import com.personal.marketnote.commerce.domain.order.OrderAmountCreateState;
 import com.personal.marketnote.commerce.domain.order.OrderCreateState;
 import com.personal.marketnote.commerce.domain.order.OrderProductCreateState;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
@@ -25,7 +26,9 @@ import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResul
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
+import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
+import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +54,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     private final SavePaymentPort savePaymentPort;
     private final SavePaymentAllocationPort savePaymentAllocationPort;
     private final ModifyUserPointPort modifyUserPointPort;
+    private final FindUserShippingAddressPort findUserShippingAddressPort;
 
     @Override
     public RegisterOrderResult registerOrder(RegisterOrderCommand command) {
@@ -97,12 +101,14 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                         .build()
         );
 
+        ShippingAddress shippingAddress = resolveShippingAddress(command);
+
         Order savedOrder = saveOrderPort.save(
                 Order.from(
                         OrderCreateState.builder()
                                 .buyerId(command.buyerId())
                                 .amount(orderAmount)
-                                .shippingAddress(command.shippingAddress())
+                                .shippingAddress(shippingAddress)
                                 .orderProductStates(orderProductStates)
                                 .build()
                 )
@@ -313,6 +319,21 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         }
 
         return totalShippingFee;
+    }
+
+    private ShippingAddress resolveShippingAddress(RegisterOrderCommand command) {
+        ShippingAddressInfoResult addressInfo = findUserShippingAddressPort.findByIdAndUserId(
+                command.shippingAddressId(), command.buyerId()
+        );
+
+        return ShippingAddress.of(
+                addressInfo.recipientName(),
+                addressInfo.recipientPhoneNumber(),
+                null,
+                addressInfo.address(),
+                addressInfo.addressDetail(),
+                command.requestMessage()
+        );
     }
 
     private long resolveAmount(Long amount) {

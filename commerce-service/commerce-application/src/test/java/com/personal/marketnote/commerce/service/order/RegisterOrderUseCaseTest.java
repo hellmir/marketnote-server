@@ -19,9 +19,11 @@ import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
+import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
+import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -56,6 +58,8 @@ class RegisterOrderUseCaseTest {
     private FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort;
     @Mock
     private ModifyUserPointPort modifyUserPointPort;
+    @Mock
+    private FindUserShippingAddressPort findUserShippingAddressPort;
 
     @InjectMocks
     private RegisterOrderService registerOrderService;
@@ -64,6 +68,8 @@ class RegisterOrderUseCaseTest {
     void setUp() {
         lenient().when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
                 .thenReturn(Map.of());
+        lenient().when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
+                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호"));
     }
 
     // ==================================================================================

@@ -75,6 +75,9 @@ kafka:
   slack:
     webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
 
+user-service:
+  base-url: ${USER_SERVICE_SERVER_ORIGIN:http://localhost:8080}
+
 product-service:
   base-url: ${PRODUCT_SERVICE_SERVER_ORIGIN:http://localhost:8081}
 
