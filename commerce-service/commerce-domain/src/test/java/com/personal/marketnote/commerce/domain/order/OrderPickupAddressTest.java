@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ class OrderPickupAddressTest {
                             "54321",
                             "회수지 주소",
                             "회수지 상세주소",
+                            null,
                             "부재시 경비실에 맡겨주세요"
                     )
             );
@@ -40,7 +42,7 @@ class OrderPickupAddressTest {
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
-            assertThat(order.getPickupAddress().getRequestMessage()).isEqualTo("부재시 경비실에 맡겨주세요");
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage()).isEqualTo("부재시 경비실에 맡겨주세요");
         }
 
         @Test
@@ -70,7 +72,7 @@ class OrderPickupAddressTest {
             order.applyPickupAddress(null);
 
             // then
-            assertThat(order.getPickupAddress().getRequestMessage()).isNull();
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage()).isNull();
         }
 
         @Test
@@ -87,6 +89,7 @@ class OrderPickupAddressTest {
                             "54321",
                             "회수지 주소",
                             "회수지 상세주소",
+                            null,
                             "회수 요청사항"
                     )
             );
@@ -97,7 +100,7 @@ class OrderPickupAddressTest {
             assertThat(order.getShippingAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getShippingAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getShippingAddress().getAddressDetail()).isEqualTo("테헤란로 123");
-            assertThat(order.getShippingAddress().getRequestMessage()).isEqualTo("문 앞에 놓아주세요");
+            assertThat(order.getShippingAddress().getDeliveryRequestType()).isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
         }
 
         @Test
@@ -111,8 +114,8 @@ class OrderPickupAddressTest {
                     .orderNumber("ORD-1")
                     .orderStatus(OrderStatus.REFUND_REQUESTED)
                     .amount(OrderAmount.of(50000L, null, null, null, null))
-                    .shippingAddress(ShippingAddress.of("배송 수령인", "01012345678", "12345", "서울시 강남구", "테헤란로 123", null))
-                    .pickupAddress(ShippingAddress.of("회수 수령인", "01099998888", "54321", "회수지 주소", "회수지 상세주소", "회수 요청사항"))
+                    .shippingAddress(ShippingAddress.of("배송 수령인", "01012345678", "12345", "서울시 강남구", "테헤란로 123", null, null))
+                    .pickupAddress(ShippingAddress.of("회수 수령인", "01099998888", "54321", "회수지 주소", "회수지 상세주소", null, "회수 요청사항"))
                     .orderProductStates(List.of())
                     .createdAt(LocalDateTime.now())
                     .modifiedAt(LocalDateTime.now())
@@ -124,7 +127,7 @@ class OrderPickupAddressTest {
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
-            assertThat(order.getPickupAddress().getRequestMessage()).isEqualTo("회수 요청사항");
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage()).isEqualTo("회수 요청사항");
         }
     }
 
@@ -136,7 +139,7 @@ class OrderPickupAddressTest {
                 .orderNumber("ORD-1")
                 .orderStatus(OrderStatus.DELIVERED)
                 .amount(OrderAmount.of(50000L, null, null, null, null))
-                .shippingAddress(ShippingAddress.of("배송 수령인", "01012345678", "12345", "서울시 강남구", "테헤란로 123", "문 앞에 놓아주세요"))
+                .shippingAddress(ShippingAddress.of("배송 수령인", "01012345678", "12345", "서울시 강남구", "테헤란로 123", DeliveryRequestType.LEAVE_AT_DOOR, null))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(1L)

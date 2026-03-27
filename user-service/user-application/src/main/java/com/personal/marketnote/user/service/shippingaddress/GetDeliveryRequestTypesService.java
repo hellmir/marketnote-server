@@ -1,7 +1,7 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.user.domain.shippingaddress.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetDeliveryRequestTypesResult;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.GetDeliveryRequestTypesUseCase;
 

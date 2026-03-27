@@ -75,7 +75,7 @@ public class Order {
             return;
         }
 
-        this.pickupAddress = shippingAddress.withoutRequestMessage();
+        this.pickupAddress = shippingAddress.withoutDeliveryRequest();
     }
 
     public boolean isPaymentPending() {

@@ -118,7 +118,8 @@ public class OrderJpaEntityToDomainMapper {
                 entity.getZipCode(),
                 entity.getAddress(),
                 entity.getAddressDetail(),
-                entity.getRequestMessage()
+                entity.getDeliveryRequestType(),
+                entity.getDeliveryRequestMessage()
         );
     }
 
@@ -133,7 +134,8 @@ public class OrderJpaEntityToDomainMapper {
                 entity.getPickupZipCode(),
                 entity.getPickupAddress(),
                 entity.getPickupAddressDetail(),
-                entity.getPickupRequestMessage()
+                entity.getPickupDeliveryRequestType(),
+                entity.getPickupDeliveryRequestMessage()
         );
     }
 

@@ -477,7 +477,7 @@ class ReadyPaymentUseCaseTest {
                 .orderNumber("ORD-TEST-001")
                 .orderStatus(orderStatus)
                 .amount(OrderAmount.of(50000L, null, null, null, null))
-                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null))
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
                 .build();
         return Order.from(state);
     }

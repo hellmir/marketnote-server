@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.domain.shippingaddress;
 
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

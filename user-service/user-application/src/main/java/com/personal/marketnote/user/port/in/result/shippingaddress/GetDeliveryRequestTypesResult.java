@@ -1,6 +1,6 @@
 package com.personal.marketnote.user.port.in.result.shippingaddress;
 
-import com.personal.marketnote.user.domain.shippingaddress.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 
 public record GetDeliveryRequestTypesResult(
         DeliveryRequestType type,

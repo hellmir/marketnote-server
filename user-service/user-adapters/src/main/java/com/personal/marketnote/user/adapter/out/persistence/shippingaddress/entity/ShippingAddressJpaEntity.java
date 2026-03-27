@@ -1,7 +1,7 @@
 package com.personal.marketnote.user.adapter.out.persistence.shippingaddress.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
-import com.personal.marketnote.user.domain.shippingaddress.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import jakarta.persistence.*;

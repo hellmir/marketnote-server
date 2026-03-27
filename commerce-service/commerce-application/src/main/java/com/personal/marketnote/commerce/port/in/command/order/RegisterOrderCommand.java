@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.port.in.command.order;
 
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import lombok.Builder;
 
 import java.util.List;
@@ -9,7 +10,8 @@ public record RegisterOrderCommand(
         Long buyerId,
         OrderAmountCommand amount,
         Long shippingAddressId,
-        String requestMessage,
+        DeliveryRequestType deliveryRequestType,
+        String deliveryRequestMessage,
         List<OrderProductItemCommand> orderProducts
 ) {
 }
