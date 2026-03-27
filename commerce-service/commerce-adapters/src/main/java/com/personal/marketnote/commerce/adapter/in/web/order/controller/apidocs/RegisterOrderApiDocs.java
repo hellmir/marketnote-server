@@ -38,6 +38,8 @@ import java.lang.annotation.*;
                 | totalAmount | number | 총 주문 금액(원) | Y | 100000 |
                 | couponAmount | number | 쿠폰 할인 금액(원) | N | 5000 |
                 | pointAmount | number | 포인트 사용 금액(원) | N | 5000 |
+                | shippingAddressId | number | 배송지 ID | Y | 1 |
+                | requestMessage | string | 배송 요청사항 | N | "문 앞에 놓아주세요" |
                 | orderProducts | array | 주문 상품 목록 | Y | [ ... ] |
                 
                 ---
@@ -85,6 +87,8 @@ import java.lang.annotation.*;
                                   "totalAmount": 120000,
                                   "couponAmount": 5000,
                                   "pointAmount": 5000,
+                                  "shippingAddressId": 1,
+                                  "requestMessage": "문 앞에 놓아주세요",
                                   "orderProducts": [
                                     {
                                       "productId": 245,

@@ -34,7 +34,7 @@ class SagaResponsePublisherTest {
     @BeforeEach
     void setUp() {
         Clock clock = Clock.fixed(
-                Instant.parse("2026-03-17T01:00:00Z"),
+                Instant.parse("2026-03-27T01:00:00Z"),
                 ZoneId.of("Asia/Seoul")
         );
         ObjectMapper objectMapper = new ObjectMapper();
