@@ -61,6 +61,7 @@ server:
   error:
     include-exception: false
     include-stacktrace: NEVER
+    include-message: NEVER
     whitelabel:
       enabled: false
 

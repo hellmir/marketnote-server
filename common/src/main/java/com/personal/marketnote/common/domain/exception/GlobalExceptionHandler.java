@@ -244,4 +244,11 @@ public class GlobalExceptionHandler {
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "데이터 무결성 제약 조건을 위반했습니다.");
     }
+
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<ErrorResponse> handleException(Exception e) {
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
+    }
 }
