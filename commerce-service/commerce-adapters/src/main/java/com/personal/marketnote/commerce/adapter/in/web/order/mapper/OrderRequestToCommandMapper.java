@@ -2,9 +2,9 @@ package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
-import com.personal.marketnote.commerce.domain.order.OrderAmount;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
+import com.personal.marketnote.commerce.port.in.command.order.OrderAmountCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 
@@ -29,13 +29,12 @@ public class OrderRequestToCommandMapper {
 
         return RegisterOrderCommand.builder()
                 .buyerId(buyerId)
-                .amount(OrderAmount.of(
-                        request.getTotalAmount(),
-                        null,
-                        request.getCouponAmount(),
-                        request.getPointAmount(),
-                        request.getShippingFee()
-                ))
+                .amount(OrderAmountCommand.builder()
+                        .totalAmount(request.getTotalAmount())
+                        .couponAmount(request.getCouponAmount())
+                        .pointAmount(request.getPointAmount())
+                        .shippingFee(request.getShippingFee())
+                        .build())
                 .shippingAddress(ShippingAddress.of(
                         request.getRecipientName(),
                         request.getRecipientPhoneNumber(),
