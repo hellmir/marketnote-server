@@ -93,6 +93,7 @@ public class OpaqueTokenIntrospectorConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/offerwalls/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/offerwalls/adiscope/callback").permitAll()
+                        .requestMatchers("/api/v1/internal/**").hasAuthority("ROLE_SERVICE")
                         .anyRequest().authenticated())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
