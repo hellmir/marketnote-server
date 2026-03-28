@@ -247,7 +247,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private URI buildPendingPointCancelUri(Long userId) {
         return UriComponentsBuilder
                 .fromUriString(rewardServiceBaseUrl)
-                .path("/api/v1/users/{userId}/points/pending/cancel")
+                .path("/api/v1/internal/users/{userId}/points/pending/cancel")
                 .buildAndExpand(userId)
                 .toUri();
     }
@@ -255,7 +255,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private URI buildPendingPointConfirmUri(Long userId) {
         return UriComponentsBuilder
                 .fromUriString(rewardServiceBaseUrl)
-                .path("/api/v1/users/{userId}/points/pending/confirm")
+                .path("/api/v1/internal/users/{userId}/points/pending/confirm")
                 .buildAndExpand(userId)
                 .toUri();
     }
@@ -263,7 +263,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private URI buildPendingPointUri(Long userId) {
         return UriComponentsBuilder
                 .fromUriString(rewardServiceBaseUrl)
-                .path("/api/v1/users/{userId}/points/pending")
+                .path("/api/v1/internal/users/{userId}/points/pending")
                 .buildAndExpand(userId)
                 .toUri();
     }
@@ -271,7 +271,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private URI buildUserPointUri(Long userId) {
         return UriComponentsBuilder
                 .fromUriString(rewardServiceBaseUrl)
-                .path("/api/v1/users/{userId}/points")
+                .path("/api/v1/internal/users/{userId}/points")
                 .buildAndExpand(userId)
                 .toUri();
     }
