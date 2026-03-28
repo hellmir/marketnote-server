@@ -1134,7 +1134,6 @@ class CancelPaymentUseCaseTest {
 
             cancelPaymentService.cancel(command);
 
-            verify(modifyUserPointPort).revokePendingPoints(BUYER_ID, 1L);
             verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
         }
     }
