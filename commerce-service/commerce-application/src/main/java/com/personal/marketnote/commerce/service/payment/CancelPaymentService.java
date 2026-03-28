@@ -114,7 +114,6 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             );
             restoreInventory(order);
             refundPoints(order);
-            revokePendingProductAccumulationPoints(order);
             revokePendingSharedPurchasePoints(order);
         } else {
             restorePartialCancelInventory(order, command);
@@ -282,15 +281,6 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                         "취소 수량이 주문 수량을 초과합니다. pricePolicyId=" + item.pricePolicyId()
                                 + ", 주문수량=" + orderQuantity + ", 취소수량=" + item.quantity());
             }
-        }
-    }
-
-    private void revokePendingProductAccumulationPoints(Order order) {
-        try {
-            modifyUserPointPort.revokePendingPoints(order.getBuyerId(), order.getId());
-        } catch (Exception e) {
-            log.error("상품 적립 예정 포인트 회수 실패 - orderId: {}, buyerId: {}, error: {}",
-                    order.getId(), order.getBuyerId(), e.getMessage(), e);
         }
     }
 
