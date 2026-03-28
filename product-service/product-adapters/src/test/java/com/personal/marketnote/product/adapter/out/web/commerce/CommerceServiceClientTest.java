@@ -76,7 +76,7 @@ class CommerceServiceClientTest {
         @Test
         @DisplayName("재고 등록 요청이 성공하면 정상적으로 완료된다")
         void shouldCompleteSuccessfullyWhenRequestSucceeds() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/inventories"))
+            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories"))
                     .andExpect(method(HttpMethod.POST))
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andRespond(withSuccess());
@@ -90,7 +90,7 @@ class CommerceServiceClientTest {
         @DisplayName("모든 재시도가 실패하면 CommerceServiceRequestFailedException이 발생한다")
         void shouldThrowExceptionWhenAllRetriesFail() {
             for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/inventories"))
+                mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories"))
                         .andExpect(method(HttpMethod.POST))
                         .andRespond(withServerError());
             }
@@ -109,7 +109,7 @@ class CommerceServiceClientTest {
         @Test
         @DisplayName("가격정책 ID 목록으로 재고 조회에 성공하면 재고 결과를 반환한다")
         void shouldReturnInventoriesWhenRequestSucceeds() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/inventories?pricePolicyIds=1&pricePolicyIds=2"))
+            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories?pricePolicyIds=1&pricePolicyIds=2"))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(withSuccess("""
                             {
@@ -134,7 +134,7 @@ class CommerceServiceClientTest {
         @DisplayName("응답 바디가 null이면 CommerceServiceRequestFailedException 후 폴백 결과를 반환한다")
         void shouldReturnFallbackResultsWhenResponseBodyIsNull() {
             for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/inventories?pricePolicyIds=1"))
+                mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories?pricePolicyIds=1"))
                         .andExpect(method(HttpMethod.GET))
                         .andRespond(withSuccess());
             }
@@ -152,7 +152,7 @@ class CommerceServiceClientTest {
         @DisplayName("모든 재시도가 실패하면 stock이 null인 폴백 결과를 반환한다")
         void shouldReturnFallbackResultsWhenAllRetriesFail() {
             for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/inventories?pricePolicyIds=1&pricePolicyIds=2"))
+                mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories?pricePolicyIds=1&pricePolicyIds=2"))
                         .andExpect(method(HttpMethod.GET))
                         .andRespond(withServerError());
             }

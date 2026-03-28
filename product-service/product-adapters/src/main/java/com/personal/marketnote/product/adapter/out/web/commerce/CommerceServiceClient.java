@@ -69,7 +69,7 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
     public void registerInventory(Long productId, Long pricePolicyId) {
         URI uri = UriComponentsBuilder
                 .fromUriString(commerceServiceBaseUrl)
-                .path("/api/v1/inventories")
+                .path("/api/v1/internal/inventories")
                 .build()
                 .toUri();
 
@@ -154,7 +154,7 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
     public Set<GetInventoryResult> findByPricePolicyIds(List<Long> pricePolicyIds) {
         URI uri = UriComponentsBuilder
                 .fromUriString(commerceServiceBaseUrl)
-                .path("/api/v1/inventories")
+                .path("/api/v1/internal/inventories")
                 .queryParam("pricePolicyIds", pricePolicyIds)
                 .build()
                 .toUri();
