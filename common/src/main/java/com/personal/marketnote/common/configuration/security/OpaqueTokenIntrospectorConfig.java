@@ -5,9 +5,7 @@ import com.personal.marketnote.common.security.hmac.HmacAuthenticationFilter;
 import com.personal.marketnote.common.security.hmac.HmacHeaderConstants;
 import com.personal.marketnote.common.security.hmac.HmacNonceValidator;
 import com.personal.marketnote.common.security.token.resolver.JsonBearerTokenResolver;
-import com.personal.marketnote.common.utility.http.client.resttemplate.RestTemplateErrorHandler;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -22,7 +20,6 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -126,12 +123,5 @@ public class OpaqueTokenIntrospectorConfig {
         source.registerCorsConfiguration("/**", config);
 
         return source;
-    }
-
-    @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder
-                .errorHandler(new RestTemplateErrorHandler())
-                .build();
     }
 }
