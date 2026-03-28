@@ -13,19 +13,18 @@ import com.personal.marketnote.commerce.utility.ServiceCommunicationRecorder;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.response.CursorResponse;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.exception.ProductServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +35,6 @@ import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_DE
 import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_MAX_REQUEST_COUNT;
 
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class ProductServiceClient implements FindProductByPricePolicyPort {
     private static final CommerceServiceCommunicationTargetType TARGET_TYPE =
@@ -45,14 +43,29 @@ public class ProductServiceClient implements FindProductByPricePolicyPort {
             CommerceServiceCommunicationSenderType.COMMERCE;
     private static final CommerceServiceCommunicationSenderType RESPONSE_SENDER =
             CommerceServiceCommunicationSenderType.PRODUCT;
+    private static final ParameterizedTypeReference<BaseResponse<OrderedProductsResponse>> RESPONSE_TYPE =
+            new ParameterizedTypeReference<>() {
+            };
 
-    @Value("${product-service.base-url:http://localhost:8081}")
-    private String productServiceBaseUrl;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String productServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
+
+    public ProductServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${product-service.base-url:http://localhost:8081}") String productServiceBaseUrl,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+            ServiceCommunicationRecorder serviceCommunicationRecorder,
+            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.productServiceBaseUrl = productServiceBaseUrl;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+        this.serviceCommunicationRecorder = serviceCommunicationRecorder;
+        this.serviceCommunicationPayloadGenerator = serviceCommunicationPayloadGenerator;
+    }
 
     @Override
     public Map<Long, ProductInfoResult> findByPricePolicyIds(List<Long> pricePolicyIds) {
@@ -67,29 +80,28 @@ public class ProductServiceClient implements FindProductByPricePolicyPort {
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-
-        return sendRequest(uri, request);
+        return sendRequest(uri);
     }
 
-    private Map<Long, ProductInfoResult> sendRequest(URI uri, HttpEntity<Void> request) {
-        Exception error = new Exception();
+    private Map<Long, ProductInfoResult> sendRequest(URI uri) {
+        Exception lastError = new Exception();
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
-                ResponseEntity<BaseResponse<OrderedProductsResponse>> response = restTemplate.exchange(
-                        uri,
-                        HttpMethod.GET,
-                        request,
-                        new ParameterizedTypeReference<>() {
-                        }
-                );
+                ResponseEntity<BaseResponse<OrderedProductsResponse>> responseEntity = restClient.get()
+                        .uri(uri)
+                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                        .retrieve()
+                        .toEntity(RESPONSE_TYPE);
+
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new ProductServiceRequestFailedException(
+                            new IOException("Product service returned error: " + responseEntity.getStatusCode()));
+                }
 
                 Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId = new HashMap<>();
-                List<ProductsInfoResponse> productsInfo = unboxResponse(response);
+                List<ProductsInfoResponse> productsInfo = unboxResponse(responseEntity);
                 generateResult(productInfoResultsByPricePolicyId, productsInfo);
 
                 return productInfoResultsByPricePolicyId;
@@ -127,26 +139,21 @@ public class ProductServiceClient implements FindProductByPricePolicyPort {
 
                 log.warn(e.getMessage(), e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
-                    error = e;
+                    lastError = e;
                 }
 
-                try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
-                    long jitteredSleepMillis = ThreadLocalRandom.current()
-                            .nextLong(Math.max(1L, INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND) + 1);
-                    Thread.sleep(jitteredSleepMillis);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
+                if (i < INTER_SERVER_MAX_REQUEST_COUNT - 1) {
+                    sleepWithJitter();
                 }
             }
         }
 
-        log.error("Failed to fetch product info from product-service: {} with error: {}", uri, error.getMessage(), error);
+        log.error("Failed to fetch product info from product-service: {} with error: {}", uri, lastError.getMessage(), lastError);
         return Map.of();
     }
 
-    private List<ProductsInfoResponse> unboxResponse(ResponseEntity<BaseResponse<OrderedProductsResponse>> response) {
-        BaseResponse<OrderedProductsResponse> body = response.getBody();
+    private List<ProductsInfoResponse> unboxResponse(ResponseEntity<BaseResponse<OrderedProductsResponse>> responseEntity) {
+        BaseResponse<OrderedProductsResponse> body = responseEntity.getBody();
         if (FormatValidator.hasNoValue(body)) {
             return List.of();
         }
@@ -190,6 +197,16 @@ public class ProductServiceClient implements FindProductByPricePolicyPort {
                             productInfo.selectedOptions()
                     )
             );
+        }
+    }
+
+    private void sleepWithJitter() {
+        try {
+            long jitteredSleepMillis = ThreadLocalRandom.current()
+                    .nextLong(Math.max(1L, INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND) + 1);
+            Thread.sleep(jitteredSleepMillis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 
