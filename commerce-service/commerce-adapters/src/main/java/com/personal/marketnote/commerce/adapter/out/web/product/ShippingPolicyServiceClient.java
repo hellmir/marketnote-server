@@ -62,7 +62,7 @@ public class ShippingPolicyServiceClient implements FindShippingPolicyBySellerId
         }
 
         URI uri = UriComponentsBuilder.fromUriString(productServiceBaseUrl)
-                .path("/api/v1/shipping-policies/sellers")
+                .path("/api/v1/internal/shipping-policies/sellers")
                 .queryParam("sellerIds", sellerIds.toArray())
                 .build()
                 .toUri();
