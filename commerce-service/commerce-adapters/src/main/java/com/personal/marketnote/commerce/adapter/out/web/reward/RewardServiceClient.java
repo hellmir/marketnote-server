@@ -6,11 +6,12 @@ import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.RewardServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -22,7 +23,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class RewardServiceClient implements ModifyUserPointPort {
     private static final String SOURCE_TYPE_ORDER = "ORDER";
@@ -37,19 +37,26 @@ public class RewardServiceClient implements ModifyUserPointPort {
     private static final String PARTIAL_CANCEL_PRODUCT_ACCUMULATION_REASON = "부분 결제 취소 상품 적립 포인트 차감";
     private static final String PARTIAL_CANCEL_SHARED_PURCHASE_REASON = "부분 결제 취소 링크 공유 적립 포인트 차감";
 
-    @Value("${reward-service.base-url}")
-    private String rewardServiceBaseUrl;
-
-    @Value("${reward-service.share-point-rate}")
-    private float sharePointRate;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String rewardServiceBaseUrl;
+    private final float sharePointRate;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
+
+    public RewardServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${reward-service.base-url}") String rewardServiceBaseUrl,
+            @Value("${reward-service.share-point-rate}") float sharePointRate,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.rewardServiceBaseUrl = rewardServiceBaseUrl;
+        this.sharePointRate = sharePointRate;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+    }
 
     @Override
     public Long getAvailablePoints(Long userId) {
         URI uri = buildUserPointUri(userId);
-        HttpHeaders headers = buildHeaders("GET", uri.getPath());
 
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception lastError = null;
@@ -57,12 +64,20 @@ public class RewardServiceClient implements ModifyUserPointPort {
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
-                ResponseEntity<JsonNode> response = restTemplate.exchange(
-                        uri, HttpMethod.GET, new HttpEntity<>(headers), JsonNode.class
-                );
-                if (FormatValidator.hasValue(response) && response.getStatusCode().is2xxSuccessful()
-                        && FormatValidator.hasValue(response.getBody())) {
-                    return response.getBody().path("content").path("amount").asLong(0L);
+                ResponseEntity<JsonNode> responseEntity = restClient.get()
+                        .uri(uri)
+                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                        .retrieve()
+                        .toEntity(JsonNode.class);
+
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new RewardServiceRequestFailedException(
+                            new IOException("Reward service returned error: " + responseEntity.getStatusCode()));
+                }
+
+                if (responseEntity.getStatusCode().is2xxSuccessful()
+                        && FormatValidator.hasValue(responseEntity.getBody())) {
+                    return responseEntity.getBody().path("content").path("amount").asLong(0L);
                 }
 
                 log.warn("포인트 잔액 조회 비정상 응답 - userId: {}, attempt: {}", userId, attempt);
@@ -89,12 +104,8 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildUserPointUri(userId);
-        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
-
-        ModifyUserPointRequest request = ModifyUserPointRequest.deduction(amount, orderId);
-        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "포인트 변경");
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.deduction(amount, orderId);
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, userId, "포인트 변경");
     }
 
     @Override
@@ -104,12 +115,8 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildUserPointUri(userId);
-        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
-
-        ModifyUserPointRequest request = ModifyUserPointRequest.refund(amount, orderId);
-        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "포인트 변경");
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.refund(amount, orderId);
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, userId, "포인트 변경");
     }
 
     @Override
@@ -119,12 +126,8 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(userId);
-        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
-
-        ModifyUserPointRequest request = ModifyUserPointRequest.pendingAccrual(amount, orderId, PRODUCT_ACCUMULATION_REASON);
-        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "포인트 변경");
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(amount, orderId, PRODUCT_ACCUMULATION_REASON);
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, userId, "포인트 변경");
     }
 
     @Override
@@ -134,14 +137,10 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointConfirmUri(userId);
-        HttpHeaders headers = buildHeaders("POST", uri.getPath());
-
-        ConfirmPendingPointRequest request = new ConfirmPendingPointRequest(
+        ConfirmPendingPointRequest requestBody = new ConfirmPendingPointRequest(
                 SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CONFIRM_REASON
         );
-        HttpEntity<ConfirmPendingPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.POST, userId, "적립 예정 포인트 확정");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.POST, userId, "적립 예정 포인트 확정");
     }
 
     @Override
@@ -151,14 +150,10 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointCancelUri(userId);
-        HttpHeaders headers = buildHeaders("POST", uri.getPath());
-
-        CancelPendingPointRequest request = new CancelPendingPointRequest(
+        CancelPendingPointRequest requestBody = new CancelPendingPointRequest(
                 SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CANCEL_REASON
         );
-        HttpEntity<CancelPendingPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.POST, userId, "적립 예정 포인트 취소");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.POST, userId, "적립 예정 포인트 취소");
     }
 
     @Override
@@ -168,14 +163,10 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(userId);
-        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
-
-        ModifyUserPointRequest request = ModifyUserPointRequest.pendingDeduction(
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingDeduction(
                 amount, orderId, PARTIAL_CANCEL_PRODUCT_ACCUMULATION_REASON
         );
-        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, userId, "부분 취소 적립 예정 포인트 차감");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, userId, "부분 취소 적립 예정 포인트 차감");
     }
 
     @Override
@@ -205,14 +196,10 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
     private void reduceSharerPartialPendingPoint(Long sharerId, Long amount, Long orderId) {
         URI uri = buildPendingPointUri(sharerId);
-        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
-
-        ModifyUserPointRequest request = ModifyUserPointRequest.pendingDeduction(
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingDeduction(
                 amount, orderId, PARTIAL_CANCEL_SHARED_PURCHASE_REASON
         );
-        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, sharerId, "부분 취소 공유 적립 예정 포인트 차감");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerId, "부분 취소 공유 적립 예정 포인트 차감");
     }
 
     @Override
@@ -229,14 +216,10 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
     private void revokeSharerPendingPoint(Long sharerId, Long orderId) {
         URI uri = buildPendingPointCancelUri(sharerId);
-        HttpHeaders headers = buildHeaders("POST", uri.getPath());
-
-        CancelPendingPointRequest request = new CancelPendingPointRequest(
+        CancelPendingPointRequest requestBody = new CancelPendingPointRequest(
                 SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CANCEL_REASON
         );
-        HttpEntity<CancelPendingPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.POST, sharerId, "공유 적립 예정 포인트 취소");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.POST, sharerId, "공유 적립 예정 포인트 취소");
     }
 
     @Override
@@ -256,13 +239,9 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(sharerId);
-        HttpHeaders headers = buildHeaders("PATCH", uri.getPath());
-
         long sharePointAmount = Math.round(totalAmount * sharePointRate);
-        ModifyUserPointRequest request = ModifyUserPointRequest.pendingAccrual(sharePointAmount, orderId, SHARE_PURCHASE_REASON);
-        HttpEntity<ModifyUserPointRequest> httpEntity = new HttpEntity<>(request, headers);
-
-        sendRequestWithRetry(uri, httpEntity, HttpMethod.PATCH, sharerId, "포인트 변경");
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(sharePointAmount, orderId, SHARE_PURCHASE_REASON);
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerId, "포인트 변경");
     }
 
     private URI buildPendingPointCancelUri(Long userId) {
@@ -297,14 +276,6 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 .toUri();
     }
 
-    private HttpHeaders buildHeaders(String httpMethod, String requestPath) {
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, httpMethod, requestPath);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        return headers;
-    }
-
     private void sleep(long millis) {
         try {
             // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
@@ -316,21 +287,32 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
     }
 
-    private <T> void sendRequestWithRetry(URI uri, HttpEntity<T> httpEntity, HttpMethod method,
+    private <T> void sendRequestWithRetry(URI uri, T requestBody, HttpMethod method,
                                           Long userId, String operationName) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
-                ResponseEntity<Void> response = restTemplate.exchange(uri, method, httpEntity, Void.class);
-                if (FormatValidator.hasValue(response) && response.getStatusCode().is2xxSuccessful()) {
+                ResponseEntity<Void> responseEntity = restClient.method(method)
+                        .uri(uri)
+                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, method.name(), uri.getPath()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(requestBody)
+                        .retrieve()
+                        .toBodilessEntity();
+
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new RewardServiceRequestFailedException(
+                            new IOException("Reward service returned error: " + responseEntity.getStatusCode()));
+                }
+
+                if (responseEntity.getStatusCode().is2xxSuccessful()) {
                     return;
                 }
 
                 log.warn("{} 비정상 응답 - userId: {}, attempt: {}, status: {}",
-                        operationName, userId, attempt,
-                        FormatValidator.hasValue(response) ? response.getStatusCode() : "empty");
+                        operationName, userId, attempt, responseEntity.getStatusCode());
             } catch (Exception e) {
                 log.warn("{} 요청 실패 - userId: {}, attempt: {}, error: {}",
                         operationName, userId, attempt, e.getMessage(), e);

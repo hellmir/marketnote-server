@@ -6,19 +6,17 @@ import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyI
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.exception.ProductServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +34,6 @@ import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_MA
  * @Description 커머스 서비스에서 상품 서비스의 배송비 정책을 조회합니다.
  */
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class ShippingPolicyServiceClient implements FindShippingPolicyBySellerIdsPort {
 
@@ -44,11 +41,19 @@ public class ShippingPolicyServiceClient implements FindShippingPolicyBySellerId
             new ParameterizedTypeReference<>() {
             };
 
-    @Value("${product-service.base-url:http://localhost:8081}")
-    private String productServiceBaseUrl;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String productServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
+
+    public ShippingPolicyServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${product-service.base-url:http://localhost:8081}") String productServiceBaseUrl,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.productServiceBaseUrl = productServiceBaseUrl;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+    }
 
     @Override
     public Map<Long, ShippingPolicyInfoResult> findBySellerIds(List<Long> sellerIds) {
@@ -62,26 +67,26 @@ public class ShippingPolicyServiceClient implements FindShippingPolicyBySellerId
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-
-        return sendRequest(uri, request);
+        return sendRequest(uri);
     }
 
-    private Map<Long, ShippingPolicyInfoResult> sendRequest(URI uri, HttpEntity<Void> request) {
+    private Map<Long, ShippingPolicyInfoResult> sendRequest(URI uri) {
         Exception lastError = new Exception();
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             try {
-                ResponseEntity<BaseResponse<ShippingPoliciesBySellerIdsResponse>> response = restTemplate.exchange(
-                        uri,
-                        HttpMethod.GET,
-                        request,
-                        RESPONSE_TYPE
-                );
+                ResponseEntity<BaseResponse<ShippingPoliciesBySellerIdsResponse>> responseEntity = restClient.get()
+                        .uri(uri)
+                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                        .retrieve()
+                        .toEntity(RESPONSE_TYPE);
 
-                return parseResponse(response);
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new ProductServiceRequestFailedException(
+                            new IOException("Product service returned error: " + responseEntity.getStatusCode()));
+                }
+
+                return parseResponse(responseEntity);
             } catch (Exception e) {
                 log.warn("배송비 정책 조회 실패 (attempt {}/{}): {}", i + 1, INTER_SERVER_MAX_REQUEST_COUNT, e.getMessage());
                 lastError = e;
@@ -97,9 +102,9 @@ public class ShippingPolicyServiceClient implements FindShippingPolicyBySellerId
     }
 
     private Map<Long, ShippingPolicyInfoResult> parseResponse(
-            ResponseEntity<BaseResponse<ShippingPoliciesBySellerIdsResponse>> response
+            ResponseEntity<BaseResponse<ShippingPoliciesBySellerIdsResponse>> responseEntity
     ) {
-        BaseResponse<ShippingPoliciesBySellerIdsResponse> body = response.getBody();
+        BaseResponse<ShippingPoliciesBySellerIdsResponse> body = responseEntity.getBody();
         if (FormatValidator.hasNoValue(body)) {
             return Map.of();
         }

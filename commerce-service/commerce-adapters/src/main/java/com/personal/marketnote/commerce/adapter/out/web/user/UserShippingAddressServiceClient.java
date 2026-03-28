@@ -8,16 +8,18 @@ import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressD
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.exception.UserServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +36,6 @@ import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_MA
  * @Description 커머스 서비스에서 회원 서비스의 배송지를 조회합니다.
  */
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class UserShippingAddressServiceClient implements FindUserShippingAddressPort, UpdateUserShippingAddressDeliveryRequestPort {
 
@@ -42,11 +43,19 @@ public class UserShippingAddressServiceClient implements FindUserShippingAddress
             new ParameterizedTypeReference<>() {
             };
 
-    @Value("${user-service.base-url:http://localhost:8080}")
-    private String userServiceBaseUrl;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String userServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
+
+    public UserShippingAddressServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${user-service.base-url:http://localhost:8080}") String userServiceBaseUrl,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.userServiceBaseUrl = userServiceBaseUrl;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+    }
 
     @Override
     public ShippingAddressInfoResult findByIdAndUserId(Long shippingAddressId, Long userId) {
@@ -58,26 +67,26 @@ public class UserShippingAddressServiceClient implements FindUserShippingAddress
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", path);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-
-        return sendRequest(uri, request, shippingAddressId);
+        return sendRequest(uri, path, shippingAddressId);
     }
 
-    private ShippingAddressInfoResult sendRequest(URI uri, HttpEntity<Void> request, Long shippingAddressId) {
+    private ShippingAddressInfoResult sendRequest(URI uri, String path, Long shippingAddressId) {
         Exception lastError = new Exception();
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             try {
-                ResponseEntity<BaseResponse<ShippingAddressInfoResponse>> response = restTemplate.exchange(
-                        uri,
-                        HttpMethod.GET,
-                        request,
-                        RESPONSE_TYPE
-                );
+                ResponseEntity<BaseResponse<ShippingAddressInfoResponse>> responseEntity = restClient.get()
+                        .uri(uri)
+                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", path))
+                        .retrieve()
+                        .toEntity(RESPONSE_TYPE);
 
-                return parseResponse(response, shippingAddressId);
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new UserServiceRequestFailedException(
+                            new IOException("User service returned error: " + responseEntity.getStatusCode()));
+                }
+
+                return parseResponse(responseEntity, shippingAddressId);
             } catch (Exception e) {
                 log.warn("배송지 조회 실패 (attempt {}/{}): {}", i + 1, INTER_SERVER_MAX_REQUEST_COUNT, e.getMessage());
                 lastError = e;
@@ -93,10 +102,10 @@ public class UserShippingAddressServiceClient implements FindUserShippingAddress
     }
 
     private ShippingAddressInfoResult parseResponse(
-            ResponseEntity<BaseResponse<ShippingAddressInfoResponse>> response,
+            ResponseEntity<BaseResponse<ShippingAddressInfoResponse>> responseEntity,
             Long shippingAddressId
     ) {
-        BaseResponse<ShippingAddressInfoResponse> body = response.getBody();
+        BaseResponse<ShippingAddressInfoResponse> body = responseEntity.getBody();
         if (FormatValidator.hasNoValue(body)) {
             throw new ShippingAddressNotFoundException(shippingAddressId);
         }
@@ -124,20 +133,25 @@ public class UserShippingAddressServiceClient implements FindUserShippingAddress
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path);
-
         Map<String, String> body = new HashMap<>();
         body.put("deliveryRequestType", deliveryRequestType.name());
         if (FormatValidator.hasValue(deliveryRequestMessage)) {
             body.put("deliveryRequestMessage", deliveryRequestMessage);
         }
 
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
-
         try {
-            restTemplate.exchange(uri, HttpMethod.PATCH, request, Void.class);
+            ResponseEntity<Void> responseEntity = restClient.patch()
+                    .uri(uri)
+                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PATCH", path))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .toBodilessEntity();
+
+            if (responseEntity.getStatusCode().isError()) {
+                log.warn("배송 요청사항 업데이트 실패 - shippingAddressId: {}, userId: {}, status: {}",
+                        shippingAddressId, userId, responseEntity.getStatusCode());
+            }
         } catch (Exception e) {
             log.warn("배송 요청사항 업데이트 실패 - shippingAddressId: {}, userId: {}, error: {}",
                     shippingAddressId, userId, e.getMessage());
