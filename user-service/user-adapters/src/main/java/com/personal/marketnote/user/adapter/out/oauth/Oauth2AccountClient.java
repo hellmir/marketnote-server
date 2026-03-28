@@ -7,11 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import static com.personal.marketnote.user.service.exception.ExceptionMessage.UNLINK_GOOGLE_ACCOUNT_FAILED_EXCEPTION_MESSAGE;
 import static com.personal.marketnote.user.service.exception.ExceptionMessage.UNLINK_KAKAO_ACCOUNT_FAILED_EXCEPTION_MESSAGE;
@@ -22,13 +21,15 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
     private static final String KAKAO_UNLINK_URL = "https://kapi.kakao.com/v1/user/unlink";
     private static final String GOOGLE_REVOKE_URL = "https://oauth2.googleapis.com/revoke";
 
-    @Value("${oauth2.kakao.admin-key}")
-    private String kakaoAdminKey;
+    private final RestClient restClient;
+    private final String kakaoAdminKey;
 
-    private final RestTemplate restTemplate;
-
-    public Oauth2AccountClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public Oauth2AccountClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${oauth2.kakao.admin-key}") String kakaoAdminKey
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.kakaoAdminKey = kakaoAdminKey;
     }
 
     @Override
@@ -37,12 +38,13 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
         form.add("target_id_type", "user_id");
         form.add("target_id", oidcId);
 
-        RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity.post(KAKAO_UNLINK_URL)
+        ResponseEntity<String> response = restClient.post()
+                .uri(KAKAO_UNLINK_URL)
                 .header(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoAdminKey)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(form);
-
-        ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
+                .body(form)
+                .retrieve()
+                .toEntity(String.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new UnlinkOauth2AccountFailedException(UNLINK_KAKAO_ACCOUNT_FAILED_EXCEPTION_MESSAGE);
@@ -54,11 +56,12 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("token", accessToken);
 
-        RequestEntity<MultiValueMap<String, String>> requestEntity = RequestEntity.post(GOOGLE_REVOKE_URL)
+        ResponseEntity<String> response = restClient.post()
+                .uri(GOOGLE_REVOKE_URL)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(form);
-
-        ResponseEntity<String> response = restTemplate.exchange(requestEntity, String.class);
+                .body(form)
+                .retrieve()
+                .toEntity(String.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new UnlinkOauth2AccountFailedException(UNLINK_GOOGLE_ACCOUNT_FAILED_EXCEPTION_MESSAGE);
