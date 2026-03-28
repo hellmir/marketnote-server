@@ -16,15 +16,13 @@ import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
 import com.personal.marketnote.product.port.out.result.GetInventoryResult;
 import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -38,7 +36,6 @@ import java.util.stream.Collectors;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class CommerceServiceClient implements RegisterInventoryPort, FindStockPort {
     private static final ProductServiceCommunicationTargetType TARGET_TYPE =
@@ -48,13 +45,25 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
     private static final ProductServiceCommunicationSenderType RESPONSE_SENDER =
             ProductServiceCommunicationSenderType.COMMERCE;
 
-    @Value("${commerce-service.base-url}")
-    private String commerceServiceBaseUrl;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String commerceServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
+
+    public CommerceServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${commerce-service.base-url}") String commerceServiceBaseUrl,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+            ServiceCommunicationRecorder serviceCommunicationRecorder,
+            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.commerceServiceBaseUrl = commerceServiceBaseUrl;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+        this.serviceCommunicationRecorder = serviceCommunicationRecorder;
+        this.serviceCommunicationPayloadGenerator = serviceCommunicationPayloadGenerator;
+    }
 
     @Override
     public void registerInventory(Long productId, Long pricePolicyId) {
@@ -64,15 +73,11 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
-        HttpEntity<RegisterInventoryRequest> httpEntity
-                = new HttpEntity<>(new RegisterInventoryRequest(productId, pricePolicyId), headers);
-
-        sendRequest(uri, httpEntity, pricePolicyId);
+        RegisterInventoryRequest requestBody = new RegisterInventoryRequest(productId, pricePolicyId);
+        sendRegisterRequest(uri, requestBody, pricePolicyId);
     }
 
-    public void sendRequest(URI uri, HttpEntity<RegisterInventoryRequest> httpEntity, Long pricePolicyId) {
+    private void sendRegisterRequest(URI uri, RegisterInventoryRequest requestBody, Long pricePolicyId) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
         String targetId = FormatValidator.hasValue(pricePolicyId) ? String.valueOf(pricePolicyId) : null;
@@ -80,14 +85,24 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
-                restTemplate.postForEntity(uri, httpEntity, Void.class);
+                ResponseEntity<Void> responseEntity = restClient.post()
+                        .uri(uri)
+                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(requestBody)
+                        .retrieve()
+                        .toBodilessEntity();
+
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new CommerceServiceRequestFailedException(new IOException("Commerce service returned error: " + responseEntity.getStatusCode()));
+                }
                 return;
             } catch (Exception e) {
                 String exception = e.getClass().getSimpleName();
                 JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
                         HttpMethod.POST,
                         uri,
-                        httpEntity.getBody(),
+                        requestBody,
                         attempt
                 );
                 String requestPayload = requestPayloadJson.toString();
@@ -119,7 +134,6 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
                 }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
@@ -128,7 +142,6 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
                     return;
                 }
 
-                // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
             }
         }
@@ -146,11 +159,8 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
-
         try {
-            return sendRequest(uri, headers).inventories();
+            return sendFindRequest(uri).inventories();
         } catch (CommerceServiceRequestFailedException csrfe) {
             return pricePolicyIds.stream()
                     .map(GetInventoryResult::generateResultWithoutStock)
@@ -158,20 +168,24 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
         }
     }
 
-    public GetInventoriesResponse sendRequest(URI uri, HttpHeaders headers) {
+    private GetInventoriesResponse sendFindRequest(URI uri) {
         Exception error = new Exception();
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
                 ResponseEntity<BaseResponse<GetInventoriesResponse>> responseEntity =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.GET,
-                                new HttpEntity<>(headers),
-                                new ParameterizedTypeReference<BaseResponse<GetInventoriesResponse>>() {
-                                }
-                        );
+                        restClient.get()
+                                .uri(uri)
+                                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
+
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new CommerceServiceRequestFailedException(new IOException("Commerce service returned error: " + responseEntity.getStatusCode()));
+                }
+
                 BaseResponse<GetInventoriesResponse> response = responseEntity.getBody();
 
                 if (FormatValidator.hasNoValue(response)) {
@@ -214,9 +228,11 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
                         exception
                 );
                 log.warn(e.getMessage(), e);
+                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
+                    error = e;
+                }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND) + 1);
                     Thread.sleep(jitteredSleepMillis);

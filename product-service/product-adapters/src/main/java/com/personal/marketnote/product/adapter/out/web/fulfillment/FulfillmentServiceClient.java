@@ -16,15 +16,13 @@ import com.personal.marketnote.product.port.in.result.fulfillment.*;
 import com.personal.marketnote.product.port.out.fulfillment.*;
 import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -35,7 +33,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class FulfillmentServiceClient implements
         RegisterFulfillmentVendorGoodsPort,
@@ -47,16 +44,28 @@ public class FulfillmentServiceClient implements
     private static final ProductServiceCommunicationSenderType RESPONSE_SENDER =
             ProductServiceCommunicationSenderType.FULFILLMENT;
 
-    @Value("${fulfillment-service.base-url}")
-    private String fulfillmentServiceBaseUrl;
-
-    @Value("${fulfillment-service.fassto.customer-code}")
-    private String fulfillmentVendorCustomerCode;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String fulfillmentServiceBaseUrl;
+    private final String fulfillmentVendorCustomerCode;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
+
+    public FulfillmentServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${fulfillment-service.base-url}") String fulfillmentServiceBaseUrl,
+            @Value("${fulfillment-service.fassto.customer-code}") String fulfillmentVendorCustomerCode,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+            ServiceCommunicationRecorder serviceCommunicationRecorder,
+            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.fulfillmentServiceBaseUrl = fulfillmentServiceBaseUrl;
+        this.fulfillmentVendorCustomerCode = fulfillmentVendorCustomerCode;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+        this.serviceCommunicationRecorder = serviceCommunicationRecorder;
+        this.serviceCommunicationPayloadGenerator = serviceCommunicationPayloadGenerator;
+    }
 
     @Override
     public void registerFulfillmentVendorGoods(RegisterFulfillmentVendorGoodsCommand command) {
@@ -71,14 +80,8 @@ public class FulfillmentServiceClient implements
                 .buildAndExpand(fulfillmentVendorCustomerCode)
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
-        headers.add("accessToken", fulfillmentVendorAccessToken);
-
         List<RegisterFasstoGoodsItemRequest> payload = List.of(RegisterFasstoGoodsItemRequest.from(command));
-        HttpEntity<List<RegisterFasstoGoodsItemRequest>> httpEntity = new HttpEntity<>(payload, headers);
-
-        sendRequest(uri, httpEntity, command);
+        sendRegisterRequest(uri, payload, fulfillmentVendorAccessToken, command);
     }
 
     @Override
@@ -97,12 +100,7 @@ public class FulfillmentServiceClient implements
                 .buildAndExpand(fulfillmentVendorCustomerCode)
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
-        headers.add("accessToken", fulfillmentVendorAccessToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-
-        GetFulfillmentVendorGoodsResult result = requestGoodsList(uri, httpEntity);
+        GetFulfillmentVendorGoodsResult result = requestGoodsList(uri, fulfillmentVendorAccessToken);
         if (FormatValidator.hasNoValue(result)) {
             throw new FulfillmentServiceRequestFailedException(new IOException());
         }
@@ -123,12 +121,7 @@ public class FulfillmentServiceClient implements
                 .buildAndExpand(fulfillmentVendorCustomerCode)
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
-        headers.add("accessToken", fulfillmentVendorAccessToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-
-        GetFulfillmentVendorGoodsElementsResult result = requestGoodsElements(uri, httpEntity);
+        GetFulfillmentVendorGoodsElementsResult result = requestGoodsElements(uri, fulfillmentVendorAccessToken);
         if (FormatValidator.hasNoValue(result)) {
             throw new FulfillmentServiceRequestFailedException(new IOException());
         }
@@ -149,14 +142,8 @@ public class FulfillmentServiceClient implements
                 .buildAndExpand(fulfillmentVendorCustomerCode)
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PUT", uri.getPath());
-        headers.add("accessToken", fulfillmentVendorAccessToken);
-
         List<UpdateFasstoGoodsItemRequest> payload = List.of(UpdateFasstoGoodsItemRequest.from(command));
-        HttpEntity<List<UpdateFasstoGoodsItemRequest>> httpEntity = new HttpEntity<>(payload, headers);
-
-        sendUpdateRequest(uri, httpEntity, command);
+        sendUpdateRequest(uri, payload, fulfillmentVendorAccessToken, command);
     }
 
     private String requestFulfillmentVendorAccessToken() {
@@ -166,10 +153,6 @@ public class FulfillmentServiceClient implements
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
 
@@ -177,13 +160,12 @@ public class FulfillmentServiceClient implements
             int attempt = i + 1;
             try {
                 ResponseEntity<BaseResponse<FasstoAuthTokenResponse>> responseEntity =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.POST,
-                                httpEntity,
-                                new ParameterizedTypeReference<BaseResponse<FasstoAuthTokenResponse>>() {
-                                }
-                        );
+                        restClient.post()
+                                .uri(uri)
+                                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
 
                 if (!responseEntity.getStatusCode().is2xxSuccessful()) {
                     throw new FulfillmentServiceRequestFailedException(new IOException());
@@ -239,7 +221,6 @@ public class FulfillmentServiceClient implements
                 }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
@@ -248,7 +229,6 @@ public class FulfillmentServiceClient implements
                     return null;
                 }
 
-                // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
             }
         }
@@ -257,26 +237,30 @@ public class FulfillmentServiceClient implements
         throw new FulfillmentServiceRequestFailedException(new IOException());
     }
 
-    private void sendRequest(
+    private void sendRegisterRequest(
             URI uri,
-            HttpEntity<List<RegisterFasstoGoodsItemRequest>> httpEntity,
+            List<RegisterFasstoGoodsItemRequest> requestBody,
+            String accessToken,
             RegisterFulfillmentVendorGoodsCommand command
     ) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
 
-        List<RegisterFasstoGoodsItemRequest> requestBody = httpEntity.getBody();
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
                 ResponseEntity<BaseResponse<RegisterFasstoGoodsResponse>> responseEntity =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.POST,
-                                httpEntity,
-                                new ParameterizedTypeReference<BaseResponse<RegisterFasstoGoodsResponse>>() {
-                                }
-                        );
+                        restClient.post()
+                                .uri(uri)
+                                .headers(headers -> {
+                                    hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
+                                    headers.add("accessToken", accessToken);
+                                })
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(requestBody)
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
 
                 if (!responseEntity.getStatusCode().is2xxSuccessful()) {
                     throw new FulfillmentServiceRequestFailedException(new IOException());
@@ -330,7 +314,6 @@ public class FulfillmentServiceClient implements
                 }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
@@ -339,7 +322,6 @@ public class FulfillmentServiceClient implements
                     return;
                 }
 
-                // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
             }
         }
@@ -350,24 +332,28 @@ public class FulfillmentServiceClient implements
 
     private void sendUpdateRequest(
             URI uri,
-            HttpEntity<List<UpdateFasstoGoodsItemRequest>> httpEntity,
+            List<UpdateFasstoGoodsItemRequest> requestBody,
+            String accessToken,
             UpdateFulfillmentVendorGoodsCommand command
     ) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
 
-        List<UpdateFasstoGoodsItemRequest> requestBody = httpEntity.getBody();
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
                 ResponseEntity<BaseResponse<UpdateFasstoGoodsResponse>> responseEntity =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.PUT,
-                                httpEntity,
-                                new ParameterizedTypeReference<BaseResponse<UpdateFasstoGoodsResponse>>() {
-                                }
-                        );
+                        restClient.put()
+                                .uri(uri)
+                                .headers(headers -> {
+                                    hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PUT", uri.getPath());
+                                    headers.add("accessToken", accessToken);
+                                })
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(requestBody)
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
 
                 if (!responseEntity.getStatusCode().is2xxSuccessful()) {
                     throw new FulfillmentServiceRequestFailedException(new IOException());
@@ -421,7 +407,6 @@ public class FulfillmentServiceClient implements
                 }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
@@ -430,7 +415,6 @@ public class FulfillmentServiceClient implements
                     return;
                 }
 
-                // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
             }
         }
@@ -439,10 +423,7 @@ public class FulfillmentServiceClient implements
         throw new FulfillmentServiceRequestFailedException(new IOException());
     }
 
-    private GetFulfillmentVendorGoodsResult requestGoodsList(
-            URI uri,
-            HttpEntity<Void> httpEntity
-    ) {
+    private GetFulfillmentVendorGoodsResult requestGoodsList(URI uri, String accessToken) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
 
@@ -450,13 +431,15 @@ public class FulfillmentServiceClient implements
             int attempt = i + 1;
             try {
                 ResponseEntity<BaseResponse<GetFasstoGoodsResponse>> responseEntity =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.GET,
-                                httpEntity,
-                                new ParameterizedTypeReference<BaseResponse<GetFasstoGoodsResponse>>() {
-                                }
-                        );
+                        restClient.get()
+                                .uri(uri)
+                                .headers(headers -> {
+                                    hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
+                                    headers.add("accessToken", accessToken);
+                                })
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
 
                 if (!responseEntity.getStatusCode().is2xxSuccessful()) {
                     throw new FulfillmentServiceRequestFailedException(new IOException());
@@ -510,7 +493,6 @@ public class FulfillmentServiceClient implements
                 }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
@@ -519,7 +501,6 @@ public class FulfillmentServiceClient implements
                     return null;
                 }
 
-                // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
             }
         }
@@ -528,10 +509,7 @@ public class FulfillmentServiceClient implements
         throw new FulfillmentServiceRequestFailedException(new IOException());
     }
 
-    private GetFulfillmentVendorGoodsElementsResult requestGoodsElements(
-            URI uri,
-            HttpEntity<Void> httpEntity
-    ) {
+    private GetFulfillmentVendorGoodsElementsResult requestGoodsElements(URI uri, String accessToken) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
 
@@ -539,13 +517,15 @@ public class FulfillmentServiceClient implements
             int attempt = i + 1;
             try {
                 ResponseEntity<BaseResponse<GetFasstoGoodsElementsResponse>> responseEntity =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.GET,
-                                httpEntity,
-                                new ParameterizedTypeReference<BaseResponse<GetFasstoGoodsElementsResponse>>() {
-                                }
-                        );
+                        restClient.get()
+                                .uri(uri)
+                                .headers(headers -> {
+                                    hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
+                                    headers.add("accessToken", accessToken);
+                                })
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
 
                 if (!responseEntity.getStatusCode().is2xxSuccessful()) {
                     throw new FulfillmentServiceRequestFailedException(new IOException());
@@ -599,7 +579,6 @@ public class FulfillmentServiceClient implements
                 }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
@@ -608,7 +587,6 @@ public class FulfillmentServiceClient implements
                     return null;
                 }
 
-                // exponential backoff 적용
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
             }
         }

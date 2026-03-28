@@ -3,6 +3,7 @@ package com.personal.marketnote.product.adapter.out.web.community;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.exception.CommunityServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.response.GetProductReviewAggregatesResponse;
@@ -14,17 +15,15 @@ import com.personal.marketnote.product.port.out.result.ProductReviewAggregateRes
 import com.personal.marketnote.product.port.out.review.FindProductReviewAggregatesPort;
 import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class CommunityServiceClient implements FindProductReviewAggregatesPort {
     private static final ProductServiceCommunicationTargetType TARGET_TYPE =
@@ -45,13 +43,25 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
     private static final ProductServiceCommunicationSenderType RESPONSE_SENDER =
             ProductServiceCommunicationSenderType.COMMUNITY;
 
-    @Value("${community-service.base-url}")
-    private String communityServiceBaseUrl;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String communityServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
+
+    public CommunityServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${community-service.base-url}") String communityServiceBaseUrl,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+            ServiceCommunicationRecorder serviceCommunicationRecorder,
+            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.communityServiceBaseUrl = communityServiceBaseUrl;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+        this.serviceCommunicationRecorder = serviceCommunicationRecorder;
+        this.serviceCommunicationPayloadGenerator = serviceCommunicationPayloadGenerator;
+    }
 
     @Override
     public Map<Long, ProductReviewAggregateResult> findByProductIds(List<Long> productIds) {
@@ -66,13 +76,10 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
-
-        return sendRequest(uri, new HttpEntity<>(headers));
+        return sendRequest(uri);
     }
 
-    public Map<Long, ProductReviewAggregateResult> sendRequest(URI uri, HttpEntity<Void> httpEntity) {
+    private Map<Long, ProductReviewAggregateResult> sendRequest(URI uri) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
         Exception error = new Exception();
 
@@ -80,13 +87,17 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
             int attempt = i + 1;
             try {
                 ResponseEntity<BaseResponse<GetProductReviewAggregatesResponse>> responseEntity =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.GET,
-                                httpEntity,
-                                new ParameterizedTypeReference<BaseResponse<GetProductReviewAggregatesResponse>>() {
-                                }
-                        );
+                        restClient.get()
+                                .uri(uri)
+                                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
+
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new CommunityServiceRequestFailedException(new IOException("Community service returned error: " + responseEntity.getStatusCode()));
+                }
+
                 BaseResponse<GetProductReviewAggregatesResponse> response = responseEntity.getBody();
 
                 if (FormatValidator.hasNoValue(response) || FormatValidator.hasNoValue(response.getContent())) {
@@ -143,9 +154,11 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
                         exception
                 );
                 log.warn(e.getMessage(), e);
+                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
+                    error = e;
+                }
 
                 try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
                     long jitteredSleepMillis = ThreadLocalRandom.current()
                             .nextLong(Math.max(1L, sleepMillis) + 1);
                     Thread.sleep(jitteredSleepMillis);
@@ -153,9 +166,6 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
                     Thread.currentThread().interrupt();
                     return Map.of();
                 }
-
-                // exponential backoff 적용
-                log.error("Failed to get product review aggregates: {} with error: {}", uri, error.getMessage(), error);
                 sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
             }
         }
