@@ -8,6 +8,7 @@ import com.personal.marketnote.common.application.file.port.in.result.GetFileRes
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
+import com.personal.marketnote.common.exception.FileServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationSenderType;
@@ -17,17 +18,15 @@ import com.personal.marketnote.community.port.out.file.FindPostImagesPort;
 import com.personal.marketnote.community.port.out.file.FindReviewImagesPort;
 import com.personal.marketnote.community.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.community.utility.ServiceCommunicationRecorder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +38,6 @@ import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_DE
 import static com.personal.marketnote.common.utility.ApiConstant.INTER_SERVER_MAX_REQUEST_COUNT;
 
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class FileServiceClient implements FindReviewImagesPort, FindPostImagesPort {
     private static final CommunityServiceCommunicationSenderType REQUEST_SENDER =
@@ -47,13 +45,25 @@ public class FileServiceClient implements FindReviewImagesPort, FindPostImagesPo
     private static final CommunityServiceCommunicationSenderType RESPONSE_SENDER =
             CommunityServiceCommunicationSenderType.FILE;
 
-    @Value("${file-service.base-url:http://localhost:9000}")
-    private String fileServiceBaseUrl;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String fileServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
+
+    public FileServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${file-service.base-url:http://localhost:9000}") String fileServiceBaseUrl,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+            ServiceCommunicationRecorder serviceCommunicationRecorder,
+            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.fileServiceBaseUrl = fileServiceBaseUrl;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+        this.serviceCommunicationRecorder = serviceCommunicationRecorder;
+        this.serviceCommunicationPayloadGenerator = serviceCommunicationPayloadGenerator;
+    }
 
     @Override
     public Optional<GetFilesResult> findImagesByReviewIdAndSort(Long reviewId, FileSort sort) {
@@ -75,30 +85,29 @@ public class FileServiceClient implements FindReviewImagesPort, FindPostImagesPo
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath());
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
-
-        return sendRequest(uri, httpEntity, ownerId, sort, ownerType);
+        return sendRequest(uri, ownerId, sort, ownerType);
     }
 
-    private Optional<GetFilesResult> sendRequest(
-            URI uri, HttpEntity<Void> httpEntity, Long ownerId, FileSort sort, OwnerType ownerType
-    ) {
+    private Optional<GetFilesResult> sendRequest(URI uri, Long ownerId, FileSort sort, OwnerType ownerType) {
         CommunityServiceCommunicationTargetType targetType = resolveTargetType(ownerType);
+
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
-                ResponseEntity<BaseResponse<FilesContent>> response =
-                        restTemplate.exchange(
-                                uri,
-                                HttpMethod.GET,
-                                httpEntity,
-                                new ParameterizedTypeReference<>() {
-                                }
-                        );
+                ResponseEntity<BaseResponse<FilesContent>> responseEntity =
+                        restClient.get()
+                                .uri(uri)
+                                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
+                                .retrieve()
+                                .toEntity(new ParameterizedTypeReference<>() {
+                                });
 
-                BaseResponse<FilesContent> body = response.getBody();
+                if (responseEntity.getStatusCode().isError()) {
+                    throw new FileServiceRequestFailedException(
+                            new IOException("File service returned error: " + responseEntity.getStatusCode()));
+                }
+
+                BaseResponse<FilesContent> body = responseEntity.getBody();
                 FilesContent filesContent = null;
                 if (FormatValidator.hasValue(body)) {
                     filesContent = body.content;
@@ -155,13 +164,8 @@ public class FileServiceClient implements FindReviewImagesPort, FindPostImagesPo
                 );
                 log.warn(e.getMessage(), e);
 
-                try {
-                    // 대상 서비스 장애 시 요청 트래픽 폭주를 방지하기 위해 jitter 설정
-                    long jitteredSleepMillis = ThreadLocalRandom.current()
-                            .nextLong(Math.max(1L, INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND) + 1);
-                    Thread.sleep(jitteredSleepMillis);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
+                if (i < INTER_SERVER_MAX_REQUEST_COUNT - 1) {
+                    sleepWithJitter();
                 }
             }
         }
@@ -175,6 +179,16 @@ public class FileServiceClient implements FindReviewImagesPort, FindPostImagesPo
             return CommunityServiceCommunicationTargetType.REVIEW_IMAGE;
         }
         return CommunityServiceCommunicationTargetType.POST_IMAGE;
+    }
+
+    private void sleepWithJitter() {
+        try {
+            long jitteredSleepMillis = ThreadLocalRandom.current()
+                    .nextLong(Math.max(1L, INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND) + 1);
+            Thread.sleep(jitteredSleepMillis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void recordCommunication(

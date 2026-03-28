@@ -6,37 +6,42 @@ import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import com.personal.marketnote.common.utility.FormatValidator;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class KcpApiClient {
     private final KcpProperties kcpProperties;
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
+
+    public KcpApiClient(
+            KcpProperties kcpProperties,
+            RestClient.Builder restClientBuilder,
+            ObjectMapper objectMapper
+    ) {
+        this.kcpProperties = kcpProperties;
+        this.restClient = restClientBuilder.build();
+        this.objectMapper = objectMapper;
+    }
 
     public KcpTradeRegisterResponse registerTrade(KcpTradeRegisterRequest request) {
         String url = kcpProperties.getApi().getTradeRegisterUrl();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<KcpTradeRegisterRequest> httpEntity = new HttpEntity<>(request, headers);
 
         log.info("KCP 거래등록 요청: url={}, site_cd={}, ordr_idxx={}, good_mny={}, pay_method={}, good_name={}, Ret_URL={}",
                 url, request.siteCd(), request.ordrIdxx(), request.goodMny(),
                 request.payMethod(), request.goodName(), request.retUrl());
 
-        ResponseEntity<String> rawResponse = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                httpEntity,
-                String.class
-        );
+        ResponseEntity<String> rawResponse = restClient.post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
         log.debug("KCP 거래등록 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
@@ -56,18 +61,14 @@ public class KcpApiClient {
     public KcpPaymentApprovalResponse approvePayment(KcpPaymentApprovalRequest request) {
         String url = kcpProperties.getApi().getPaymentApprovalUrl();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<KcpPaymentApprovalRequest> httpEntity = new HttpEntity<>(request, headers);
-
         log.info("KCP 결제승인 요청: url={}, ordrNo={}", url, request.ordrNo());
 
-        ResponseEntity<String> rawResponse = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                httpEntity,
-                String.class
-        );
+        ResponseEntity<String> rawResponse = restClient.post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
         log.debug("KCP 결제승인 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
@@ -87,18 +88,14 @@ public class KcpApiClient {
     public KcpPaymentCancelResponse cancelPayment(KcpPaymentCancelRequest request) {
         String url = kcpProperties.getApi().getPaymentCancelUrl();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<KcpPaymentCancelRequest> httpEntity = new HttpEntity<>(request, headers);
-
         log.info("KCP 결제취소 요청: url={}, tno={}", url, request.tno());
 
-        ResponseEntity<String> rawResponse = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                httpEntity,
-                String.class
-        );
+        ResponseEntity<String> rawResponse = restClient.post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
         log.debug("KCP 결제취소 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
