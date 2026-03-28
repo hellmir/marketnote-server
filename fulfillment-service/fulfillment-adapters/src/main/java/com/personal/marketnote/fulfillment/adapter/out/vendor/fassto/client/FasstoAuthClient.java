@@ -21,11 +21,10 @@ import com.personal.marketnote.fulfillment.port.out.vendor.RequestFasstoAuthPort
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -38,24 +37,38 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @VendorAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class FasstoAuthClient implements RequestFasstoAuthPort, DisconnectFasstoAuthPort {
     private static final String API_CD_PARAM = "apiCd";
     private static final String API_KEY_PARAM = "apiKey";
     private static final String ACCESS_TOKEN_HEADER = "accessToken";
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final FasstoAuthProperties properties;
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
 
+    public FasstoAuthClient(
+            RestClient.Builder restClientBuilder,
+            ObjectMapper objectMapper,
+            FasstoAuthProperties properties,
+            VendorCommunicationRecorder vendorCommunicationRecorder,
+            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.objectMapper = objectMapper;
+        this.properties = properties;
+        this.vendorCommunicationRecorder = vendorCommunicationRecorder;
+        this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
+        this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+    }
+
     @Override
     public FasstoAccessToken requestAccessToken() {
         URI uri = buildAuthUri();
-        HttpEntity<Void> request = new HttpEntity<>(buildHeaders());
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -70,12 +83,11 @@ public class FasstoAuthClient implements RequestFasstoAuthPort, DisconnectFassto
 
             ResponseEntity<FasstoAuthResponse> response;
             try {
-                response = restTemplate.exchange(
-                        uri,
-                        HttpMethod.POST,
-                        request,
-                        FasstoAuthResponse.class
-                );
+                response = restClient.post()
+                        .uri(uri)
+                        .headers(h -> h.addAll(buildHeaders()))
+                        .retrieve()
+                        .toEntity(FasstoAuthResponse.class);
             } catch (Exception e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
@@ -163,9 +175,6 @@ public class FasstoAuthClient implements RequestFasstoAuthPort, DisconnectFassto
         }
 
         URI uri = buildDisconnectUri();
-        HttpHeaders headers = buildHeaders();
-        headers.add(ACCESS_TOKEN_HEADER, accessToken);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -180,12 +189,14 @@ public class FasstoAuthClient implements RequestFasstoAuthPort, DisconnectFassto
 
             ResponseEntity<String> response;
             try {
-                response = restTemplate.exchange(
-                        uri,
-                        HttpMethod.GET,
-                        request,
-                        String.class
-                );
+                response = restClient.get()
+                        .uri(uri)
+                        .headers(h -> {
+                            h.addAll(buildHeaders());
+                            h.add(ACCESS_TOKEN_HEADER, accessToken);
+                        })
+                        .retrieve()
+                        .toEntity(String.class);
             } catch (Exception e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());

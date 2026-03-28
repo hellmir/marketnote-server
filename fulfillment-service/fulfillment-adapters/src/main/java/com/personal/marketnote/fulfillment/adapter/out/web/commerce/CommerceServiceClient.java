@@ -14,13 +14,10 @@ import com.personal.marketnote.fulfillment.port.out.commerce.UpdateCommerceInven
 import com.personal.marketnote.fulfillment.port.out.commerce.UpdateCommerceInventoryPort;
 import com.personal.marketnote.fulfillment.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.ServiceCommunicationRecorder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -32,7 +29,6 @@ import java.util.stream.Collectors;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @ServiceAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class CommerceServiceClient implements UpdateCommerceInventoryPort {
     private static final FulfillmentServiceCommunicationTargetType TARGET_TYPE =
@@ -42,13 +38,25 @@ public class CommerceServiceClient implements UpdateCommerceInventoryPort {
     private static final FulfillmentServiceCommunicationSenderType RESPONSE_SENDER =
             FulfillmentServiceCommunicationSenderType.COMMERCE;
 
-    @Value("${commerce-service.base-url}")
-    private String commerceServiceBaseUrl;
-
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
+    private final String commerceServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
     private final ServiceCommunicationRecorder serviceCommunicationRecorder;
     private final ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator;
+
+    public CommerceServiceClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${commerce-service.base-url}") String commerceServiceBaseUrl,
+            HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder,
+            ServiceCommunicationRecorder serviceCommunicationRecorder,
+            ServiceCommunicationPayloadGenerator serviceCommunicationPayloadGenerator
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.commerceServiceBaseUrl = commerceServiceBaseUrl;
+        this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
+        this.serviceCommunicationRecorder = serviceCommunicationRecorder;
+        this.serviceCommunicationPayloadGenerator = serviceCommunicationPayloadGenerator;
+    }
 
     @Override
     public void updateInventories(UpdateCommerceInventoryCommand command) {
@@ -67,19 +75,15 @@ public class CommerceServiceClient implements UpdateCommerceInventoryPort {
                 .build()
                 .toUri();
 
-        HttpHeaders headers = new HttpHeaders();
-        hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
-
         SyncFulfillmentVendorInventoryRequest request = SyncFulfillmentVendorInventoryRequest.from(command);
-        HttpEntity<SyncFulfillmentVendorInventoryRequest> httpEntity = new HttpEntity<>(request, headers);
 
         String targetId = resolveTargetId(command);
-        sendRequest(uri, httpEntity, targetId);
+        sendRequest(uri, request, targetId);
     }
 
     private void sendRequest(
             URI uri,
-            HttpEntity<SyncFulfillmentVendorInventoryRequest> httpEntity,
+            SyncFulfillmentVendorInventoryRequest request,
             String targetId
     ) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -90,14 +94,19 @@ public class CommerceServiceClient implements UpdateCommerceInventoryPort {
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
             int attempt = i + 1;
             try {
-                restTemplate.exchange(requestUri, method, httpEntity, Void.class);
+                restClient.post()
+                        .uri(requestUri)
+                        .headers(h -> hmacServiceAuthHeaderBuilder.applyHeaders(h, "POST", requestUri.getPath()))
+                        .body(request)
+                        .retrieve()
+                        .toBodilessEntity();
                 return;
             } catch (Exception e) {
                 String exception = e.getClass().getSimpleName();
                 JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
                         method,
                         requestUri,
-                        httpEntity.getBody(),
+                        request,
                         attempt
                 );
                 String requestPayload = requestPayloadJson.toString();

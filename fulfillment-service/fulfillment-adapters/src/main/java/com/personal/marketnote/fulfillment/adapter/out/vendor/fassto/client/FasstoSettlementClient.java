@@ -21,11 +21,10 @@ import com.personal.marketnote.fulfillment.port.out.vendor.GetFasstoSettlementDa
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -38,7 +37,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @VendorAdapter
-@RequiredArgsConstructor
 @Slf4j
 public class FasstoSettlementClient implements GetFasstoSettlementDailyCostsPort {
     private static final String ACCESS_TOKEN_HEADER = "accessToken";
@@ -46,12 +44,28 @@ public class FasstoSettlementClient implements GetFasstoSettlementDailyCostsPort
     private static final String WH_CODE_PLACEHOLDER = "{whCd}";
     private static final String CUSTOMER_CODE_PLACEHOLDER = "{customerCode}";
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper;
     private final FasstoAuthProperties properties;
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
+
+    public FasstoSettlementClient(
+            RestClient.Builder restClientBuilder,
+            ObjectMapper objectMapper,
+            FasstoAuthProperties properties,
+            VendorCommunicationRecorder vendorCommunicationRecorder,
+            VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator,
+            VendorCommunicationFailureHandler vendorCommunicationFailureHandler
+    ) {
+        this.restClient = restClientBuilder.build();
+        this.objectMapper = objectMapper;
+        this.properties = properties;
+        this.vendorCommunicationRecorder = vendorCommunicationRecorder;
+        this.vendorCommunicationPayloadGenerator = vendorCommunicationPayloadGenerator;
+        this.vendorCommunicationFailureHandler = vendorCommunicationFailureHandler;
+    }
 
     @Override
     public GetFasstoSettlementDailyCostsResult getDailyCosts(FasstoSettlementDailyCostQuery query) {
@@ -60,7 +74,6 @@ public class FasstoSettlementClient implements GetFasstoSettlementDailyCostsPort
         }
 
         URI uri = buildSettlementDailyCostUri(query.getYearMonth(), query.getWhCd(), query.getCustomerCode());
-        HttpEntity<Void> httpEntity = new HttpEntity<>(buildHeaders(query.getAccessToken(), false));
 
         Exception error = new Exception();
         String failureMessage = null;
@@ -75,12 +88,11 @@ public class FasstoSettlementClient implements GetFasstoSettlementDailyCostsPort
 
             ResponseEntity<String> response;
             try {
-                response = restTemplate.exchange(
-                        uri,
-                        HttpMethod.GET,
-                        httpEntity,
-                        String.class
-                );
+                response = restClient.get()
+                        .uri(uri)
+                        .headers(h -> h.addAll(buildHeaders(query.getAccessToken(), false)))
+                        .retrieve()
+                        .toEntity(String.class);
             } catch (Exception e) {
                 Map<String, Object> errorPayload = new LinkedHashMap<>();
                 errorPayload.put("error", e.getClass().getSimpleName());
