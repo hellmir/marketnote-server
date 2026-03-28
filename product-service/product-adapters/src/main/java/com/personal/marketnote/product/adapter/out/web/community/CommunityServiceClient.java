@@ -71,7 +71,7 @@ public class CommunityServiceClient implements FindProductReviewAggregatesPort {
 
         URI uri = UriComponentsBuilder
                 .fromUriString(communityServiceBaseUrl)
-                .path("/api/v1/products/review-aggregates")
+                .path("/api/v1/internal/products/review-aggregates")
                 .queryParam("productIds", productIds)
                 .build()
                 .toUri();

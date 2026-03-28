@@ -75,7 +75,7 @@ class CommunityServiceClientTest {
         @Test
         @DisplayName("상품 ID 목록으로 리뷰 집계 조회에 성공하면 productId별 결과를 반환한다")
         void shouldReturnReviewAggregatesWhenRequestSucceeds() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/products/review-aggregates?productIds=1&productIds=2"))
+            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/products/review-aggregates?productIds=1&productIds=2"))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(withSuccess("""
                             {
@@ -121,7 +121,7 @@ class CommunityServiceClientTest {
         @Test
         @DisplayName("응답 바디가 null이면 빈 Map을 반환한다")
         void shouldReturnEmptyMapWhenResponseBodyIsNull() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/products/review-aggregates?productIds=1"))
+            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/products/review-aggregates?productIds=1"))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(withSuccess());
 
@@ -136,7 +136,7 @@ class CommunityServiceClientTest {
         @Test
         @DisplayName("reviewAggregates가 null이면 빈 Map을 반환한다")
         void shouldReturnEmptyMapWhenReviewAggregatesIsNull() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/products/review-aggregates?productIds=1"))
+            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/products/review-aggregates?productIds=1"))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(withSuccess("""
                             {"content": {"reviewAggregates": null}}
@@ -154,7 +154,7 @@ class CommunityServiceClientTest {
         @DisplayName("모든 재시도가 실패하면 빈 Map을 반환한다")
         void shouldReturnEmptyMapWhenAllRetriesFail() {
             for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/products/review-aggregates?productIds=1"))
+                mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/products/review-aggregates?productIds=1"))
                         .andExpect(method(HttpMethod.GET))
                         .andRespond(withServerError());
             }
