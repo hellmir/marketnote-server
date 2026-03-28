@@ -29,7 +29,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
  * 내부 재고 컨트롤러 (서비스 간 통신용)
  *
  * @Author 성효빈
- * @Date 2026-03-18
+ * @Date 2026-03-28
  * @Description HMAC 인증 기반 서비스 간 통신용 재고 API를 제공합니다.
  */
 @RestController
