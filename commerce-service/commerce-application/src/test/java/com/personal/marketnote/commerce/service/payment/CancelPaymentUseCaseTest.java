@@ -10,7 +10,6 @@ import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
@@ -57,9 +56,6 @@ class CancelPaymentUseCaseTest {
 
     @Mock
     private PaymentVendorPort paymentVendorPort;
-
-    @Mock
-    private ChangeOrderStatusUseCase changeOrderStatusUseCase;
 
     @Mock
     private RestoreProductInventoryUseCase restoreProductInventoryUseCase;
@@ -121,26 +117,6 @@ class CancelPaymentUseCaseTest {
                             && c.modMny().equals(50000L)
                             && c.remMny().equals(0L)
                             && "tno_123".equals(c.tno())
-            ));
-        }
-
-        @Test
-        @DisplayName("전체 취소 성공 시 주문 상태가 CANCEL_REQUESTED로 변경된다")
-        void shouldChangeOrderStatusToCancelRequested() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(changeOrderStatusUseCase).changeOrderStatus(argThat(c ->
-                    c.orderStatus() == OrderStatus.CANCEL_REQUESTED && c.id().equals(1L)
             ));
         }
 
@@ -212,23 +188,6 @@ class CancelPaymentUseCaseTest {
             ));
         }
 
-        @Test
-        @DisplayName("부분 취소 시 주문 상태는 변경되지 않는다")
-        void shouldNotChangeOrderStatusOnPartialCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(changeOrderStatusUseCase, never()).changeOrderStatus(any());
-        }
     }
 
     @Nested
@@ -558,7 +517,7 @@ class CancelPaymentUseCaseTest {
 
             verify(updatePaymentPort).update(any());
             verify(updatePspPaymentEventPort).update(any());
-            verify(changeOrderStatusUseCase).changeOrderStatus(any());
+
         }
     }
 
@@ -772,7 +731,7 @@ class CancelPaymentUseCaseTest {
 
             verify(updatePaymentPort).update(any());
             verify(updatePspPaymentEventPort).update(any());
-            verify(changeOrderStatusUseCase).changeOrderStatus(any());
+
         }
     }
 
@@ -878,7 +837,7 @@ class CancelPaymentUseCaseTest {
 
             verify(updatePaymentPort).update(any());
             verify(updatePspPaymentEventPort).update(any());
-            verify(changeOrderStatusUseCase).changeOrderStatus(any());
+
         }
     }
 
