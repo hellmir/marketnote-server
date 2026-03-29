@@ -146,7 +146,7 @@ public class GetOrderService implements GetOrderUseCase {
     private Order getOrderAndVerifyOwner(Long id, Long buyerId) {
         Order order = getOrder(id);
 
-        if (!order.getBuyerId().equals(buyerId)) {
+        if (!order.isBuyer(buyerId)) {
             log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", id, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();
         }
