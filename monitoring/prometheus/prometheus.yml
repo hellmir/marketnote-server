@@ -65,6 +65,10 @@ scrape_configs:
           - '${FULFILLMENT_PRIVATE_IP}:8080'
         labels:
           service: 'fulfillment-service'
+    relabel_configs:
+      - source_labels: []
+        target_label: instance
+        replacement: 'fulfillment.marketnote.store:8080'
 
   - job_name: 'shop-file'
     metrics_path: '/actuator/prometheus'
@@ -95,3 +99,11 @@ scrape_configs:
         labels:
           broker: 'broker-3'
           node_id: '3'
+
+  - job_name: 'kafka-exporter'
+    metrics_path: '/metrics'
+    scheme: http
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - '${KAFKA_BROKER_1_PRIVATE_IP}:9308'

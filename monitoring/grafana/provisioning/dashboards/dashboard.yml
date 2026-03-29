@@ -1,12 +1,22 @@
 apiVersion: 1
 
 providers:
-  - name: 'default'
+  - name: 'kafka'
     orgId: 1
     folder: 'Kafka'
     type: file
     disableDeletion: false
     editable: true
     options:
-      path: /var/lib/grafana/dashboards
+      path: /etc/grafana/dashboards/kafka
+      foldersFromFilesStructure: false
+
+  - name: 'spring-boot'
+    orgId: 1
+    folder: 'Spring Boot'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/dashboards/spring-boot
       foldersFromFilesStructure: false

@@ -739,8 +739,8 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum by (kafka_consumer_group_id) (kafka_consumer_fetch_manager_records_lag{kafka_consumer_group_id=~\"$consumer_group\"})",
-          "legendFormat": "{{ kafka_consumer_group_id }}"
+          "expr": "sum by (consumergroup) (kafka_consumergroup_lag{consumergroup=~\"$consumer_group\"})",
+          "legendFormat": "{{ consumergroup }}"
         }
       ],
       "fieldConfig": {
@@ -1294,11 +1294,11 @@
           "value": "$__all"
         },
         "datasource": "Prometheus",
-        "definition": "label_values(kafka_consumer_fetch_manager_records_lag, kafka_consumer_group_id)",
+        "definition": "label_values(kafka_consumergroup_lag, consumergroup)",
         "includeAll": true,
         "multi": true,
         "name": "consumer_group",
-        "query": "label_values(kafka_consumer_fetch_manager_records_lag, kafka_consumer_group_id)",
+        "query": "label_values(kafka_consumergroup_lag, consumergroup)",
         "refresh": 2,
         "type": "query"
       },
