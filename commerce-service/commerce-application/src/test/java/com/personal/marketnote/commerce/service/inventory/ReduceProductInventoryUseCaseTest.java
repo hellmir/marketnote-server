@@ -5,9 +5,11 @@ import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHisto
 import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistory;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
+import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
 import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.exception.InventoryLockInterruptedException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -681,6 +683,57 @@ class ReduceProductInventoryUseCaseTest {
             verify(findInventoryPort).findByPricePolicyIds(any());
             verify(updateInventoryPort).update(any());
             verify(saveInventoryDeductionHistoryPort).save(any(InventoryDeductionHistories.class));
+        }
+
+        @Test
+        @DisplayName("재고 부족 시 InsufficientQuantityException이 발생한다")
+        void reduce_insufficientStock_throwsInsufficientQuantityException() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 11));
+            Inventory inventory = buildInventory(1L, 100L, 10);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+
+            assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
+                    .isInstanceOf(InsufficientQuantityException.class)
+                    .hasMessageContaining("10")
+                    .hasMessageContaining("11");
+        }
+
+        @Test
+        @DisplayName("재고 부족 시 재고 업데이트, 이력 저장, 캐시 저장을 호출하지 않는다")
+        void reduce_insufficientStock_doesNotCallSubsequentPorts() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 11));
+            Inventory inventory = buildInventory(1L, 100L, 10);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+
+            assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
+                    .isInstanceOf(InsufficientQuantityException.class);
+
+            verifyNoInteractions(updateInventoryPort);
+            verifyNoInteractions(saveInventoryDeductionHistoryPort);
+            verifyNoInteractions(saveCacheStockPort);
+        }
+
+        // ==================================================================================
+        // 멱등성 검증
+        // ==================================================================================
+
+        @Test
+        @DisplayName("동일 orderId로 중복 차감 시 DuplicateInventoryDeductionException이 발생한다")
+        void reduce_duplicateOrderId_throwsDuplicateInventoryDeductionException() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+            Inventory inventory = buildInventory(1L, 100L, 10);
+            DuplicateInventoryDeductionException exception = new DuplicateInventoryDeductionException(1L);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+            doThrow(exception).when(saveInventoryDeductionHistoryPort).save(any(InventoryDeductionHistories.class));
+
+            assertThatThrownBy(() -> reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료"))
+                    .isSameAs(exception);
         }
 
         // ==================================================================================
