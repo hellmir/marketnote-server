@@ -1,8 +1,8 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;

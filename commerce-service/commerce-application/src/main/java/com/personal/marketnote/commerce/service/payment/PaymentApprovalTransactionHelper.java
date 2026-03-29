@@ -134,7 +134,7 @@ public class PaymentApprovalTransactionHelper {
     }
 
     private ApprovePaymentResult buildApprovePaymentResult(Payment payment,
-                                                            PaymentApprovalVendorResult vendorResult) {
+                                                           PaymentApprovalVendorResult vendorResult) {
         return ApprovePaymentResult.builder()
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
@@ -243,7 +243,7 @@ public class PaymentApprovalTransactionHelper {
     }
 
     private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts,
-                                                 List<Long> pricePolicyIds) {
+                                                List<Long> pricePolicyIds) {
         Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
 
         long totalAccumulatedPoint = 0L;

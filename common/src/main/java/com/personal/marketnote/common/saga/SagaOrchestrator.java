@@ -181,7 +181,7 @@ public class SagaOrchestrator {
     }
 
     private void handleStepFailure(SagaInstance instance, List<SagaStep> steps,
-                                    SagaStep currentStep, String response) {
+                                   SagaStep currentStep, String response) {
         currentStep.fail(response);
         updateSagaPort.updateStep(currentStep);
 
@@ -189,7 +189,7 @@ public class SagaOrchestrator {
     }
 
     private void handleCompensationSuccess(SagaInstance instance, List<SagaStep> steps,
-                                            SagaStep step, String response) {
+                                           SagaStep step, String response) {
         step.completeCompensation(response);
         updateSagaPort.updateStep(step);
 
@@ -209,7 +209,7 @@ public class SagaOrchestrator {
     }
 
     private <T> void processStep(SagaDefinition<T> definition, SagaInstance instance,
-                                  T context, int stepIndex) {
+                                 T context, int stepIndex) {
         SagaStepDefinition<T> stepDef = definition.getSteps().get(stepIndex);
         String actionRequest = stepDef.action().apply(context);
 
@@ -275,7 +275,7 @@ public class SagaOrchestrator {
     }
 
     private <T> void publishActionMessage(SagaInstance instance, SagaStepDefinition<T> stepDef,
-                                           String request) {
+                                          String request) {
         SagaStepMessage message = new SagaStepMessage(
                 instance.getSagaId(), instance.getSagaType(), stepDef.stepName(),
                 SagaStepMessage.ACTION, request);
@@ -284,7 +284,7 @@ public class SagaOrchestrator {
     }
 
     private <T> void publishCompensationMessage(SagaInstance instance, SagaStepDefinition<T> stepDef,
-                                                 String request) {
+                                                String request) {
         SagaStepMessage message = new SagaStepMessage(
                 instance.getSagaId(), instance.getSagaType(), stepDef.stepName(),
                 SagaStepMessage.COMPENSATION, request);

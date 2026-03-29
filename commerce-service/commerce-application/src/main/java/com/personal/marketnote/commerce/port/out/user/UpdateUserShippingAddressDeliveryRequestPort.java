@@ -11,9 +11,9 @@ import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
  */
 public interface UpdateUserShippingAddressDeliveryRequestPort {
     /**
-     * @param shippingAddressId    배송지 ID
-     * @param userId               회원 ID
-     * @param deliveryRequestType  배송 요청사항 타입
+     * @param shippingAddressId      배송지 ID
+     * @param userId                 회원 ID
+     * @param deliveryRequestType    배송 요청사항 타입
      * @param deliveryRequestMessage 배송 요청사항 메시지
      * @Date 2026-03-27
      * @Author 성효빈

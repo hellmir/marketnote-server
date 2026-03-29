@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.adapter.in.event.saga;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
@@ -26,7 +25,8 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrderPaymentInventorySagaConsumer 테스트")

@@ -31,7 +31,7 @@ public class SagaResponsePublisher {
 
     @Transactional(isolation = READ_COMMITTED)
     public void publishSuccess(String sagaId, String sagaType, String stepName,
-                                String messageType, String response) {
+                               String messageType, String response) {
         SagaResponseMessage responseMessage = new SagaResponseMessage(
                 sagaId, sagaType, stepName, messageType, true, response);
         publishToOutbox(responseMessage, sagaId);
@@ -39,7 +39,7 @@ public class SagaResponsePublisher {
 
     @Transactional(isolation = READ_COMMITTED)
     public void publishFailure(String sagaId, String sagaType, String stepName,
-                                String messageType, String errorMessage) {
+                               String messageType, String errorMessage) {
         SagaResponseMessage responseMessage = new SagaResponseMessage(
                 sagaId, sagaType, stepName, messageType, false, errorMessage);
         publishToOutbox(responseMessage, sagaId);
