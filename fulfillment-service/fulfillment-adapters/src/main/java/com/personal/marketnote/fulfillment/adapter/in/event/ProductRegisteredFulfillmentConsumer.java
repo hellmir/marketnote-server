@@ -81,12 +81,12 @@ public class ProductRegisteredFulfillmentConsumer {
 
             String godType = FormatValidator.hasValue(payload.godType()) ? payload.godType() : DEFAULT_GOD_TYPE;
 
-            RegisterFasstoGoodsItemCommand itemCommand = RegisterFasstoGoodsItemCommand.ofMinimal(
-                    String.valueOf(payload.productId()),
-                    payload.productName(),
-                    godType,
-                    DEFAULT_GIFT_DIV
-            );
+            RegisterFasstoGoodsItemCommand itemCommand = RegisterFasstoGoodsItemCommand.builder()
+                    .cstGodCd(String.valueOf(payload.productId()))
+                    .godNm(payload.productName())
+                    .godType(godType)
+                    .giftDiv(DEFAULT_GIFT_DIV)
+                    .build();
 
             RegisterFasstoGoodsCommand command = RegisterFasstoGoodsCommand.of(
                     fasstoAuthProperties.getCustomerCode(),

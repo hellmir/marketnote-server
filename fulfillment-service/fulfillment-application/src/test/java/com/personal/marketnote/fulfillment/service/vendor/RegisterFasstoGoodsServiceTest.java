@@ -35,13 +35,12 @@ class RegisterFasstoGoodsServiceTest {
     private SaveFasstoGoodsRegistrationPort saveFasstoGoodsRegistrationPort;
 
     private RegisterFasstoGoodsCommand buildCommand(String productId) {
-        RegisterFasstoGoodsItemCommand itemCommand = RegisterFasstoGoodsItemCommand.of(
-                productId, "테스트 상품", "1", "01",
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null,
-                null, null, null, null
-        );
+        RegisterFasstoGoodsItemCommand itemCommand = RegisterFasstoGoodsItemCommand.builder()
+                .cstGodCd(productId)
+                .godNm("테스트 상품")
+                .godType("1")
+                .giftDiv("01")
+                .build();
         return RegisterFasstoGoodsCommand.of("CUST001", "token", List.of(itemCommand));
     }
 
