@@ -1646,7 +1646,7 @@ class RegisterOrderUseCaseTest {
     class InvocationOrderTest {
 
         @Test
-        @DisplayName("주문 등록 시 가격 검증 -> 재고 조회 -> 주문 저장 -> 결제 저장 순서로 호출한다")
+        @DisplayName("주문 등록 시 정책 병렬 조회 후 재고 조회 -> 주문 저장 -> 결제 저장 순서로 호출한다")
         void registerOrder_callsInOrder() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
@@ -1662,8 +1662,10 @@ class RegisterOrderUseCaseTest {
 
             registerOrderService.registerOrder(command);
 
-            InOrder inOrder = inOrder(findProductByPricePolicyPort, getInventoryUseCase, saveOrderPort, savePaymentPort);
-            inOrder.verify(findProductByPricePolicyPort).findByPricePolicyIds(anyList());
+            verify(findProductByPricePolicyPort).findByPricePolicyIds(anyList());
+            verify(findShippingPolicyBySellerIdsPort).findBySellerIds(anyList());
+
+            InOrder inOrder = inOrder(getInventoryUseCase, saveOrderPort, savePaymentPort);
             inOrder.verify(getInventoryUseCase).getOrCreateInventories(anyMap());
             inOrder.verify(saveOrderPort).save(any(Order.class));
             inOrder.verify(savePaymentPort).save(any(Payment.class));
@@ -1761,6 +1763,40 @@ class RegisterOrderUseCaseTest {
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("재고 조회 실패");
+
+            verifyNoInteractions(saveOrderPort);
+        }
+
+        @Test
+        @DisplayName("가격 정책 조회 중 예외 발생 시 CompletionException을 unwrap하여 원래 예외를 전파한다")
+        void registerOrder_findPricePolicyFails_unwrapsAndPropagatesOriginalException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
+
+            RuntimeException originalException = new RuntimeException("가격 정책 조회 실패");
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenThrow(originalException);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isSameAs(originalException);
+
+            verifyNoInteractions(saveOrderPort);
+        }
+
+        @Test
+        @DisplayName("배송비 정책 조회 중 예외 발생 시 CompletionException을 unwrap하여 원래 예외를 전파한다")
+        void registerOrder_findShippingPolicyFails_unwrapsAndPropagatesOriginalException() {
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = createCommandWithShippingFee(1L, 10L, pricePolicyId, 50000L, 1, 0L, 0L, 3000L);
+
+            mockProductPrice(pricePolicyId, 50000L);
+
+            RuntimeException originalException = new RuntimeException("배송비 정책 조회 실패");
+            when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
+                    .thenThrow(originalException);
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isSameAs(originalException);
 
             verifyNoInteractions(saveOrderPort);
         }
