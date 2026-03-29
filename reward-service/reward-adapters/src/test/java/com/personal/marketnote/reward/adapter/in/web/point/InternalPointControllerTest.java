@@ -1,12 +1,9 @@
 package com.personal.marketnote.reward.adapter.in.web.point;
 
-import com.personal.marketnote.reward.adapter.in.web.point.mapper.PointRequestToCommandMapper;
 import com.personal.marketnote.reward.adapter.in.web.point.request.CancelPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
-import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointByIdResponse;
-import com.personal.marketnote.reward.adapter.in.web.point.response.UpdateUserPointResponse;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
@@ -14,7 +11,6 @@ import com.personal.marketnote.reward.port.in.command.point.CancelPendingPointCo
 import com.personal.marketnote.reward.port.in.command.point.ConfirmPendingPointCommand;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
-import com.personal.marketnote.reward.port.in.result.point.GetUserPointResult;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
 import com.personal.marketnote.reward.port.in.usecase.point.*;
 import org.junit.jupiter.api.DisplayName;

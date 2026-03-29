@@ -6,8 +6,8 @@ import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfo
 import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
-import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.exception.UserServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;

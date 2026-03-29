@@ -63,7 +63,7 @@ public class SagaInstanceJpaEntity {
     private LocalDateTime completedAt;
 
     private SagaInstanceJpaEntity(String sagaId, String sagaType, SagaStatus status,
-                                   int currentStepIndex, String payload) {
+                                  int currentStepIndex, String payload) {
         this.sagaId = sagaId;
         this.sagaType = sagaType;
         this.status = status;

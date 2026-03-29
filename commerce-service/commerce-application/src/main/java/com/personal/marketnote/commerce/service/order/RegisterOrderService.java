@@ -1,12 +1,7 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
-import com.personal.marketnote.commerce.domain.order.Order;
-import com.personal.marketnote.commerce.domain.order.OrderAmount;
-import com.personal.marketnote.commerce.domain.order.OrderAmountCreateState;
-import com.personal.marketnote.commerce.domain.order.OrderCreateState;
-import com.personal.marketnote.commerce.domain.order.OrderProductCreateState;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
@@ -24,9 +19,9 @@ import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
+import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
-import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.common.application.UseCase;

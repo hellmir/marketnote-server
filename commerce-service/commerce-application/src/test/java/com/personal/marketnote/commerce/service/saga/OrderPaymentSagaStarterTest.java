@@ -2,7 +2,6 @@ package com.personal.marketnote.commerce.service.saga;
 
 import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentSagaContext;
 import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentSagaContext.OrderProductItem;
-import com.personal.marketnote.common.saga.SagaInstance;
 import com.personal.marketnote.common.saga.SagaOrchestrator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
