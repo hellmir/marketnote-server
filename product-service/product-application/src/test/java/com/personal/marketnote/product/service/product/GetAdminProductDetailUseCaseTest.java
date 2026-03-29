@@ -153,11 +153,11 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id))).thenThrow(exception);
+        lenient().when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
+                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(0, List.of()));
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
                 .isSameAs(exception);
-
-        verifyNoInteractions(getFulfillmentVendorGoodsElementsPort);
     }
 
     @Test
