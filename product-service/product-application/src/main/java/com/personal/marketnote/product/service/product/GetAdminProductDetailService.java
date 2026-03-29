@@ -18,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -25,6 +29,8 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED, readOnly = true)
 public class GetAdminProductDetailService implements GetAdminProductDetailUseCase {
+    private static final Executor VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+
     private final GetProductUseCase getProductUseCase;
     private final GetFulfillmentVendorGoodsPort getFulfillmentVendorGoodsPort;
     private final GetFulfillmentVendorGoodsElementsPort getFulfillmentVendorGoodsElementsPort;
@@ -37,11 +43,20 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
 
         GetProductInfoWithOptionsResult productInfo = getProductUseCase.getProductInfoIncludingInactive(id, options);
 
-        GetFulfillmentVendorGoodsResult goodsResult = getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(
-                String.valueOf(id)
-        );
-        GetFulfillmentVendorGoodsElementsResult elementsResult
-                = getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements();
+        // 두 Port 모두 HTTP 클라이언트(Fassto API)이므로 @Transactional 컨텍스트 전파 불필요. DB 조회로 변경 시 재검토 필요.
+        CompletableFuture<GetFulfillmentVendorGoodsResult> goodsFuture =
+                CompletableFuture.supplyAsync(
+                        () -> getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)),
+                        VIRTUAL_EXECUTOR
+                );
+        CompletableFuture<GetFulfillmentVendorGoodsElementsResult> elementsFuture =
+                CompletableFuture.supplyAsync(
+                        () -> getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements(),
+                        VIRTUAL_EXECUTOR
+                );
+
+        GetFulfillmentVendorGoodsResult goodsResult = joinFuture(goodsFuture);
+        GetFulfillmentVendorGoodsElementsResult elementsResult = joinFuture(elementsFuture);
 
         FulfillmentVendorGoodsInfoResult goodsInfo = resolveGoodsInfo(id, goodsResult);
         FulfillmentVendorGoodsElementInfoResult elementInfo = resolveElementInfo(id, elementsResult);
@@ -105,5 +120,20 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
             elementsByCstGodCd.putIfAbsent(element.cstGodCd(), element);
         }
         return elementsByCstGodCd;
+    }
+
+    private <T> T joinFuture(CompletableFuture<T> future) {
+        try {
+            return future.join();
+        } catch (CompletionException ce) {
+            Throwable cause = ce.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (cause instanceof Error error) {
+                throw error;
+            }
+            throw ce;
+        }
     }
 }
