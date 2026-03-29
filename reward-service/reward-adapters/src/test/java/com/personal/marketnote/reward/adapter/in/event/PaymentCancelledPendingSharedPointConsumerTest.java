@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.port.in.command.point.CancelPendingPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.CancelPendingPointUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,8 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentCancelledPendingSharedPointConsumer 테스트")
@@ -29,6 +31,9 @@ class PaymentCancelledPendingSharedPointConsumerTest {
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Mock
+    private CancelPendingPointUseCase cancelPendingPointUseCase;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -47,8 +52,8 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     }
 
     @Test
-    @DisplayName("전체 취소 이벤트 수신 시 공유 적립 예정 포인트 회수 검증 후 acknowledge한다")
-    void handlePaymentCancelledEvent_fullCancelWithSharers_validatesAndAcknowledges() {
+    @DisplayName("전체 취소 이벤트 수신 시 공유자별 적립 예정 포인트를 회수하고 acknowledge한다")
+    void handlePaymentCancelledEvent_fullCancelWithSharers_cancelsPendingPointsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
                 new OrderProductItem(1L, 200L, 2, 10000L),
@@ -60,6 +65,20 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        CancelPendingPointCommand expectedCommand200 = CancelPendingPointCommand.builder()
+                .userId(200L)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(1L)
+                .reason("결제 취소 적립 예정 포인트 회수")
+                .build();
+        CancelPendingPointCommand expectedCommand300 = CancelPendingPointCommand.builder()
+                .userId(300L)
+                .sourceType(UserPointSourceType.ORDER)
+                .sourceId(1L)
+                .reason("결제 취소 적립 예정 포인트 회수")
+                .build();
+        verify(cancelPendingPointUseCase).cancelPending(expectedCommand200);
+        verify(cancelPendingPointUseCase).cancelPending(expectedCommand300);
         verify(acknowledgment).acknowledge();
     }
 
@@ -76,6 +95,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -92,6 +112,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -109,6 +130,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -122,6 +144,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -148,6 +171,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -164,6 +188,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -180,6 +205,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -195,12 +221,13 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verifyNoInteractions(cancelPendingPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("중복 공유자가 있으면 중복 제거 후 검증한다")
-    void handlePaymentCancelledEvent_duplicateSharers_deduplicatesAndAcknowledges() {
+    @DisplayName("중복 공유자가 있으면 중복 제거 후 공유자별 적립 예정 포인트를 회수한다")
+    void handlePaymentCancelledEvent_duplicateSharers_deduplicatesAndCancelsPendingPoints() {
         // given
         List<OrderProductItem> orderProducts = List.of(
                 new OrderProductItem(1L, 200L, 2, 10000L),
@@ -213,6 +240,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
+        verify(cancelPendingPointUseCase, times(2)).cancelPending(any(CancelPendingPointCommand.class));
         verify(acknowledgment).acknowledge();
     }
 

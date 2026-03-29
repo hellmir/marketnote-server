@@ -7,6 +7,9 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.port.in.command.point.CancelPendingPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.CancelPendingPointUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,6 +24,7 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class PaymentCancelledPendingSharedPointConsumer {
+    private final CancelPendingPointUseCase cancelPendingPointUseCase;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -70,20 +74,17 @@ public class PaymentCancelledPendingSharedPointConsumer {
                 return;
             }
 
-            // FIXME: [#929][#1177] HTTP 제거 후 CancelPendingPointUseCase 활성화
-            //  현재 듀얼 라이트 기간: CancelPaymentService.revokePendingSharedPurchasePoints()에서 HTTP로 처리 중
-            //  아래 주석 해제 시 활성화:
-            //  for (Long sharerId : sharerIds) {
-            //      CancelPendingPointCommand command = CancelPendingPointCommand.builder()
-            //              .userId(sharerId)
-            //              .sourceType(UserPointSourceType.ORDER)
-            //              .sourceId(payload.orderId())
-            //              .reason("결제 취소 적립 예정 포인트 회수")
-            //              .build();
-            //      cancelPendingPointUseCase.cancelPending(command);
-            //  }
+            for (Long sharerId : sharerIds) {
+                CancelPendingPointCommand command = CancelPendingPointCommand.builder()
+                        .userId(sharerId)
+                        .sourceType(UserPointSourceType.ORDER)
+                        .sourceId(payload.orderId())
+                        .reason("결제 취소 적립 예정 포인트 회수")
+                        .build();
+                cancelPendingPointUseCase.cancelPending(command);
+            }
 
-            log.info("공유 적립 예정 포인트 회수 이벤트 검증 완료 (듀얼 라이트). orderId={}, sharerIds={}",
+            log.info("공유 적립 예정 포인트 회수 완료. orderId={}, sharerIds={}",
                     payload.orderId(), sharerIds);
         } catch (Exception e) {
             log.error("공유 적립 예정 포인트 회수 이벤트 처리 실패. eventId={}, key={}, error={}",
