@@ -3,17 +3,14 @@ package com.personal.marketnote.commerce.service.payment;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundCreateState;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
 import com.personal.marketnote.commerce.exception.*;
-import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.payment.CancelPaymentUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -54,7 +51,6 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private final FindPspPaymentEventPort findPspPaymentEventPort;
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final PaymentVendorPort paymentVendorPort;
-    private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
     private final ModifyUserPointPort modifyUserPointPort;
     private final SaveRefundPort saveRefundPort;
@@ -106,12 +102,6 @@ public class CancelPaymentService implements CancelPaymentUseCase {
 
         Long partialProductPendingDeduction = null;
         if (isFullCancel) {
-            changeOrderStatusUseCase.changeOrderStatus(
-                    ChangeOrderStatusCommand.builder()
-                            .id(payment.getOrderId())
-                            .orderStatus(OrderStatus.CANCEL_REQUESTED)
-                            .build()
-            );
             restoreInventory(order);
             refundPoints(order);
         } else {

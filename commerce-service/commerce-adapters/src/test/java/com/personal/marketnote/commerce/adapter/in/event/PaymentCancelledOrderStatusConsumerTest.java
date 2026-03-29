@@ -103,7 +103,7 @@ class PaymentCancelledOrderStatusConsumerTest {
     }
 
     @Test
-    @DisplayName("듀얼 라이트 기간 중 이미 상태가 변경된 주문에 대해 OrderStatusAlreadyChangedException 발생 시 정상 acknowledge한다")
+    @DisplayName("이미 상태가 변경된 주문에 대해 OrderStatusAlreadyChangedException 발생 시 멱등 처리로 정상 acknowledge한다")
     void handlePaymentCancelledEvent_alreadyChanged_acknowledgesGracefully() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", true, 50000L);

@@ -62,8 +62,6 @@ public class PaymentCancelledOrderStatusConsumer {
                 return;
             }
 
-            // FIXME: [#929][#1100] HTTP 제거 후 ChangeOrderStatusUseCase.changeOrderStatus(CANCEL_REQUESTED) 활성화
-            //  현재 듀얼 라이트 기간: CancelPaymentService.cancel()에서 동기로 주문 상태 변경 처리 중
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(payload.orderId())
                     .orderStatus(OrderStatus.CANCEL_REQUESTED)
@@ -73,7 +71,7 @@ public class PaymentCancelledOrderStatusConsumer {
             log.info("Kafka 이벤트로 주문 상태 CANCEL_REQUESTED 변경 완료. orderId={}",
                     payload.orderId());
         } catch (OrderStatusAlreadyChangedException e) {
-            log.warn("듀얼 라이트: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
+            log.warn("멱등 처리: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage());
         } catch (Exception e) {
             log.error("주문 상태 CANCEL_REQUESTED 변경 실패. eventId={}, key={}, error={}",
