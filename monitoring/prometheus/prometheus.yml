@@ -26,7 +26,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'product.marketnote.store:443'
+          - 'products.marketnote.store:443'
         labels:
           service: 'product-service'
 
@@ -53,16 +53,16 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'reward.marketnote.store:443'
+          - 'rewards.marketnote.store:443'
         labels:
           service: 'reward-service'
 
   - job_name: 'shop-fulfillment'
     metrics_path: '/actuator/prometheus'
-    scheme: https
+    scheme: http
     static_configs:
       - targets:
-          - 'fulfillment.marketnote.store:443'
+          - '${FULFILLMENT_PRIVATE_IP}:8080'
         labels:
           service: 'fulfillment-service'
 
@@ -71,7 +71,7 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets:
-          - 'file.marketnote.store:443'
+          - 'files.marketnote.store:443'
         labels:
           service: 'file-service'
 
@@ -81,17 +81,17 @@ scrape_configs:
     scrape_interval: 30s
     static_configs:
       - targets:
-          - '172.26.45.222:7071'
+          - '${KAFKA_BROKER_1_PRIVATE_IP}:7071'
         labels:
           broker: 'broker-1'
           node_id: '1'
       - targets:
-          - '172.26.21.200:7071'
+          - '${KAFKA_BROKER_2_PRIVATE_IP}:7071'
         labels:
           broker: 'broker-2'
           node_id: '2'
       - targets:
-          - '172.26.2.195:7071'
+          - '${KAFKA_BROKER_3_PRIVATE_IP}:7071'
         labels:
           broker: 'broker-3'
           node_id: '3'

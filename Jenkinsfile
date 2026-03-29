@@ -143,12 +143,18 @@ def buildPrometheusTaskDefinition(env) {
             portMappings: [[containerPort: 9090, protocol: "tcp"]],
             essential: true,
             command: [
-                "--config.file=/etc/prometheus/prometheus.yml",
+                "--config.file=/tmp/prometheus.yml",
                 "--storage.tsdb.path=/prometheus",
                 "--storage.tsdb.retention.time=1d",
                 "--storage.tsdb.retention.size=512MB",
                 "--web.console.libraries=/usr/share/prometheus/console_libraries",
                 "--web.console.templates=/usr/share/prometheus/consoles"
+            ],
+            environment: [
+                [name: "FULFILLMENT_PRIVATE_IP",    value: "${env.FULFILLMENT_PRIVATE_IP}"],
+                [name: "KAFKA_BROKER_1_PRIVATE_IP", value: "${env.KAFKA_BROKER_1_PRIVATE_IP}"],
+                [name: "KAFKA_BROKER_2_PRIVATE_IP", value: "${env.KAFKA_BROKER_2_PRIVATE_IP}"],
+                [name: "KAFKA_BROKER_3_PRIVATE_IP", value: "${env.KAFKA_BROKER_3_PRIVATE_IP}"]
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -852,10 +858,14 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',         variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',          variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_PROMETHEUS',  variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS')
+						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',              variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',               variable: 'ECS_TASK_ROLE_ARN'),
+						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_PROMETHEUS', variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
+						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_PRIVATE_IP',       variable: 'FULFILLMENT_PRIVATE_IP'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_1_PRIVATE_IP',    variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_2_PRIVATE_IP',    variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_3_PRIVATE_IP',    variable: 'KAFKA_BROKER_3_PRIVATE_IP')
 					]) {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
