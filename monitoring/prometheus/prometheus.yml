@@ -66,7 +66,7 @@ scrape_configs:
         labels:
           service: 'fulfillment-service'
     relabel_configs:
-      - source_labels: []
+      - source_labels: [ ]
         target_label: instance
         replacement: 'fulfillment.marketnote.store:8080'
 

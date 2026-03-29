@@ -3,6 +3,9 @@ spring:
     name: ${env.SERVICE_NAME:file-service}
   jackson:
     time-zone: Asia/Seoul
+  threads:
+    virtual:
+      enabled: true
   servlet:
     multipart:
       enabled: true

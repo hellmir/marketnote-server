@@ -8,8 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RegisterFasstoGoodsItemCommandTest {
 
     @Test
-    @DisplayName("ofMinimal은 필수 4개 필드만 설정하고 나머지는 null로 생성한다")
-    void ofMinimal_setsRequiredFieldsAndNullsRest() {
+    @DisplayName("builder로 필수 4개 필드만 설정하면 나머지는 null로 생성된다")
+    void builder_setsRequiredFieldsAndNullsRest() {
         // given
         String cstGodCd = "123";
         String godNm = "테스트 상품";
@@ -17,9 +17,12 @@ class RegisterFasstoGoodsItemCommandTest {
         String giftDiv = "01";
 
         // when
-        RegisterFasstoGoodsItemCommand command = RegisterFasstoGoodsItemCommand.ofMinimal(
-                cstGodCd, godNm, godType, giftDiv
-        );
+        RegisterFasstoGoodsItemCommand command = RegisterFasstoGoodsItemCommand.builder()
+                .cstGodCd(cstGodCd)
+                .godNm(godNm)
+                .godType(godType)
+                .giftDiv(giftDiv)
+                .build();
 
         // then
         assertThat(command.cstGodCd()).isEqualTo("123");
