@@ -71,7 +71,7 @@ public class CommerceServiceClient implements UpdateCommerceInventoryPort {
 
         URI uri = UriComponentsBuilder
                 .fromUriString(baseUrl)
-                .path("/api/v1/inventories/fulfillment/vendors/stocks/sync")
+                .path("/api/v1/internal/inventories/fulfillment/vendors/stocks/sync")
                 .build()
                 .toUri();
 
