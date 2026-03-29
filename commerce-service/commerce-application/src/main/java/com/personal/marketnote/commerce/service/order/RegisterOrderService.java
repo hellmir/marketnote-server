@@ -33,6 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -42,6 +46,8 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @Transactional(isolation = READ_COMMITTED)
 @Slf4j
 public class RegisterOrderService implements RegisterOrderUseCase {
+    private static final Executor VIRTUAL_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+
     private final GetInventoryUseCase getInventoryUseCase;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort;
@@ -56,8 +62,28 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         validateTotalAmountConsistency(command);
         validateDiscountAmounts(command);
         validatePointBalance(command);
-        validateUnitAmountsAgainstActualPrices(command);
-        validateShippingFee(command);
+
+        List<Long> pricePolicyIds = command.orderProducts().stream()
+                .map(OrderProductItemCommand::pricePolicyId)
+                .distinct()
+                .toList();
+
+        List<Long> sellerIds = command.orderProducts().stream()
+                .map(OrderProductItemCommand::sellerId)
+                .distinct()
+                .toList();
+
+        // 두 Port 모두 HTTP 클라이언트이므로 @Transactional 컨텍스트 전파 불필요. DB 조회로 변경 시 재검토 필요.
+        CompletableFuture<Map<Long, ProductInfoResult>> productInfoFuture =
+                CompletableFuture.supplyAsync(() -> fetchProductInfoByPricePolicyIds(pricePolicyIds), VIRTUAL_EXECUTOR);
+        CompletableFuture<Map<Long, ShippingPolicyInfoResult>> shippingPolicyFuture =
+                CompletableFuture.supplyAsync(() -> fetchShippingPoliciesBySellerIds(sellerIds), VIRTUAL_EXECUTOR);
+
+        Map<Long, ProductInfoResult> productInfoMap = joinFuture(productInfoFuture);
+        Map<Long, ShippingPolicyInfoResult> shippingPolicies = joinFuture(shippingPolicyFuture);
+
+        validateUnitAmountsAgainstActualPrices(command, productInfoMap);
+        validateShippingFee(command, shippingPolicies);
 
         Map<Long, Long> productIdsByPricePolicyId = command.orderProducts().stream()
                 .collect(Collectors.toMap(
@@ -204,20 +230,40 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         }
     }
 
-    private void validateUnitAmountsAgainstActualPrices(RegisterOrderCommand command) {
-        List<Long> pricePolicyIds = command.orderProducts().stream()
-                .map(OrderProductItemCommand::pricePolicyId)
-                .distinct()
-                .toList();
-
+    private Map<Long, ProductInfoResult> fetchProductInfoByPricePolicyIds(List<Long> pricePolicyIds) {
         if (pricePolicyIds.isEmpty()) {
-            return;
+            return Map.of();
         }
+        return findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+    }
 
-        Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
+    private Map<Long, ShippingPolicyInfoResult> fetchShippingPoliciesBySellerIds(List<Long> sellerIds) {
+        if (sellerIds.isEmpty()) {
+            return Map.of();
+        }
+        return findShippingPolicyBySellerIdsPort.findBySellerIds(sellerIds);
+    }
 
+    private <T> T joinFuture(CompletableFuture<T> future) {
+        try {
+            return future.join();
+        } catch (CompletionException ce) {
+            Throwable cause = ce.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            if (cause instanceof Error error) {
+                throw error;
+            }
+            throw ce;
+        }
+    }
+
+    private void validateUnitAmountsAgainstActualPrices(RegisterOrderCommand command,
+                                                        Map<Long, ProductInfoResult> productInfoMap) {
         if (productInfoMap.isEmpty()) {
-            log.warn("[PRODUCT_VALIDATION_SKIPPED] product-service 응답 없음 - 가격/판매자 검증 생략. pricePolicyIds: {}", pricePolicyIds);
+            log.warn("[PRODUCT_VALIDATION_SKIPPED] product-service 응답 없음 - 가격/판매자 검증 생략. pricePolicyIds: {}",
+                    command.orderProducts().stream().map(OrderProductItemCommand::pricePolicyId).distinct().toList());
             return;
         }
 
@@ -259,23 +305,13 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         }
     }
 
-    private void validateShippingFee(RegisterOrderCommand command) {
+    private void validateShippingFee(RegisterOrderCommand command,
+                                     Map<Long, ShippingPolicyInfoResult> shippingPolicies) {
         long requestedShippingFee = resolveAmount(command.amount().shippingFee());
 
-        List<Long> sellerIds = command.orderProducts().stream()
-                .map(OrderProductItemCommand::sellerId)
-                .distinct()
-                .toList();
-
-        if (sellerIds.isEmpty()) {
-            return;
-        }
-
-        Map<Long, ShippingPolicyInfoResult> shippingPolicies =
-                findShippingPolicyBySellerIdsPort.findBySellerIds(sellerIds);
-
         if (shippingPolicies.isEmpty()) {
-            log.warn("[SHIPPING_VALIDATION_SKIPPED] product-service 응답 없음 - 배송비 검증 생략. sellerIds: {}", sellerIds);
+            log.warn("[SHIPPING_VALIDATION_SKIPPED] product-service 응답 없음 - 배송비 검증 생략. sellerIds: {}",
+                    command.orderProducts().stream().map(OrderProductItemCommand::sellerId).distinct().toList());
             return;
         }
 
