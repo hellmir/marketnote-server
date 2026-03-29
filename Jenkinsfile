@@ -143,12 +143,18 @@ def buildPrometheusTaskDefinition(env) {
             portMappings: [[containerPort: 9090, protocol: "tcp"]],
             essential: true,
             command: [
-                "--config.file=/etc/prometheus/prometheus.yml",
+                "--config.file=/tmp/prometheus.yml",
                 "--storage.tsdb.path=/prometheus",
                 "--storage.tsdb.retention.time=1d",
                 "--storage.tsdb.retention.size=512MB",
                 "--web.console.libraries=/usr/share/prometheus/console_libraries",
                 "--web.console.templates=/usr/share/prometheus/consoles"
+            ],
+            environment: [
+                [name: "FULFILLMENT_PRIVATE_IP",    value: "${env.FULFILLMENT_PRIVATE_IP}"],
+                [name: "KAFKA_BROKER_1_PRIVATE_IP", value: "${env.KAFKA_BROKER_1_PRIVATE_IP}"],
+                [name: "KAFKA_BROKER_2_PRIVATE_IP", value: "${env.KAFKA_BROKER_2_PRIVATE_IP}"],
+                [name: "KAFKA_BROKER_3_PRIVATE_IP", value: "${env.KAFKA_BROKER_3_PRIVATE_IP}"]
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -174,14 +180,15 @@ def buildGrafanaTaskDefinition(env) {
         taskRoleArn: "${env.ECS_TASK_ROLE_ARN}",
         containerDefinitions: [[
             name: "grafana",
-            image: "grafana/grafana:latest",
+            image: "${env.GRAFANA_IMAGE_URI}",
             portMappings: [[containerPort: 3000, protocol: "tcp"]],
             essential: true,
             environment: [
                 [name: "GF_SECURITY_ADMIN_PASSWORD",      value: "${env.GRAFANA_ADMIN_PASSWORD}"],
                 [name: "GF_SERVER_DOMAIN",                value: "${env.GRAFANA_DOMAIN}"],
                 [name: "GF_SERVER_ROOT_URL",              value: "${env.GRAFANA_ROOT_URL}"],
-                [name: "GF_SERVER_SERVE_FROM_SUB_PATH",   value: "${env.GRAFANA_SERVE_FROM_SUB_PATH?:'false'}"]
+                [name: "GF_SERVER_SERVE_FROM_SUB_PATH",   value: "${env.GRAFANA_SERVE_FROM_SUB_PATH?:'false'}"],
+                [name: "PROMETHEUS_URL",                  value: "${env.PROMETHEUS_URL}"]
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -844,6 +851,52 @@ pipeline {
 			}
 		}
 
+		stage('Build Grafana Image') {
+			steps {
+				script {
+					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
+					if (!changed) {
+						sleep time: 1, unit: 'SECONDS'; return
+					}
+					sh 'test -f monitoring/grafana/Dockerfile'
+					def grafanaTag = "grafana:${env.PROJECT_VERSION}"
+					env.GRAFANA_LOCAL_TAG = grafanaTag
+					sh """
+                    docker build \
+                     -t ${grafanaTag} \
+                     -f ${env.WORKSPACE}/monitoring/grafana/Dockerfile \
+                     ${env.WORKSPACE}/monitoring/grafana
+                    """
+				}
+			}
+		}
+
+		stage('Push Grafana Image') {
+			steps {
+				script {
+					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
+					if (!changed) {
+						sleep time: 1, unit: 'SECONDS'; return
+					}
+					withCredentials([
+						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',             variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',          variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',      variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',         variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: 'MARKETNOTE_GRAFANA_ECR_REPOSITORY',     variable: 'GRAFANA_ECR_REPOSITORY')
+					]) {
+						sh '''
+                        aws ecr describe-repositories --repository-names $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION
+                        aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+                        docker tag $GRAFANA_LOCAL_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$GRAFANA_ECR_REPOSITORY:$PROJECT_VERSION
+                        docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$GRAFANA_ECR_REPOSITORY:$PROJECT_VERSION
+                        '''
+						env.GRAFANA_IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.GRAFANA_ECR_REPOSITORY}:${env.PROJECT_VERSION}"
+					}
+				}
+			}
+		}
+
 		stage('Register Prometheus Task Definition') {
 			steps {
 				script {
@@ -852,10 +905,16 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',         variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',          variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_PROMETHEUS',  variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS')
+						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',               variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',           variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',              variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',               variable: 'ECS_TASK_ROLE_ARN'),
+						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_PROMETHEUS', variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
+						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_PRIVATE_IP',       variable: 'FULFILLMENT_PRIVATE_IP'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_1_PRIVATE_IP',    variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_2_PRIVATE_IP',    variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_3_PRIVATE_IP',    variable: 'KAFKA_BROKER_3_PRIVATE_IP')
 					]) {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
@@ -877,6 +936,8 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
+						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',       variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',   variable: 'AWS_SECRET_ACCESS_KEY'),
 						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',      variable: 'AWS_DEFAULT_REGION'),
 						string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',        variable: 'ECS_CLUSTER_NAME'),
 						string(credentialsId: 'MARKETNOTE_PROMETHEUS_SERVICE_NAME', variable: 'PROMETHEUS_SERVICE_NAME'),
@@ -923,11 +984,13 @@ pipeline {
 		stage('Register Grafana Task Definition') {
 			steps {
 				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
+					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
 					if (!changed) {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
+						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',              variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',          variable: 'AWS_SECRET_ACCESS_KEY'),
 						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',             variable: 'AWS_DEFAULT_REGION'),
 						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',    variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
 						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',              variable: 'ECS_TASK_ROLE_ARN'),
@@ -935,7 +998,8 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_GRAFANA_ADMIN_PASSWORD',         variable: 'GRAFANA_ADMIN_PASSWORD'),
 						string(credentialsId: 'MARKETNOTE_GRAFANA_DOMAIN',                 variable: 'GRAFANA_DOMAIN'),
 						string(credentialsId: 'MARKETNOTE_GRAFANA_ROOT_URL',               variable: 'GRAFANA_ROOT_URL'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_SERVE_FROM_SUB_PATH',    variable: 'GRAFANA_SERVE_FROM_SUB_PATH')
+						string(credentialsId: 'MARKETNOTE_GRAFANA_SERVE_FROM_SUB_PATH',    variable: 'GRAFANA_SERVE_FROM_SUB_PATH'),
+						string(credentialsId: 'MARKETNOTE_QA_PROMETHEUS_URL',              variable: 'PROMETHEUS_URL')
 					]) {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_GRAFANA" --region "$AWS_DEFAULT_REGION" || true
@@ -952,16 +1016,18 @@ pipeline {
 		stage('Deploy Grafana Service') {
 			steps {
 				script {
-					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/prometheus || echo "changed"', returnStdout: true).trim() == 'changed'
+					def changed = sh(script: 'git diff --quiet HEAD~1 HEAD monitoring/grafana || echo "changed"', returnStdout: true).trim() == 'changed'
 					if (!changed) {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',   variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',     variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_SERVICE_NAME', variable: 'GRAFANA_SERVICE_NAME'),
-						string(credentialsId: 'MARKETNOTE_SUBNET_IDS',           variable: 'SUBNET_IDS'),
-						string(credentialsId: 'MARKETNOTE_SECURITY_GROUP_IDS',   variable: 'SECURITY_GROUP_IDS')
+						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',      variable: 'ECS_CLUSTER_NAME'),
+						string(credentialsId: 'MARKETNOTE_GRAFANA_SERVICE_NAME',  variable: 'GRAFANA_SERVICE_NAME'),
+						string(credentialsId: 'MARKETNOTE_SUBNET_IDS',            variable: 'SUBNET_IDS'),
+						string(credentialsId: 'MARKETNOTE_SECURITY_GROUP_IDS',    variable: 'SECURITY_GROUP_IDS')
 					]) {
 						def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix grafana --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
 						if (!latestTask || latestTask == 'None') {

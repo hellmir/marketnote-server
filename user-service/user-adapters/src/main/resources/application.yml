@@ -126,6 +126,9 @@ management:
   endpoint:
     health:
       show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 mail:
   from: ${MAIL_FROM:no-reply@yourdomain.com}

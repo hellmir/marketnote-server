@@ -228,6 +228,17 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_QA_FASSTO_BASE_URL',              variable: 'FASSTO_BASE_URL'),
 						string(credentialsId: 'MARKETNOTE_QA_FASSTO_API_CD',                variable: 'FASSTO_API_CD'),
 						string(credentialsId: 'MARKETNOTE_QA_FASSTO_API_KEY',               variable: 'FASSTO_API_KEY'),
+						string(credentialsId: 'MARKETNOTE_QA_FASSTO_CUSTOMER_CODE',          variable: 'FASSTO_CUSTOMER_CODE'),
+						string(credentialsId: 'MARKETNOTE_QA_HMAC_SECRET_KEY',               variable: 'HMAC_SECRET_KEY'),
+						string(credentialsId: 'MARKETNOTE_REDIS_HOST_NAME',                  variable: 'REDIS_HOST_NAME'),
+						string(credentialsId: 'MARKETNOTE_REDIS_PASSWORD',                   variable: 'REDIS_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BOOTSTRAP_SERVERS',       variable: 'KAFKA_BOOTSTRAP_SERVERS'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SLACK_WEBHOOK_URL',       variable: 'KAFKA_SLACK_WEBHOOK_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_ENABLED',            variable: 'KAFKA_SASL_ENABLED'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_MECHANISM',          variable: 'KAFKA_SASL_MECHANISM'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PROTOCOL',           variable: 'KAFKA_SASL_PROTOCOL'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_USERNAME',           variable: 'KAFKA_SASL_USERNAME'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PASSWORD',           variable: 'KAFKA_SASL_PASSWORD'),
 					]) {
 						env.DB_USERNAME = DB_USERNAME
 						env.JWT_SECRET_KEY = JWT_SECRET_KEY
@@ -239,6 +250,17 @@ pipeline {
 						env.FASSTO_BASE_URL = FASSTO_BASE_URL
 						env.FASSTO_API_CD = FASSTO_API_CD
 						env.FASSTO_API_KEY = FASSTO_API_KEY
+						env.FASSTO_CUSTOMER_CODE = FASSTO_CUSTOMER_CODE
+						env.HMAC_SECRET_KEY = HMAC_SECRET_KEY
+						env.REDIS_HOST_NAME = REDIS_HOST_NAME
+						env.REDIS_PASSWORD = REDIS_PASSWORD
+						env.KAFKA_BOOTSTRAP_SERVERS = KAFKA_BOOTSTRAP_SERVERS
+						env.KAFKA_SLACK_WEBHOOK_URL = KAFKA_SLACK_WEBHOOK_URL
+						env.KAFKA_SASL_ENABLED = KAFKA_SASL_ENABLED
+						env.KAFKA_SASL_MECHANISM = KAFKA_SASL_MECHANISM
+						env.KAFKA_SASL_PROTOCOL = KAFKA_SASL_PROTOCOL
+						env.KAFKA_SASL_USERNAME = KAFKA_SASL_USERNAME
+						env.KAFKA_SASL_PASSWORD = KAFKA_SASL_PASSWORD
 
 						def svc = env.SERVICE_NAME
 						if (svc == 'fulfillment-service') {
@@ -354,6 +376,17 @@ pipeline {
 						envLine('FASSTO_BASE_URL', env.FASSTO_BASE_URL),
 						envLine('FASSTO_API_CD', env.FASSTO_API_CD),
 						envLine('FASSTO_API_KEY', env.FASSTO_API_KEY),
+						envLine('FASSTO_CUSTOMER_CODE', env.FASSTO_CUSTOMER_CODE),
+						envLine('HMAC_SECRET_KEY', env.HMAC_SECRET_KEY),
+						envLine('REDIS_HOST_NAME', env.REDIS_HOST_NAME),
+						envLine('REDIS_PASSWORD', env.REDIS_PASSWORD),
+						envLine('KAFKA_BOOTSTRAP_SERVERS', env.KAFKA_BOOTSTRAP_SERVERS),
+						envLine('KAFKA_SLACK_WEBHOOK_URL', env.KAFKA_SLACK_WEBHOOK_URL),
+						envLine('KAFKA_SASL_ENABLED', env.KAFKA_SASL_ENABLED),
+						envLine('KAFKA_SASL_MECHANISM', env.KAFKA_SASL_MECHANISM),
+						envLine('KAFKA_SASL_PROTOCOL', env.KAFKA_SASL_PROTOCOL),
+						envLine('KAFKA_SASL_USERNAME', env.KAFKA_SASL_USERNAME),
+						envLine('KAFKA_SASL_PASSWORD', env.KAFKA_SASL_PASSWORD),
 					].join('\n') + '\n'
 
 					writeFile file: env.LIGHTSAIL_ENV_PATH, text: envText
