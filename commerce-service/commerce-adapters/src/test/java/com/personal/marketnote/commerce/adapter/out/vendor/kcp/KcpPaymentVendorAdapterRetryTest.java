@@ -80,8 +80,8 @@ class KcpPaymentVendorAdapterRetryTest {
 
             PaymentApprovalVendorResult result = adapter.approvePayment(createCommand());
 
-            assertThat(result.resCd()).isEqualTo("0000");
-            assertThat(result.tno()).isEqualTo("tno_123");
+            assertThat(result.resultCode()).isEqualTo("0000");
+            assertThat(result.transactionId()).isEqualTo("tno_123");
             verify(kcpApiClient, times(1)).approvePayment(any());
         }
 
@@ -93,7 +93,7 @@ class KcpPaymentVendorAdapterRetryTest {
 
             PaymentApprovalVendorResult result = adapter.approvePayment(createCommand());
 
-            assertThat(result.resCd()).isEqualTo("8001");
+            assertThat(result.resultCode()).isEqualTo("8001");
             verify(kcpApiClient, times(1)).approvePayment(any());
         }
     }
@@ -131,7 +131,7 @@ class KcpPaymentVendorAdapterRetryTest {
 
             PaymentApprovalVendorResult result = adapter.approvePayment(createCommand());
 
-            assertThat(result.resCd()).isEqualTo("0000");
+            assertThat(result.resultCode()).isEqualTo("0000");
             verify(kcpApiClient, times(3)).approvePayment(any());
         }
     }
@@ -188,7 +188,7 @@ class KcpPaymentVendorAdapterRetryTest {
 
             PaymentApprovalVendorResult result = adapter.approvePayment(createCommand());
 
-            assertThat(result.resCd()).isEqualTo("0000");
+            assertThat(result.resultCode()).isEqualTo("0000");
             verify(kcpApiClient, times(2)).approvePayment(any());
         }
 
@@ -206,7 +206,7 @@ class KcpPaymentVendorAdapterRetryTest {
 
             PaymentApprovalVendorResult result = adapter.approvePayment(createCommand());
 
-            assertThat(result.resCd()).isEqualTo("8001");
+            assertThat(result.resultCode()).isEqualTo("8001");
             verify(kcpApiClient, times(2)).approvePayment(any());
         }
     }
@@ -271,8 +271,8 @@ class KcpPaymentVendorAdapterRetryTest {
         return PaymentApprovalVendorCommand.builder()
                 .encData("enc_data_test")
                 .encInfo("enc_info_test")
-                .ordrMony("50000")
-                .ordrNo(ORDER_NO)
+                .orderAmount("50000")
+                .orderNumber(ORDER_NO)
                 .payType("PACA")
                 .build();
     }

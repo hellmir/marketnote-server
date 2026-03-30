@@ -4,14 +4,12 @@ import lombok.Builder;
 
 @Builder
 public record TradeRegisterVendorResult(
-        String resCd,
-        String resMsg,
+        boolean success,
+        String resultCode,
+        String resultMessage,
         String approvalKey,
         String payUrl,
         String traceNo,
         String rawResponse
 ) {
-    public boolean isSuccess() {
-        return "0000".equals(resCd);
-    }
 }

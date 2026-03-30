@@ -113,10 +113,10 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    "STSC".equals(c.modType())
-                            && c.modMny().equals(50000L)
-                            && c.remMny().equals(0L)
-                            && "tno_123".equals(c.tno())
+                    "STSC".equals(c.cancelType())
+                            && c.cancelAmount().equals(50000L)
+                            && c.remainAmount().equals(0L)
+                            && "tno_123".equals(c.transactionId())
             ));
         }
 
@@ -137,7 +137,7 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.modMny().equals(40000L) && c.remMny().equals(0L)
+                    c.cancelAmount().equals(40000L) && c.remainAmount().equals(0L)
             ));
         }
     }
@@ -182,9 +182,9 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    "STPC".equals(c.modType())
-                            && c.modMny().equals(20000L)
-                            && c.remMny().equals(30000L)
+                    "STPC".equals(c.cancelType())
+                            && c.cancelAmount().equals(20000L)
+                            && c.remainAmount().equals(30000L)
             ));
         }
 
@@ -601,8 +601,9 @@ class CancelPaymentUseCaseTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
             PaymentCancelVendorResult vendorResult = PaymentCancelVendorResult.builder()
-                    .resCd("8001")
-                    .resMsg("취소 불가")
+                    .success(false)
+                    .resultCode("8001")
+                    .resultMessage("취소 불가")
                     .rawResponse("{}")
                     .build();
 
@@ -1277,8 +1278,9 @@ class CancelPaymentUseCaseTest {
 
     private PaymentCancelVendorResult createSuccessVendorResult() {
         return PaymentCancelVendorResult.builder()
-                .resCd("0000")
-                .resMsg("취소 성공")
+                .success(true)
+                .resultCode("0000")
+                .resultMessage("취소 성공")
                 .amount("50000")
                 .rawResponse("{\"res_cd\":\"0000\"}")
                 .build();

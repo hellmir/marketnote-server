@@ -70,7 +70,8 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
+            when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             ReadyPaymentResult result = readyPaymentService.ready(command);
@@ -92,13 +93,14 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
+            when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             readyPaymentService.ready(command);
 
             verify(paymentVendorPort).registerTrade(argThat(c ->
-                    "77000".equals(c.goodMny()) && ORDER_KEY_STR.equals(c.orderKey())
+                    "77000".equals(c.orderAmount()) && ORDER_KEY_STR.equals(c.orderKey())
             ));
         }
 
@@ -118,7 +120,8 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
+            when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenReturn(vendorResult);
 
             readyPaymentService.ready(command);
@@ -406,7 +409,8 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
+            when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(paymentVendorPort.registerTrade(any())).thenThrow(new RuntimeException("KCP 거래등록 실패"));
 
             assertThatThrownBy(() -> readyPaymentService.ready(command))
@@ -429,7 +433,8 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
+            when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(savePspPaymentEventPort.save(any())).thenThrow(
                     new DataIntegrityViolationException("duplicate key value violates unique constraint"));
 
@@ -449,7 +454,8 @@ class ReadyPaymentUseCaseTest {
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
-            when(paymentVendorPort.getVendorSiteCd()).thenReturn("T0000");
+            when(paymentVendorPort.getVendorKey()).thenReturn("NHN_KCP");
+            when(paymentVendorPort.getShopCode()).thenReturn("T0000");
             when(savePspPaymentEventPort.save(any())).thenThrow(
                     new DataIntegrityViolationException("duplicate key"));
 
@@ -503,8 +509,9 @@ class ReadyPaymentUseCaseTest {
 
     private TradeRegisterVendorResult createVendorResult() {
         return TradeRegisterVendorResult.builder()
-                .resCd("0000")
-                .resMsg("성공")
+                .success(true)
+                .resultCode("0000")
+                .resultMessage("성공")
                 .approvalKey("approval_key_123")
                 .payUrl("https://pay.kcp.co.kr/test")
                 .traceNo("trace_001")

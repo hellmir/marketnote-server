@@ -43,7 +43,12 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
 
     @Override
-    public String getVendorSiteCd() {
+    public String getVendorKey() {
+        return "NHN_KCP";
+    }
+
+    @Override
+    public String getShopCode() {
         return kcpProperties.getSiteCd();
     }
 
@@ -54,7 +59,7 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
         KcpTradeRegisterRequest request = KcpTradeRegisterRequest.builder()
                 .siteCd(kcpProperties.getSiteCd())
                 .ordrIdxx(command.orderKey())
-                .goodMny(command.goodMny())
+                .goodMny(command.orderAmount())
                 .payMethod(mobilePayMethod)
                 .goodName(command.goodName())
                 .retUrl(kcpProperties.getRetUrl())
@@ -66,13 +71,15 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
             KcpTradeRegisterResponse response = kcpApiClient.registerTrade(request);
             recordResponse(CommerceVendorCommunicationTargetType.TRADE_REGISTER, command.orderKey(), response);
 
-            if (!response.isSuccess()) {
+            boolean isSuccess = response.isSuccess();
+            if (!isSuccess) {
                 log.error("KCP 거래등록 실패: resCd={}, resMsg={}", response.resCd(), response.resMsg());
             }
 
             return TradeRegisterVendorResult.builder()
-                    .resCd(response.resCd())
-                    .resMsg(response.resMsg())
+                    .success(isSuccess)
+                    .resultCode(response.resCd())
+                    .resultMessage(response.resMsg())
                     .approvalKey(response.approvalKey())
                     .payUrl(response.payUrl())
                     .traceNo(response.traceNo())
@@ -94,14 +101,14 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
                 .encInfo(command.encInfo())
                 .tranCd(PAYMENT_APPROVAL_TRAN_CD)
                 .kcpCertInfo(certInfo)
-                .ordrMony(command.ordrMony())
-                .ordrNo(command.ordrNo())
+                .ordrMony(command.orderAmount())
+                .ordrNo(command.orderNumber())
                 .payType(command.payType())
                 .build();
 
-        recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.ordrNo(), request);
+        recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_APPROVAL, command.orderNumber(), request);
 
-        return executeApprovalWithRetry(request, command.ordrNo());
+        return executeApprovalWithRetry(request, command.orderNumber());
     }
 
     private PaymentApprovalVendorResult executeApprovalWithRetry(
@@ -158,23 +165,24 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
 
     private PaymentApprovalVendorResult buildApprovalResult(KcpPaymentApprovalResponse response) {
         return PaymentApprovalVendorResult.builder()
-                .resCd(response.resCd())
-                .resMsg(response.resMsg())
-                .resEnMsg(response.resEnMsg())
-                .tno(response.tno())
+                .success(response.isSuccess())
+                .resultCode(response.resCd())
+                .resultMessage(response.resMsg())
+                .resultEnMessage(response.resEnMsg())
+                .transactionId(response.tno())
                 .amount(response.amount())
                 .payMethod(response.payMethod())
-                .cardCd(response.cardCd())
+                .cardCode(response.cardCd())
                 .cardName(response.cardName())
-                .cardNo(response.cardNo())
-                .appNo(response.appNo())
-                .appTime(response.appTime())
-                .noinf(response.noinf())
-                .noinfType(response.noinfType())
-                .quota(response.quota())
-                .cardMny(response.cardMny())
-                .couponMny(response.couponMny())
-                .partcancYn(response.partcancYn())
+                .cardNumber(response.cardNo())
+                .approvalNumber(response.appNo())
+                .approvalTime(response.appTime())
+                .installmentInfo(response.noinf())
+                .installmentType(response.noinfType())
+                .installmentMonths(response.quota())
+                .cardAmount(response.cardMny())
+                .couponAmount(response.couponMny())
+                .partialCancelYn(response.partcancYn())
                 .cardBinType01(response.cardBinType01())
                 .cardBinType02(response.cardBinType02())
                 .rawResponse(kcpApiClient.toJsonNode(response).toString())
@@ -216,39 +224,41 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
         String certInfo = kcpCertificateLoader.loadCertInfo();
         String signData = kcpSignatureGenerator.generateSignData(
                 kcpProperties.getSiteCd(),
-                command.tno(),
-                command.modType()
+                command.transactionId(),
+                command.cancelType()
         );
 
         KcpPaymentCancelRequest request = KcpPaymentCancelRequest.builder()
                 .siteCd(kcpProperties.getSiteCd())
-                .tno(command.tno())
+                .tno(command.transactionId())
                 .kcpCertInfo(certInfo)
                 .kcpSignData(signData)
-                .modType(command.modType())
-                .modMny(String.valueOf(command.modMny()))
-                .remMny(String.valueOf(command.remMny()))
-                .modDesc(command.modDesc())
+                .modType(command.cancelType())
+                .modMny(String.valueOf(command.cancelAmount()))
+                .remMny(String.valueOf(command.remainAmount()))
+                .modDesc(command.cancelReason())
                 .build();
 
-        recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.tno(), request);
+        recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.transactionId(), request);
 
         try {
             KcpPaymentCancelResponse response = kcpApiClient.cancelPayment(request);
-            recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.tno(), response);
+            recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.transactionId(), response);
 
-            if (!response.isSuccess()) {
+            boolean isSuccess = response.isSuccess();
+            if (!isSuccess) {
                 log.error("KCP 결제취소 실패: resCd={}, resMsg={}", response.resCd(), response.resMsg());
             }
 
             return PaymentCancelVendorResult.builder()
-                    .resCd(response.resCd())
-                    .resMsg(response.resMsg())
+                    .success(isSuccess)
+                    .resultCode(response.resCd())
+                    .resultMessage(response.resMsg())
                     .amount(response.amount())
                     .rawResponse(kcpApiClient.toJsonNode(response).toString())
                     .build();
         } catch (KcpCommunicationException e) {
-            recordError(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.tno(), e);
+            recordError(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.transactionId(), e);
             throw e;
         }
     }

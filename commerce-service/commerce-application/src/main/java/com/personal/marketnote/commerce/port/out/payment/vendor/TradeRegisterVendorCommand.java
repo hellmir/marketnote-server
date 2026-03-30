@@ -5,7 +5,7 @@ import lombok.Builder;
 @Builder
 public record TradeRegisterVendorCommand(
         String orderKey,
-        String goodMny,
+        String orderAmount,
         String payMethod,
         String goodName
 ) {

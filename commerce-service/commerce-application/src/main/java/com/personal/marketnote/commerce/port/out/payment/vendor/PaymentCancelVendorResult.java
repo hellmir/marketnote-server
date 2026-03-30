@@ -4,12 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record PaymentCancelVendorResult(
-        String resCd,
-        String resMsg,
+        boolean success,
+        String resultCode,
+        String resultMessage,
         String amount,
         String rawResponse
 ) {
-    public boolean isSuccess() {
-        return "0000".equals(resCd);
-    }
 }

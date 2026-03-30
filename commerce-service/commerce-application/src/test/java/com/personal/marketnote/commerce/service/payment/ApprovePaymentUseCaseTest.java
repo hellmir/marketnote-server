@@ -77,8 +77,9 @@ class ApprovePaymentUseCaseTest {
             ApprovePaymentCommand command = createApproveCommand(ORDER_KEY_STR);
             PaymentApprovalContext context = createContext();
             PaymentApprovalVendorResult vendorResult = PaymentApprovalVendorResult.builder()
-                    .resCd("8001")
-                    .resMsg("카드 인증 실패")
+                    .success(false)
+                    .resultCode("8001")
+                    .resultMessage("카드 인증 실패")
                     .rawResponse("{}")
                     .build();
 
@@ -299,20 +300,21 @@ class ApprovePaymentUseCaseTest {
                 .build();
     }
 
-    private PaymentApprovalVendorResult createSuccessVendorResult(String tno, String amount) {
+    private PaymentApprovalVendorResult createSuccessVendorResult(String transactionId, String amount) {
         return PaymentApprovalVendorResult.builder()
-                .resCd("0000")
-                .resMsg("승인 성공")
-                .tno(tno)
+                .success(true)
+                .resultCode("0000")
+                .resultMessage("승인 성공")
+                .transactionId(transactionId)
                 .amount(amount)
                 .payMethod("PACA")
-                .cardCd("CCLG")
+                .cardCode("CCLG")
                 .cardName("신한카드")
-                .cardNo("1234-****-****-5678")
-                .appNo("12345678")
-                .appTime("20260210153000")
-                .quota("00")
-                .partcancYn("Y")
+                .cardNumber("1234-****-****-5678")
+                .approvalNumber("12345678")
+                .approvalTime("20260210153000")
+                .installmentMonths("00")
+                .partialCancelYn("Y")
                 .rawResponse("{\"res_cd\":\"0000\"}")
                 .build();
     }
