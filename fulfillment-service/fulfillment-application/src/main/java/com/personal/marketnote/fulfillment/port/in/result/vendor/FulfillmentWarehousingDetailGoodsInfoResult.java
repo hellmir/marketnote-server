@@ -1,0 +1,70 @@
+package com.personal.marketnote.fulfillment.port.in.result.vendor;
+
+public record FulfillmentWarehousingDetailGoodsInfoResult(
+        String ordDt,
+        String whCd,
+        String slipNo,
+        String cstCd,
+        String shopCd,
+        String supCd,
+        String godCd,
+        String cstGodCd,
+        String godNm,
+        String orgGodCd,
+        String godType,
+        String godTypeNm,
+        String distTermDt,
+        Integer stockQty,
+        Integer ordQty,
+        Integer addGodOrdQty,
+        Integer ordQtySum,
+        String giftDiv,
+        String addType,
+        String emgrYn
+) {
+    public static FulfillmentWarehousingDetailGoodsInfoResult of(
+            String ordDt,
+            String whCd,
+            String slipNo,
+            String cstCd,
+            String shopCd,
+            String supCd,
+            String godCd,
+            String cstGodCd,
+            String godNm,
+            String orgGodCd,
+            String godType,
+            String godTypeNm,
+            String distTermDt,
+            Integer stockQty,
+            Integer ordQty,
+            Integer addGodOrdQty,
+            Integer ordQtySum,
+            String giftDiv,
+            String addType,
+            String emgrYn
+    ) {
+        return new FulfillmentWarehousingDetailGoodsInfoResult(
+                ordDt,
+                whCd,
+                slipNo,
+                cstCd,
+                shopCd,
+                supCd,
+                godCd,
+                cstGodCd,
+                godNm,
+                orgGodCd,
+                godType,
+                godTypeNm,
+                distTermDt,
+                stockQty,
+                ordQty,
+                addGodOrdQty,
+                ordQtySum,
+                giftDiv,
+                addType,
+                emgrYn
+        );
+    }
+}

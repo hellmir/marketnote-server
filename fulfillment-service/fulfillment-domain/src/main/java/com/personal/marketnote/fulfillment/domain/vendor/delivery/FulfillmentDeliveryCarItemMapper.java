@@ -1,0 +1,114 @@
+package com.personal.marketnote.fulfillment.domain.vendor.delivery;
+
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
+import lombok.*;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE)
+public class FulfillmentDeliveryCarItemMapper {
+    private String ordDt;
+    private String ordNo;
+    private String slipNo;
+    private String outWay;
+    private String cstShopCd;
+    private List<FulfillmentDeliveryGoodsMapper> godCds;
+    private String remark;
+
+    public static FulfillmentDeliveryCarItemMapper of(
+            String ordDt,
+            String ordNo,
+            String slipNo,
+            String outWay,
+            String cstShopCd,
+            List<FulfillmentDeliveryGoodsMapper> godCds,
+            String remark
+    ) {
+        FulfillmentDeliveryCarItemMapper mapper = FulfillmentDeliveryCarItemMapper.builder()
+                .ordDt(ordDt)
+                .ordNo(ordNo)
+                .slipNo(slipNo)
+                .outWay(outWay)
+                .cstShopCd(cstShopCd)
+                .godCds(godCds)
+                .remark(remark)
+                .build();
+        mapper.validate();
+        return mapper;
+    }
+
+    public static FulfillmentDeliveryCarItemMapper update(
+            String ordDt,
+            String ordNo,
+            String slipNo,
+            String outWay,
+            String cstShopCd,
+            List<FulfillmentDeliveryGoodsMapper> godCds,
+            String remark
+    ) {
+        FulfillmentDeliveryCarItemMapper mapper = FulfillmentDeliveryCarItemMapper.builder()
+                .ordDt(ordDt)
+                .ordNo(ordNo)
+                .slipNo(slipNo)
+                .outWay(outWay)
+                .cstShopCd(cstShopCd)
+                .godCds(godCds)
+                .remark(remark)
+                .build();
+        mapper.validateForUpdate();
+        return mapper;
+    }
+
+    public Map<String, Object> toPayload() {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        putIfHasValue(payload, "ordDt", ordDt);
+        putIfHasValue(payload, "ordNo", ordNo);
+        putIfHasValue(payload, "slipNo", slipNo);
+        putIfHasValue(payload, "outWay", outWay);
+        putIfHasValue(payload, "cstShopCd", cstShopCd);
+        if (FormatValidator.hasValue(godCds)) {
+            payload.put("godCds", godCds.stream()
+                    .map(FulfillmentDeliveryGoodsMapper::toPayload)
+                    .toList());
+        }
+        putIfHasValue(payload, "remark", remark);
+        return payload;
+    }
+
+    private void validate() {
+        if (FormatValidator.hasNoValue(ordDt)) {
+            throw new FulfillmentQueryParameterNoValueException("ordDt", "delivery car request");
+        }
+        if (FormatValidator.hasNoValue(ordNo)) {
+            throw new FulfillmentQueryParameterNoValueException("ordNo", "delivery car request");
+        }
+        if (FormatValidator.hasNoValue(outWay)) {
+            throw new FulfillmentQueryParameterNoValueException("outWay", "delivery car request");
+        }
+        if (FormatValidator.hasNoValue(cstShopCd)) {
+            throw new FulfillmentQueryParameterNoValueException("cstShopCd", "delivery car request");
+        }
+        if (FormatValidator.hasNoValue(godCds)) {
+            throw new FulfillmentQueryParameterNoValueException("godCds", "delivery car request");
+        }
+    }
+
+    private void validateForUpdate() {
+        validate();
+        if (FormatValidator.hasNoValue(slipNo)) {
+            throw new FulfillmentQueryParameterNoValueException("slipNo", "delivery car update request");
+        }
+    }
+
+    private void putIfHasValue(Map<String, Object> payload, String key, String value) {
+        if (FormatValidator.hasValue(value)) {
+            payload.put(key, value);
+        }
+    }
+}

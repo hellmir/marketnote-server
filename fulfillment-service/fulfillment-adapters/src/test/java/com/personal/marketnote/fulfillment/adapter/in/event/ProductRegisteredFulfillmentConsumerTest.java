@@ -3,14 +3,14 @@ package com.personal.marketnote.fulfillment.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
-import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
-import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
-import com.personal.marketnote.fulfillment.exception.FasstoGoodsAlreadyRegisteredException;
-import com.personal.marketnote.fulfillment.exception.RegisterFasstoGoodsFailedException;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFasstoGoodsUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFasstoAuthUseCase;
+import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
+import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentGoodsAlreadyRegisteredException;
+import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentGoodsFailedException;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentGoodsUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,13 +36,13 @@ class ProductRegisteredFulfillmentConsumerTest {
     private ProductRegisteredFulfillmentConsumer consumer;
 
     @Mock
-    private RegisterFasstoGoodsUseCase registerFasstoGoodsUseCase;
+    private RegisterFulfillmentGoodsUseCase registerFulfillmentGoodsUseCase;
 
     @Mock
-    private RequestFasstoAuthUseCase requestFasstoAuthUseCase;
+    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
 
     @Mock
-    private FasstoAuthProperties fasstoAuthProperties;
+    private FulfillmentAuthProperties fasstoAuthProperties;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -63,26 +63,26 @@ class ProductRegisteredFulfillmentConsumerTest {
         return new ConsumerRecord<>("product.product.registered", 0, 0L, "key-1", envelope);
     }
 
-    private FasstoAccessToken buildValidAccessToken() {
-        return FasstoAccessToken.of("valid-token", "20261231235959");
+    private FulfillmentAccessToken buildValidAccessToken() {
+        return FulfillmentAccessToken.of("valid-token", "20261231235959");
     }
 
     @Test
-    @DisplayName("정상 이벤트 수신 시 Fassto 상품 등록 UseCase를 호출하고 acknowledge한다")
-    void handleEvent_success_registersFasstoGoodsAndAcknowledges() {
+    @DisplayName("정상 이벤트 수신 시 Fulfillment 상품 등록 UseCase를 호출하고 acknowledge한다")
+    void handleEvent_success_registersFulfillmentGoodsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(10L, "테스트 상품", "1");
-        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<RegisterFasstoGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFasstoGoodsCommand.class);
-        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(captor.capture());
+        ArgumentCaptor<RegisterFulfillmentGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFulfillmentGoodsCommand.class);
+        verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
-        RegisterFasstoGoodsCommand command = captor.getValue();
+        RegisterFulfillmentGoodsCommand command = captor.getValue();
         assertThat(command.customerCode()).isEqualTo("CUST001");
         assertThat(command.accessToken()).isEqualTo("valid-token");
         assertThat(command.goods()).hasSize(1);
@@ -99,15 +99,15 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_withCustomGodType_usesProvidedGodType() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(20L, "커스텀 상품", "2");
-        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<RegisterFasstoGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFasstoGoodsCommand.class);
-        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(captor.capture());
+        ArgumentCaptor<RegisterFulfillmentGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFulfillmentGoodsCommand.class);
+        verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
         assertThat(captor.getValue().goods().get(0).godType()).isEqualTo("2");
         verify(acknowledgment).acknowledge();
@@ -118,15 +118,15 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_nullGodType_usesDefault() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(30L, "기본 타입 상품", null);
-        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<RegisterFasstoGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFasstoGoodsCommand.class);
-        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(captor.capture());
+        ArgumentCaptor<RegisterFulfillmentGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFulfillmentGoodsCommand.class);
+        verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
         assertThat(captor.getValue().goods().get(0).godType()).isEqualTo("1");
         verify(acknowledgment).acknowledge();
@@ -142,7 +142,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFasstoAuthUseCase, registerFasstoGoodsUseCase);
+        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -156,58 +156,58 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFasstoAuthUseCase, registerFasstoGoodsUseCase);
+        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("Fassto 액세스 토큰이 null이면 FasstoAccessTokenIssuanceFailedException을 던진다")
+    @DisplayName("Fulfillment 액세스 토큰이 null이면 FulfillmentAccessTokenIssuanceFailedException을 던진다")
     void handleEvent_nullAccessToken_throwsException() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(null);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(null);
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(FasstoAccessTokenIssuanceFailedException.class);
+                .isInstanceOf(FulfillmentAccessTokenIssuanceFailedException.class);
 
-        verifyNoInteractions(registerFasstoGoodsUseCase);
+        verifyNoInteractions(registerFulfillmentGoodsUseCase);
         verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
-    @DisplayName("RegisterFasstoGoodsFailedException 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
-    void handleEvent_registerFasstoGoodsFailed_propagatesForRetry() {
+    @DisplayName("RegisterFulfillmentGoodsFailedException 발생 시 DefaultErrorHandler로 위임되어 예외가 전파된다")
+    void handleEvent_registerFulfillmentGoodsFailed_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
-        doThrow(new RegisterFasstoGoodsFailedException(new IOException("Fassto API 오류")))
-                .when(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+        doThrow(new RegisterFulfillmentGoodsFailedException(new IOException("Fulfillment API 오류")))
+                .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(RegisterFasstoGoodsFailedException.class);
+                .isInstanceOf(RegisterFulfillmentGoodsFailedException.class);
 
-        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+        verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
-    @DisplayName("FasstoGoodsAlreadyRegisteredException 발생 시 warn 로그 후 acknowledge한다")
+    @DisplayName("FulfillmentGoodsAlreadyRegisteredException 발생 시 warn 로그 후 acknowledge한다")
     void handleEvent_alreadyRegistered_warnsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
-        doThrow(new FasstoGoodsAlreadyRegisteredException(1L))
-                .when(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+        doThrow(new FulfillmentGoodsAlreadyRegisteredException(1L))
+                .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+        verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
         verify(acknowledgment).acknowledge();
     }
 
@@ -223,7 +223,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFasstoAuthUseCase, registerFasstoGoodsUseCase);
+        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -244,7 +244,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFasstoAuthUseCase, registerFasstoGoodsUseCase);
+        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -258,7 +258,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFasstoAuthUseCase, registerFasstoGoodsUseCase);
+        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -272,7 +272,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFasstoAuthUseCase, registerFasstoGoodsUseCase);
+        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -281,17 +281,17 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_unexpectedException_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFasstoAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RuntimeException("네트워크 오류"))
-                .when(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+                .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("네트워크 오류");
 
-        verify(registerFasstoGoodsUseCase).registerGoodsIdempotent(any(RegisterFasstoGoodsCommand.class));
+        verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
         verify(acknowledgment, never()).acknowledge();
     }
 }

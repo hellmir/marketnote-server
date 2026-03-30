@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum FulfillmentVendorName {
-    FASSTO("Fassto");
+    FASSTO("Fulfillment");
 
     private final String description;
 }
