@@ -6,8 +6,8 @@ import lombok.Builder;
 public record PaymentApprovalVendorCommand(
         String encData,
         String encInfo,
-        String ordrMony,
-        String ordrNo,
+        String orderAmount,
+        String orderNumber,
         String payType
 ) {
 }

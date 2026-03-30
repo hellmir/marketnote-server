@@ -21,7 +21,7 @@ class PspPaymentEventTest {
         void shouldCreateReadyEvent() {
             Payment payment = createPayment(1L, UUID.randomUUID(), 50000L);
 
-            PspPaymentEvent event = PspPaymentEvent.createReady(payment, "T0000", "PACA");
+            PspPaymentEvent event = PspPaymentEvent.createReady(payment, "NHN_KCP", "T0000", "PACA");
 
             assertThat(event.getOrderId()).isEqualTo(1L);
             assertThat(event.getOrderKey()).isEqualTo(payment.getOrderKey().toString());
@@ -365,7 +365,7 @@ class PspPaymentEventTest {
 
     private PspPaymentEvent createReadyEvent() {
         Payment payment = createPayment(1L, UUID.randomUUID(), 50000L);
-        return PspPaymentEvent.createReady(payment, "T0000", "PACA");
+        return PspPaymentEvent.createReady(payment, "NHN_KCP", "T0000", "PACA");
     }
 
     private PspPaymentEvent createExecutingEvent() {

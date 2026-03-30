@@ -11,12 +11,20 @@ import com.personal.marketnote.commerce.port.out.payment.vendor.*;
  */
 public interface PaymentVendorPort {
     /**
-     * @return 결제 대행사 사이트 코드 {@link String}
+     * @return 결제 대행사 식별 키 {@link String}
      * @Date 2026-02-25
      * @Author 성효빈
-     * @Description 결제 대행사 사이트 코드를 조회합니다.
+     * @Description 결제 대행사 식별 키를 조회합니다. (예: "NHN_KCP")
      */
-    String getVendorSiteCd();
+    String getVendorKey();
+
+    /**
+     * @return 결제 대행사 가맹점 코드 {@link String}
+     * @Date 2026-02-25
+     * @Author 성효빈
+     * @Description 결제 대행사 가맹점 코드를 조회합니다.
+     */
+    String getShopCode();
 
     /**
      * @param command 거래 등록 요청 정보 {@link TradeRegisterVendorCommand}

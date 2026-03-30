@@ -4,10 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record PaymentCancelVendorCommand(
-        String tno,
-        String modType,
-        Long modMny,
-        Long remMny,
-        String modDesc
+        String transactionId,
+        String cancelType,
+        Long cancelAmount,
+        Long remainAmount,
+        String cancelReason
 ) {
 }

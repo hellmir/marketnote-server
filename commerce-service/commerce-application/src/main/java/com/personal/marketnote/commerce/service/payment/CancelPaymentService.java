@@ -88,9 +88,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 transactionNumber, modType, cancelAmount, remainAmount, command.cancelReason()
         );
 
-        if (!vendorResult.isSuccess()) {
+        if (!vendorResult.success()) {
             throw new PaymentCancelException(
-                    "KCP 결제 취소 실패 [" + vendorResult.resCd() + "]: " + vendorResult.resMsg()
+                    "결제 취소 실패 [" + vendorResult.resultCode() + "]: " + vendorResult.resultMessage()
             );
         }
 
@@ -149,14 +149,14 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private PaymentCancelVendorResult requestPaymentCancellationToPsp(
-            String transactionNumber, String modType, Long cancelAmount, Long remainAmount, String cancelReason
+            String transactionNumber, String cancelType, Long cancelAmount, Long remainAmount, String cancelReason
     ) {
         PaymentCancelVendorCommand vendorCommand = PaymentCancelVendorCommand.builder()
-                .tno(transactionNumber)
-                .modType(modType)
-                .modMny(cancelAmount)
-                .remMny(remainAmount)
-                .modDesc(cancelReason)
+                .transactionId(transactionNumber)
+                .cancelType(cancelType)
+                .cancelAmount(cancelAmount)
+                .remainAmount(remainAmount)
+                .cancelReason(cancelReason)
                 .build();
 
         return paymentVendorPort.cancelPayment(vendorCommand);

@@ -86,21 +86,21 @@ public class PaymentApprovalTransactionHelper {
         Payment payment = context.payment();
         PspPaymentEvent event = context.event();
 
-        payment.markAsSuccess(vendorResult.tno());
+        payment.markAsSuccess(vendorResult.transactionId());
         updatePaymentPort.update(payment);
 
         PaymentApprovalInfo approvalInfo = PaymentApprovalInfo.builder()
-                .pgPaymentKey(vendorResult.tno())
+                .pgPaymentKey(vendorResult.transactionId())
                 .method(vendorResult.payMethod())
-                .cardNumber(vendorResult.cardNo())
-                .approvalNumber(vendorResult.appNo())
+                .cardNumber(vendorResult.cardNumber())
+                .approvalNumber(vendorResult.approvalNumber())
                 .installment(installment)
-                .issueCompanyCode(vendorResult.cardCd())
+                .issueCompanyCode(vendorResult.cardCode())
                 .issueCompanyName(vendorResult.cardName())
-                .resultCode(vendorResult.resCd())
-                .resultMessage(vendorResult.resMsg())
+                .resultCode(vendorResult.resultCode())
+                .resultMessage(vendorResult.resultMessage())
                 .pgApprovalResult(vendorResult.rawResponse())
-                .appTime(vendorResult.appTime())
+                .appTime(vendorResult.approvalTime())
                 .build();
         event.completeWithApproval(approvalInfo);
         updatePspPaymentEventPort.update(event);
@@ -138,10 +138,10 @@ public class PaymentApprovalTransactionHelper {
         return ApprovePaymentResult.builder()
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
-                .pgPaymentKey(vendorResult.tno())
+                .pgPaymentKey(vendorResult.transactionId())
                 .amount(payment.getPaymentAmount())
-                .resultCode(vendorResult.resCd())
-                .resultMessage(vendorResult.resMsg())
+                .resultCode(vendorResult.resultCode())
+                .resultMessage(vendorResult.resultMessage())
                 .payMethod(vendorResult.payMethod())
                 .build();
     }

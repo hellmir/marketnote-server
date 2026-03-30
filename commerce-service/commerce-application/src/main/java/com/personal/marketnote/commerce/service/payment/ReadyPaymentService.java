@@ -48,15 +48,15 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
 
         TradeRegisterVendorCommand vendorCommand = TradeRegisterVendorCommand.builder()
                 .orderKey(payment.getOrderKey().toString())
-                .goodMny(String.valueOf(payment.getPaymentAmount()))
+                .orderAmount(String.valueOf(payment.getPaymentAmount()))
                 .payMethod(command.payMethod())
                 .goodName(command.goodName())
                 .build();
 
         TradeRegisterVendorResult vendorResult = paymentVendorPort.registerTrade(vendorCommand);
 
-        if (!vendorResult.isSuccess()) {
-            throw PaymentApprovalException.kcpTradeRegisterFailed(vendorResult.resCd(), vendorResult.resMsg());
+        if (!vendorResult.success()) {
+            throw PaymentApprovalException.tradeRegisterFailed(vendorResult.resultCode(), vendorResult.resultMessage());
         }
 
         return ReadyPaymentResult.builder()
@@ -92,8 +92,9 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
     }
 
     private void saveReadyEvent(Payment payment, String payMethod) {
-        String vendorSiteCd = paymentVendorPort.getVendorSiteCd();
-        PspPaymentEvent readyEvent = PspPaymentEvent.createReady(payment, vendorSiteCd, payMethod);
+        String vendorKey = paymentVendorPort.getVendorKey();
+        String shopCode = paymentVendorPort.getShopCode();
+        PspPaymentEvent readyEvent = PspPaymentEvent.createReady(payment, vendorKey, shopCode, payMethod);
 
         try {
             savePspPaymentEventPort.save(readyEvent);

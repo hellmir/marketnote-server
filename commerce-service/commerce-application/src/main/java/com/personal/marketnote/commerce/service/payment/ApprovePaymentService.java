@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>트랜잭션을 3단계로 분리하여 오케스트레이션만 수행한다:
  * <ol>
  *   <li>TX-1: 검증 + EXECUTING 커밋 (prepareExecution)</li>
- *   <li>KCP 호출 (트랜잭션 외부)</li>
+ *   <li>PG사 호출 (트랜잭션 외부)</li>
  *   <li>TX-2: 결과 반영 커밋 (commitSuccess / commitFailure / commitUnknown)</li>
  * </ol>
  *
@@ -39,29 +39,29 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         PaymentApprovalVendorResult vendorResult = requestPaymentApprovalToPsp(command, context);
 
         // TX-2: 성공 또는 실패 커밋
-        if (vendorResult.isSuccess()) {
-            Short installment = parseInstallment(vendorResult.quota());
+        if (vendorResult.success()) {
+            Short installment = parseInstallment(vendorResult.installmentMonths());
             return txHelper.commitSuccess(context, vendorResult, installment);
         }
 
-        txHelper.commitFailure(context, vendorResult.resCd(), vendorResult.resMsg());
-        throw PaymentApprovalException.kcpApprovalFailed(vendorResult.resCd(), vendorResult.resMsg());
+        txHelper.commitFailure(context, vendorResult.resultCode(), vendorResult.resultMessage());
+        throw PaymentApprovalException.approvalFailed(vendorResult.resultCode(), vendorResult.resultMessage());
     }
 
     private PaymentApprovalVendorResult requestPaymentApprovalToPsp(
             ApprovePaymentCommand command, PaymentApprovalContext context
     ) {
-        // KCP 호출 (트랜잭션 외부 — 어댑터에서 재시도 수행)
+        // PG사 호출 (트랜잭션 외부 — 어댑터에서 재시도 수행)
         try {
             return paymentVendorPort.approvePayment(buildVendorCommand(command, context));
         } catch (PaymentVendorConnectionFailedException e) {
-            // TX-2: 연결 실패 → FAILED (요청이 KCP에 도달하지 않음)
+            // TX-2: 연결 실패 → FAILED (요청이 PG사에 도달하지 않음)
             txHelper.commitFailure(context, "CONN_FAIL", e.getMessage());
-            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
+            throw PaymentApprovalException.approvalRequestFailed(e);
         } catch (Exception e) {
-            // TX-2: 기타 통신 오류 → UNKNOWN (요청이 KCP에 도달했을 수 있음)
-            txHelper.commitUnknown(context, "UNKNOWN", "KCP 통신 오류: " + e.getMessage());
-            throw PaymentApprovalException.kcpApprovalRequestFailed(e);
+            // TX-2: 기타 통신 오류 → UNKNOWN (요청이 PG사에 도달했을 수 있음)
+            txHelper.commitUnknown(context, "UNKNOWN", "PG사 통신 오류: " + e.getMessage());
+            throw PaymentApprovalException.approvalRequestFailed(e);
         }
     }
 
@@ -71,8 +71,8 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
         return PaymentApprovalVendorCommand.builder()
                 .encData(command.encData())
                 .encInfo(command.encInfo())
-                .ordrMony(String.valueOf(context.paymentAmount()))
-                .ordrNo(command.orderKey())
+                .orderAmount(String.valueOf(context.paymentAmount()))
+                .orderNumber(command.orderKey())
                 .payType(command.payType())
                 .build();
     }

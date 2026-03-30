@@ -45,12 +45,12 @@ public class PspPaymentEvent {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
-    public static PspPaymentEvent createReady(Payment payment, String siteCd, String payType) {
+    public static PspPaymentEvent createReady(Payment payment, String pgCompanyKey, String pgShopKey, String payType) {
         return PspPaymentEvent.builder()
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
-                .pgCompanyKey("NHN_KCP")
-                .pgShopKey(siteCd)
+                .pgCompanyKey(pgCompanyKey)
+                .pgShopKey(pgShopKey)
                 .poStatus(PaymentEventStatus.READY)
                 .method(payType)
                 .amount(payment.getPaymentAmount())
