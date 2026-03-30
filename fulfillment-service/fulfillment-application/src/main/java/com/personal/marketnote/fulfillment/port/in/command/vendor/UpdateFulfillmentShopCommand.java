@@ -1,0 +1,73 @@
+package com.personal.marketnote.fulfillment.port.in.command.vendor;
+
+public record UpdateFulfillmentShopCommand(
+        String customerCode,
+        String accessToken,
+        String shopCd,
+        String shopNm,
+        String cstShopCd,
+        String dealStrDt,
+        String dealEndDt,
+        String zipNo,
+        String addr1,
+        String addr2,
+        String ceoNm,
+        String busNo,
+        String telNo,
+        String unloadWay,
+        String checkWay,
+        String standYn,
+        String formType,
+        String empNm,
+        String empPosit,
+        String empTelNo,
+        String useYn
+) {
+    public static UpdateFulfillmentShopCommand of(
+            String customerCode,
+            String accessToken,
+            String shopCd,
+            String shopNm,
+            String cstShopCd,
+            String dealStrDt,
+            String dealEndDt,
+            String zipNo,
+            String addr1,
+            String addr2,
+            String ceoNm,
+            String busNo,
+            String telNo,
+            String unloadWay,
+            String checkWay,
+            String standYn,
+            String formType,
+            String empNm,
+            String empPosit,
+            String empTelNo,
+            String useYn
+    ) {
+        return new UpdateFulfillmentShopCommand(
+                customerCode,
+                accessToken,
+                shopCd,
+                shopNm,
+                cstShopCd,
+                dealStrDt,
+                dealEndDt,
+                zipNo,
+                addr1,
+                addr2,
+                ceoNm,
+                busNo,
+                telNo,
+                unloadWay,
+                checkWay,
+                standYn,
+                formType,
+                empNm,
+                empPosit,
+                empTelNo,
+                useYn
+        );
+    }
+}

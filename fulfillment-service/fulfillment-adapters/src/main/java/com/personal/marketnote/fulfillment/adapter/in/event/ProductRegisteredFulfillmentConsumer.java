@@ -6,14 +6,14 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
-import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
-import com.personal.marketnote.fulfillment.exception.FasstoGoodsAlreadyRegisteredException;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFasstoGoodsItemCommand;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFasstoGoodsUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFasstoAuthUseCase;
+import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
+import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentGoodsAlreadyRegisteredException;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsItemCommand;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentGoodsUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -30,9 +30,9 @@ public class ProductRegisteredFulfillmentConsumer {
     private static final String DEFAULT_GOD_TYPE = "1";
     private static final String DEFAULT_GIFT_DIV = "01";
 
-    private final RegisterFasstoGoodsUseCase registerFasstoGoodsUseCase;
-    private final RequestFasstoAuthUseCase requestFasstoAuthUseCase;
-    private final FasstoAuthProperties fasstoAuthProperties;
+    private final RegisterFulfillmentGoodsUseCase registerFulfillmentGoodsUseCase;
+    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthProperties fasstoAuthProperties;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -74,34 +74,34 @@ public class ProductRegisteredFulfillmentConsumer {
                 return;
             }
 
-            FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
+            FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
             if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-                throw new FasstoAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
+                throw new FulfillmentAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
             }
 
             String godType = FormatValidator.hasValue(payload.godType()) ? payload.godType() : DEFAULT_GOD_TYPE;
 
-            RegisterFasstoGoodsItemCommand itemCommand = RegisterFasstoGoodsItemCommand.builder()
+            RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
                     .cstGodCd(String.valueOf(payload.productId()))
                     .godNm(payload.productName())
                     .godType(godType)
                     .giftDiv(DEFAULT_GIFT_DIV)
                     .build();
 
-            RegisterFasstoGoodsCommand command = RegisterFasstoGoodsCommand.of(
+            RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
                     fasstoAuthProperties.getCustomerCode(),
                     accessToken.getValue(),
                     List.of(itemCommand)
             );
 
-            registerFasstoGoodsUseCase.registerGoodsIdempotent(command);
+            registerFulfillmentGoodsUseCase.registerGoodsIdempotent(command);
 
             log.info("Kafka 이벤트로 풀필먼트 상품 등록 완료. productId={}", payload.productId());
-        } catch (FasstoGoodsAlreadyRegisteredException e) {
-            log.warn("이미 Fassto에 등록된 상품입니다 (멱등 처리). eventId={}, key={}, message={}",
+        } catch (FulfillmentGoodsAlreadyRegisteredException e) {
+            log.warn("이미 Fulfillment에 등록된 상품입니다 (멱등 처리). eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage());
         }
-        // 그 외 예외(RegisterFasstoGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
+        // 그 외 예외(RegisterFulfillmentGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();
     }

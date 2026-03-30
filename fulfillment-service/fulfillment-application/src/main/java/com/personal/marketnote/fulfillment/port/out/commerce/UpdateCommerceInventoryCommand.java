@@ -1,7 +1,7 @@
 package com.personal.marketnote.fulfillment.port.out.commerce;
 
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.domain.exception.FasstoQueryParameterNoValueException;
+import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ public record UpdateCommerceInventoryCommand(
 ) {
     public UpdateCommerceInventoryCommand {
         if (FormatValidator.hasNoValue(inventories)) {
-            throw new FasstoQueryParameterNoValueException("Inventory sync items", "commerce inventory sync");
+            throw new FulfillmentQueryParameterNoValueException("Inventory sync items", "commerce inventory sync");
         }
     }
 

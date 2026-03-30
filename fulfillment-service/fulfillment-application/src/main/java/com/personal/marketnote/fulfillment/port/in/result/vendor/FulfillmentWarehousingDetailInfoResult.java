@@ -1,0 +1,81 @@
+package com.personal.marketnote.fulfillment.port.in.result.vendor;
+
+import java.util.List;
+
+public record FulfillmentWarehousingDetailInfoResult(
+        String ordDt,
+        String whCd,
+        String whNm,
+        String slipNo,
+        String ordNo,
+        String cstCd,
+        String cstNm,
+        String supCd,
+        String supNm,
+        String cstSupCd,
+        Integer sku,
+        Integer ordQty,
+        Integer inQty,
+        Integer tarQty,
+        String inWay,
+        String inWayNm,
+        String parcelComp,
+        String parcelInvoiceNo,
+        String wrkStat,
+        String wrkStatNm,
+        String emgrYn,
+        String remark,
+        List<FulfillmentWarehousingDetailGoodsInfoResult> goods
+) {
+    public static FulfillmentWarehousingDetailInfoResult of(
+            String ordDt,
+            String whCd,
+            String whNm,
+            String slipNo,
+            String ordNo,
+            String cstCd,
+            String cstNm,
+            String supCd,
+            String supNm,
+            String cstSupCd,
+            Integer sku,
+            Integer ordQty,
+            Integer inQty,
+            Integer tarQty,
+            String inWay,
+            String inWayNm,
+            String parcelComp,
+            String parcelInvoiceNo,
+            String wrkStat,
+            String wrkStatNm,
+            String emgrYn,
+            String remark,
+            List<FulfillmentWarehousingDetailGoodsInfoResult> goods
+    ) {
+        return new FulfillmentWarehousingDetailInfoResult(
+                ordDt,
+                whCd,
+                whNm,
+                slipNo,
+                ordNo,
+                cstCd,
+                cstNm,
+                supCd,
+                supNm,
+                cstSupCd,
+                sku,
+                ordQty,
+                inQty,
+                tarQty,
+                inWay,
+                inWayNm,
+                parcelComp,
+                parcelInvoiceNo,
+                wrkStat,
+                wrkStatNm,
+                emgrYn,
+                remark,
+                goods
+        );
+    }
+}

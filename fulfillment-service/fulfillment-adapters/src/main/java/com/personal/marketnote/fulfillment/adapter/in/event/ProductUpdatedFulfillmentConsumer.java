@@ -6,13 +6,13 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.configuration.FasstoAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FasstoAccessToken;
-import com.personal.marketnote.fulfillment.exception.FasstoAccessTokenIssuanceFailedException;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFasstoGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFasstoGoodsItemCommand;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFasstoAuthUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.UpdateFasstoGoodsUseCase;
+import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
+import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsItemCommand;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.UpdateFulfillmentGoodsUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,9 +26,9 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class ProductUpdatedFulfillmentConsumer {
-    private final UpdateFasstoGoodsUseCase updateFasstoGoodsUseCase;
-    private final RequestFasstoAuthUseCase requestFasstoAuthUseCase;
-    private final FasstoAuthProperties fasstoAuthProperties;
+    private final UpdateFulfillmentGoodsUseCase updateFulfillmentGoodsUseCase;
+    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthProperties fasstoAuthProperties;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -69,12 +69,12 @@ public class ProductUpdatedFulfillmentConsumer {
             return;
         }
 
-        FasstoAccessToken accessToken = requestFasstoAuthUseCase.requestAccessToken();
+        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
         if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-            throw new FasstoAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
+            throw new FulfillmentAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
         }
 
-        UpdateFasstoGoodsItemCommand itemCommand = UpdateFasstoGoodsItemCommand.of(
+        UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
                 String.valueOf(payload.productId()),
                 payload.productName(),
                 payload.godType(),
@@ -112,16 +112,16 @@ public class ProductUpdatedFulfillmentConsumer {
                 payload.externalGodImgUrl()
         );
 
-        UpdateFasstoGoodsCommand command = UpdateFasstoGoodsCommand.of(
+        UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
                 fasstoAuthProperties.getCustomerCode(),
                 accessToken.getValue(),
                 List.of(itemCommand)
         );
 
-        updateFasstoGoodsUseCase.updateGoods(command);
+        updateFulfillmentGoodsUseCase.updateGoods(command);
 
         log.info("Kafka 이벤트로 풀필먼트 상품 수정 완료. productId={}", payload.productId());
-        // 예외(UpdateFasstoGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
+        // 예외(UpdateFulfillmentGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();
     }
