@@ -40,7 +40,7 @@ public class ImageEventKafkaProducer implements PublishImageEventPort {
         for (ImageEventCommand event : events) {
             ImageChangedEvent payload = new ImageChangedEvent(
                     event.imageId(), event.targetId(), event.targetType(),
-                    event.imageUrl(), event.sortOrder(), action
+                    event.fileSort(), event.imageUrl(), event.sortOrder(), action
             );
             String topic = KafkaTopicConstants.FILE_IMAGE_CHANGED;
             EventEnvelope<ImageChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
