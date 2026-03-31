@@ -5,6 +5,7 @@ import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
 import com.personal.marketnote.file.port.in.command.UpdateFilesCommand;
 import com.personal.marketnote.file.port.in.usecase.file.GetFileUseCase;
+import com.personal.marketnote.file.port.out.event.PublishImageEventPort;
 import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
 import com.personal.marketnote.file.port.out.resized.SaveResizedFilesPort;
@@ -35,6 +36,8 @@ class UpdateFilesUseCaseTest {
     private SaveResizedFilesPort saveResizedFilesPort;
     @Mock
     private UpdateFilesPort updateFilesPort;
+    @Mock
+    private PublishImageEventPort publishImageEventPort;
 
     @InjectMocks
     private UpdateFilesService updateFilesService;
