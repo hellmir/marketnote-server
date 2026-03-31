@@ -59,24 +59,12 @@ public class UserOauth2Vendor {
         this.oidcId = oidcId;
     }
 
-    public boolean hasGoogleAccount() {
-        return isGoogle() && FormatValidator.hasValue(oidcId);
+    public boolean isVendor(AuthVendor vendor) {
+        return this.authVendor.isMe(vendor);
     }
 
-    public boolean hasAppleAccount() {
-        return isApple() && FormatValidator.hasValue(oidcId);
-    }
-
-    public boolean isKakao() {
-        return authVendor.isKakao();
-    }
-
-    public boolean isGoogle() {
-        return authVendor.isGoogle();
-    }
-
-    public boolean isApple() {
-        return authVendor.isApple();
+    public boolean hasAccount(AuthVendor vendor) {
+        return isVendor(vendor) && FormatValidator.hasValue(oidcId);
     }
 
     public void removeOidcId() {

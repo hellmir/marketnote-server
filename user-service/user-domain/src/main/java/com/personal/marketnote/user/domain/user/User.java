@@ -243,39 +243,22 @@ public class User extends BaseDomain {
         return withdrawalYn;
     }
 
-    public String getKakaoOidcId() {
+    public String getOidcIdByVendor(AuthVendor vendor) {
         return userOauth2Vendors.stream()
-                .filter(UserOauth2Vendor::isKakao)
+                .filter(v -> v.isVendor(vendor))
                 .findFirst()
-                .get()
-                .getOidcId();
+                .map(UserOauth2Vendor::getOidcId)
+                .orElse(null);
     }
 
-    public void removeKakaoOidcId() {
-        userOauth2Vendors.stream()
-                .filter(UserOauth2Vendor::isKakao)
-                .forEach(UserOauth2Vendor::removeOidcId);
-    }
-
-    public boolean hasGoogleAccount() {
+    public boolean hasAccount(AuthVendor vendor) {
         return userOauth2Vendors.stream()
-                .anyMatch(UserOauth2Vendor::hasGoogleAccount);
+                .anyMatch(v -> v.hasAccount(vendor));
     }
 
-    public void removeGoogleOidcId() {
+    public void removeOidcId(AuthVendor vendor) {
         userOauth2Vendors.stream()
-                .filter(UserOauth2Vendor::isGoogle)
-                .forEach(UserOauth2Vendor::removeOidcId);
-    }
-
-    public boolean hasAppleAccount() {
-        return userOauth2Vendors.stream()
-                .anyMatch(UserOauth2Vendor::hasAppleAccount);
-    }
-
-    public void removeAppleOidcId() {
-        userOauth2Vendors.stream()
-                .filter(UserOauth2Vendor::isApple)
+                .filter(v -> v.isVendor(vendor))
                 .forEach(UserOauth2Vendor::removeOidcId);
     }
 }

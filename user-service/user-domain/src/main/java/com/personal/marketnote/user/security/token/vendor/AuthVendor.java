@@ -43,15 +43,4 @@ public enum AuthVendor {
         return this == authVendor;
     }
 
-    public boolean isKakao() {
-        return this == KAKAO;
-    }
-
-    public boolean isGoogle() {
-        return this == GOOGLE;
-    }
-
-    public boolean isApple() {
-        return this == APPLE;
-    }
 }

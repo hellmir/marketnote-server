@@ -40,7 +40,9 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -454,8 +456,9 @@ public class UserController {
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @RequestHeader(value = "X-Google-Access-Token", required = false) String googleAccessToken
     ) {
+        Map<AuthVendor, String> vendorCredentials = buildVendorCredentials(googleAccessToken);
         WithdrawResult result = withdrawUseCase.withdrawUser(
-                ElementExtractor.extractUserId(principal), googleAccessToken
+                ElementExtractor.extractUserId(principal), vendorCredentials
         );
 
         return new ResponseEntity<>(
@@ -467,5 +470,15 @@ public class UserController {
                 ),
                 HttpStatus.OK
         );
+    }
+
+    private Map<AuthVendor, String> buildVendorCredentials(String googleAccessToken) {
+        Map<AuthVendor, String> vendorCredentials = new HashMap<>();
+
+        if (FormatValidator.hasValue(googleAccessToken)) {
+            vendorCredentials.put(AuthVendor.GOOGLE, googleAccessToken);
+        }
+
+        return vendorCredentials;
     }
 }

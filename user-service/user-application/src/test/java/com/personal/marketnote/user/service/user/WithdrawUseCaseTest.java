@@ -6,6 +6,7 @@ import com.personal.marketnote.user.port.in.result.WithdrawResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.oauth.Oauth2AccountUnlinkPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
+import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.service.exception.UnlinkOauth2AccountFailedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,9 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,18 +43,17 @@ class WithdrawUseCaseTest {
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
 
         // when
-        WithdrawResult result = withdrawService.withdrawUser(id, null);
+        WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
 
         // then
-        assertThat(result.isKakaoDisconnected()).isTrue();
-        assertThat(result.isGoogleDisconnected()).isTrue();
-        assertThat(result.isAppleDisconnected()).isTrue();
+        Map<AuthVendor, Boolean> disconnectResults = result.disconnectResults();
+        assertThat(disconnectResults.get(AuthVendor.KAKAO)).isTrue();
+        assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isTrue();
+        assertThat(disconnectResults.get(AuthVendor.APPLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
         verify(user).withdraw();
-        verify(user, never()).removeKakaoOidcId();
-        verify(user, never()).removeGoogleOidcId();
-        verify(user, never()).removeAppleOidcId();
+        verify(user, never()).removeOidcId(any(AuthVendor.class));
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, updateUserPort);
         verifyNoInteractions(oauth2AccountUnlinkPort);
@@ -67,22 +68,22 @@ class WithdrawUseCaseTest {
         User user = mock(User.class);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.getKakaoOidcId()).thenReturn(kakaoOidcId);
+        when(user.getOidcIdByVendor(AuthVendor.KAKAO)).thenReturn(kakaoOidcId);
 
         // when
-        WithdrawResult result = withdrawService.withdrawUser(id, null);
+        WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
 
         // then
-        assertThat(result.isKakaoDisconnected()).isTrue();
-        assertThat(result.isGoogleDisconnected()).isTrue();
-        assertThat(result.isAppleDisconnected()).isTrue();
+        Map<AuthVendor, Boolean> disconnectResults = result.disconnectResults();
+        assertThat(disconnectResults.get(AuthVendor.KAKAO)).isTrue();
+        assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isTrue();
+        assertThat(disconnectResults.get(AuthVendor.APPLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
         verify(user).withdraw();
-        verify(oauth2AccountUnlinkPort).unlinkKakaoAccount(kakaoOidcId);
-        verify(user).removeKakaoOidcId();
+        verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.KAKAO, kakaoOidcId);
+        verify(user).removeOidcId(AuthVendor.KAKAO);
         verify(updateUserPort).update(user);
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, oauth2AccountUnlinkPort);
     }
 
     @Test
@@ -95,23 +96,21 @@ class WithdrawUseCaseTest {
         UnlinkOauth2AccountFailedException exception = new UnlinkOauth2AccountFailedException("fail");
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.getKakaoOidcId()).thenReturn(kakaoOidcId);
-        doThrow(exception).when(oauth2AccountUnlinkPort).unlinkKakaoAccount(kakaoOidcId);
+        when(user.getOidcIdByVendor(AuthVendor.KAKAO)).thenReturn(kakaoOidcId);
+        doThrow(exception).when(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.KAKAO, kakaoOidcId);
 
         // when
-        WithdrawResult result = withdrawService.withdrawUser(id, null);
+        WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
 
         // then
-        assertThat(result.isKakaoDisconnected()).isFalse();
-        assertThat(result.isGoogleDisconnected()).isTrue();
-        assertThat(result.isAppleDisconnected()).isTrue();
+        Map<AuthVendor, Boolean> disconnectResults = result.disconnectResults();
+        assertThat(disconnectResults.get(AuthVendor.KAKAO)).isFalse();
 
         verify(getUserUseCase).getAllStatusUser(id);
         verify(user).withdraw();
-        verify(oauth2AccountUnlinkPort).unlinkKakaoAccount(kakaoOidcId);
-        verify(user).removeKakaoOidcId();
+        verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.KAKAO, kakaoOidcId);
+        verify(user).removeOidcId(AuthVendor.KAKAO);
         verify(updateUserPort).update(user);
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, oauth2AccountUnlinkPort);
     }
 
     @Test
@@ -121,50 +120,47 @@ class WithdrawUseCaseTest {
         Long id = 4L;
         String googleAccessToken = "google-token";
         User user = mock(User.class);
+        Map<AuthVendor, String> vendorCredentials = Map.of(AuthVendor.GOOGLE, googleAccessToken);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.hasGoogleAccount()).thenReturn(true);
 
         // when
-        WithdrawResult result = withdrawService.withdrawUser(id, googleAccessToken);
+        WithdrawResult result = withdrawService.withdrawUser(id, vendorCredentials);
 
         // then
-        assertThat(result.isKakaoDisconnected()).isTrue();
-        assertThat(result.isGoogleDisconnected()).isTrue();
-        assertThat(result.isAppleDisconnected()).isTrue();
+        Map<AuthVendor, Boolean> disconnectResults = result.disconnectResults();
+        assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
         verify(user).withdraw();
-        verify(oauth2AccountUnlinkPort).unlinkGoogleAccount(googleAccessToken);
-        verify(user).removeGoogleOidcId();
+        verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleAccessToken);
+        verify(user).removeOidcId(AuthVendor.GOOGLE);
         verify(updateUserPort).update(user);
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, oauth2AccountUnlinkPort);
     }
 
     @Test
-    @DisplayName("회원 탈퇴 요청 시 구글 계정이 있지만 토큰이 없으면 연결 해제 결과가 실패로 반환된다")
-    void withdrawUser_googleTokenMissing_returnsGoogleFalse() throws Exception {
+    @DisplayName("회원 탈퇴 요청 시 구글 계정이 있지만 토큰이 없으면 OIDC ID로 연결 해제를 시도한다")
+    void withdrawUser_googleNoToken_usesOidcId() throws Exception {
         // given
         Long id = 5L;
+        String googleOidcId = "google-oidc";
         User user = mock(User.class);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.hasGoogleAccount()).thenReturn(true);
+        when(user.getOidcIdByVendor(AuthVendor.GOOGLE)).thenReturn(googleOidcId);
 
         // when
-        WithdrawResult result = withdrawService.withdrawUser(id, null);
+        WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
 
         // then
-        assertThat(result.isKakaoDisconnected()).isTrue();
-        assertThat(result.isGoogleDisconnected()).isFalse();
-        assertThat(result.isAppleDisconnected()).isTrue();
+        Map<AuthVendor, Boolean> disconnectResults = result.disconnectResults();
+        assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
         verify(user).withdraw();
-        verify(oauth2AccountUnlinkPort, never()).unlinkGoogleAccount(anyString());
-        verify(user).removeGoogleOidcId();
+        verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleOidcId);
+        verify(user).removeOidcId(AuthVendor.GOOGLE);
         verify(updateUserPort).update(user);
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, oauth2AccountUnlinkPort);
     }
 
     @Test
@@ -174,52 +170,49 @@ class WithdrawUseCaseTest {
         Long id = 6L;
         String googleAccessToken = "google-token";
         User user = mock(User.class);
+        Map<AuthVendor, String> vendorCredentials = Map.of(AuthVendor.GOOGLE, googleAccessToken);
         UnlinkOauth2AccountFailedException exception = new UnlinkOauth2AccountFailedException("fail");
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.hasGoogleAccount()).thenReturn(true);
-        doThrow(exception).when(oauth2AccountUnlinkPort).unlinkGoogleAccount(googleAccessToken);
+        doThrow(exception).when(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleAccessToken);
 
         // when
-        WithdrawResult result = withdrawService.withdrawUser(id, googleAccessToken);
+        WithdrawResult result = withdrawService.withdrawUser(id, vendorCredentials);
 
         // then
-        assertThat(result.isKakaoDisconnected()).isTrue();
-        assertThat(result.isGoogleDisconnected()).isFalse();
-        assertThat(result.isAppleDisconnected()).isTrue();
+        Map<AuthVendor, Boolean> disconnectResults = result.disconnectResults();
+        assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isFalse();
 
         verify(getUserUseCase).getAllStatusUser(id);
         verify(user).withdraw();
-        verify(oauth2AccountUnlinkPort).unlinkGoogleAccount(googleAccessToken);
-        verify(user).removeGoogleOidcId();
+        verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleAccessToken);
+        verify(user).removeOidcId(AuthVendor.GOOGLE);
         verify(updateUserPort).update(user);
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort, oauth2AccountUnlinkPort);
     }
 
     @Test
-    @DisplayName("회원 탈퇴 요청 시 애플 계정이 있으면 연결 해제 결과가 실패로 반환된다")
-    void withdrawUser_appleAccount_returnsAppleFalse() {
+    @DisplayName("회원 탈퇴 요청 시 애플 계정이 있으면 OIDC ID를 제거하고 연결 해제를 시도한다")
+    void withdrawUser_appleAccount_attemptsUnlink() throws Exception {
         // given
         Long id = 7L;
+        String appleOidcId = "apple-oidc";
         User user = mock(User.class);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.hasAppleAccount()).thenReturn(true);
+        when(user.getOidcIdByVendor(AuthVendor.APPLE)).thenReturn(appleOidcId);
 
         // when
-        WithdrawResult result = withdrawService.withdrawUser(id, null);
+        WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
 
         // then
-        assertThat(result.isKakaoDisconnected()).isTrue();
-        assertThat(result.isGoogleDisconnected()).isTrue();
-        assertThat(result.isAppleDisconnected()).isFalse();
+        Map<AuthVendor, Boolean> disconnectResults = result.disconnectResults();
+        assertThat(disconnectResults.get(AuthVendor.APPLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
         verify(user).withdraw();
-        verify(user).removeAppleOidcId();
+        verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.APPLE, appleOidcId);
+        verify(user).removeOidcId(AuthVendor.APPLE);
         verify(updateUserPort).update(user);
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort);
-        verifyNoInteractions(oauth2AccountUnlinkPort);
     }
 
     @Test
@@ -232,7 +225,7 @@ class WithdrawUseCaseTest {
         when(getUserUseCase.getAllStatusUser(id)).thenThrow(exception);
 
         // expect
-        assertThatThrownBy(() -> withdrawService.withdrawUser(id, "token"))
+        assertThatThrownBy(() -> withdrawService.withdrawUser(id, Map.of(AuthVendor.GOOGLE, "token")))
                 .isSameAs(exception);
 
         verify(getUserUseCase).getAllStatusUser(id);
