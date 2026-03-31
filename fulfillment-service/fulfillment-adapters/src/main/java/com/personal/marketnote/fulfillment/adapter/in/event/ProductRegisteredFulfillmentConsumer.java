@@ -79,7 +79,7 @@ public class ProductRegisteredFulfillmentConsumer {
                 throw new FulfillmentAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
             }
 
-            String godType = FormatValidator.hasValue(payload.godType()) ? payload.godType() : DEFAULT_GOD_TYPE;
+            String godType = FormatValidator.hasValue(payload.goodsType()) ? payload.goodsType() : DEFAULT_GOD_TYPE;
 
             RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
                     .cstGodCd(String.valueOf(payload.productId()))

@@ -20,10 +20,10 @@ public record FasstoGoodsElementResponse(
                 : List.of();
 
         return new FasstoGoodsElementResponse(
-                result.godCd(),
-                result.cstGodCd(),
-                result.godNm(),
-                result.useYn(),
+                result.goodsCode(),
+                result.customerGoodsCode(),
+                result.goodsName(),
+                result.enabled(),
                 elementList
         );
     }

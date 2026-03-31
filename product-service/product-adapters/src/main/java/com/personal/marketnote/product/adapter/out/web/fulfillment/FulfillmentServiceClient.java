@@ -294,7 +294,7 @@ public class FulfillmentServiceClient implements
                 String responsePayload = responsePayloadJson.toString();
                 recordCommunication(
                         ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.cstGodCd(),
+                        command.customerGoodsCode(),
                         ProductServiceCommunicationType.REQUEST,
                         requestPayload,
                         requestPayloadJson,
@@ -302,7 +302,7 @@ public class FulfillmentServiceClient implements
                 );
                 recordCommunication(
                         ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.cstGodCd(),
+                        command.customerGoodsCode(),
                         ProductServiceCommunicationType.RESPONSE,
                         responsePayload,
                         responsePayloadJson,
@@ -326,7 +326,7 @@ public class FulfillmentServiceClient implements
             }
         }
 
-        log.error("Failed to register fassto goods: {} with error: {}", command.cstGodCd(), error.getMessage(), error);
+        log.error("Failed to register fassto goods: {} with error: {}", command.customerGoodsCode(), error.getMessage(), error);
         throw new FulfillmentServiceRequestFailedException(new IOException());
     }
 
@@ -387,7 +387,7 @@ public class FulfillmentServiceClient implements
                 String responsePayload = responsePayloadJson.toString();
                 recordCommunication(
                         ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.cstGodCd(),
+                        command.customerGoodsCode(),
                         ProductServiceCommunicationType.REQUEST,
                         requestPayload,
                         requestPayloadJson,
@@ -395,7 +395,7 @@ public class FulfillmentServiceClient implements
                 );
                 recordCommunication(
                         ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.cstGodCd(),
+                        command.customerGoodsCode(),
                         ProductServiceCommunicationType.RESPONSE,
                         responsePayload,
                         responsePayloadJson,
@@ -419,7 +419,7 @@ public class FulfillmentServiceClient implements
             }
         }
 
-        log.error("Failed to update fassto goods: {} with error: {}", command.cstGodCd(), error.getMessage(), error);
+        log.error("Failed to update fassto goods: {} with error: {}", command.customerGoodsCode(), error.getMessage(), error);
         throw new FulfillmentServiceRequestFailedException(new IOException());
     }
 
@@ -611,27 +611,27 @@ public class FulfillmentServiceClient implements
                 .toList()
                 : List.of();
 
-        return FulfillmentVendorGoodsElementInfoResult.of(
-                item.godCd(),
-                item.cstGodCd(),
-                item.godNm(),
-                item.useYn(),
-                elementItems
-        );
+        return FulfillmentVendorGoodsElementInfoResult.builder()
+                .goodsCode(item.godCd())
+                .customerGoodsCode(item.cstGodCd())
+                .goodsName(item.godNm())
+                .enabled(item.useYn())
+                .elementList(elementItems)
+                .build();
     }
 
     private FulfillmentVendorGoodsElementItemResult mapFulfillmentGoodsElementItem(
             FasstoGoodsElementItemResponse item
     ) {
-        return FulfillmentVendorGoodsElementItemResult.of(
-                item.godCd(),
-                item.cstGodCd(),
-                item.godBarcd(),
-                item.godNm(),
-                item.godType(),
-                item.godTypeNm(),
-                item.qty()
-        );
+        return FulfillmentVendorGoodsElementItemResult.builder()
+                .goodsCode(item.godCd())
+                .customerGoodsCode(item.cstGodCd())
+                .goodsBarcode(item.godBarcd())
+                .goodsName(item.godNm())
+                .goodsType(item.godType())
+                .goodsTypeName(item.godTypeNm())
+                .quantity(item.qty())
+                .build();
     }
 
     private GetFulfillmentVendorGoodsResult mapFulfillmentGoodsResult(GetFasstoGoodsResponse response) {
@@ -642,69 +642,69 @@ public class FulfillmentServiceClient implements
     }
 
     private FulfillmentVendorGoodsInfoResult mapFulfillmentGoodsItem(FasstoGoodsItemResponse item) {
-        return FulfillmentVendorGoodsInfoResult.of(
-                item.godCd(),
-                item.godType(),
-                item.godNm(),
-                item.godTypeNm(),
-                item.invGodNmUseYn(),
-                item.cstGodCd(),
-                item.godOptCd1(),
-                item.godOptCd2(),
-                item.cstCd(),
-                item.cstNm(),
-                item.supCd(),
-                item.supNm(),
-                item.cateCd(),
-                item.cateNm(),
-                item.seasonCd(),
-                item.genderCd(),
-                item.godPr(),
-                item.inPr(),
-                item.salPr(),
-                item.dealTemp(),
-                item.pickFac(),
-                item.giftDiv(),
-                item.giftDivNm(),
-                item.godWidth(),
-                item.godLength(),
-                item.godHeight(),
-                item.makeYr(),
-                item.godBulk(),
-                item.godWeight(),
-                item.godSideSum(),
-                item.godVolume(),
-                item.godBarcd(),
-                item.boxWidth(),
-                item.boxLength(),
-                item.boxHeight(),
-                item.boxBulk(),
-                item.boxWeight(),
-                item.inBoxBarcd(),
-                item.inBoxLength(),
-                item.inBoxHeight(),
-                item.inBoxBulk(),
-                item.inBoxWidth(),
-                item.inBoxWeight(),
-                item.inBoxSideSum(),
-                item.boxInCnt(),
-                item.inBoxInCnt(),
-                item.pltInCnt(),
-                item.origin(),
-                item.distTermMgtYn(),
-                item.useTermDay(),
-                item.outCanDay(),
-                item.inCanDay(),
-                item.boxDiv(),
-                item.bufGodYn(),
-                item.loadingDirection(),
-                item.firstInDt(),
-                item.useYn(),
-                item.feeYn(),
-                item.saleUnitQty(),
-                item.cstOneDayDeliveryYn(),
-                item.safetyStock()
-        );
+        return FulfillmentVendorGoodsInfoResult.builder()
+                .goodsCode(item.godCd())
+                .goodsType(item.godType())
+                .goodsName(item.godNm())
+                .goodsTypeName(item.godTypeNm())
+                .invoiceGoodsNameEnabled(item.invGodNmUseYn())
+                .customerGoodsCode(item.cstGodCd())
+                .goodsOptionCode1(item.godOptCd1())
+                .goodsOptionCode2(item.godOptCd2())
+                .customerCode(item.cstCd())
+                .customerName(item.cstNm())
+                .supplierCode(item.supCd())
+                .supplierName(item.supNm())
+                .categoryCode(item.cateCd())
+                .categoryName(item.cateNm())
+                .seasonCode(item.seasonCd())
+                .genderCode(item.genderCd())
+                .unitPrice(item.godPr())
+                .supplyPrice(item.inPr())
+                .salePrice(item.salPr())
+                .handlingTemperature(item.dealTemp())
+                .pickingFacility(item.pickFac())
+                .giftDivision(item.giftDiv())
+                .giftDivisionName(item.giftDivNm())
+                .goodsWidth(item.godWidth())
+                .goodsLength(item.godLength())
+                .goodsHeight(item.godHeight())
+                .manufactureYear(item.makeYr())
+                .goodsBulk(item.godBulk())
+                .goodsWeight(item.godWeight())
+                .goodsSideSum(item.godSideSum())
+                .goodsVolume(item.godVolume())
+                .goodsBarcode(item.godBarcd())
+                .boxWidth(item.boxWidth())
+                .boxLength(item.boxLength())
+                .boxHeight(item.boxHeight())
+                .boxBulk(item.boxBulk())
+                .boxWeight(item.boxWeight())
+                .innerBoxBarcode(item.inBoxBarcd())
+                .innerBoxLength(item.inBoxLength())
+                .innerBoxHeight(item.inBoxHeight())
+                .innerBoxBulk(item.inBoxBulk())
+                .innerBoxWidth(item.inBoxWidth())
+                .innerBoxWeight(item.inBoxWeight())
+                .innerBoxSideSum(item.inBoxSideSum())
+                .boxInnerCount(item.boxInCnt())
+                .innerBoxInnerCount(item.inBoxInCnt())
+                .palletInnerCount(item.pltInCnt())
+                .origin(item.origin())
+                .expirationDateManagementEnabled(item.distTermMgtYn())
+                .shelfLifeDays(item.useTermDay())
+                .outboundAvailableDays(item.outCanDay())
+                .inboundAvailableDays(item.inCanDay())
+                .outboundBoxType(item.boxDiv())
+                .cushioningEnabled(item.bufGodYn())
+                .loadingDirection(item.loadingDirection())
+                .firstInboundDate(item.firstInDt())
+                .enabled(item.useYn())
+                .feeApplied(item.feeYn())
+                .saleUnitQuantity(item.saleUnitQty())
+                .oneDayDeliveryEnabled(item.cstOneDayDeliveryYn())
+                .safetyStock(item.safetyStock())
+                .build();
     }
 
     private void recordCommunication(

@@ -69,7 +69,7 @@ class EventEnvelopeTest {
         assertThat(envelope.payload().pricePolicyId()).isEqualTo(2L);
         assertThat(envelope.payload().sellerId()).isEqualTo(3L);
         assertThat(envelope.payload().productName()).isEqualTo("상품명");
-        assertThat(envelope.payload().godType()).isEqualTo("1");
+        assertThat(envelope.payload().goodsType()).isEqualTo("1");
     }
 
     @Test
@@ -97,7 +97,7 @@ class EventEnvelopeTest {
         rawPayload.put("pricePolicyId", 200L);
         rawPayload.put("sellerId", 300L);
         rawPayload.put("productName", "맵 변환 상품");
-        rawPayload.put("godType", "1");
+        rawPayload.put("goodsType", "1");
 
         EventEnvelope<Map<String, Object>> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.registered", "product-service",
@@ -114,7 +114,7 @@ class EventEnvelopeTest {
         assertThat(result.pricePolicyId()).isEqualTo(200L);
         assertThat(result.sellerId()).isEqualTo(300L);
         assertThat(result.productName()).isEqualTo("맵 변환 상품");
-        assertThat(result.godType()).isEqualTo("1");
+        assertThat(result.goodsType()).isEqualTo("1");
     }
 
     @Test

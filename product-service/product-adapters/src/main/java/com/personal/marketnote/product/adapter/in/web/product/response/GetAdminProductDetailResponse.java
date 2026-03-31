@@ -22,8 +22,8 @@ public class GetAdminProductDetailResponse {
     private List<GetFileResult> representativeImages;
     private List<GetFileResult> contentImages;
     private List<GetProductPricePolicyWithOptionsResult> pricePolicies;
-    private FasstoGoodsItemResponse fasstoGoods;
-    private FasstoGoodsElementResponse fasstoGoodsElement;
+    private FasstoGoodsItemResponse fulfillmentGoods;
+    private FasstoGoodsElementResponse fulfillmentGoodsElement;
 
     public static GetAdminProductDetailResponse from(GetAdminProductDetailResult result) {
         GetProductInfoResponse productResponse = GetProductInfoResponse.from(result.product());
@@ -34,14 +34,14 @@ public class GetAdminProductDetailResponse {
                 .representativeImages(productResponse.getRepresentativeImages())
                 .contentImages(productResponse.getContentImages())
                 .pricePolicies(productResponse.getPricePolicies())
-                .fasstoGoods(
-                        FormatValidator.hasValue(result.fasstoGoods())
-                                ? FasstoGoodsItemResponse.from(result.fasstoGoods())
+                .fulfillmentGoods(
+                        FormatValidator.hasValue(result.fulfillmentGoods())
+                                ? FasstoGoodsItemResponse.from(result.fulfillmentGoods())
                                 : null
                 )
-                .fasstoGoodsElement(
-                        FormatValidator.hasValue(result.fasstoGoodsElement())
-                                ? FasstoGoodsElementResponse.from(result.fasstoGoodsElement())
+                .fulfillmentGoodsElement(
+                        FormatValidator.hasValue(result.fulfillmentGoodsElement())
+                                ? FasstoGoodsElementResponse.from(result.fulfillmentGoodsElement())
                                 : null
                 )
                 .build();

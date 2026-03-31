@@ -1,27 +1,15 @@
 package com.personal.marketnote.product.port.in.result.fulfillment;
 
+import lombok.Builder;
+
 import java.util.List;
 
+@Builder
 public record FulfillmentVendorGoodsElementInfoResult(
-        String godCd,
-        String cstGodCd,
-        String godNm,
-        String useYn,
+        String goodsCode,
+        String customerGoodsCode,
+        String goodsName,
+        String enabled,
         List<FulfillmentVendorGoodsElementItemResult> elementList
 ) {
-    public static FulfillmentVendorGoodsElementInfoResult of(
-            String godCd,
-            String cstGodCd,
-            String godNm,
-            String useYn,
-            List<FulfillmentVendorGoodsElementItemResult> elementList
-    ) {
-        return new FulfillmentVendorGoodsElementInfoResult(
-                godCd,
-                cstGodCd,
-                godNm,
-                useYn,
-                elementList
-        );
-    }
 }

@@ -58,8 +58,8 @@ class GetAdminProductDetailUseCaseTest {
         );
 
         assertThat(result.product()).isSameAs(productInfo);
-        assertThat(result.fasstoGoods()).isSameAs(goodsInfo);
-        assertThat(result.fasstoGoodsElement()).isSameAs(elementInfo);
+        assertThat(result.fulfillmentGoods()).isSameAs(goodsInfo);
+        assertThat(result.fulfillmentGoodsElement()).isSameAs(elementInfo);
         verify(getProductUseCase).getProductInfoIncludingInactive(id, selectedOptionIds);
         verify(getFulfillmentVendorGoodsPort).getFulfillmentVendorGoods(String.valueOf(id));
         verify(getFulfillmentVendorGoodsElementsPort).getFulfillmentVendorGoodsElements();
@@ -82,8 +82,8 @@ class GetAdminProductDetailUseCaseTest {
         ArgumentCaptor<List<Long>> optionsCaptor = ArgumentCaptor.forClass(List.class);
         verify(getProductUseCase).getProductInfoIncludingInactive(eq(id), optionsCaptor.capture());
         assertThat(optionsCaptor.getValue()).isEmpty();
-        assertThat(result.fasstoGoods()).isNull();
-        assertThat(result.fasstoGoodsElement()).isNull();
+        assertThat(result.fulfillmentGoods()).isNull();
+        assertThat(result.fulfillmentGoodsElement()).isNull();
     }
 
     @Test
@@ -104,8 +104,8 @@ class GetAdminProductDetailUseCaseTest {
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
-        assertThat(result.fasstoGoods()).isSameAs(validGoods);
-        assertThat(result.fasstoGoodsElement()).isSameAs(validElement);
+        assertThat(result.fulfillmentGoods()).isSameAs(validGoods);
+        assertThat(result.fulfillmentGoodsElement()).isSameAs(validElement);
     }
 
     @Test
@@ -126,8 +126,8 @@ class GetAdminProductDetailUseCaseTest {
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
-        assertThat(result.fasstoGoods()).isSameAs(firstGoods);
-        assertThat(result.fasstoGoodsElement()).isSameAs(firstElement);
+        assertThat(result.fulfillmentGoods()).isSameAs(firstGoods);
+        assertThat(result.fulfillmentGoodsElement()).isSameAs(firstElement);
     }
 
     @Test
@@ -178,13 +178,13 @@ class GetAdminProductDetailUseCaseTest {
 
     private FulfillmentVendorGoodsInfoResult goodsInfoWithCstGodCd(String cstGodCd) {
         FulfillmentVendorGoodsInfoResult info = mock(FulfillmentVendorGoodsInfoResult.class);
-        when(info.cstGodCd()).thenReturn(cstGodCd);
+        when(info.customerGoodsCode()).thenReturn(cstGodCd);
         return info;
     }
 
     private FulfillmentVendorGoodsElementInfoResult elementInfoWithCstGodCd(String cstGodCd) {
         FulfillmentVendorGoodsElementInfoResult info = mock(FulfillmentVendorGoodsElementInfoResult.class);
-        when(info.cstGodCd()).thenReturn(cstGodCd);
+        when(info.customerGoodsCode()).thenReturn(cstGodCd);
         return info;
     }
 }

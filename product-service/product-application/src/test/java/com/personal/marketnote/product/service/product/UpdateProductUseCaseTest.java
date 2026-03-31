@@ -112,8 +112,8 @@ class UpdateProductUseCaseTest {
         ProductUpdatedEvent capturedEvent = eventCaptor.getValue();
         assertThat(capturedEvent.productId()).isEqualTo(20L);
         assertThat(capturedEvent.productName()).isEqualTo("변경 상품");
-        assertThat(capturedEvent.godType()).isEqualTo(options.godType());
-        assertThat(capturedEvent.giftDiv()).isEqualTo(options.giftDiv());
+        assertThat(capturedEvent.goodsType()).isEqualTo(options.goodsType());
+        assertThat(capturedEvent.giftDivision()).isEqualTo(options.giftDivision());
     }
 
     @Test
@@ -222,39 +222,39 @@ class UpdateProductUseCaseTest {
 
     private FulfillmentVendorGoodsOptionCommand buildFulfillmentOptions() {
         return FulfillmentVendorGoodsOptionCommand.builder()
-                .godType("2")
-                .giftDiv("99")
-                .godOptCd1("opt1")
-                .godOptCd2("opt2")
-                .invGodNmUseYn("Y")
-                .invGodNm("상품명")
-                .supCd("SUP")
-                .cateCd("CATE")
-                .seasonCd("2024")
-                .genderCd("M")
-                .makeYr("2024")
-                .godPr("12000")
-                .inPr("9000")
-                .salPr("10000")
-                .dealTemp("ROOM")
-                .pickFac("A1")
-                .godBarcd("BARCODE")
+                .goodsType("2")
+                .giftDivision("99")
+                .goodsOptionCode1("opt1")
+                .goodsOptionCode2("opt2")
+                .invoiceGoodsNameEnabled("Y")
+                .invoiceGoodsName("상품명")
+                .supplierCode("SUP")
+                .categoryCode("CATE")
+                .seasonCode("2024")
+                .genderCode("M")
+                .manufactureYear("2024")
+                .unitPrice("12000")
+                .supplyPrice("9000")
+                .salePrice("10000")
+                .handlingTemperature("ROOM")
+                .pickingFacility("A1")
+                .goodsBarcode("BARCODE")
                 .boxWeight("2.5")
                 .origin("KR")
-                .distTermMgtYn("Y")
-                .useTermDay("30")
-                .outCanDay("7")
-                .inCanDay("7")
-                .boxDiv("BOX")
-                .bufGodYn("N")
+                .expirationDateManagementEnabled("Y")
+                .shelfLifeDays("30")
+                .outboundAvailableDays("7")
+                .inboundAvailableDays("7")
+                .outboundBoxType("BOX")
+                .cushioningEnabled("N")
                 .loadingDirection("UP")
-                .subMate("COTTON")
-                .useYn("Y")
+                .subsidiaryMaterialCode("COTTON")
+                .enabled("Y")
                 .safetyStock("10")
-                .feeYn("N")
-                .saleUnitQty("1")
-                .cstGodImgUrl("https://example.com/image.jpg")
-                .externalGodImgUrl("https://example.com/external.jpg")
+                .feeApplied("N")
+                .saleUnitQuantity("1")
+                .customerGoodsImageUrl("https://example.com/image.jpg")
+                .externalGoodsImageUrl("https://example.com/external.jpg")
                 .build();
     }
 

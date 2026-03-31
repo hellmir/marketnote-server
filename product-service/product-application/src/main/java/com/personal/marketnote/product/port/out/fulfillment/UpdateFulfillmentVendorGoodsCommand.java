@@ -9,53 +9,53 @@ import lombok.Builder;
 
 @Builder
 public record UpdateFulfillmentVendorGoodsCommand(
-        String cstGodCd,
-        String godNm,
-        String godType,
-        String giftDiv,
-        String godOptCd1,
-        String godOptCd2,
-        String invGodNmUseYn,
-        String invGodNm,
-        String supCd,
-        String cateCd,
-        String seasonCd,
-        String genderCd,
-        String makeYr,
-        String godPr,
-        String inPr,
-        String salPr,
-        String dealTemp,
-        String pickFac,
-        String godBarcd,
+        String customerGoodsCode,
+        String goodsName,
+        String goodsType,
+        String giftDivision,
+        String goodsOptionCode1,
+        String goodsOptionCode2,
+        String invoiceGoodsNameEnabled,
+        String invoiceGoodsName,
+        String supplierCode,
+        String categoryCode,
+        String seasonCode,
+        String genderCode,
+        String manufactureYear,
+        String unitPrice,
+        String supplyPrice,
+        String salePrice,
+        String handlingTemperature,
+        String pickingFacility,
+        String goodsBarcode,
         String boxWeight,
         String origin,
-        String distTermMgtYn,
-        String useTermDay,
-        String outCanDay,
-        String inCanDay,
-        String boxDiv,
-        String bufGodYn,
+        String expirationDateManagementEnabled,
+        String shelfLifeDays,
+        String outboundAvailableDays,
+        String inboundAvailableDays,
+        String outboundBoxType,
+        String cushioningEnabled,
         String loadingDirection,
-        String subMate,
-        String useYn,
+        String subsidiaryMaterialCode,
+        String enabled,
         String safetyStock,
-        String feeYn,
-        String saleUnitQty,
-        String cstGodImgUrl,
-        String externalGodImgUrl
+        String feeApplied,
+        String saleUnitQuantity,
+        String customerGoodsImageUrl,
+        String externalGoodsImageUrl
 ) {
     public UpdateFulfillmentVendorGoodsCommand {
-        if (FormatValidator.hasNoValue(cstGodCd)) {
+        if (FormatValidator.hasNoValue(customerGoodsCode)) {
             throw new FulfillmentVendorGoodsCustomCodeNoValueException();
         }
-        if (FormatValidator.hasNoValue(godNm)) {
+        if (FormatValidator.hasNoValue(goodsName)) {
             throw new FulfillmentVendorGoodsNameNoValueException();
         }
-        if (FormatValidator.hasNoValue(godType)) {
+        if (FormatValidator.hasNoValue(goodsType)) {
             throw new FulfillmentVendorGoodsTypeNoValueException();
         }
-        if (FormatValidator.hasNoValue(giftDiv)) {
+        if (FormatValidator.hasNoValue(giftDivision)) {
             throw new FulfillmentVendorGoodsGiftDivisionNoValueException();
         }
     }

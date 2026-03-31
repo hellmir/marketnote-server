@@ -91,7 +91,7 @@ class ProductEventKafkaProducerTest {
         assertThat(payload.pricePolicyId()).isEqualTo(20L);
         assertThat(payload.sellerId()).isEqualTo(30L);
         assertThat(payload.productName()).isEqualTo("상품명");
-        assertThat(payload.godType()).isEqualTo("2");
+        assertThat(payload.goodsType()).isEqualTo("2");
     }
 
     @Test

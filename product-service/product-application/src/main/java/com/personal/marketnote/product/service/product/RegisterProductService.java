@@ -22,8 +22,6 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
 public class RegisterProductService implements RegisterProductUseCase {
-    private static final String DEFAULT_GOD_TYPE = "1";
-
     private final RegisterPricePolicyUseCase registerPricePolicyUseCase;
     private final SaveProductPort saveProductPort;
     private final PublishProductEventPort publishProductEventPort;
@@ -43,12 +41,12 @@ public class RegisterProductService implements RegisterProductUseCase {
 
         // Outbox 이벤트 저장 (트랜잭션 내)
         FulfillmentVendorGoodsOptionCommand fulfillmentOptions = command.fulfillmentVendorGoods();
-        String godType = FormatValidator.hasValue(fulfillmentOptions) && FormatValidator.hasValue(fulfillmentOptions.godType())
-                ? fulfillmentOptions.godType()
-                : DEFAULT_GOD_TYPE;
+        String goodsType = FormatValidator.hasValue(fulfillmentOptions) && FormatValidator.hasValue(fulfillmentOptions.goodsType())
+                ? fulfillmentOptions.goodsType()
+                : null;
 
         publishProductEventPort.publishProductRegisteredEvent(
-                savedProduct.getId(), registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), godType
+                savedProduct.getId(), registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), goodsType
         );
 
         return RegisterProductResult.from(savedProduct);

@@ -82,7 +82,7 @@ class RegisterProductUseCaseTest {
         assertThat(pricePolicyCommand.accumulatedPoint()).isEqualTo(command.accumulatedPoint());
         assertThat(pricePolicyCommand.optionIds()).isNull();
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId(), "테스트 상품", "1");
+        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId(), "테스트 상품", null);
 
         verifyNoMoreInteractions(
                 registerPricePolicyUseCase,
@@ -161,7 +161,7 @@ class RegisterProductUseCaseTest {
 
     private FulfillmentVendorGoodsOptionCommand buildFulfillmentOptions() {
         return FulfillmentVendorGoodsOptionCommand.builder()
-                .godType("2")
+                .goodsType("2")
                 .build();
     }
 }

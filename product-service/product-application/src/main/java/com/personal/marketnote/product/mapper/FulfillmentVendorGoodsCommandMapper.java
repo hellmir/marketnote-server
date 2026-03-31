@@ -10,73 +10,109 @@ import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVen
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
 
 public class FulfillmentVendorGoodsCommandMapper {
-    private static final String DEFAULT_GOD_TYPE = "1";
-    private static final String DEFAULT_GIFT_DIV = "01";
 
     public static RegisterFulfillmentVendorGoodsCommand mapToRegisterCommand(
             Product product, FulfillmentVendorGoodsOptionCommand options
     ) {
-        if (FormatValidator.hasNoValue(product)) {
-            throw new ProductInfoNoValueException("%s:: 상품이 존재하지 않습니다.", FIRST_ERROR_CODE);
-        }
-        if (FormatValidator.hasNoValue(product.getId())) {
-            throw new ProductInfoNoValueException("%s:: 상품 ID가 존재하지 않습니다.", SECOND_ERROR_CODE);
-        }
-        if (FormatValidator.hasNoValue(product.getName())) {
-            throw new ProductInfoNoValueException("%s:: 상품명이 존재하지 않습니다.", THIRD_ERROR_CODE);
-        }
+        validateProduct(product);
 
         if (FormatValidator.hasNoValue(options)) {
             return RegisterFulfillmentVendorGoodsCommand.builder()
-                    .cstGodCd(String.valueOf(product.getId()))
-                    .godNm(product.getName())
-                    .godType(DEFAULT_GOD_TYPE)
-                    .giftDiv(DEFAULT_GIFT_DIV)
+                    .customerGoodsCode(String.valueOf(product.getId()))
+                    .goodsName(product.getName())
+                    .goodsType(null)
+                    .giftDivision(null)
                     .build();
         }
 
         return RegisterFulfillmentVendorGoodsCommand.builder()
-                .cstGodCd(String.valueOf(product.getId()))
-                .godNm(product.getName())
-                .godType(options.godType())
-                .giftDiv(options.giftDiv())
-                .godOptCd1(options.godOptCd1())
-                .godOptCd2(options.godOptCd2())
-                .invGodNmUseYn(options.invGodNmUseYn())
-                .invGodNm(options.invGodNm())
-                .supCd(options.supCd())
-                .cateCd(options.cateCd())
-                .seasonCd(options.seasonCd())
-                .genderCd(options.genderCd())
-                .makeYr(options.makeYr())
-                .godPr(options.godPr())
-                .inPr(options.inPr())
-                .salPr(options.salPr())
-                .dealTemp(options.dealTemp())
-                .pickFac(options.pickFac())
-                .godBarcd(options.godBarcd())
+                .customerGoodsCode(String.valueOf(product.getId()))
+                .goodsName(product.getName())
+                .goodsType(options.goodsType())
+                .giftDivision(options.giftDivision())
+                .goodsOptionCode1(options.goodsOptionCode1())
+                .goodsOptionCode2(options.goodsOptionCode2())
+                .invoiceGoodsNameEnabled(options.invoiceGoodsNameEnabled())
+                .invoiceGoodsName(options.invoiceGoodsName())
+                .supplierCode(options.supplierCode())
+                .categoryCode(options.categoryCode())
+                .seasonCode(options.seasonCode())
+                .genderCode(options.genderCode())
+                .manufactureYear(options.manufactureYear())
+                .unitPrice(options.unitPrice())
+                .supplyPrice(options.supplyPrice())
+                .salePrice(options.salePrice())
+                .handlingTemperature(options.handlingTemperature())
+                .pickingFacility(options.pickingFacility())
+                .goodsBarcode(options.goodsBarcode())
                 .boxWeight(options.boxWeight())
                 .origin(options.origin())
-                .distTermMgtYn(options.distTermMgtYn())
-                .useTermDay(options.useTermDay())
-                .outCanDay(options.outCanDay())
-                .inCanDay(options.inCanDay())
-                .boxDiv(options.boxDiv())
-                .bufGodYn(options.bufGodYn())
+                .expirationDateManagementEnabled(options.expirationDateManagementEnabled())
+                .shelfLifeDays(options.shelfLifeDays())
+                .outboundAvailableDays(options.outboundAvailableDays())
+                .inboundAvailableDays(options.inboundAvailableDays())
+                .outboundBoxType(options.outboundBoxType())
+                .cushioningEnabled(options.cushioningEnabled())
                 .loadingDirection(options.loadingDirection())
-                .subMate(options.subMate())
-                .useYn(options.useYn())
+                .subsidiaryMaterialCode(options.subsidiaryMaterialCode())
+                .enabled(options.enabled())
                 .safetyStock(options.safetyStock())
-                .feeYn(options.feeYn())
-                .saleUnitQty(options.saleUnitQty())
-                .cstGodImgUrl(options.cstGodImgUrl())
-                .externalGodImgUrl(options.externalGodImgUrl())
+                .feeApplied(options.feeApplied())
+                .saleUnitQuantity(options.saleUnitQuantity())
+                .customerGoodsImageUrl(options.customerGoodsImageUrl())
+                .externalGoodsImageUrl(options.externalGoodsImageUrl())
                 .build();
     }
 
     public static UpdateFulfillmentVendorGoodsCommand mapToUpdateCommand(
             Product product, FulfillmentVendorGoodsOptionCommand options
     ) {
+        validateProduct(product);
+
+        if (FormatValidator.hasNoValue(options)) {
+            throw new ProductInfoNoValueException("%s:: 풀필먼트 상품 수정 정보가 존재하지 않습니다.", FOURTH_ERROR_CODE);
+        }
+
+        return UpdateFulfillmentVendorGoodsCommand.builder()
+                .customerGoodsCode(String.valueOf(product.getId()))
+                .goodsName(product.getName())
+                .goodsType(options.goodsType())
+                .giftDivision(options.giftDivision())
+                .goodsOptionCode1(options.goodsOptionCode1())
+                .goodsOptionCode2(options.goodsOptionCode2())
+                .invoiceGoodsNameEnabled(options.invoiceGoodsNameEnabled())
+                .invoiceGoodsName(options.invoiceGoodsName())
+                .supplierCode(options.supplierCode())
+                .categoryCode(options.categoryCode())
+                .seasonCode(options.seasonCode())
+                .genderCode(options.genderCode())
+                .manufactureYear(options.manufactureYear())
+                .unitPrice(options.unitPrice())
+                .supplyPrice(options.supplyPrice())
+                .salePrice(options.salePrice())
+                .handlingTemperature(options.handlingTemperature())
+                .pickingFacility(options.pickingFacility())
+                .goodsBarcode(options.goodsBarcode())
+                .boxWeight(options.boxWeight())
+                .origin(options.origin())
+                .expirationDateManagementEnabled(options.expirationDateManagementEnabled())
+                .shelfLifeDays(options.shelfLifeDays())
+                .outboundAvailableDays(options.outboundAvailableDays())
+                .inboundAvailableDays(options.inboundAvailableDays())
+                .outboundBoxType(options.outboundBoxType())
+                .cushioningEnabled(options.cushioningEnabled())
+                .loadingDirection(options.loadingDirection())
+                .subsidiaryMaterialCode(options.subsidiaryMaterialCode())
+                .enabled(options.enabled())
+                .safetyStock(options.safetyStock())
+                .feeApplied(options.feeApplied())
+                .saleUnitQuantity(options.saleUnitQuantity())
+                .customerGoodsImageUrl(options.customerGoodsImageUrl())
+                .externalGoodsImageUrl(options.externalGoodsImageUrl())
+                .build();
+    }
+
+    private static void validateProduct(Product product) {
         if (FormatValidator.hasNoValue(product)) {
             throw new ProductInfoNoValueException("%s:: 상품이 존재하지 않습니다.", FIRST_ERROR_CODE);
         }
@@ -86,46 +122,5 @@ public class FulfillmentVendorGoodsCommandMapper {
         if (FormatValidator.hasNoValue(product.getName())) {
             throw new ProductInfoNoValueException("%s:: 상품명이 존재하지 않습니다.", THIRD_ERROR_CODE);
         }
-        if (FormatValidator.hasNoValue(options)) {
-            throw new ProductInfoNoValueException("%s:: 파스토 상품 수정 정보가 존재하지 않습니다.", FOURTH_ERROR_CODE);
-        }
-
-        return UpdateFulfillmentVendorGoodsCommand.builder()
-                .cstGodCd(String.valueOf(product.getId()))
-                .godNm(product.getName())
-                .godType(options.godType())
-                .giftDiv(options.giftDiv())
-                .godOptCd1(options.godOptCd1())
-                .godOptCd2(options.godOptCd2())
-                .invGodNmUseYn(options.invGodNmUseYn())
-                .invGodNm(options.invGodNm())
-                .supCd(options.supCd())
-                .cateCd(options.cateCd())
-                .seasonCd(options.seasonCd())
-                .genderCd(options.genderCd())
-                .makeYr(options.makeYr())
-                .godPr(options.godPr())
-                .inPr(options.inPr())
-                .salPr(options.salPr())
-                .dealTemp(options.dealTemp())
-                .pickFac(options.pickFac())
-                .godBarcd(options.godBarcd())
-                .boxWeight(options.boxWeight())
-                .origin(options.origin())
-                .distTermMgtYn(options.distTermMgtYn())
-                .useTermDay(options.useTermDay())
-                .outCanDay(options.outCanDay())
-                .inCanDay(options.inCanDay())
-                .boxDiv(options.boxDiv())
-                .bufGodYn(options.bufGodYn())
-                .loadingDirection(options.loadingDirection())
-                .subMate(options.subMate())
-                .useYn(options.useYn())
-                .safetyStock(options.safetyStock())
-                .feeYn(options.feeYn())
-                .saleUnitQty(options.saleUnitQty())
-                .cstGodImgUrl(options.cstGodImgUrl())
-                .externalGodImgUrl(options.externalGodImgUrl())
-                .build();
     }
 }

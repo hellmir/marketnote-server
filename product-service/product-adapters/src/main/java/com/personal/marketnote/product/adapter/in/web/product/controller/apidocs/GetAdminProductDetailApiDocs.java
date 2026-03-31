@@ -64,8 +64,8 @@ import java.lang.annotation.*;
                 | representativeImages | array | 상품 상세 정보 상단 대표 이미지 목록 | [ ... ] |
                 | contentImages | array | 상품 상세 정보 본문 이미지 목록 | [ ... ] |
                 | pricePolicies | array | 상품 가격 정책 목록 | [ ... ] |
-                | fasstoGoods | object | 파스토 상품 정보(매칭 없으면 null) | { ... } |
-                | fasstoGoodsElement | object | 파스토 모음상품 정보(모음상품이 아니면 null) | { ... } |
+                | fulfillmentGoods | object | 풀필먼트 상품 정보(매칭 없으면 null) | { ... } |
+                | fulfillmentGoodsElement | object | 풀필먼트 모음상품 정보(모음상품이 아니면 null) | { ... } |
                 
                 ---
                 
@@ -90,7 +90,7 @@ import java.lang.annotation.*;
                 
                 ---
                 
-                ### Response > content > fasstoGoods
+                ### Response > content > fulfillmentGoods
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
@@ -158,7 +158,7 @@ import java.lang.annotation.*;
                 
                 ---
                 
-                ### Response > content > fasstoGoodsElement
+                ### Response > content > fulfillmentGoodsElement
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
@@ -170,7 +170,7 @@ import java.lang.annotation.*;
                 
                 ---
                 
-                ### Response > content > fasstoGoodsElement > elementList
+                ### Response > content > fulfillmentGoodsElement > elementList
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
@@ -236,7 +236,7 @@ import java.lang.annotation.*;
                                             "representativeImages": null,
                                             "contentImages": null,
                                             "pricePolicies": [],
-                                            "fasstoGoods": {
+                                            "fulfillmentGoods": {
                                               "godCd": "943881",
                                               "godType": "1",
                                               "godNm": "테스트 상품1",
@@ -299,7 +299,7 @@ import java.lang.annotation.*;
                                               "cstOneDayDeliveryYn": null,
                                               "safetyStock": "1"
                                             },
-                                            "fasstoGoodsElement": {
+                                            "fulfillmentGoodsElement": {
                                               "godCd": "943881",
                                               "cstGodCd": "1",
                                               "godNm": "테스트 모음상품",
