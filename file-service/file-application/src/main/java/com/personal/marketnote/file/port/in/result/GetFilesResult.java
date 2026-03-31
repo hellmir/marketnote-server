@@ -14,8 +14,8 @@ public record GetFilesResult(List<FileItem> files) {
             String sort,
             String extension,
             String name,
-            String s3Url,
-            List<String> resizedS3Urls,
+            String storageUrl,
+            List<String> resizedStorageUrls,
             Long orderNum
     ) {
         public static GetFilesResult.FileItem from(FileDomain file, Map<Long, List<String>> fileIdToUrls) {
@@ -24,8 +24,8 @@ public record GetFilesResult(List<FileItem> files) {
                     .sort(file.getSort().name())
                     .extension(file.getExtension())
                     .name(file.getName())
-                    .s3Url(file.getS3Url())
-                    .resizedS3Urls(fileIdToUrls.getOrDefault(file.getId(), List.of()))
+                    .storageUrl(file.getStorageUrl())
+                    .resizedStorageUrls(fileIdToUrls.getOrDefault(file.getId(), List.of()))
                     .orderNum(file.getOrderNum())
                     .build();
         }

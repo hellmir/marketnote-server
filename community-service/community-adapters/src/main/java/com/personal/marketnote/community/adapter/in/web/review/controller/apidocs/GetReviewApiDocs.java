@@ -96,8 +96,8 @@ import java.lang.annotation.*;
                                                 "sort": "REVIEW_IMAGE",
                                                 "extension": "png",
                                                 "name": "리뷰2",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png",
-                                                "resizedS3Urls": [],
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png",
+                                                "resizedStorageUrls": [],
                                                 "orderNum": 79
                                               },
                                               {
@@ -105,8 +105,8 @@ import java.lang.annotation.*;
                                                 "sort": "REVIEW_IMAGE",
                                                 "extension": "jpg",
                                                 "name": "리뷰1",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/review/35/1765528092213_grafana-icon.png",
-                                                "resizedS3Urls": [],
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/review/35/1765528092213_grafana-icon.png",
+                                                "resizedStorageUrls": [],
                                                 "orderNum": 78
                                               }
                                             ],

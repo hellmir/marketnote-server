@@ -84,8 +84,8 @@ class FileServiceClientTest {
                                             "sort": "REVIEW_IMAGE",
                                             "extension": "jpg",
                                             "name": "review1.jpg",
-                                            "s3Url": "https://s3.example.com/review1.jpg",
-                                            "resizedS3Urls": ["https://s3.example.com/review1_200.jpg"],
+                                            "storageUrl": "https://s3.example.com/review1.jpg",
+                                            "resizedStorageUrls": ["https://s3.example.com/review1_200.jpg"],
                                             "orderNum": 1
                                         }
                                     ]
@@ -156,8 +156,8 @@ class FileServiceClientTest {
                                             "sort": "POST_IMAGE",
                                             "extension": "png",
                                             "name": "post1.png",
-                                            "s3Url": "https://s3.example.com/post1.png",
-                                            "resizedS3Urls": [],
+                                            "storageUrl": "https://s3.example.com/post1.png",
+                                            "resizedStorageUrls": [],
                                             "orderNum": 1
                                         }
                                     ]

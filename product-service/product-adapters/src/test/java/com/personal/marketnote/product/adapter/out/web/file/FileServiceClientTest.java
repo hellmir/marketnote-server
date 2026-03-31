@@ -86,8 +86,8 @@ class FileServiceClientTest {
                                             "sort": "PRODUCT_THUMBNAIL",
                                             "extension": "jpg",
                                             "name": "image1.jpg",
-                                            "s3Url": "https://s3.example.com/image1.jpg",
-                                            "resizedS3Urls": ["https://s3.example.com/image1_200.jpg"],
+                                            "storageUrl": "https://s3.example.com/image1.jpg",
+                                            "resizedStorageUrls": ["https://s3.example.com/image1_200.jpg"],
                                             "orderNum": 1
                                         }
                                     ]

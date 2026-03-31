@@ -109,8 +109,8 @@ import java.lang.annotation.*;
                 | sort | string | 이미지 정렬 순서 | "REVIEW_IMAGE" |
                 | extension | string | 이미지 확장자 | "png" |
                 | name | string | 이미지 이름 | "리뷰2" |
-                | s3Url | string | S3 URL | "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png" |
-                | resizedS3Urls | array | 리사이즈 이미지 S3 URL 목록 | ["https://bucket.s3.amazonaws.com/product/1/300x300_original.jpg", "https://bucket.s3.amazonaws.com/product/1/500x500_original.jpg"] |
+                | storageUrl | string | 스토리지 URL | "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png" |
+                | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | ["https://bucket.s3.amazonaws.com/product/1/300x300_original.jpg", "https://bucket.s3.amazonaws.com/product/1/500x500_original.jpg"] |
                 | orderNum | number | 정렬 순서 | 79 |
                 """,
         parameters = {
@@ -200,8 +200,8 @@ import java.lang.annotation.*;
                                                       "sort": "REVIEW_IMAGE",
                                                       "extension": "png",
                                                       "name": "리뷰2",
-                                                      "s3Url": "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png",
-                                                      "resizedS3Urls": [],
+                                                      "storageUrl": "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png",
+                                                      "resizedStorageUrls": [],
                                                       "orderNum": 79
                                                     },
                                                     {
@@ -209,8 +209,8 @@ import java.lang.annotation.*;
                                                       "sort": "REVIEW_IMAGE",
                                                       "extension": "jpg",
                                                       "name": "리뷰1",
-                                                      "s3Url": "https://marketnote.s3.amazonaws.com/review/35/1765528092213_grafana-icon.png",
-                                                      "resizedS3Urls": [],
+                                                      "storageUrl": "https://marketnote.s3.amazonaws.com/review/35/1765528092213_grafana-icon.png",
+                                                      "resizedStorageUrls": [],
                                                       "orderNum": 78
                                                     }
                                                   ],

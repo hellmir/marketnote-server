@@ -133,8 +133,8 @@ import java.lang.annotation.*;
                 | sort | string | 이미지 종류 | "PRODUCT_CATALOG_IMAGE" |
                 | extension | string | 이미지 확장자 | "jpg" |
                 | name | string | 이미지명 | "스프링노트1" |
-                | s3Url | string | 이미지 S3 URL | "https://marketnote.s3.amazonaws.com/product/30/1763517082648_grafana-icon.png" |
-                | resizedS3Urls | array | 리사이즈 이미지 S3 URL 목록 | [ "https://marketnote.s3.amazonaws.com/product/30/1763517083251_grafana-icon_300x300.png" ] |
+                | storageUrl | string | 이미지 스토리지 URL | "https://marketnote.s3.amazonaws.com/product/30/1763517082648_grafana-icon.png" |
+                | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | [ "https://marketnote.s3.amazonaws.com/product/30/1763517083251_grafana-icon_300x300.png" ] |
                 | orderNum | number | 정렬 순서 | 1 |
                 
                 ---

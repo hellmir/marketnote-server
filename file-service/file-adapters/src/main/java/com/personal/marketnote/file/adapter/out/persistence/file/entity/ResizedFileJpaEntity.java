@@ -28,7 +28,7 @@ public class ResizedFileJpaEntity extends BaseGeneralEntity {
     private String size;
 
     @Column(name = "s3_url", nullable = false, length = 1024)
-    private String s3Url;
+    private String storageUrl;
 
     public static ResizedFileJpaEntity of(FileJpaEntity file, String size) {
         return ResizedFileJpaEntity.builder()
@@ -37,11 +37,11 @@ public class ResizedFileJpaEntity extends BaseGeneralEntity {
                 .build();
     }
 
-    public static ResizedFileJpaEntity of(FileJpaEntity file, String size, String s3Url) {
+    public static ResizedFileJpaEntity of(FileJpaEntity file, String size, String storageUrl) {
         return ResizedFileJpaEntity.builder()
                 .file(file)
                 .size(size)
-                .s3Url(s3Url)
+                .storageUrl(storageUrl)
                 .build();
     }
 

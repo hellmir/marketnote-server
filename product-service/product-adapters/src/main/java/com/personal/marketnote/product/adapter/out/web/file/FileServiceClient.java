@@ -111,8 +111,8 @@ public class FileServiceClient implements FindProductImagesPort, DeleteProductIm
                                 getFileResult.sort,
                                 getFileResult.extension,
                                 getFileResult.name,
-                                getFileResult.s3Url,
-                                getFileResult.resizedS3Urls,
+                                getFileResult.storageUrl,
+                                getFileResult.resizedStorageUrls,
                                 getFileResult.orderNum
                         ))
                         .toList();
@@ -274,11 +274,11 @@ public class FileServiceClient implements FindProductImagesPort, DeleteProductIm
         @JsonProperty("name")
         String name;
 
-        @JsonProperty("s3Url")
-        String s3Url;
+        @JsonProperty("storageUrl")
+        String storageUrl;
 
-        @JsonProperty("resizedS3Urls")
-        List<String> resizedS3Urls;
+        @JsonProperty("resizedStorageUrls")
+        List<String> resizedStorageUrls;
 
         @JsonProperty("orderNum")
         Long orderNum;
