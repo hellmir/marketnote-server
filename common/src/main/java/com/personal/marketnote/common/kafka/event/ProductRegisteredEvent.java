@@ -5,6 +5,6 @@ public record ProductRegisteredEvent(
         Long pricePolicyId,
         Long sellerId,
         String productName,
-        String godType
+        String goodsType
 ) {
 }

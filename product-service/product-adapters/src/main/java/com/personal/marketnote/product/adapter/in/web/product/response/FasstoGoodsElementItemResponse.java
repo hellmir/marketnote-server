@@ -13,13 +13,13 @@ public record FasstoGoodsElementItemResponse(
 ) {
     public static FasstoGoodsElementItemResponse from(FulfillmentVendorGoodsElementItemResult result) {
         return new FasstoGoodsElementItemResponse(
-                result.godCd(),
-                result.cstGodCd(),
-                result.godBarcd(),
-                result.godNm(),
-                result.godType(),
-                result.godTypeNm(),
-                result.qty()
+                result.goodsCode(),
+                result.customerGoodsCode(),
+                result.goodsBarcode(),
+                result.goodsName(),
+                result.goodsType(),
+                result.goodsTypeName(),
+                result.quantity()
         );
     }
 }

@@ -96,10 +96,10 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
 
         Map<String, FulfillmentVendorGoodsInfoResult> goodsByCstGodCd = new HashMap<>();
         for (FulfillmentVendorGoodsInfoResult item : goodsResult.goods()) {
-            if (FormatValidator.hasNoValue(item) || FormatValidator.hasNoValue(item.cstGodCd())) {
+            if (FormatValidator.hasNoValue(item) || FormatValidator.hasNoValue(item.customerGoodsCode())) {
                 continue;
             }
-            goodsByCstGodCd.putIfAbsent(item.cstGodCd(), item);
+            goodsByCstGodCd.putIfAbsent(item.customerGoodsCode(), item);
         }
         return goodsByCstGodCd;
     }
@@ -114,10 +114,10 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
 
         Map<String, FulfillmentVendorGoodsElementInfoResult> elementsByCstGodCd = new HashMap<>();
         for (FulfillmentVendorGoodsElementInfoResult element : elementsResult.elements()) {
-            if (FormatValidator.hasNoValue(element) || FormatValidator.hasNoValue(element.cstGodCd())) {
+            if (FormatValidator.hasNoValue(element) || FormatValidator.hasNoValue(element.customerGoodsCode())) {
                 continue;
             }
-            elementsByCstGodCd.putIfAbsent(element.cstGodCd(), element);
+            elementsByCstGodCd.putIfAbsent(element.customerGoodsCode(), element);
         }
         return elementsByCstGodCd;
     }

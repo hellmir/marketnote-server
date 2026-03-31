@@ -106,10 +106,10 @@ class FulfillmentServiceClientTest {
                             """, MediaType.APPLICATION_JSON));
 
             RegisterFulfillmentVendorGoodsCommand command = RegisterFulfillmentVendorGoodsCommand.builder()
-                    .cstGodCd("CST001")
-                    .godNm("테스트 상품")
-                    .godType("01")
-                    .giftDiv("N")
+                    .customerGoodsCode("CST001")
+                    .goodsName("테스트 상품")
+                    .goodsType("01")
+                    .giftDivision("N")
                     .build();
 
             fulfillmentServiceClient.registerFulfillmentVendorGoods(command);
@@ -127,10 +127,10 @@ class FulfillmentServiceClientTest {
             }
 
             RegisterFulfillmentVendorGoodsCommand command = RegisterFulfillmentVendorGoodsCommand.builder()
-                    .cstGodCd("CST001")
-                    .godNm("테스트 상품")
-                    .godType("01")
-                    .giftDiv("N")
+                    .customerGoodsCode("CST001")
+                    .goodsName("테스트 상품")
+                    .goodsType("01")
+                    .giftDivision("N")
                     .build();
 
             assertThatThrownBy(() -> fulfillmentServiceClient.registerFulfillmentVendorGoods(command))
@@ -247,10 +247,10 @@ class FulfillmentServiceClientTest {
                             """, MediaType.APPLICATION_JSON));
 
             UpdateFulfillmentVendorGoodsCommand command = UpdateFulfillmentVendorGoodsCommand.builder()
-                    .cstGodCd("CST001")
-                    .godNm("수정된 상품")
-                    .godType("01")
-                    .giftDiv("N")
+                    .customerGoodsCode("CST001")
+                    .goodsName("수정된 상품")
+                    .goodsType("01")
+                    .giftDivision("N")
                     .build();
 
             fulfillmentServiceClient.updateFulfillmentVendorGoods(command);

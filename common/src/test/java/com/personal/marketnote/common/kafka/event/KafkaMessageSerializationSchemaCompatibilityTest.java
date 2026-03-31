@@ -109,7 +109,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             assertThat(result.pricePolicyId()).isEqualTo(2L);
             assertThat(result.sellerId()).isEqualTo(3L);
             assertThat(result.productName()).isEqualTo("테스트 상품");
-            assertThat(result.godType()).isEqualTo("1");
+            assertThat(result.goodsType()).isEqualTo("1");
         }
 
         @Test
@@ -127,8 +127,8 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             ProductUpdatedEvent result = deserialized.getPayloadAs(ProductUpdatedEvent.class, OBJECT_MAPPER);
             assertThat(result.productId()).isEqualTo(event.productId());
             assertThat(result.productName()).isEqualTo(event.productName());
-            assertThat(result.godType()).isEqualTo(event.godType());
-            assertThat(result.godBarcd()).isEqualTo(event.godBarcd());
+            assertThat(result.goodsType()).isEqualTo(event.goodsType());
+            assertThat(result.goodsBarcode()).isEqualTo(event.goodsBarcode());
             assertThat(result.safetyStock()).isEqualTo(event.safetyStock());
         }
 
@@ -342,7 +342,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
             // then
             ProductRegisteredEvent result = deserialized.getPayloadAs(ProductRegisteredEvent.class, OBJECT_MAPPER);
-            assertThat(FormatValidator.hasNoValue(result.godType())).isTrue();
+            assertThat(FormatValidator.hasNoValue(result.goodsType())).isTrue();
             assertThat(result.productId()).isEqualTo(1L);
             assertThat(result.productName()).isEqualTo("상품");
         }
@@ -366,7 +366,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             v2Payload.put("pricePolicyId", 888L);
             v2Payload.put("sellerId", 777L);
             v2Payload.put("productName", "V2 상품");
-            v2Payload.put("godType", "1");
+            v2Payload.put("goodsType", "1");
             v2Payload.put("newFieldInV2", "이 필드는 V1에 없다");
             v2Payload.put("anotherNewField", 42);
 
@@ -420,7 +420,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             assertThat(FormatValidator.hasNoValue(result.pricePolicyId())).isTrue();
             assertThat(FormatValidator.hasNoValue(result.sellerId())).isTrue();
             assertThat(FormatValidator.hasNoValue(result.productName())).isTrue();
-            assertThat(FormatValidator.hasNoValue(result.godType())).isTrue();
+            assertThat(FormatValidator.hasNoValue(result.goodsType())).isTrue();
         }
 
         @Test
