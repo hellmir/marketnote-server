@@ -7,8 +7,8 @@ public record GetFileResult(
         String sort,
         String extension,
         String name,
-        String s3Url,
-        List<String> resizedS3Urls,
+        String storageUrl,
+        List<String> resizedStorageUrls,
         Long orderNum
 ) {
 }

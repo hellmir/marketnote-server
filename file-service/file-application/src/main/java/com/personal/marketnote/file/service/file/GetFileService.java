@@ -40,7 +40,7 @@ public class GetFileService implements GetFileUseCase {
 
         Map<Long, List<String>> fileIdToUrls = resizedFiles.stream()
                 .collect(Collectors.groupingBy(ResizedFile::getFileId,
-                        Collectors.mapping(ResizedFile::getS3Url, Collectors.toList())));
+                        Collectors.mapping(ResizedFile::getStorageUrl, Collectors.toList())));
 
         List<GetFilesResult.FileItem> items = files.stream()
                 .map(

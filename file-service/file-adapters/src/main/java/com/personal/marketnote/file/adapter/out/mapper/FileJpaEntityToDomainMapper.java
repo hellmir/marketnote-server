@@ -18,7 +18,7 @@ public class FileJpaEntityToDomainMapper {
                                 .sort(FileSort.from(entity.getSort()))
                                 .extension(entity.getExtension())
                                 .name(entity.getName())
-                                .s3Url(entity.getS3Url())
+                                .storageUrl(entity.getStorageUrl())
                                 .createdAt(entity.getCreatedAt())
                                 .status(entity.getStatus())
                                 .orderNum(entity.getOrderNum())

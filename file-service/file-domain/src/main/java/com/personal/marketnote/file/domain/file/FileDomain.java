@@ -20,7 +20,7 @@ public class FileDomain {
     private FileSort sort;
     private String extension;
     private String name;
-    private String s3Url;
+    private String storageUrl;
     private LocalDateTime createdAt;
     private EntityStatus status;
     private Long orderNum;
@@ -43,7 +43,7 @@ public class FileDomain {
                 .sort(state.getSort())
                 .extension(state.getExtension())
                 .name(state.getName())
-                .s3Url(state.getS3Url())
+                .storageUrl(state.getStorageUrl())
                 .createdAt(state.getCreatedAt())
                 .status(state.getStatus())
                 .orderNum(state.getOrderNum())

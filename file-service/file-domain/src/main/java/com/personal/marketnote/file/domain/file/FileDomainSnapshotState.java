@@ -20,7 +20,7 @@ public class FileDomainSnapshotState {
     private final FileSort sort;
     private final String extension;
     private final String name;
-    private final String s3Url;
+    private final String storageUrl;
     private final LocalDateTime createdAt;
     private final EntityStatus status;
     private final Long orderNum;

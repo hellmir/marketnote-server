@@ -142,8 +142,8 @@ import java.lang.annotation.*;
                 | sort | string | 이미지 종류 | "PRODUCT_REPRESENTATIVE_IMAGE" |
                 | extension | string | 이미지 확장자 | "png" |
                 | name | string | 이미지명 | "상품대표이미지1" |
-                | s3Url | string | 이미지 S3 URL | "https://marketnote.s3.amazonaws.com/product/30/1763534195681_image.png" |
-                | resizedS3Urls | array | 리사이즈 이미지 S3 URL 목록 | [ "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png", "https://marketnote.s3.amazonaws.com/product/30/1763534195988_image_800.png" ] |
+                | storageUrl | string | 이미지 스토리지 URL | "https://marketnote.s3.amazonaws.com/product/30/1763534195681_image.png" |
+                | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | [ "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png", "https://marketnote.s3.amazonaws.com/product/30/1763534195988_image_800.png" ] |
                 | orderNum | number | 정렬 순서 | 41 |
                 
                 ---
@@ -156,8 +156,8 @@ import java.lang.annotation.*;
                 | sort | string | 이미지 종류 | "PRODUCT_CONTENT_IMAGE" |
                 | extension | string | 이미지 확장자 | "jpg" |
                 | name | string | 이미지명 | "상품본문이미지1" |
-                | s3Url | string | 이미지 S3 URL | "https://marketnote.s3.amazonaws.com/product/30/1763534195623_image.png" |
-                | resizedS3Urls | array | 리사이즈 이미지 S3 URL 목록(없음) | [] |
+                | storageUrl | string | 이미지 스토리지 URL | "https://marketnote.s3.amazonaws.com/product/30/1763534195623_image.png" |
+                | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록(없음) | [] |
                 | orderNum | number | 정렬 순서 | 40 |
                 
                 ---
@@ -279,8 +279,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_REPRESENTATIVE_IMAGE",
                                                 "extension": "png",
                                                 "name": "스프링노트2",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763534195681_image.png",
-                                                "resizedS3Urls": [
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763534195681_image.png",
+                                                "resizedStorageUrls": [
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png",
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763534195988_image_800.png"
                                                 ],
@@ -291,8 +291,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_REPRESENTATIVE_IMAGE",
                                                 "extension": "png",
                                                 "name": "스프링노트2",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763534193377_image.png",
-                                                "resizedS3Urls": [
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763534193377_image.png",
+                                                "resizedStorageUrls": [
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763534193688_image_600.png",
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763534193761_image_800.png"
                                                 ],
@@ -303,8 +303,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_REPRESENTATIVE_IMAGE",
                                                 "extension": "png",
                                                 "name": "스프링노트2",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763533915880_image.png",
-                                                "resizedS3Urls": [
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533915880_image.png",
+                                                "resizedStorageUrls": [
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763533916081_image_600.png",
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763533916187_image_800.png"
                                                 ],
@@ -315,8 +315,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_REPRESENTATIVE_IMAGE",
                                                 "extension": "png",
                                                 "name": "스프링노트2",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763533914726_image.png",
-                                                "resizedS3Urls": [
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533914726_image.png",
+                                                "resizedStorageUrls": [
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763533914954_image_600.png",
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763533915038_image_800.png"
                                                 ],
@@ -327,8 +327,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_REPRESENTATIVE_IMAGE",
                                                 "extension": "png",
                                                 "name": "스프링노트2",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763533911501_image.png",
-                                                "resizedS3Urls": [
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533911501_image.png",
+                                                "resizedStorageUrls": [
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763533911804_image_600.png",
                                                   "https://marketnote.s3.amazonaws.com/product/30/1763533911854_image_800.png"
                                                 ],
@@ -341,8 +341,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_CONTENT_IMAGE",
                                                 "extension": "jpg",
                                                 "name": "스프링노트1",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763534195623_grafana-icon.png",
-                                                "resizedS3Urls": [],
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763534195623_grafana-icon.png",
+                                                "resizedStorageUrls": [],
                                                 "orderNum": 40
                                               },
                                               {
@@ -350,8 +350,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_CONTENT_IMAGE",
                                                 "extension": "jpg",
                                                 "name": "스프링노트1",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763534193258_grafana-icon.png",
-                                                "resizedS3Urls": [],
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763534193258_grafana-icon.png",
+                                                "resizedStorageUrls": [],
                                                 "orderNum": 38
                                               },
                                               {
@@ -359,8 +359,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_CONTENT_IMAGE",
                                                 "extension": "jpg",
                                                 "name": "스프링노트1",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763533915837_grafana-icon.png",
-                                                "resizedS3Urls": [],
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533915837_grafana-icon.png",
+                                                "resizedStorageUrls": [],
                                                 "orderNum": 36
                                               },
                                               {
@@ -368,8 +368,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_CONTENT_IMAGE",
                                                 "extension": "jpg",
                                                 "name": "스프링노트1",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763533914674_grafana-icon.png",
-                                                "resizedS3Urls": [],
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533914674_grafana-icon.png",
+                                                "resizedStorageUrls": [],
                                                 "orderNum": 34
                                               },
                                               {
@@ -377,8 +377,8 @@ import java.lang.annotation.*;
                                                 "sort": "PRODUCT_CONTENT_IMAGE",
                                                 "extension": "jpg",
                                                 "name": "스프링노트1",
-                                                "s3Url": "https://marketnote.s3.amazonaws.com/product/30/1763533911286_grafana-icon.png",
-                                                "resizedS3Urls": [],
+                                                "storageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533911286_grafana-icon.png",
+                                                "resizedStorageUrls": [],
                                                 "orderNum": 32
                                               }
                                             ],

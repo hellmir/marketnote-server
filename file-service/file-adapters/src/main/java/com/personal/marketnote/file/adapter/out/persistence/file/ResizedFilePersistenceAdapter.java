@@ -29,7 +29,7 @@ public class ResizedFilePersistenceAdapter implements SaveResizedFilesPort, Find
         List<ResizedFileJpaEntity> toSave = new ArrayList<>(resizedFiles.size());
         for (ResizedFile f : resizedFiles) {
             FileJpaEntity fileRef = fileJpaRepository.getReferenceById(f.getFileId());
-            toSave.add(ResizedFileJpaEntity.of(fileRef, f.getSize(), f.getS3Url()));
+            toSave.add(ResizedFileJpaEntity.of(fileRef, f.getSize(), f.getStorageUrl()));
         }
 
         resizedFileJpaRepository.saveAll(toSave);
@@ -43,7 +43,7 @@ public class ResizedFilePersistenceAdapter implements SaveResizedFilesPort, Find
                             e.getId(),
                             e.getFile().getId(),
                             e.getSize(),
-                            e.getS3Url(),
+                            e.getStorageUrl(),
                             e.getCreatedAt(),
                             e.getStatus()
                     )).toList();

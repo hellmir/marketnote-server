@@ -73,13 +73,13 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 .map(UpdateFileCommand::file)
                 .toList();
 
-        List<String> s3Urls = uploadFilesPort.uploadFiles(
+        List<String> storageUrls = uploadFilesPort.uploadFiles(
                 originals,
                 OwnerType.from(updateFilesCommand.ownerType()),
                 updateFilesCommand.ownerId()
         );
 
-        List<FileDomain> savedFiles = saveFilesPort.saveAll(newFiles, s3Urls);
+        List<FileDomain> savedFiles = saveFilesPort.saveAll(newFiles, storageUrls);
 
         List<MultipartFile> resizedToUpload = new ArrayList<>();
         List<ResizedFile> resizedToSave = new ArrayList<>();
@@ -89,7 +89,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
         }
 
         if (FormatValidator.hasValue(resizedToUpload)) {
-            List<String> resizedS3Urls = uploadFilesPort.uploadFiles(
+            List<String> resizedStorageUrls = uploadFilesPort.uploadFiles(
                     resizedToUpload,
                     OwnerType.from(updateFilesCommand.ownerType()),
                     updateFilesCommand.ownerId()
@@ -99,7 +99,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 List<ResizedFile> resizedWithUrls = new ArrayList<>(resizedToSave.size());
                 for (int i = 0; i < resizedToSave.size(); i++) {
                     ResizedFile base = resizedToSave.get(i);
-                    resizedWithUrls.add(ResizedFile.of(base.getFileId(), base.getSize(), resizedS3Urls.get(i)));
+                    resizedWithUrls.add(ResizedFile.of(base.getFileId(), base.getSize(), resizedStorageUrls.get(i)));
                 }
                 saveResizedFilesPort.saveAll(resizedWithUrls);
             }

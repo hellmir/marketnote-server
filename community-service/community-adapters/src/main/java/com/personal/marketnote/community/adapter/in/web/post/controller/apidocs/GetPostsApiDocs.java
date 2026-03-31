@@ -143,8 +143,8 @@ import java.lang.annotation.*;
                 | sort | string | 이미지 정렬 순서 | "POST_IMAGE" |
                 | extension | string | 이미지 확장자 | "jpg" |
                 | name | string | 이미지 이름 | "게시글 이미지" |
-                | s3Url | string | S3 URL | "https://marketnote.s3.amazonaws.com/post/1/1765528094927_image.png" |
-                | resizedS3Urls | array | 리사이즈 이미지 S3 URL 목록 | [] |
+                | storageUrl | string | 스토리지 URL | "https://marketnote.s3.amazonaws.com/post/1/1765528094927_image.png" |
+                | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | [] |
                 | orderNum | number | 정렬 순서 | 1 |
                 """,
         parameters = {
@@ -289,8 +289,8 @@ import java.lang.annotation.*;
                                                       "sort": "POST_IMAGE",
                                                       "extension": "jpg",
                                                       "name": "게시글 이미지",
-                                                      "s3Url": "https://marketnote.s3.amazonaws.com/post/1/1765528094927_image.png",
-                                                      "resizedS3Urls": [],
+                                                      "storageUrl": "https://marketnote.s3.amazonaws.com/post/1/1765528094927_image.png",
+                                                      "resizedStorageUrls": [],
                                                       "orderNum": 1
                                                     }
                                                   ],

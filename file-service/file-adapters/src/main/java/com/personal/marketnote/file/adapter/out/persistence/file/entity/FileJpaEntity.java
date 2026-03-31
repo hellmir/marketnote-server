@@ -38,18 +38,18 @@ public class FileJpaEntity extends BaseGeneralEntity {
     private String name;
 
     @Column(name = "s3_url", nullable = false, length = 511)
-    private String s3Url;
+    private String storageUrl;
 
     private Long orderNum;
 
-    public static FileJpaEntity from(FileDomain domain, String s3Url) {
+    public static FileJpaEntity from(FileDomain domain, String storageUrl) {
         return FileJpaEntity.builder()
                 .ownerType(domain.getOwnerType())
                 .ownerId(domain.getOwnerId())
                 .sort(domain.getSort().name())
                 .extension(domain.getExtension())
                 .name(domain.getName())
-                .s3Url(s3Url)
+                .storageUrl(storageUrl)
                 .build();
     }
 
@@ -59,7 +59,7 @@ public class FileJpaEntity extends BaseGeneralEntity {
 
     public void updateFrom(FileDomain file) {
         updateActivation(file);
-        s3Url = file.getS3Url();
+        storageUrl = file.getStorageUrl();
         name = file.getName();
         extension = file.getExtension();
         sort = file.getSort().name();

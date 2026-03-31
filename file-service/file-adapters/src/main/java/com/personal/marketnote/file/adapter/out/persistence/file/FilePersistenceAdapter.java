@@ -12,7 +12,7 @@ import com.personal.marketnote.file.adapter.out.persistence.file.repository.Resi
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.ResizedFile;
 import com.personal.marketnote.file.exception.FileNotFoundException;
-import com.personal.marketnote.file.exception.InvalidFileS3UrlsSizeException;
+import com.personal.marketnote.file.exception.InvalidFileStorageUrlsSizeException;
 import com.personal.marketnote.file.port.out.file.FindFilePort;
 import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilePort;
@@ -31,17 +31,17 @@ public class FilePersistenceAdapter implements SaveFilesPort, FindFilePort, Upda
     private final ResizedFileJpaRepository resizedFileJpaRepository;
 
     @Override
-    public List<FileDomain> saveAll(List<FileDomain> files, List<String> s3Urls) {
+    public List<FileDomain> saveAll(List<FileDomain> files, List<String> storageUrls) {
         if (FormatValidator.hasNoValue(files)) {
             return List.of();
         }
-        if (FormatValidator.hasNoValue(s3Urls) || s3Urls.size() != files.size()) {
-            throw new InvalidFileS3UrlsSizeException();
+        if (FormatValidator.hasNoValue(storageUrls) || storageUrls.size() != files.size()) {
+            throw new InvalidFileStorageUrlsSizeException();
         }
 
         List<FileJpaEntity> toSave = new ArrayList<>(files.size());
         for (int i = 0; i < files.size(); i++) {
-            toSave.add(FileJpaEntity.from(files.get(i), s3Urls.get(i)));
+            toSave.add(FileJpaEntity.from(files.get(i), storageUrls.get(i)));
         }
 
         List<FileJpaEntity> savedList = fileJpaRepository.saveAll(toSave);
