@@ -1,19 +1,12 @@
 package com.personal.marketnote.reward.service.offerwall;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.domain.exception.token.VendorVerificationFailedException;
 import com.personal.marketnote.common.exception.UserNotFoundException;
-import com.personal.marketnote.common.security.vendor.VendorVerificationProcessor;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.reward.configuration.AdiscopeHashKeyProperties;
-import com.personal.marketnote.reward.configuration.AdpopcornHashKeyProperties;
-import com.personal.marketnote.reward.configuration.TnkHashKeyProperties;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapper;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateOfferwallRewardException;
-import com.personal.marketnote.reward.exception.InvalidOfferwallTypeException;
-import com.personal.marketnote.reward.exception.RewardTargetInfoNotFoundException;
 import com.personal.marketnote.reward.mapper.RewardCommandToStateMapper;
 import com.personal.marketnote.reward.port.in.command.offerwall.RegisterOfferwallRewardCommand;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
@@ -21,6 +14,7 @@ import com.personal.marketnote.reward.port.in.usecase.offerwall.GetOfferwallMapp
 import com.personal.marketnote.reward.port.in.usecase.offerwall.RegisterOfferwallRewardUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
 import com.personal.marketnote.reward.port.out.offerwall.SaveOfferwallMapperPort;
+import com.personal.marketnote.reward.port.out.offerwall.ValidateOfferwallSignaturePort;
 import com.personal.marketnote.reward.service.point.ModifyUserPointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -38,9 +32,7 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
     private final ModifyUserPointService modifyUserPointService;
     private final SaveOfferwallMapperPort saveOfferwallMapperPort;
     private final GetOfferwallMapperUseCase getOfferwallMapperUseCase;
-    private final AdpopcornHashKeyProperties adpopcornHashKeyProperties;
-    private final TnkHashKeyProperties tnkHashKeyProperties;
-    private final AdiscopeHashKeyProperties adiscopeHashKeyProperties;
+    private final ValidateOfferwallSignaturePort validateOfferwallSignaturePort;
 
     @Override
     public Long register(RegisterOfferwallRewardCommand command) {
@@ -77,65 +69,16 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
     }
 
     private void validateSignature(RegisterOfferwallRewardCommand command) {
-        String hashKey = resolveHashKey(command);
-        String plainText = command.buildPlainText(hashKey);
-
-        if (command.isAdpopcorn()) {
-            VendorVerificationProcessor.validateSignature(hashKey, plainText, command.signedValue());
-            return;
-        }
-
-        if (command.isTnk()) {
-            VendorVerificationProcessor.validateSignature(plainText, command.signedValue());
-            return;
-        }
-
-        if (command.isAdiscope()) {
-            VendorVerificationProcessor.validateSignature(hashKey, plainText, command.signedValue());
-            return;
-        }
-
-        throw new InvalidOfferwallTypeException(String.valueOf(command.offerwallType()));
-    }
-
-    private String resolveHashKey(RegisterOfferwallRewardCommand command) {
-        if (command.isAndroid()) {
-            if (command.isAdpopcorn()) {
-                return requireHashKey(adpopcornHashKeyProperties.getAndroid());
-            }
-
-            if (command.isTnk()) {
-                return requireHashKey(tnkHashKeyProperties.getAndroid());
-            }
-
-            if (command.isAdiscope()) {
-                return requireHashKey(adiscopeHashKeyProperties.getAndroid());
-            }
-        }
-
-        if (command.isIos()) {
-            if (command.isAdpopcorn()) {
-                return requireHashKey(adpopcornHashKeyProperties.getIos());
-            }
-
-            if (command.isTnk()) {
-                return requireHashKey(tnkHashKeyProperties.getIos());
-            }
-
-            if (command.isAdiscope()) {
-                return requireHashKey(adiscopeHashKeyProperties.getIos());
-            }
-        }
-
-        throw new RewardTargetInfoNotFoundException("오퍼월 리워드 지급 대상 디바이스 정보가 없습니다.");
-    }
-
-    private String requireHashKey(String hashKey) {
-        if (FormatValidator.hasValue(hashKey)) {
-            return hashKey;
-        }
-
-        throw new VendorVerificationFailedException("오퍼월 해시 키가 설정되지 않았습니다.");
+        validateOfferwallSignaturePort.validateSignature(
+                command.offerwallType(),
+                command.userDeviceType(),
+                command.signedValue(),
+                command.userKey(),
+                command.rewardKey(),
+                command.quantity(),
+                command.campaignKey(),
+                command.rewardUnit()
+        );
     }
 
     private void validateUser(RegisterOfferwallRewardCommand command) {

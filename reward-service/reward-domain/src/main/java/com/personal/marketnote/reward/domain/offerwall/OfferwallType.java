@@ -11,16 +11,4 @@ public enum OfferwallType {
     ADISCOPE("애디스콥");
 
     private final String description;
-
-    public boolean isAdpopcorn() {
-        return this == ADPOPCORN;
-    }
-
-    public boolean isTnk() {
-        return this == TNK;
-    }
-
-    public boolean isAdiscope() {
-        return this == ADISCOPE;
-    }
 }
