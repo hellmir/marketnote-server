@@ -12,6 +12,8 @@ import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
 import com.personal.marketnote.file.port.in.command.UpdateFilesCommand;
 import com.personal.marketnote.file.port.in.usecase.file.GetFileUseCase;
 import com.personal.marketnote.file.port.in.usecase.file.UpdateFileUseCase;
+import com.personal.marketnote.file.port.out.event.ImageEventCommand;
+import com.personal.marketnote.file.port.out.event.PublishImageEventPort;
 import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
 import com.personal.marketnote.file.port.out.resized.SaveResizedFilesPort;
@@ -44,6 +46,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
     private final SaveFilesPort saveFilesPort;
     private final SaveResizedFilesPort saveResizedFilesPort;
     private final UpdateFilesPort updateFilesPort;
+    private final PublishImageEventPort publishImageEventPort;
 
     public void updateFiles(UpdateFilesCommand updateFilesCommand) {
         String ownerType = updateFilesCommand.ownerType();
@@ -60,10 +63,12 @@ public class UpdateFilesService implements UpdateFileUseCase {
         // 기존 파일 목록이 존재하는 경우 비활성화
         List<FileDomain> currentFiles = getFileUseCase.getFiles(OwnerType.from(ownerType), ownerId, sort);
         if (FormatValidator.hasValue(currentFiles)) {
+            List<ImageEventCommand> deletedEvents = buildImageEventCommands(currentFiles);
             currentFiles.forEach(FileDomain::delete);
             List<ResizedFile> resizedFiles = getFileUseCase.getResizedFiles(currentFiles);
             resizedFiles.forEach(ResizedFile::delete);
             updateFilesPort.update(currentFiles, resizedFiles);
+            publishImageEventPort.publishImageDeletedEvents(deletedEvents);
         }
 
         List<FileDomain> newFiles = FileCommandToDomainMapper.mapToDomain(updateFilesCommand);
@@ -104,6 +109,15 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 saveResizedFilesPort.saveAll(resizedWithUrls);
             }
         }
+
+        List<ImageEventCommand> createdEvents = buildImageEventCommands(savedFiles);
+        publishImageEventPort.publishImageCreatedEvents(createdEvents);
+    }
+
+    private List<ImageEventCommand> buildImageEventCommands(List<FileDomain> files) {
+        return files.stream()
+                .map(ImageEventCommand::from)
+                .toList();
     }
 
     private void resize(

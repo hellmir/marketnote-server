@@ -25,6 +25,9 @@ public final class KafkaTopicConstants {
     // Community 이벤트
     public static final String REVIEW_REGISTERED = "community.review.registered";
 
+    // File 이벤트
+    public static final String FILE_IMAGE_CHANGED = "file.image.changed";
+
     // SAGA 응답
     public static final String SAGA_RESPONSE = "saga.response";
 
