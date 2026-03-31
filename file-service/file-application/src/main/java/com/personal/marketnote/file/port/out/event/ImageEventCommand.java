@@ -7,6 +7,7 @@ public record ImageEventCommand(
         Long imageId,
         Long targetId,
         String targetType,
+        String fileSort,
         String imageUrl,
         Integer sortOrder
 ) {
@@ -16,6 +17,7 @@ public record ImageEventCommand(
                 file.getId(),
                 file.getOwnerId(),
                 file.getOwnerType().name(),
+                file.getSort().name(),
                 file.getStorageUrl(),
                 FormatValidator.hasValue(file.getOrderNum()) ? file.getOrderNum().intValue() : 0
         );

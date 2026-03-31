@@ -52,7 +52,7 @@ class ImageEventKafkaProducerTest {
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ImageEventCommand command = new ImageEventCommand(1L, 100L, "PRODUCT", "https://cdn.example.com/image.png", 1);
+        ImageEventCommand command = new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/image.png", 1);
         List<ImageEventCommand> commands = List.of(command);
 
         // when
@@ -77,7 +77,7 @@ class ImageEventKafkaProducerTest {
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ImageEventCommand command = new ImageEventCommand(10L, 200L, "PRODUCT", "https://cdn.example.com/image.png", 2);
+        ImageEventCommand command = new ImageEventCommand(10L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE", "https://cdn.example.com/image.png", 2);
         List<ImageEventCommand> commands = List.of(command);
 
         // when
@@ -95,6 +95,7 @@ class ImageEventKafkaProducerTest {
         assertThat(payload.imageId()).isEqualTo(10L);
         assertThat(payload.targetId()).isEqualTo(200L);
         assertThat(payload.targetType()).isEqualTo("PRODUCT");
+        assertThat(payload.fileSort()).isEqualTo("PRODUCT_REPRESENTATIVE_IMAGE");
         assertThat(payload.imageUrl()).isEqualTo("https://cdn.example.com/image.png");
         assertThat(payload.sortOrder()).isEqualTo(2);
         assertThat(payload.action()).isEqualTo(ImageChangeAction.CREATED);
@@ -108,7 +109,7 @@ class ImageEventKafkaProducerTest {
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ImageEventCommand command = new ImageEventCommand(5L, 300L, "POST", "https://cdn.example.com/post.png", 0);
+        ImageEventCommand command = new ImageEventCommand(5L, 300L, "POST", "POST_IMAGE", "https://cdn.example.com/post.png", 0);
         List<ImageEventCommand> commands = List.of(command);
 
         // when
@@ -134,9 +135,9 @@ class ImageEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         List<ImageEventCommand> commands = List.of(
-                new ImageEventCommand(1L, 100L, "PRODUCT", "https://cdn.example.com/1.png", 1),
-                new ImageEventCommand(2L, 100L, "PRODUCT", "https://cdn.example.com/2.png", 2),
-                new ImageEventCommand(3L, 100L, "PRODUCT", "https://cdn.example.com/3.png", 3)
+                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1),
+                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2),
+                new ImageEventCommand(3L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/3.png", 3)
         );
 
         // when
@@ -169,8 +170,8 @@ class ImageEventKafkaProducerTest {
                 .thenReturn("{}");
 
         List<ImageEventCommand> commands = List.of(
-                new ImageEventCommand(1L, 100L, "PRODUCT", "https://cdn.example.com/1.png", 1),
-                new ImageEventCommand(2L, 100L, "PRODUCT", "https://cdn.example.com/2.png", 2)
+                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1),
+                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2)
         );
 
         // when

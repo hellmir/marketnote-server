@@ -1,8 +1,6 @@
 package com.personal.marketnote.product.adapter.out.web.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
-import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.exception.FileServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
@@ -16,13 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.lenient;
@@ -66,78 +60,6 @@ class FileServiceClientTest {
                 .thenReturn(objectMapper.createObjectNode());
         lenient().when(serviceCommunicationPayloadGenerator.buildErrorPayloadJson(anyString(), any(), anyInt()))
                 .thenReturn(objectMapper.createObjectNode());
-    }
-
-    @Nested
-    @DisplayName("findImagesByProductIdAndSort")
-    class FindImagesByProductIdAndSort {
-
-        @Test
-        @DisplayName("상품 이미지 조회에 성공하면 GetFilesResult를 반환한다")
-        void shouldReturnFilesResultWhenRequestSucceeds() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/files?ownerType=PRODUCT&ownerId=1&sort=PRODUCT_CATALOG_IMAGE"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {
-                                "content": {
-                                    "files": [
-                                        {
-                                            "id": 1,
-                                            "sort": "PRODUCT_THUMBNAIL",
-                                            "extension": "jpg",
-                                            "name": "image1.jpg",
-                                            "storageUrl": "https://s3.example.com/image1.jpg",
-                                            "resizedStorageUrls": ["https://s3.example.com/image1_200.jpg"],
-                                            "orderNum": 1
-                                        }
-                                    ]
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
-
-            Optional<GetFilesResult> result =
-                    fileServiceClient.findImagesByProductIdAndSort(1L, FileSort.PRODUCT_CATALOG_IMAGE);
-
-            assertThat(result).isPresent();
-            assertThat(result.get().images()).hasSize(1);
-            assertThat(result.get().images().get(0).name()).isEqualTo("image1.jpg");
-
-            mockServer.verify();
-        }
-
-        @Test
-        @DisplayName("응답에 파일이 없으면 빈 Optional을 반환한다")
-        void shouldReturnEmptyOptionalWhenNoFiles() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/files?ownerType=PRODUCT&ownerId=1&sort=PRODUCT_CATALOG_IMAGE"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {"content": {"files": null}}
-                            """, MediaType.APPLICATION_JSON));
-
-            Optional<GetFilesResult> result =
-                    fileServiceClient.findImagesByProductIdAndSort(1L, FileSort.PRODUCT_CATALOG_IMAGE);
-
-            assertThat(result).isEmpty();
-
-            mockServer.verify();
-        }
-
-        @Test
-        @DisplayName("모든 재시도가 실패하면 빈 Optional을 반환한다")
-        void shouldReturnEmptyOptionalWhenAllRetriesFail() {
-            for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/files?ownerType=PRODUCT&ownerId=1&sort=PRODUCT_CATALOG_IMAGE"))
-                        .andExpect(method(HttpMethod.GET))
-                        .andRespond(withServerError());
-            }
-
-            Optional<GetFilesResult> result =
-                    fileServiceClient.findImagesByProductIdAndSort(1L, FileSort.PRODUCT_CATALOG_IMAGE);
-
-            assertThat(result).isEmpty();
-
-            mockServer.verify();
-        }
     }
 
     @Nested
