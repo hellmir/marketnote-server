@@ -28,23 +28,14 @@ import static com.personal.marketnote.common.security.token.utility.TokenConstan
 public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
     private final TokenSupport tokenSupport;
     private final FindUserPort findUserPort;
+    private final Map<AuthVendor, List<String>> vendorIssuerMap;
 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
         try {
-            // Kakao ID Token (JWT, RS256, iss: https://kauth.kakao.com)
-            if (looksLikeKakaoIdToken(token)) {
-                return parseVendorIdToken(token, AuthVendor.KAKAO);
-            }
-
-            // Google ID Token (JWT, RS256, iss: accounts.google.com)
-            if (looksLikeGoogleIdToken(token)) {
-                return parseVendorIdToken(token, AuthVendor.GOOGLE);
-            }
-
-            // Apple ID Token (JWT, RS256, iss: https://appleid.apple.com)
-            if (looksLikeAppleIdToken(token)) {
-                return parseVendorIdToken(token, AuthVendor.APPLE);
+            AuthVendor resolvedVendor = resolveVendorFromIdToken(token);
+            if (FormatValidator.hasValue(resolvedVendor)) {
+                return parseVendorIdToken(token, resolvedVendor);
             }
 
             // Default path: our own JWT or opaque token handled by TokenSupport
@@ -85,6 +76,46 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
         }
     }
 
+    private AuthVendor resolveVendorFromIdToken(String token) {
+        if (FormatValidator.hasNoValue(token)) {
+            return null;
+        }
+
+        String[] parts = token.split("\\.");
+        if (parts.length != 3) {
+            return null;
+        }
+
+        try {
+            String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]));
+            String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
+            JSONObject header = new JSONObject(headerJson);
+            JSONObject payload = new JSONObject(payloadJson);
+
+            boolean isJwt = "JWT".equalsIgnoreCase(header.optString("typ", "JWT"));
+            boolean isRs256 = "RS256".equalsIgnoreCase(header.optString("alg", ""));
+
+            if (!isJwt || !isRs256) {
+                return null;
+            }
+
+            String iss = payload.optString(ISS_CLAIM_KEY, "");
+
+            for (Map.Entry<AuthVendor, List<String>> entry : vendorIssuerMap.entrySet()) {
+                for (String issuer : entry.getValue()) {
+                    if (issuer.equals(iss)) {
+                        return entry.getKey();
+                    }
+                }
+            }
+
+            return null;
+        } catch (IllegalArgumentException e) {
+            log.debug("Failed to Base64URL decode token header/payload: {}", e.getMessage());
+            return null;
+        }
+    }
+
     private OAuth2AuthenticatedPrincipal parseVendorIdToken(String token, AuthVendor vendor) {
         JSONObject payload = parseJwtPayload(token);
         String oidcId = payload.optString(SUB_CLAIM_KEY, "");
@@ -110,54 +141,6 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
                 ),
                 List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_GUEST.name()))
         );
-    }
-
-    private boolean looksLikeKakaoIdToken(String token) {
-        return looksLikeIdToken(
-                token, iss -> "kauth.kakao.com".equals(iss) || "https://kauth.kakao.com".equals(iss)
-        );
-    }
-
-    private boolean looksLikeGoogleIdToken(String token) {
-        return looksLikeIdToken(
-                token, iss -> "accounts.google.com".equals(iss) || "https://accounts.google.com".equals(iss)
-        );
-    }
-
-    private boolean looksLikeAppleIdToken(String token) {
-        return looksLikeIdToken(
-                token, iss -> "appleid.apple.com".equals(iss) || "https://appleid.apple.com".equals(iss)
-        );
-    }
-
-    private boolean looksLikeIdToken(String token, java.util.function.Predicate<String> issPredicate) {
-        if (FormatValidator.hasNoValue(token)) {
-            return false;
-        }
-
-        String[] parts = token.split("\\.");
-        if (parts.length != 3) {
-            return false;
-        }
-
-        try {
-            String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]));
-            String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
-            JSONObject header = new JSONObject(headerJson);
-            JSONObject payload = new JSONObject(payloadJson);
-
-            String alg = header.optString("alg", "");
-            String iss = payload.optString(ISS_CLAIM_KEY, "");
-
-            boolean isJwt = "JWT".equalsIgnoreCase(header.optString("typ", "JWT"));
-            boolean isRs256 = "RS256".equalsIgnoreCase(alg);
-            boolean issMatches = issPredicate.test(iss);
-
-            return isJwt && isRs256 && issMatches;
-        } catch (IllegalArgumentException e) {
-            log.debug("Failed to Base64URL decode token header/payload: {}", e.getMessage());
-            return false;
-        }
     }
 
     private JSONObject parseJwtPayload(String token) {

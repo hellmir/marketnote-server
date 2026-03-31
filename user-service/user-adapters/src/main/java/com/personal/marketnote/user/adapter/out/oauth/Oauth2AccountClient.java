@@ -2,6 +2,7 @@ package com.personal.marketnote.user.adapter.out.oauth;
 
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
 import com.personal.marketnote.user.port.out.oauth.Oauth2AccountUnlinkPort;
+import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.service.exception.UnlinkOauth2AccountFailedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
-import static com.personal.marketnote.user.service.exception.ExceptionMessage.UNLINK_GOOGLE_ACCOUNT_FAILED_EXCEPTION_MESSAGE;
-import static com.personal.marketnote.user.service.exception.ExceptionMessage.UNLINK_KAKAO_ACCOUNT_FAILED_EXCEPTION_MESSAGE;
+import static com.personal.marketnote.user.service.exception.ExceptionMessage.UNLINK_OAUTH2_ACCOUNT_FAILED_EXCEPTION_MESSAGE;
 
 @VendorAdapter
 @Slf4j
@@ -33,7 +33,21 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
     }
 
     @Override
-    public void unlinkKakaoAccount(String oidcId) throws UnlinkOauth2AccountFailedException {
+    public void unlinkAccount(AuthVendor vendor, String credential) throws UnlinkOauth2AccountFailedException {
+        if (vendor.isMe(AuthVendor.KAKAO)) {
+            unlinkKakaoAccount(credential);
+            return;
+        }
+
+        if (vendor.isMe(AuthVendor.GOOGLE)) {
+            unlinkGoogleAccount(credential);
+            return;
+        }
+
+        log.debug("{} 벤더에 대한 연결 해제 로직이 구현되지 않았습니다.", vendor.name());
+    }
+
+    private void unlinkKakaoAccount(String oidcId) throws UnlinkOauth2AccountFailedException {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("target_id_type", "user_id");
         form.add("target_id", oidcId);
@@ -47,12 +61,13 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
                 .toEntity(String.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new UnlinkOauth2AccountFailedException(UNLINK_KAKAO_ACCOUNT_FAILED_EXCEPTION_MESSAGE);
+            throw new UnlinkOauth2AccountFailedException(
+                    String.format(UNLINK_OAUTH2_ACCOUNT_FAILED_EXCEPTION_MESSAGE, AuthVendor.KAKAO.name())
+            );
         }
     }
 
-    @Override
-    public void unlinkGoogleAccount(String accessToken) throws UnlinkOauth2AccountFailedException {
+    private void unlinkGoogleAccount(String accessToken) throws UnlinkOauth2AccountFailedException {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("token", accessToken);
 
@@ -64,7 +79,9 @@ public class Oauth2AccountClient implements Oauth2AccountUnlinkPort {
                 .toEntity(String.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new UnlinkOauth2AccountFailedException(UNLINK_GOOGLE_ACCOUNT_FAILED_EXCEPTION_MESSAGE);
+            throw new UnlinkOauth2AccountFailedException(
+                    String.format(UNLINK_OAUTH2_ACCOUNT_FAILED_EXCEPTION_MESSAGE, AuthVendor.GOOGLE.name())
+            );
         }
     }
 }

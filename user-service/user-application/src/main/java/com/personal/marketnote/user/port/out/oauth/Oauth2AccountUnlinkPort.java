@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.port.out.oauth;
 
+import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.service.exception.UnlinkOauth2AccountFailedException;
 
 /**
@@ -11,20 +12,12 @@ import com.personal.marketnote.user.service.exception.UnlinkOauth2AccountFailedE
  */
 public interface Oauth2AccountUnlinkPort {
     /**
-     * @param oidcId 카카오 OIDC ID
-     * @throws UnlinkOauth2AccountFailedException 카카오 계정 연결 해제 실패 시
-     * @Date 2025-12-29
+     * @param vendor      OAuth2 벤더
+     * @param credential  벤더별 연결 해제에 필요한 자격 증명 (OIDC ID 또는 액세스 토큰)
+     * @throws UnlinkOauth2AccountFailedException 계정 연결 해제 실패 시
+     * @Date 2026-03-27
      * @Author 성효빈
-     * @Description 카카오 계정 연결을 해제합니다.
+     * @Description 지정된 벤더의 계정 연결을 해제합니다.
      */
-    void unlinkKakaoAccount(String oidcId) throws UnlinkOauth2AccountFailedException;
-
-    /**
-     * @param accessToken 구글 액세스 토큰
-     * @throws UnlinkOauth2AccountFailedException 구글 계정 연결 해제 실패 시
-     * @Date 2025-12-29
-     * @Author 성효빈
-     * @Description 구글 계정 연결을 해제합니다.
-     */
-    void unlinkGoogleAccount(String accessToken) throws UnlinkOauth2AccountFailedException;
+    void unlinkAccount(AuthVendor vendor, String credential) throws UnlinkOauth2AccountFailedException;
 }

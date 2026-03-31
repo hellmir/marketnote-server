@@ -4,7 +4,7 @@ import com.personal.marketnote.common.adapter.out.VendorAdapter;
 import com.personal.marketnote.common.domain.exception.token.InvalidAccessTokenException;
 import com.personal.marketnote.common.domain.exception.token.InvalidRefreshTokenException;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
-import com.personal.marketnote.user.exception.GoogleOAuth2ResponseParsingException;
+import com.personal.marketnote.user.exception.OAuth2ResponseParsingException;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2AuthenticationInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2UserInfo;
@@ -137,7 +137,7 @@ public class RestClientGoogleTokenProcessor implements TokenProcessor {
                     .name(jsonObject.getString("name"))
                     .build();
         } catch (JSONException e) {
-            throw new GoogleOAuth2ResponseParsingException(jsonObject.toString(), e);
+            throw new OAuth2ResponseParsingException("Google", jsonObject.toString(), e);
         }
     }
 

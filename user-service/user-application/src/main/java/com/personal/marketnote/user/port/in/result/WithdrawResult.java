@@ -1,10 +1,10 @@
 package com.personal.marketnote.user.port.in.result;
 
+import com.personal.marketnote.user.security.token.vendor.AuthVendor;
+
+import java.util.Map;
+
 public record WithdrawResult(
-        boolean isKakaoDisconnected,
-        boolean isGoogleDisconnected,
-        boolean isAppleDisconnected
+        Map<AuthVendor, Boolean> disconnectResults
 ) {
 }
-
-
