@@ -11,8 +11,10 @@ import com.personal.marketnote.community.adapter.in.web.review.response.*;
 import com.personal.marketnote.community.domain.review.ReviewSortProperty;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
 import com.personal.marketnote.community.port.in.result.review.*;
+import com.personal.marketnote.community.port.in.command.review.GetUserReviewsCommand;
 import com.personal.marketnote.community.port.in.usecase.review.DeleteReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
+import com.personal.marketnote.community.port.in.usecase.review.GetUserReviewsUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.RegisterReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.UpdateReviewUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,8 +48,11 @@ import static org.apache.commons.lang3.BooleanUtils.FALSE;
 public class ReviewController {
     private static final String GET_PRODUCT_REVIEWS_DEFAULT_PAGE_SIZE = "4";
 
+    private static final String DEFAULT_PAGE_SIZE = "10";
+
     private final RegisterReviewUseCase registerReviewUseCase;
     private final GetReviewUseCase getReviewUseCase;
+    private final GetUserReviewsUseCase getUserReviewsUseCase;
     private final UpdateReviewUseCase updateReviewUseCase;
     private final DeleteReviewUseCase deleteReviewUseCase;
 
@@ -354,6 +359,44 @@ public class ReviewController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "상품 리뷰 집계 목록 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 회원 리뷰 내역 조회
+     *
+     * @param userId        회원 ID
+     * @param page          페이지 번호 (1부터 시작)
+     * @param pageSize      페이지 크기
+     * @param sortDirection 정렬 방향
+     * @param sortProperty  정렬 기준
+     * @return 회원 리뷰 내역 조회 응답 {@link GetUserReviewsResponse}
+     * @Author 성효빈
+     * @Date 2026-04-01
+     * @Description 관리자가 특정 회원의 리뷰 내역을 조회합니다.
+     */
+    @GetMapping("/admin/users/{userId}/reviews")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetUserReviewsApiDocs
+    public ResponseEntity<BaseResponse<GetUserReviewsResponse>> getUserReviews(
+            @PathVariable("userId") Long userId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+            @RequestParam(value = "sort-property", required = false, defaultValue = "ID") ReviewSortProperty sortProperty
+    ) {
+        GetUserReviewsResult result = getUserReviewsUseCase.getUserReviews(
+                new GetUserReviewsCommand(userId, page, pageSize, sortDirection, sortProperty)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetUserReviewsResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 리뷰 내역 조회 성공"
                 ),
                 HttpStatus.OK
         );

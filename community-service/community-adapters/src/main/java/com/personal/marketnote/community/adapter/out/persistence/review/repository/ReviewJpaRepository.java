@@ -699,4 +699,14 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
             WHERE r.reviewerId = :reviewerId
             """)
     long countByReviewerId(@Param("reviewerId") Long reviewerId);
+
+    @Query("""
+            SELECT r
+            FROM ReviewJpaEntity r
+            WHERE r.reviewerId = :reviewerId
+            """)
+    List<ReviewJpaEntity> findUserReviewsByOffset(
+            @Param("reviewerId") Long reviewerId,
+            Pageable pageable
+    );
 }
