@@ -6,7 +6,6 @@ import com.personal.marketnote.common.application.file.port.in.result.GetFilesRe
 import com.personal.marketnote.community.domain.post.*;
 import com.personal.marketnote.community.port.in.command.post.GetUserProductInquiryPostsCommand;
 import com.personal.marketnote.community.port.in.result.post.GetUserProductInquiryPostsResult;
-import com.personal.marketnote.community.port.in.result.post.PostItemResult;
 import com.personal.marketnote.community.port.out.file.FindPostImagesPort;
 import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;

@@ -9,8 +9,8 @@ import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionExc
 import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.exception.InventoryLockInterruptedException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
-import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import com.personal.marketnote.commerce.port.out.inventory.*;
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

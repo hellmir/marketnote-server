@@ -202,7 +202,7 @@ class RegisterShippingAddressUseCaseTest {
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("기타 배송지는 최대 5개까지 등록할 수 있습니다");
+                .hasMessageContaining("기타 배송지는 최대 10개까지 등록할 수 있습니다");
 
         verify(findShippingAddressPort).countByUserIdAndAddressType(userId, ShippingAddressType.OTHER);
         verifyNoMoreInteractions(findShippingAddressPort);

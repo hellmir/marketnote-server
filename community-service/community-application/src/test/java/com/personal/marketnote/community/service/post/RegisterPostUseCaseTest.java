@@ -258,6 +258,52 @@ class RegisterPostUseCaseTest {
     }
 
     @Test
+    @DisplayName("1:1 문의 등록 시 writerMaskedName에 마스킹 없이 원본 작성자명이 저장된다")
+    void registerPost_oneOnOneInquery_writerMaskedNameIsOriginal() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(14L)
+                .parentId(null)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("테스트유저")
+                .content("1:1 문의 내용입니다")
+                .build();
+        Post savedPost = buildSavedPost(900L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(savePostPort).save(postCaptor.capture());
+        Post captured = postCaptor.getValue();
+
+        assertThat(captured.getWriterMaskedName()).isEqualTo("테스트유저");
+    }
+
+    @Test
+    @DisplayName("상품 문의 등록 시 writerMaskedName에 마스킹된 작성자명이 저장된다")
+    void registerPost_productInquery_writerMaskedNameIsMasked() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(15L)
+                .parentId(null)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("테스트유저")
+                .content("상품 문의 내용입니다")
+                .build();
+        Post savedPost = buildSavedPost(1000L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(savePostPort).save(postCaptor.capture());
+        Post captured = postCaptor.getValue();
+
+        assertThat(captured.getWriterMaskedName()).isEqualTo(ValueMasker.mask("테스트유저"));
+    }
+
+    @Test
     @DisplayName("parentId가 null이면 판매자여도 상품 소유권 검증을 건너뛴다")
     void registerPost_sellerNullParentId_skipsValidation() {
         RegisterPostCommand command = RegisterPostCommand.builder()
@@ -310,6 +356,9 @@ class RegisterPostUseCaseTest {
     }
 
     private Post buildSavedPost(Long id, RegisterPostCommand command) {
+        String maskedName = command.board().requiresWriterMasking()
+                ? ValueMasker.mask(command.writerName())
+                : command.writerName();
         return Post.from(
                 PostSnapshotState.builder()
                         .id(id)
@@ -323,7 +372,7 @@ class RegisterPostUseCaseTest {
                         .targetId(command.targetId())
                         .productImageUrl(command.productImageUrl())
                         .writerName(command.writerName())
-                        .writerMaskedName(ValueMasker.mask(command.writerName()))
+                        .writerMaskedName(maskedName)
                         .title(command.title())
                         .content(command.content())
                         .isPrivate(command.isPrivate())
