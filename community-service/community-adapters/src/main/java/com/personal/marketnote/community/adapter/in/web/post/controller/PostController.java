@@ -8,6 +8,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.Role;
 import com.personal.marketnote.community.adapter.in.web.post.controller.apidocs.GetPostApiDocs;
 import com.personal.marketnote.community.adapter.in.web.post.controller.apidocs.GetPostsApiDocs;
+import com.personal.marketnote.community.adapter.in.web.post.controller.apidocs.GetUserOneOnOneInquiryPostsApiDocs;
 import com.personal.marketnote.community.adapter.in.web.post.controller.apidocs.GetUserProductInquiryPostsApiDocs;
 import com.personal.marketnote.community.adapter.in.web.post.controller.apidocs.RegisterPostApiDocs;
 import com.personal.marketnote.community.adapter.in.web.post.controller.apidocs.UpdatePostApiDocs;
@@ -15,18 +16,22 @@ import com.personal.marketnote.community.adapter.in.web.post.mapper.PostRequestT
 import com.personal.marketnote.community.adapter.in.web.post.request.RegisterPostRequest;
 import com.personal.marketnote.community.adapter.in.web.post.request.UpdatePostRequest;
 import com.personal.marketnote.community.adapter.in.web.post.response.GetPostsResponse;
+import com.personal.marketnote.community.adapter.in.web.post.response.GetUserOneOnOneInquiryPostsResponse;
 import com.personal.marketnote.community.adapter.in.web.post.response.GetUserProductInquiryPostsResponse;
 import com.personal.marketnote.community.adapter.in.web.post.response.PostItemResponse;
 import com.personal.marketnote.community.adapter.in.web.post.response.RegisterPostResponse;
 import com.personal.marketnote.community.domain.post.*;
 import com.personal.marketnote.community.port.in.command.post.GetPostQuery;
 import com.personal.marketnote.community.port.in.command.post.GetPostsQuery;
+import com.personal.marketnote.community.port.in.command.post.GetUserOneOnOneInquiryPostsCommand;
 import com.personal.marketnote.community.port.in.command.post.GetUserProductInquiryPostsCommand;
 import com.personal.marketnote.community.port.in.result.post.GetPostsResult;
+import com.personal.marketnote.community.port.in.result.post.GetUserOneOnOneInquiryPostsResult;
 import com.personal.marketnote.community.port.in.result.post.GetUserProductInquiryPostsResult;
 import com.personal.marketnote.community.port.in.result.post.PostItemResult;
 import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
 import com.personal.marketnote.community.port.in.usecase.post.GetPostUseCase;
+import com.personal.marketnote.community.port.in.usecase.post.GetUserOneOnOneInquiryPostsUseCase;
 import com.personal.marketnote.community.port.in.usecase.post.GetUserProductInquiryPostsUseCase;
 import com.personal.marketnote.community.port.in.usecase.post.RegisterPostUseCase;
 import com.personal.marketnote.community.port.in.usecase.post.UpdatePostUseCase;
@@ -65,6 +70,7 @@ public class PostController {
     private final RegisterPostUseCase registerPostUseCase;
     private final GetPostUseCase getPostUseCase;
     private final GetUserProductInquiryPostsUseCase getUserProductInquiryPostsUseCase;
+    private final GetUserOneOnOneInquiryPostsUseCase getUserOneOnOneInquiryPostsUseCase;
     private final UpdatePostUseCase updatePostUseCase;
 
     /**
@@ -284,6 +290,44 @@ public class PostController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "회원 상품 문의 내역 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 회원 1:1 문의 내역 조회
+     *
+     * @param userId        회원 ID
+     * @param page          페이지 번호 (1부터 시작)
+     * @param pageSize      페이지 크기
+     * @param sortDirection 정렬 방향
+     * @param sortProperty  정렬 기준
+     * @return 회원 1:1 문의 내역 조회 응답 {@link GetUserOneOnOneInquiryPostsResponse}
+     * @Author 성효빈
+     * @Date 2026-04-01
+     * @Description 관리자가 특정 회원의 1:1 문의 내역을 조회합니다.
+     */
+    @GetMapping("/admin/users/{userId}/one-on-one-inquiries")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetUserOneOnOneInquiryPostsApiDocs
+    public ResponseEntity<BaseResponse<GetUserOneOnOneInquiryPostsResponse>> getUserOneOnOneInquiryPosts(
+            @PathVariable("userId") Long userId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "page-size", required = false, defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(value = "sort-direction", required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+            @RequestParam(value = "sort-property", required = false, defaultValue = "ID") PostSortProperty sortProperty
+    ) {
+        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsUseCase.getUserOneOnOneInquiryPosts(
+                new GetUserOneOnOneInquiryPostsCommand(userId, page, pageSize, sortDirection, sortProperty)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetUserOneOnOneInquiryPostsResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 1:1 문의 내역 조회 성공"
                 ),
                 HttpStatus.OK
         );
