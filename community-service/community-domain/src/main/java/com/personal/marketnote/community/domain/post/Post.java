@@ -34,6 +34,7 @@ public class Post {
     private Long targetId;
     private String productImageUrl;
     private String writerName;
+    private String writerMaskedName;
     private String title;
     private String content;
     private boolean isPrivate;
@@ -68,7 +69,8 @@ public class Post {
                 .targetType(state.getTargetType())
                 .targetId(state.getTargetId())
                 .productImageUrl(state.getProductImageUrl())
-                .writerName(ValueMasker.mask(state.getWriterName()))
+                .writerName(state.getWriterName())
+                .writerMaskedName(ValueMasker.mask(state.getWriterName()))
                 .title(state.getTitle())
                 .content(state.getContent())
                 .isPrivate(state.isPrivate())
@@ -90,6 +92,7 @@ public class Post {
                 .targetId(state.getTargetId())
                 .productImageUrl(state.getProductImageUrl())
                 .writerName(state.getWriterName())
+                .writerMaskedName(state.getWriterMaskedName())
                 .title(state.getTitle())
                 .content(state.getContent())
                 .isPrivate(state.isPrivate())

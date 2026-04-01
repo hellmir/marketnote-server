@@ -86,6 +86,7 @@ import java.lang.annotation.*;
                 | targetType | string | 대상 유형 | "PRICE_POLICY" |
                 | targetId | number | 대상 ID | 120 |
                 | writerName | string | 작성자명 | "홍길동" |
+                | writerMaskedName | string | 마스킹된 작성자명 | "홍*동" |
                 | title | string | 제목 | "배송 문의" |
                 | content | string | 내용 | "배송 언제 오나요?" |
                 | isPrivate | boolean | 비밀글 여부 | true |
@@ -110,6 +111,7 @@ import java.lang.annotation.*;
                 | targetId | number | 대상 ID | null |
                 | productImageUrl | string | 상품 이미지 URL | "https://example.com/image.jpg" |
                 | writerName | string | 작성자명 | "홍*동" |
+                | writerMaskedName | string | 마스킹된 작성자명 | "홍*동" |
                 | title | string | 제목 | "게시글 제목" |
                 | content | string | 내용 | "게시글 내용" |
                 | isPrivate | boolean | 비밀글 여부 | false |
@@ -163,6 +165,7 @@ import java.lang.annotation.*;
                                             "targetType": "PRICE_POLICY",
                                             "targetId": 120,
                                             "writerName": "홍길동",
+                                            "writerMaskedName": "홍*동",
                                             "title": "배송 문의",
                                             "content": "배송 언제 오나요?",
                                             "isPrivate": true,
@@ -184,6 +187,7 @@ import java.lang.annotation.*;
                                                 "targetId": null,
                                                 "productImageUrl": "https://example.com/image.jpg",
                                                 "writerName": "홍*동",
+                                                "writerMaskedName": "홍*동",
                                                 "title": "게시글 제목",
                                                 "content": "게시글 내용",
                                                 "isPrivate": false,

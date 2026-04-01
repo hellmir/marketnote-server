@@ -50,6 +50,9 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "writer_name", nullable = false, length = 15)
     private String writerName;
 
+    @Column(name = "writer_masked_name", nullable = false, length = 15)
+    private String writerMaskedName;
+
     @Column(name = "title")
     private String title;
 
@@ -76,6 +79,7 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
                 .targetId(post.getTargetId())
                 .productImageUrl(post.getProductImageUrl())
                 .writerName(post.getWriterName())
+                .writerMaskedName(post.getWriterMaskedName())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .isPrivate(post.isPrivate())
