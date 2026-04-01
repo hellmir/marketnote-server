@@ -83,7 +83,8 @@ import java.lang.annotation.*;
                 | productImageUrl | string | 상품 이미지 URL | "https://example.com/image.jpg" |
                 | selectedOptions | string | 선택된 옵션 목록 | "30개입, 5박스" |
                 | quantity | number | 주문 수량 | 2 |
-                | reviewerName | string | 리뷰 작성자 이름 | "홍*동" |
+                | reviewerName | string | 리뷰 작성자 이름(원본) | "홍길동" |
+                | reviewerMaskedName | string | 리뷰 작성자 이름(마스킹) | "홍*동" |
                 | rating | number | 평점 | 4 |
                 | content | string | 리뷰 내용 | "배송이 빠르고 포장 상태도 좋았습니다." |
                 | isPhoto | boolean | 포토 리뷰 여부 | false |
@@ -196,7 +197,8 @@ import java.lang.annotation.*;
                                                   "productImageUrl": "https://example.com/image.jpg",
                                                   "selectedOptions": "30개입, 5박스",
                                                   "quantity": 2,
-                                                  "reviewerName": "홍*동",
+                                                  "reviewerName": "홍길동",
+                                                  "reviewerMaskedName": "홍*동",
                                                   "rating": 1,
                                                   "content": "배송이 느리고 포장 상태도 나빴습니다.",
                                                   "isPhoto": false,
@@ -240,7 +242,8 @@ import java.lang.annotation.*;
                                                   "productImageUrl": "https://example.com/image.jpg",
                                                   "selectedOptions": "30개입, 5박스",
                                                   "quantity": 2,
-                                                  "reviewerName": "홍*동",
+                                                  "reviewerName": "홍길동",
+                                                  "reviewerMaskedName": "홍*동",
                                                   "rating": 5,
                                                   "content": "배송이 빠르고 포장 상태도 좋았습니다.",
                                                   "isPhoto": false,
@@ -284,7 +287,8 @@ import java.lang.annotation.*;
                                                   "productImageUrl": "https://example.com/image.jpg",
                                                   "selectedOptions": "30개입, 5박스",
                                                   "quantity": 2,
-                                                  "reviewerName": "홍*동",
+                                                  "reviewerName": "홍길동",
+                                                  "reviewerMaskedName": "홍*동",
                                                   "rating": 5,
                                                   "content": "배송이 빠르고 포장 상태도 좋았습니다.",
                                                   "isPhoto": true,
@@ -347,7 +351,8 @@ import java.lang.annotation.*;
                                                   "productImageUrl": "https://example.com/image.jpg",
                                                   "selectedOptions": "30개입, 5박스",
                                                   "quantity": 2,
-                                                  "reviewerName": "홍*동",
+                                                  "reviewerName": "홍길동",
+                                                  "reviewerMaskedName": "홍*동",
                                                   "rating": 5,
                                                   "content": "배송이 빠르고 포장 상태도 좋았습니다.",
                                                   "isPhoto": false,

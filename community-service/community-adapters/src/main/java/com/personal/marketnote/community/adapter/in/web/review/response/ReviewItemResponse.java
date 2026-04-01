@@ -19,6 +19,7 @@ public record ReviewItemResponse(
         String selectedOptions,
         Integer quantity,
         String reviewerName,
+        String reviewerMaskedName,
         Float rating,
         String content,
         Boolean isPhoto,
@@ -43,6 +44,7 @@ public record ReviewItemResponse(
                 .selectedOptions(result.selectedOptions())
                 .quantity(result.quantity())
                 .reviewerName(result.reviewerName())
+                .reviewerMaskedName(result.reviewerMaskedName())
                 .rating(result.rating())
                 .content(result.content())
                 .isPhoto(result.isPhoto())
