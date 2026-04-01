@@ -12,8 +12,8 @@ import com.personal.marketnote.user.service.exception.UnlinkOauth2AccountFailedE
  */
 public interface Oauth2AccountUnlinkPort {
     /**
-     * @param vendor      OAuth2 벤더
-     * @param credential  벤더별 연결 해제에 필요한 자격 증명 (OIDC ID 또는 액세스 토큰)
+     * @param vendor     OAuth2 벤더
+     * @param credential 벤더별 연결 해제에 필요한 자격 증명 (OIDC ID 또는 액세스 토큰)
      * @throws UnlinkOauth2AccountFailedException 계정 연결 해제 실패 시
      * @Date 2026-03-27
      * @Author 성효빈

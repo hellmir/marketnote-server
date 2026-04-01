@@ -19,15 +19,15 @@ import java.lang.annotation.*;
         summary = "(관리자) 회원 상품 문의 내역 조회",
         description = """
                 작성일자: 2026-04-01
-
+                
                 작성자: 성효빈
-
+                
                 - 관리자가 특정 회원의 상품 문의 내역을 오프셋 페이지네이션으로 조회합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | userId | number (path) | 회원 ID | Y | 1 |
@@ -35,11 +35,11 @@ import java.lang.annotation.*;
                 | page-size | number | 페이지 크기 | N (기본값: 10) | 10 |
                 | sort-direction | string | 정렬 방향(DESC/ASC) | N (기본값: DESC) | "DESC" |
                 | sort-property | string | 정렬 기준 | N (기본값: ID) | "ID" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
@@ -47,9 +47,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-04-01T10:00:00" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "회원 상품 문의 내역 조회 성공" |
-
+                
                 ### Response > content > posts
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | page | number | 현재 페이지 | 1 |

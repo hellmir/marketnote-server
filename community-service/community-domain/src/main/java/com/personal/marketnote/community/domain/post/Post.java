@@ -70,13 +70,20 @@ public class Post {
                 .targetId(state.getTargetId())
                 .productImageUrl(state.getProductImageUrl())
                 .writerName(state.getWriterName())
-                .writerMaskedName(ValueMasker.mask(state.getWriterName()))
+                .writerMaskedName(resolveWriterMaskedName(state))
                 .title(state.getTitle())
                 .content(state.getContent())
                 .isPrivate(state.isPrivate())
                 .isPhoto(state.isPhoto())
                 .status(EntityStatus.ACTIVE)
                 .build();
+    }
+
+    private static String resolveWriterMaskedName(PostCreateState state) {
+        if (state.getBoard().requiresWriterMasking()) {
+            return ValueMasker.mask(state.getWriterName());
+        }
+        return state.getWriterName();
     }
 
     public static Post from(PostSnapshotState state) {

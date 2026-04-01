@@ -81,4 +81,8 @@ public enum Board {
     public boolean isEditable() {
         return isNotice() || isFaq();
     }
+
+    public boolean requiresWriterMasking() {
+        return !isOneOnOneInquery();
+    }
 }
