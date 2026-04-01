@@ -122,6 +122,27 @@ public interface FindPostPort {
     long countUserPosts(Long userId, Board board, PostSearchTarget searchTarget, String searchKeyword);
 
     /**
+     * @param userId       회원 ID
+     * @param board        게시판
+     * @param page         페이지 번호 (1부터 시작)
+     * @param pageSize     페이지 크기
+     * @param isDesc       내림차순 여부
+     * @param sortProperty 정렬 속성
+     * @return 게시글 목록 {@link Posts}
+     * @Date 2026-04-01
+     * @Author 성효빈
+     * @Description 회원 게시글 목록을 오프셋 기반으로 조회합니다.
+     */
+    Posts findUserPostsByOffset(
+            Long userId,
+            Board board,
+            int page,
+            int pageSize,
+            boolean isDesc,
+            PostSortProperty sortProperty
+    );
+
+    /**
      * @param id 게시글 ID
      * @return 게시글 {@link Post}
      * @Date 2026-01-29
