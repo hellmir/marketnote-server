@@ -119,4 +119,23 @@ public interface FindReviewPort {
      * @Description 총 리뷰 개수를 조회합니다.
      */
     long countActive(Long reviewerId);
+
+    /**
+     * @param reviewerId   리뷰 작성자 ID
+     * @param page         페이지 번호 (1부터 시작)
+     * @param pageSize     페이지 크기
+     * @param isDesc       내림차순 여부
+     * @param sortProperty 정렬 속성
+     * @return 회원 리뷰 목록 {@link Reviews}
+     * @Date 2026-04-01
+     * @Author 성효빈
+     * @Description 회원 리뷰 목록을 오프셋 기반으로 조회합니다.
+     */
+    Reviews findUserReviewsByOffset(
+            Long reviewerId,
+            int page,
+            int pageSize,
+            boolean isDesc,
+            ReviewSortProperty sortProperty
+    );
 }

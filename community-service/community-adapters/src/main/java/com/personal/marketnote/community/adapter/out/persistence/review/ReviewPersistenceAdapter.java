@@ -18,6 +18,7 @@ import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -162,6 +163,25 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
     @Override
     public long countActive(Long reviewerId) {
         return reviewJpaRepository.countByReviewerId(reviewerId);
+    }
+
+    @Override
+    public Reviews findUserReviewsByOffset(
+            Long reviewerId,
+            int page,
+            int pageSize,
+            boolean isDesc,
+            ReviewSortProperty sortProperty
+    ) {
+        String sortField = sortProperty.getCamelCaseValue();
+        Sort sort = isDesc ? Sort.by(Sort.Direction.DESC, sortField) : Sort.by(Sort.Direction.ASC, sortField);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
+
+        List<ReviewJpaEntity> entities = reviewJpaRepository.findUserReviewsByOffset(reviewerId, pageable);
+
+        return Reviews.from(entities.stream()
+                .map(entity -> ReviewJpaEntityToDomainMapper.mapToDomain(entity).orElse(null))
+                .toList());
     }
 
     @Override
