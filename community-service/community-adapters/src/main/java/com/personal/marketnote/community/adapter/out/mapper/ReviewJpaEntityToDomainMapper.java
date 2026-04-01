@@ -25,6 +25,7 @@ public class ReviewJpaEntityToDomainMapper {
                                 .selectedOptions(entity.getSelectedOptions())
                                 .quantity(entity.getQuantity())
                                 .reviewerName(entity.getReviewerName())
+                                .reviewerMaskedName(entity.getReviewerMaskedName())
                                 .rating(entity.getRating())
                                 .content(entity.getContent())
                                 .isPhoto(entity.getIsPhoto())

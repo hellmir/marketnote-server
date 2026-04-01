@@ -45,6 +45,9 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "reviewer_name", nullable = false, length = 15)
     private String reviewerName;
 
+    @Column(name = "reviewer_masked_name", nullable = false, length = 15)
+    private String reviewerMaskedName;
+
     @Column(name = "rating", nullable = false)
     private Float rating;
 
@@ -78,6 +81,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
                 .selectedOptions(review.getSelectedOptions())
                 .quantity(review.getQuantity())
                 .reviewerName(review.getReviewerName())
+                .reviewerMaskedName(review.getReviewerMaskedName())
                 .rating(review.getRating())
                 .content(review.getContent())
                 .isPhoto(review.getIsPhoto())
