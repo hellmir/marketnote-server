@@ -2,11 +2,7 @@ package com.personal.marketnote.product.adapter.out.persistence.image.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(

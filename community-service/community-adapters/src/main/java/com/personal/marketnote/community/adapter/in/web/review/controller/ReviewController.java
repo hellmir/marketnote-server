@@ -10,13 +10,9 @@ import com.personal.marketnote.community.adapter.in.web.review.request.UpdateRev
 import com.personal.marketnote.community.adapter.in.web.review.response.*;
 import com.personal.marketnote.community.domain.review.ReviewSortProperty;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
-import com.personal.marketnote.community.port.in.result.review.*;
 import com.personal.marketnote.community.port.in.command.review.GetUserReviewsCommand;
-import com.personal.marketnote.community.port.in.usecase.review.DeleteReviewUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.GetUserReviewsUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.RegisterReviewUseCase;
-import com.personal.marketnote.community.port.in.usecase.review.UpdateReviewUseCase;
+import com.personal.marketnote.community.port.in.result.review.*;
+import com.personal.marketnote.community.port.in.usecase.review.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

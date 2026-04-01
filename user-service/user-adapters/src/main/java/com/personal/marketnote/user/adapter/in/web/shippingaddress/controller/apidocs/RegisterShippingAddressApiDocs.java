@@ -142,7 +142,7 @@ import java.lang.annotation.*;
                                           "code": "ERR02",
                                           "timestamp": "2026-02-19T12:00:00.000000",
                                           "content": null,
-                                          "message": "ERR02:: 기타 배송지는 최대 5개까지 등록할 수 있습니다."
+                                          "message": "ERR02:: 기타 배송지는 최대 10개까지 등록할 수 있습니다."
                                         }
                                         """)
                         )

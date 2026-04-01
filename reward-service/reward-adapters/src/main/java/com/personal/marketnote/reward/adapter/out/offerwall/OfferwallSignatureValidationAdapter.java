@@ -12,7 +12,6 @@ import com.personal.marketnote.reward.exception.InvalidOfferwallTypeException;
 import com.personal.marketnote.reward.exception.RewardTargetInfoNotFoundException;
 import com.personal.marketnote.reward.port.out.offerwall.ValidateOfferwallSignaturePort;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;

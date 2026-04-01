@@ -25,7 +25,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @UseCase
 @Transactional(isolation = READ_COMMITTED)
 public class RegisterShippingAddressService implements RegisterShippingAddressUseCase {
-    private static final long MAX_OTHER_ADDRESS_COUNT = 5;
+    private static final long MAX_OTHER_ADDRESS_COUNT = 10L;
 
     private final FindShippingAddressPort findShippingAddressPort;
     private final SaveShippingAddressPort saveShippingAddressPort;
