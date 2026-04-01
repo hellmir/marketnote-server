@@ -12,7 +12,9 @@ import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
 import com.personal.marketnote.community.port.out.post.UpdatePostPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
 import java.util.List;
@@ -182,6 +184,33 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
         return postJpaRepository.countByUserIdAndBoard(
                 userId, board, searchInTitle, searchInContent, searchKeywordPattern, EntityStatus.ACTIVE
         );
+    }
+
+    @Override
+    public Posts findUserPostsByOffset(
+            Long userId,
+            Board board,
+            int page,
+            int pageSize,
+            boolean isDesc,
+            PostSortProperty sortProperty
+    ) {
+        String sortField = getSortField(sortProperty);
+        Sort sort = isDesc ? Sort.by(Sort.Direction.DESC, sortField) : Sort.by(Sort.Direction.ASC, sortField);
+        Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
+
+        return mapToPostsWithReplies(
+                postJpaRepository.findByUserIdAndBoardByOffset(
+                        userId, board, EntityStatus.ACTIVE, pageable
+                )
+        );
+    }
+
+    private String getSortField(PostSortProperty sortProperty) {
+        return switch (sortProperty) {
+            case ORDER_NUM -> "orderNum";
+            case IS_ANSWERED, ID -> "id";
+        };
     }
 
     @Override

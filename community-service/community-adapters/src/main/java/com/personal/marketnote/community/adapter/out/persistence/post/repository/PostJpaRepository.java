@@ -259,6 +259,21 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
     );
 
     @Query("""
+            SELECT p
+            FROM PostJpaEntity p
+            WHERE p.status = :status
+              AND p.board = :board
+              AND p.userId = :userId
+              AND p.parentId IS NULL
+            """)
+    List<PostJpaEntity> findByUserIdAndBoardByOffset(
+            @Param("userId") Long userId,
+            @Param("board") Board board,
+            @Param("status") EntityStatus status,
+            Pageable pageable
+    );
+
+    @Query("""
                 SELECT p
                 FROM PostJpaEntity p
                 WHERE p.id IN (
