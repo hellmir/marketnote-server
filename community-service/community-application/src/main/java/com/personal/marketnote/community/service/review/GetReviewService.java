@@ -159,7 +159,7 @@ public class GetReviewService implements GetReviewUseCase {
     }
 
     @Override
-    public GetReviewsResult getWriterReviews(
+    public GetMyReviewsResult getWriterReviews(
             Long userId, Long cursor, int pageSize, Sort.Direction sortDirection, ReviewSortProperty sortProperty
     ) {
         Pageable pageable = PageRequest.of(
@@ -191,7 +191,7 @@ public class GetReviewService implements GetReviewUseCase {
 
         Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId = findReviewProductInfo(pagedReviews);
 
-        return GetReviewsResult.from(
+        return GetMyReviewsResult.from(
                 hasNext,
                 nextCursor,
                 totalElements,
