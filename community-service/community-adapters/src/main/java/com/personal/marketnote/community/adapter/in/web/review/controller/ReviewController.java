@@ -147,14 +147,14 @@ public class ReviewController {
      */
     @GetMapping("/reviews/me")
     @GetMyReviewsApiDocs
-    public ResponseEntity<BaseResponse<GetReviewsResponse>> getMyReviews(
+    public ResponseEntity<BaseResponse<GetMyReviewsResponse>> getMyReviews(
             @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCT_REVIEWS_DEFAULT_PAGE_SIZE) int pageSize,
             @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
             @RequestParam(required = false, defaultValue = "ID") ReviewSortProperty sortProperty,
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
-        GetReviewsResult result = getReviewUseCase.getWriterReviews(
+        GetMyReviewsResult result = getReviewUseCase.getWriterReviews(
                 ElementExtractor.extractUserId(principal),
                 cursor,
                 pageSize,
@@ -164,7 +164,7 @@ public class ReviewController {
 
         return new ResponseEntity<>(
                 BaseResponse.of(
-                        GetReviewsResponse.from(result),
+                        GetMyReviewsResponse.from(result),
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "나의 리뷰 목록 조회 성공"
