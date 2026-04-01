@@ -23,6 +23,7 @@ public class PostSnapshotState {
     private final Long targetId;
     private final String productImageUrl;
     private final String writerName;
+    private final String writerMaskedName;
     private final String title;
     private final String content;
     private final boolean isPrivate;
