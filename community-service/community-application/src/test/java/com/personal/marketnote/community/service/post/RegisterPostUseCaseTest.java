@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.service.post;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.utility.ValueMasker;
 import com.personal.marketnote.community.domain.post.*;
 import com.personal.marketnote.community.exception.NotProductSellerException;
 import com.personal.marketnote.community.port.in.command.post.RegisterPostCommand;
@@ -203,6 +204,8 @@ class RegisterPostUseCaseTest {
         assertThat(captured.getTargetType()).isEqualTo(PostTargetType.PRICE_POLICY);
         assertThat(captured.getTargetId()).isEqualTo(88L);
         assertThat(captured.getProductImageUrl()).isEqualTo("https://example.com/img.jpg");
+        assertThat(captured.getWriterName()).isEqualTo("테스트유저");
+        assertThat(captured.getWriterMaskedName()).isEqualTo("테스트***");
         assertThat(captured.getTitle()).isEqualTo("문의합니다");
         assertThat(captured.getContent()).isEqualTo("재입고 예정이 있나요?");
         assertThat(captured.isPrivate()).isTrue();
@@ -320,6 +323,7 @@ class RegisterPostUseCaseTest {
                         .targetId(command.targetId())
                         .productImageUrl(command.productImageUrl())
                         .writerName(command.writerName())
+                        .writerMaskedName(ValueMasker.mask(command.writerName()))
                         .title(command.title())
                         .content(command.content())
                         .isPrivate(command.isPrivate())
