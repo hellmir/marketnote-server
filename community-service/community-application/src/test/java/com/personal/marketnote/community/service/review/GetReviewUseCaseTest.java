@@ -280,6 +280,83 @@ class GetReviewUseCaseTest {
         verifyNoInteractions(findProductByPricePolicyPort, getLikeUseCase);
     }
 
+    // ========== 응답 분리 ==========
+
+    @Test
+    @DisplayName("상품 리뷰 목록 조회 시 응답에 maskedReviewerName이 포함된다")
+    void getProductReviews_containsMaskedReviewerName() {
+        // given
+        Long userId = 10L;
+        Long productId = 20L;
+        int pageSize = 2;
+        Review review = buildReview(101L, userId, productId, 1001L, false);
+        Reviews reviews = Reviews.from(List.of(review));
+
+        when(findReviewPort.findProductReviews(
+                eq(productId),
+                eq(false),
+                eq(-1L),
+                any(Pageable.class),
+                eq(ReviewSortProperty.ID)
+        )).thenReturn(reviews);
+        when(findReviewPort.countActive(productId, false)).thenReturn(1L);
+
+        // when
+        GetReviewsResult result = getReviewService.getProductReviews(
+                userId,
+                productId,
+                false,
+                -1L,
+                pageSize,
+                Sort.Direction.DESC,
+                ReviewSortProperty.ID
+        );
+
+        // then
+        assertThat(result.reviews()).hasSize(1);
+        assertThat(result.reviews().getFirst().maskedReviewerName()).isEqualTo("사*자-101");
+    }
+
+    @Test
+    @DisplayName("상품 리뷰 목록 조회 시 응답에 reviewerName이 포함되지 않는다")
+    void getProductReviews_doesNotContainReviewerName() {
+        // given
+        Long userId = 10L;
+        Long productId = 20L;
+        int pageSize = 2;
+        Review review = buildReview(101L, userId, productId, 1001L, false);
+        Reviews reviews = Reviews.from(List.of(review));
+
+        when(findReviewPort.findProductReviews(
+                eq(productId),
+                eq(false),
+                eq(-1L),
+                any(Pageable.class),
+                eq(ReviewSortProperty.ID)
+        )).thenReturn(reviews);
+        when(findReviewPort.countActive(productId, false)).thenReturn(1L);
+
+        // when
+        GetReviewsResult result = getReviewService.getProductReviews(
+                userId,
+                productId,
+                false,
+                -1L,
+                pageSize,
+                Sort.Direction.DESC,
+                ReviewSortProperty.ID
+        );
+
+        // then
+        assertThat(result.reviews()).hasSize(1);
+        // ReviewItemResult에는 reviewerName 필드가 존재하지 않음을 컴파일 타임에 보장
+        // maskedReviewerName만 포함되어 있는지 검증
+        assertThat(result.reviews().getFirst().maskedReviewerName()).isNotNull();
+        assertThat(result.reviews().getFirst()).hasNoNullFieldsOrPropertiesExcept(
+                "images", "product"
+        );
+    }
+
     private Review buildReview(
             Long id,
             Long reviewerId,
@@ -298,6 +375,7 @@ class GetReviewUseCaseTest {
                         .selectedOptions("옵션-" + id)
                         .quantity(1)
                         .reviewerName("사용자-" + id)
+                        .reviewerMaskedName("사*자-" + id)
                         .rating(5.0f)
                         .content("리뷰-" + id)
                         .isPhoto(isPhoto)
