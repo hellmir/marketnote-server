@@ -121,8 +121,7 @@ import java.lang.annotation.*;
                 | category | string | 카테고리 | "PRODUCT_QUESTION" |
                 | targetType | string | 대상 유형 | "PRICE_POLICY" |
                 | targetId | number | 대상 ID | 120 |
-                | writerName | string | 작성자명 | "홍길동" |
-                | writerMaskedName | string | 마스킹된 작성자명 | "홍*동" |
+                | maskedWriterName | string | 마스킹된 작성자명 | "홍*동" |
                 | title | string | 제목 | "배송 문의" |
                 | content | string | 내용 | "배송 언제 오나요?" |
                 | isPrivate | boolean | 비밀글 여부 | true |
@@ -279,8 +278,7 @@ import java.lang.annotation.*;
                                                   "targetType": "PRICE_POLICY",
                                                   "targetId": 180,
                                                   "productImageUrl": null,
-                                                  "writerName": "홍*동",
-                                                  "writerMaskedName": "홍*동",
+                                                  "maskedWriterName": "홍*동",
                                                   "title": "게시글 제목",
                                                   "content": "게시글 내용",
                                                   "isPrivate": false,
@@ -322,8 +320,7 @@ import java.lang.annotation.*;
                                                   "targetType": "PRICE_POLICY",
                                                   "targetId": 180,
                                                   "productImageUrl": null,
-                                                  "writerName": "김*",
-                                                  "writerMaskedName": "김*",
+                                                  "maskedWriterName": "김*",
                                                   "title": null,
                                                   "content": null,
                                                   "isPrivate": true,
@@ -355,8 +352,7 @@ import java.lang.annotation.*;
                                                   "targetType": "PRICE_POLICY",
                                                   "targetId": 180,
                                                   "productImageUrl": null,
-                                                  "writerName": "김*",
-                                                  "writerMaskedName": "김*",
+                                                  "maskedWriterName": "김*",
                                                   "title": null,
                                                   "content": null,
                                                   "isPrivate": true,
@@ -388,8 +384,7 @@ import java.lang.annotation.*;
                                                   "targetType": "PRICE_POLICY",
                                                   "targetId": 180,
                                                   "productImageUrl": null,
-                                                  "writerName": "홍*동",
-                                                  "writerMaskedName": "홍*동",
+                                                  "maskedWriterName": "홍*동",
                                                   "title": "게시글 제목",
                                                   "content": "게시글 내용",
                                                   "isPrivate": false,
@@ -420,8 +415,7 @@ import java.lang.annotation.*;
                                                       "targetType": "PRICE_POLICY",
                                                       "targetId": 180,
                                                       "productImageUrl": null,
-                                                      "writerName": "홍*동",
-                                                      "writerMaskedName": "홍*동",
+                                                      "maskedWriterName": "홍*동",
                                                       "title": "게시글 답변 제목",
                                                       "content": "게시글 답변 내용",
                                                       "isPrivate": false,

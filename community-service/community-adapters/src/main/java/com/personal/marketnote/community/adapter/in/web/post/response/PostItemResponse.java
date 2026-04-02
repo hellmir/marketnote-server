@@ -20,8 +20,7 @@ public record PostItemResponse(
         PostTargetType targetType,
         Long targetId,
         String productImageUrl,
-        String writerName,
-        String writerMaskedName,
+        String maskedWriterName,
         String title,
         String content,
         boolean isPrivate,
@@ -46,8 +45,7 @@ public record PostItemResponse(
                 .targetType(result.getTargetType())
                 .targetId(result.getTargetId())
                 .productImageUrl(result.getProductImageUrl())
-                .writerName(result.getWriterName())
-                .writerMaskedName(result.getWriterMaskedName())
+                .maskedWriterName(result.getMaskedWriterName())
                 .title(result.getTitle())
                 .content(result.getContent())
                 .isPrivate(result.isPrivate())

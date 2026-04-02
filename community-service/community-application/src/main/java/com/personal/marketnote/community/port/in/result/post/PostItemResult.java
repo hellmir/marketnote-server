@@ -22,8 +22,7 @@ public class PostItemResult {
     private PostTargetType targetType;
     private Long targetId;
     private String productImageUrl;
-    private String writerName;
-    private String writerMaskedName;
+    private String maskedWriterName;
     private String title;
     private String content;
     private boolean isPrivate;
@@ -51,8 +50,7 @@ public class PostItemResult {
                 .targetType(post.getTargetType())
                 .targetId(post.getTargetId())
                 .productImageUrl(post.getProductImageUrl())
-                .writerName(post.getWriterName())
-                .writerMaskedName(post.getWriterMaskedName())
+                .maskedWriterName(post.getWriterMaskedName())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .isPrivate(post.isPrivate())
@@ -80,8 +78,7 @@ public class PostItemResult {
                 .targetType(post.getTargetType())
                 .targetId(post.getTargetId())
                 .productImageUrl(post.getProductImageUrl())
-                .writerName(post.getWriterName())
-                .writerMaskedName(post.getWriterMaskedName())
+                .maskedWriterName(post.getWriterMaskedName())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .isPrivate(post.isPrivate())
