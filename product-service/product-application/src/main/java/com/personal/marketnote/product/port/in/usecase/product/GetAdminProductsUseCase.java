@@ -25,7 +25,7 @@ public interface GetAdminProductsUseCase {
      * @param searchTarget   검색 대상
      * @param searchKeyword  검색 키워드
      * @return 관리자 상품 목록 조회 결과 {@link GetAdminProductsResult}
-     * @Date 2026-02-03
+     * @Date 2026-02-19
      * @Author 성효빈
      * @Description 관리자 상품 목록을 조회합니다.
      */
