@@ -651,6 +651,53 @@ class GetPostsUseCaseTest {
                 .isSameAs(exception);
     }
 
+    // ========== K. 응답 분리 ==========
+
+    @Test
+    @DisplayName("상품 문의 목록 조회 시 응답에 maskedWriterName이 포함된다")
+    void getPosts_productInquery_containsMaskedWriterName() {
+        // given
+        Long targetId = 100L;
+        GetPostsQuery query = productInqueryPublicQuery().build();
+        Post post = buildProductInqueryPostWithWriterName(1L, 1L, targetId, "작성자이름", "작*자");
+        mockPublicPosts(Posts.from(List.of(post)));
+        ProductInfoResult productInfo = buildProductInfo(1L);
+        when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                .thenReturn(Map.of(targetId, productInfo));
+
+        // when
+        GetPostsResult result = getPostService.getPosts(query);
+
+        // then
+        assertThat(result.posts()).hasSize(1);
+        assertThat(result.posts().getFirst().getMaskedWriterName()).isEqualTo("작*자");
+    }
+
+    @Test
+    @DisplayName("상품 문의 목록 조회 시 응답에 writerName이 포함되지 않는다")
+    void getPosts_productInquery_doesNotContainWriterName() {
+        // given
+        Long targetId = 100L;
+        GetPostsQuery query = productInqueryPublicQuery().build();
+        Post post = buildProductInqueryPostWithWriterName(1L, 1L, targetId, "작성자이름", "작*자");
+        mockPublicPosts(Posts.from(List.of(post)));
+        ProductInfoResult productInfo = buildProductInfo(1L);
+        when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                .thenReturn(Map.of(targetId, productInfo));
+
+        // when
+        GetPostsResult result = getPostService.getPosts(query);
+
+        // then
+        assertThat(result.posts()).hasSize(1);
+        // PostItemResult에는 writerName 필드가 존재하지 않음을 컴파일 타임에 보장
+        // maskedWriterName만 포함되어 있는지 검증
+        assertThat(result.posts().getFirst().getMaskedWriterName()).isNotNull();
+        assertThat(result.posts().getFirst()).hasNoNullFieldsOrPropertiesExcept(
+                "parentId", "productImageUrl", "images", "replies"
+        );
+    }
+
     // ========== Query Builders ==========
 
     private GetPostsQuery.GetPostsQueryBuilder publicQuery(Board board) {
@@ -779,6 +826,25 @@ class GetPostsUseCaseTest {
                 .category("PRODUCT_QUESTION")
                 .title(title)
                 .content(content)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build());
+    }
+
+    private Post buildProductInqueryPostWithWriterName(Long id, Long userId, Long targetId, String writerName, String writerMaskedName) {
+        return Post.from(PostSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .targetType(PostTargetType.PRICE_POLICY)
+                .targetId(targetId)
+                .writerName(writerName)
+                .writerMaskedName(writerMaskedName)
+                .title("상품 문의 제목")
+                .content("상품 문의 내용")
                 .status(EntityStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
