@@ -287,6 +287,58 @@ class GetUserReviewsUseCaseTest {
         );
     }
 
+    // ========== G. 응답 분리 ==========
+
+    @Test
+    @DisplayName("(관리자) 회원 리뷰 내역 조회 시 응답에 reviewerName이 포함된다")
+    void getUserReviews_containsReviewerName() {
+        // given
+        Long userId = 1L;
+        GetUserReviewsCommand command = new GetUserReviewsCommand(
+                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+        );
+        Reviews reviews = Reviews.from(List.of(
+                buildReviewWithReviewerName(1L, userId, "리뷰작성자")
+        ));
+        mockFindUserReviewsByOffset(reviews);
+        when(findReviewPort.countActive(userId)).thenReturn(1L);
+
+        // when
+        GetUserReviewsResult result = getUserReviewsService.getUserReviews(command);
+
+        // then
+        assertThat(result.reviews()).hasSize(1);
+        assertThat(result.reviews().getFirst().reviewerName()).isEqualTo("리뷰작성자");
+    }
+
+    @Test
+    @DisplayName("(관리자) 회원 리뷰 내역 조회 시 응답에 reviewerMaskedName이 포함되지 않는다")
+    void getUserReviews_doesNotContainReviewerMaskedName() {
+        // given
+        Long userId = 1L;
+        GetUserReviewsCommand command = new GetUserReviewsCommand(
+                userId, 1, 10, Sort.Direction.DESC, ReviewSortProperty.ID
+        );
+        Reviews reviews = Reviews.from(List.of(
+                buildReviewWithReviewerName(1L, userId, "리뷰작성자")
+        ));
+        mockFindUserReviewsByOffset(reviews);
+        when(findReviewPort.countActive(userId)).thenReturn(1L);
+
+        // when
+        GetUserReviewsResult result = getUserReviewsService.getUserReviews(command);
+
+        // then
+        assertThat(result.reviews()).hasSize(1);
+        // UserReviewItemResult에는 reviewerMaskedName 필드가 존재하지 않음을 컴파일 타임에 보장
+        // reviewerName만 포함되어 있는지 검증
+        assertThat(result.reviews().getFirst().reviewerName()).isNotNull();
+        assertThat(result.reviews().getFirst()).hasNoNullFieldsOrPropertiesExcept(
+                "pricePolicyId", "productImageUrl", "selectedOptions", "quantity",
+                "images", "product"
+        );
+    }
+
     // ========== Review Builders ==========
 
     private Review buildReview(Long id, Long reviewerId) {
@@ -316,6 +368,26 @@ class GetUserReviewsUseCaseTest {
                 .rating(5.0f)
                 .content("사진 리뷰입니다")
                 .isPhoto(true)
+                .isEdited(false)
+                .likeCount(0)
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build());
+    }
+
+    private Review buildReviewWithReviewerName(Long id, Long reviewerId, String reviewerName) {
+        return Review.from(ReviewSnapshotState.builder()
+                .id(id)
+                .reviewerId(reviewerId)
+                .orderId(100L)
+                .productId(50L)
+                .reviewerName(reviewerName)
+                .reviewerMaskedName("리*자")
+                .rating(5.0f)
+                .content("리뷰 내용입니다")
+                .isPhoto(false)
                 .isEdited(false)
                 .likeCount(0)
                 .status(EntityStatus.ACTIVE)
