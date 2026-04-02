@@ -8,6 +8,8 @@ import com.personal.marketnote.product.domain.shipping.ShippingPolicySnapshotSta
 import com.personal.marketnote.product.exception.ShippingPolicyAlreadyExistsException;
 import com.personal.marketnote.product.port.in.command.RegisterShippingPolicyCommand;
 import com.personal.marketnote.product.port.in.result.shipping.RegisterShippingPolicyResult;
+import com.personal.marketnote.common.kafka.event.ShippingPolicyChangeAction;
+import com.personal.marketnote.product.port.out.event.PublishShippingPolicyEventPort;
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import com.personal.marketnote.product.port.out.shipping.SaveShippingPolicyPort;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +40,9 @@ class RegisterShippingPolicyUseCaseTest {
 
     @Mock
     private SaveShippingPolicyPort saveShippingPolicyPort;
+
+    @Mock
+    private PublishShippingPolicyEventPort publishShippingPolicyEventPort;
 
     private ShippingPolicy createSavedPolicy(Long sellerId) {
         return ShippingPolicy.from(ShippingPolicySnapshotState.builder()
@@ -134,5 +139,45 @@ class RegisterShippingPolicyUseCaseTest {
                 .isInstanceOf(InvalidFreeShippingThresholdException.class);
 
         verify(saveShippingPolicyPort, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("배송비 정책 등록 성공 시 CREATED 이벤트를 발행한다")
+    void shouldPublishCreatedEventWhenPolicyRegistered() {
+        // given
+        Long sellerId = 10L;
+        when(findShippingPolicyPort.findActiveBySellerId(sellerId)).thenReturn(Optional.empty());
+        when(saveShippingPolicyPort.save(any(ShippingPolicy.class))).thenReturn(1L);
+
+        RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
+                "한진택배", 3000L, 20000L
+        );
+
+        // when
+        registerShippingPolicyService.registerShippingPolicy(sellerId, command);
+
+        // then
+        verify(publishShippingPolicyEventPort).publishShippingPolicyChangedEvent(
+                sellerId, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
+        );
+    }
+
+    @Test
+    @DisplayName("배송비 정책 등록 실패 시 이벤트를 발행하지 않는다")
+    void shouldNotPublishEventWhenRegistrationFails() {
+        // given
+        Long sellerId = 10L;
+        when(findShippingPolicyPort.findActiveBySellerId(sellerId))
+                .thenReturn(Optional.of(createSavedPolicy(sellerId)));
+
+        RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
+                "한진택배", 3000L, 20000L
+        );
+
+        // when & then
+        assertThatThrownBy(() -> registerShippingPolicyService.registerShippingPolicy(sellerId, command))
+                .isInstanceOf(ShippingPolicyAlreadyExistsException.class);
+
+        verifyNoInteractions(publishShippingPolicyEventPort);
     }
 }
