@@ -107,6 +107,9 @@
 - TNK
 - Adiscope
 
+### Coupon
+- Giftishow
+
 ### Notifications
 
 #### Push Notification
