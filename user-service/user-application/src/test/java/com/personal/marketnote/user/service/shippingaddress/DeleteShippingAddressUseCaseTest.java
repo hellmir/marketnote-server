@@ -1,10 +1,12 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
+import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +31,9 @@ class DeleteShippingAddressUseCaseTest {
 
     @Mock
     private UpdateShippingAddressPort updateShippingAddressPort;
+
+    @Mock
+    private PublishShippingAddressEventPort publishShippingAddressEventPort;
 
     @Test
     @DisplayName("배송지가 존재하면 논리적 삭제한다")
@@ -59,6 +64,9 @@ class DeleteShippingAddressUseCaseTest {
         // then
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verify(updateShippingAddressPort).update(shippingAddress);
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.DELETED
+        );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }
 
@@ -79,7 +87,7 @@ class DeleteShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
-        verifyNoInteractions(updateShippingAddressPort);
+        verifyNoInteractions(updateShippingAddressPort, publishShippingAddressEventPort);
     }
 
     @Test
@@ -111,7 +119,7 @@ class DeleteShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
-        verifyNoInteractions(updateShippingAddressPort);
+        verifyNoInteractions(updateShippingAddressPort, publishShippingAddressEventPort);
     }
 
     @Test
@@ -144,6 +152,6 @@ class DeleteShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
-        verifyNoInteractions(updateShippingAddressPort);
+        verifyNoInteractions(updateShippingAddressPort, publishShippingAddressEventPort);
     }
 }

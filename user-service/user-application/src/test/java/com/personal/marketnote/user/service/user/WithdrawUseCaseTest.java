@@ -147,7 +147,7 @@ class WithdrawUseCaseTest {
         User user = mock(User.class);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.getOidcIdByVendor(AuthVendor.GOOGLE)).thenReturn(googleOidcId);
+        lenient().when(user.getOidcIdByVendor(AuthVendor.GOOGLE)).thenReturn(googleOidcId);
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
@@ -199,7 +199,7 @@ class WithdrawUseCaseTest {
         User user = mock(User.class);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
-        when(user.getOidcIdByVendor(AuthVendor.APPLE)).thenReturn(appleOidcId);
+        lenient().when(user.getOidcIdByVendor(AuthVendor.APPLE)).thenReturn(appleOidcId);
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, Map.of());

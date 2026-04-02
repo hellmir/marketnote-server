@@ -1,11 +1,13 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippingAddressCommand;
+import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +33,9 @@ class UpdateShippingAddressUseCaseTest {
 
     @Mock
     private UpdateShippingAddressPort updateShippingAddressPort;
+
+    @Mock
+    private PublishShippingAddressEventPort publishShippingAddressEventPort;
 
     @Test
     @DisplayName("배송지가 존재하면 수정된 정보로 업데이트한다")
@@ -80,6 +85,9 @@ class UpdateShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verify(updateShippingAddressPort).update(shippingAddress);
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                1L, 100L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", ShippingAddressChangeAction.UPDATED
+        );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }
 
@@ -111,7 +119,7 @@ class UpdateShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verifyNoMoreInteractions(findShippingAddressPort);
-        verifyNoInteractions(updateShippingAddressPort);
+        verifyNoInteractions(updateShippingAddressPort, publishShippingAddressEventPort);
     }
 
     @Test
@@ -155,6 +163,9 @@ class UpdateShippingAddressUseCaseTest {
         assertThat(shippingAddress.getDeliveryRequestMessage()).isEqualTo(message);
 
         verify(updateShippingAddressPort).update(shippingAddress);
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                3L, 300L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.UPDATED
+        );
     }
 
     @Test
@@ -197,6 +208,9 @@ class UpdateShippingAddressUseCaseTest {
         assertThat(shippingAddress.getDeliveryRequestMessage()).isNull();
 
         verify(updateShippingAddressPort).update(shippingAddress);
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                4L, 400L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.UPDATED
+        );
     }
 
     @Test
@@ -241,6 +255,9 @@ class UpdateShippingAddressUseCaseTest {
         // then
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verify(updateShippingAddressPort).update(shippingAddress);
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                2L, 200L, "박민수", "010-7777-8888", "서울시 강남구 선릉로 100", ShippingAddressChangeAction.UPDATED
+        );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }
 }

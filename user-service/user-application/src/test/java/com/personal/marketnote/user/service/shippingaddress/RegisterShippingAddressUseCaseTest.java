@@ -1,11 +1,13 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
+import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
@@ -37,6 +39,9 @@ class RegisterShippingAddressUseCaseTest {
 
     @Mock
     private UpdateShippingAddressPort updateShippingAddressPort;
+
+    @Mock
+    private PublishShippingAddressEventPort publishShippingAddressEventPort;
 
     @Test
     @DisplayName("첫 번째 배송지 등록 시 기본 배송지로 설정된다")
@@ -75,6 +80,9 @@ class RegisterShippingAddressUseCaseTest {
         verify(findShippingAddressPort).existsByUserId(userId);
         verify(findShippingAddressPort, never()).findDefaultsByUserId(userId);
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.CREATED
+        );
         verifyNoInteractions(updateShippingAddressPort);
     }
 
@@ -121,6 +129,9 @@ class RegisterShippingAddressUseCaseTest {
         verify(findShippingAddressPort).findDefaultsByUserId(userId);
         verify(updateShippingAddressPort).update(existingDefault);
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                2L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.CREATED
+        );
     }
 
     @Test
@@ -148,7 +159,7 @@ class RegisterShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).existsByUserIdAndAddressType(userId, ShippingAddressType.HOME);
         verifyNoMoreInteractions(findShippingAddressPort);
-        verifyNoInteractions(saveShippingAddressPort, updateShippingAddressPort);
+        verifyNoInteractions(saveShippingAddressPort, updateShippingAddressPort, publishShippingAddressEventPort);
     }
 
     @Test
@@ -177,11 +188,11 @@ class RegisterShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).existsByUserIdAndAddressType(userId, ShippingAddressType.COMPANY);
         verifyNoMoreInteractions(findShippingAddressPort);
-        verifyNoInteractions(saveShippingAddressPort, updateShippingAddressPort);
+        verifyNoInteractions(saveShippingAddressPort, updateShippingAddressPort, publishShippingAddressEventPort);
     }
 
     @Test
-    @DisplayName("OTHER 타입 배송지가 5개 이상이면 IllegalArgumentException이 발생한다")
+    @DisplayName("OTHER 타입 배송지가 10개 이상이면 IllegalArgumentException이 발생한다")
     void registerShippingAddress_otherLimitExceeded_throwsIllegalArgumentException() {
         // given
         Long userId = 1L;
@@ -197,7 +208,7 @@ class RegisterShippingAddressUseCaseTest {
                 .build();
 
         when(findShippingAddressPort.countByUserIdAndAddressType(userId, ShippingAddressType.OTHER))
-                .thenReturn(5L);
+                .thenReturn(10L);
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
@@ -206,7 +217,7 @@ class RegisterShippingAddressUseCaseTest {
 
         verify(findShippingAddressPort).countByUserIdAndAddressType(userId, ShippingAddressType.OTHER);
         verifyNoMoreInteractions(findShippingAddressPort);
-        verifyNoInteractions(saveShippingAddressPort, updateShippingAddressPort);
+        verifyNoInteractions(saveShippingAddressPort, updateShippingAddressPort, publishShippingAddressEventPort);
     }
 
     @Test
@@ -243,6 +254,9 @@ class RegisterShippingAddressUseCaseTest {
         verify(findShippingAddressPort).existsByUserIdAndAddressType(userId, ShippingAddressType.HOME);
         verify(findShippingAddressPort).existsByUserId(userId);
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.CREATED
+        );
         verifyNoInteractions(updateShippingAddressPort);
     }
 
@@ -284,6 +298,9 @@ class RegisterShippingAddressUseCaseTest {
         verify(findShippingAddressPort).existsByUserId(userId);
         verify(findShippingAddressPort, never()).findDefaultsByUserId(userId);
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                3L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.CREATED
+        );
         verifyNoInteractions(updateShippingAddressPort);
     }
 
@@ -324,6 +341,9 @@ class RegisterShippingAddressUseCaseTest {
                 sa.getDeliveryRequestType() == DeliveryRequestType.CUSTOM
                         && message.equals(sa.getDeliveryRequestMessage())
         ));
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.CREATED
+        );
     }
 
     @Test
@@ -354,7 +374,7 @@ class RegisterShippingAddressUseCaseTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("배송 요청사항 메시지는 최대 60자까지 입력할 수 있습니다");
 
-        verifyNoInteractions(saveShippingAddressPort);
+        verifyNoInteractions(saveShippingAddressPort, publishShippingAddressEventPort);
     }
 
     @Test
@@ -391,6 +411,9 @@ class RegisterShippingAddressUseCaseTest {
                 sa.getDeliveryRequestType() == DeliveryRequestType.LEAVE_AT_DOOR
                         && sa.getDeliveryRequestMessage() == null
         ));
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.CREATED
+        );
     }
 
     @Test
@@ -427,6 +450,9 @@ class RegisterShippingAddressUseCaseTest {
         assertThat(result.addressType()).isEqualTo(ShippingAddressType.OTHER);
 
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
+        verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
+                5L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", ShippingAddressChangeAction.CREATED
+        );
     }
 
     private ShippingAddress createShippingAddress(

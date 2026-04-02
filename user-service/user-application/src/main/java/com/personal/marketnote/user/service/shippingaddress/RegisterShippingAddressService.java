@@ -10,6 +10,8 @@ import com.personal.marketnote.user.exception.TooManyOtherAddressesException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
+import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
+import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
@@ -30,6 +32,7 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
     private final FindShippingAddressPort findShippingAddressPort;
     private final SaveShippingAddressPort saveShippingAddressPort;
     private final UpdateShippingAddressPort updateShippingAddressPort;
+    private final PublishShippingAddressEventPort publishShippingAddressEventPort;
 
     @Override
     public RegisterShippingAddressResult registerShippingAddress(RegisterShippingAddressCommand command) {
@@ -70,6 +73,12 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
         );
 
         ShippingAddress savedShippingAddress = saveShippingAddressPort.save(shippingAddress);
+
+        publishShippingAddressEventPort.publishShippingAddressChangedEvent(
+                savedShippingAddress.getId(), savedShippingAddress.getUserId(),
+                savedShippingAddress.getRecipientName(), savedShippingAddress.getRecipientPhoneNumber(),
+                savedShippingAddress.getAddress(), ShippingAddressChangeAction.CREATED
+        );
 
         return RegisterShippingAddressResult.from(savedShippingAddress);
     }

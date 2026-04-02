@@ -4,7 +4,7 @@ import com.personal.marketnote.common.domain.exception.token.InvalidAccessTokenE
 import com.personal.marketnote.common.domain.exception.token.InvalidRefreshTokenException;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
-import com.personal.marketnote.user.exception.GoogleOAuth2ResponseParsingException;
+import com.personal.marketnote.user.exception.OAuth2ResponseParsingException;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2AuthenticationInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2UserInfo;
@@ -168,8 +168,8 @@ class RestClientGoogleTokenProcessorTest {
         }
 
         @Test
-        @DisplayName("응답 JSON에 필수 필드가 없으면 GoogleOAuth2ResponseParsingException이 발생한다")
-        void shouldThrowGoogleOAuth2ResponseParsingExceptionWhenRequiredFieldMissing() {
+        @DisplayName("응답 JSON에 필수 필드가 없으면 OAuth2ResponseParsingException이 발생한다")
+        void shouldThrowOAuth2ResponseParsingExceptionWhenRequiredFieldMissing() {
             mockServer.expect(requestTo(GOOGLE_USER_INFO_URL))
                     .andExpect(method(HttpMethod.GET))
                     .andRespond(withSuccess("""
@@ -177,7 +177,7 @@ class RestClientGoogleTokenProcessorTest {
                             """, MediaType.APPLICATION_JSON));
 
             assertThatThrownBy(() -> processor.retrieveUserInfo("test-access-token"))
-                    .isInstanceOf(GoogleOAuth2ResponseParsingException.class);
+                    .isInstanceOf(OAuth2ResponseParsingException.class);
 
             mockServer.verify();
         }

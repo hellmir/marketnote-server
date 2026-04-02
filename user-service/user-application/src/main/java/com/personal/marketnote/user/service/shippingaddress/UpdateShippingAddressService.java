@@ -1,10 +1,12 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippingAddressCommand;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.UpdateShippingAddressUseCase;
+import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class UpdateShippingAddressService implements UpdateShippingAddressUseCase {
     private final FindShippingAddressPort findShippingAddressPort;
     private final UpdateShippingAddressPort updateShippingAddressPort;
+    private final PublishShippingAddressEventPort publishShippingAddressEventPort;
 
     @Override
     public void updateShippingAddress(Long shippingAddressId, Long userId, UpdateShippingAddressCommand command) {
@@ -36,5 +39,11 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
         );
 
         updateShippingAddressPort.update(shippingAddress);
+
+        publishShippingAddressEventPort.publishShippingAddressChangedEvent(
+                shippingAddressId, userId,
+                shippingAddress.getRecipientName(), shippingAddress.getRecipientPhoneNumber(),
+                shippingAddress.getAddress(), ShippingAddressChangeAction.UPDATED
+        );
     }
 }
