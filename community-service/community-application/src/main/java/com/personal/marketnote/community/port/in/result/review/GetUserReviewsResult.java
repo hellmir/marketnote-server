@@ -7,14 +7,14 @@ public record GetUserReviewsResult(
         int pageSize,
         long totalElements,
         int totalPages,
-        List<ReviewItemResult> reviews
+        List<UserReviewItemResult> reviews
 ) {
     public static GetUserReviewsResult of(
             int page,
             int pageSize,
             long totalElements,
             int totalPages,
-            List<ReviewItemResult> reviews
+            List<UserReviewItemResult> reviews
     ) {
         return new GetUserReviewsResult(page, pageSize, totalElements, totalPages, reviews);
     }

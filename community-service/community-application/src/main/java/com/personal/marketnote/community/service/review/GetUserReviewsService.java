@@ -7,7 +7,7 @@ import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.Reviews;
 import com.personal.marketnote.community.port.in.command.review.GetUserReviewsCommand;
 import com.personal.marketnote.community.port.in.result.review.GetUserReviewsResult;
-import com.personal.marketnote.community.port.in.result.review.ReviewItemResult;
+import com.personal.marketnote.community.port.in.result.review.UserReviewItemResult;
 import com.personal.marketnote.community.port.in.result.review.ReviewProductInfoResult;
 import com.personal.marketnote.community.port.in.usecase.review.GetUserReviewsUseCase;
 import com.personal.marketnote.community.port.out.file.FindReviewImagesPort;
@@ -57,14 +57,14 @@ public class GetUserReviewsService implements GetUserReviewsUseCase {
 
         Map<Long, ReviewProductInfoResult> productInfoByPricePolicyId = findReviewProductInfo(reviewList);
 
-        List<ReviewItemResult> reviewItems = reviewList.stream()
+        List<UserReviewItemResult> reviewItems = reviewList.stream()
                 .map(review -> {
                     Long pricePolicyId = review.getPricePolicyId();
                     ReviewProductInfoResult productInfo = FormatValidator.hasValue(pricePolicyId)
                             ? productInfoByPricePolicyId.get(pricePolicyId)
                             : null;
 
-                    return ReviewItemResult.from(
+                    return UserReviewItemResult.from(
                             review,
                             reviewImagesByReviewId.get(review.getId()),
                             productInfo

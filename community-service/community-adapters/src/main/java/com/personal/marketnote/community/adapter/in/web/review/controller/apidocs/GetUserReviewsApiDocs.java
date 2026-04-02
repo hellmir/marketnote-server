@@ -128,7 +128,6 @@ import java.lang.annotation.*;
                                                   "selectedOptions": "색상: 블랙 / 사이즈: M",
                                                   "quantity": 1,
                                                   "reviewerName": "홍길동",
-                                                  "reviewerMaskedName": "홍*동",
                                                   "rating": 5.0,
                                                   "content": "좋은 상품입니다",
                                                   "isPhoto": true,
@@ -141,9 +140,16 @@ import java.lang.annotation.*;
                                                   "modifiedAt": "2026-03-29T10:00:00",
                                                   "orderNum": 10,
                                                   "product": {
-                                                    "productId": 50,
-                                                    "productName": "테스트 상품",
-                                                    "pricePolicyName": "기본 옵션"
+                                                    "name": "테스트 상품",
+                                                    "brandName": "테스트 브랜드",
+                                                    "pricePolicy": {
+                                                      "id": 30,
+                                                      "price": 25000,
+                                                      "discountPrice": 20000,
+                                                      "discountRate": 20.0,
+                                                      "accumulatedPoint": 200
+                                                    },
+                                                    "catalogImage": null
                                                   }
                                                 }
                                               ]
