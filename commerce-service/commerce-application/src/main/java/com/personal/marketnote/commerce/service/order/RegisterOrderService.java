@@ -69,7 +69,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 .toList();
 
         List<Long> sellerIds = command.orderProducts().stream()
-                .map(OrderProductItemCommand::sellerId
+                .map(OrderProductItemCommand::sellerId)
                 .distinct()
                 .toList();
 
