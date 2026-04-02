@@ -21,6 +21,7 @@ public final class KafkaTopicConstants {
     // User 이벤트
     public static final String USER_SIGNUP_COMPLETED = "user.user.signup-completed";
     public static final String USER_REFERRAL_COMPLETED = "user.user.referral-completed";
+    public static final String SHIPPING_ADDRESS_CHANGED = "user.shipping-address.changed";
 
     // Community 이벤트
     public static final String REVIEW_REGISTERED = "community.review.registered";

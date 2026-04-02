@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.adapter.out.oauth;
 
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
+import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.service.exception.UnlinkOauth2AccountFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +48,7 @@ class Oauth2AccountClientTest {
                     .andExpect(content().string(containsString("target_id=12345")))
                     .andRespond(withSuccess());
 
-            assertThatCode(() -> oauth2AccountClient.unlinkKakaoAccount("12345"))
+            assertThatCode(() -> oauth2AccountClient.unlinkAccount(AuthVendor.KAKAO, "12345"))
                     .doesNotThrowAnyException();
 
             mockServer.verify();
@@ -62,7 +63,7 @@ class Oauth2AccountClientTest {
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
                     .andRespond(withBadRequest());
 
-            assertThatThrownBy(() -> oauth2AccountClient.unlinkKakaoAccount("12345"))
+            assertThatThrownBy(() -> oauth2AccountClient.unlinkAccount(AuthVendor.KAKAO, "12345"))
                     .isInstanceOf(UnlinkOauth2AccountFailedException.class);
 
             mockServer.verify();
@@ -82,7 +83,7 @@ class Oauth2AccountClientTest {
                     .andExpect(content().string(containsString("token=google-access-token")))
                     .andRespond(withSuccess());
 
-            assertThatCode(() -> oauth2AccountClient.unlinkGoogleAccount("google-access-token"))
+            assertThatCode(() -> oauth2AccountClient.unlinkAccount(AuthVendor.GOOGLE, "google-access-token"))
                     .doesNotThrowAnyException();
 
             mockServer.verify();
@@ -96,7 +97,7 @@ class Oauth2AccountClientTest {
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_FORM_URLENCODED))
                     .andRespond(withServerError());
 
-            assertThatThrownBy(() -> oauth2AccountClient.unlinkGoogleAccount("google-access-token"))
+            assertThatThrownBy(() -> oauth2AccountClient.unlinkAccount(AuthVendor.GOOGLE, "google-access-token"))
                     .isInstanceOf(UnlinkOauth2AccountFailedException.class);
 
             mockServer.verify();
