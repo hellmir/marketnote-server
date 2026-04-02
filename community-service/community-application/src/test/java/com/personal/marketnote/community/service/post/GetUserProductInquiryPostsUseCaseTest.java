@@ -297,7 +297,61 @@ class GetUserProductInquiryPostsUseCaseTest {
         assertThat(result.posts().getFirst().getReplies().getFirst().getId()).isEqualTo(2L);
     }
 
-    // ========== G. 정렬 ==========
+    // ========== G. 응답 분리 ==========
+
+    @Test
+    @DisplayName("(관리자) 회원 상품 문의 내역 조회 시 응답에 writerName이 포함된다")
+    void getUserProductInquiryPosts_containsWriterName() {
+        // given
+        Long userId = 1L;
+        GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
+                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+        );
+        Posts posts = Posts.from(List.of(
+                buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
+        ));
+        mockFindUserPostsByOffset(posts);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
+        mockProductInfoPort(Map.of());
+
+        // when
+        GetUserProductInquiryPostsResult result = getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
+
+        // then
+        assertThat(result.posts()).hasSize(1);
+        assertThat(result.posts().getFirst().getWriterName()).isEqualTo("작성자이름");
+    }
+
+    @Test
+    @DisplayName("(관리자) 회원 상품 문의 내역 조회 시 응답에 writerMaskedName이 포함되지 않는다")
+    void getUserProductInquiryPosts_doesNotContainWriterMaskedName() {
+        // given
+        Long userId = 1L;
+        GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
+                userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
+        );
+        Posts posts = Posts.from(List.of(
+                buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
+        ));
+        mockFindUserPostsByOffset(posts);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
+        mockProductInfoPort(Map.of());
+
+        // when
+        GetUserProductInquiryPostsResult result = getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
+
+        // then
+        assertThat(result.posts()).hasSize(1);
+        // UserProductInquiryPostItemResult에는 writerMaskedName 필드가 존재하지 않음을 컴파일 타임에 보장
+        // writerName만 포함되어 있는지 검증
+        assertThat(result.posts().getFirst().getWriterName()).isNotNull();
+        assertThat(result.posts().getFirst()).hasNoNullFieldsOrPropertiesExcept(
+                "parentId", "category", "targetType", "targetId", "productImageUrl",
+                "images", "product", "replies"
+        );
+    }
+
+    // ========== H. 정렬 ==========
 
     @Test
     @DisplayName("ASC 정렬 시 isDesc가 false로 전달된다")
@@ -344,6 +398,25 @@ class GetUserProductInquiryPostsUseCaseTest {
                 .userId(userId)
                 .board(Board.PRODUCT_INQUERY)
                 .category("PRODUCT_QUESTION")
+                .title("상품 문의 제목")
+                .content("상품 문의 내용")
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build());
+    }
+
+    private Post buildProductInquiryPostWithWriterName(Long id, Long userId, Long targetId, String writerName) {
+        return Post.from(PostSnapshotState.builder()
+                .id(id)
+                .userId(userId)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .targetType(PostTargetType.PRICE_POLICY)
+                .targetId(targetId)
+                .writerName(writerName)
+                .writerMaskedName("작*자")
                 .title("상품 문의 제목")
                 .content("상품 문의 내용")
                 .status(EntityStatus.ACTIVE)
