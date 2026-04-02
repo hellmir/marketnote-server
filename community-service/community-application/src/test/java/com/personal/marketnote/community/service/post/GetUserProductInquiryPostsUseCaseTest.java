@@ -272,7 +272,7 @@ class GetUserProductInquiryPostsUseCaseTest {
     // ========== F. 답글 ==========
 
     @Test
-    @DisplayName("답글이 있는 게시글이면 답글이 PostItemResult에 포함된다")
+    @DisplayName("답글이 있는 게시글이면 답글이 UserProductInquiryPostItemResult에 포함된다")
     void getUserProductInquiryPosts_withReplies_repliesIncluded() {
         // given
         Long userId = 1L;

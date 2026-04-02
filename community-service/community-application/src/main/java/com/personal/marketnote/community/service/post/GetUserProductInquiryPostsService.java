@@ -9,8 +9,8 @@ import com.personal.marketnote.community.domain.post.PostTargetType;
 import com.personal.marketnote.community.domain.post.Posts;
 import com.personal.marketnote.community.port.in.command.post.GetUserProductInquiryPostsCommand;
 import com.personal.marketnote.community.port.in.result.post.GetUserProductInquiryPostsResult;
-import com.personal.marketnote.community.port.in.result.post.PostItemResult;
 import com.personal.marketnote.community.port.in.result.post.PostProductInfoResult;
+import com.personal.marketnote.community.port.in.result.post.UserProductInquiryPostItemResult;
 import com.personal.marketnote.community.port.in.usecase.post.GetUserProductInquiryPostsUseCase;
 import com.personal.marketnote.community.port.out.file.FindPostImagesPort;
 import com.personal.marketnote.community.port.out.post.FindPostPort;
@@ -62,7 +62,7 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
 
         Map<Long, List<GetFileResult>> postImagesByPostId = findPostImages(postList);
 
-        List<PostItemResult> postItems = postList.stream()
+        List<UserProductInquiryPostItemResult> postItems = postList.stream()
                 .map(post -> toPostItemResult(post, productInfoMap, postImagesByPostId))
                 .toList();
 
@@ -75,7 +75,7 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
         );
     }
 
-    private PostItemResult toPostItemResult(
+    private UserProductInquiryPostItemResult toPostItemResult(
             Post post,
             Map<Long, ProductInfoResult> productInfoMap,
             Map<Long, List<GetFileResult>> postImagesByPostId
@@ -83,7 +83,7 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
         List<GetFileResult> images = postImagesByPostId.get(post.getId());
 
         if (FormatValidator.hasNoValue(post.getTargetId())) {
-            PostItemResult postItemResult = PostItemResult.from(post, images);
+            UserProductInquiryPostItemResult postItemResult = UserProductInquiryPostItemResult.from(post, images);
             if (post.hasReplies()) {
                 postItemResult.addReplies(post, postImagesByPostId);
             }
@@ -91,7 +91,7 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
         }
 
         ProductInfoResult productInfoResult = productInfoMap.get(post.getTargetId());
-        PostItemResult postItemResult = PostItemResult.from(
+        UserProductInquiryPostItemResult postItemResult = UserProductInquiryPostItemResult.from(
                 post,
                 PostProductInfoResult.from(productInfoResult),
                 images

@@ -7,14 +7,14 @@ public record GetUserProductInquiryPostsResult(
         int pageSize,
         long totalElements,
         int totalPages,
-        List<PostItemResult> posts
+        List<UserProductInquiryPostItemResult> posts
 ) {
     public static GetUserProductInquiryPostsResult of(
             int page,
             int pageSize,
             long totalElements,
             int totalPages,
-            List<PostItemResult> posts
+            List<UserProductInquiryPostItemResult> posts
     ) {
         return new GetUserProductInquiryPostsResult(page, pageSize, totalElements, totalPages, posts);
     }
