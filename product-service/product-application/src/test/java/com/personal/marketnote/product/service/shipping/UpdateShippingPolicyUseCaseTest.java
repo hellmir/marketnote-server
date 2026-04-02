@@ -8,6 +8,8 @@ import com.personal.marketnote.product.domain.shipping.ShippingPolicySnapshotSta
 import com.personal.marketnote.product.exception.ShippingPolicyNotFoundException;
 import com.personal.marketnote.product.port.in.command.UpdateShippingPolicyCommand;
 import com.personal.marketnote.product.port.in.result.shipping.UpdateShippingPolicyResult;
+import com.personal.marketnote.common.kafka.event.ShippingPolicyChangeAction;
+import com.personal.marketnote.product.port.out.event.PublishShippingPolicyEventPort;
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import com.personal.marketnote.product.port.out.shipping.UpdateShippingPolicyPort;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +39,9 @@ class UpdateShippingPolicyUseCaseTest {
 
     @Mock
     private UpdateShippingPolicyPort updateShippingPolicyPort;
+
+    @Mock
+    private PublishShippingPolicyEventPort publishShippingPolicyEventPort;
 
     private ShippingPolicy createExistingPolicy(Long sellerId) {
         return ShippingPolicy.from(ShippingPolicySnapshotState.builder()
@@ -133,5 +138,46 @@ class UpdateShippingPolicyUseCaseTest {
                 .isInstanceOf(InvalidFreeShippingThresholdException.class);
 
         verify(updateShippingPolicyPort, never()).update(any());
+    }
+
+    @Test
+    @DisplayName("배송비 정책 수정 성공 시 UPDATED 이벤트를 발행한다")
+    void shouldPublishUpdatedEventWhenPolicyUpdated() {
+        // given
+        Long sellerId = 10L;
+        ShippingPolicy existingPolicy = createExistingPolicy(sellerId);
+        when(findShippingPolicyPort.findActiveBySellerId(sellerId))
+                .thenReturn(Optional.of(existingPolicy));
+
+        UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
+                "CJ대한통운", 2500L, 30000L
+        );
+
+        // when
+        updateShippingPolicyService.updateShippingPolicy(sellerId, command);
+
+        // then
+        verify(publishShippingPolicyEventPort).publishShippingPolicyChangedEvent(
+                sellerId, 2500L, 30000L, ShippingPolicyChangeAction.UPDATED
+        );
+    }
+
+    @Test
+    @DisplayName("배송비 정책 수정 실패 시 이벤트를 발행하지 않는다")
+    void shouldNotPublishEventWhenUpdateFails() {
+        // given
+        Long sellerId = 10L;
+        when(findShippingPolicyPort.findActiveBySellerId(sellerId))
+                .thenReturn(Optional.empty());
+
+        UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
+                "CJ대한통운", 2500L, 30000L
+        );
+
+        // when & then
+        assertThatThrownBy(() -> updateShippingPolicyService.updateShippingPolicy(sellerId, command))
+                .isInstanceOf(ShippingPolicyNotFoundException.class);
+
+        verifyNoInteractions(publishShippingPolicyEventPort);
     }
 }
