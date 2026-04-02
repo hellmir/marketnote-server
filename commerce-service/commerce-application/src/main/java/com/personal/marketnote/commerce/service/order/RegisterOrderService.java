@@ -73,7 +73,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 .distinct()
                 .toList();
 
-        // 두 Port 모두 HTTP 클라이언트이므로 @Transactional 컨텍스트 전파 불필요. DB 조회로 변경 시 재검토 필요.
+        // 상품 정보는 HTTP, 배송비 정책은 로컬 Read Model DB 조회. Virtual Thread 병렬 조회 유지.
         CompletableFuture<Map<Long, ProductInfoResult>> productInfoFuture =
                 CompletableFuture.supplyAsync(() -> fetchProductInfoByPricePolicyIds(pricePolicyIds), VIRTUAL_EXECUTOR);
         CompletableFuture<Map<Long, ShippingPolicyInfoResult>> shippingPolicyFuture =
