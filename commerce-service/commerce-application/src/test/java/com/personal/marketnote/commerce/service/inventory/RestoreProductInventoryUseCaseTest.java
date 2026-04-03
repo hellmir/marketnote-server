@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -379,5 +380,63 @@ class RestoreProductInventoryUseCaseTest {
 
     private Inventory buildInventory(Long productId, Long pricePolicyId, int stock) {
         return Inventory.of(productId, pricePolicyId, stock, 0L);
+    }
+
+    // ==================================================================================
+    // 이벤트 발행 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("이벤트 발행 검증")
+    class EventPublishingTest {
+
+        @Test
+        @DisplayName("단일 주문 상품 재고 복구 시 복구된 재고 수량으로 UPDATED 이벤트를 발행한다")
+        void restore_singleOrderProduct_publishesUpdatedEventWithRestoredStock() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+            Inventory inventory = buildInventory(1L, 100L, 7);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+
+            restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 10, InventoryChangeAction.UPDATED
+            );
+        }
+
+        @Test
+        @DisplayName("서로 다른 가격 정책의 복수 주문 상품 재고 복구 시 각각 UPDATED 이벤트를 발행한다")
+        void restore_differentPolicies_publishesUpdatedEventForEach() {
+            List<OrderProduct> orderProducts = List.of(
+                    buildOrderProduct(100L, 2),
+                    buildOrderProduct(200L, 5)
+            );
+            Inventory inventory1 = buildInventory(1L, 100L, 8);
+            Inventory inventory2 = buildInventory(2L, 200L, 15);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory1, inventory2));
+
+            restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 10, InventoryChangeAction.UPDATED
+            );
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    200L, 2L, 20, InventoryChangeAction.UPDATED
+            );
+        }
+
+        @Test
+        @DisplayName("분산 락이 작업을 실행하지 않으면 이벤트를 발행하지 않는다")
+        void restore_lockNotExecuted_doesNotPublishEvent() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+
+            restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소");
+
+            verifyNoInteractions(publishInventoryEventPort);
+        }
     }
 }

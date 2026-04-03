@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.exception.InventoryLockInterruptedExcept
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -901,5 +902,63 @@ class ReduceProductInventoryUseCaseTest {
 
     private Inventory buildInventory(Long productId, Long pricePolicyId, int stock) {
         return Inventory.of(productId, pricePolicyId, stock, 0L);
+    }
+
+    // ==================================================================================
+    // 이벤트 발행 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("이벤트 발행 검증")
+    class EventPublishingTest {
+
+        @Test
+        @DisplayName("단일 주문 상품 재고 차감 시 차감된 재고 수량으로 UPDATED 이벤트를 발행한다")
+        void reduce_singleOrderProduct_publishesUpdatedEventWithReducedStock() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+            Inventory inventory = buildInventory(1L, 100L, 10);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+
+            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 7, InventoryChangeAction.UPDATED
+            );
+        }
+
+        @Test
+        @DisplayName("서로 다른 가격 정책의 복수 주문 상품 재고 차감 시 각각 UPDATED 이벤트를 발행한다")
+        void reduce_differentPolicies_publishesUpdatedEventForEach() {
+            List<OrderProduct> orderProducts = List.of(
+                    buildOrderProduct(100L, 2),
+                    buildOrderProduct(200L, 5)
+            );
+            Inventory inventory1 = buildInventory(1L, 100L, 10);
+            Inventory inventory2 = buildInventory(2L, 200L, 20);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory1, inventory2));
+
+            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 8, InventoryChangeAction.UPDATED
+            );
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    200L, 2L, 15, InventoryChangeAction.UPDATED
+            );
+        }
+
+        @Test
+        @DisplayName("분산 락이 작업을 실행하지 않으면 이벤트를 발행하지 않는다")
+        void reduce_lockNotExecuted_doesNotPublishEvent() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+
+            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
+
+            verifyNoInteractions(publishInventoryEventPort);
+        }
     }
 }
