@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @ServiceAdapter
@@ -34,7 +35,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         List<OrderProductItem> items = orderProducts.stream()
                 .map(op -> new OrderProductItem(
                         op.getPricePolicyId(),
-                        op.getSharerId(),
+                        op.getSharerKey(),
                         op.getQuantity(),
                         op.getUnitAmount()
                 ))
@@ -52,8 +53,8 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     }
 
     @Override
-    public void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds) {
-        OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+    public void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys) {
+        OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
         String topic = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED;
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
                 topic, SOURCE, payload, clock

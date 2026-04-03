@@ -6,13 +6,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderCreateState {
     private final Long buyerId;
-    private final Long sharerId;
+    private final UUID sharerKey;
     private final OrderAmount amount;
     private final ShippingAddress shippingAddress;
     private final List<OrderProductCreateState> orderProductStates;

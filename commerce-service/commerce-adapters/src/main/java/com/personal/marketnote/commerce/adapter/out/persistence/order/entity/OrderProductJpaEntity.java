@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static com.personal.marketnote.common.utility.EntityConstant.BOOLEAN_DEFAULT_FALSE;
 
@@ -32,8 +33,8 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
-    @Column(name = "sharer_id")
-    private Long sharerId;
+    @Column(name = "sharer_key")
+    private UUID sharerKey;
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
@@ -59,7 +60,7 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
                 .orderJpaEntity(orderJpaEntity)
                 .sellerId(orderProduct.getSellerId())
-                .sharerId(orderProduct.getSharerId())
+                .sharerKey(orderProduct.getSharerKey())
                 .quantity(orderProduct.getQuantity())
                 .unitAmount(orderProduct.getUnitAmount())
                 .imageUrl(orderProduct.getImageUrl())

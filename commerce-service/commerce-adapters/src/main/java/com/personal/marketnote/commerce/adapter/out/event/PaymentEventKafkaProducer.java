@@ -61,7 +61,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
         List<PaymentCancelledEvent.OrderProductItem> items = orderProducts.stream()
                 .map(op -> new PaymentCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
-                        op.getSharerId(),
+                        op.getSharerKey(),
                         op.getQuantity(),
                         op.getUnitAmount()
                 ))
@@ -71,7 +71,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                 ? cancelProducts.stream()
                 .map(op -> new PaymentCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
-                        op.getSharerId(),
+                        op.getSharerKey(),
                         op.getQuantity(),
                         op.getUnitAmount()
                 ))

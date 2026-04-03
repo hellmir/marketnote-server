@@ -3,9 +3,12 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
+import com.personal.marketnote.reward.domain.point.UserPoint;
+import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.port.in.command.point.ConfirmPendingPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ConfirmPendingPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,8 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,11 +33,17 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrderPurchaseConfirmedSharedPointConsumer 테스트")
 class OrderPurchaseConfirmedSharedPointConsumerTest {
+    private static final UUID SHARER_KEY_1 = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+    private static final UUID SHARER_KEY_2 = UUID.fromString("550e8400-e29b-41d4-a716-446655440002");
+
     @InjectMocks
     private OrderPurchaseConfirmedSharedPointConsumer consumer;
 
     @Mock
     private ConfirmPendingPointUseCase confirmPendingPointUseCase;
+
+    @Mock
+    private FindUserPointPort findUserPointPort;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -40,8 +51,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @Mock
     private Acknowledgment acknowledgment;
 
-    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<Long> sharerIds) {
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<UUID> sharerKeys) {
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event
@@ -53,8 +64,17 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("구매 확정 이벤트 수신 시 각 공유자에 대해 적립 예정 포인트를 확정하고 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_withSharers_confirmsAndAcknowledges() {
         // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerIds);
+        List<UUID> sharerKeys = List.of(SHARER_KEY_1, SHARER_KEY_2);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerKeys);
+
+        UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
+                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(0L)
+                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+        UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
+                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(0L)
+                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+        when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
+        when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
 
         // when
         consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
@@ -80,8 +100,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("orderId가 null이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_nullOrderId_skipsAndAcknowledges() {
         // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, 100L, sharerIds);
+        List<UUID> sharerKeys = List.of(SHARER_KEY_1, SHARER_KEY_2);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, 100L, sharerKeys);
 
         // when
         consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
@@ -92,8 +112,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     }
 
     @Test
-    @DisplayName("sharerIds가 null이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
-    void handleOrderPurchaseConfirmedEvent_nullSharerIds_skipsAndAcknowledges() {
+    @DisplayName("sharerKeys가 null이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_nullSharerKeys_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, null);
 
@@ -106,8 +126,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     }
 
     @Test
-    @DisplayName("sharerIds가 빈 목록이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
-    void handleOrderPurchaseConfirmedEvent_emptySharerIds_skipsAndAcknowledges() {
+    @DisplayName("sharerKeys가 빈 목록이면 공유 적립 예정 포인트 확정 없이 acknowledge한다")
+    void handleOrderPurchaseConfirmedEvent_emptySharerKeys_skipsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, List.of());
 
@@ -123,7 +143,7 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.of(200L, 300L));
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2));
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event
@@ -144,8 +164,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("orderId가 0이면 UseCase를 호출하지 않고 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_zeroOrderId_skipsAndAcknowledges() {
         // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 100L, sharerIds);
+        List<UUID> sharerKeys = List.of(SHARER_KEY_1, SHARER_KEY_2);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 100L, sharerKeys);
 
         // when
         consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
@@ -159,8 +179,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("orderId가 음수이면 UseCase를 호출하지 않고 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_negativeOrderId_skipsAndAcknowledges() {
         // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 100L, sharerIds);
+        List<UUID> sharerKeys = List.of(SHARER_KEY_1, SHARER_KEY_2);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 100L, sharerKeys);
 
         // when
         consumer.handleOrderPurchaseConfirmedEvent(record, acknowledgment);
@@ -190,8 +210,12 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("예상치 못한 예외 발생 시 acknowledge하지 않고 예외를 전파한다")
     void handleOrderPurchaseConfirmedEvent_unexpectedException_propagatesWithoutAcknowledge() {
         // given
-        List<Long> sharerIds = List.of(200L, 300L);
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerIds);
+        List<UUID> sharerKeys = List.of(SHARER_KEY_1, SHARER_KEY_2);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerKeys);
+        UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
+                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(0L)
+                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+        when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         doThrow(new RuntimeException("DB 연결 실패"))
                 .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));
 

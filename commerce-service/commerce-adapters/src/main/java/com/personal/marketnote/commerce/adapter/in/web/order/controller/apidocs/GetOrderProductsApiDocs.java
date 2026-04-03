@@ -70,7 +70,7 @@ import java.lang.annotation.*;
                 | sellerId | number | 판매자 회원 ID | 1 |
                 | productId | number | 상품 ID | 1 |
                 | pricePolicyId | number | 가격 정책 ID | 1 |
-                | sharerId | number | 링크 공유 회원 ID | 1 |
+                | sharerKey | string(uuid) | 링크 공유 회원 식별키 | "550e8400-e29b-41d4-a716-446655440000" |
                 | quantity | number | 주문 수량 | 2 |
                 | unitAmount | number | 단위 금액(원) | 50000 |
                 | imageUrl | string | 상품 이미지 URL | "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png" |
@@ -120,7 +120,7 @@ import java.lang.annotation.*;
                                                 "sellerId": 12,
                                                 "productId": 1,
                                                 "pricePolicyId": 166,
-                                                "sharerId": 1,
+                                                "sharerKey": "550e8400-e29b-41d4-a716-446655440000",
                                                 "quantity": 2,
                                                 "unitAmount": 50000,
                                                 "imageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png",

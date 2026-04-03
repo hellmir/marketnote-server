@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -180,16 +181,16 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private void updateConfirmSubsequentProcesses(Order order) {
         Long orderId = order.getId();
         Long buyerId = order.getBuyerId();
-        List<Long> sharerIds = extractSharerIds(order.getOrderProducts());
+        List<UUID> sharerKeys = extractSharerKeys(order.getOrderProducts());
 
         // Outbox 이벤트 저장 (트랜잭션 내)
         // [#929][#1190] 적립 예정 포인트 확정은 Kafka Consumer로 전환 완료
-        publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+        publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
     }
 
-    private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<Long> sharerIds) {
+    private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys) {
         try {
-            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
         } catch (Exception e) {
             log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
                     orderId, buyerId, e.getMessage(), e);
@@ -212,9 +213,9 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
     }
 
-    private List<Long> extractSharerIds(List<OrderProduct> orderProducts) {
+    private List<UUID> extractSharerKeys(List<OrderProduct> orderProducts) {
         return orderProducts.stream()
-                .map(OrderProduct::getSharerId)
+                .map(OrderProduct::getSharerKey)
                 .filter(Objects::nonNull)
                 .toList();
     }

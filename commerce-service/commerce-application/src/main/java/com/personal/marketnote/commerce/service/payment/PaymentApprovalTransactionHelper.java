@@ -221,7 +221,7 @@ public class PaymentApprovalTransactionHelper {
 
         List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
                 .map(op -> new OrderPaymentSagaContext.OrderProductItem(
-                        op.getPricePolicyId(), op.getSharerId(), op.getQuantity(), op.getUnitAmount()))
+                        op.getPricePolicyId(), op.getSharerKey(), op.getQuantity(), op.getUnitAmount()))
                 .toList();
 
         Long pointAmount = FormatValidator.hasValue(order.getAmount().getPointAmount())

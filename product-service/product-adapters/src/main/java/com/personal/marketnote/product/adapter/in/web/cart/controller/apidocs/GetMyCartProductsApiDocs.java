@@ -60,7 +60,7 @@ import java.lang.annotation.*;
                 | pricePolicy | object | 가격 정책 | { ... } |
                 | stock | number | 재고 수량 | 10 |
                 | quantity | number | 상품 수량 | 1 |
-                | sharerId | number | 링크 공유 회원 ID | 1 |
+                | sharerKey | string(uuid) | 링크 공유 회원 식별키 | "550e8400-e29b-41d4-a716-446655440000" |
                 
                 ---
                 
@@ -140,7 +140,7 @@ import java.lang.annotation.*;
                                                 },
                                                 "stock": 0,
                                                 "quantity": 10,
-                                                "sharerId": 1
+                                                "sharerKey": "550e8400-e29b-41d4-a716-446655440000"
                                               },
                                               {
                                                 "product": {
@@ -167,7 +167,7 @@ import java.lang.annotation.*;
                                                 },
                                                 "stock": 0,
                                                 "quantity": 5,
-                                                "sharerId": 1
+                                                "sharerKey": "550e8400-e29b-41d4-a716-446655440000"
                                               },
                                               {
                                                 "product": {
@@ -199,7 +199,7 @@ import java.lang.annotation.*;
                                                 },
                                                 "stock": 0,
                                                 "quantity": 7,
-                                                "sharerId": null
+                                                "sharerKey": null
                                               }
                                             ]
                                           },

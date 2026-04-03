@@ -10,13 +10,14 @@ import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetOrderProductResult(
         Long sellerId,
         Long productId,
         Long pricePolicyId,
-        Long sharerId,
+        UUID sharerKey,
         Integer quantity,
         Long unitAmount,
         String imageUrl,
@@ -42,7 +43,7 @@ public record GetOrderProductResult(
                                 : null
                 )
                 .pricePolicyId(orderProduct.getPricePolicyId())
-                .sharerId(orderProduct.getSharerId())
+                .sharerKey(orderProduct.getSharerKey())
                 .quantity(orderProduct.getQuantity())
                 .unitAmount(orderProduct.getUnitAmount())
                 .imageUrl(orderProduct.getImageUrl())

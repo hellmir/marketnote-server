@@ -5,7 +5,15 @@ public enum ShippingAddressChangeAction {
     UPDATED,
     DELETED;
 
-    public boolean isCreated() { return this == CREATED; }
-    public boolean isUpdated() { return this == UPDATED; }
-    public boolean isDeleted() { return this == DELETED; }
+    public boolean isCreated() {
+        return this == CREATED;
+    }
+
+    public boolean isUpdated() {
+        return this == UPDATED;
+    }
+
+    public boolean isDeleted() {
+        return this == DELETED;
+    }
 }

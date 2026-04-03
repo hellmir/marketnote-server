@@ -7,6 +7,8 @@ import com.personal.marketnote.product.domain.cart.CartProduct;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "cart_product")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,8 +24,8 @@ public class CartProductJpaEntity extends BaseEntity {
     @JoinColumn(name = "price_policy_id", nullable = false, foreignKey = @ForeignKey(name = "fk_cart_product_price_policy"))
     private PricePolicyJpaEntity pricePolicyJpaEntity;
 
-    @Column(name = "sharer_id")
-    private Long sharerId;
+    @Column(name = "sharer_key")
+    private UUID sharerKey;
 
     @Column(name = "image_url", length = 511)
     private String imageUrl;
@@ -39,7 +41,7 @@ public class CartProductJpaEntity extends BaseEntity {
         return CartProductJpaEntity.builder()
                 .id(new CartId(cartProduct.getUserId(), pricePolicyJpaEntity.getId()))
                 .pricePolicyJpaEntity(pricePolicyJpaEntity)
-                .sharerId(cartProduct.getSharerId())
+                .sharerKey(cartProduct.getSharerKey())
                 .imageUrl(cartProduct.getImageUrl())
                 .quantity(cartProduct.getQuantity())
                 .status(cartProduct.getStatus())

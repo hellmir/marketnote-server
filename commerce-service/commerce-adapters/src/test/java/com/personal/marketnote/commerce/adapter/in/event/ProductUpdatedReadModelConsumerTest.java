@@ -1,10 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.persistence.product.ProductReadModelPersistenceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
-import com.personal.marketnote.commerce.adapter.out.persistence.product.ProductReadModelPersistenceAdapter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

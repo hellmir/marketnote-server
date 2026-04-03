@@ -55,7 +55,7 @@ public class GetMyOrderingProductsService implements GetMyOrderingProductsUseCas
                                                 itemQuery.imageUrl(),
                                                 itemQuery.quantity(),
                                                 stocks.get(pricePolicy.getId()),
-                                                itemQuery.sharerId()
+                                                itemQuery.sharerKey()
                                         )
                                 )
                         )

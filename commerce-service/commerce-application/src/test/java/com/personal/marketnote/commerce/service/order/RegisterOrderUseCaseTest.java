@@ -93,7 +93,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
-                                    .sharerId(5L)
+                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                                     .quantity(2)
                                     .unitAmount(25000L)
                                     .imageUrl("https://example.com/image.png")
@@ -130,7 +130,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId1)
-                                    .sharerId(5L)
+                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                                     .quantity(2)
                                     .unitAmount(25000L)
                                     .imageUrl("https://example.com/image1.png")
@@ -139,7 +139,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(200L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId2)
-                                    .sharerId(6L)
+                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000006"))
                                     .quantity(1)
                                     .unitAmount(50000L)
                                     .imageUrl("https://example.com/image2.png")
@@ -289,8 +289,8 @@ class RegisterOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("sharerId가 null인 주문 상품 등록 시 sharerId가 null로 저장된다")
-        void registerOrder_nullSharerId_savesWithNullSharerId() {
+        @DisplayName("sharerKey가 null인 주문 상품 등록 시 sharerKey가 null로 저장된다")
+        void registerOrder_nullSharerKey_savesWithNullSharerKey() {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
@@ -301,7 +301,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
-                                    .sharerId(null)
+                                    .sharerKey(null)
                                     .quantity(1)
                                     .unitAmount(50000L)
                                     .imageUrl("https://example.com/image.png")
@@ -325,7 +325,7 @@ class RegisterOrderUseCaseTest {
             Order capturedOrder = captor.getValue();
 
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
-            assertThat(capturedOrder.getOrderProducts().get(0).getSharerId()).isNull();
+            assertThat(capturedOrder.getOrderProducts().get(0).getSharerKey()).isNull();
         }
 
         @Test
@@ -341,7 +341,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
-                                    .sharerId(5L)
+                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                                     .quantity(1)
                                     .unitAmount(50000L)
                                     .imageUrl(null)
@@ -657,11 +657,11 @@ class RegisterOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("주문 상품의 sharerId가 정확하게 저장된다")
-        void registerOrder_savesSharerIdCorrectly() {
+        @DisplayName("주문 상품의 sharerKey가 정확하게 저장된다")
+        void registerOrder_savesSharerKeyCorrectly() {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
-            Long sharerId = 55L;
+            UUID sharerKey = UUID.fromString("00000000-0000-0000-0000-000000000055");
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
                     .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
@@ -670,7 +670,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId)
-                                    .sharerId(sharerId)
+                                    .sharerKey(sharerKey)
                                     .quantity(1)
                                     .unitAmount(50000L)
                                     .build()
@@ -684,7 +684,7 @@ class RegisterOrderUseCaseTest {
 
             Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
-            assertThat(capturedOrder.getOrderProducts().get(0).getSharerId()).isEqualTo(sharerId);
+            assertThat(capturedOrder.getOrderProducts().get(0).getSharerKey()).isEqualTo(sharerKey);
         }
 
         @Test
@@ -2009,7 +2009,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(100L)
                                     .sellerId(10L)
                                     .pricePolicyId(pricePolicyId1)
-                                    .sharerId(1L)
+                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000001"))
                                     .quantity(2)
                                     .unitAmount(50000L)
                                     .imageUrl("https://example.com/image1.png")
@@ -2018,7 +2018,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(200L)
                                     .sellerId(20L)
                                     .pricePolicyId(pricePolicyId2)
-                                    .sharerId(2L)
+                                    .sharerKey(UUID.fromString("00000000-0000-0000-0000-000000000002"))
                                     .quantity(1)
                                     .unitAmount(100000L)
                                     .imageUrl("https://example.com/image2.png")
@@ -2027,7 +2027,7 @@ class RegisterOrderUseCaseTest {
                                     .productId(300L)
                                     .sellerId(30L)
                                     .pricePolicyId(pricePolicyId3)
-                                    .sharerId(null)
+                                    .sharerKey(null)
                                     .quantity(1)
                                     .unitAmount(100000L)
                                     .imageUrl(null)

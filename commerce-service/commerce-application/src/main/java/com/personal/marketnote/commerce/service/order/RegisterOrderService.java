@@ -106,7 +106,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 .map(item -> OrderProductCreateState.builder()
                         .sellerId(item.sellerId())
                         .pricePolicyId(item.pricePolicyId())
-                        .sharerId(item.sharerId())
+                        .sharerKey(item.sharerKey())
                         .quantity(item.quantity())
                         .unitAmount(item.unitAmount())
                         .imageUrl(item.imageUrl())
@@ -234,6 +234,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         if (pricePolicyIds.isEmpty()) {
             return Map.of();
         }
+
         return findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
     }
 
@@ -241,6 +242,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         if (sellerIds.isEmpty()) {
             return Map.of();
         }
+
         return findShippingPolicyBySellerIdsPort.findBySellerIds(sellerIds);
     }
 

@@ -1,12 +1,12 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.product;
 
-import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
 import com.personal.marketnote.commerce.adapter.out.persistence.product.entity.ProductReadModelJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.product.repository.ProductReadModelJpaRepository;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.product.SaveProductReadModelPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

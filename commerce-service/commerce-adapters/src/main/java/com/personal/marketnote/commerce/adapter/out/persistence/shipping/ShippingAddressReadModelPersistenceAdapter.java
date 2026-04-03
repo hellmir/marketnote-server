@@ -1,13 +1,13 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.shipping;
 
-import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.entity.ShippingAddressReadModelJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.repository.ShippingAddressReadModelJpaRepository;
 import com.personal.marketnote.commerce.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.commerce.port.out.user.SaveShippingAddressReadModelPort;
+import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;

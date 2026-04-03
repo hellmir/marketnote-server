@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
@@ -10,7 +11,6 @@ import com.personal.marketnote.user.exception.TooManyOtherAddressesException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
-import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;

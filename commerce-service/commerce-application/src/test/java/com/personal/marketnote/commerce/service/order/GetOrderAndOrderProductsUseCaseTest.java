@@ -446,13 +446,13 @@ class GetOrderAndOrderProductsUseCaseTest {
         }
 
         @Test
-        @DisplayName("주문 상품의 sharerId가 정확하게 매핑된다")
-        void getOrderAndOrderProducts_mapsSharerIdCorrectly() {
+        @DisplayName("주문 상품의 sharerKey가 정확하게 매핑된다")
+        void getOrderAndOrderProducts_mapsSharerKeyCorrectly() {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
-            Long sharerId = 33L;
+            UUID sharerKey = UUID.fromString("00000000-0000-0000-0000-000000000033");
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithSharerId(pricePolicyId, 10L, sharerId, 1, 50000L)
+                    createOrderProductWithSharerKey(pricePolicyId, 10L, sharerKey, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
@@ -461,16 +461,16 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
-            assertThat(result.orderProducts().get(0).sharerId()).isEqualTo(sharerId);
+            assertThat(result.orderProducts().get(0).sharerKey()).isEqualTo(sharerKey);
         }
 
         @Test
-        @DisplayName("주문 상품의 sharerId가 null인 경우 null로 매핑된다")
-        void getOrderAndOrderProducts_nullSharerId_mapsToNull() {
+        @DisplayName("주문 상품의 sharerKey가 null인 경우 null로 매핑된다")
+        void getOrderAndOrderProducts_nullSharerKey_mapsToNull() {
             Long orderId = 1L;
             Long pricePolicyId = 100L;
             Order order = createOrder(orderId, List.of(
-                    createOrderProductWithSharerId(pricePolicyId, 10L, null, 1, 50000L)
+                    createOrderProductWithSharerKey(pricePolicyId, 10L, null, 1, 50000L)
             ));
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
@@ -479,7 +479,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
-            assertThat(result.orderProducts().get(0).sharerId()).isNull();
+            assertThat(result.orderProducts().get(0).sharerKey()).isNull();
         }
 
         @Test
@@ -1204,12 +1204,12 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .build());
     }
 
-    private OrderProduct createOrderProductWithSharerId(Long pricePolicyId, Long sellerId, Long sharerId, Integer quantity, Long unitAmount) {
+    private OrderProduct createOrderProductWithSharerKey(Long pricePolicyId, Long sellerId, UUID sharerKey, Integer quantity, Long unitAmount) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
                 .sellerId(sellerId)
                 .pricePolicyId(pricePolicyId)
-                .sharerId(sharerId)
+                .sharerKey(sharerKey)
                 .quantity(quantity)
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.PAID)
@@ -1245,7 +1245,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .orderId(orderProduct.getOrderId())
                 .sellerId(orderProduct.getSellerId())
                 .pricePolicyId(orderProduct.getPricePolicyId())
-                .sharerId(orderProduct.getSharerId())
+                .sharerKey(orderProduct.getSharerKey())
                 .quantity(orderProduct.getQuantity())
                 .unitAmount(orderProduct.getUnitAmount())
                 .imageUrl(orderProduct.getImageUrl())

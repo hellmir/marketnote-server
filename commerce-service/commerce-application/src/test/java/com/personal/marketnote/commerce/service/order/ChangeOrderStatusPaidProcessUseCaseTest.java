@@ -225,13 +225,13 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
         return new ProductInfoResult(1L, 1L, "테스트 상품", "브랜드", 50000L, null, accumulatedPoint, List.of());
     }
 
-    private Order createOrderWithSharer(Long orderId, Long buyerId, Long sharerId, Long pricePolicyId, Long totalAmount) {
+    private Order createOrderWithSharer(Long orderId, Long buyerId, UUID sharerKey, Long pricePolicyId, Long totalAmount) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
                         .sellerId(10L)
                         .pricePolicyId(pricePolicyId)
-                        .sharerId(sharerId)
+                        .sharerKey(sharerKey)
                         .quantity(1)
                         .unitAmount(totalAmount)
                         .orderStatus(OrderStatus.PAYMENT_PENDING)

@@ -6,13 +6,15 @@ import com.personal.marketnote.product.port.in.result.pricepolicy.GetProductPric
 import lombok.AccessLevel;
 import lombok.Builder;
 
+import java.util.UUID;
+
 @Builder(access = AccessLevel.PRIVATE)
 public record GetCartProductResult(
         CartProductItemResult product,
         GetProductPricePolicyResult pricePolicy,
         Integer stock,
         Short quantity,
-        Long sharerId
+        UUID sharerKey
 ) {
     public static GetCartProductResult from(CartProduct cartProduct, Integer stock) {
         return GetCartProductResult.builder()
@@ -20,19 +22,19 @@ public record GetCartProductResult(
                 .product(CartProductItemResult.from(cartProduct.getPricePolicy().getProduct(), cartProduct.getImageUrl()))
                 .stock(stock)
                 .quantity(cartProduct.getQuantity())
-                .sharerId(cartProduct.getSharerId())
+                .sharerKey(cartProduct.getSharerKey())
                 .build();
     }
 
     public static GetCartProductResult of(
-            PricePolicy pricePolicy, String imageUrl, Short quantity, Integer stock, Long sharerId
+            PricePolicy pricePolicy, String imageUrl, Short quantity, Integer stock, UUID sharerKey
     ) {
         return GetCartProductResult.builder()
                 .pricePolicy(GetProductPricePolicyResult.fromCart(pricePolicy))
                 .product(CartProductItemResult.from(pricePolicy.getProduct(), imageUrl))
                 .quantity(quantity)
                 .stock(stock)
-                .sharerId(sharerId)
+                .sharerKey(sharerKey)
                 .build();
     }
 }

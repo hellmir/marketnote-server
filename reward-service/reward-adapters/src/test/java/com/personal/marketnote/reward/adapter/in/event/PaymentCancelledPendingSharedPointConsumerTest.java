@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
+import com.personal.marketnote.reward.domain.point.UserPoint;
+import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.port.in.command.point.CancelPendingPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.CancelPendingPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,8 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -26,6 +31,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PaymentCancelledPendingSharedPointConsumer 테스트")
 class PaymentCancelledPendingSharedPointConsumerTest {
+    private static final UUID SHARER_KEY_1 = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+    private static final UUID SHARER_KEY_2 = UUID.fromString("550e8400-e29b-41d4-a716-446655440002");
+    private static final UUID SHARER_KEY_3 = UUID.fromString("550e8400-e29b-41d4-a716-446655440003");
+
     @InjectMocks
     private PaymentCancelledPendingSharedPointConsumer consumer;
 
@@ -34,6 +43,9 @@ class PaymentCancelledPendingSharedPointConsumerTest {
 
     @Mock
     private CancelPendingPointUseCase cancelPendingPointUseCase;
+
+    @Mock
+    private FindUserPointPort findUserPointPort;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -56,10 +68,19 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_fullCancelWithSharers_cancelsPendingPointsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L),
-                new OrderProductItem(2L, 300L, 1, 20000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+                new OrderProductItem(2L, SHARER_KEY_2, 1, 20000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, orderProducts);
+
+        UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
+                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(0L)
+                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+        UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
+                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(0L)
+                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+        when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
+        when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
@@ -87,7 +108,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_partialCancel_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, orderProducts);
 
@@ -104,7 +125,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_nullOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, true, orderProducts);
 
@@ -153,7 +174,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         PaymentCancelledEvent event = new PaymentCancelledEvent(
                 1L, "order-key-1", 100L, 50000L, 80000L, 1000L,
@@ -180,7 +201,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_zeroOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, true, orderProducts);
 
@@ -197,7 +218,7 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_negativeOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, true, orderProducts);
 
@@ -230,11 +251,20 @@ class PaymentCancelledPendingSharedPointConsumerTest {
     void handlePaymentCancelledEvent_duplicateSharers_deduplicatesAndCancelsPendingPoints() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L),
-                new OrderProductItem(2L, 200L, 1, 20000L),
-                new OrderProductItem(3L, 300L, 1, 15000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+                new OrderProductItem(2L, SHARER_KEY_1, 1, 20000L),
+                new OrderProductItem(3L, SHARER_KEY_2, 1, 15000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, true, orderProducts);
+
+        UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
+                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(0L)
+                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+        UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
+                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(0L)
+                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+        when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
+        when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);

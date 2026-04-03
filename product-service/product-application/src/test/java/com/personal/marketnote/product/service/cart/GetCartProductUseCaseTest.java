@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -123,8 +124,10 @@ class GetCartProductUseCaseTest {
         Product product2 = buildProduct(2L);
         PricePolicy policy1 = buildPricePolicy(100L, product1);
         PricePolicy policy2 = buildPricePolicy(200L, product2);
-        CartProduct cart1 = buildCartProduct(userId, 10L, policy1, "url-1", (short) 2);
-        CartProduct cart2 = buildCartProduct(userId, 20L, policy2, "url-2", (short) 1);
+        UUID sharerKey1 = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+        UUID sharerKey2 = UUID.fromString("550e8400-e29b-41d4-a716-446655440002");
+        CartProduct cart1 = buildCartProduct(userId, sharerKey1, policy1, "url-1", (short) 2);
+        CartProduct cart2 = buildCartProduct(userId, sharerKey2, policy2, "url-2", (short) 1);
 
         when(findCartProductsPort.findByUserId(userId)).thenReturn(List.of(cart1, cart2));
         when(getProductInventoryUseCase.getProductStocks(List.of(100L, 200L)))
@@ -139,7 +142,7 @@ class GetCartProductUseCaseTest {
         assertThat(first.product().imageUrl()).isEqualTo("url-1");
         assertThat(first.quantity()).isEqualTo((short) 2);
         assertThat(first.stock()).isEqualTo(5);
-        assertThat(first.sharerId()).isEqualTo(10L);
+        assertThat(first.sharerKey()).isEqualTo(sharerKey1);
 
         GetCartProductResult second = result.cartProducts().get(1);
         assertThat(second.pricePolicy().id()).isEqualTo(200L);
@@ -147,7 +150,7 @@ class GetCartProductUseCaseTest {
         assertThat(second.product().imageUrl()).isEqualTo("url-2");
         assertThat(second.quantity()).isEqualTo((short) 1);
         assertThat(second.stock()).isEqualTo(0);
-        assertThat(second.sharerId()).isEqualTo(20L);
+        assertThat(second.sharerKey()).isEqualTo(sharerKey2);
 
         verify(findCartProductsPort).findByUserId(userId);
         verify(getProductInventoryUseCase).getProductStocks(List.of(100L, 200L));
@@ -174,7 +177,7 @@ class GetCartProductUseCaseTest {
         Long userId = 22L;
         Product product = buildProduct(3L);
         PricePolicy policy = buildPricePolicy(300L, product);
-        CartProduct cartProduct = buildCartProduct(userId, 30L, policy, "url-3", (short) 3);
+        CartProduct cartProduct = buildCartProduct(userId, UUID.fromString("550e8400-e29b-41d4-a716-446655440003"), policy, "url-3", (short) 3);
 
         when(findCartProductsPort.findByUserId(userId)).thenReturn(List.of(cartProduct));
         when(getProductInventoryUseCase.getProductStocks(List.of(300L))).thenReturn(Map.of());
@@ -205,7 +208,7 @@ class GetCartProductUseCaseTest {
         Long userId = 24L;
         Product product = buildProduct(4L);
         PricePolicy policy = buildPricePolicy(400L, product);
-        CartProduct cartProduct = buildCartProduct(userId, 40L, policy, "url-4", (short) 4);
+        CartProduct cartProduct = buildCartProduct(userId, UUID.fromString("550e8400-e29b-41d4-a716-446655440004"), policy, "url-4", (short) 4);
         RuntimeException exception = new RuntimeException("inventory fail");
 
         when(findCartProductsPort.findByUserId(userId)).thenReturn(List.of(cartProduct));
@@ -261,7 +264,7 @@ class GetCartProductUseCaseTest {
 
     private CartProduct buildCartProduct(
             Long userId,
-            Long sharerId,
+            UUID sharerKey,
             PricePolicy pricePolicy,
             String imageUrl,
             Short quantity
@@ -269,7 +272,7 @@ class GetCartProductUseCaseTest {
         return CartProduct.from(
                 CartProductSnapshotState.builder()
                         .userId(userId)
-                        .sharerId(sharerId)
+                        .sharerKey(sharerKey)
                         .pricePolicy(pricePolicy)
                         .imageUrl(imageUrl)
                         .quantity(quantity)

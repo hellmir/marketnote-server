@@ -14,7 +14,7 @@ public class CartRequestToCommandMapper {
     public static AddCartProductCommand mapToCommand(Long userId, AddCartProductRequest request) {
         return AddCartProductCommand.builder()
                 .userId(userId)
-                .sharerId(request.sharerId())
+                .sharerKey(request.sharerKey())
                 .pricePolicyId(request.pricePolicyId())
                 .imageUrl(request.imageUrl())
                 .quantity(request.quantity())

@@ -11,8 +11,8 @@ import com.personal.marketnote.commerce.exception.InventoryLockInterruptedExcept
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
-import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

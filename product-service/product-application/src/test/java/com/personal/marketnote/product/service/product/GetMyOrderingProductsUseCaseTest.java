@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,8 +45,10 @@ class GetMyOrderingProductsUseCaseTest {
         Product product2 = buildProduct(2L);
         PricePolicy policy1 = buildPricePolicy(10L, product1);
         PricePolicy policy2 = buildPricePolicy(20L, product2);
-        OrderingItemQuery item1 = OrderingItemQuery.of(10L, 100L, (short) 2, "url-1");
-        OrderingItemQuery item2 = OrderingItemQuery.of(20L, 200L, (short) 1, "url-2");
+        UUID sharerKey1 = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+        UUID sharerKey2 = UUID.fromString("550e8400-e29b-41d4-a716-446655440002");
+        OrderingItemQuery item1 = OrderingItemQuery.of(10L, sharerKey1, (short) 2, "url-1");
+        OrderingItemQuery item2 = OrderingItemQuery.of(20L, sharerKey2, (short) 1, "url-2");
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item1, item2));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L, 20L)))
@@ -60,7 +63,7 @@ class GetMyOrderingProductsUseCaseTest {
         assertThat(first.pricePolicy().id()).isEqualTo(10L);
         assertThat(first.quantity()).isEqualTo((short) 2);
         assertThat(first.stock()).isEqualTo(5);
-        assertThat(first.sharerId()).isEqualTo(100L);
+        assertThat(first.sharerKey()).isEqualTo(sharerKey1);
         assertThat(first.product().id()).isEqualTo(1L);
         assertThat(first.product().imageUrl()).isEqualTo("url-1");
 
@@ -68,7 +71,7 @@ class GetMyOrderingProductsUseCaseTest {
         assertThat(second.pricePolicy().id()).isEqualTo(20L);
         assertThat(second.quantity()).isEqualTo((short) 1);
         assertThat(second.stock()).isEqualTo(0);
-        assertThat(second.sharerId()).isEqualTo(200L);
+        assertThat(second.sharerKey()).isEqualTo(sharerKey2);
         assertThat(second.product().id()).isEqualTo(2L);
         assertThat(second.product().imageUrl()).isEqualTo("url-2");
 
@@ -81,7 +84,7 @@ class GetMyOrderingProductsUseCaseTest {
     @Test
     @DisplayName("주문 대기 상품 목록 조회 시 가격 정책 정보가 없으면 빈 목록을 반환한다")
     void getMyOrderingProducts_emptyPricePolicies_returnsEmpty() {
-        OrderingItemQuery item = OrderingItemQuery.of(10L, 100L, (short) 1, "url");
+        OrderingItemQuery item = OrderingItemQuery.of(10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), (short) 1, "url");
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L)))
@@ -101,8 +104,8 @@ class GetMyOrderingProductsUseCaseTest {
     void getMyOrderingProducts_missingPricePolicy_skipsItem() {
         Product product1 = buildProduct(1L);
         PricePolicy policy1 = buildPricePolicy(10L, product1);
-        OrderingItemQuery item1 = OrderingItemQuery.of(10L, 100L, (short) 1, "url-1");
-        OrderingItemQuery item2 = OrderingItemQuery.of(20L, 200L, (short) 2, "url-2");
+        OrderingItemQuery item1 = OrderingItemQuery.of(10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), (short) 1, "url-1");
+        OrderingItemQuery item2 = OrderingItemQuery.of(20L, UUID.fromString("550e8400-e29b-41d4-a716-446655440002"), (short) 2, "url-2");
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item1, item2));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L, 20L)))
@@ -121,7 +124,7 @@ class GetMyOrderingProductsUseCaseTest {
     void getMyOrderingProducts_missingStock_returnsNullStock() {
         Product product = buildProduct(1L);
         PricePolicy policy = buildPricePolicy(10L, product);
-        OrderingItemQuery item = OrderingItemQuery.of(10L, 100L, (short) 1, "url");
+        OrderingItemQuery item = OrderingItemQuery.of(10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), (short) 1, "url");
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item));
 
         when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L)))
@@ -155,7 +158,7 @@ class GetMyOrderingProductsUseCaseTest {
     @Test
     @DisplayName("주문 대기 상품 목록 조회 중 가격 정책 조회가 실패하면 예외를 전파한다")
     void getMyOrderingProducts_pricePoliciesFail_propagates() {
-        OrderingItemQuery item = OrderingItemQuery.of(10L, 100L, (short) 1, "url");
+        OrderingItemQuery item = OrderingItemQuery.of(10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), (short) 1, "url");
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item));
         RuntimeException exception = new RuntimeException("price policy fail");
 
@@ -172,7 +175,7 @@ class GetMyOrderingProductsUseCaseTest {
     void getMyOrderingProducts_inventoryFail_propagates() {
         Product product = buildProduct(1L);
         PricePolicy policy = buildPricePolicy(10L, product);
-        OrderingItemQuery item = OrderingItemQuery.of(10L, 100L, (short) 1, "url");
+        OrderingItemQuery item = OrderingItemQuery.of(10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440001"), (short) 1, "url");
         GetMyOrderingProductsQuery query = GetMyOrderingProductsQuery.from(List.of(item));
         RuntimeException exception = new RuntimeException("inventory fail");
 

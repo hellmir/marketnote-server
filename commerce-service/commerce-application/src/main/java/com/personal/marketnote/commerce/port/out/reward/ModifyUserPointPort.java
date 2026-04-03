@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.port.out.reward;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 회원 포인트 변경 포트
@@ -11,14 +12,14 @@ import java.util.List;
  */
 public interface ModifyUserPointPort {
     /**
-     * @param sharerIds   공유자 ID 목록
+     * @param sharerKeys  공유자 식별키 목록
      * @param totalAmount 총 결제 금액
      * @param orderId     주문 ID (sourceId)
      * @Date 2026-01-18
      * @Author 성효빈
      * @Description 공유 구매 포인트를 적립 예정 포인트로 추가합니다.
      */
-    void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId);
+    void addPendingSharedPurchasePoints(List<UUID> sharerKeys, Long totalAmount, Long orderId);
 
     /**
      * @param userId 회원 ID
@@ -78,13 +79,13 @@ public interface ModifyUserPointPort {
     void revokePendingPoints(Long userId, Long orderId);
 
     /**
-     * @param sharerIds 공유자 ID 목록
-     * @param orderId   주문 ID (sourceId)
+     * @param sharerKeys 공유자 식별키 목록
+     * @param orderId    주문 ID (sourceId)
      * @Date 2026-03-07
      * @Author 성효빈
      * @Description 결제 취소 시 공유자들의 적립 예정 포인트를 회수(취소)합니다.
      */
-    void revokePendingSharedPurchasePoints(List<Long> sharerIds, Long orderId);
+    void revokePendingSharedPurchasePoints(List<UUID> sharerKeys, Long orderId);
 
     /**
      * @param userId  회원 ID
@@ -97,7 +98,7 @@ public interface ModifyUserPointPort {
     void reducePartialPendingPoints(Long userId, Long amount, Long orderId);
 
     /**
-     * @param sharerIds     공유자 ID 목록
+     * @param sharerKeys    공유자 식별키 목록
      * @param paymentAmount 원 결제 금액
      * @param cancelAmount  부분 취소 금액
      * @param orderId       주문 ID (sourceId)
@@ -105,5 +106,5 @@ public interface ModifyUserPointPort {
      * @Author 성효빈
      * @Description 부분 결제 취소 시 공유자들의 적립 예정 포인트를 취소 금액에 비례하여 차감합니다.
      */
-    void reducePartialPendingSharedPurchasePoints(List<Long> sharerIds, Long paymentAmount, Long cancelAmount, Long orderId);
+    void reducePartialPendingSharedPurchasePoints(List<UUID> sharerKeys, Long paymentAmount, Long cancelAmount, Long orderId);
 }

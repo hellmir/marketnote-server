@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -118,7 +119,7 @@ class OrderPaymentSagaDefinitionTest {
             context = new OrderPaymentSagaContext(
                     1L, "order-key-1", 100L, 50000L, 60000L, 10000L, 500L,
                     List.of(
-                            new OrderProductItem(10L, 200L, 2, 25000L),
+                            new OrderProductItem(10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L),
                             new OrderProductItem(20L, null, 1, 10000L)
                     )
             );

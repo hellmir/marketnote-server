@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -14,7 +15,7 @@ public class OrderProductSnapshotState {
     private final Long orderId;
     private final Long sellerId;
     private final Long pricePolicyId;
-    private final Long sharerId;
+    private final UUID sharerKey;
     private final Integer quantity;
     private final Long unitAmount;
     private final String imageUrl;

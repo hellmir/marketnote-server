@@ -7,8 +7,8 @@ import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.Ord
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
-import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
-import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingPointUseCase;
+import com.personal.marketnote.reward.port.in.command.point.ModifyPendingSharedPointCommand;
+import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingSharedPointUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +24,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,11 +34,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrderPaymentCompletedSharedPointConsumer 테스트")
 class OrderPaymentCompletedSharedPointConsumerTest {
+    private static final UUID SHARER_KEY_1 = UUID.fromString("550e8400-e29b-41d4-a716-446655440001");
+    private static final UUID SHARER_KEY_2 = UUID.fromString("550e8400-e29b-41d4-a716-446655440002");
+    private static final UUID SHARER_KEY_3 = UUID.fromString("550e8400-e29b-41d4-a716-446655440003");
+
     @InjectMocks
     private OrderPaymentCompletedSharedPointConsumer consumer;
 
     @Mock
-    private ModifyPendingPointUseCase modifyPendingPointUseCase;
+    private ModifyPendingSharedPointUseCase modifyPendingSharedPointUseCase;
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -68,8 +73,8 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_withSharers_accumulatesAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L),
-                new OrderProductItem(2L, 300L, 1, 20000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+                new OrderProductItem(2L, SHARER_KEY_2, 1, 20000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
 
@@ -77,24 +82,24 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<ModifyPendingPointCommand> captor = ArgumentCaptor.forClass(ModifyPendingPointCommand.class);
-        verify(modifyPendingPointUseCase, times(2)).modifyPending(captor.capture());
+        ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(ModifyPendingSharedPointCommand.class);
+        verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(captor.capture());
 
-        List<ModifyPendingPointCommand> commands = captor.getAllValues();
+        List<ModifyPendingSharedPointCommand> commands = captor.getAllValues();
         long expectedAmount = Math.round(50000L * 0.1f);
 
-        // 첫 번째 공유자 (200L)
-        ModifyPendingPointCommand firstCommand = commands.get(0);
-        assertThat(firstCommand.userId()).isEqualTo(200L);
+        // 첫 번째 공유자 (SHARER_KEY_1)
+        ModifyPendingSharedPointCommand firstCommand = commands.get(0);
+        assertThat(firstCommand.sharerKey()).isEqualTo(SHARER_KEY_1);
         assertThat(firstCommand.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         assertThat(firstCommand.amount()).isEqualTo(expectedAmount);
         assertThat(firstCommand.sourceType()).isEqualTo(UserPointSourceType.ORDER);
         assertThat(firstCommand.sourceId()).isEqualTo(1L);
         assertThat(firstCommand.reason()).isEqualTo("링크 공유 회원 상품 구매");
 
-        // 두 번째 공유자 (300L)
-        ModifyPendingPointCommand secondCommand = commands.get(1);
-        assertThat(secondCommand.userId()).isEqualTo(300L);
+        // 두 번째 공유자 (SHARER_KEY_2)
+        ModifyPendingSharedPointCommand secondCommand = commands.get(1);
+        assertThat(secondCommand.sharerKey()).isEqualTo(SHARER_KEY_2);
         assertThat(secondCommand.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         assertThat(secondCommand.amount()).isEqualTo(expectedAmount);
         assertThat(secondCommand.sourceType()).isEqualTo(UserPointSourceType.ORDER);
@@ -108,9 +113,9 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_duplicateSharers_deduplicatesAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L),
-                new OrderProductItem(2L, 200L, 1, 20000L),
-                new OrderProductItem(3L, 300L, 1, 15000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+                new OrderProductItem(2L, SHARER_KEY_1, 1, 20000L),
+                new OrderProductItem(3L, SHARER_KEY_2, 1, 15000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
 
@@ -118,7 +123,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verify(modifyPendingPointUseCase, times(2)).modifyPending(any(ModifyPendingPointCommand.class));
+        verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(any(ModifyPendingSharedPointCommand.class));
         verify(acknowledgment).acknowledge();
     }
 
@@ -136,7 +141,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -145,7 +150,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_nullOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, 100L, 50000L, orderProducts);
 
@@ -153,7 +158,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -162,7 +167,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_nullBuyerId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, null, 50000L, orderProducts);
 
@@ -170,7 +175,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -186,7 +191,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -195,7 +200,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
                 1L, 100L, 50000L, 0L, orderProducts, null
@@ -212,7 +217,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -221,7 +226,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_zeroOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, 100L, 50000L, orderProducts);
 
@@ -229,7 +234,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -238,7 +243,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_negativeOrderId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, 100L, 50000L, orderProducts);
 
@@ -246,7 +251,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -255,7 +260,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_zeroBuyerId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 0L, 50000L, orderProducts);
 
@@ -263,7 +268,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -272,7 +277,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_negativeBuyerId_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, -1L, 50000L, orderProducts);
 
@@ -280,7 +285,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -289,17 +294,17 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_duplicateEvent_idempotentAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
         doThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"))
-                .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+                .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
 
         // when
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verify(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+        verify(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
         verify(acknowledgment).acknowledge();
     }
 
@@ -308,11 +313,11 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_partialDuplicate_continuesAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L),
-                new OrderProductItem(2L, 300L, 1, 20000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+                new OrderProductItem(2L, SHARER_KEY_2, 1, 20000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
-        when(modifyPendingPointUseCase.modifyPending(any(ModifyPendingPointCommand.class)))
+        when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
                 .thenThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"))
                 .thenReturn(null);
 
@@ -320,7 +325,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verify(modifyPendingPointUseCase, times(2)).modifyPending(any(ModifyPendingPointCommand.class));
+        verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(any(ModifyPendingSharedPointCommand.class));
         verify(acknowledgment).acknowledge();
     }
 
@@ -329,11 +334,11 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_allDuplicate_idempotentAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L),
-                new OrderProductItem(2L, 300L, 1, 20000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L),
+                new OrderProductItem(2L, SHARER_KEY_2, 1, 20000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
-        when(modifyPendingPointUseCase.modifyPending(any(ModifyPendingPointCommand.class)))
+        when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
                 .thenThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"))
                 .thenThrow(new DuplicateUserPointHistoryException(300L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"));
 
@@ -341,7 +346,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verify(modifyPendingPointUseCase, times(2)).modifyPending(any(ModifyPendingPointCommand.class));
+        verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(any(ModifyPendingSharedPointCommand.class));
         verify(acknowledgment).acknowledge();
     }
 
@@ -350,18 +355,18 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_unexpectedException_propagatesWithoutAcknowledge() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+                .when(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
 
         // when & then
         assertThatThrownBy(() -> consumer.handleOrderPaymentCompletedEvent(record, acknowledgment))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("DB 연결 실패");
 
-        verify(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
+        verify(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
         verify(acknowledgment, never()).acknowledge();
     }
 
@@ -375,7 +380,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -384,7 +389,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_nullTotalAmount_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, null, orderProducts);
 
@@ -392,7 +397,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -401,7 +406,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
     void handleOrderPaymentCompletedEvent_zeroTotalAmount_skipsAndAcknowledges() {
         // given
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(1L, 200L, 2, 10000L)
+                new OrderProductItem(1L, SHARER_KEY_1, 2, 10000L)
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 0L, orderProducts);
 
@@ -409,7 +414,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyPendingPointUseCase);
+        verifyNoInteractions(modifyPendingSharedPointUseCase);
         verify(acknowledgment).acknowledge();
     }
 }

@@ -1,12 +1,12 @@
 package com.personal.marketnote.product.service.shipping;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.ShippingPolicyChangeAction;
 import com.personal.marketnote.product.domain.shipping.ShippingPolicy;
 import com.personal.marketnote.product.exception.ShippingPolicyNotFoundException;
 import com.personal.marketnote.product.port.in.command.UpdateShippingPolicyCommand;
 import com.personal.marketnote.product.port.in.result.shipping.UpdateShippingPolicyResult;
 import com.personal.marketnote.product.port.in.usecase.shipping.UpdateShippingPolicyUseCase;
-import com.personal.marketnote.common.kafka.event.ShippingPolicyChangeAction;
 import com.personal.marketnote.product.port.out.event.PublishShippingPolicyEventPort;
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import com.personal.marketnote.product.port.out.shipping.UpdateShippingPolicyPort;

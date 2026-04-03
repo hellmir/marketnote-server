@@ -4,6 +4,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -15,7 +16,7 @@ public class OrderProduct {
     private Long orderId;
     private Long sellerId;
     private Long pricePolicyId;
-    private Long sharerId;
+    private UUID sharerKey;
     private Integer quantity;
     private Long unitAmount;
     private String imageUrl;
@@ -27,7 +28,7 @@ public class OrderProduct {
         return OrderProduct.builder()
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
-                .sharerId(state.getSharerId())
+                .sharerKey(state.getSharerKey())
                 .quantity(state.getQuantity())
                 .unitAmount(state.getUnitAmount())
                 .imageUrl(state.getImageUrl())
@@ -40,7 +41,7 @@ public class OrderProduct {
                 .orderId(state.getOrderId())
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
-                .sharerId(state.getSharerId())
+                .sharerKey(state.getSharerKey())
                 .quantity(state.getQuantity())
                 .unitAmount(state.getUnitAmount())
                 .imageUrl(state.getImageUrl())
