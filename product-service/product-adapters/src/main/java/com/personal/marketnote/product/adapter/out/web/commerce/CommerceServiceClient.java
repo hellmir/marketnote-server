@@ -1,24 +1,19 @@
 package com.personal.marketnote.product.adapter.out.web.commerce;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.request.RegisterInventoryRequest;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.CommerceServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.product.adapter.out.response.GetInventoriesResponse;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationSenderType;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationTargetType;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationType;
-import com.personal.marketnote.product.port.out.inventory.FindStockPort;
 import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
-import com.personal.marketnote.product.port.out.result.GetInventoryResult;
 import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,17 +22,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
 
 @ServiceAdapter
 @Slf4j
-public class CommerceServiceClient implements RegisterInventoryPort, FindStockPort {
+public class CommerceServiceClient implements RegisterInventoryPort {
     private static final ProductServiceCommunicationTargetType TARGET_TYPE =
             ProductServiceCommunicationTargetType.INVENTORY;
     private static final ProductServiceCommunicationSenderType REQUEST_SENDER =
@@ -147,102 +138,6 @@ public class CommerceServiceClient implements RegisterInventoryPort, FindStockPo
         }
 
         log.error("Failed to register inventory: {} with error: {}", uri, error.getMessage(), error);
-        throw new CommerceServiceRequestFailedException(new IOException());
-    }
-
-    @Override
-    public Set<GetInventoryResult> findByPricePolicyIds(List<Long> pricePolicyIds) {
-        URI uri = UriComponentsBuilder
-                .fromUriString(commerceServiceBaseUrl)
-                .path("/api/v1/internal/inventories")
-                .queryParam("pricePolicyIds", pricePolicyIds)
-                .build()
-                .toUri();
-
-        try {
-            return sendFindRequest(uri).inventories();
-        } catch (CommerceServiceRequestFailedException csrfe) {
-            return pricePolicyIds.stream()
-                    .map(GetInventoryResult::generateResultWithoutStock)
-                    .collect(Collectors.toSet());
-        }
-    }
-
-    private GetInventoriesResponse sendFindRequest(URI uri) {
-        Exception error = new Exception();
-
-        for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
-            int attempt = i + 1;
-            try {
-                ResponseEntity<BaseResponse<GetInventoriesResponse>> responseEntity =
-                        restClient.get()
-                                .uri(uri)
-                                .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
-                                .retrieve()
-                                .toEntity(new ParameterizedTypeReference<>() {
-                                });
-
-                if (responseEntity.getStatusCode().isError()) {
-                    throw new CommerceServiceRequestFailedException(new IOException("Commerce service returned error: " + responseEntity.getStatusCode()));
-                }
-
-                BaseResponse<GetInventoriesResponse> response = responseEntity.getBody();
-
-                if (FormatValidator.hasNoValue(response)) {
-                    throw new CommerceServiceRequestFailedException(new IOException());
-                }
-
-                GetInventoriesResponse getInventoriesResponse = response.getContent();
-                return FormatValidator.hasValue(getInventoriesResponse)
-                        ? getInventoriesResponse
-                        : new GetInventoriesResponse(new HashSet<>());
-            } catch (Exception e) {
-                String exception = e.getClass().getSimpleName();
-                JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                        HttpMethod.GET,
-                        uri,
-                        null,
-                        attempt
-                );
-                String requestPayload = requestPayloadJson.toString();
-                JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                        exception,
-                        e.getMessage(),
-                        attempt
-                );
-                String responsePayload = responsePayloadJson.toString();
-                recordCommunication(
-                        TARGET_TYPE,
-                        null,
-                        ProductServiceCommunicationType.REQUEST,
-                        requestPayload,
-                        requestPayloadJson,
-                        exception
-                );
-                recordCommunication(
-                        TARGET_TYPE,
-                        null,
-                        ProductServiceCommunicationType.RESPONSE,
-                        responsePayload,
-                        responsePayloadJson,
-                        exception
-                );
-                log.warn(e.getMessage(), e);
-                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
-                    error = e;
-                }
-
-                try {
-                    long jitteredSleepMillis = ThreadLocalRandom.current()
-                            .nextLong(Math.max(1L, INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND) + 1);
-                    Thread.sleep(jitteredSleepMillis);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-
-        log.error("Failed to get inventories: {} with error: {}", uri, error.getMessage(), error);
         throw new CommerceServiceRequestFailedException(new IOException());
     }
 
