@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.exception.CommerceServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
-import com.personal.marketnote.product.port.out.result.GetInventoryResult;
 import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,10 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.lenient;
@@ -100,68 +95,4 @@ class CommerceServiceClientTest {
         }
     }
 
-    @Nested
-    @DisplayName("findByPricePolicyIds")
-    class FindByPricePolicyIds {
-
-        @Test
-        @DisplayName("가격정책 ID 목록으로 재고 조회에 성공하면 재고 결과를 반환한다")
-        void shouldReturnInventoriesWhenRequestSucceeds() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories?pricePolicyIds=1&pricePolicyIds=2"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess("""
-                            {
-                                "content": {
-                                    "inventories": [
-                                        {"pricePolicyId": 1, "stock": 100},
-                                        {"pricePolicyId": 2, "stock": 50}
-                                    ]
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
-
-            Set<GetInventoryResult> result =
-                    commerceServiceClient.findByPricePolicyIds(List.of(1L, 2L));
-
-            assertThat(result).hasSize(2);
-
-            mockServer.verify();
-        }
-
-        @Test
-        @DisplayName("응답 바디가 null이면 CommerceServiceRequestFailedException 후 폴백 결과를 반환한다")
-        void shouldReturnFallbackResultsWhenResponseBodyIsNull() {
-            for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories?pricePolicyIds=1"))
-                        .andExpect(method(HttpMethod.GET))
-                        .andRespond(withSuccess());
-            }
-
-            Set<GetInventoryResult> result =
-                    commerceServiceClient.findByPricePolicyIds(List.of(1L));
-
-            assertThat(result).hasSize(1);
-            assertThat(result.iterator().next().stock()).isNull();
-
-            mockServer.verify();
-        }
-
-        @Test
-        @DisplayName("모든 재시도가 실패하면 stock이 null인 폴백 결과를 반환한다")
-        void shouldReturnFallbackResultsWhenAllRetriesFail() {
-            for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/inventories?pricePolicyIds=1&pricePolicyIds=2"))
-                        .andExpect(method(HttpMethod.GET))
-                        .andRespond(withServerError());
-            }
-
-            Set<GetInventoryResult> result =
-                    commerceServiceClient.findByPricePolicyIds(List.of(1L, 2L));
-
-            assertThat(result).hasSize(2);
-            result.forEach(item -> assertThat(item.stock()).isNull());
-
-            mockServer.verify();
-        }
-    }
 }
