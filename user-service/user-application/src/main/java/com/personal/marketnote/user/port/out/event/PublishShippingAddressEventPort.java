@@ -4,5 +4,5 @@ import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 
 public interface PublishShippingAddressEventPort {
 
-    void publishShippingAddressChangedEvent(Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber, String address, ShippingAddressChangeAction action);
+    void publishShippingAddressChangedEvent(Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber, String address, String addressDetail, ShippingAddressChangeAction action);
 }
