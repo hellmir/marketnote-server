@@ -52,7 +52,7 @@ class ProductEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        productEventKafkaProducer.publishProductRegisteredEvent(1L, 2L, 3L, "테스트 상품", "1");
+        productEventKafkaProducer.publishProductRegisteredEvent(1L, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L);
 
         // then
         ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -74,7 +74,7 @@ class ProductEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        productEventKafkaProducer.publishProductRegisteredEvent(10L, 20L, 30L, "상품명", "2");
+        productEventKafkaProducer.publishProductRegisteredEvent(10L, 20L, 30L, "상품명", "2", "브랜드명", 20000L, 15000L, 200L);
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);

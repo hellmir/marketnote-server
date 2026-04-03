@@ -46,7 +46,8 @@ public class RegisterProductService implements RegisterProductUseCase {
                 : null;
 
         publishProductEventPort.publishProductRegisteredEvent(
-                savedProduct.getId(), registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), goodsType
+                savedProduct.getId(), registerPricePolicyResult.id(), command.sellerId(), savedProduct.getName(), goodsType,
+                savedProduct.getBrandName(), command.price(), command.discountPrice(), command.accumulatedPoint()
         );
 
         return RegisterProductResult.from(savedProduct);

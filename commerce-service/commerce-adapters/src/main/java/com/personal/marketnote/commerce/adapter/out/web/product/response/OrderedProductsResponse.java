@@ -1,8 +1,8 @@
 package com.personal.marketnote.commerce.adapter.out.web.product.response;
 
-import com.personal.marketnote.common.adapter.in.response.CursorResponse;
-
-public record OrderedProductsResponse(
-        CursorResponse<ProductsInfoResponse> products
-) {
+/**
+ * @deprecated ProductReadModelPersistenceAdapter로 대체됨
+ */
+@Deprecated
+class OrderedProductsResponse {
 }

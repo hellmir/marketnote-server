@@ -5,6 +5,10 @@ public record ProductRegisteredEvent(
         Long pricePolicyId,
         Long sellerId,
         String productName,
-        String goodsType
+        String goodsType,
+        String brandName,
+        Long price,
+        Long discountPrice,
+        Long accumulatedPoint
 ) {
 }
