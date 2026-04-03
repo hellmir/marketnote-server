@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.InventoryLockPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveCacheStockPort;
 import com.personal.marketnote.commerce.port.out.inventory.UpdateInventoryPort;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -823,5 +824,91 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
 
     private Inventory buildInventory(Long productId, Long pricePolicyId, int stock, Long version) {
         return Inventory.of(productId, pricePolicyId, stock, version);
+    }
+
+    // ==================================================================================
+    // 이벤트 발행 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("이벤트 발행 검증")
+    class EventPublishingTest {
+
+        @Test
+        @DisplayName("단일 상품 재고 동기화 시 동기화된 재고 수량으로 UPDATED 이벤트를 발행한다")
+        void syncInventories_singleProduct_publishesUpdatedEventWithSyncedStock() {
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, 50)
+            );
+            when(findInventoryPort.findByProductIds(any())).thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10)
+            ));
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10, 1L)
+            ));
+
+            syncFulfillmentVendorInventoryService.syncInventories(command);
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 50, InventoryChangeAction.UPDATED
+            );
+        }
+
+        @Test
+        @DisplayName("복수 상품 재고 동기화 시 각 상품에 대해 UPDATED 이벤트를 발행한다")
+        void syncInventories_multipleProducts_publishesUpdatedEventForEach() {
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, 50),
+                    SyncFulfillmentVendorInventoryItemCommand.of(2L, 30)
+            );
+            when(findInventoryPort.findByProductIds(any())).thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10),
+                    buildInventory(2L, 200L, 20)
+            ));
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10, 1L),
+                    buildInventory(2L, 200L, 20, 2L)
+            ));
+
+            syncFulfillmentVendorInventoryService.syncInventories(command);
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 50, InventoryChangeAction.UPDATED
+            );
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    200L, 2L, 30, InventoryChangeAction.UPDATED
+            );
+        }
+
+        @Test
+        @DisplayName("분산 락이 작업을 실행하지 않으면 이벤트를 발행하지 않는다")
+        void syncInventories_lockNotExecuted_doesNotPublishEvent() {
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, 50)
+            );
+            when(findInventoryPort.findByProductIds(any())).thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10)
+            ));
+
+            syncFulfillmentVendorInventoryService.syncInventories(command);
+
+            verifyNoInteractions(publishInventoryEventPort);
+        }
+
+        @Test
+        @DisplayName("상품 미존재 시 이벤트를 발행하지 않는다")
+        void syncInventories_productMissing_doesNotPublishEvent() {
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, 50)
+            );
+            when(findInventoryPort.findByProductIds(any())).thenReturn(Set.of());
+
+            assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
+                    .isInstanceOf(InventoryProductNotFoundException.class);
+
+            verifyNoInteractions(publishInventoryEventPort);
+        }
     }
 }

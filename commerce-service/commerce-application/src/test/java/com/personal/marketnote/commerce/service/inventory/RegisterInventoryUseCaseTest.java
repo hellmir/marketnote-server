@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveCacheStockPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveInventoryPort;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -385,6 +386,82 @@ class RegisterInventoryUseCaseTest {
                     .isSameAs(exception);
 
             verify(saveInventoryPort).save(any(Set.class));
+        }
+
+        @Test
+        @DisplayName("복수 재고 등록 시 각 재고마다 CREATED 이벤트를 발행한다")
+        void registerInventories_success_publishesCreatedEventForEach() {
+            Set<RegisterInventoryCommand> commands = new LinkedHashSet<>();
+            commands.add(RegisterInventoryCommand.of(1L, 100L));
+            commands.add(RegisterInventoryCommand.of(2L, 200L));
+
+            registerInventoryService.registerInventories(commands);
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 0, InventoryChangeAction.CREATED
+            );
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    200L, 2L, 0, InventoryChangeAction.CREATED
+            );
+            verify(publishInventoryEventPort, times(2)).publishInventoryChangedEvent(
+                    any(), any(), any(), any()
+            );
+        }
+    }
+
+    // ==================================================================================
+    // 이벤트 발행 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("이벤트 발행 검증")
+    class EventPublishingTest {
+
+        @Test
+        @DisplayName("단건 재고 등록 시 CREATED 이벤트를 발행한다")
+        void registerInventory_success_publishesCreatedEvent() {
+            Long productId = 20L;
+            Long pricePolicyId = 2000L;
+            RegisterInventoryCommand command = RegisterInventoryCommand.of(productId, pricePolicyId);
+
+            when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(false);
+
+            registerInventoryService.registerInventory(command);
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    pricePolicyId, productId, 0, InventoryChangeAction.CREATED
+            );
+        }
+
+        @Test
+        @DisplayName("단건 재고 등록 시 올바른 재고 수량 0으로 이벤트를 발행한다")
+        void registerInventory_success_publishesEventWithZeroStock() {
+            Long productId = 21L;
+            Long pricePolicyId = 2100L;
+            RegisterInventoryCommand command = RegisterInventoryCommand.of(productId, pricePolicyId);
+
+            when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(false);
+
+            registerInventoryService.registerInventory(command);
+
+            verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    2100L, 21L, 0, InventoryChangeAction.CREATED
+            );
+        }
+
+        @Test
+        @DisplayName("이미 존재하는 재고로 등록 실패 시 이벤트를 발행하지 않는다")
+        void registerInventory_alreadyExists_doesNotPublishEvent() {
+            Long productId = 22L;
+            Long pricePolicyId = 2200L;
+            RegisterInventoryCommand command = RegisterInventoryCommand.of(productId, pricePolicyId);
+
+            when(findInventoryPort.existsByPricePolicyId(pricePolicyId)).thenReturn(true);
+
+            assertThatThrownBy(() -> registerInventoryService.registerInventory(command))
+                    .isInstanceOf(InventoryAlreadyExistsException.class);
+
+            verifyNoInteractions(publishInventoryEventPort);
         }
     }
 }
