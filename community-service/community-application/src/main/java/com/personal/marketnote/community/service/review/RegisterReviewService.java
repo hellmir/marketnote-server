@@ -46,21 +46,24 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         );
 
         // 상품 평점 집계
+        ProductReviewAggregate productReviewAggregate;
         try {
-            ProductReviewAggregate productReviewAggregate = getReviewUseCase.getProductReviewAggregate(productId);
+            productReviewAggregate = getReviewUseCase.getProductReviewAggregate(productId);
             Float point = command.rating();
             productReviewAggregate.addPoint(point.intValue());
             productReviewAggregate.computeRating(point);
             updateReviewPort.update(productReviewAggregate);
         } catch (ProductReviewAggregateNotFoundException pranfe) {
-            saveReviewPort.saveAggregate(
-                    ProductReviewAggregate.from(savedReview)
-            );
+            productReviewAggregate = ProductReviewAggregate.from(savedReview);
+            saveReviewPort.saveAggregate(productReviewAggregate);
         }
 
         // Outbox 이벤트 저장 (트랜잭션 내)
         // [#929][#1038] 주문상품 리뷰 상태 업데이트는 Kafka Consumer(ReviewRegisteredCommerceConsumer)로 전환 완료
-        publishReviewEventPort.publishReviewRegisteredEvent(orderId, pricePolicyId);
+        publishReviewEventPort.publishReviewRegisteredEvent(
+                orderId, pricePolicyId, productId,
+                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating()
+        );
 
         return RegisterReviewResult.from(savedReview);
     }
