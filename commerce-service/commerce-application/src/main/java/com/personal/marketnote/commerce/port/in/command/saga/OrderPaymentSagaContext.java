@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.port.in.command.saga;
 
 import java.util.List;
+import java.util.UUID;
 
 public record OrderPaymentSagaContext(
         Long orderId,
@@ -14,7 +15,7 @@ public record OrderPaymentSagaContext(
 ) {
     public record OrderProductItem(
             Long pricePolicyId,
-            Long sharerId,
+            UUID sharerKey,
             Integer quantity,
             Long unitAmount
     ) {

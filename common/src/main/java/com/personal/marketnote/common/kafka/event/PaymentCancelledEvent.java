@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.kafka.event;
 
 import java.util.List;
+import java.util.UUID;
 
 public record PaymentCancelledEvent(
         Long orderId,
@@ -19,7 +20,7 @@ public record PaymentCancelledEvent(
 
     public record OrderProductItem(
             Long pricePolicyId,
-            Long sharerId,
+            UUID sharerKey,
             Integer quantity,
             Long unitAmount
     ) {

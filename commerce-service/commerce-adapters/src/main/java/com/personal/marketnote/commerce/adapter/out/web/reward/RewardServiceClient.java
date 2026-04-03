@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
@@ -170,8 +171,8 @@ public class RewardServiceClient implements ModifyUserPointPort {
     }
 
     @Override
-    public void reducePartialPendingSharedPurchasePoints(List<Long> sharerIds, Long paymentAmount, Long cancelAmount, Long orderId) {
-        if (FormatValidator.hasNoValue(sharerIds)
+    public void reducePartialPendingSharedPurchasePoints(List<UUID> sharerKeys, Long paymentAmount, Long cancelAmount, Long orderId) {
+        if (FormatValidator.hasNoValue(sharerKeys)
                 || FormatValidator.hasNoValue(paymentAmount) || paymentAmount <= 0
                 || FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0) {
             return;
@@ -188,60 +189,60 @@ public class RewardServiceClient implements ModifyUserPointPort {
             return;
         }
 
-        sharerIds.stream()
+        sharerKeys.stream()
                 .filter(Objects::nonNull)
                 .distinct()
-                .forEach(sharerId -> reduceSharerPartialPendingPoint(sharerId, proportionalPoint, orderId));
+                .forEach(sharerKey -> reduceSharerPartialPendingPoint(sharerKey, proportionalPoint, orderId));
     }
 
-    private void reduceSharerPartialPendingPoint(Long sharerId, Long amount, Long orderId) {
-        URI uri = buildPendingPointUri(sharerId);
+    private void reduceSharerPartialPendingPoint(UUID sharerKey, Long amount, Long orderId) {
+        URI uri = buildPendingPointUri(sharerKey);
         ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingDeduction(
                 amount, orderId, PARTIAL_CANCEL_SHARED_PURCHASE_REASON
         );
-        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerId, "부분 취소 공유 적립 예정 포인트 차감");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerKey, "부분 취소 공유 적립 예정 포인트 차감");
     }
 
     @Override
-    public void revokePendingSharedPurchasePoints(List<Long> sharerIds, Long orderId) {
-        if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(orderId)) {
+    public void revokePendingSharedPurchasePoints(List<UUID> sharerKeys, Long orderId) {
+        if (FormatValidator.hasNoValue(sharerKeys) || FormatValidator.hasNoValue(orderId)) {
             return;
         }
 
-        sharerIds.stream()
+        sharerKeys.stream()
                 .filter(Objects::nonNull)
                 .distinct()
-                .forEach(sharerId -> revokeSharerPendingPoint(sharerId, orderId));
+                .forEach(sharerKey -> revokeSharerPendingPoint(sharerKey, orderId));
     }
 
-    private void revokeSharerPendingPoint(Long sharerId, Long orderId) {
-        URI uri = buildPendingPointCancelUri(sharerId);
+    private void revokeSharerPendingPoint(UUID sharerKey, Long orderId) {
+        URI uri = buildPendingPointCancelUri(sharerKey);
         CancelPendingPointRequest requestBody = new CancelPendingPointRequest(
                 SOURCE_TYPE_ORDER, orderId, PENDING_POINT_CANCEL_REASON
         );
-        sendRequestWithRetry(uri, requestBody, HttpMethod.POST, sharerId, "공유 적립 예정 포인트 취소");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.POST, sharerKey, "공유 적립 예정 포인트 취소");
     }
 
     @Override
-    public void addPendingSharedPurchasePoints(List<Long> sharerIds, Long totalAmount, Long orderId) {
-        if (FormatValidator.hasNoValue(sharerIds) || FormatValidator.hasNoValue(totalAmount)) {
+    public void addPendingSharedPurchasePoints(List<UUID> sharerKeys, Long totalAmount, Long orderId) {
+        if (FormatValidator.hasNoValue(sharerKeys) || FormatValidator.hasNoValue(totalAmount)) {
             return;
         }
 
-        sharerIds.stream()
+        sharerKeys.stream()
                 .filter(Objects::nonNull)
-                .forEach(sharerId -> addPendingSharerPoint(sharerId, totalAmount, orderId));
+                .forEach(sharerKey -> addPendingSharerPoint(sharerKey, totalAmount, orderId));
     }
 
-    private void addPendingSharerPoint(Long sharerId, Long totalAmount, Long orderId) {
+    private void addPendingSharerPoint(UUID sharerKey, Long totalAmount, Long orderId) {
         if (totalAmount <= 0) {
             return;
         }
 
-        URI uri = buildPendingPointUri(sharerId);
+        URI uri = buildPendingPointUri(sharerKey);
         long sharePointAmount = Math.round(totalAmount * sharePointRate);
         ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(sharePointAmount, orderId, SHARE_PURCHASE_REASON);
-        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerId, "포인트 변경");
+        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerKey, "포인트 변경");
     }
 
     private URI buildPendingPointCancelUri(Long userId) {
@@ -249,6 +250,14 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 .fromUriString(rewardServiceBaseUrl)
                 .path("/api/v1/internal/users/{userId}/points/pending/cancel")
                 .buildAndExpand(userId)
+                .toUri();
+    }
+
+    private URI buildPendingPointCancelUri(UUID userKey) {
+        return UriComponentsBuilder
+                .fromUriString(rewardServiceBaseUrl)
+                .path("/api/v1/internal/users/{userKey}/points/pending/cancel")
+                .buildAndExpand(userKey)
                 .toUri();
     }
 
@@ -265,6 +274,14 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 .fromUriString(rewardServiceBaseUrl)
                 .path("/api/v1/internal/users/{userId}/points/pending")
                 .buildAndExpand(userId)
+                .toUri();
+    }
+
+    private URI buildPendingPointUri(UUID userKey) {
+        return UriComponentsBuilder
+                .fromUriString(rewardServiceBaseUrl)
+                .path("/api/v1/internal/users/{userKey}/points/pending")
+                .buildAndExpand(userKey)
                 .toUri();
     }
 
@@ -288,7 +305,17 @@ public class RewardServiceClient implements ModifyUserPointPort {
     }
 
     private <T> void sendRequestWithRetry(URI uri, T requestBody, HttpMethod method,
+                                          UUID userKey, String operationName) {
+        sendRequestWithRetry(uri, requestBody, method, userKey.toString(), operationName);
+    }
+
+    private <T> void sendRequestWithRetry(URI uri, T requestBody, HttpMethod method,
                                           Long userId, String operationName) {
+        sendRequestWithRetry(uri, requestBody, method, userId.toString(), operationName);
+    }
+
+    private <T> void sendRequestWithRetry(URI uri, T requestBody, HttpMethod method,
+                                          String userIdentifier, String operationName) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
@@ -311,13 +338,13 @@ public class RewardServiceClient implements ModifyUserPointPort {
                     return;
                 }
 
-                log.warn("{} 비정상 응답 - userId: {}, attempt: {}, status: {}",
-                        operationName, userId, attempt, responseEntity.getStatusCode());
+                log.warn("{} 비정상 응답 - userIdentifier: {}, attempt: {}, status: {}",
+                        operationName, userIdentifier, attempt, responseEntity.getStatusCode());
             } catch (Exception e) {
-                log.warn("{} 요청 실패 - userId: {}, attempt: {}, error: {}",
-                        operationName, userId, attempt, e.getMessage(), e);
+                log.warn("{} 요청 실패 - userIdentifier: {}, attempt: {}, error: {}",
+                        operationName, userIdentifier, attempt, e.getMessage(), e);
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
-                    log.error("{} 최종 실패 - userId: {}", operationName, userId);
+                    log.error("{} 최종 실패 - userIdentifier: {}", operationName, userIdentifier);
                     throw new RewardServiceRequestFailedException(new IOException(e));
                 }
             }
@@ -326,7 +353,7 @@ public class RewardServiceClient implements ModifyUserPointPort {
             sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
         }
 
-        log.error("{} 최종 실패 (비정상 응답) - userId: {}", operationName, userId);
+        log.error("{} 최종 실패 (비정상 응답) - userIdentifier: {}", operationName, userIdentifier);
         throw new RewardServiceRequestFailedException(new IOException(operationName + " 최종 실패"));
     }
 

@@ -57,6 +57,9 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
     private static final String SECURITY_TOPIC = "serde-security-test";
     private static final int READY_CHECK_MAX_ATTEMPTS = 40;
     private static final String SCHEMA_TEST_TIMESTAMP = "2026-03-21T19:00:00";
+    private static final UUID SHARER_KEY_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID SHARER_KEY_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID SHARER_KEY_3 = UUID.fromString("00000000-0000-0000-0000-000000000003");
 
     private static final Clock FIXED_CLOCK = Clock.fixed(
             Instant.parse("2026-03-21T10:00:00Z"), ZoneId.of("Asia/Seoul")
@@ -268,7 +271,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             assertThat(result.cancelId()).isEqualTo("cancel-uuid-123");
             assertThat(result.orderProducts()).hasSize(2);
             assertThat(result.orderProducts().get(0).pricePolicyId()).isEqualTo(100L);
-            assertThat(result.orderProducts().get(1).sharerId()).isEqualTo(20L);
+            assertThat(result.orderProducts().get(1).sharerKey()).isEqualTo(SHARER_KEY_2);
             assertThat(result.cancelProducts()).hasSize(1);
             assertThat(result.cancelProducts().get(0).quantity()).isEqualTo(1);
             assertThat(result.partialProductPendingDeduction()).isEqualTo(1500L);
@@ -301,7 +304,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("OrderPurchaseConfirmedEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void orderPurchaseConfirmedEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 10L, List.of(20L, 30L, 40L));
+            OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 10L, List.of(SHARER_KEY_1, SHARER_KEY_2, SHARER_KEY_3));
             EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
                     "commerce.order.purchase-confirmed", "commerce-service", event, FIXED_CLOCK);
 
@@ -312,7 +315,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             OrderPurchaseConfirmedEvent result = deserialized.getPayloadAs(OrderPurchaseConfirmedEvent.class, OBJECT_MAPPER);
             assertThat(result.orderId()).isEqualTo(1L);
             assertThat(result.buyerId()).isEqualTo(10L);
-            assertThat(result.sharerIds()).containsExactly(20L, 30L, 40L);
+            assertThat(result.sharerKeys()).containsExactly(SHARER_KEY_1, SHARER_KEY_2, SHARER_KEY_3);
         }
 
         @Test
@@ -716,11 +719,11 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
     private PaymentCancelledEvent buildSamplePaymentCancelledEvent() {
         List<PaymentCancelledEvent.OrderProductItem> orderProducts = List.of(
-                new PaymentCancelledEvent.OrderProductItem(100L, 10L, 2, 15000L),
-                new PaymentCancelledEvent.OrderProductItem(200L, 20L, 1, 20000L)
+                new PaymentCancelledEvent.OrderProductItem(100L, SHARER_KEY_1, 2, 15000L),
+                new PaymentCancelledEvent.OrderProductItem(200L, SHARER_KEY_2, 1, 20000L)
         );
         List<PaymentCancelledEvent.OrderProductItem> cancelProducts = List.of(
-                new PaymentCancelledEvent.OrderProductItem(100L, 10L, 1, 15000L)
+                new PaymentCancelledEvent.OrderProductItem(100L, SHARER_KEY_1, 1, 15000L)
         );
         return new PaymentCancelledEvent(
                 1L, "cancel-order-key", 10L, 30000L, 50000L, 5000L,
@@ -731,7 +734,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
     private OrderPaymentCompletedEvent buildSampleOrderPaymentCompletedEvent() {
         List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts = List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(100L, 10L, 2, 25000L),
+                new OrderPaymentCompletedEvent.OrderProductItem(100L, SHARER_KEY_1, 2, 25000L),
                 new OrderPaymentCompletedEvent.OrderProductItem(200L, null, 1, 20000L)
         );
         return new OrderPaymentCompletedEvent(1L, 10L, 50000L, 5000L, orderProducts, 500L);

@@ -6,9 +6,12 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.port.in.command.point.ConfirmPendingPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ConfirmPendingPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -17,6 +20,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -25,6 +29,7 @@ public class OrderPurchaseConfirmedSharedPointConsumer {
     private static final String CONFIRM_REASON = "구매 확정 공유 포인트 적립";
 
     private final ConfirmPendingPointUseCase confirmPendingPointUseCase;
+    private final FindUserPointPort findUserPointPort;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -52,8 +57,8 @@ public class OrderPurchaseConfirmedSharedPointConsumer {
                     OrderPurchaseConfirmedEvent.class, objectMapper
             );
 
-            log.info("구매 확정 이벤트 수신 (공유 적립 예정 포인트 확정). eventId={}, orderId={}, sharerIds={}",
-                    envelope.eventId(), payload.orderId(), payload.sharerIds());
+            log.info("구매 확정 이벤트 수신 (공유 적립 예정 포인트 확정). eventId={}, orderId={}, sharerKeys={}",
+                    envelope.eventId(), payload.orderId(), payload.sharerKeys());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                     EventPayloadValidator.id("orderId", payload.orderId()))) {
@@ -61,19 +66,19 @@ public class OrderPurchaseConfirmedSharedPointConsumer {
                 return;
             }
 
-            List<Long> sharerIds = payload.sharerIds();
-            if (FormatValidator.hasNoValue(sharerIds) || sharerIds.isEmpty()) {
+            List<UUID> sharerKeys = payload.sharerKeys();
+            if (FormatValidator.hasNoValue(sharerKeys) || sharerKeys.isEmpty()) {
                 log.info("공유자가 없는 주문 (공유 적립 예정 포인트 확정 생략). orderId={}", payload.orderId());
                 acknowledgment.acknowledge();
                 return;
             }
 
-            for (Long sharerId : sharerIds) {
-                confirmPending(sharerId, payload.orderId());
+            for (UUID sharerKey : sharerKeys) {
+                confirmPending(sharerKey, payload.orderId());
             }
 
-            log.info("공유 적립 예정 포인트 확정 완료. orderId={}, sharerIds={}",
-                    payload.orderId(), sharerIds);
+            log.info("공유 적립 예정 포인트 확정 완료. orderId={}, sharerKeys={}",
+                    payload.orderId(), sharerKeys);
         } catch (Exception e) {
             log.error("공유 적립 예정 포인트 확정 이벤트 처리 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e);
@@ -83,9 +88,12 @@ public class OrderPurchaseConfirmedSharedPointConsumer {
         acknowledgment.acknowledge();
     }
 
-    private void confirmPending(Long sharerId, Long orderId) {
+    private void confirmPending(UUID sharerKey, Long orderId) {
+        UserPoint userPoint = findUserPointPort.findByUserKey(sharerKey.toString())
+                .orElseThrow(() -> new UserPointNotFoundException(sharerKey.toString()));
+
         ConfirmPendingPointCommand command = ConfirmPendingPointCommand.builder()
-                .userId(sharerId)
+                .userId(userPoint.getUserId())
                 .sourceType(UserPointSourceType.ORDER)
                 .sourceId(orderId)
                 .reason(CONFIRM_REASON)

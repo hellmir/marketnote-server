@@ -20,7 +20,7 @@ public class OrderRequestToCommandMapper {
                         .productId(item.getProductId())
                         .sellerId(item.getSellerId())
                         .pricePolicyId(item.getPricePolicyId())
-                        .sharerId(item.getSharerId())
+                        .sharerKey(item.getSharerKey())
                         .quantity(item.getQuantity())
                         .unitAmount(item.getUnitAmount())
                         .imageUrl(item.getImageUrl())

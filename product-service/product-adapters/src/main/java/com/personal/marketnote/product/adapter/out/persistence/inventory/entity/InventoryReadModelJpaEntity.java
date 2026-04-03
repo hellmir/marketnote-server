@@ -1,7 +1,10 @@
 package com.personal.marketnote.product.adapter.out.persistence.inventory.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.*;
 
 @Entity

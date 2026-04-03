@@ -273,26 +273,26 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
     }
 
-    private List<Long> extractSharerIds(Order order) {
+    private List<UUID> extractSharerKeys(Order order) {
         return order.getOrderProducts().stream()
-                .map(OrderProduct::getSharerId)
+                .map(OrderProduct::getSharerKey)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
     }
 
     private void reducePartialPendingSharedPurchasePoints(Order order, Long paymentAmount, Long cancelAmount) {
-        List<Long> sharerIds = extractSharerIds(order);
-        if (sharerIds.isEmpty()) {
+        List<UUID> sharerKeys = extractSharerKeys(order);
+        if (sharerKeys.isEmpty()) {
             return;
         }
 
         try {
             modifyUserPointPort.reducePartialPendingSharedPurchasePoints(
-                    sharerIds, paymentAmount, cancelAmount, order.getId());
+                    sharerKeys, paymentAmount, cancelAmount, order.getId());
         } catch (Exception e) {
-            log.error("부분 취소 공유 적립 예정 포인트 차감 실패 - orderId: {}, sharerIds: {}, error: {}",
-                    order.getId(), sharerIds, e.getMessage(), e);
+            log.error("부분 취소 공유 적립 예정 포인트 차감 실패 - orderId: {}, sharerKeys: {}, error: {}",
+                    order.getId(), sharerKeys, e.getMessage(), e);
         }
     }
 

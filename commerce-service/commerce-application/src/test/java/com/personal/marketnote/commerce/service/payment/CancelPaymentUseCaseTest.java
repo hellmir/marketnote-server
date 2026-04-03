@@ -72,6 +72,8 @@ class CancelPaymentUseCaseTest {
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
     private static final String ORDER_KEY_STR = ORDER_KEY.toString();
+    private static final UUID SHARER_KEY_1 = UUID.fromString("00000000-0000-0000-0000-000000000200");
+    private static final UUID SHARER_KEY_2 = UUID.fromString("00000000-0000-0000-0000-000000000300");
 
     @Nested
     @DisplayName("전체 취소 성공")
@@ -1023,7 +1025,7 @@ class CancelPaymentUseCaseTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L, 300L));
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1, SHARER_KEY_2));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1033,7 +1035,7 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
-                    eq(List.of(200L, 300L)), eq(50000L), eq(20000L), eq(1L)
+                    eq(List.of(SHARER_KEY_1, SHARER_KEY_2)), eq(50000L), eq(20000L), eq(1L)
             );
         }
 
@@ -1064,7 +1066,7 @@ class CancelPaymentUseCaseTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L, 200L, 300L));
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1, SHARER_KEY_1, SHARER_KEY_2));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1074,7 +1076,7 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
-                    argThat(ids -> ids.size() == 2 && ids.contains(200L) && ids.contains(300L)),
+                    argThat(keys -> keys.size() == 2 && keys.contains(SHARER_KEY_1) && keys.contains(SHARER_KEY_2)),
                     eq(50000L), eq(20000L), eq(1L)
             );
         }
@@ -1086,7 +1088,7 @@ class CancelPaymentUseCaseTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L));
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1108,7 +1110,7 @@ class CancelPaymentUseCaseTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(200L, 300L));
+            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1, SHARER_KEY_2));
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
@@ -1198,15 +1200,15 @@ class CancelPaymentUseCaseTest {
         return Order.from(state);
     }
 
-    private Order createOrderWithSharers(Long orderId, Long buyerId, Long pointAmount, List<Long> sharerIds) {
+    private Order createOrderWithSharers(Long orderId, Long buyerId, Long pointAmount, List<UUID> sharerKeys) {
         List<OrderProductSnapshotState> productStates = new ArrayList<>();
-        for (int i = 0; i < sharerIds.size(); i++) {
+        for (int i = 0; i < sharerKeys.size(); i++) {
             productStates.add(OrderProductSnapshotState.builder()
                     .pricePolicyId(100L + i)
                     .quantity(1)
                     .sellerId(10L)
                     .unitAmount(25000L)
-                    .sharerId(sharerIds.get(i))
+                    .sharerKey(sharerKeys.get(i))
                     .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()

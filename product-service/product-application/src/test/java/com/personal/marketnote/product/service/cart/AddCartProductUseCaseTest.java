@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,7 +48,7 @@ class AddCartProductUseCaseTest {
     void addCartProduct_success_savesCartProduct() {
         AddCartProductCommand command = AddCartProductCommand.builder()
                 .userId(1L)
-                .sharerId(2L)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
                 .pricePolicyId(100L)
                 .imageUrl("https://example.com/image.png")
                 .quantity((short) 3)
@@ -66,7 +67,7 @@ class AddCartProductUseCaseTest {
         CartProduct saved = captor.getValue();
 
         assertThat(saved.getUserId()).isEqualTo(1L);
-        assertThat(saved.getSharerId()).isEqualTo(2L);
+        assertThat(saved.getSharerKey()).isEqualTo(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"));
         assertThat(saved.getPricePolicy()).isSameAs(pricePolicy);
         assertThat(saved.getPricePolicyId()).isEqualTo(100L);
         assertThat(saved.getImageUrl()).isEqualTo("https://example.com/image.png");
@@ -80,7 +81,7 @@ class AddCartProductUseCaseTest {
     void addCartProduct_getPricePolicyFails_propagates() {
         AddCartProductCommand command = AddCartProductCommand.builder()
                 .userId(1L)
-                .sharerId(2L)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
                 .pricePolicyId(101L)
                 .imageUrl("https://example.com/image.png")
                 .quantity((short) 1)
@@ -102,7 +103,7 @@ class AddCartProductUseCaseTest {
     void addCartProduct_saveFails_propagates() {
         AddCartProductCommand command = AddCartProductCommand.builder()
                 .userId(1L)
-                .sharerId(2L)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
                 .pricePolicyId(102L)
                 .imageUrl("https://example.com/image.png")
                 .quantity((short) 2)
@@ -124,7 +125,7 @@ class AddCartProductUseCaseTest {
     void addCartProduct_existingProduct_addsQuantity() {
         AddCartProductCommand command = AddCartProductCommand.builder()
                 .userId(1L)
-                .sharerId(2L)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
                 .pricePolicyId(100L)
                 .imageUrl("https://example.com/image.png")
                 .quantity((short) 3)
@@ -148,7 +149,7 @@ class AddCartProductUseCaseTest {
     void addCartProduct_existingProduct_updateFails_propagates() {
         AddCartProductCommand command = AddCartProductCommand.builder()
                 .userId(1L)
-                .sharerId(2L)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
                 .pricePolicyId(100L)
                 .imageUrl("https://example.com/image.png")
                 .quantity((short) 3)
@@ -173,7 +174,7 @@ class AddCartProductUseCaseTest {
     void addCartProduct_existingProduct_quantityOverflow_throwsException() {
         AddCartProductCommand command = AddCartProductCommand.builder()
                 .userId(1L)
-                .sharerId(2L)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
                 .pricePolicyId(100L)
                 .imageUrl("https://example.com/image.png")
                 .quantity(Short.MAX_VALUE)
@@ -210,7 +211,7 @@ class AddCartProductUseCaseTest {
         return CartProduct.from(
                 CartProductSnapshotState.builder()
                         .userId(userId)
-                        .sharerId(2L)
+                        .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440002"))
                         .pricePolicy(pricePolicy)
                         .imageUrl("https://example.com/image.png")
                         .quantity(quantity)

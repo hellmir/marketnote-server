@@ -7,9 +7,12 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.port.in.command.point.CancelPendingPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.CancelPendingPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -19,12 +22,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentCancelledPendingSharedPointConsumer {
     private final CancelPendingPointUseCase cancelPendingPointUseCase;
+    private final FindUserPointPort findUserPointPort;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
@@ -67,16 +72,19 @@ public class PaymentCancelledPendingSharedPointConsumer {
                 return;
             }
 
-            List<Long> sharerIds = extractSharerIds(payload.orderProducts());
-            if (sharerIds.isEmpty()) {
+            List<UUID> sharerKeys = extractSharerKeys(payload.orderProducts());
+            if (sharerKeys.isEmpty()) {
                 log.info("공유자가 없는 주문 (공유 적립 예정 포인트 회수 생략). orderId={}", payload.orderId());
                 acknowledgment.acknowledge();
                 return;
             }
 
-            for (Long sharerId : sharerIds) {
+            for (UUID sharerKey : sharerKeys) {
+                UserPoint userPoint = findUserPointPort.findByUserKey(sharerKey.toString())
+                        .orElseThrow(() -> new UserPointNotFoundException(sharerKey.toString()));
+
                 CancelPendingPointCommand command = CancelPendingPointCommand.builder()
-                        .userId(sharerId)
+                        .userId(userPoint.getUserId())
                         .sourceType(UserPointSourceType.ORDER)
                         .sourceId(payload.orderId())
                         .reason("결제 취소 적립 예정 포인트 회수")
@@ -84,8 +92,8 @@ public class PaymentCancelledPendingSharedPointConsumer {
                 cancelPendingPointUseCase.cancelPending(command);
             }
 
-            log.info("공유 적립 예정 포인트 회수 완료. orderId={}, sharerIds={}",
-                    payload.orderId(), sharerIds);
+            log.info("공유 적립 예정 포인트 회수 완료. orderId={}, sharerKeys={}",
+                    payload.orderId(), sharerKeys);
         } catch (Exception e) {
             log.error("공유 적립 예정 포인트 회수 이벤트 처리 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e);
@@ -95,13 +103,13 @@ public class PaymentCancelledPendingSharedPointConsumer {
         acknowledgment.acknowledge();
     }
 
-    private List<Long> extractSharerIds(List<OrderProductItem> orderProducts) {
+    private List<UUID> extractSharerKeys(List<OrderProductItem> orderProducts) {
         if (FormatValidator.hasNoValue(orderProducts)) {
             return List.of();
         }
 
         return orderProducts.stream()
-                .map(OrderProductItem::sharerId)
+                .map(OrderProductItem::sharerKey)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();

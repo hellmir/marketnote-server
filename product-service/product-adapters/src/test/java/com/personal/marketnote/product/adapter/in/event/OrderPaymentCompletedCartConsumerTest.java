@@ -18,6 +18,7 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -50,7 +51,7 @@ class OrderPaymentCompletedCartConsumerTest {
 
     private List<OrderProductItem> createOrderProductItems() {
         return List.of(
-                new OrderProductItem(100L, 200L, 2, 30000L),
+                new OrderProductItem(100L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
                 new OrderProductItem(101L, null, 1, 20000L)
         );
     }

@@ -12,6 +12,7 @@ import lombok.Builder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetBuyerOrderProductResult(
@@ -22,7 +23,7 @@ public record GetBuyerOrderProductResult(
         Long sellerId,
         Long productId,
         Long pricePolicyId,
-        Long sharerId,
+        UUID sharerKey,
         Integer quantity,
         Long unitAmount,
         String imageUrl,
@@ -54,7 +55,7 @@ public record GetBuyerOrderProductResult(
                 .sellerId(orderProductResult.sellerId())
                 .productId(orderProductResult.productId())
                 .pricePolicyId(orderProductResult.pricePolicyId())
-                .sharerId(orderProductResult.sharerId())
+                .sharerKey(orderProductResult.sharerKey())
                 .quantity(orderProductResult.quantity())
                 .unitAmount(orderProductResult.unitAmount())
                 .imageUrl(orderProductResult.imageUrl())

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Getter
 public class OrderProductItemRequest {
     @Schema(
@@ -40,13 +42,11 @@ public class OrderProductItemRequest {
     private Long pricePolicyId;
 
     @Schema(
-            name = "sharerId",
-            description = "링크 공유 회원 ID",
+            name = "sharerKey",
+            description = "링크 공유 회원 식별키",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @Min(value = 1, message = "링크 공유 회원 ID는 1 이상이어야 합니다.")
-    @Max(value = Long.MAX_VALUE, message = "링크 공유 회원 ID는 정수형 최대값을 초과할 수 없습니다.")
-    private Long sharerId;
+    private UUID sharerKey;
 
     @Schema(
             name = "quantity",

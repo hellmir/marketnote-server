@@ -93,7 +93,7 @@ public class OrderPaymentCompletedInventoryConsumer {
                                 .pricePolicyId(item.pricePolicyId())
                                 .quantity(item.quantity())
                                 .unitAmount(item.unitAmount())
-                                .sharerId(item.sharerId())
+                                .sharerKey(item.sharerKey())
                                 .build()
                 ))
                 .toList();

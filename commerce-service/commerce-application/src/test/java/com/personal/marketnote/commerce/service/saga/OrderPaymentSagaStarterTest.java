@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,7 +61,7 @@ class OrderPaymentSagaStarterTest {
         OrderPaymentSagaContext context = new OrderPaymentSagaContext(
                 42L, "order-key-42", 200L, 100000L, 120000L, 20000L, 1000L,
                 List.of(
-                        new OrderProductItem(10L, 300L, 1, 50000L),
+                        new OrderProductItem(10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1, 50000L),
                         new OrderProductItem(20L, null, 2, 25000L)
                 )
         );

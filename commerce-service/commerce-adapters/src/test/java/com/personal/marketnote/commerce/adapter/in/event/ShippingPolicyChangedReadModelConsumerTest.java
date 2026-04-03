@@ -1,11 +1,11 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.port.out.shipping.SaveShippingPolicyReadModelPort;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ShippingPolicyChangeAction;
 import com.personal.marketnote.common.kafka.event.ShippingPolicyChangedEvent;
-import com.personal.marketnote.commerce.port.out.shipping.SaveShippingPolicyReadModelPort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

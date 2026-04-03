@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 public record AddCartProductRequest(
         @Schema(description = "가격 정책 ID")
         @NotNull(message = "가격 정책 ID는 필수입니다.")
@@ -13,13 +15,11 @@ public record AddCartProductRequest(
         Long pricePolicyId,
 
         @Schema(
-                name = "sharerId",
-                description = "링크 공유 회원 ID",
+                name = "sharerKey",
+                description = "링크 공유 회원 식별키",
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED
         )
-        @Min(value = 1, message = "링크 공유 회원 ID는 1 이상이어야 합니다.")
-        @Max(value = Long.MAX_VALUE, message = "링크 공유 회원 ID는 정수형 최대값을 초과할 수 없습니다.")
-        Long sharerId,
+        UUID sharerKey,
 
         @Schema(description = "상품 이미지 URL")
         String imageUrl,

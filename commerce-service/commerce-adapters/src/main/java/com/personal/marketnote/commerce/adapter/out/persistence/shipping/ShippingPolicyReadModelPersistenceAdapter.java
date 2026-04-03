@@ -1,13 +1,13 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.shipping;
 
-import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.entity.ShippingPolicyReadModelJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.repository.ShippingPolicyReadModelJpaRepository;
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.commerce.port.out.shipping.SaveShippingPolicyReadModelPort;
+import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;

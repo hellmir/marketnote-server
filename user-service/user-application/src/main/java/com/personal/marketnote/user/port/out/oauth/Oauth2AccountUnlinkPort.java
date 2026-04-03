@@ -15,7 +15,7 @@ public interface Oauth2AccountUnlinkPort {
      * @param vendor     OAuth2 벤더
      * @param credential 벤더별 연결 해제에 필요한 자격 증명 (OIDC ID 또는 액세스 토큰)
      * @throws UnlinkOauth2AccountFailedException 계정 연결 해제 실패 시
-     * @Date 2026-03-27
+     * @Date 2025-12-29
      * @Author 성효빈
      * @Description 지정된 벤더의 계정 연결을 해제합니다.
      */

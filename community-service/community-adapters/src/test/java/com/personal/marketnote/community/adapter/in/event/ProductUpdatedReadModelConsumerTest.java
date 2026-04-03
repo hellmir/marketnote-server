@@ -63,7 +63,7 @@ class ProductUpdatedReadModelConsumerTest {
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
-                null, null
+                null, null, null, null
         );
     }
 

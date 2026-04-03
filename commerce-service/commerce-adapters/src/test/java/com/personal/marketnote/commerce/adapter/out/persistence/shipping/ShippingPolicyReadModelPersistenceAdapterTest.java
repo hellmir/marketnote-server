@@ -1,10 +1,10 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.shipping;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
-import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.entity.ShippingPolicyReadModelJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.repository.ShippingPolicyReadModelJpaRepository;
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
+import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.configuration.AuditConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

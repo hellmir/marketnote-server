@@ -21,6 +21,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +54,7 @@ class OrderEventKafkaProducerTest {
                 .orderId(1L)
                 .sellerId(10L)
                 .pricePolicyId(100L)
-                .sharerId(200L)
+                .sharerKey(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
                 .quantity(2)
                 .unitAmount(30000L)
                 .orderStatus(OrderStatus.PAID)
@@ -128,13 +129,13 @@ class OrderEventKafkaProducerTest {
 
         OrderPaymentCompletedEvent.OrderProductItem firstItem = payload.orderProducts().get(0);
         assertThat(firstItem.pricePolicyId()).isEqualTo(100L);
-        assertThat(firstItem.sharerId()).isEqualTo(200L);
+        assertThat(firstItem.sharerKey()).isEqualTo(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
         assertThat(firstItem.quantity()).isEqualTo(2);
         assertThat(firstItem.unitAmount()).isEqualTo(30000L);
 
         OrderPaymentCompletedEvent.OrderProductItem secondItem = payload.orderProducts().get(1);
         assertThat(secondItem.pricePolicyId()).isEqualTo(101L);
-        assertThat(secondItem.sharerId()).isNull();
+        assertThat(secondItem.sharerKey()).isNull();
         assertThat(secondItem.quantity()).isEqualTo(1);
         assertThat(secondItem.unitAmount()).isEqualTo(20000L);
 

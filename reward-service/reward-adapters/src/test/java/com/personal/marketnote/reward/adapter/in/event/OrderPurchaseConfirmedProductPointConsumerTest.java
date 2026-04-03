@@ -19,6 +19,7 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,8 +41,8 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
     @Mock
     private Acknowledgment acknowledgment;
 
-    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<Long> sharerIds) {
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerIds);
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<UUID> sharerKeys) {
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event
@@ -103,7 +104,7 @@ class OrderPurchaseConfirmedProductPointConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.of());
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.<UUID>of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event
