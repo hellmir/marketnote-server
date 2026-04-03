@@ -54,7 +54,7 @@ class ProductRegisteredFulfillmentConsumerTest {
             Long productId, String productName, String godType
     ) {
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                productId, 100L, 1L, productName, godType
+                productId, 100L, 1L, productName, godType, "테스트 브랜드", 10000L, 8000L, 100L
         );
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.registered", "product-service",
@@ -231,7 +231,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handleEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        ProductRegisteredEvent event = new ProductRegisteredEvent(1L, 100L, 1L, "테스트", "1");
+        ProductRegisteredEvent event = new ProductRegisteredEvent(1L, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event

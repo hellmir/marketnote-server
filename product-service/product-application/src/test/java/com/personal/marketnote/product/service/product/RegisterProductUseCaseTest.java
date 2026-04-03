@@ -82,7 +82,7 @@ class RegisterProductUseCaseTest {
         assertThat(pricePolicyCommand.accumulatedPoint()).isEqualTo(command.accumulatedPoint());
         assertThat(pricePolicyCommand.optionIds()).isNull();
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId(), "테스트 상품", null);
+        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId(), "테스트 상품", null, "테스트 브랜드", 10000L, 8000L, 100L);
 
         verifyNoMoreInteractions(
                 registerPricePolicyUseCase,
@@ -105,7 +105,7 @@ class RegisterProductUseCaseTest {
 
         registerProductService.registerProduct(command);
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(11L, 101L, command.sellerId(), "테스트 상품", "2");
+        verify(publishProductEventPort).publishProductRegisteredEvent(11L, 101L, command.sellerId(), "테스트 상품", "2", "테스트 브랜드", 10000L, 8000L, 100L);
     }
 
     @Test

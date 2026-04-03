@@ -56,7 +56,7 @@ class EventEnvelopeTest {
     @DisplayName("of 메서드로 생성 시 payload가 올바르게 설정된다")
     void of_setsPayload() {
         // given
-        ProductRegisteredEvent event = new ProductRegisteredEvent(1L, 2L, 3L, "상품명", "1");
+        ProductRegisteredEvent event = new ProductRegisteredEvent(1L, 2L, 3L, "상품명", "1", "브랜드", 10000L, 8000L, 100L);
 
         // when
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
@@ -76,7 +76,7 @@ class EventEnvelopeTest {
     @DisplayName("getPayloadAs 호출 시 이미 올바른 타입이면 캐스트하여 반환한다")
     void getPayloadAs_alreadyCorrectType_returnsCast() {
         // given
-        ProductRegisteredEvent event = new ProductRegisteredEvent(10L, 20L, 30L, "테스트", "2");
+        ProductRegisteredEvent event = new ProductRegisteredEvent(10L, 20L, 30L, "테스트", "2", "테스트 브랜드", 20000L, 15000L, 200L);
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(
                 "product.product.registered", "product-service", event, FIXED_CLOCK
         );
@@ -98,6 +98,10 @@ class EventEnvelopeTest {
         rawPayload.put("sellerId", 300L);
         rawPayload.put("productName", "맵 변환 상품");
         rawPayload.put("goodsType", "1");
+        rawPayload.put("brandName", "맵 변환 브랜드");
+        rawPayload.put("price", 10000L);
+        rawPayload.put("discountPrice", 8000L);
+        rawPayload.put("accumulatedPoint", 100L);
 
         EventEnvelope<Map<String, Object>> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.registered", "product-service",
