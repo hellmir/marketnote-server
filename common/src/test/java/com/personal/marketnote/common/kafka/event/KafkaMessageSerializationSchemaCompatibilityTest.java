@@ -191,7 +191,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("ReviewRegisteredEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void reviewRegisteredEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            ReviewRegisteredEvent event = new ReviewRegisteredEvent(50L, 60L);
+            ReviewRegisteredEvent event = new ReviewRegisteredEvent(50L, 60L, 100L, 10, 4.5f);
             EventEnvelope<ReviewRegisteredEvent> envelope = EventEnvelope.of(
                     "community.review.registered", "community-service", event, FIXED_CLOCK);
 
@@ -202,6 +202,9 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             ReviewRegisteredEvent result = deserialized.getPayloadAs(ReviewRegisteredEvent.class, OBJECT_MAPPER);
             assertThat(result.orderId()).isEqualTo(50L);
             assertThat(result.pricePolicyId()).isEqualTo(60L);
+            assertThat(result.productId()).isEqualTo(100L);
+            assertThat(result.totalCount()).isEqualTo(10);
+            assertThat(result.averageRating()).isEqualTo(4.5f);
         }
 
         @Test

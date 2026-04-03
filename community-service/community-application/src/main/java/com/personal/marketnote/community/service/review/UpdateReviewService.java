@@ -10,6 +10,7 @@ import com.personal.marketnote.community.mapper.ReviewCommandToStateMapper;
 import com.personal.marketnote.community.port.in.command.review.UpdateReviewCommand;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.UpdateReviewUseCase;
+import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class UpdateReviewService implements UpdateReviewUseCase {
     private final GetReviewUseCase getReviewUseCase;
     private final SaveReviewPort saveReviewPort;
     private final UpdateReviewPort updateReviewPort;
+    private final PublishReviewEventPort publishReviewEventPort;
 
     @Override
     public void updateReview(UpdateReviewCommand command) {
@@ -42,12 +44,17 @@ public class UpdateReviewService implements UpdateReviewUseCase {
                 ReviewVersionHistory.from(reviewVersionHistoryCreateState)
         );
 
-        // 상품 평점 재집계
+        // 상품 평점 재집계 + 이벤트 발행
+        ProductReviewAggregate productReviewAggregate = getReviewUseCase.getProductReviewAggregate(review.getProductId());
         if (FormatValidator.notEquals(previousRating, newRating)) {
-            ProductReviewAggregate productReviewAggregate = getReviewUseCase.getProductReviewAggregate(review.getProductId());
             productReviewAggregate.changePoint(previousRating, newRating);
             productReviewAggregate.computeRating(newRating - previousRating);
             updateReviewPort.update(productReviewAggregate);
         }
+
+        publishReviewEventPort.publishReviewUpdatedEvent(
+                review.getId(), review.getProductId(),
+                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating()
+        );
     }
 }

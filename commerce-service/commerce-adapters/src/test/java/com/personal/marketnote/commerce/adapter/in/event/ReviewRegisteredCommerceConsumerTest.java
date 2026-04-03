@@ -38,7 +38,7 @@ class ReviewRegisteredCommerceConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long pricePolicyId) {
-        ReviewRegisteredEvent event = new ReviewRegisteredEvent(orderId, pricePolicyId);
+        ReviewRegisteredEvent event = new ReviewRegisteredEvent(orderId, pricePolicyId, null, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "community.review.registered", "community-service",
                 LocalDateTime.of(2026, 3, 2, 10, 0), event
@@ -116,7 +116,7 @@ class ReviewRegisteredCommerceConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handleReviewRegisteredEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        ReviewRegisteredEvent event = new ReviewRegisteredEvent(1L, 2L);
+        ReviewRegisteredEvent event = new ReviewRegisteredEvent(1L, 2L, null, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "community-service",
                 LocalDateTime.of(2026, 3, 2, 10, 0), event
