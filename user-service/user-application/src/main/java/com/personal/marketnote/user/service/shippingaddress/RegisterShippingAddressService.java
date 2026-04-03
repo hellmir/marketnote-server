@@ -77,7 +77,8 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
         publishShippingAddressEventPort.publishShippingAddressChangedEvent(
                 savedShippingAddress.getId(), savedShippingAddress.getUserId(),
                 savedShippingAddress.getRecipientName(), savedShippingAddress.getRecipientPhoneNumber(),
-                savedShippingAddress.getAddress(), ShippingAddressChangeAction.CREATED
+                savedShippingAddress.getAddress(), savedShippingAddress.getAddressDetail(),
+                ShippingAddressChangeAction.CREATED
         );
 
         return RegisterShippingAddressResult.from(savedShippingAddress);

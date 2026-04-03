@@ -43,7 +43,8 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
         publishShippingAddressEventPort.publishShippingAddressChangedEvent(
                 shippingAddressId, userId,
                 shippingAddress.getRecipientName(), shippingAddress.getRecipientPhoneNumber(),
-                shippingAddress.getAddress(), ShippingAddressChangeAction.UPDATED
+                shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
+                ShippingAddressChangeAction.UPDATED
         );
     }
 }
