@@ -9,6 +9,7 @@ import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionExc
 import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.exception.InventoryLockInterruptedException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +42,8 @@ class ReduceProductInventoryUseCaseTest {
     private SaveCacheStockPort saveCacheStockPort;
     @Mock
     private InventoryLockPort inventoryLockPort;
+    @Mock
+    private PublishInventoryEventPort publishInventoryEventPort;
 
     @InjectMocks
     private ReduceProductInventoryService reduceProductInventoryService;

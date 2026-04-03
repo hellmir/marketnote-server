@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.inventory;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.exception.InventoryAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.inventory.RegisterInventoryCommand;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveCacheStockPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveInventoryPort;
@@ -31,6 +32,8 @@ class RegisterInventoryUseCaseTest {
     private SaveCacheStockPort saveCacheStockPort;
     @Mock
     private FindInventoryPort findInventoryPort;
+    @Mock
+    private PublishInventoryEventPort publishInventoryEventPort;
 
     @InjectMocks
     private RegisterInventoryService registerInventoryService;

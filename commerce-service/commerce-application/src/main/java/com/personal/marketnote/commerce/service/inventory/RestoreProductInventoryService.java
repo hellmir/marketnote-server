@@ -4,8 +4,10 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistories;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class RestoreProductInventoryService implements RestoreProductInventoryUs
     private final SaveInventoryRestorationHistoryPort saveInventoryRestorationHistoryPort;
     private final SaveCacheStockPort saveCacheStockPort;
     private final InventoryLockPort inventoryLockPort;
+    private final PublishInventoryEventPort publishInventoryEventPort;
 
     @Override
     public void restore(List<OrderProduct> orderProducts, Long orderId, String reason) {
@@ -53,6 +56,13 @@ public class RestoreProductInventoryService implements RestoreProductInventoryUs
             );
 
             saveCacheStockPort.save(inventories);
+
+            inventories.forEach(inventory ->
+                    publishInventoryEventPort.publishInventoryChangedEvent(
+                            inventory.getPricePolicyId(), inventory.getProductId(),
+                            inventory.getStockValue(), InventoryChangeAction.UPDATED
+                    )
+            );
         });
     }
 }

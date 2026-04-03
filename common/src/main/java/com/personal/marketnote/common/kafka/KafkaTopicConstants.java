@@ -37,6 +37,9 @@ public final class KafkaTopicConstants {
     public static final String SAGA_ORDER_PAYMENT_LEDGER = "saga.order-payment.ledger";
     public static final String SAGA_ORDER_PAYMENT_COMPLETED = "saga.order-payment.completed";
 
+    // Inventory 이벤트
+    public static final String INVENTORY_CHANGED = "commerce.inventory.changed";
+
     // Shipping Policy 이벤트
     public static final String SHIPPING_POLICY_CHANGED = "product.shipping-policy.changed";
 
