@@ -6,11 +6,13 @@ import com.personal.marketnote.commerce.exception.InventoryProductNotFoundExcept
 import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryCommand;
 import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryItemCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.SyncFulfillmentVendorInventoryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.InventoryLockPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveCacheStockPort;
 import com.personal.marketnote.commerce.port.out.inventory.UpdateInventoryPort;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
     private final UpdateInventoryPort updateInventoryPort;
     private final SaveCacheStockPort saveCacheStockPort;
     private final InventoryLockPort inventoryLockPort;
+    private final PublishInventoryEventPort publishInventoryEventPort;
 
     @Override
     public void syncInventories(SyncFulfillmentVendorInventoryCommand command) {
@@ -60,6 +63,13 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
 
             updateInventoryPort.update(updatedInventories);
             saveCacheStockPort.save(updatedInventories);
+
+            updatedInventories.forEach(inventory ->
+                    publishInventoryEventPort.publishInventoryChangedEvent(
+                            inventory.getPricePolicyId(), inventory.getProductId(),
+                            inventory.getStockValue(), InventoryChangeAction.UPDATED
+                    )
+            );
         });
     }
 

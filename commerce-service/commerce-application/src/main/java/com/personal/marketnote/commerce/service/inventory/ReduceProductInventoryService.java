@@ -4,8 +4,10 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
     private final SaveInventoryDeductionHistoryPort saveInventoryDeductionHistoryPort;
     private final SaveCacheStockPort saveCacheStockPort;
     private final InventoryLockPort inventoryLockPort;
+    private final PublishInventoryEventPort publishInventoryEventPort;
 
     @Override
     public void reduce(List<OrderProduct> orderProducts, Long orderId, String reason) {
@@ -52,6 +55,13 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
                     InventoryDeductionHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
             );
             saveCacheStockPort.save(inventories);
+
+            inventories.forEach(inventory ->
+                    publishInventoryEventPort.publishInventoryChangedEvent(
+                            inventory.getPricePolicyId(), inventory.getProductId(),
+                            inventory.getStockValue(), InventoryChangeAction.UPDATED
+                    )
+            );
         });
     }
 }

@@ -4,10 +4,12 @@ import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.exception.InventoryAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.inventory.RegisterInventoryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RegisterInventoryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveCacheStockPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveInventoryPort;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
     private final SaveInventoryPort saveInventoryPort;
     private final SaveCacheStockPort saveCacheStockPort;
     private final FindInventoryPort findInventoryPort;
+    private final PublishInventoryEventPort publishInventoryEventPort;
 
     @Override
     public void registerInventory(RegisterInventoryCommand command) {
@@ -36,6 +39,10 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
         saveInventoryPort.save(inventory);
 
         saveCacheStockPort.save(command.pricePolicyId(), 0);
+
+        publishInventoryEventPort.publishInventoryChangedEvent(
+                command.pricePolicyId(), command.productId(), 0, InventoryChangeAction.CREATED
+        );
     }
 
     @Override
@@ -46,6 +53,12 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
 
         saveInventoryPort.save(inventories);
         saveCacheStockPort.save(inventories);
+
+        inventories.forEach(inventory ->
+                publishInventoryEventPort.publishInventoryChangedEvent(
+                        inventory.getPricePolicyId(), inventory.getProductId(), 0, InventoryChangeAction.CREATED
+                )
+        );
 
         return inventories;
     }

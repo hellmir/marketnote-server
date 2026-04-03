@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHis
 import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistory;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -36,6 +37,8 @@ class RestoreProductInventoryUseCaseTest {
     private SaveCacheStockPort saveCacheStockPort;
     @Mock
     private InventoryLockPort inventoryLockPort;
+    @Mock
+    private PublishInventoryEventPort publishInventoryEventPort;
 
     @InjectMocks
     private RestoreProductInventoryService restoreProductInventoryService;

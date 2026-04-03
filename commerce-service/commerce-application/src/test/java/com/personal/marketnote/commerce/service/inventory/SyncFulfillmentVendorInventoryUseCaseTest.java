@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.exception.InventoryLockInterruptedExcept
 import com.personal.marketnote.commerce.exception.InventoryProductNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryCommand;
 import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryItemCommand;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryPort;
 import com.personal.marketnote.commerce.port.out.inventory.InventoryLockPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveCacheStockPort;
@@ -38,6 +39,8 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
     private SaveCacheStockPort saveCacheStockPort;
     @Mock
     private InventoryLockPort inventoryLockPort;
+    @Mock
+    private PublishInventoryEventPort publishInventoryEventPort;
 
     @InjectMocks
     private SyncFulfillmentVendorInventoryService syncFulfillmentVendorInventoryService;
