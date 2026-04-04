@@ -3,6 +3,7 @@ package com.personal.marketnote.community.service.post;
 import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
 import com.personal.marketnote.common.utility.ValueMasker;
 import com.personal.marketnote.community.domain.post.*;
+import com.personal.marketnote.community.exception.InvalidPostContentContainsProfanityException;
 import com.personal.marketnote.community.exception.NotProductSellerException;
 import com.personal.marketnote.community.port.in.command.post.RegisterPostCommand;
 import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
@@ -326,6 +327,108 @@ class RegisterPostUseCaseTest {
 
         assertThat(result.id()).isEqualTo(800L);
         verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
+    @DisplayName("상품 문의글 등록 시 제목에 욕설이 포함되면 InvalidPostContentContainsProfanityException이 발생한다")
+    void registerPost_productInquiryWithProfanityInTitle_throwsException() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(1L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("작성자")
+                .title("욕설제목")
+                .content("정상 내용")
+                .build();
+        when(findProfanityWordPort.containsProfanity("욕설제목")).thenReturn(true);
+
+        assertThatThrownBy(() -> registerPostService.registerPost(false, command))
+                .isInstanceOf(InvalidPostContentContainsProfanityException.class);
+
+        verifyNoInteractions(savePostPort);
+    }
+
+    @Test
+    @DisplayName("상품 문의글 등록 시 내용에 욕설이 포함되면 InvalidPostContentContainsProfanityException이 발생한다")
+    void registerPost_productInquiryWithProfanityInContent_throwsException() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(1L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("작성자")
+                .title("정상 제목")
+                .content("욕설내용")
+                .build();
+        when(findProfanityWordPort.containsProfanity("정상 제목")).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity("욕설내용")).thenReturn(true);
+
+        assertThatThrownBy(() -> registerPostService.registerPost(false, command))
+                .isInstanceOf(InvalidPostContentContainsProfanityException.class);
+
+        verifyNoInteractions(savePostPort);
+    }
+
+    @Test
+    @DisplayName("상품 문의글 등록 시 제목과 내용에 욕설이 없으면 정상 등록된다")
+    void registerPost_productInquiryWithoutProfanity_succeeds() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(1L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("작성자")
+                .title("정상 제목")
+                .content("정상 내용")
+                .build();
+        Post savedPost = buildSavedPost(1100L, command);
+        when(findProfanityWordPort.containsProfanity("정상 제목")).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity("정상 내용")).thenReturn(false);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        RegisterPostResult result = registerPostService.registerPost(false, command);
+
+        assertThat(result.id()).isEqualTo(1100L);
+        verify(findProfanityWordPort).containsProfanity("정상 제목");
+        verify(findProfanityWordPort).containsProfanity("정상 내용");
+    }
+
+    @Test
+    @DisplayName("판매자 답글 등록 시 욕설 검증이 실행되지 않는다")
+    void registerPost_sellerReply_skipsProfanityValidation() {
+        Long sellerId = 1L;
+        Long pricePolicyId = 100L;
+        RegisterPostCommand command = buildReplyCommand(sellerId, 10L, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post savedPost = buildSavedPost(1200L, command);
+
+        ProductInfoResult productInfo = buildProductInfo(sellerId);
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, productInfo));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        RegisterPostResult result = registerPostService.registerPost(true, command);
+
+        assertThat(result.id()).isEqualTo(1200L);
+        verifyNoInteractions(findProfanityWordPort);
+    }
+
+    @Test
+    @DisplayName("1:1 문의글 등록 시 욕설 검증이 실행되지 않는다")
+    void registerPost_oneOnOneInquiry_skipsProfanityValidation() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(1L)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("작성자")
+                .title("욕설포함제목")
+                .content("욕설포함내용")
+                .build();
+        Post savedPost = buildSavedPost(1300L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        RegisterPostResult result = registerPostService.registerPost(false, command);
+
+        assertThat(result.id()).isEqualTo(1300L);
+        verifyNoInteractions(findProfanityWordPort);
     }
 
     private RegisterPostCommand buildCommand(
