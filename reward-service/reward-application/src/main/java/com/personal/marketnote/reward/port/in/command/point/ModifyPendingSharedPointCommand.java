@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Builder
 public record ModifyPendingSharedPointCommand(
+        Long buyerId,
         UUID sharerKey,
         UserPointChangeType changeType,
         Long amount,

@@ -94,7 +94,7 @@ public class OrderPaymentCompletedSharedPointConsumer {
             }
 
             for (UUID sharerKey : sharerKeys) {
-                modifyPendingPointIdempotent(envelope.eventId(), sharerKey, sharePointAmount, payload.orderId());
+                modifyPendingPointIdempotent(envelope.eventId(), payload.buyerId(), sharerKey, sharePointAmount, payload.orderId());
             }
 
             log.info("공유 포인트 적립 완료. orderId={}, sharerKeys={}, sharePointAmount={}",
@@ -108,9 +108,10 @@ public class OrderPaymentCompletedSharedPointConsumer {
         acknowledgment.acknowledge();
     }
 
-    private void modifyPendingPointIdempotent(String eventId, UUID sharerKey, long sharePointAmount, Long orderId) {
+    private void modifyPendingPointIdempotent(String eventId, Long buyerId, UUID sharerKey, long sharePointAmount, Long orderId) {
         try {
             ModifyPendingSharedPointCommand command = ModifyPendingSharedPointCommand.builder()
+                    .buyerId(buyerId)
                     .sharerKey(sharerKey)
                     .changeType(UserPointChangeType.ACCRUAL)
                     .amount(sharePointAmount)
