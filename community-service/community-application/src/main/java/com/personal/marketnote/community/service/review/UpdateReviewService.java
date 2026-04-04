@@ -10,7 +10,9 @@ import com.personal.marketnote.community.mapper.ReviewCommandToStateMapper;
 import com.personal.marketnote.community.port.in.command.review.UpdateReviewCommand;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.UpdateReviewUseCase;
+import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
+import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +28,11 @@ public class UpdateReviewService implements UpdateReviewUseCase {
     private final SaveReviewPort saveReviewPort;
     private final UpdateReviewPort updateReviewPort;
     private final PublishReviewEventPort publishReviewEventPort;
+    private final FindProfanityWordPort findProfanityWordPort;
 
     @Override
     public void updateReview(UpdateReviewCommand command) {
+        validateProfanity(command.content());
         Long id = command.id();
         getReviewUseCase.validateAuthor(id, command.reviewerId());
         Review review = getReviewUseCase.getReview(id);
@@ -56,5 +60,11 @@ public class UpdateReviewService implements UpdateReviewUseCase {
                 review.getId(), review.getProductId(),
                 productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating()
         );
+    }
+
+    private void validateProfanity(String content) {
+        if (FormatValidator.hasValue(content) && findProfanityWordPort.containsProfanity(content)) {
+            throw new InvalidReviewContentContainsProfanityException();
+        }
     }
 }
