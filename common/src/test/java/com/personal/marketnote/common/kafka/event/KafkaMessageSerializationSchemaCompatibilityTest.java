@@ -80,7 +80,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
     @AfterAll
     void tearDownCluster() {
-        if (embeddedKafka != null) {
+        if (FormatValidator.hasValue(embeddedKafka)) {
             embeddedKafka.destroy();
         }
     }

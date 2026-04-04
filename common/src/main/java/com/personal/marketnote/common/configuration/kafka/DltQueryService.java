@@ -3,6 +3,7 @@ package com.personal.marketnote.common.configuration.kafka;
 import com.personal.marketnote.common.adapter.in.web.kafka.response.DltMessageResponse;
 import com.personal.marketnote.common.adapter.in.web.kafka.response.DltTopicSummaryResponse;
 import com.personal.marketnote.common.kafka.DltTopicRegistry;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -40,7 +41,7 @@ public class DltQueryService {
 
         try (Consumer<String, Object> consumer = consumerFactory.createConsumer(groupId, "")) {
             List<PartitionInfo> partitionInfos = consumer.partitionsFor(dltTopic);
-            if (partitionInfos == null || partitionInfos.isEmpty()) {
+            if (FormatValidator.hasNoValue(partitionInfos)) {
                 return List.of();
             }
 
@@ -106,7 +107,7 @@ public class DltQueryService {
 
     private long calculateMessageCount(Consumer<String, Object> consumer, String dltTopic) {
         List<PartitionInfo> partitionInfos = consumer.partitionsFor(dltTopic);
-        if (partitionInfos == null || partitionInfos.isEmpty()) {
+        if (FormatValidator.hasNoValue(partitionInfos)) {
             return 0L;
         }
 

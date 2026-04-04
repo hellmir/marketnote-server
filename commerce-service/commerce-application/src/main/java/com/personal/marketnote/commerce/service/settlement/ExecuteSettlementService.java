@@ -9,6 +9,7 @@ import com.personal.marketnote.commerce.port.out.settlement.DefaultSettlementPol
 import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPolicyPort;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,8 +69,8 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
             List<PaymentAllocation> sellerAllocations = entry.getValue();
 
             SettlementPolicy policy = policyMap.get(sellerId);
-            Integer pgFeeRate = (policy != null) ? policy.getPgFeeRate() : defaultPgFeeRate;
-            Integer platformFeeRate = (policy != null) ? policy.getPlatformFeeRate() : defaultPlatformFeeRate;
+            Integer pgFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPgFeeRate() : defaultPgFeeRate;
+            Integer platformFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPlatformFeeRate() : defaultPlatformFeeRate;
 
             try {
                 processSellerSettlementService.process(

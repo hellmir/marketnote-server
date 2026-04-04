@@ -46,4 +46,18 @@ class OutboxEventStatusTest {
         assertThat(OutboxEventStatus.FAILED.isPending()).isFalse();
         assertThat(OutboxEventStatus.FAILED.isPublished()).isFalse();
     }
+
+    @Test
+    @DisplayName("DISCARDED 상태의 isDiscarded()는 true를 반환한다")
+    void discarded_isDiscardedReturnsTrue() {
+        assertThat(OutboxEventStatus.DISCARDED.isDiscarded()).isTrue();
+    }
+
+    @Test
+    @DisplayName("DISCARDED 상태의 isPending, isPublished, isFailed는 false를 반환한다")
+    void discarded_otherPredicatesReturnFalse() {
+        assertThat(OutboxEventStatus.DISCARDED.isPending()).isFalse();
+        assertThat(OutboxEventStatus.DISCARDED.isPublished()).isFalse();
+        assertThat(OutboxEventStatus.DISCARDED.isFailed()).isFalse();
+    }
 }

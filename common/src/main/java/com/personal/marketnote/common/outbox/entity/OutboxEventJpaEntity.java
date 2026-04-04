@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.outbox.entity;
 
 import com.personal.marketnote.common.outbox.OutboxEventStatus;
+import com.personal.marketnote.common.outbox.exception.InvalidOutboxEventStatusTransitionException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -64,6 +65,18 @@ public class OutboxEventJpaEntity {
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
+    @Column(name = "failed_at")
+    private LocalDateTime failedAt;
+
+    @Column(name = "last_error_message", length = 1000)
+    private String lastErrorMessage;
+
+    @Column(name = "discard_reason", length = 500)
+    private String discardReason;
+
+    @Column(name = "discarded_at")
+    private LocalDateTime discardedAt;
+
     private OutboxEventJpaEntity(String eventId, String topic, String partitionKey,
                                  String eventType, String source, String payload,
                                  OutboxEventStatus status, int retryCount, int maxRetries,
@@ -100,10 +113,40 @@ public class OutboxEventJpaEntity {
         this.publishedAt = publishedAt;
     }
 
-    public void incrementRetry() {
+    private static final int MAX_ERROR_MESSAGE_LENGTH = 1000;
+
+    public void incrementRetry(String errorMessage, LocalDateTime now) {
         this.retryCount++;
+        this.lastErrorMessage = truncate(errorMessage, MAX_ERROR_MESSAGE_LENGTH);
         if (this.retryCount >= this.maxRetries) {
             this.status = OutboxEventStatus.FAILED;
+            this.failedAt = now;
         }
+    }
+
+    public void resetForRetry() {
+        if (!this.status.isFailed()) {
+            throw new InvalidOutboxEventStatusTransitionException(this.status);
+        }
+        this.status = OutboxEventStatus.PENDING;
+        this.retryCount = 0;
+        this.failedAt = null;
+        this.lastErrorMessage = null;
+    }
+
+    public void discard(String reason, LocalDateTime discardedAt) {
+        if (!this.status.isFailed()) {
+            throw new InvalidOutboxEventStatusTransitionException(this.status);
+        }
+        this.status = OutboxEventStatus.DISCARDED;
+        this.discardReason = reason;
+        this.discardedAt = discardedAt;
+    }
+
+    private static String truncate(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
     }
 }

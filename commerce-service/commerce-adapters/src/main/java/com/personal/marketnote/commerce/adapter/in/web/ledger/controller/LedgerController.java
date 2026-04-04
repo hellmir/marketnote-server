@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.port.in.result.ledger.GetLedgerTransacti
 import com.personal.marketnote.commerce.port.in.usecase.ledger.GetAccountBalanceUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.GetLedgerTransactionsUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.FormatValidator;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -95,7 +96,9 @@ public class LedgerController {
     public ResponseEntity<BaseResponse<List<GetAccountBalanceResponse>>> getAccountBalances(
             @RequestParam(value = "as-of", required = false) LocalDateTime asOf
     ) {
-        LocalDateTime effectiveAsOf = (asOf != null) ? asOf : LocalDateTime.now();
+        LocalDateTime effectiveAsOf = (FormatValidator.hasValue(asOf))
+                ? asOf
+                : LocalDateTime.now();
 
         List<GetAccountBalanceResult> results = getAccountBalanceUseCase.getAccountBalances(effectiveAsOf);
         List<GetAccountBalanceResponse> responses = results.stream()

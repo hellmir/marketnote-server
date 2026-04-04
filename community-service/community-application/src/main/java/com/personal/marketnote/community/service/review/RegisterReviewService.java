@@ -1,11 +1,11 @@
 package com.personal.marketnote.community.service.review;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistory;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistoryCreateState;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
 import com.personal.marketnote.community.mapper.ReviewCommandToStateMapper;

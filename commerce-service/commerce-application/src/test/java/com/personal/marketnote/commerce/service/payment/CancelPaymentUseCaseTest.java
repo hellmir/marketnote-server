@@ -17,6 +17,7 @@ import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolic
 import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
+import com.personal.marketnote.common.utility.FormatValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -817,8 +818,8 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(saveRefundPort).save(argThat(refund ->
-                    refund.getPgRawResponse() != null
-                            && refund.getPgRefundKey() != null
+                    FormatValidator.hasValue(refund.getPgRawResponse())
+                            && FormatValidator.hasValue(refund.getPgRefundKey())
             ));
         }
 

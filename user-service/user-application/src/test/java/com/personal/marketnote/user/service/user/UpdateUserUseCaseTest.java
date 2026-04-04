@@ -2,8 +2,8 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
 import com.personal.marketnote.common.exception.UserNotFoundException;
-import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.domain.user.User;
+import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.port.in.command.UpdateUserInfoCommand;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;

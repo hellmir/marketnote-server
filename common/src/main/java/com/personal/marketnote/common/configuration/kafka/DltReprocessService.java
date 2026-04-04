@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.configuration.kafka;
 
 import com.personal.marketnote.common.kafka.DltTopicRegistry;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -44,7 +45,9 @@ public class DltReprocessService {
             throw new InvalidDltTopicException(originalTopic);
         }
 
-        if (reprocessingTopics.putIfAbsent(originalTopic, Boolean.TRUE) != null) {
+        if (FormatValidator.hasValue(
+                reprocessingTopics.putIfAbsent(originalTopic, Boolean.TRUE)
+        )) {
             throw new DltReprocessAlreadyInProgressException(originalTopic);
         }
 
@@ -64,7 +67,7 @@ public class DltReprocessService {
 
         try (Consumer<String, Object> consumer = consumerFactory.createConsumer(groupId, "")) {
             List<PartitionInfo> partitionInfos = consumer.partitionsFor(dltTopic);
-            if (partitionInfos == null || partitionInfos.isEmpty()) {
+            if (FormatValidator.hasNoValue(partitionInfos)) {
                 log.info("DLT 토픽 파티션 없음. dltTopic={}", dltTopic);
                 dltAuditLogger.logReprocessComplete(originalTopic, operatorInfo, 0, 0);
                 return new DltReprocessResult(0, 0, 0);

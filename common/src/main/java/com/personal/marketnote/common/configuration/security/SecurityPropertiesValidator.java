@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.configuration.security;
 
 import com.personal.marketnote.common.configuration.security.exception.SecurityConfigurationValidationException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class SecurityPropertiesValidator {
     }
 
     private void validateRequired(List<String> violations, String propertyName, String value) {
-        if (value == null || value.isBlank()) {
+        if (FormatValidator.hasNoValue(value)) {
             violations.add(propertyName + " 값이 설정되지 않았습니다.");
         } else if (WEAK_DEFAULTS.contains(value.toLowerCase())) {
             violations.add(propertyName + " 값이 기본 플레이스홀더입니다. 강력한 값으로 변경하세요.");

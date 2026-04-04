@@ -46,7 +46,7 @@ public class OutboxEventPublisher {
             log.info("Outbox 이벤트 발행 성공. topic={}, partitionKey={}, eventId={}",
                     event.getTopic(), event.getPartitionKey(), event.getEventId());
         } catch (Exception e) {
-            event.incrementRetry();
+            event.incrementRetry(e.getMessage(), LocalDateTime.now(clock));
             outboxEventJpaRepository.save(event);
 
             if (event.getStatus().isFailed()) {
