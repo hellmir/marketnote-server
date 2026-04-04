@@ -141,6 +141,14 @@ public class Post {
         this.content = content;
     }
 
+    public boolean isReply() {
+        return FormatValidator.hasValue(parentId);
+    }
+
+    public boolean isProductInquiryPost() {
+        return board.isProductInquery();
+    }
+
     public boolean isEditable() {
         return board.isEditable();
     }

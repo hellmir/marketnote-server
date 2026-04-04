@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS profanity_words
+(
+    id          BIGSERIAL       PRIMARY KEY,
+    word        VARCHAR(50)     NOT NULL UNIQUE,
+    status      VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE',
+    created_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

@@ -8,6 +8,7 @@ import com.personal.marketnote.community.port.in.command.post.RegisterPostComman
 import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
+import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ class RegisterPostUseCaseTest {
     private SavePostPort savePostPort;
     @Mock
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
+    @Mock
+    private FindProfanityWordPort findProfanityWordPort;
 
     @InjectMocks
     private RegisterPostService registerPostService;
