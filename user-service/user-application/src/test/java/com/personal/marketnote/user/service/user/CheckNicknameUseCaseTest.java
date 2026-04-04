@@ -61,4 +61,42 @@ class CheckNicknameUseCaseTest {
         verify(findUserPort).existsByNickname(nickname);
         verify(findProfanityWordPort).containsProfanity(nickname);
     }
+
+    @Test
+    @DisplayName("닉네임에 금칙어가 포함되면 containsProfanity가 true를 반환한다")
+    void checkNickname_whenContainsProfanity_returnsContainsProfanity() {
+        // given
+        String nickname = "나는바보야";
+
+        when(findUserPort.existsByNickname(nickname)).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(true);
+
+        // when
+        CheckNicknameResult result = checkNicknameService.checkNickname(nickname);
+
+        // then
+        assertThat(result.containsProfanity()).isTrue();
+        assertThat(result.isDuplicated()).isFalse();
+        verify(findUserPort).existsByNickname(nickname);
+        verify(findProfanityWordPort).containsProfanity(nickname);
+    }
+
+    @Test
+    @DisplayName("닉네임이 중복이면서 금칙어도 포함되면 isDuplicated와 containsProfanity 모두 true를 반환한다")
+    void checkNickname_whenDuplicatedAndContainsProfanity_returnsBothTrue() {
+        // given
+        String nickname = "나는바보야";
+
+        when(findUserPort.existsByNickname(nickname)).thenReturn(true);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(true);
+
+        // when
+        CheckNicknameResult result = checkNicknameService.checkNickname(nickname);
+
+        // then
+        assertThat(result.isDuplicated()).isTrue();
+        assertThat(result.containsProfanity()).isTrue();
+        verify(findUserPort).existsByNickname(nickname);
+        verify(findProfanityWordPort).containsProfanity(nickname);
+    }
 }

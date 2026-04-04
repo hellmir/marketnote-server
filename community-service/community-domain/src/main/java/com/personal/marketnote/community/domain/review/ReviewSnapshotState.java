@@ -21,7 +21,7 @@ public class ReviewSnapshotState {
     private final String selectedOptions;
     private final Integer quantity;
     private final String reviewerName;
-    private final String reviewerMaskedName;
+    private final String maskedReviewerName;
     private final Float rating;
     private final String content;
     private final Boolean isPhoto;

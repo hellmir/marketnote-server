@@ -94,7 +94,7 @@ public class PaymentCancelledPartialSharedPointConsumer {
             }
 
             for (UUID sharerKey : sharerKeys) {
-                modifyPendingPointIdempotent(envelope.eventId(), sharerKey, proportionalPoint, payload.orderId());
+                modifyPendingPointIdempotent(envelope.eventId(), payload.buyerId(), sharerKey, proportionalPoint, payload.orderId());
             }
 
             log.info("부분 공유 적립 예정 포인트 차감 완료. orderId={}, sharerKeys={}, proportionalPoint={}",
@@ -108,9 +108,10 @@ public class PaymentCancelledPartialSharedPointConsumer {
         acknowledgment.acknowledge();
     }
 
-    private void modifyPendingPointIdempotent(String eventId, UUID sharerKey, Long proportionalPoint, Long orderId) {
+    private void modifyPendingPointIdempotent(String eventId, Long buyerId, UUID sharerKey, Long proportionalPoint, Long orderId) {
         try {
             ModifyPendingSharedPointCommand command = ModifyPendingSharedPointCommand.builder()
+                    .buyerId(buyerId)
                     .sharerKey(sharerKey)
                     .changeType(UserPointChangeType.DEDUCTION)
                     .amount(proportionalPoint)

@@ -5,6 +5,7 @@ import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.Terms;
 import com.personal.marketnote.user.domain.user.User;
+import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.exception.InvalidVerificationCodeException;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.exception.UserNotActiveException;
@@ -251,6 +252,25 @@ class SignUpUseCaseTest {
         verify(saveUserPort, never()).save(any());
         verify(publishUserEventPort, never()).publishUserSignupCompletedEvent(anyLong(), anyString());
 
+    }
+
+    @Test
+    @DisplayName("닉네임에 금칙어가 포함된 경우 회원 가입에 실패한다")
+    void signUp_profanityNickname_throws() {
+        // given
+        String nickname = "나는바보야";
+        SignUpCommand command = createCommand("user@test.com", null, "123456", nickname, "홍길동", null);
+
+        when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(true);
+
+        // expect
+        assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.KAKAO, "oidc", "127.0.0.1"))
+                .isInstanceOf(InvalidNicknameContainsProfanityException.class);
+
+        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase);
+        verify(findUserPort, never()).existsByNickname(anyString());
+        verify(verifyCodePort, never()).verify(anyString(), anyString());
     }
 
     private SignUpCommand createCommand(

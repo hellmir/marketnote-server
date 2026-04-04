@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
 import com.personal.marketnote.common.exception.UserNotFoundException;
+import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.port.in.command.UpdateUserInfoCommand;
@@ -344,5 +345,30 @@ class UpdateUserUseCaseTest {
         verify(getUserUseCase).getUser(id);
         verifyNoMoreInteractions(getUserUseCase);
         verifyNoInteractions(findUserPort, updateUserPort, passwordEncoder, findProfanityWordPort);
+    }
+
+    @Test
+    @DisplayName("닉네임에 금칙어가 포함된 경우 닉네임 수정에 실패한다")
+    void updateUserInfo_profanityNickname_throws() {
+        // given
+        Long id = 13L;
+        String nickname = "나는바보야";
+        UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
+                .nickname(nickname)
+                .build();
+        User user = mock(User.class);
+
+        when(getUserUseCase.getUser(id)).thenReturn(user);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(true);
+
+        // expect
+        assertThatThrownBy(() -> updateUserService.updateUserInfo(false, id, command))
+                .isInstanceOf(InvalidNicknameContainsProfanityException.class);
+
+        verify(getUserUseCase).getUser(id);
+        verify(user).validateDifferentNickname(nickname);
+        verify(findProfanityWordPort).containsProfanity(nickname);
+        verify(user, never()).updateNickname(anyString());
+        verifyNoInteractions(findUserPort, updateUserPort);
     }
 }
