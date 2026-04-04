@@ -375,7 +375,7 @@ class GetReviewUseCaseTest {
                         .selectedOptions("옵션-" + id)
                         .quantity(1)
                         .reviewerName("사용자-" + id)
-                        .maskedReviewerName("사*자-" + id)
+                        .reviewerMaskedName("사*자-" + id)
                         .rating(5.0f)
                         .content("리뷰-" + id)
                         .isPhoto(isPhoto)

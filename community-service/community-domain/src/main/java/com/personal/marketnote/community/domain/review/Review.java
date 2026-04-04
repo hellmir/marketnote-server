@@ -30,7 +30,7 @@ public class Review {
     private String selectedOptions;
     private Integer quantity;
     private String reviewerName;
-    private String maskedReviewerName;
+    private String reviewerMaskedName;
     private Float rating;
     private String content;
     private Boolean isPhoto;
@@ -62,7 +62,7 @@ public class Review {
                 .selectedOptions(state.getSelectedOptions())
                 .quantity(state.getQuantity())
                 .reviewerName(state.getReviewerName())
-                .maskedReviewerName(ValueMasker.mask(state.getReviewerName()))
+                .reviewerMaskedName(ValueMasker.mask(state.getReviewerName()))
                 .rating(round(state.getRating()))
                 .content(state.getContent())
                 .isPhoto(state.getIsPhoto())
@@ -87,7 +87,7 @@ public class Review {
                 .selectedOptions(state.getSelectedOptions())
                 .quantity(state.getQuantity())
                 .reviewerName(state.getReviewerName())
-                .maskedReviewerName(state.getMaskedReviewerName())
+                .reviewerMaskedName(state.getReviewerMaskedName())
                 .rating(state.getRating())
                 .content(state.getContent())
                 .isPhoto(state.getIsPhoto())

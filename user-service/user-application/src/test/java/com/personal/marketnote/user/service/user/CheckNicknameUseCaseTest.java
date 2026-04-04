@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.user.port.in.result.CheckNicknameResult;
+import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import static org.mockito.Mockito.when;
 class CheckNicknameUseCaseTest {
     @Mock
     private FindUserPort findUserPort;
+    @Mock
+    private FindProfanityWordPort findProfanityWordPort;
 
     @InjectMocks
     private CheckNicknameService checkNicknameService;
@@ -28,13 +31,16 @@ class CheckNicknameUseCaseTest {
         String nickname = "향긋한스윗피";
 
         when(findUserPort.existsByNickname(nickname)).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(false);
 
         // when
         CheckNicknameResult result = checkNicknameService.checkNickname(nickname);
 
         // then
         assertThat(result.isDuplicated()).isFalse();
+        assertThat(result.containsProfanity()).isFalse();
         verify(findUserPort).existsByNickname(nickname);
+        verify(findProfanityWordPort).containsProfanity(nickname);
     }
 
     @Test
@@ -44,12 +50,15 @@ class CheckNicknameUseCaseTest {
         String nickname = "몬치치";
 
         when(findUserPort.existsByNickname(nickname)).thenReturn(true);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(false);
 
         // when
         CheckNicknameResult result = checkNicknameService.checkNickname(nickname);
 
         // then
         assertThat(result.isDuplicated()).isTrue();
+        assertThat(result.containsProfanity()).isFalse();
         verify(findUserPort).existsByNickname(nickname);
+        verify(findProfanityWordPort).containsProfanity(nickname);
     }
 }

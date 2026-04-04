@@ -3,10 +3,12 @@ package com.personal.marketnote.user.service.user;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
 import com.personal.marketnote.user.domain.user.User;
+import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.port.in.command.UpdateUserInfoCommand;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.UpdateUserUseCase;
+import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class UpdateUserService implements UpdateUserUseCase {
     private final FindUserPort findUserPort;
     private final UpdateUserPort updateUserPort;
     private final PasswordEncoder passwordEncoder;
+    private final FindProfanityWordPort findProfanityWordPort;
 
     @Override
     public void updateUserInfo(boolean isAdmin, Long id, UpdateUserInfoCommand updateUserInfoCommand) {
@@ -44,6 +47,7 @@ public class UpdateUserService implements UpdateUserUseCase {
         if (updateUserInfoCommand.hasNickname()) {
             String newNickname = updateUserInfoCommand.nickname();
             user.validateDifferentNickname(newNickname);
+            validateNicknameProfanity(newNickname);
             validateDuplicateNickname(newNickname);
             user.updateNickname(newNickname);
 
@@ -75,6 +79,12 @@ public class UpdateUserService implements UpdateUserUseCase {
         }
 
         throw new UpdateTargetNoValueException();
+    }
+
+    private void validateNicknameProfanity(String nickname) {
+        if (findProfanityWordPort.containsProfanity(nickname)) {
+            throw new InvalidNicknameContainsProfanityException(FIFTH_ERROR_CODE, nickname);
+        }
     }
 
     private void validateDuplicateEmail(String email) {
