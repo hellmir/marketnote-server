@@ -87,6 +87,49 @@ class UpdatePostUseCaseTest {
         verifyNoInteractions(updatePostPort);
     }
 
+    @Test
+    @DisplayName("상품 문의글 수정 시 수정 불가 예외가 욕설 검증보다 먼저 발생하고 욕설 검증이 실행되지 않는다")
+    void updatePost_productInquiry_throwsNotEditableBeforeProfanityCheck() {
+        Long postId = 1L;
+        Post post = buildPost(postId, Board.PRODUCT_INQUERY);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "욕설제목", "욕설내용");
+
+        assertThatThrownBy(() -> updatePostService.updatePost(command))
+                .isInstanceOf(PostNotEditableException.class);
+
+        verifyNoInteractions(findProfanityWordPort);
+        verifyNoInteractions(updatePostPort);
+    }
+
+    @Test
+    @DisplayName("공지사항 수정 시 욕설 검증이 실행되지 않는다")
+    void updatePost_notice_skipsProfanityValidation() {
+        Long postId = 1L;
+        Post post = buildPost(postId, Board.NOTICE);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "수정된 공지 제목", "수정된 공지 내용");
+
+        updatePostService.updatePost(command);
+
+        verifyNoInteractions(findProfanityWordPort);
+        verify(updatePostPort).update(post);
+    }
+
+    @Test
+    @DisplayName("FAQ 수정 시 욕설 검증이 실행되지 않는다")
+    void updatePost_faq_skipsProfanityValidation() {
+        Long postId = 1L;
+        Post post = buildPost(postId, Board.FAQ);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "수정된 FAQ 제목", "수정된 FAQ 내용");
+
+        updatePostService.updatePost(command);
+
+        verifyNoInteractions(findProfanityWordPort);
+        verify(updatePostPort).update(post);
+    }
+
     private Post buildPost(Long id, Board board) {
         return Post.from(PostSnapshotState.builder()
                 .id(id)
