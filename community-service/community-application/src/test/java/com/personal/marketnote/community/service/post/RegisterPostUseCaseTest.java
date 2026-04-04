@@ -205,7 +205,7 @@ class RegisterPostUseCaseTest {
         assertThat(captured.getTargetId()).isEqualTo(88L);
         assertThat(captured.getProductImageUrl()).isEqualTo("https://example.com/img.jpg");
         assertThat(captured.getWriterName()).isEqualTo("테스트유저");
-        assertThat(captured.getWriterMaskedName()).isEqualTo("테스트***");
+        assertThat(captured.getMaskedWriterName()).isEqualTo("테스트***");
         assertThat(captured.getTitle()).isEqualTo("문의합니다");
         assertThat(captured.getContent()).isEqualTo("재입고 예정이 있나요?");
         assertThat(captured.isPrivate()).isTrue();
@@ -258,8 +258,8 @@ class RegisterPostUseCaseTest {
     }
 
     @Test
-    @DisplayName("1:1 문의 등록 시 writerMaskedName에 마스킹 없이 원본 작성자명이 저장된다")
-    void registerPost_oneOnOneInquery_writerMaskedNameIsOriginal() {
+    @DisplayName("1:1 문의 등록 시 maskedWriterName에 마스킹 없이 원본 작성자명이 저장된다")
+    void registerPost_oneOnOneInquery_maskedWriterNameIsOriginal() {
         RegisterPostCommand command = RegisterPostCommand.builder()
                 .userId(14L)
                 .parentId(null)
@@ -277,12 +277,12 @@ class RegisterPostUseCaseTest {
         verify(savePostPort).save(postCaptor.capture());
         Post captured = postCaptor.getValue();
 
-        assertThat(captured.getWriterMaskedName()).isEqualTo("테스트유저");
+        assertThat(captured.getMaskedWriterName()).isEqualTo("테스트유저");
     }
 
     @Test
-    @DisplayName("상품 문의 등록 시 writerMaskedName에 마스킹된 작성자명이 저장된다")
-    void registerPost_productInquery_writerMaskedNameIsMasked() {
+    @DisplayName("상품 문의 등록 시 maskedWriterName에 마스킹된 작성자명이 저장된다")
+    void registerPost_productInquery_maskedWriterNameIsMasked() {
         RegisterPostCommand command = RegisterPostCommand.builder()
                 .userId(15L)
                 .parentId(null)
@@ -300,7 +300,7 @@ class RegisterPostUseCaseTest {
         verify(savePostPort).save(postCaptor.capture());
         Post captured = postCaptor.getValue();
 
-        assertThat(captured.getWriterMaskedName()).isEqualTo(ValueMasker.mask("테스트유저"));
+        assertThat(captured.getMaskedWriterName()).isEqualTo(ValueMasker.mask("테스트유저"));
     }
 
     @Test
@@ -372,7 +372,7 @@ class RegisterPostUseCaseTest {
                         .targetId(command.targetId())
                         .productImageUrl(command.productImageUrl())
                         .writerName(command.writerName())
-                        .writerMaskedName(maskedName)
+                        .maskedWriterName(maskedName)
                         .title(command.title())
                         .content(command.content())
                         .isPrivate(command.isPrivate())

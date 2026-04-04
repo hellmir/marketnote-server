@@ -24,7 +24,7 @@ public class PostJpaEntityToDomainMapper {
                                 .targetType(entity.getTargetType())
                                 .targetId(entity.getTargetId())
                                 .writerName(entity.getWriterName())
-                                .writerMaskedName(entity.getWriterMaskedName())
+                                .maskedWriterName(entity.getMaskedWriterName())
                                 .productImageUrl(entity.getProductImageUrl())
                                 .title(entity.getTitle())
                                 .content(entity.getContent())

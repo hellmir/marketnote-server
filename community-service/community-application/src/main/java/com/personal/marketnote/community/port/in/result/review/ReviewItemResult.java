@@ -54,7 +54,7 @@ public record ReviewItemResult(
                 .productImageUrl(review.getProductImageUrl())
                 .selectedOptions(review.getSelectedOptions())
                 .quantity(review.getQuantity())
-                .maskedReviewerName(review.getReviewerMaskedName())
+                .maskedReviewerName(review.getMaskedReviewerName())
                 .rating(review.getRating())
                 .content(review.getContent())
                 .isPhoto(review.getIsPhoto())
