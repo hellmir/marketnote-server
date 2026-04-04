@@ -53,8 +53,9 @@ class ModifyPendingSharedPointServiceTest {
                 .build());
     }
 
-    private ModifyPendingSharedPointCommand createCommand(UserPointChangeType changeType, Long amount) {
+    private ModifyPendingSharedPointCommand createCommand(Long buyerId, UserPointChangeType changeType, Long amount) {
         return ModifyPendingSharedPointCommand.builder()
+                .buyerId(buyerId)
                 .sharerKey(SHARER_KEY)
                 .changeType(changeType)
                 .amount(amount)
@@ -74,7 +75,7 @@ class ModifyPendingSharedPointServiceTest {
         UpdateUserPointResult expectedResult = UpdateUserPointResult.from(userPoint);
         when(modifyPendingPointUseCase.modifyPending(any(ModifyPendingPointCommand.class))).thenReturn(expectedResult);
 
-        ModifyPendingSharedPointCommand command = createCommand(UserPointChangeType.ACCRUAL, 500L);
+        ModifyPendingSharedPointCommand command = createCommand(999L, UserPointChangeType.ACCRUAL, 500L);
 
         // when
         UpdateUserPointResult result = modifyPendingSharedPointService.modifyPending(command);
@@ -100,13 +101,50 @@ class ModifyPendingSharedPointServiceTest {
         // given
         when(findUserPointPort.findByUserKey(SHARER_KEY.toString())).thenReturn(Optional.empty());
 
-        ModifyPendingSharedPointCommand command = createCommand(UserPointChangeType.ACCRUAL, 500L);
+        ModifyPendingSharedPointCommand command = createCommand(999L, UserPointChangeType.ACCRUAL, 500L);
 
         // expect
         assertThatThrownBy(() -> modifyPendingSharedPointService.modifyPending(command))
                 .isInstanceOf(UserPointNotFoundException.class);
 
         verify(modifyPendingPointUseCase, never()).modifyPending(any());
+    }
+
+    @Test
+    @DisplayName("구매자와 공유자가 동일인이면 적립 예정 포인트를 변경하지 않고 null을 반환한다")
+    void shouldReturnNullWhenBuyerAndSharerAreSamePerson() {
+        // given
+        UserPoint userPoint = createUserPoint();
+        when(findUserPointPort.findByUserKey(SHARER_KEY.toString())).thenReturn(Optional.of(userPoint));
+
+        ModifyPendingSharedPointCommand command = createCommand(RESOLVED_USER_ID, UserPointChangeType.ACCRUAL, 500L);
+
+        // when
+        UpdateUserPointResult result = modifyPendingSharedPointService.modifyPending(command);
+
+        // then
+        assertThat(result).isNull();
+        verify(modifyPendingPointUseCase, never()).modifyPending(any());
+    }
+
+    @Test
+    @DisplayName("buyerId가 null이면 동일인 검증을 건너뛰고 적립 예정 포인트를 변경한다")
+    void shouldProceedWhenBuyerIdIsNull() {
+        // given
+        UserPoint userPoint = createUserPoint();
+        when(findUserPointPort.findByUserKey(SHARER_KEY.toString())).thenReturn(Optional.of(userPoint));
+
+        UpdateUserPointResult expectedResult = UpdateUserPointResult.from(userPoint);
+        when(modifyPendingPointUseCase.modifyPending(any(ModifyPendingPointCommand.class))).thenReturn(expectedResult);
+
+        ModifyPendingSharedPointCommand command = createCommand(null, UserPointChangeType.ACCRUAL, 500L);
+
+        // when
+        UpdateUserPointResult result = modifyPendingSharedPointService.modifyPending(command);
+
+        // then
+        assertThat(result.userId()).isEqualTo(RESOLVED_USER_ID);
+        verify(modifyPendingPointUseCase).modifyPending(any(ModifyPendingPointCommand.class));
     }
 
     @Test
@@ -119,7 +157,7 @@ class ModifyPendingSharedPointServiceTest {
         UpdateUserPointResult expectedResult = UpdateUserPointResult.from(userPoint);
         when(modifyPendingPointUseCase.modifyPending(any(ModifyPendingPointCommand.class))).thenReturn(expectedResult);
 
-        ModifyPendingSharedPointCommand command = createCommand(UserPointChangeType.DEDUCTION, 300L);
+        ModifyPendingSharedPointCommand command = createCommand(999L, UserPointChangeType.DEDUCTION, 300L);
 
         // when
         modifyPendingSharedPointService.modifyPending(command);
