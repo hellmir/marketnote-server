@@ -45,7 +45,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "reviewer_name", nullable = false, length = 15)
     private String reviewerName;
 
-    @Column(name = "reviewer_masked_name", nullable = false, length = 15)
+    @Column(name = "masked_reviewer_name", nullable = false, length = 15)
     private String maskedReviewerName;
 
     @Column(name = "rating", nullable = false)

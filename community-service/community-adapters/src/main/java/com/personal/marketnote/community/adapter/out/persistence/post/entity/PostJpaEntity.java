@@ -50,7 +50,7 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "writer_name", nullable = false, length = 15)
     private String writerName;
 
-    @Column(name = "writer_masked_name", nullable = false, length = 15)
+    @Column(name = "masked_writer_name", nullable = false, length = 15)
     private String maskedWriterName;
 
     @Column(name = "title")
