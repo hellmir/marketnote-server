@@ -9,6 +9,7 @@ import com.personal.marketnote.community.exception.PostNotFoundException;
 import com.personal.marketnote.community.port.in.command.post.UpdatePostCommand;
 import com.personal.marketnote.community.port.in.usecase.post.GetPostUseCase;
 import com.personal.marketnote.community.port.out.post.UpdatePostPort;
+import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,8 @@ class UpdatePostUseCaseTest {
     private GetPostUseCase getPostUseCase;
     @Mock
     private UpdatePostPort updatePostPort;
+    @Mock
+    private FindProfanityWordPort findProfanityWordPort;
 
     @InjectMocks
     private UpdatePostService updatePostService;
