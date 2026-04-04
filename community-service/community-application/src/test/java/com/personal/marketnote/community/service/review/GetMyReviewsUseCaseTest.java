@@ -63,7 +63,7 @@ class GetMyReviewsUseCaseTest {
     }
 
     @Test
-    @DisplayName("나의 리뷰 내역 조회 시 응답에 maskedReviewerName이 포함되지 않는다")
+    @DisplayName("나의 리뷰 내역 조회 시 응답에 reviewerMaskedName이 포함되지 않는다")
     void getWriterReviews_doesNotContainReviewerMaskedName() {
         Long userId = 10L;
         Review review = buildReview(101L, userId, 20L, 1001L, false);
@@ -79,7 +79,7 @@ class GetMyReviewsUseCaseTest {
 
         assertThat(result.reviews()).hasSize(1);
         MyReviewItemResult item = result.reviews().getFirst();
-        // MyReviewItemResult에는 maskedReviewerName 필드가 존재하지 않음을 컴파일 타임에 보장
+        // MyReviewItemResult에는 reviewerMaskedName 필드가 존재하지 않음을 컴파일 타임에 보장
         // reviewerName만 포함되어 있는지 검증
         assertThat(item.reviewerName()).isNotNull();
         assertThat(item).hasNoNullFieldsOrPropertiesExcept("images", "product");
@@ -97,7 +97,7 @@ class GetMyReviewsUseCaseTest {
                         .selectedOptions("옵션-" + id)
                         .quantity(1)
                         .reviewerName("사용자-" + id)
-                        .maskedReviewerName("사*자-" + id)
+                        .reviewerMaskedName("사*자-" + id)
                         .rating(5.0f)
                         .content("리뷰-" + id)
                         .isPhoto(isPhoto)

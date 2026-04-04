@@ -6,6 +6,7 @@ import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.port.in.command.UpdateUserInfoCommand;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,8 @@ class UpdateUserUseCaseTest {
     private UpdateUserPort updateUserPort;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private FindProfanityWordPort findProfanityWordPort;
 
     @InjectMocks
     private UpdateUserService updateUserService;
@@ -57,7 +60,7 @@ class UpdateUserUseCaseTest {
         verify(user).updateStatus(isActive);
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
-        verifyNoInteractions(findUserPort, passwordEncoder);
+        verifyNoInteractions(findUserPort, passwordEncoder, findProfanityWordPort);
     }
 
     @Test
@@ -78,7 +81,7 @@ class UpdateUserUseCaseTest {
 
         verify(getUserUseCase).getUser(id);
         verifyNoMoreInteractions(getUserUseCase);
-        verifyNoInteractions(findUserPort, updateUserPort, passwordEncoder);
+        verifyNoInteractions(findUserPort, updateUserPort, passwordEncoder, findProfanityWordPort);
         verifyNoMoreInteractions(user);
     }
 
@@ -98,7 +101,7 @@ class UpdateUserUseCaseTest {
 
         verify(getUserUseCase).getUser(id);
         verifyNoMoreInteractions(getUserUseCase);
-        verifyNoInteractions(findUserPort, updateUserPort, passwordEncoder);
+        verifyNoInteractions(findUserPort, updateUserPort, passwordEncoder, findProfanityWordPort);
         verifyNoMoreInteractions(user);
     }
 
@@ -123,7 +126,7 @@ class UpdateUserUseCaseTest {
         verify(user).updatePassword(password, passwordEncoder);
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
-        verifyNoInteractions(findUserPort);
+        verifyNoInteractions(findUserPort, findProfanityWordPort);
     }
 
     @Test
@@ -151,7 +154,7 @@ class UpdateUserUseCaseTest {
         verify(user, never()).updateEmail(anyString());
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
-        verifyNoInteractions(findUserPort);
+        verifyNoInteractions(findUserPort, findProfanityWordPort);
     }
 
     @Test
@@ -179,6 +182,7 @@ class UpdateUserUseCaseTest {
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
         verifyNoMoreInteractions(findUserPort);
+        verifyNoInteractions(findProfanityWordPort);
     }
 
     @Test
@@ -204,7 +208,7 @@ class UpdateUserUseCaseTest {
         verify(user).validateDifferentEmail(email);
         verify(findUserPort).existsByEmail(email);
         verify(user, never()).updateEmail(anyString());
-        verifyNoInteractions(updateUserPort);
+        verifyNoInteractions(updateUserPort, findProfanityWordPort);
         verifyNoMoreInteractions(getUserUseCase, user, findUserPort);
     }
 
@@ -220,6 +224,7 @@ class UpdateUserUseCaseTest {
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(false);
         when(findUserPort.existsByNickname(nickname)).thenReturn(false);
 
         // when
@@ -228,10 +233,11 @@ class UpdateUserUseCaseTest {
         // then
         verify(getUserUseCase).getUser(id);
         verify(user).validateDifferentNickname(nickname);
+        verify(findProfanityWordPort).containsProfanity(nickname);
         verify(findUserPort).existsByNickname(nickname);
         verify(user).updateNickname(nickname);
         verify(updateUserPort).update(user);
-        verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
+        verifyNoMoreInteractions(getUserUseCase, user, updateUserPort, findProfanityWordPort);
         verifyNoMoreInteractions(findUserPort);
     }
 
@@ -247,6 +253,7 @@ class UpdateUserUseCaseTest {
         User user = mock(User.class);
 
         when(getUserUseCase.getUser(id)).thenReturn(user);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(false);
         when(findUserPort.existsByNickname(nickname)).thenReturn(true);
 
         // expect
@@ -256,10 +263,11 @@ class UpdateUserUseCaseTest {
 
         verify(getUserUseCase).getUser(id);
         verify(user).validateDifferentNickname(nickname);
+        verify(findProfanityWordPort).containsProfanity(nickname);
         verify(findUserPort).existsByNickname(nickname);
         verify(user, never()).updateNickname(anyString());
         verifyNoInteractions(updateUserPort);
-        verifyNoMoreInteractions(getUserUseCase, user, findUserPort);
+        verifyNoMoreInteractions(getUserUseCase, user, findUserPort, findProfanityWordPort);
     }
 
     @Test
@@ -287,6 +295,7 @@ class UpdateUserUseCaseTest {
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
         verifyNoMoreInteractions(findUserPort);
+        verifyNoInteractions(findProfanityWordPort);
     }
 
     @Test
@@ -312,7 +321,7 @@ class UpdateUserUseCaseTest {
         verify(user).validateDifferentPhoneNumber(phoneNumber);
         verify(findUserPort).existsByPhoneNumber(phoneNumber);
         verify(user, never()).updatePhoneNumber(anyString());
-        verifyNoInteractions(updateUserPort);
+        verifyNoInteractions(updateUserPort, findProfanityWordPort);
         verifyNoMoreInteractions(getUserUseCase, user, findUserPort);
     }
 
@@ -334,6 +343,6 @@ class UpdateUserUseCaseTest {
 
         verify(getUserUseCase).getUser(id);
         verifyNoMoreInteractions(getUserUseCase);
-        verifyNoInteractions(findUserPort, updateUserPort, passwordEncoder);
+        verifyNoInteractions(findUserPort, updateUserPort, passwordEncoder, findProfanityWordPort);
     }
 }

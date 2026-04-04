@@ -142,3 +142,7 @@ mail:
 verification:
   redis:
     prefix: ${REDIS_EMAIL_VERIFICATION_PREFIX:email:verification:}
+
+profanity:
+  init:
+    enabled: ${PROFANITY_INIT_ENABLED:false}

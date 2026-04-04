@@ -59,7 +59,7 @@ class RegisterReviewUseCaseTest {
     }
 
     @Test
-    @DisplayName("리뷰 등록 시 커맨드의 reviewerName이 Review 도메인의 maskedReviewerName(마스킹)으로 매핑된다")
+    @DisplayName("리뷰 등록 시 커맨드의 reviewerName이 Review 도메인의 reviewerMaskedName(마스킹)으로 매핑된다")
     void registerReview_reviewerNameMappedAsMasked() {
         RegisterReviewCommand command = buildCommand("테스트유저");
         Review savedReview = buildSavedReview(1L, command);
@@ -73,7 +73,7 @@ class RegisterReviewUseCaseTest {
         verify(saveReviewPort).save(reviewCaptor.capture());
         Review captured = reviewCaptor.getValue();
 
-        assertThat(captured.getMaskedReviewerName()).isEqualTo("테스트***");
+        assertThat(captured.getReviewerMaskedName()).isEqualTo("테스트***");
     }
 
     private RegisterReviewCommand buildCommand(String reviewerName) {
@@ -104,7 +104,7 @@ class RegisterReviewUseCaseTest {
                         .selectedOptions(command.selectedOptions())
                         .quantity(command.quantity())
                         .reviewerName(command.reviewerName())
-                        .maskedReviewerName(ValueMasker.mask(command.reviewerName()))
+                        .reviewerMaskedName(ValueMasker.mask(command.reviewerName()))
                         .rating(command.rating())
                         .content(command.content())
                         .isPhoto(command.isPhoto())

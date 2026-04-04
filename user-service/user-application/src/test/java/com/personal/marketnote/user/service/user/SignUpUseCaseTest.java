@@ -13,6 +13,7 @@ import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
+import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import org.junit.jupiter.api.DisplayName;
@@ -51,6 +52,8 @@ class SignUpUseCaseTest {
     private SaveLoginHistoryPort saveLoginHistoryPort;
     @Mock
     private PublishUserEventPort publishUserEventPort;
+    @Mock
+    private FindProfanityWordPort findProfanityWordPort;
 
     @InjectMocks
     private SignUpService signUpService;
@@ -66,6 +69,7 @@ class SignUpUseCaseTest {
         SignUpCommand command = createCommand(email, password, verificationCode, nickname, "홍길동", null);
 
         when(findUserPort.existsByEmail(email)).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(nickname)).thenReturn(false);
         when(findUserPort.existsByNickname(nickname)).thenReturn(false);
         when(verifyCodePort.verify(email, verificationCode)).thenReturn(true);
         when(findTermsPort.findAll()).thenReturn(List.of(mock(Terms.class)));
@@ -102,6 +106,7 @@ class SignUpUseCaseTest {
 
         when(findUserPort.existsByEmail(email)).thenReturn(true);
         when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
         when(findUserPort.existsByNickname(anyString())).thenReturn(false);
         when(verifyCodePort.verify(eq(email), anyString())).thenReturn(true);
 
@@ -137,7 +142,7 @@ class SignUpUseCaseTest {
         assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1"))
                 .isInstanceOf(PasswordNoValueException.class);
 
-        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, verifyCodePort, getUserUseCase);
+        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, verifyCodePort, getUserUseCase, findProfanityWordPort);
     }
 
     @Test
@@ -155,7 +160,7 @@ class SignUpUseCaseTest {
                 .isInstanceOf(UserExistsException.class);
 
         verify(verifyCodePort, never()).verify(anyString(), anyString());
-        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase);
+        verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase, findProfanityWordPort);
     }
 
     @Test
@@ -166,6 +171,7 @@ class SignUpUseCaseTest {
         SignUpCommand command = createCommand(email, null, "123456", "dupNick", "홍길동", null);
 
         when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity("dupNick")).thenReturn(false);
         when(findUserPort.existsByNickname("dupNick")).thenReturn(true);
 
         // expect
@@ -185,6 +191,7 @@ class SignUpUseCaseTest {
         SignUpCommand command = createCommand(email, null, "123456", "tester", "홍길동", phone);
 
         when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
         when(findUserPort.existsByNickname(anyString())).thenReturn(false);
         when(findUserPort.existsByPhoneNumber(phone)).thenReturn(true);
 
@@ -204,6 +211,7 @@ class SignUpUseCaseTest {
         String verificationCode = "wrong";
         SignUpCommand command = createCommand(email, "pw", verificationCode, "tester", "홍길동", null);
 
+        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
         when(findUserPort.existsByNickname(anyString())).thenReturn(false);
         when(verifyCodePort.verify(email, verificationCode)).thenReturn(false);
 
@@ -226,6 +234,7 @@ class SignUpUseCaseTest {
 
         when(findUserPort.existsByEmail(email)).thenReturn(true);
         when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
         when(findUserPort.existsByNickname(anyString())).thenReturn(false);
         when(verifyCodePort.verify(eq(email), anyString())).thenReturn(true);
 

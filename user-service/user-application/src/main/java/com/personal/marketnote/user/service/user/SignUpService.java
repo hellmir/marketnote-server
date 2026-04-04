@@ -6,6 +6,7 @@ import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.Terms;
 import com.personal.marketnote.user.domain.user.User;
+import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.exception.InvalidVerificationCodeException;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.exception.UserNotActiveException;
@@ -16,6 +17,7 @@ import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.SignUpUseCase;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
+import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class SignUpService implements SignUpUseCase {
     private final VerifyCodePort verifyCodePort;
     private final SaveLoginHistoryPort saveLoginHistoryPort;
     private final PublishUserEventPort publishUserEventPort;
+    private final FindProfanityWordPort findProfanityWordPort;
 
     @Override
     public SignUpResult signUp(SignUpCommand signUpCommand, AuthVendor authVendor, String oidcId, String ipAddress) {
@@ -99,6 +102,10 @@ public class SignUpService implements SignUpUseCase {
         }
 
         String nickname = signUpCommand.nickname();
+        if (findProfanityWordPort.containsProfanity(nickname)) {
+            throw new InvalidNicknameContainsProfanityException(THIRD_ERROR_CODE, nickname);
+        }
+
         if (findUserPort.existsByNickname(nickname)) {
             throw new UserExistsException(
                     String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, THIRD_ERROR_CODE, nickname)
