@@ -5,8 +5,11 @@ import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHis
 import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistory;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
+import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationException;
+import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidQuantityException;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -358,6 +361,49 @@ class RestoreProductInventoryUseCaseTest {
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
                     .isSameAs(exception);
+        }
+
+        @Test
+        @DisplayName("복구 수량이 0 이하일 때 InvalidQuantityException이 발생한다")
+        void restore_zeroQuantity_throwsInvalidQuantityException() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 0));
+            Inventory inventory = buildInventory(1L, 100L, 7);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+
+            assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
+                    .isInstanceOf(InvalidQuantityException.class);
+        }
+
+        @Test
+        @DisplayName("동일 orderId로 중복 복구 시 DuplicateInventoryRestorationException이 발생한다")
+        void restore_duplicateOrderId_throwsDuplicateInventoryRestorationException() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+            Inventory inventory = buildInventory(1L, 100L, 7);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+            doThrow(new DuplicateInventoryRestorationException(1L))
+                    .when(saveInventoryRestorationHistoryPort).save(any());
+
+            assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
+                    .isInstanceOf(DuplicateInventoryRestorationException.class);
+        }
+
+        @Test
+        @DisplayName("분산 락 획득 실패 시 InventoryLockAcquisitionException이 발생한다")
+        void restore_lockAcquisitionFails_throwsInventoryLockAcquisitionException() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+
+            doThrow(new InventoryLockAcquisitionException(100L))
+                    .when(inventoryLockPort).executeWithLock(any(), any());
+
+            assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
+                    .isInstanceOf(InventoryLockAcquisitionException.class);
+
+            verifyNoInteractions(findInventoryPort, updateInventoryPort,
+                    saveInventoryRestorationHistoryPort, saveCacheStockPort, publishInventoryEventPort);
         }
     }
 
