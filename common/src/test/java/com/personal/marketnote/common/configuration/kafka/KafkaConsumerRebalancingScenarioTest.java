@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.configuration.kafka;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -82,7 +83,7 @@ class KafkaConsumerRebalancingScenarioTest {
 
     @AfterAll
     void tearDownCluster() {
-        if (embeddedKafka != null) {
+        if (FormatValidator.hasValue(embeddedKafka)) {
             embeddedKafka.destroy();
         }
     }

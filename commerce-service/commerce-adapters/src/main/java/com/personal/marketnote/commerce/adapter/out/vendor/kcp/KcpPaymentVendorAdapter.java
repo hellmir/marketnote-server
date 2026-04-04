@@ -15,6 +15,7 @@ import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.*;
 import com.personal.marketnote.commerce.utility.VendorCommunicationRecorder;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -200,7 +201,7 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
 
     private boolean hasCause(Throwable throwable, Class<? extends Throwable> causeType) {
         Throwable current = throwable;
-        while (current != null) {
+        while (FormatValidator.hasValue(current)) {
             if (causeType.isInstance(current)) {
                 return true;
             }

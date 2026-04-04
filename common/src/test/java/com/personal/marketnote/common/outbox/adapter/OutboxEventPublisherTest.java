@@ -16,6 +16,7 @@ import org.springframework.kafka.support.SendResult;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
@@ -105,6 +106,9 @@ class OutboxEventPublisherTest {
         failedFuture.completeExceptionally(new RuntimeException("Kafka 전송 실패"));
         when(kafkaTemplate.send(eq("commerce.payment.approved"), eq("order-123"), any())).thenReturn(failedFuture);
 
+        when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
+        when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
+
         // when
         outboxEventPublisher.publishPendingEvents();
 
@@ -120,7 +124,7 @@ class OutboxEventPublisherTest {
         // given
         OutboxEventJpaEntity entity = createPendingEntity("event-1", "commerce.payment.approved", "order-123", "{}");
         for (int i = 0; i < 4; i++) {
-            entity.incrementRetry();
+            entity.incrementRetry("이전 에러", LocalDateTime.now(FIXED_CLOCK));
         }
 
         when(outboxEventJpaRepository.findTop100ByStatusOrderByCreatedAtAsc(OutboxEventStatus.PENDING))
@@ -131,6 +135,9 @@ class OutboxEventPublisherTest {
         CompletableFuture<SendResult<String, Object>> failedFuture = new CompletableFuture<>();
         failedFuture.completeExceptionally(new RuntimeException("Kafka 전송 실패"));
         when(kafkaTemplate.send(eq("commerce.payment.approved"), eq("order-123"), any())).thenReturn(failedFuture);
+
+        when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
+        when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
 
         // when
         outboxEventPublisher.publishPendingEvents();
@@ -153,6 +160,9 @@ class OutboxEventPublisherTest {
         when(objectMapper.readValue("invalid-json", Object.class))
                 .thenThrow(new JsonProcessingException("parse error") {
                 });
+
+        when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
+        when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
 
         // when
         outboxEventPublisher.publishPendingEvents();

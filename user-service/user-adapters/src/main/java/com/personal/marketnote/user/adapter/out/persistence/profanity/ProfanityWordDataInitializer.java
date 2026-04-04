@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.adapter.out.persistence.profanity;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.out.persistence.profanity.entity.ProfanityWordJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.profanity.repository.ProfanityWordJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class ProfanityWordDataInitializer implements ApplicationRunner {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((FormatValidator.hasValue(line = reader.readLine()))) {
                 String trimmed = line.trim();
                 if (trimmed.isEmpty() || trimmed.startsWith("#")) {
                     continue;

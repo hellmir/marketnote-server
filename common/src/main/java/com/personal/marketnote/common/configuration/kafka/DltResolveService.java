@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.configuration.kafka;
 
 import com.personal.marketnote.common.kafka.DltTopicRegistry;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -61,7 +62,7 @@ public class DltResolveService {
 
             DltResolveResult duplicateResult = saveResolution(command.originalTopic(), dltTopic,
                     command.partition(), command.offset(), resolution, command.reason(), operatorInfo);
-            if (duplicateResult != null) {
+            if (FormatValidator.hasValue(duplicateResult)) {
                 return duplicateResult;
             }
 

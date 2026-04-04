@@ -3,6 +3,7 @@ package com.personal.marketnote.common.configuration.kafka;
 import com.personal.marketnote.common.configuration.kafka.exception.KafkaSaslPasswordNotConfiguredException;
 import com.personal.marketnote.common.configuration.kafka.exception.KafkaSaslUsernameNotConfiguredException;
 import com.personal.marketnote.common.configuration.kafka.exception.UnsupportedKafkaSaslMechanismException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -40,10 +41,10 @@ public class KafkaSaslProperties {
     }
 
     private void validateCredentials() {
-        if (username == null || username.isBlank()) {
+        if (FormatValidator.hasNoValue(username)) {
             throw new KafkaSaslUsernameNotConfiguredException();
         }
-        if (password == null || password.isBlank()) {
+        if (FormatValidator.hasNoValue(password)) {
             throw new KafkaSaslPasswordNotConfiguredException();
         }
     }

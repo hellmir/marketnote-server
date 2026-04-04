@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.configuration.kafka;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import kafka.server.BrokerServer;
 import kafka.testkit.KafkaClusterTestKit;
 import org.apache.kafka.clients.admin.AdminClient;
@@ -80,7 +81,7 @@ class KafkaBrokerFailureScenarioTest {
 
     @AfterAll
     void tearDownCluster() {
-        if (embeddedKafka != null) {
+        if (FormatValidator.hasValue(embeddedKafka)) {
             embeddedKafka.destroy();
         }
     }
@@ -375,7 +376,7 @@ class KafkaBrokerFailureScenarioTest {
 
         Integer brokerId = brokerIds.get(brokerIndex);
         BrokerServer broker = cluster.brokers().get(brokerId);
-        if (broker != null && !broker.isShutdown()) {
+        if (FormatValidator.hasValue(broker) && !broker.isShutdown()) {
             broker.shutdown();
             broker.awaitShutdown();
         }

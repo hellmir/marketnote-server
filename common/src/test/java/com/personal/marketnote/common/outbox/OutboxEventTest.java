@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.outbox;
 
+import com.personal.marketnote.common.outbox.exception.InvalidOutboxEventStatusTransitionException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("OutboxEvent 도메인 테스트")
 class OutboxEventTest {
@@ -94,7 +96,7 @@ class OutboxEventTest {
         );
 
         // when
-        event.incrementRetry();
+        event.incrementRetry("테스트 에러", FIXED_CLOCK);
 
         // then
         assertThat(event.getRetryCount()).isEqualTo(1);
@@ -111,7 +113,7 @@ class OutboxEventTest {
 
         // when
         for (int i = 0; i < 5; i++) {
-            event.incrementRetry();
+            event.incrementRetry("테스트 에러", FIXED_CLOCK);
         }
 
         // then
@@ -127,7 +129,7 @@ class OutboxEventTest {
                 "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
         for (int i = 0; i < 5; i++) {
-            event.incrementRetry();
+            event.incrementRetry("테스트 에러", FIXED_CLOCK);
         }
 
         // when & then
@@ -141,9 +143,115 @@ class OutboxEventTest {
         OutboxEvent event = OutboxEvent.of(
                 "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
         );
-        event.incrementRetry();
+        event.incrementRetry("테스트 에러", FIXED_CLOCK);
 
         // when & then
         assertThat(event.isExhausted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("FAILED 상태에서 resetForRetry() 호출 시 PENDING으로 전이되고 retryCount가 0으로 리셋된다")
+    void resetForRetry_changesFailedToPendingAndResetsRetryCount() {
+        // given
+        OutboxEvent event = createFailedEvent();
+
+        // when
+        event.resetForRetry();
+
+        // then
+        assertThat(event.getStatus()).isEqualTo(OutboxEventStatus.PENDING);
+        assertThat(event.getRetryCount()).isZero();
+        assertThat(event.getFailedAt()).isNull();
+        assertThat(event.getLastErrorMessage()).isNull();
+    }
+
+    @Test
+    @DisplayName("FAILED 상태에서 discard() 호출 시 DISCARDED로 전이되고 discardReason과 discardedAt이 설정된다")
+    void discard_changesFailedToDiscardedAndSetsReasonAndTime() {
+        // given
+        OutboxEvent event = createFailedEvent();
+        String reason = "수동 폐기 처리";
+
+        // when
+        event.discard(reason, FIXED_CLOCK);
+
+        // then
+        assertThat(event.getStatus()).isEqualTo(OutboxEventStatus.DISCARDED);
+        assertThat(event.getDiscardReason()).isEqualTo(reason);
+        assertThat(event.getDiscardedAt()).isEqualTo(LocalDateTime.now(FIXED_CLOCK));
+    }
+
+    @Test
+    @DisplayName("PENDING 상태에서 resetForRetry() 호출 시 InvalidOutboxEventStatusTransitionException이 발생한다")
+    void resetForRetry_throwsExceptionWhenPending() {
+        // given
+        OutboxEvent event = OutboxEvent.of(
+                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+        );
+
+        // when & then
+        assertThatThrownBy(event::resetForRetry)
+                .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
+    }
+
+    @Test
+    @DisplayName("PUBLISHED 상태에서 discard() 호출 시 InvalidOutboxEventStatusTransitionException이 발생한다")
+    void discard_throwsExceptionWhenPublished() {
+        // given
+        OutboxEvent event = OutboxEvent.of(
+                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+        );
+        event.markPublished(FIXED_CLOCK);
+
+        // when & then
+        assertThatThrownBy(() -> event.discard("사유", FIXED_CLOCK))
+                .isInstanceOf(InvalidOutboxEventStatusTransitionException.class);
+    }
+
+    @Test
+    @DisplayName("incrementRetry(errorMessage) 호출로 FAILED 전환 시 failedAt과 lastErrorMessage가 설정된다")
+    void incrementRetry_setsFailedAtAndLastErrorMessageWhenFailed() {
+        // given
+        OutboxEvent event = OutboxEvent.of(
+                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+        );
+        for (int i = 0; i < 4; i++) {
+            event.incrementRetry("이전 에러", FIXED_CLOCK);
+        }
+
+        // when
+        event.incrementRetry("최종 에러 메시지", FIXED_CLOCK);
+
+        // then
+        assertThat(event.getStatus()).isEqualTo(OutboxEventStatus.FAILED);
+        assertThat(event.getFailedAt()).isEqualTo(LocalDateTime.now(FIXED_CLOCK));
+        assertThat(event.getLastErrorMessage()).isEqualTo("최종 에러 메시지");
+    }
+
+    @Test
+    @DisplayName("incrementRetry(errorMessage) 호출 시 retryCount가 증가하고 lastErrorMessage가 최신 에러로 갱신된다")
+    void incrementRetry_incrementsRetryCountAndUpdatesLastErrorMessage() {
+        // given
+        OutboxEvent event = OutboxEvent.of(
+                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+        );
+
+        // when
+        event.incrementRetry("첫 번째 에러", FIXED_CLOCK);
+        event.incrementRetry("두 번째 에러", FIXED_CLOCK);
+
+        // then
+        assertThat(event.getRetryCount()).isEqualTo(2);
+        assertThat(event.getLastErrorMessage()).isEqualTo("두 번째 에러");
+    }
+
+    private OutboxEvent createFailedEvent() {
+        OutboxEvent event = OutboxEvent.of(
+                "event-id-1", "topic", "key", "type", "source", "{}", FIXED_CLOCK
+        );
+        for (int i = 0; i < 5; i++) {
+            event.incrementRetry("에러 " + i, FIXED_CLOCK);
+        }
+        return event;
     }
 }
