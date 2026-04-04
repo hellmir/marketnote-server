@@ -34,7 +34,7 @@ public class Post {
     private Long targetId;
     private String productImageUrl;
     private String writerName;
-    private String maskedWriterName;
+    private String writerMaskedName;
     private String title;
     private String content;
     private boolean isPrivate;
@@ -70,7 +70,7 @@ public class Post {
                 .targetId(state.getTargetId())
                 .productImageUrl(state.getProductImageUrl())
                 .writerName(state.getWriterName())
-                .maskedWriterName(resolveMaskedWriterName(state))
+                .writerMaskedName(resolveWriterMaskedName(state))
                 .title(state.getTitle())
                 .content(state.getContent())
                 .isPrivate(state.isPrivate())
@@ -79,7 +79,7 @@ public class Post {
                 .build();
     }
 
-    private static String resolveMaskedWriterName(PostCreateState state) {
+    private static String resolveWriterMaskedName(PostCreateState state) {
         if (state.getBoard().requiresWriterMasking()) {
             return ValueMasker.mask(state.getWriterName());
         }
@@ -99,7 +99,7 @@ public class Post {
                 .targetId(state.getTargetId())
                 .productImageUrl(state.getProductImageUrl())
                 .writerName(state.getWriterName())
-                .maskedWriterName(state.getMaskedWriterName())
+                .writerMaskedName(state.getWriterMaskedName())
                 .title(state.getTitle())
                 .content(state.getContent())
                 .isPrivate(state.isPrivate())

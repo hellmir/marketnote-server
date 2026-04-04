@@ -323,8 +323,8 @@ class GetUserProductInquiryPostsUseCaseTest {
     }
 
     @Test
-    @DisplayName("(관리자) 회원 상품 문의 내역 조회 시 응답에 maskedWriterName이 포함되지 않는다")
-    void getUserProductInquiryPosts_doesNotContainMaskedWriterName() {
+    @DisplayName("(관리자) 회원 상품 문의 내역 조회 시 응답에 writerMaskedName이 포함되지 않는다")
+    void getUserProductInquiryPosts_doesNotContainWriterMaskedName() {
         // given
         Long userId = 1L;
         GetUserProductInquiryPostsCommand command = new GetUserProductInquiryPostsCommand(
@@ -342,7 +342,7 @@ class GetUserProductInquiryPostsUseCaseTest {
 
         // then
         assertThat(result.posts()).hasSize(1);
-        // UserProductInquiryPostItemResult에는 maskedWriterName 필드가 존재하지 않음을 컴파일 타임에 보장
+        // UserProductInquiryPostItemResult에는 writerMaskedName 필드가 존재하지 않음을 컴파일 타임에 보장
         // writerName만 포함되어 있는지 검증
         assertThat(result.posts().getFirst().getWriterName()).isNotNull();
         assertThat(result.posts().getFirst()).hasNoNullFieldsOrPropertiesExcept(
@@ -416,7 +416,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 .targetType(PostTargetType.PRICE_POLICY)
                 .targetId(targetId)
                 .writerName(writerName)
-                .maskedWriterName("작*자")
+                .writerMaskedName("작*자")
                 .title("상품 문의 제목")
                 .content("상품 문의 내용")
                 .status(EntityStatus.ACTIVE)
