@@ -143,6 +143,10 @@ public class OutboxEventJpaEntity {
         this.discardedAt = discardedAt;
     }
 
+    public boolean isAlreadyResolved() {
+        return this.status.isDiscarded() || this.status.isPublished();
+    }
+
     private static String truncate(String value, int maxLength) {
         if (value == null || value.length() <= maxLength) {
             return value;
