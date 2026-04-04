@@ -833,7 +833,7 @@ class GetPostsUseCaseTest {
                 .build());
     }
 
-    private Post buildProductInqueryPostWithWriterName(Long id, Long userId, Long targetId, String writerName, String maskedWriterName) {
+    private Post buildProductInqueryPostWithWriterName(Long id, Long userId, Long targetId, String writerName, String writerMaskedName) {
         return Post.from(PostSnapshotState.builder()
                 .id(id)
                 .userId(userId)
@@ -842,7 +842,7 @@ class GetPostsUseCaseTest {
                 .targetType(PostTargetType.PRICE_POLICY)
                 .targetId(targetId)
                 .writerName(writerName)
-                .maskedWriterName(maskedWriterName)
+                .writerMaskedName(writerMaskedName)
                 .title("상품 문의 제목")
                 .content("상품 문의 내용")
                 .status(EntityStatus.ACTIVE)
