@@ -5,6 +5,8 @@ import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistory;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistoryCreateState;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
 import com.personal.marketnote.community.mapper.ReviewCommandToStateMapper;
 import com.personal.marketnote.community.port.in.command.review.RegisterReviewCommand;
@@ -12,6 +14,7 @@ import com.personal.marketnote.community.port.in.result.review.RegisterReviewRes
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.RegisterReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
+import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +30,11 @@ public class RegisterReviewService implements RegisterReviewUseCase {
     private final SaveReviewPort saveReviewPort;
     private final UpdateReviewPort updateReviewPort;
     private final PublishReviewEventPort publishReviewEventPort;
+    private final FindProfanityWordPort findProfanityWordPort;
 
     @Override
     public RegisterReviewResult registerReview(RegisterReviewCommand command) {
+        validateProfanity(command.content());
         getReviewUseCase.validateDuplicateReview(command);
         Long orderId = command.orderId();
         Long productId = command.productId();
@@ -66,5 +71,11 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         );
 
         return RegisterReviewResult.from(savedReview);
+    }
+
+    private void validateProfanity(String content) {
+        if (FormatValidator.hasValue(content) && findProfanityWordPort.containsProfanity(content)) {
+            throw new InvalidReviewContentContainsProfanityException();
+        }
     }
 }
