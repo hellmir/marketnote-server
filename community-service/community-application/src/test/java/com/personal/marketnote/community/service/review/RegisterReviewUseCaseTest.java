@@ -4,10 +4,12 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus
 import com.personal.marketnote.common.utility.ValueMasker;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
+import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
 import com.personal.marketnote.community.port.in.command.review.RegisterReviewCommand;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
+import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import org.junit.jupiter.api.DisplayName;
@@ -21,10 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterReviewUseCaseTest {
@@ -36,6 +38,8 @@ class RegisterReviewUseCaseTest {
     private UpdateReviewPort updateReviewPort;
     @Mock
     private PublishReviewEventPort publishReviewEventPort;
+    @Mock
+    private FindProfanityWordPort findProfanityWordPort;
 
     @InjectMocks
     private RegisterReviewService registerReviewService;
@@ -77,6 +81,10 @@ class RegisterReviewUseCaseTest {
     }
 
     private RegisterReviewCommand buildCommand(String reviewerName) {
+        return buildCommand(reviewerName, "배송이 빠르고 포장 상태도 좋았습니다.");
+    }
+
+    private RegisterReviewCommand buildCommand(String reviewerName, String content) {
         return RegisterReviewCommand.builder()
                 .reviewerId(1L)
                 .orderId(100L)
@@ -87,9 +95,37 @@ class RegisterReviewUseCaseTest {
                 .quantity(2)
                 .reviewerName(reviewerName)
                 .rating(5.0f)
-                .content("배송이 빠르고 포장 상태도 좋았습니다.")
+                .content(content)
                 .isPhoto(false)
                 .build();
+    }
+
+    @Test
+    @DisplayName("리뷰 등록 시 내용에 욕설이 포함되면 InvalidReviewContentContainsProfanityException이 발생한다")
+    void registerReview_contentContainsProfanity_throwsException() {
+        RegisterReviewCommand command = buildCommand("테스트유저", "욕설포함내용");
+        when(findProfanityWordPort.containsProfanity("욕설포함내용")).thenReturn(true);
+
+        assertThatThrownBy(() -> registerReviewService.registerReview(command))
+                .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
+
+        verifyNoInteractions(saveReviewPort);
+    }
+
+    @Test
+    @DisplayName("리뷰 등록 시 내용에 욕설이 없으면 정상 등록된다")
+    void registerReview_contentWithoutProfanity_succeeds() {
+        RegisterReviewCommand command = buildCommand("테스트유저", "좋은 상품입니다");
+        when(findProfanityWordPort.containsProfanity("좋은 상품입니다")).thenReturn(false);
+        Review savedReview = buildSavedReview(1L, command);
+        when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
+        when(getReviewUseCase.getProductReviewAggregate(anyLong()))
+                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+
+        registerReviewService.registerReview(command);
+
+        verify(findProfanityWordPort).containsProfanity("좋은 상품입니다");
+        verify(saveReviewPort).save(any(Review.class));
     }
 
     private Review buildSavedReview(Long id, RegisterReviewCommand command) {
