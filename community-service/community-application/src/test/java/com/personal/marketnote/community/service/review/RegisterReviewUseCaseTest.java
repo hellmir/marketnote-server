@@ -6,9 +6,12 @@ import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
+import com.personal.marketnote.community.exception.ReviewAlreadyExistsException;
+import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.community.port.in.command.review.RegisterReviewCommand;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
+import com.personal.marketnote.community.port.out.order.VerifyOrderOwnershipPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
@@ -40,6 +43,8 @@ class RegisterReviewUseCaseTest {
     private PublishReviewEventPort publishReviewEventPort;
     @Mock
     private FindProfanityWordPort findProfanityWordPort;
+    @Mock
+    private VerifyOrderOwnershipPort verifyOrderOwnershipPort;
 
     @InjectMocks
     private RegisterReviewService registerReviewService;
@@ -126,6 +131,61 @@ class RegisterReviewUseCaseTest {
 
         verify(findProfanityWordPort).containsProfanity("좋은 상품입니다");
         verify(saveReviewPort).save(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("리뷰 등록 시 주문 소유권 검증이 성공하면 리뷰가 정상 등록된다")
+    void registerReview_orderOwnershipVerified_succeeds() {
+        RegisterReviewCommand command = buildCommand("테스트유저");
+        Review savedReview = buildSavedReview(1L, command);
+        when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
+        when(getReviewUseCase.getProductReviewAggregate(command.productId()))
+                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+
+        registerReviewService.registerReview(command);
+
+        verify(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
+        verify(saveReviewPort).save(any(Review.class));
+    }
+
+    @Test
+    @DisplayName("리뷰 등록 시 주문 소유권 검증이 실패하면 UnauthorizedOrderAccessException이 발생한다")
+    void registerReview_orderOwnershipNotVerified_throwsException() {
+        RegisterReviewCommand command = buildCommand("테스트유저");
+        doThrow(new UnauthorizedOrderAccessException())
+                .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
+
+        assertThatThrownBy(() -> registerReviewService.registerReview(command))
+                .isInstanceOf(UnauthorizedOrderAccessException.class);
+
+        verifyNoInteractions(saveReviewPort);
+    }
+
+    @Test
+    @DisplayName("중복 리뷰 검증 실패 시 주문 소유권 검증을 수행하지 않는다")
+    void registerReview_duplicateReview_skipsOwnershipVerification() {
+        RegisterReviewCommand command = buildCommand("테스트유저");
+        doThrow(new ReviewAlreadyExistsException(command.orderId(), command.pricePolicyId()))
+                .when(getReviewUseCase).validateDuplicateReview(command);
+
+        assertThatThrownBy(() -> registerReviewService.registerReview(command))
+                .isInstanceOf(ReviewAlreadyExistsException.class);
+
+        verifyNoInteractions(verifyOrderOwnershipPort);
+        verifyNoInteractions(saveReviewPort);
+    }
+
+    @Test
+    @DisplayName("비속어 검증 실패 시 주문 소유권 검증을 수행하지 않는다")
+    void registerReview_profanityDetected_skipsOwnershipVerification() {
+        RegisterReviewCommand command = buildCommand("테스트유저", "욕설포함내용");
+        when(findProfanityWordPort.containsProfanity("욕설포함내용")).thenReturn(true);
+
+        assertThatThrownBy(() -> registerReviewService.registerReview(command))
+                .isInstanceOf(InvalidReviewContentContainsProfanityException.class);
+
+        verifyNoInteractions(verifyOrderOwnershipPort);
+        verifyNoInteractions(saveReviewPort);
     }
 
     private Review buildSavedReview(Long id, RegisterReviewCommand command) {
