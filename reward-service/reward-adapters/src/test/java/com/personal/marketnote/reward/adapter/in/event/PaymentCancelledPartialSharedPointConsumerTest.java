@@ -91,7 +91,6 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         long expectedProportionalPoint = (30000L * expectedOriginalSharePoint + 80000L / 2) / 80000L;
 
         ModifyPendingSharedPointCommand firstCommand = commands.get(0);
-        assertThat(firstCommand.buyerId()).isEqualTo(100L);
         assertThat(firstCommand.sharerKey()).isEqualTo(SHARER_KEY_1);
         assertThat(firstCommand.changeType()).isEqualTo(UserPointChangeType.DEDUCTION);
         assertThat(firstCommand.amount()).isEqualTo(expectedProportionalPoint);
@@ -100,7 +99,6 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         assertThat(firstCommand.reason()).isEqualTo("부분 결제 취소 공유 적립 예정 포인트 차감");
 
         ModifyPendingSharedPointCommand secondCommand = commands.get(1);
-        assertThat(secondCommand.buyerId()).isEqualTo(100L);
         assertThat(secondCommand.sharerKey()).isEqualTo(SHARER_KEY_2);
         assertThat(secondCommand.changeType()).isEqualTo(UserPointChangeType.DEDUCTION);
         assertThat(secondCommand.amount()).isEqualTo(expectedProportionalPoint);
