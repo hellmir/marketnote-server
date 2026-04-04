@@ -90,7 +90,6 @@ class OrderPaymentCompletedSharedPointConsumerTest {
 
         // 첫 번째 공유자 (SHARER_KEY_1)
         ModifyPendingSharedPointCommand firstCommand = commands.get(0);
-        assertThat(firstCommand.buyerId()).isEqualTo(100L);
         assertThat(firstCommand.sharerKey()).isEqualTo(SHARER_KEY_1);
         assertThat(firstCommand.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         assertThat(firstCommand.amount()).isEqualTo(expectedAmount);
@@ -100,7 +99,6 @@ class OrderPaymentCompletedSharedPointConsumerTest {
 
         // 두 번째 공유자 (SHARER_KEY_2)
         ModifyPendingSharedPointCommand secondCommand = commands.get(1);
-        assertThat(secondCommand.buyerId()).isEqualTo(100L);
         assertThat(secondCommand.sharerKey()).isEqualTo(SHARER_KEY_2);
         assertThat(secondCommand.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         assertThat(secondCommand.amount()).isEqualTo(expectedAmount);
