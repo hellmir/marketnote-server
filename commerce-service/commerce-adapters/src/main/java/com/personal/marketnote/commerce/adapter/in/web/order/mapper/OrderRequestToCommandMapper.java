@@ -1,8 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 
+import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.port.in.command.order.CancelOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderAmountCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
@@ -39,6 +41,15 @@ public class OrderRequestToCommandMapper {
                 .deliveryRequestType(request.getDeliveryRequestType())
                 .deliveryRequestMessage(request.getDeliveryRequestMessage())
                 .orderProducts(orderProducts)
+                .build();
+    }
+
+    public static CancelOrderCommand mapToCancelCommand(Long id, CancelOrderRequest request, Long buyerId) {
+        return CancelOrderCommand.builder()
+                .id(id)
+                .reasonCategory(request.getReasonCategory())
+                .reason(request.getReason())
+                .buyerId(buyerId)
                 .build();
     }
 

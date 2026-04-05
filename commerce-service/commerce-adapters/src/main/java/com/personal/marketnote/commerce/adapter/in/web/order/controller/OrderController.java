@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.web.order.controller;
 import com.personal.marketnote.commerce.adapter.in.web.order.controller.apidocs.*;
 import com.personal.marketnote.commerce.adapter.in.web.order.mapper.AdminOrderRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.mapper.OrderRequestToCommandMapper;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
@@ -48,6 +49,7 @@ public class OrderController {
     private final RegisterOrderUseCase registerOrderUseCase;
     private final UpdateUserShippingAddressDeliveryRequestPort updateUserShippingAddressDeliveryRequestPort;
     private final GetOrderUseCase getOrderUseCase;
+    private final CancelOrderUseCase cancelOrderUseCase;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
     private final GetAdminOrdersUseCase getAdminOrdersUseCase;
@@ -234,6 +236,40 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "나의 주문 내역 개수 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 주문 취소 요청
+     *
+     * @param id        주문 ID
+     * @param request   주문 취소 요청
+     * @param principal 인증된 사용자 정보
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 구매자가 주문 취소를 요청합니다. 주문 상태를 CANCEL_REQUESTED로 변경합니다.
+     */
+    @PostMapping("/api/v1/orders/{id}/cancel")
+    @CancelOrderApiDocs
+    public ResponseEntity<BaseResponse<Void>> cancelOrder(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CancelOrderRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        cancelOrderUseCase.cancelOrder(
+                OrderRequestToCommandMapper.mapToCancelCommand(id, request, buyerId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "주문 취소 요청 성공"
                 ),
                 HttpStatus.OK
         );
