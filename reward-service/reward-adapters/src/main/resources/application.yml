@@ -86,6 +86,25 @@ vendor:
       hash-key:
         android: ${ADISCOPE_ANDROID_HASH_KEY:abc}
         ios: ${ADISCOPE_IOS_HASH_KEY:def}
+  giftishow:
+    base-url: ${GIFTISHOW_BASE_URL:https://bizapi.giftishow.com}
+    api-code: ${GIFTISHOW_API_CODE:0000}
+    auth-code: ${GIFTISHOW_AUTH_CODE:0000}
+    auth-token: ${GIFTISHOW_AUTH_TOKEN:0000}
+    dev-yn: ${GIFTISHOW_DEV_YN:Y}
+    callback-no: ${GIFTISHOW_CALLBACK_NO:0000000000}
+    gubun: I
+    api:
+      product-list-path: /bizApi/goods
+      product-detail-path: /bizApi/goods
+      brand-list-path: /bizApi/brand
+      brand-detail-path: /bizApi/brand
+      coupon-send-path: /bizApi/coupon
+      coupon-detail-path: /bizApi/coupon/detail
+      coupon-cancel-path: /bizApi/coupon/cancel
+      coupon-resend-path: /bizApi/coupon/resend
+      biz-money-balance-path: /bizApi/bizMoney
+      coupon-send-fail-cancel-path: /bizApi/coupon/sendFailCancel
 
 logging:
   config: classpath:logback-spring.xml
