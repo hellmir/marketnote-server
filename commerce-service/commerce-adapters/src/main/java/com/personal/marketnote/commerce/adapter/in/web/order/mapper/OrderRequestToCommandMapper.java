@@ -4,7 +4,6 @@ import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrder
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestRefundRequest;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.in.command.order.*;
 
 import java.util.List;
@@ -74,15 +73,9 @@ public class OrderRequestToCommandMapper {
                 .reason(request.getReason())
                 .role(role)
                 .buyerId(buyerId)
-                .pickupAddress(ShippingAddress.of(
-                        request.getPickupRecipientName(),
-                        request.getPickupRecipientPhoneNumber(),
-                        request.getPickupZipCode(),
-                        request.getPickupAddress(),
-                        request.getPickupAddressDetail(),
-                        null,
-                        request.getPickupRequestMessage()
-                ))
+                .pickupAddressId(request.getPickupAddressId())
+                .pickupRequestType(request.getPickupRequestType())
+                .pickupRequestMessage(request.getPickupRequestMessage())
                 .build();
     }
 }
