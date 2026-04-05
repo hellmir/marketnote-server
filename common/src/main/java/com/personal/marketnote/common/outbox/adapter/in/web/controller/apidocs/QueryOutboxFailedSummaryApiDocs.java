@@ -21,19 +21,19 @@ import java.lang.annotation.*;
         summary = "(관리자) Outbox FAILED 토픽별 요약 조회",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 Outbox FAILED 이벤트의 토픽별 건수 요약을 조회합니다.
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | content | array | 토픽별 요약 목록 | - |
