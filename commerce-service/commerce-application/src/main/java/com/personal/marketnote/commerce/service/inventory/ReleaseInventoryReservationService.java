@@ -1,10 +1,10 @@
 package com.personal.marketnote.commerce.service.inventory;
 
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
 import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
+import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistories;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.inventory.ReleaseInventoryReservationUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.application.UseCase;
@@ -24,26 +24,23 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
-public class ReduceProductInventoryService implements ReduceProductInventoryUseCase {
+public class ReleaseInventoryReservationService implements ReleaseInventoryReservationUseCase {
     private final FindInventoryPort findInventoryPort;
     private final UpdateInventoryPort updateInventoryPort;
-    private final SaveInventoryDeductionHistoryPort saveInventoryDeductionHistoryPort;
+    private final FindInventoryReservationPort findInventoryReservationPort;
+    private final DeleteInventoryReservationPort deleteInventoryReservationPort;
+    private final SaveInventoryRestorationHistoryPort saveInventoryRestorationHistoryPort;
     private final SaveCacheStockPort saveCacheStockPort;
     private final InventoryLockPort inventoryLockPort;
     private final PublishInventoryEventPort publishInventoryEventPort;
-    private final FindInventoryReservationPort findInventoryReservationPort;
-    private final DeleteInventoryReservationPort deleteInventoryReservationPort;
 
     @Override
-    public void reduce(List<OrderProduct> orderProducts, Long orderId, String reason) {
+    public void release(List<OrderProduct> orderProducts, Long orderId, String reason) {
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
-                .collect(
-                        Collectors.groupingBy(
-                                OrderProduct::getPricePolicyId, Collectors.summingInt(OrderProduct::getQuantity)
-                        )
-                );
+                .collect(Collectors.groupingBy(
+                        OrderProduct::getPricePolicyId, Collectors.summingInt(OrderProduct::getQuantity)
+                ));
 
-        // Redisson Pub/Sub 모델 분산 락 기반의 동시성 제어
         inventoryLockPort.executeWithLock(stocksByPricePolicyId.keySet(), () -> {
             Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(stocksByPricePolicyId.keySet());
 
@@ -59,10 +56,10 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
                 int quantity = stocksByPricePolicyId.get(inventory.getPricePolicyId());
                 InventoryReservation reservation = reservationByPricePolicyId.get(inventory.getPricePolicyId());
                 if (FormatValidator.hasValue(reservation)) {
-                    inventory.confirmReservation(reservation.getQuantity());
+                    inventory.releaseReservation(reservation.getQuantity());
                     return;
                 }
-                inventory.reduce(quantity);
+                inventory.restore(quantity);
             });
 
             if (!reservedPricePolicyIds.isEmpty()) {
@@ -70,13 +67,15 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
             }
 
             updateInventoryPort.update(inventories);
+
             Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
             inventories.forEach(inventory ->
                     productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
             );
-            saveInventoryDeductionHistoryPort.save(
-                    InventoryDeductionHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
+            saveInventoryRestorationHistoryPort.save(
+                    InventoryRestorationHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
             );
+
             saveCacheStockPort.save(inventories);
 
             inventories.forEach(inventory ->
