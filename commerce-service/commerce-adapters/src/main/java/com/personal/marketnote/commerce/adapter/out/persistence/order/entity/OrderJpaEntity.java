@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.delivery.PickupRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;
 import lombok.*;
@@ -104,7 +105,7 @@ public class OrderJpaEntity extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "pickup_delivery_request_type", length = 31)
-    private DeliveryRequestType pickupDeliveryRequestType;
+    private PickupRequestType pickupDeliveryRequestType;
 
     @Column(name = "pickup_request_message", length = 60)
     private String pickupDeliveryRequestMessage;
@@ -136,7 +137,7 @@ public class OrderJpaEntity extends BaseEntity {
                 .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
                 .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
                 .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
-                .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getDeliveryRequestType))
+                .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getPickupRequestType))
                 .pickupDeliveryRequestMessage(resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage))
                 .build();
     }
@@ -157,7 +158,7 @@ public class OrderJpaEntity extends BaseEntity {
         pickupZipCode = resolvePickupField(order, ShippingAddress::getZipCode);
         pickupAddress = resolvePickupField(order, ShippingAddress::getAddress);
         pickupAddressDetail = resolvePickupField(order, ShippingAddress::getAddressDetail);
-        pickupDeliveryRequestType = resolvePickupField(order, ShippingAddress::getDeliveryRequestType);
+        pickupDeliveryRequestType = resolvePickupField(order, ShippingAddress::getPickupRequestType);
         pickupDeliveryRequestMessage = resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage);
 
         Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()

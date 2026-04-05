@@ -2,7 +2,7 @@ package com.personal.marketnote.commerce.port.in.command.order;
 
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.common.domain.delivery.PickupRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.Builder;
 
@@ -17,7 +17,9 @@ public record ChangeOrderStatusCommand(
         String reason,
         String role,
         Long buyerId,
-        ShippingAddress pickupAddress,
+        Long pickupAddressId,
+        PickupRequestType pickupRequestType,
+        String pickupRequestMessage,
         Boolean skipSubsequentProcesses
 ) {
     private static final String BUYER_ROLE = "BUYER";
@@ -47,5 +49,9 @@ public record ChangeOrderStatusCommand(
 
     public boolean shouldSkipSubsequentProcesses() {
         return Boolean.TRUE.equals(skipSubsequentProcesses);
+    }
+
+    public boolean hasPickupAddressId() {
+        return FormatValidator.hasValue(pickupAddressId);
     }
 }
