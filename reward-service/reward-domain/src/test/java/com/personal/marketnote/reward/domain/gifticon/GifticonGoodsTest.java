@@ -166,8 +166,19 @@ class GifticonGoodsTest {
                     .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
                     .build());
 
-            goods.syncFromApi("스타벅스 카페라떼", "B001", "스타벅스", "https://example.com/brand2.jpg",
-                    "3", 5500L, 5000L, "https://example.com/image2.jpg", "새 설명", 90, "SALE");
+            goods.syncFromApi(GifticonGoodsSyncState.builder()
+                    .goodsName("스타벅스 카페라떼")
+                    .brandCode("B001")
+                    .brandName("스타벅스")
+                    .brandImageUrl("https://example.com/brand2.jpg")
+                    .categoryCode("3")
+                    .realPrice(5500L)
+                    .salePrice(5000L)
+                    .imageUrl("https://example.com/image2.jpg")
+                    .description("새 설명")
+                    .validDays(90)
+                    .goodsStatus("SALE")
+                    .build());
 
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 카페라떼");
             assertThat(goods.getRealPrice()).isEqualTo(5500L);

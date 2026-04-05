@@ -106,6 +106,12 @@ vendor:
       biz-money-balance-path: /bizApi/bizMoney
       coupon-send-fail-cancel-path: /bizApi/coupon/sendFailCancel
 
+gifticon:
+  sync:
+    scheduler:
+      enabled: ${GIFTICON_SYNC_SCHEDULER_ENABLED:false}
+      cron: ${GIFTICON_SYNC_SCHEDULER_CRON:0 0 3 * * MON,WED,FRI}
+
 logging:
   config: classpath:logback-spring.xml
   level:
