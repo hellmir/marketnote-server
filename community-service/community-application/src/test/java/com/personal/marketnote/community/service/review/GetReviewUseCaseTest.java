@@ -489,6 +489,101 @@ class GetReviewUseCaseTest {
         verifyNoInteractions(getLikeUseCase, findReviewImagesPort, findProductByPricePolicyPort, findOrderProductPort);
     }
 
+    // ========== getReviewDetail unitAmount fallback ==========
+
+    @Test
+    @DisplayName("리뷰 상세 조회 시 Review에 unitAmount가 저장되어 있으면 findOrderProductPort를 호출하지 않는다")
+    void getReviewDetail_withStoredUnitAmount_skipsOrderProductPortCall() {
+        // given
+        Long reviewId = 201L;
+        Long userId = 10L;
+        Long pricePolicyId = 2001L;
+        Long storedUnitAmount = 15000L;
+        Review review = buildReviewWithUnitAmount(reviewId, userId, 20L, pricePolicyId, false, storedUnitAmount);
+
+        when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
+        when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
+
+        ProductInfoResult productInfo = new ProductInfoResult(
+                1L, "테스트 상품", "테스트 브랜드",
+                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
+                List.of(),
+                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
+        );
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, productInfo));
+
+        // when
+        ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
+
+        // then
+        assertThat(result.product()).isNotNull();
+        assertThat(result.product().unitAmount()).isEqualTo(storedUnitAmount);
+        verifyNoInteractions(findOrderProductPort);
+    }
+
+    @Test
+    @DisplayName("리뷰 상세 조회 시 Review에 unitAmount가 null이면 findOrderProductPort를 호출하여 가져온다")
+    void getReviewDetail_withoutStoredUnitAmount_fallsBackToOrderProductPort() {
+        // given
+        Long reviewId = 202L;
+        Long userId = 10L;
+        Long pricePolicyId = 2002L;
+        Long fallbackUnitAmount = 18000L;
+        Review review = buildReview(reviewId, userId, 20L, pricePolicyId, false);
+
+        when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
+        when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
+
+        ProductInfoResult productInfo = new ProductInfoResult(
+                1L, "테스트 상품", "테스트 브랜드",
+                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 18000L, BigDecimal.valueOf(10), 100L),
+                List.of(),
+                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
+        );
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, productInfo));
+        when(findOrderProductPort.findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId))
+                .thenReturn(Optional.of(fallbackUnitAmount));
+
+        // when
+        ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
+
+        // then
+        assertThat(result.product()).isNotNull();
+        assertThat(result.product().unitAmount()).isEqualTo(fallbackUnitAmount);
+        verify(findOrderProductPort).findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId);
+    }
+
+    private Review buildReviewWithUnitAmount(
+            Long id, Long reviewerId, Long productId, Long pricePolicyId, boolean isPhoto, Long unitAmount
+    ) {
+        return Review.from(
+                ReviewSnapshotState.builder()
+                        .id(id)
+                        .reviewerId(reviewerId)
+                        .orderId(1000L + id)
+                        .productId(productId)
+                        .pricePolicyId(pricePolicyId)
+                        .productImageUrl("https://example.com/product-" + productId + ".jpg")
+                        .selectedOptions("옵션-" + id)
+                        .quantity(1)
+                        .reviewerName("사용자-" + id)
+                        .maskedReviewerName("사*자-" + id)
+                        .rating(5.0f)
+                        .content("리뷰-" + id)
+                        .isPhoto(isPhoto)
+                        .isEdited(false)
+                        .likeCount(3)
+                        .status(EntityStatus.ACTIVE)
+                        .createdAt(LocalDateTime.now())
+                        .modifiedAt(LocalDateTime.now())
+                        .orderNum(id)
+                        .unitAmount(unitAmount)
+                        .build()
+        );
+    }
+
     private Review buildReview(
             Long id,
             Long reviewerId,
