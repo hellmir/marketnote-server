@@ -10,6 +10,7 @@ import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusFilter;
+import com.personal.marketnote.commerce.port.in.command.order.ConfirmOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHistoryQuery;
 import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProductReviewStatusCommand;
 import com.personal.marketnote.commerce.port.in.result.order.*;
@@ -50,6 +51,7 @@ public class OrderController {
     private final UpdateUserShippingAddressDeliveryRequestPort updateUserShippingAddressDeliveryRequestPort;
     private final GetOrderUseCase getOrderUseCase;
     private final CancelOrderUseCase cancelOrderUseCase;
+    private final ConfirmOrderUseCase confirmOrderUseCase;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
     private final GetAdminOrdersUseCase getAdminOrdersUseCase;
@@ -270,6 +272,41 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "주문 취소 요청 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 구매 확정
+     *
+     * @param id        주문 ID
+     * @param principal 인증된 사용자 정보
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 구매자가 구매 확정을 요청합니다. 주문 상태를 CONFIRMED로 변경합니다.
+     */
+    @PostMapping("/api/v1/orders/{id}/confirm")
+    @ConfirmOrderApiDocs
+    public ResponseEntity<BaseResponse<Void>> confirmOrder(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        confirmOrderUseCase.confirmOrder(
+                ConfirmOrderCommand.builder()
+                        .id(id)
+                        .buyerId(buyerId)
+                        .build()
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "구매 확정 성공"
                 ),
                 HttpStatus.OK
         );
