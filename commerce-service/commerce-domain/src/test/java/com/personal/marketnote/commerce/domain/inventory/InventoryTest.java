@@ -244,6 +244,77 @@ class InventoryTest {
     }
 
     @Nested
+    @DisplayName("validateIsSufficient")
+    class ValidateIsSufficient {
+
+        @Test
+        @DisplayName("가용재고가 주문 수량보다 많으면 예외가 발생하지 않는다")
+        void shouldNotThrowWhenAvailableStockIsGreaterThanOrderQuantity() {
+            // given
+            Inventory inventory = createInventory(10, 0);
+
+            // when & then
+            inventory.validateIsSufficient(5);
+        }
+
+        @Test
+        @DisplayName("가용재고와 주문 수량이 같으면 예외가 발생하지 않는다")
+        void shouldNotThrowWhenAvailableStockEqualsOrderQuantity() {
+            // given
+            Inventory inventory = createInventory(10, 3);
+
+            // when & then
+            inventory.validateIsSufficient(7);
+        }
+
+        @Test
+        @DisplayName("가용재고가 주문 수량보다 적으면 InsufficientAvailableStockException이 발생한다")
+        void shouldThrowWhenAvailableStockIsLessThanOrderQuantity() {
+            // given
+            Inventory inventory = createInventory(10, 3);
+
+            // when & then
+            assertThatThrownBy(() -> inventory.validateIsSufficient(8))
+                    .isInstanceOf(InsufficientAvailableStockException.class);
+        }
+
+        @Test
+        @DisplayName("예약이 있어 총 재고는 충분하지만 가용재고가 부족하면 InsufficientAvailableStockException이 발생한다")
+        void shouldThrowWhenStockIsSufficientButAvailableStockIsNot() {
+            // given
+            Inventory inventory = createInventory(10, 8);
+
+            // when & then
+            assertThatThrownBy(() -> inventory.validateIsSufficient(5))
+                    .isInstanceOf(InsufficientAvailableStockException.class);
+        }
+
+        @Test
+        @DisplayName("예외 메시지에 가용재고와 요청 수량이 포함된다")
+        void shouldIncludeAvailableStockAndRequestedQuantityInMessage() {
+            // given
+            Inventory inventory = createInventory(10, 7);
+
+            // when & then
+            assertThatThrownBy(() -> inventory.validateIsSufficient(5))
+                    .isInstanceOf(InsufficientAvailableStockException.class)
+                    .hasMessageContaining("현재 가용재고: 3")
+                    .hasMessageContaining("요청 수량: 5");
+        }
+
+        @Test
+        @DisplayName("예약이 0이면 총 재고 기준으로 검증한다")
+        void shouldValidateAgainstTotalStockWhenReservedIsZero() {
+            // given
+            Inventory inventory = createInventory(5, 0);
+
+            // when & then
+            assertThatThrownBy(() -> inventory.validateIsSufficient(6))
+                    .isInstanceOf(InsufficientAvailableStockException.class);
+        }
+    }
+
+    @Nested
     @DisplayName("from SnapshotState")
     class FromSnapshotState {
 
