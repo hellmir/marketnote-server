@@ -6,19 +6,23 @@ import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
 import com.personal.marketnote.commerce.domain.inventory.InventoryReservationSnapshotState;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryReservationException;
 import com.personal.marketnote.commerce.port.out.inventory.DeleteInventoryReservationPort;
+import com.personal.marketnote.commerce.port.out.inventory.FindExpiredInventoryReservationPort;
 import com.personal.marketnote.commerce.port.out.inventory.FindInventoryReservationPort;
 import com.personal.marketnote.commerce.port.out.inventory.SaveInventoryReservationPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class InventoryReservationPersistenceAdapter implements
-        SaveInventoryReservationPort, FindInventoryReservationPort, DeleteInventoryReservationPort {
+        SaveInventoryReservationPort, FindInventoryReservationPort, FindExpiredInventoryReservationPort, DeleteInventoryReservationPort {
+    private static final int EXPIRED_RESERVATION_BATCH_SIZE = 500;
     private final InventoryReservationJpaRepository inventoryReservationJpaRepository;
 
     @Override
@@ -42,14 +46,27 @@ public class InventoryReservationPersistenceAdapter implements
     public List<InventoryReservation> findByOrderIdAndPricePolicyIds(Long orderId, Set<Long> pricePolicyIds) {
         return inventoryReservationJpaRepository.findByOrderIdAndPricePolicyIdIn(orderId, pricePolicyIds)
                 .stream()
-                .map(entity -> InventoryReservation.from(InventoryReservationSnapshotState.builder()
-                        .id(entity.getId())
-                        .orderId(entity.getOrderId())
-                        .pricePolicyId(entity.getPricePolicyId())
-                        .quantity(entity.getQuantity())
-                        .reservedAt(entity.getReservedAt())
-                        .build()))
+                .map(this::mapToDomain)
                 .toList();
+    }
+
+    @Override
+    public List<InventoryReservation> findExpiredBefore(LocalDateTime cutoff) {
+        return inventoryReservationJpaRepository
+                .findByReservedAtBefore(cutoff, PageRequest.of(0, EXPIRED_RESERVATION_BATCH_SIZE))
+                .stream()
+                .map(this::mapToDomain)
+                .toList();
+    }
+
+    private InventoryReservation mapToDomain(InventoryReservationJpaEntity entity) {
+        return InventoryReservation.from(InventoryReservationSnapshotState.builder()
+                .id(entity.getId())
+                .orderId(entity.getOrderId())
+                .pricePolicyId(entity.getPricePolicyId())
+                .quantity(entity.getQuantity())
+                .reservedAt(entity.getReservedAt())
+                .build());
     }
 
     @Override
