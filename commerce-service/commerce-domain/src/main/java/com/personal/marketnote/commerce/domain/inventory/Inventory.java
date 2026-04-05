@@ -117,6 +117,9 @@ public class Inventory {
     }
 
     public void validateIsSufficient(int orderQuantity) {
-        stock.validateIsSufficient(orderQuantity);
+        int available = availableStock();
+        if (available < orderQuantity) {
+            throw new InsufficientAvailableStockException(available, orderQuantity);
+        }
     }
 }
