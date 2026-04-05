@@ -1,7 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.web.order.controller;
 
+import com.personal.marketnote.commerce.adapter.in.web.order.controller.apidocs.GetInternalOrderProductApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.order.controller.apidocs.VerifyOrderOwnershipApiDocs;
+import com.personal.marketnote.commerce.adapter.in.web.order.response.InternalOrderProductResponse;
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
@@ -56,6 +59,31 @@ public class InternalOrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "주문 소유권 확인 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 주문 상품 조회 (서비스 간 통신용)
+     *
+     * @param orderId       주문 ID
+     * @param pricePolicyId 가격 정책 ID
+     */
+    @GetInternalOrderProductApiDocs
+    @GetMapping("/{orderId}/order-products/{pricePolicyId}")
+    public ResponseEntity<BaseResponse<InternalOrderProductResponse>> getOrderProduct(
+            @PathVariable Long orderId,
+            @PathVariable Long pricePolicyId
+    ) {
+        OrderProduct orderProduct = getOrderUseCase.getOrderProduct(orderId, pricePolicyId);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        InternalOrderProductResponse.from(orderProduct),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "주문 상품 조회 성공"
                 ),
                 HttpStatus.OK
         );

@@ -8,7 +8,8 @@ public record ReviewProductInfoResult(
         String name,
         String brandName,
         ReviewProductPricePolicyResult pricePolicy,
-        GetFileResult catalogImage
+        GetFileResult catalogImage,
+        Long unitAmount
 ) {
     public static ReviewProductInfoResult from(ProductInfoResult productInfo) {
         if (FormatValidator.hasNoValue(productInfo)) {
@@ -19,7 +20,22 @@ public record ReviewProductInfoResult(
                 productInfo.name(),
                 productInfo.brandName(),
                 ReviewProductPricePolicyResult.from(productInfo.pricePolicy()),
-                productInfo.catalogImage()
+                productInfo.catalogImage(),
+                null
+        );
+    }
+
+    public static ReviewProductInfoResult from(ProductInfoResult productInfo, Long unitAmount) {
+        if (FormatValidator.hasNoValue(productInfo)) {
+            return null;
+        }
+
+        return new ReviewProductInfoResult(
+                productInfo.name(),
+                productInfo.brandName(),
+                ReviewProductPricePolicyResult.from(productInfo.pricePolicy()),
+                productInfo.catalogImage(),
+                unitAmount
         );
     }
 }
