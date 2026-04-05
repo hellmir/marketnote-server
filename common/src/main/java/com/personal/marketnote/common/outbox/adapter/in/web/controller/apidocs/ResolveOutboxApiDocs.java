@@ -21,29 +21,29 @@ import java.lang.annotation.*;
         summary = "(관리자) Outbox FAILED 이벤트 해결",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 Outbox FAILED 이벤트를 RETRY(재시도) 또는 DISCARD(폐기)로 해결합니다.
-
+                
                 ---
-
+                
                 ## Request Body
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | id | number | 이벤트 ID | Y | 1 |
                 | action | string | 처리 액션 (RETRY / DISCARD) | Y | "RETRY" |
                 | reason | string | 처리 사유 (최대 500자) | N | "수동 재시도" |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 이벤트 ID | 1 |
