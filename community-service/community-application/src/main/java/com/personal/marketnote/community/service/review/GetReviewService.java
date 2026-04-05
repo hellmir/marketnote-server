@@ -17,6 +17,7 @@ import com.personal.marketnote.community.port.in.result.review.*;
 import com.personal.marketnote.community.port.in.usecase.like.GetLikeUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.out.file.FindReviewImagesPort;
+import com.personal.marketnote.community.port.out.order.FindOrderProductPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.community.port.out.review.FindReviewPort;
@@ -44,6 +45,7 @@ public class GetReviewService implements GetReviewUseCase {
     private final FindReviewPort findReviewPort;
     private final FindReviewImagesPort findReviewImagesPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
+    private final FindOrderProductPort findOrderProductPort;
     private final GetLikeUseCase getLikeUseCase;
 
     @Override
@@ -206,6 +208,56 @@ public class GetReviewService implements GetReviewUseCase {
         long totalCount = findReviewPort.countActive(userId);
 
         return GetReviewCountResult.of(totalCount);
+    }
+
+    @Override
+    public ReviewItemResult getReviewDetail(Long id, Long userId) {
+        Review review = findReviewPort.findById(id)
+                .orElseThrow(() -> new ReviewNotFoundException(id));
+
+        if (FormatValidator.hasValue(userId)) {
+            review.updateIsUserLiked(
+                    getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, review.getId(), userId)
+            );
+        }
+
+        List<GetFileResult> images = findReviewDetailImages(review);
+        ReviewProductInfoResult product = findReviewDetailProductInfo(review);
+
+        return ReviewItemResult.from(review, images, product);
+    }
+
+    private List<GetFileResult> findReviewDetailImages(Review review) {
+        if (!Boolean.TRUE.equals(review.getIsPhoto())) {
+            return null;
+        }
+
+        return findReviewImagesPort.findImagesByReviewIdAndSort(review.getId(), REVIEW_IMAGE)
+                .map(result -> result.images())
+                .orElse(null);
+    }
+
+    private ReviewProductInfoResult findReviewDetailProductInfo(Review review) {
+        Long pricePolicyId = review.getPricePolicyId();
+        if (FormatValidator.hasNoValue(pricePolicyId)) {
+            return null;
+        }
+
+        Map<Long, ProductInfoResult> productInfoMap
+                = findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId));
+        ProductInfoResult productInfo = productInfoMap.get(pricePolicyId);
+        if (FormatValidator.hasNoValue(productInfo)) {
+            return null;
+        }
+
+        Long unitAmount = null;
+        if (FormatValidator.hasValue(review.getOrderId())) {
+            unitAmount = findOrderProductPort
+                    .findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId)
+                    .orElse(null);
+        }
+
+        return ReviewProductInfoResult.from(productInfo, unitAmount);
     }
 
     @Override

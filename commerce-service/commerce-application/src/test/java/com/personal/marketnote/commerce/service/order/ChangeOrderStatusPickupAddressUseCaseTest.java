@@ -47,7 +47,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
     @Mock
     private FindUserShippingAddressPort findUserShippingAddressPort;
     @Spy
-    private Clock clock = Clock.fixed(Instant.parse("2026-04-03T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+    private Clock clock = Clock.fixed(Instant.parse("2026-04-05T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @InjectMocks
     private ChangeOrderStatusService changeOrderStatusService;
