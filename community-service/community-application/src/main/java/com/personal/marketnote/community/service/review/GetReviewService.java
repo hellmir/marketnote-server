@@ -250,8 +250,8 @@ public class GetReviewService implements GetReviewUseCase {
             return null;
         }
 
-        Long unitAmount = null;
-        if (FormatValidator.hasValue(review.getOrderId())) {
+        Long unitAmount = review.getUnitAmount();
+        if (FormatValidator.hasNoValue(unitAmount) && FormatValidator.hasValue(review.getOrderId())) {
             unitAmount = findOrderProductPort
                     .findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId)
                     .orElse(null);
