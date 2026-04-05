@@ -20,6 +20,15 @@ public class GifticonCategory {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
+    public static GifticonCategory from(GifticonCategoryCreateState state) {
+        return GifticonCategory.builder()
+                .categoryCode(state.getCategoryCode())
+                .categoryName(state.getCategoryName())
+                .exposed(false)
+                .orderNum(null)
+                .build();
+    }
+
     public static GifticonCategory from(GifticonCategorySnapshotState state) {
         return GifticonCategory.builder()
                 .id(state.getId())
@@ -59,5 +68,9 @@ public class GifticonCategory {
 
     public void changeOrderNum(Integer orderNum) {
         this.orderNum = orderNum;
+    }
+
+    public void syncFromApi(String categoryName) {
+        this.categoryName = categoryName;
     }
 }

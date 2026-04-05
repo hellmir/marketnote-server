@@ -71,20 +71,18 @@ public class GifticonGoods {
                 .build();
     }
 
-    public void syncFromApi(String goodsName, String brandCode, String brandName, String brandImageUrl,
-                            String categoryCode, Long realPrice, Long salePrice, String imageUrl,
-                            String description, Integer validDays, String goodsStatus) {
-        this.goodsName = goodsName;
-        this.brandCode = brandCode;
-        this.brandName = brandName;
-        this.brandImageUrl = brandImageUrl;
-        this.categoryCode = categoryCode;
-        this.realPrice = realPrice;
-        this.salePrice = salePrice;
-        this.imageUrl = imageUrl;
-        this.description = description;
-        this.validDays = validDays;
-        this.goodsStatus = goodsStatus;
+    public void syncFromApi(GifticonGoodsSyncState state) {
+        this.goodsName = state.getGoodsName();
+        this.brandCode = state.getBrandCode();
+        this.brandName = state.getBrandName();
+        this.brandImageUrl = state.getBrandImageUrl();
+        this.categoryCode = state.getCategoryCode();
+        this.realPrice = state.getRealPrice();
+        this.salePrice = state.getSalePrice();
+        this.imageUrl = state.getImageUrl();
+        this.description = state.getDescription();
+        this.validDays = state.getValidDays();
+        this.goodsStatus = state.getGoodsStatus();
     }
 
     public void expose() {
@@ -101,5 +99,12 @@ public class GifticonGoods {
 
     public boolean isSale() {
         return "SALE".equals(this.goodsStatus);
+    }
+
+    public void suspend() {
+        if (!isSale()) {
+            return;
+        }
+        this.goodsStatus = "SUS";
     }
 }
