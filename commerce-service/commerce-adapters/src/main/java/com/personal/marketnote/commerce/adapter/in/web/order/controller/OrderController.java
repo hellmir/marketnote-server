@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.adapter.in.web.order.mapper.OrderRequest
 import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestRefundRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
@@ -51,6 +52,7 @@ public class OrderController {
     private final UpdateUserShippingAddressDeliveryRequestPort updateUserShippingAddressDeliveryRequestPort;
     private final GetOrderUseCase getOrderUseCase;
     private final CancelOrderUseCase cancelOrderUseCase;
+    private final RequestRefundUseCase requestRefundUseCase;
     private final ConfirmOrderUseCase confirmOrderUseCase;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
@@ -272,6 +274,40 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "주문 취소 요청 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 환불(반품) 요청
+     *
+     * @param id        주문 ID
+     * @param request   환불 요청
+     * @param principal 인증된 사용자 정보
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 구매자가 환불(반품)을 요청합니다. 주문 상태를 REFUND_REQUESTED로 변경합니다.
+     */
+    @PostMapping("/api/v1/orders/{id}/refund-request")
+    @RequestRefundApiDocs
+    public ResponseEntity<BaseResponse<Void>> requestRefund(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody RequestRefundRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        requestRefundUseCase.requestRefund(
+                OrderRequestToCommandMapper.mapToRefundRequestCommand(id, request, buyerId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "환불(반품) 요청 성공"
                 ),
                 HttpStatus.OK
         );

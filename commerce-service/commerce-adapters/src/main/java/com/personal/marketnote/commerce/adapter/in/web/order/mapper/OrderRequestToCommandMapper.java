@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestRefundRequest;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.in.command.order.*;
 
@@ -46,6 +47,21 @@ public class OrderRequestToCommandMapper {
                 .reasonCategory(request.getReasonCategory())
                 .reason(request.getReason())
                 .buyerId(buyerId)
+                .build();
+    }
+
+    public static RequestRefundCommand mapToRefundRequestCommand(Long id, RequestRefundRequest request, Long buyerId) {
+        return RequestRefundCommand.builder()
+                .id(id)
+                .reasonCategory(request.getReasonCategory())
+                .reason(request.getReason())
+                .buyerId(buyerId)
+                .pickupRecipientName(request.getPickupRecipientName())
+                .pickupRecipientPhoneNumber(request.getPickupRecipientPhoneNumber())
+                .pickupZipCode(request.getPickupZipCode())
+                .pickupAddress(request.getPickupAddress())
+                .pickupAddressDetail(request.getPickupAddressDetail())
+                .pickupRequestMessage(request.getPickupRequestMessage())
                 .build();
     }
 
