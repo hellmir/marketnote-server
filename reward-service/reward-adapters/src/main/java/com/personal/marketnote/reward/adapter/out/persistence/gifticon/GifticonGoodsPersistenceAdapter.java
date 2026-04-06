@@ -9,6 +9,8 @@ import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonGoodsPort;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,5 +44,15 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
         GifticonGoodsJpaEntity entity = repository.findById(goods.getId())
                 .orElseThrow(() -> new GifticonGoodsNotFoundException(goods.getGoodsCode()));
         entity.updateFrom(goods);
+    }
+
+    @Override
+    public FindAllForAdminResult findAllForAdmin(int page, int pageSize, String goodsStatus, Boolean exposed, String keyword) {
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
+        Page<GifticonGoodsJpaEntity> pageResult = repository.findAllForAdmin(goodsStatus, exposed, keyword, pageRequest);
+        List<GifticonGoods> items = pageResult.getContent().stream()
+                .map(GifticonGoodsJpaEntity::toDomain)
+                .toList();
+        return new FindAllForAdminResult(items, pageResult.getTotalElements());
     }
 }
