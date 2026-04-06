@@ -10,6 +10,7 @@ import com.personal.marketnote.reward.domain.gifticon.GifticonCategory;
 import com.personal.marketnote.reward.port.out.gifticon.*;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @PersistenceAdapter
@@ -31,6 +32,13 @@ public class GifticonCategoryPersistenceAdapter implements
     public Optional<GifticonCategory> findById(Long id) {
         return categoryRepository.findById(id)
                 .map(GifticonCategoryJpaEntity::toDomain);
+    }
+
+    @Override
+    public List<GifticonCategory> findAllOrderByOrderNumAsc() {
+        return categoryRepository.findAllByOrderByOrderNumAsc().stream()
+                .map(GifticonCategoryJpaEntity::toDomain)
+                .toList();
     }
 
     @Override

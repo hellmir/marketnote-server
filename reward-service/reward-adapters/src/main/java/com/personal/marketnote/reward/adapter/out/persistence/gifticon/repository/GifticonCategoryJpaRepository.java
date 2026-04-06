@@ -3,9 +3,12 @@ package com.personal.marketnote.reward.adapter.out.persistence.gifticon.reposito
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity.GifticonCategoryJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface GifticonCategoryJpaRepository extends JpaRepository<GifticonCategoryJpaEntity, Long> {
 
     Optional<GifticonCategoryJpaEntity> findByCategoryCode(String categoryCode);
+
+    List<GifticonCategoryJpaEntity> findAllByOrderByOrderNumAsc();
 }
