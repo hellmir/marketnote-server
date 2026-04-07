@@ -30,6 +30,30 @@ public interface GifticonGoodsJpaRepository extends JpaRepository<GifticonGoodsJ
 
     @Query(value = """
             SELECT g FROM GifticonGoodsJpaEntity g
+            WHERE g.exposed = true
+              AND g.goodsStatus = 'SALE'
+              AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
+              AND (:brandCode = '' OR g.brandCode = :brandCode)
+            ORDER BY
+                CASE WHEN g.orderNum IS NULL THEN 1 ELSE 0 END,
+                g.orderNum ASC,
+                g.createdAt DESC
+            """,
+            countQuery = """
+            SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
+            WHERE g.exposed = true
+              AND g.goodsStatus = 'SALE'
+              AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
+              AND (:brandCode = '' OR g.brandCode = :brandCode)
+            """)
+    Page<GifticonGoodsJpaEntity> findAllExposed(
+            @Param("categoryCode") String categoryCode,
+            @Param("brandCode") String brandCode,
+            Pageable pageable
+    );
+
+    @Query(value = """
+            SELECT g FROM GifticonGoodsJpaEntity g
             WHERE (:goodsStatus = '' OR g.goodsStatus = :goodsStatus)
             AND (:exposed IS NULL OR g.exposed = :exposed)
             AND (:keyword = '' OR g.goodsName LIKE CONCAT('%', :keyword, '%'))
