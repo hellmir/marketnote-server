@@ -1,19 +1,24 @@
 package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetGifticonGoodsApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetGifticonGoodsDetailApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetGifticonGoodsDetailResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetGifticonGoodsResponse;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsCommand;
+import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsDetailCommand;
+import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsDetailResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsResult;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.GetGifticonGoodsDetailUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetGifticonGoodsUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.DEFAULT_PAGE_NUMBER;
@@ -25,6 +30,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.DEFAULT_PAGE_NU
 public class GifticonGoodsController {
 
     private final GetGifticonGoodsUseCase getGifticonGoodsUseCase;
+    private final GetGifticonGoodsDetailUseCase getGifticonGoodsDetailUseCase;
 
     /**
      * 기프티콘 상품 목록 조회
@@ -56,6 +62,37 @@ public class GifticonGoodsController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "기프티콘 상품 목록 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * 기프티콘 상품 상세 조회
+     *
+     * @param goodsCode 상품 코드
+     * @param principal 인증된 사용자 정보
+     * @return 상품 상세 응답 {@link GetGifticonGoodsDetailResponse}
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 기프티콘 상품 상세 정보와 사용자 캐시 잔액을 조회합니다.
+     */
+    @GetMapping("/goods/{goodsCode}")
+    @GetGifticonGoodsDetailApiDocs
+    public ResponseEntity<BaseResponse<GetGifticonGoodsDetailResponse>> getGoodsDetail(
+            @PathVariable("goodsCode") String goodsCode,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+        GetGifticonGoodsDetailResult result = getGifticonGoodsDetailUseCase.getGoodsDetail(
+                new GetGifticonGoodsDetailCommand(goodsCode, userId)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetGifticonGoodsDetailResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "기프티콘 상품 상세 조회 성공"
                 )
         );
     }
