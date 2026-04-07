@@ -24,6 +24,7 @@ public class GifticonGoods {
     private Integer validDays;
     private String goodsStatus;
     private boolean exposed;
+    private boolean popular;
     private Integer orderNum;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -44,6 +45,7 @@ public class GifticonGoods {
                 .validDays(state.getValidDays())
                 .goodsStatus(state.getGoodsStatus())
                 .exposed(false)
+                .popular(false)
                 .orderNum(null)
                 .build();
     }
@@ -65,6 +67,7 @@ public class GifticonGoods {
                 .validDays(state.getValidDays())
                 .goodsStatus(state.getGoodsStatus())
                 .exposed(state.isExposed())
+                .popular(state.isPopular())
                 .orderNum(state.getOrderNum())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())

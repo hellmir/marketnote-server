@@ -59,6 +59,9 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
     @Column(name = "exposed", nullable = false)
     private boolean exposed;
 
+    @Column(name = "popular", nullable = false)
+    private boolean popular;
+
     @Column(name = "order_num")
     private Integer orderNum;
 
@@ -79,6 +82,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
                 .validDays(domain.getValidDays())
                 .goodsStatus(domain.getGoodsStatus())
                 .exposed(domain.isExposed())
+                .popular(domain.isPopular())
                 .orderNum(domain.getOrderNum())
                 .build();
     }
@@ -101,6 +105,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
                         .validDays(validDays)
                         .goodsStatus(goodsStatus)
                         .exposed(exposed)
+                        .popular(popular)
                         .orderNum(orderNum)
                         .createdAt(getCreatedAt())
                         .modifiedAt(getModifiedAt())
@@ -122,6 +127,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
         this.validDays = domain.getValidDays();
         this.goodsStatus = domain.getGoodsStatus();
         this.exposed = domain.isExposed();
+        this.popular = domain.isPopular();
         this.orderNum = domain.getOrderNum();
     }
 }

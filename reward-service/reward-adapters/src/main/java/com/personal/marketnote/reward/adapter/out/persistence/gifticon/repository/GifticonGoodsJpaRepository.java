@@ -71,4 +71,15 @@ public interface GifticonGoodsJpaRepository extends JpaRepository<GifticonGoodsJ
             @Param("keyword") String keyword,
             Pageable pageable
     );
+
+    @Query("""
+            SELECT g FROM GifticonGoodsJpaEntity g
+            WHERE g.popular = true
+              AND g.exposed = true
+              AND g.goodsStatus = 'SALE'
+            ORDER BY
+                CASE WHEN g.orderNum IS NULL THEN 1 ELSE 0 END,
+                g.orderNum ASC
+            """)
+    List<GifticonGoodsJpaEntity> findAllPopularAndExposed(Pageable pageable);
 }
