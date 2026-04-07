@@ -47,6 +47,17 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     }
 
     @Override
+    public List<GifticonGoodsBrandProjection> findDistinctBrandsByCategoryCode(String categoryCode) {
+        return repository.findDistinctBrandsByCategoryCode(categoryCode).stream()
+                .map(row -> new GifticonGoodsBrandProjection(
+                        (String) row[0],
+                        (String) row[1],
+                        (String) row[2]
+                ))
+                .toList();
+    }
+
+    @Override
     public FindAllForAdminResult findAllForAdmin(int page, int pageSize, String goodsStatus, Boolean exposed, String keyword) {
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
         Page<GifticonGoodsJpaEntity> pageResult = repository.findAllForAdmin(goodsStatus, exposed, keyword, pageRequest);

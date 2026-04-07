@@ -18,6 +18,16 @@ public interface GifticonGoodsJpaRepository extends JpaRepository<GifticonGoodsJ
 
     List<GifticonGoodsJpaEntity> findAllByGoodsStatus(String goodsStatus);
 
+    @Query("""
+            SELECT DISTINCT g.brandCode, g.brandName, g.brandImageUrl
+            FROM GifticonGoodsJpaEntity g
+            WHERE g.exposed = true
+              AND g.goodsStatus = 'SALE'
+              AND g.categoryCode = :categoryCode
+            ORDER BY g.brandName ASC
+            """)
+    List<Object[]> findDistinctBrandsByCategoryCode(@Param("categoryCode") String categoryCode);
+
     @Query(value = """
             SELECT g FROM GifticonGoodsJpaEntity g
             WHERE (:goodsStatus = '' OR g.goodsStatus = :goodsStatus)
