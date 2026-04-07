@@ -3,13 +3,16 @@ package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetAdminGifticonCategoriesApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonCategoryExposureApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonCategoryOrderApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.UpdateGifticonCategoryApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonCategoryExposureRequest;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonCategoryOrderRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.UpdateGifticonCategoryRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetAdminGifticonCategoriesResponse;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonCategoriesResult;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetAdminGifticonCategoriesUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonCategoryExposureUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.ManageGifticonCategoryOrderUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.UpdateGifticonCategoryUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,6 +34,7 @@ public class AdminGifticonCategoryController {
     private final GetAdminGifticonCategoriesUseCase getAdminGifticonCategoriesUseCase;
     private final UpdateGifticonCategoryUseCase updateGifticonCategoryUseCase;
     private final ManageGifticonCategoryExposureUseCase manageGifticonCategoryExposureUseCase;
+    private final ManageGifticonCategoryOrderUseCase manageGifticonCategoryOrderUseCase;
 
     /**
      * (관리자) 기프티콘 카테고리 목록 조회
@@ -104,6 +108,31 @@ public class AdminGifticonCategoryController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "기프티콘 카테고리 노출 관리 성공"
+                )
+        );
+    }
+
+    /**
+     * (관리자) 기프티콘 카테고리 노출 순서 관리
+     *
+     * @param request 노출 순서 관리 요청
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 기프티콘 카테고리의 노출 순서를 설정합니다.
+     */
+    @PatchMapping("/order")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ManageGifticonCategoryOrderApiDocs
+    public ResponseEntity<BaseResponse<Void>> manageGifticonCategoryOrder(
+            @Valid @RequestBody ManageGifticonCategoryOrderRequest request
+    ) {
+        manageGifticonCategoryOrderUseCase.manageOrder(request.toCommand());
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "기프티콘 카테고리 노출 순서 관리 성공"
                 )
         );
     }
