@@ -15,4 +15,13 @@ public interface FindGifticonGoodsPort {
 
     record FindAllForAdminResult(List<GifticonGoods> items, long totalElements) {
     }
+
+    List<GifticonGoodsBrandProjection> findDistinctBrandsByCategoryCode(String categoryCode);
+
+    record GifticonGoodsBrandProjection(
+            String brandCode,
+            String brandName,
+            String brandImageUrl
+    ) {
+    }
 }
