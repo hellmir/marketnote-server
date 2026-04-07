@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.gifticon;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity.GifticonGoodsJpaEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.repository.GifticonGoodsJpaRepository;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
@@ -11,6 +12,7 @@ import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonGoodsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,5 +67,25 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
                 .map(GifticonGoodsJpaEntity::toDomain)
                 .toList();
         return new FindAllForAdminResult(items, pageResult.getTotalElements());
+    }
+
+    @Override
+    public List<GifticonGoods> findAllExposed(String categoryCode, String brandCode, int page, int pageSize) {
+        String categoryCodeParam = FormatValidator.hasValue(categoryCode) ? categoryCode : "";
+        String brandCodeParam = FormatValidator.hasValue(brandCode) ? brandCode : "";
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(categoryCodeParam, brandCodeParam, pageable);
+        return result.getContent().stream()
+                .map(GifticonGoodsJpaEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public long countAllExposed(String categoryCode, String brandCode) {
+        String categoryCodeParam = FormatValidator.hasValue(categoryCode) ? categoryCode : "";
+        String brandCodeParam = FormatValidator.hasValue(brandCode) ? brandCode : "";
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(categoryCodeParam, brandCodeParam, pageable);
+        return result.getTotalElements();
     }
 }
