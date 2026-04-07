@@ -12,4 +12,6 @@ public interface FindGifticonCategoryPort {
     Optional<GifticonCategory> findById(Long id);
 
     List<GifticonCategory> findAllOrderByOrderNumAsc();
+
+    List<GifticonCategory> findAllExposed();
 }

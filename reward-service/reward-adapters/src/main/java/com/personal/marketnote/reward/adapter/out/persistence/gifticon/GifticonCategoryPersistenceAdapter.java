@@ -42,6 +42,13 @@ public class GifticonCategoryPersistenceAdapter implements
     }
 
     @Override
+    public List<GifticonCategory> findAllExposed() {
+        return categoryRepository.findAllExposed().stream()
+                .map(GifticonCategoryJpaEntity::toDomain)
+                .toList();
+    }
+
+    @Override
     public GifticonCategory save(GifticonCategory category) {
         GifticonCategoryJpaEntity saved = categoryRepository.save(GifticonCategoryJpaEntity.from(category));
         return saved.toDomain();
