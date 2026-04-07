@@ -4,13 +4,17 @@ import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetGifticonGoodsApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetGifticonGoodsDetailApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetPopularGifticonGoodsApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetGifticonGoodsDetailResponse;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetPopularGifticonGoodsResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetGifticonGoodsResponse;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsDetailCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsDetailResult;
+import com.personal.marketnote.reward.port.in.result.gifticon.GetPopularGifticonGoodsResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsResult;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetGifticonGoodsDetailUseCase;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.GetPopularGifticonGoodsUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetGifticonGoodsUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +35,7 @@ public class GifticonGoodsController {
 
     private final GetGifticonGoodsUseCase getGifticonGoodsUseCase;
     private final GetGifticonGoodsDetailUseCase getGifticonGoodsDetailUseCase;
+    private final GetPopularGifticonGoodsUseCase getPopularGifticonGoodsUseCase;
 
     /**
      * 기프티콘 상품 목록 조회
@@ -62,6 +67,29 @@ public class GifticonGoodsController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "기프티콘 상품 목록 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * 기프티콘 인기 상품 목록 조회
+     *
+     * @return 인기 상품 목록 응답 {@link GetPopularGifticonGoodsResponse}
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 인기 설정된 기프티콘 상품 목록을 조회합니다. 최대 10개.
+     */
+    @GetMapping("/goods/popular")
+    @GetPopularGifticonGoodsApiDocs
+    public ResponseEntity<BaseResponse<GetPopularGifticonGoodsResponse>> getPopularGoods() {
+        GetPopularGifticonGoodsResult result = getPopularGifticonGoodsUseCase.getPopularGoods();
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetPopularGifticonGoodsResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "기프티콘 인기 상품 목록 조회 성공"
                 )
         );
     }

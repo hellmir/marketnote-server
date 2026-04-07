@@ -88,4 +88,12 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
         Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(categoryCodeParam, brandCodeParam, pageable);
         return result.getTotalElements();
     }
+
+    @Override
+    public List<GifticonGoods> findAllPopularAndExposed(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return repository.findAllPopularAndExposed(pageable).stream()
+                .map(GifticonGoodsJpaEntity::toDomain)
+                .toList();
+    }
 }

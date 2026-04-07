@@ -22,6 +22,8 @@ public interface FindGifticonGoodsPort {
 
     long countAllExposed(String categoryCode, String brandCode);
 
+    List<GifticonGoods> findAllPopularAndExposed(int limit);
+
     record GifticonGoodsBrandProjection(
             String brandCode,
             String brandName,

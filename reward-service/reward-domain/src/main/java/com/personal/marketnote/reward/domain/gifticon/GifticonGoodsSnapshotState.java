@@ -23,6 +23,7 @@ public class GifticonGoodsSnapshotState {
     private final Integer validDays;
     private final String goodsStatus;
     private final boolean exposed;
+    private final boolean popular;
     private final Integer orderNum;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
