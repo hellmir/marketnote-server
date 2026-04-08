@@ -1,9 +1,11 @@
 package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowApiResponse;
+import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowCouponDetailResponse;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowCouponSendResponse;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
 import com.personal.marketnote.reward.port.out.gifticon.CancelGifticonSendFailPort;
+import com.personal.marketnote.reward.port.out.gifticon.QueryGifticonCouponStatusPort;
 import com.personal.marketnote.reward.port.out.gifticon.SendGifticonCouponPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGifticonSendFailPort {
+public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGifticonSendFailPort, QueryGifticonCouponStatusPort {
 
     private final GiftishowApiClient giftishowApiClient;
     private final GiftishowApiProperties properties;
@@ -47,6 +49,38 @@ public class GifticonCouponAdapter implements SendGifticonCouponPort, CancelGift
         } catch (Exception e) {
             log.error("기프티쇼 쿠폰 발송 통신 오류: trId={}, error={}", trId, e.getMessage(), e);
             return SendCouponResult.builder()
+                    .success(false)
+                    .errorCode("COMM_ERROR")
+                    .errorMessage(e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    public CouponStatusResult queryStatus(String trId) {
+        try {
+            GiftishowApiResponse<GiftishowCouponDetailResponse> response = giftishowApiClient.getCouponDetail(trId);
+
+            if (!response.isSuccess()) {
+                log.error("기프티쇼 쿠폰 상세 조회 실패: trId={}, code={}, message={}",
+                        trId, response.code(), response.message());
+                return CouponStatusResult.builder()
+                        .success(false)
+                        .errorCode(response.code())
+                        .errorMessage(response.message())
+                        .build();
+            }
+
+            GiftishowCouponDetailResponse result = response.result();
+            return CouponStatusResult.builder()
+                    .success(true)
+                    .pinStatusCd(result.pinStatusCd())
+                    .validPrdEndDt(result.validPrdEndDt())
+                    .build();
+
+        } catch (Exception e) {
+            log.error("기프티쇼 쿠폰 상세 조회 통신 오류: trId={}, error={}", trId, e.getMessage(), e);
+            return CouponStatusResult.builder()
                     .success(false)
                     .errorCode("COMM_ERROR")
                     .errorMessage(e.getMessage())

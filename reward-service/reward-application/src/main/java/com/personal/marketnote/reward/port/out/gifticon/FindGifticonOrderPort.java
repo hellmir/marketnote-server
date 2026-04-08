@@ -16,4 +16,6 @@ public interface FindGifticonOrderPort {
                                                 GifticonOrderSortType sortType, Long cursor, int pageSize);
 
     long countByUserIdAndStatuses(Long userId, List<GifticonOrderStatus> statuses);
+
+    Optional<GifticonOrder> findByIdAndUserId(Long id, Long userId);
 }

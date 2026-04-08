@@ -65,6 +65,12 @@ public class GifticonOrderPersistenceAdapter
     }
 
     @Override
+    public Optional<GifticonOrder> findByIdAndUserId(Long id, Long userId) {
+        return gifticonOrderJpaRepository.findByIdAndUserId(id, userId)
+                .map(GifticonOrderJpaEntity::toDomain);
+    }
+
+    @Override
     public long countByUserIdAndStatuses(Long userId, List<GifticonOrderStatus> statuses) {
         return gifticonOrderJpaRepository.countByUserIdAndOrderStatusIn(userId, statuses);
     }

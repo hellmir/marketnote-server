@@ -90,8 +90,12 @@ public class GifticonOrder {
         throw new InvalidGifticonOrderStatusTransitionException(this.orderStatus);
     }
 
-    public void syncStatus(GifticonOrderStatus newStatus) {
+    public boolean syncStatus(GifticonOrderStatus newStatus) {
+        if (this.orderStatus == newStatus) {
+            return false;
+        }
         this.orderStatus = newStatus;
+        return true;
     }
 
     public boolean isPending() {
@@ -112,6 +116,10 @@ public class GifticonOrder {
 
     public boolean isTerminal() {
         return this.orderStatus.isTerminal();
+    }
+
+    public boolean hasStatus(GifticonOrderStatus status) {
+        return this.orderStatus == status;
     }
 
     public Integer calculateDaysRemaining(LocalDate now) {

@@ -20,6 +20,7 @@ public class SecurityPropertiesValidator {
 
     private static final Set<String> WEAK_DEFAULTS = Set.of(
             "dev-secret-change-me", "dev-hmac-secret-change-me",
+            "dev-pin-key-change-me",
             "abc", "def", "ghi",
             "change-me", "password", "root", "secret", "test",
             "0000", "1234567890123456"

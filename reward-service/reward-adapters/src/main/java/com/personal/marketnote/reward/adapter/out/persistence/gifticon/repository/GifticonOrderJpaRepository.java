@@ -43,4 +43,6 @@ public interface GifticonOrderJpaRepository extends JpaRepository<GifticonOrderJ
     );
 
     long countByUserIdAndOrderStatusIn(Long userId, List<GifticonOrderStatus> statuses);
+
+    Optional<GifticonOrderJpaEntity> findByIdAndUserId(Long id, Long userId);
 }
