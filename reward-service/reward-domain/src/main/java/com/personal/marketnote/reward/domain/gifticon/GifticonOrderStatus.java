@@ -54,6 +54,10 @@ public enum GifticonOrderStatus {
         return this == USED || this == EXPIRED || this == CANCELLED;
     }
 
+    public static boolean hasPinStatusMapping(String pinStatusCd) {
+        return PIN_STATUS_MAP.containsKey(pinStatusCd);
+    }
+
     public static GifticonOrderStatus fromPinStatus(String pinStatus) {
         return PIN_STATUS_MAP.getOrDefault(pinStatus, CANCELLED);
     }
