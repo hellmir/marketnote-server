@@ -20,6 +20,7 @@ public class GiftishowApiProperties {
     private String mmsMsg;
     private String mmsTitle;
     private String gubun;
+    private String userId;
     private Api api = new Api();
 
     @Getter

@@ -97,6 +97,7 @@ vendor:
     mms-msg: ${GIFTISHOW_MMS_MSG:뉴트리캐시 기프티콘}
     mms-title: ${GIFTISHOW_MMS_TITLE:뉴트리캐시}
     gubun: I
+    user-id: ${GIFTISHOW_USER_ID:0000}
     api:
       product-list-path: /bizApi/goods
       product-detail-path: /bizApi/goods
