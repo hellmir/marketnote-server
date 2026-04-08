@@ -100,6 +100,16 @@ public class GifticonGoods {
         this.orderNum = orderNum;
     }
 
+    public void markPopular(Integer popularOrderNum) {
+        this.popular = true;
+        this.orderNum = popularOrderNum;
+    }
+
+    public void unmarkPopular() {
+        this.popular = false;
+        this.orderNum = null;
+    }
+
     public boolean isSale() {
         return "SALE".equals(this.goodsStatus);
     }
