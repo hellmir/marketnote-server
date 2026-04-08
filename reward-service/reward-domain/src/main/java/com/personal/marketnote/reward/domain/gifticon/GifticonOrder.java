@@ -1,16 +1,20 @@
 package com.personal.marketnote.reward.domain.gifticon;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.exception.InvalidGifticonOrderStatusTransitionException;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
 public class GifticonOrder {
+    private static final DateTimeFormatter EXPIRY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yy.MM.dd");
     private Long id;
     private Long userId;
     private String goodsCode;
@@ -108,5 +112,32 @@ public class GifticonOrder {
 
     public boolean isTerminal() {
         return this.orderStatus.isTerminal();
+    }
+
+    public Integer calculateDaysRemaining(LocalDate now) {
+        if (FormatValidator.hasNoValue(validEndDate)) {
+            return null;
+        }
+        return (int) ChronoUnit.DAYS.between(now, validEndDate);
+    }
+
+    public String resolveStatusLabel() {
+        if (orderStatus.isUsed()) {
+            return "사용완료";
+        }
+        if (orderStatus.isExpired()) {
+            return "기간만료";
+        }
+        if (orderStatus.isCancelled()) {
+            return "취소됨";
+        }
+        return null;
+    }
+
+    public String formatExpiryDate() {
+        if (FormatValidator.hasNoValue(validEndDate)) {
+            return null;
+        }
+        return validEndDate.format(EXPIRY_DATE_FORMATTER) + "까지 사용 가능";
     }
 }
