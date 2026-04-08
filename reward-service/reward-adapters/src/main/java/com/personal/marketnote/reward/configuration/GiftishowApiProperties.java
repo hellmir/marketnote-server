@@ -16,6 +16,9 @@ public class GiftishowApiProperties {
     private String authToken;
     private String devYn;
     private String callbackNo;
+    private String phoneNo;
+    private String mmsMsg;
+    private String mmsTitle;
     private String gubun;
     private Api api = new Api();
 

@@ -93,6 +93,9 @@ vendor:
     auth-token: ${GIFTISHOW_AUTH_TOKEN:0000}
     dev-yn: ${GIFTISHOW_DEV_YN:Y}
     callback-no: ${GIFTISHOW_CALLBACK_NO:0000000000}
+    phone-no: ${GIFTISHOW_PHONE_NO:0000000000}
+    mms-msg: ${GIFTISHOW_MMS_MSG:뉴트리캐시 기프티콘}
+    mms-title: ${GIFTISHOW_MMS_TITLE:뉴트리캐시}
     gubun: I
     api:
       product-list-path: /bizApi/goods
@@ -107,6 +110,8 @@ vendor:
       coupon-send-fail-cancel-path: /bizApi/coupon/sendFailCancel
 
 gifticon:
+  pin:
+    encrypt-key: ${GIFTICON_PIN_ENCRYPT_KEY:dev-pin-key-change-me}
   sync:
     scheduler:
       enabled: ${GIFTICON_SYNC_SCHEDULER_ENABLED:false}
