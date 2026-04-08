@@ -2,15 +2,20 @@ package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetMyGifticonOrderDetailApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetMyGifticonOrdersApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.PurchaseGifticonApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.PurchaseGifticonRequest;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetMyGifticonOrderDetailResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetMyGifticonOrdersResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.PurchaseGifticonResponse;
+import com.personal.marketnote.reward.port.in.command.gifticon.GetMyGifticonOrderDetailCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetMyGifticonOrdersCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.PurchaseGifticonCommand;
+import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrderDetailResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrdersResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.PurchaseGifticonResult;
+import com.personal.marketnote.reward.port.in.usecase.gifticon.GetMyGifticonOrderDetailUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetMyGifticonOrdersUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.PurchaseGifticonUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +39,7 @@ public class GifticonOrderController {
 
     private final PurchaseGifticonUseCase purchaseGifticonUseCase;
     private final GetMyGifticonOrdersUseCase getMyGifticonOrdersUseCase;
+    private final GetMyGifticonOrderDetailUseCase getMyGifticonOrderDetailUseCase;
 
     @PostMapping
     @PurchaseGifticonApiDocs
@@ -74,6 +80,26 @@ public class GifticonOrderController {
 
         return new ResponseEntity<>(
                 BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "내 기프티콘 목록 조회 성공"),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/me/{orderId}")
+    @GetMyGifticonOrderDetailApiDocs
+    public ResponseEntity<BaseResponse<GetMyGifticonOrderDetailResponse>> getMyGifticonOrderDetail(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @PathVariable Long orderId
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        GetMyGifticonOrderDetailResult result = getMyGifticonOrderDetailUseCase.getMyGifticonOrderDetail(
+                new GetMyGifticonOrderDetailCommand(userId, orderId)
+        );
+
+        GetMyGifticonOrderDetailResponse response = GetMyGifticonOrderDetailResponse.from(result);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "내 기프티콘 상세 조회 성공"),
                 HttpStatus.OK
         );
     }
