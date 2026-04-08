@@ -116,6 +116,10 @@ gifticon:
     scheduler:
       enabled: ${GIFTICON_SYNC_SCHEDULER_ENABLED:false}
       cron: ${GIFTICON_SYNC_SCHEDULER_CRON:0 0 3 * * MON,WED,FRI}
+  coupon-sync:
+    scheduler:
+      enabled: ${GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED:false}
+      cron: ${GIFTICON_COUPON_SYNC_SCHEDULER_CRON:0 0 4 * * *}
 
 logging:
   config: classpath:logback-spring.xml

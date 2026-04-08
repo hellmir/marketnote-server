@@ -18,4 +18,6 @@ public interface FindGifticonOrderPort {
     long countByUserIdAndStatuses(Long userId, List<GifticonOrderStatus> statuses);
 
     Optional<GifticonOrder> findByIdAndUserId(Long id, Long userId);
+
+    List<GifticonOrder> findAllByOrderStatus(GifticonOrderStatus orderStatus);
 }

@@ -85,6 +85,14 @@ public class GifticonOrderPersistenceAdapter
                 .toList();
     }
 
+    @Override
+    public List<GifticonOrder> findAllByOrderStatus(GifticonOrderStatus orderStatus) {
+        return gifticonOrderJpaRepository.findAllByOrderStatus(orderStatus)
+                .stream()
+                .map(GifticonOrderJpaEntity::toDomain)
+                .toList();
+    }
+
     private List<GifticonOrder> findByExpirySoonest(Long userId, List<GifticonOrderStatus> statuses,
                                                    Long cursor, int pageSize) {
         int offset = (cursor <= 0) ? 0 : (int) Math.min(cursor, 10_000);
