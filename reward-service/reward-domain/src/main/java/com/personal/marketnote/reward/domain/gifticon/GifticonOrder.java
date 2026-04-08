@@ -27,6 +27,19 @@ public class GifticonOrder {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
+    public static GifticonOrder from(GifticonOrderCreateState state) {
+        return GifticonOrder.builder()
+                .userId(state.getUserId())
+                .goodsCode(state.getGoodsCode())
+                .goodsName(state.getGoodsName())
+                .brandName(state.getBrandName())
+                .productImageUrl(state.getProductImageUrl())
+                .trId(state.getTrId())
+                .cashPrice(state.getCashPrice())
+                .orderStatus(GifticonOrderStatus.PENDING)
+                .build();
+    }
+
     public static GifticonOrder from(GifticonOrderSnapshotState state) {
         return GifticonOrder.builder()
                 .id(state.getId())

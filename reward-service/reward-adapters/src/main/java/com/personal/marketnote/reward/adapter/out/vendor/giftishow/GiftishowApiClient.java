@@ -256,8 +256,13 @@ public class GiftishowApiClient {
             TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
         String responseBody = rawResponse.getBody();
-        log.debug("기프티쇼 API 응답: path={}, status={}, body={}",
-                path, rawResponse.getStatusCode(), responseBody);
+        if (isSensitivePath(path)) {
+            log.debug("기프티쇼 API 응답: path={}, status={} (body 로깅 생략 — 민감 데이터 포함)",
+                    path, rawResponse.getStatusCode());
+        } else {
+            log.debug("기프티쇼 API 응답: path={}, status={}, body={}",
+                    path, rawResponse.getStatusCode(), responseBody);
+        }
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new GiftishowCommunicationException(
@@ -273,5 +278,9 @@ public class GiftishowApiClient {
                     "기프티쇼 API 응답 파싱 실패. path=" + path, e
             );
         }
+    }
+
+    private boolean isSensitivePath(String path) {
+        return path.equals(properties.getApi().getCouponSendPath());
     }
 }

@@ -9,7 +9,9 @@ public enum UserPointSourceType {
     OFFERWALL("OFFERWALL"),
     GAME("GAME"),
     PRODUCT("PRODUCT"),
-    ORDER("ORDER");
+    ORDER("ORDER"),
+    GIFTICON_PURCHASE("GIFTICON_PURCHASE"),
+    GIFTICON_REFUND("GIFTICON_REFUND");
 
     private final String description;
 }
