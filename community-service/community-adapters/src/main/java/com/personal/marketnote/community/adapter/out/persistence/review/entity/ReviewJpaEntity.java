@@ -45,7 +45,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "reviewer_name", nullable = false, length = 15)
     private String reviewerName;
 
-    @Column(name = "masked_reviewer_name", nullable = false, length = 15)
+    @Column(name = "reviewer_masked_name", nullable = false, length = 15)
     private String maskedReviewerName;
 
     @Column(name = "rating", nullable = false)
@@ -59,9 +59,6 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
 
     @Column(name = "edited_yn", nullable = false, columnDefinition = BOOLEAN_DEFAULT_FALSE)
     private Boolean isEdited;
-
-    @Column(name = "unit_amount")
-    private Long unitAmount;
 
     @Formula("""
             (
@@ -88,7 +85,6 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
                 .rating(review.getRating())
                 .content(review.getContent())
                 .isPhoto(review.getIsPhoto())
-                .unitAmount(review.getUnitAmount())
                 .build();
     }
 

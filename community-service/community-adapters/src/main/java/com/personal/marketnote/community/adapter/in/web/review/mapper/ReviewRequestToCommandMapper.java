@@ -19,7 +19,6 @@ public class ReviewRequestToCommandMapper {
                 .rating(request.getRating())
                 .content(request.getContent())
                 .isPhoto(request.getIsPhoto())
-                .unitAmount(request.getUnitAmount())
                 .build();
     }
 

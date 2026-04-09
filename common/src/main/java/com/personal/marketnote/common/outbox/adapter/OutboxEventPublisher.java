@@ -24,8 +24,6 @@ public class OutboxEventPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final Clock clock;
-    private final OutboxMetricsCollector outboxMetricsCollector;
-    private final OutboxAuditLogger outboxAuditLogger;
 
     @Scheduled(fixedDelayString = "${outbox.polling-interval-ms:3000}")
     public void publishPendingEvents() {
@@ -52,9 +50,6 @@ public class OutboxEventPublisher {
             outboxEventJpaRepository.save(event);
 
             if (event.getStatus().isFailed()) {
-                outboxMetricsCollector.incrementFailedCount(event.getTopic());
-                outboxAuditLogger.logFailed(event.getTopic(), event.getEventId(),
-                        event.getRetryCount(), e.getMessage());
                 log.error("Outbox 이벤트 최대 재시도 초과. topic={}, eventId={}, retryCount={}",
                         event.getTopic(), event.getEventId(), event.getRetryCount(), e);
                 return;
