@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * <p>KRaft combined mode(각 노드가 controller+broker)에서 컨트롤러 쿼럼 유지를 위해
  * 최대 2브로커까지만 shutdown한다 (3/3 shutdown 시 쿼럼 소실로 복구 불안정).</p>
  */
-@Tag("broker-failure")
+@Tag("slow")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("Kafka 브로커 장애 시나리오 검증")

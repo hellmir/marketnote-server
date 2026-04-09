@@ -5,7 +5,7 @@ import com.personal.marketnote.commerce.adapter.in.event.saga.payload.InventoryS
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.ReleaseInventoryReservationUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
@@ -30,7 +30,7 @@ public class OrderPaymentInventorySagaConsumer {
 
     private final ObjectMapper objectMapper;
     private final ReduceProductInventoryUseCase reduceProductInventoryUseCase;
-    private final ReleaseInventoryReservationUseCase releaseInventoryReservationUseCase;
+    private final RestoreProductInventoryUseCase restoreProductInventoryUseCase;
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @KafkaListener(
@@ -122,7 +122,7 @@ public class OrderPaymentInventorySagaConsumer {
 
             List<OrderProduct> orderProducts = SagaOrderProductMapper.toOrderProducts(payload.orderProducts());
 
-            releaseInventoryReservationUseCase.release(orderProducts, payload.orderId(), "SAGA 보상 - 재고 복구");
+            restoreProductInventoryUseCase.restore(orderProducts, payload.orderId(), "SAGA 보상 - 재고 복구");
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),

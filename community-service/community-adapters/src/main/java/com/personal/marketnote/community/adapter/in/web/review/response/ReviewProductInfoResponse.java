@@ -8,8 +8,7 @@ public record ReviewProductInfoResponse(
         String name,
         String brandName,
         ReviewProductPricePolicyResponse pricePolicy,
-        GetFileResult catalogImage,
-        Long unitAmount
+        GetFileResult catalogImage
 ) {
     public static ReviewProductInfoResponse from(ReviewProductInfoResult result) {
         if (FormatValidator.hasNoValue(result)) {
@@ -20,8 +19,7 @@ public record ReviewProductInfoResponse(
                 result.name(),
                 result.brandName(),
                 ReviewProductPricePolicyResponse.from(result.pricePolicy()),
-                result.catalogImage(),
-                result.unitAmount()
+                result.catalogImage()
         );
     }
 }
