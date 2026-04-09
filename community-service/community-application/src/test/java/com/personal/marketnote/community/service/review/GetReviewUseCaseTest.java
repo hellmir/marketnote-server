@@ -31,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.personal.marketnote.community.exception.NotReviewAuthorException;
 import com.personal.marketnote.community.exception.ReviewNotFoundException;
 import com.personal.marketnote.community.port.in.result.review.ReviewProductInfoResult;
 
@@ -556,6 +557,36 @@ class GetReviewUseCaseTest {
         assertThat(result.product()).isNotNull();
         assertThat(result.product().unitAmount()).isEqualTo(fallbackUnitAmount);
         verify(findOrderProductPort).findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId);
+    }
+
+    @Nested
+    @DisplayName("리뷰 작성자 검증")
+    class ValidateAuthorTest {
+
+        @Test
+        @DisplayName("리뷰 작성자가 일치하면 정상 통과한다")
+        void shouldPassWhenAuthorMatches() {
+            // given
+            when(findReviewPort.existsByIdAndReviewerId(1L, 100L)).thenReturn(true);
+
+            // when & then (예외 없음)
+            getReviewService.validateAuthor(1L, 100L);
+
+            verify(findReviewPort).existsByIdAndReviewerId(1L, 100L);
+        }
+
+        @Test
+        @DisplayName("리뷰 작성자가 일치하지 않으면 NotReviewAuthorException이 발생한다")
+        void shouldThrowWhenAuthorDoesNotMatch() {
+            // given
+            when(findReviewPort.existsByIdAndReviewerId(1L, 999L)).thenReturn(false);
+
+            // when & then
+            assertThatThrownBy(() -> getReviewService.validateAuthor(1L, 999L))
+                    .isInstanceOf(NotReviewAuthorException.class);
+
+            verify(findReviewPort).existsByIdAndReviewerId(1L, 999L);
+        }
     }
 
     private Review buildReviewWithUnitAmount(
