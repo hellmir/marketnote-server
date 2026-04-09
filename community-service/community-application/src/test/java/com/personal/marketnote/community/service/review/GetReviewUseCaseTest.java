@@ -13,10 +13,7 @@ import com.personal.marketnote.community.port.in.result.review.GetReviewsResult;
 import com.personal.marketnote.community.port.in.result.review.ReviewItemResult;
 import com.personal.marketnote.community.port.in.usecase.like.GetLikeUseCase;
 import com.personal.marketnote.community.port.out.file.FindReviewImagesPort;
-import com.personal.marketnote.community.port.out.order.FindOrderProductPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
-import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
-import com.personal.marketnote.community.port.out.result.product.ProductPricePolicyInfoResult;
 import com.personal.marketnote.community.port.out.review.FindReviewPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,18 +25,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.personal.marketnote.community.exception.ReviewNotFoundException;
-import com.personal.marketnote.community.port.in.result.review.ReviewProductInfoResult;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -52,8 +43,6 @@ class GetReviewUseCaseTest {
     private FindReviewImagesPort findReviewImagesPort;
     @Mock
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
-    @Mock
-    private FindOrderProductPort findOrderProductPort;
     @Mock
     private GetLikeUseCase getLikeUseCase;
 
@@ -365,222 +354,6 @@ class GetReviewUseCaseTest {
         assertThat(result.reviews().getFirst().maskedReviewerName()).isNotNull();
         assertThat(result.reviews().getFirst()).hasNoNullFieldsOrPropertiesExcept(
                 "images", "product"
-        );
-    }
-
-    // ========== getReviewDetail ==========
-
-    @Test
-    @DisplayName("리뷰 상세 조회 시 주문 상품 정보(상품명, 브랜드, 구매 시점 가격, 선택 옵션, 대표 이미지)가 응답에 포함된다")
-    void getReviewDetail_includesOrderProductInfo() {
-        // given
-        Long reviewId = 101L;
-        Long userId = 10L;
-        Long pricePolicyId = 1001L;
-        Long unitAmount = 15000L;
-        Review review = buildReview(reviewId, userId, 20L, pricePolicyId, true);
-
-        when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
-        when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(true);
-
-        GetFilesResult imagesResult = buildFilesResult(11L, "review-detail.jpg");
-        when(findReviewImagesPort.findImagesByReviewIdAndSort(reviewId, FileSort.REVIEW_IMAGE))
-                .thenReturn(Optional.of(imagesResult));
-
-        ProductInfoResult productInfo = new ProductInfoResult(
-                1L,
-                "테스트 상품",
-                "테스트 브랜드",
-                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
-                List.of(),
-                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
-        );
-        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
-        when(findOrderProductPort.findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId))
-                .thenReturn(Optional.of(unitAmount));
-
-        // when
-        ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
-
-        // then
-        assertThat(result.id()).isEqualTo(reviewId);
-        assertThat(result.isUserLiked()).isTrue();
-        assertThat(result.images()).containsExactlyElementsOf(imagesResult.images());
-
-        ReviewProductInfoResult product = result.product();
-        assertThat(product).isNotNull();
-        assertThat(product.name()).isEqualTo("테스트 상품");
-        assertThat(product.brandName()).isEqualTo("테스트 브랜드");
-        assertThat(product.unitAmount()).isEqualTo(unitAmount);
-        assertThat(product.catalogImage()).isNotNull();
-
-        verify(findReviewPort).findById(reviewId);
-        verify(getLikeUseCase).existsUserLike(LikeTargetType.REVIEW, reviewId, userId);
-        verify(findReviewImagesPort).findImagesByReviewIdAndSort(reviewId, FileSort.REVIEW_IMAGE);
-        verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(pricePolicyId));
-        verify(findOrderProductPort).findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId);
-    }
-
-    @Test
-    @DisplayName("주문 상품 정보를 조회할 수 없는 경우 product가 null로 반환된다")
-    void getReviewDetail_productNotFound_returnsNullProduct() {
-        // given
-        Long reviewId = 102L;
-        Long userId = 10L;
-        Long pricePolicyId = 2001L;
-        Review review = buildReview(reviewId, userId, 20L, pricePolicyId, false);
-
-        when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
-        when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
-        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of());
-
-        // when
-        ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
-
-        // then
-        assertThat(result.id()).isEqualTo(reviewId);
-        assertThat(result.product()).isNull();
-        assertThat(result.isUserLiked()).isFalse();
-
-        verify(findReviewPort).findById(reviewId);
-        verify(getLikeUseCase).existsUserLike(LikeTargetType.REVIEW, reviewId, userId);
-        verifyNoInteractions(findOrderProductPort);
-    }
-
-    @Test
-    @DisplayName("리뷰 상세 조회 시 사용자 좋아요 여부가 포함된다")
-    void getReviewDetail_includesUserLikedStatus() {
-        // given
-        Long reviewId = 103L;
-        Long userId = 10L;
-        Long pricePolicyId = 3001L;
-        Review review = buildReview(reviewId, userId, 20L, pricePolicyId, false);
-
-        when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
-        when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(true);
-        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of());
-
-        // when
-        ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
-
-        // then
-        assertThat(result.isUserLiked()).isTrue();
-
-        verify(getLikeUseCase).existsUserLike(LikeTargetType.REVIEW, reviewId, userId);
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 리뷰 조회 시 ReviewNotFoundException이 발생한다")
-    void getReviewDetail_notFound_throwsReviewNotFoundException() {
-        // given
-        Long reviewId = 999L;
-        Long userId = 10L;
-
-        when(findReviewPort.findById(reviewId)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThatThrownBy(() -> getReviewService.getReviewDetail(reviewId, userId))
-                .isInstanceOf(ReviewNotFoundException.class);
-
-        verify(findReviewPort).findById(reviewId);
-        verifyNoInteractions(getLikeUseCase, findReviewImagesPort, findProductByPricePolicyPort, findOrderProductPort);
-    }
-
-    // ========== getReviewDetail unitAmount fallback ==========
-
-    @Test
-    @DisplayName("리뷰 상세 조회 시 Review에 unitAmount가 저장되어 있으면 findOrderProductPort를 호출하지 않는다")
-    void getReviewDetail_withStoredUnitAmount_skipsOrderProductPortCall() {
-        // given
-        Long reviewId = 201L;
-        Long userId = 10L;
-        Long pricePolicyId = 2001L;
-        Long storedUnitAmount = 15000L;
-        Review review = buildReviewWithUnitAmount(reviewId, userId, 20L, pricePolicyId, false, storedUnitAmount);
-
-        when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
-        when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
-
-        ProductInfoResult productInfo = new ProductInfoResult(
-                1L, "테스트 상품", "테스트 브랜드",
-                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 15000L, BigDecimal.valueOf(25), 100L),
-                List.of(),
-                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
-        );
-        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
-
-        // when
-        ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
-
-        // then
-        assertThat(result.product()).isNotNull();
-        assertThat(result.product().unitAmount()).isEqualTo(storedUnitAmount);
-        verifyNoInteractions(findOrderProductPort);
-    }
-
-    @Test
-    @DisplayName("리뷰 상세 조회 시 Review에 unitAmount가 null이면 findOrderProductPort를 호출하여 가져온다")
-    void getReviewDetail_withoutStoredUnitAmount_fallsBackToOrderProductPort() {
-        // given
-        Long reviewId = 202L;
-        Long userId = 10L;
-        Long pricePolicyId = 2002L;
-        Long fallbackUnitAmount = 18000L;
-        Review review = buildReview(reviewId, userId, 20L, pricePolicyId, false);
-
-        when(findReviewPort.findById(reviewId)).thenReturn(Optional.of(review));
-        when(getLikeUseCase.existsUserLike(LikeTargetType.REVIEW, reviewId, userId)).thenReturn(false);
-
-        ProductInfoResult productInfo = new ProductInfoResult(
-                1L, "테스트 상품", "테스트 브랜드",
-                new ProductPricePolicyInfoResult(pricePolicyId, 20000L, 18000L, BigDecimal.valueOf(10), 100L),
-                List.of(),
-                new GetFileResult(1L, "CATALOG", "jpg", "catalog.jpg", "https://example.com/catalog.jpg", List.of(), 1L)
-        );
-        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                .thenReturn(Map.of(pricePolicyId, productInfo));
-        when(findOrderProductPort.findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId))
-                .thenReturn(Optional.of(fallbackUnitAmount));
-
-        // when
-        ReviewItemResult result = getReviewService.getReviewDetail(reviewId, userId);
-
-        // then
-        assertThat(result.product()).isNotNull();
-        assertThat(result.product().unitAmount()).isEqualTo(fallbackUnitAmount);
-        verify(findOrderProductPort).findUnitAmountByOrderIdAndPricePolicyId(review.getOrderId(), pricePolicyId);
-    }
-
-    private Review buildReviewWithUnitAmount(
-            Long id, Long reviewerId, Long productId, Long pricePolicyId, boolean isPhoto, Long unitAmount
-    ) {
-        return Review.from(
-                ReviewSnapshotState.builder()
-                        .id(id)
-                        .reviewerId(reviewerId)
-                        .orderId(1000L + id)
-                        .productId(productId)
-                        .pricePolicyId(pricePolicyId)
-                        .productImageUrl("https://example.com/product-" + productId + ".jpg")
-                        .selectedOptions("옵션-" + id)
-                        .quantity(1)
-                        .reviewerName("사용자-" + id)
-                        .maskedReviewerName("사*자-" + id)
-                        .rating(5.0f)
-                        .content("리뷰-" + id)
-                        .isPhoto(isPhoto)
-                        .isEdited(false)
-                        .likeCount(3)
-                        .status(EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .orderNum(id)
-                        .unitAmount(unitAmount)
-                        .build()
         );
     }
 

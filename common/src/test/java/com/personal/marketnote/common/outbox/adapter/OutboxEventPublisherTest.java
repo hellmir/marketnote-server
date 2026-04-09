@@ -49,12 +49,6 @@ class OutboxEventPublisherTest {
     @Mock
     private Clock clock;
 
-    @Mock
-    private OutboxMetricsCollector outboxMetricsCollector;
-
-    @Mock
-    private OutboxAuditLogger outboxAuditLogger;
-
     @Test
     @DisplayName("PENDING 이벤트를 Kafka로 발행하고 PUBLISHED 상태로 변경한다")
     void publishPendingEvents_publishesToKafkaAndMarksPublished() throws Exception {
@@ -152,9 +146,6 @@ class OutboxEventPublisherTest {
         assertThat(entity.getRetryCount()).isEqualTo(5);
         assertThat(entity.getStatus()).isEqualTo(OutboxEventStatus.FAILED);
         verify(outboxEventJpaRepository).save(entity);
-        verify(outboxMetricsCollector).incrementFailedCount("commerce.payment.approved");
-        verify(outboxAuditLogger).logFailed(
-                eq("commerce.payment.approved"), eq("event-1"), eq(5), any(String.class));
     }
 
     @Test

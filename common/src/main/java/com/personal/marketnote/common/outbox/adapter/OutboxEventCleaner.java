@@ -31,12 +31,4 @@ public class OutboxEventCleaner {
         outboxEventJpaRepository.deleteByStatusAndPublishedAtBefore(OutboxEventStatus.PUBLISHED, cutoff);
         log.info("Outbox 발행 완료 이벤트 정리 완료 - cutoff: {}", cutoff);
     }
-
-    @Scheduled(cron = "${outbox.discard-cleanup-cron:0 30 3 * * ?}")
-    @Transactional(isolation = READ_COMMITTED)
-    public void cleanupDiscardedEvents() {
-        LocalDateTime cutoff = LocalDateTime.now(clock).minusDays(outboxProperties.getRetentionDays());
-        outboxEventJpaRepository.deleteByStatusAndDiscardedAtBefore(OutboxEventStatus.DISCARDED, cutoff);
-        log.info("Outbox 폐기 이벤트 정리 완료 - cutoff: {}", cutoff);
-    }
 }
