@@ -14,6 +14,7 @@ import com.personal.marketnote.community.port.in.result.review.RegisterReviewRes
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.RegisterReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
+import com.personal.marketnote.community.port.out.order.VerifyOrderOwnershipPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
@@ -31,11 +32,13 @@ public class RegisterReviewService implements RegisterReviewUseCase {
     private final UpdateReviewPort updateReviewPort;
     private final PublishReviewEventPort publishReviewEventPort;
     private final FindProfanityWordPort findProfanityWordPort;
+    private final VerifyOrderOwnershipPort verifyOrderOwnershipPort;
 
     @Override
     public RegisterReviewResult registerReview(RegisterReviewCommand command) {
         validateProfanity(command.content());
         getReviewUseCase.validateDuplicateReview(command);
+        verifyOrderOwnershipPort.verifyOrderOwnership(command.orderId(), command.reviewerId());
         Long orderId = command.orderId();
         Long productId = command.productId();
         Long pricePolicyId = command.pricePolicyId();
