@@ -4,7 +4,10 @@ import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSortProperty;
 import com.personal.marketnote.community.port.in.command.review.RegisterReviewCommand;
-import com.personal.marketnote.community.port.in.result.review.*;
+import com.personal.marketnote.community.port.in.result.review.GetMyReviewsResult;
+import com.personal.marketnote.community.port.in.result.review.GetProductReviewAggregatesResult;
+import com.personal.marketnote.community.port.in.result.review.GetReviewCountResult;
+import com.personal.marketnote.community.port.in.result.review.GetReviewsResult;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -135,14 +138,4 @@ public interface GetReviewUseCase {
      * @Description 리뷰 존재 여부를 조회합니다.
      */
     boolean existsReview(Long id);
-
-    /**
-     * @param id     리뷰 ID
-     * @param userId 회원 ID
-     * @return 리뷰 상세 조회 결과 {@link ReviewItemResult}
-     * @Date 2026-04-05
-     * @Author 성효빈
-     * @Description 리뷰 상세 정보를 주문 상품 정보(상품명, 브랜드, 구매 시점 가격, 대표 이미지)와 함께 조회합니다.
-     */
-    ReviewItemResult getReviewDetail(Long id, Long userId);
 }

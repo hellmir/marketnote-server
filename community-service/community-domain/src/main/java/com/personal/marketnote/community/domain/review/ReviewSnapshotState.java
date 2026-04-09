@@ -31,5 +31,4 @@ public class ReviewSnapshotState {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
     private final Long orderNum;
-    private final Long unitAmount;
 }

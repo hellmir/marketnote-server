@@ -7,12 +7,10 @@ import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentApprovalInfo;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.exception.*;
-import com.personal.marketnote.commerce.port.in.command.inventory.ReserveInventoryCommand;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
 import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentSagaContext;
 import com.personal.marketnote.commerce.port.in.result.payment.ApprovePaymentResult;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.ReserveInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -54,7 +52,6 @@ public class PaymentApprovalTransactionHelper {
     private final FindPspPaymentEventPort findPspPaymentEventPort;
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
-    private final ReserveInventoryUseCase reserveInventoryUseCase;
     private final PublishPaymentEventPort publishPaymentEventPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final Optional<OrderPaymentSagaStarter> orderPaymentSagaStarter;
@@ -70,8 +67,6 @@ public class PaymentApprovalTransactionHelper {
 
         Order order = findVerifiedOrder(payment.getOrderId(), command.buyerId());
         verifyPaymentAmount(order, payment);
-
-        reserveInventory(order);
 
         PspPaymentEvent event = findPspPaymentEventPort.findByOrderKey(command.orderKey())
                 .orElseThrow(() -> new PaymentEventNotFoundException(command.orderKey()));
@@ -184,22 +179,6 @@ public class PaymentApprovalTransactionHelper {
 
         event.markUnknown(resultCode, resultMessage);
         updatePspPaymentEventPort.update(event);
-    }
-
-    private void reserveInventory(Order order) {
-        List<ReserveInventoryCommand.OrderProductItem> orderProductItems = order.getOrderProducts().stream()
-                .map(op -> ReserveInventoryCommand.OrderProductItem.builder()
-                        .pricePolicyId(op.getPricePolicyId())
-                        .quantity(op.getQuantity())
-                        .build())
-                .toList();
-
-        reserveInventoryUseCase.reserveInventory(
-                ReserveInventoryCommand.builder()
-                        .orderId(order.getId())
-                        .orderProducts(orderProductItems)
-                        .build()
-        );
     }
 
     private void verifyPaymentAmount(Order order, Payment payment) {

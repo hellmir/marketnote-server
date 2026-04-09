@@ -19,7 +19,6 @@ public class ReviewCommandToStateMapper {
                 .rating(command.rating())
                 .content(command.content())
                 .isPhoto(command.isPhoto())
-                .unitAmount(command.unitAmount())
                 .build();
     }
 
