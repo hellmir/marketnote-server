@@ -4,9 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
-import com.personal.marketnote.commerce.exception.InvalidPickupRequestMessageException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderStatusChangeException;
@@ -18,11 +16,8 @@ import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
-import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
-import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.domain.delivery.PickupRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +44,6 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final ModifyUserPointPort modifyUserPointPort;
     private final PublishOrderEventPort publishOrderEventPort;
-    private final FindUserShippingAddressPort findUserShippingAddressPort;
     private final Clock clock;
 
     @Override
@@ -68,8 +62,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), status);
         }
 
-        applyPickupAddressIfRefundRequested(command, order);
         changeOrderStatus(command, order);
+        applyPickupAddressIfRefundRequested(command, order);
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(OrderCommandToStateMapper.mapToState(command));
         updateOrderPort.update(order, orderStatusHistory);
 
@@ -106,46 +100,6 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
     }
 
-    private void applyPickupAddressIfRefundRequested(ChangeOrderStatusCommand command, Order order) {
-        if (!command.orderStatus().isRefundRequested()) {
-            return;
-        }
-
-        validatePickupRequestType(command);
-
-        if (!command.hasPickupAddressId()) {
-            order.applyPickupAddress(null);
-            return;
-        }
-
-        ShippingAddressInfoResult addressInfo = findUserShippingAddressPort.findByIdAndUserId(
-                command.pickupAddressId(), command.buyerId()
-        );
-
-        ShippingAddress pickupAddress = ShippingAddress.ofPickup(
-                addressInfo.recipientName(),
-                addressInfo.recipientPhoneNumber(),
-                null,
-                addressInfo.address(),
-                addressInfo.addressDetail(),
-                command.pickupRequestType(),
-                command.pickupRequestMessage()
-        );
-
-        order.applyPickupAddress(pickupAddress);
-    }
-
-    private void validatePickupRequestType(ChangeOrderStatusCommand command) {
-        PickupRequestType pickupRequestType = command.pickupRequestType();
-        if (FormatValidator.hasNoValue(pickupRequestType)) {
-            return;
-        }
-
-        if (pickupRequestType.isCustom() && FormatValidator.hasNoValue(command.pickupRequestMessage())) {
-            throw new InvalidPickupRequestMessageException();
-        }
-    }
-
     private void changeOrderStatus(ChangeOrderStatusCommand command, Order order) {
         OrderStatus status = command.orderStatus();
         LocalDateTime now = LocalDateTime.now(clock);
@@ -156,6 +110,14 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
 
         order.changeAllProductsStatus(status, now);
+    }
+
+    private void applyPickupAddressIfRefundRequested(ChangeOrderStatusCommand command, Order order) {
+        if (!command.orderStatus().isRefundRequested()) {
+            return;
+        }
+
+        order.applyPickupAddress(command.pickupAddress());
     }
 
     private void updatePaymentSubsequentProcesses(Order order) {

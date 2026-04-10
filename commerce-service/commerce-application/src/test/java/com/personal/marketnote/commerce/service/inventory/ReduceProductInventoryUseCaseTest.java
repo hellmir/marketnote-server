@@ -3,9 +3,6 @@ package com.personal.marketnote.commerce.service.inventory;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
 import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservationSnapshotState;
-import com.personal.marketnote.commerce.domain.inventory.InventorySnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
@@ -26,14 +23,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,10 +45,6 @@ class ReduceProductInventoryUseCaseTest {
     private InventoryLockPort inventoryLockPort;
     @Mock
     private PublishInventoryEventPort publishInventoryEventPort;
-    @Mock
-    private FindInventoryReservationPort findInventoryReservationPort;
-    @Mock
-    private DeleteInventoryReservationPort deleteInventoryReservationPort;
 
     @InjectMocks
     private ReduceProductInventoryService reduceProductInventoryService;
@@ -889,155 +880,6 @@ class ReduceProductInventoryUseCaseTest {
     }
 
     // ==================================================================================
-    // 예약→실차감 전환 (confirmReservation / fallback reduce)
-    // ==================================================================================
-
-    @Nested
-    @DisplayName("예약→실차감 전환")
-    class ConfirmReservationTest {
-
-        @Test
-        @DisplayName("예약 레코드가 존재하면 confirmReservation으로 재고를 차감한다 (reserved 감소 + stock 감소)")
-        void reduce_withReservation_callsConfirmReservation() {
-            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
-            Inventory inventory = buildInventoryWithReserved(1L, 100L, 10, 3);
-            InventoryReservation reservation = buildReservation(1L, 100L, 3);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
-            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
-
-            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
-
-            assertThat(inventory.getStockValue()).isEqualTo(7);
-            assertThat(inventory.getReserved()).isEqualTo(0);
-        }
-
-        @Test
-        @DisplayName("예약 레코드가 존재하면 예약 레코드를 삭제한다")
-        void reduce_withReservation_deletesReservationRecords() {
-            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
-            Inventory inventory = buildInventoryWithReserved(1L, 100L, 10, 3);
-            InventoryReservation reservation = buildReservation(1L, 100L, 3);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
-            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
-
-            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
-
-            verify(deleteInventoryReservationPort).deleteByOrderIdAndPricePolicyIds(eq(1L), eq(Set.of(100L)));
-        }
-
-        @Test
-        @DisplayName("예약 레코드가 없으면 기존 reduce()로 fallback하여 stock만 감소한다")
-        void reduce_withoutReservation_fallsBackToReduce() {
-            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
-            Inventory inventory = buildInventory(1L, 100L, 10);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
-            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
-
-            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
-
-            assertThat(inventory.getStockValue()).isEqualTo(7);
-            assertThat(inventory.getReserved()).isEqualTo(0);
-        }
-
-        @Test
-        @DisplayName("예약 레코드가 없으면 예약 레코드를 삭제하지 않는다")
-        void reduce_withoutReservation_doesNotDeleteReservation() {
-            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
-            Inventory inventory = buildInventory(1L, 100L, 10);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
-            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of());
-
-            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
-
-            verifyNoInteractions(deleteInventoryReservationPort);
-        }
-
-        @Test
-        @DisplayName("복수 가격 정책 중 일부만 예약 레코드가 있으면 해당 건만 confirmReservation, 나머지는 reduce로 처리한다")
-        void reduce_partialReservation_mixesConfirmAndReduce() {
-            List<OrderProduct> orderProducts = List.of(
-                    buildOrderProduct(100L, 2),
-                    buildOrderProduct(200L, 5)
-            );
-            Inventory inventory1 = buildInventoryWithReserved(1L, 100L, 10, 2);
-            Inventory inventory2 = buildInventory(2L, 200L, 20);
-            InventoryReservation reservation = buildReservation(1L, 100L, 2);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory1, inventory2));
-            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
-
-            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
-
-            assertThat(inventory1.getStockValue()).isEqualTo(8);
-            assertThat(inventory1.getReserved()).isEqualTo(0);
-            assertThat(inventory2.getStockValue()).isEqualTo(15);
-            assertThat(inventory2.getReserved()).isEqualTo(0);
-        }
-
-        @Test
-        @DisplayName("예약→실차감 후에도 이력 저장, 캐시 저장, 이벤트 발행이 정상 수행된다")
-        void reduce_withReservation_callsAllSubsequentPorts() {
-            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
-            Inventory inventory = buildInventoryWithReserved(1L, 100L, 10, 3);
-            InventoryReservation reservation = buildReservation(1L, 100L, 3);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
-            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
-
-            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
-
-            verify(updateInventoryPort).update(any());
-            verify(saveInventoryDeductionHistoryPort).save(any(InventoryDeductionHistories.class));
-            verify(saveCacheStockPort).save(any(Set.class));
-            verify(publishInventoryEventPort).publishInventoryChangedEvent(
-                    100L, 1L, 7, InventoryChangeAction.UPDATED
-            );
-        }
-
-        @Test
-        @DisplayName("예약→실차감 시 예약 조회 → 차감/확정 → 예약 삭제 → 업데이트 순서로 호출한다")
-        @SuppressWarnings("unchecked")
-        void reduce_withReservation_callsInCorrectOrder() {
-            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
-            Inventory inventory = buildInventoryWithReserved(1L, 100L, 10, 3);
-            InventoryReservation reservation = buildReservation(1L, 100L, 3);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
-            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
-                    .thenReturn(List.of(reservation));
-
-            reduceProductInventoryService.reduce(orderProducts, 1L, "결제 완료");
-
-            InOrder inOrder = inOrder(findInventoryPort, findInventoryReservationPort,
-                    deleteInventoryReservationPort, updateInventoryPort,
-                    saveInventoryDeductionHistoryPort, saveCacheStockPort);
-            inOrder.verify(findInventoryPort).findByPricePolicyIds(any());
-            inOrder.verify(findInventoryReservationPort).findByOrderIdAndPricePolicyIds(eq(1L), any());
-            inOrder.verify(deleteInventoryReservationPort).deleteByOrderIdAndPricePolicyIds(eq(1L), any());
-            inOrder.verify(updateInventoryPort).update(any());
-            inOrder.verify(saveInventoryDeductionHistoryPort).save(any(InventoryDeductionHistories.class));
-            inOrder.verify(saveCacheStockPort).save(any(Set.class));
-        }
-    }
-
-    // ==================================================================================
     // 헬퍼 메서드
     // ==================================================================================
 
@@ -1060,26 +902,6 @@ class ReduceProductInventoryUseCaseTest {
 
     private Inventory buildInventory(Long productId, Long pricePolicyId, int stock) {
         return Inventory.of(productId, pricePolicyId, stock, 0L);
-    }
-
-    private Inventory buildInventoryWithReserved(Long productId, Long pricePolicyId, int stock, int reserved) {
-        return Inventory.from(InventorySnapshotState.builder()
-                .productId(productId)
-                .pricePolicyId(pricePolicyId)
-                .stock(stock)
-                .version(0L)
-                .reserved(reserved)
-                .build());
-    }
-
-    private InventoryReservation buildReservation(Long orderId, Long pricePolicyId, int quantity) {
-        return InventoryReservation.from(InventoryReservationSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .reservedAt(LocalDateTime.now())
-                .build());
     }
 
     // ==================================================================================

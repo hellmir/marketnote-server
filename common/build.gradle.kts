@@ -81,27 +81,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.named<Test>("test") {
-    useJUnitPlatform {
-        excludeTags("broker-failure")
-    }
-}
-
-tasks.register<Test>("brokerFailureTest") {
-    description = "KafkaBrokerFailureScenarioTest를 독립 JVM에서 실행한다"
-    group = "verification"
-    testClassesDirs = sourceSets["test"].output.classesDirs
-    classpath = sourceSets["test"].runtimeClasspath
-    shouldRunAfter("test")
-    useJUnitPlatform {
-        includeTags("broker-failure")
-    }
-}
-
-tasks.named("check") {
-    dependsOn("brokerFailureTest")
-}
-
 tasks.named("bootJar") {
     enabled = false
 }

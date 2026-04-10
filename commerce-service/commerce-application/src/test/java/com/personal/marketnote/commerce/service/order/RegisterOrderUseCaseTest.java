@@ -24,7 +24,7 @@ import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
-import com.personal.marketnote.commerce.domain.inventory.InsufficientAvailableStockException;
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InsufficientQuantityException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -1469,7 +1469,7 @@ class RegisterOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("재고가 부족하면 InsufficientAvailableStockException이 발생한다")
+        @DisplayName("재고가 부족하면 InsufficientQuantityException이 발생한다")
         void registerOrder_insufficientStock_throwsException() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
@@ -1493,14 +1493,14 @@ class RegisterOrderUseCaseTest {
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class)
-                    .hasMessageContaining("가용재고가 부족합니다");
+                    .isInstanceOf(InsufficientQuantityException.class)
+                    .hasMessageContaining("재고 수량이 부족합니다");
 
             verify(saveOrderPort, never()).save(any(Order.class));
         }
 
         @Test
-        @DisplayName("재고가 0이고 주문 수량이 1 이상이면 InsufficientAvailableStockException이 발생한다")
+        @DisplayName("재고가 0이고 주문 수량이 1 이상이면 InsufficientQuantityException이 발생한다")
         void registerOrder_zeroStock_throwsException() {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
@@ -1512,13 +1512,13 @@ class RegisterOrderUseCaseTest {
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                    .isInstanceOf(InsufficientQuantityException.class);
 
             verify(saveOrderPort, never()).save(any(Order.class));
         }
 
         @Test
-        @DisplayName("복수 상품 중 하나라도 재고가 부족하면 InsufficientAvailableStockException이 발생한다")
+        @DisplayName("복수 상품 중 하나라도 재고가 부족하면 InsufficientQuantityException이 발생한다")
         void registerOrder_oneProductInsufficientStock_throwsException() {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
@@ -1554,7 +1554,7 @@ class RegisterOrderUseCaseTest {
                     .thenReturn(Set.of(inventory1, inventory2));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                    .isInstanceOf(InsufficientQuantityException.class);
 
             verify(saveOrderPort, never()).save(any(Order.class));
         }
@@ -1591,9 +1591,9 @@ class RegisterOrderUseCaseTest {
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class)
-                    .hasMessageContaining("현재 가용재고: 6")
-                    .hasMessageContaining("요청 수량: 7");
+                    .isInstanceOf(InsufficientQuantityException.class)
+                    .hasMessageContaining("현재 재고 수량: 6")
+                    .hasMessageContaining("주문 수량: 7");
         }
 
         @Test
@@ -1697,7 +1697,7 @@ class RegisterOrderUseCaseTest {
                     .thenReturn(Set.of(inventory));
 
             assertThatThrownBy(() -> registerOrderService.registerOrder(command))
-                    .isInstanceOf(InsufficientAvailableStockException.class);
+                    .isInstanceOf(InsufficientQuantityException.class);
 
             verify(getInventoryUseCase).getOrCreateInventories(anyMap());
             verifyNoInteractions(saveOrderPort);

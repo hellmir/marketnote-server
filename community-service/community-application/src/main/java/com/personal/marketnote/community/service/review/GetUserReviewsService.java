@@ -59,10 +59,10 @@ public class GetUserReviewsService implements GetUserReviewsUseCase {
 
         List<UserReviewItemResult> reviewItems = reviewList.stream()
                 .map(review -> {
-                    ReviewProductInfoResult productInfo =
-                            ReviewProductInfoResult.resolveForReview(
-                                    review, productInfoByPricePolicyId
-                            );
+                    Long pricePolicyId = review.getPricePolicyId();
+                    ReviewProductInfoResult productInfo = FormatValidator.hasValue(pricePolicyId)
+                            ? productInfoByPricePolicyId.get(pricePolicyId)
+                            : null;
 
                     return UserReviewItemResult.from(
                             review,
