@@ -33,6 +33,7 @@ import org.springframework.data.domain.Sort;
 
 import com.personal.marketnote.community.exception.NotReviewAuthorException;
 import com.personal.marketnote.community.exception.ReviewNotFoundException;
+import com.personal.marketnote.community.port.in.result.review.GetReviewCountResult;
 import com.personal.marketnote.community.port.in.result.review.ReviewProductInfoResult;
 
 import java.math.BigDecimal;
@@ -621,6 +622,31 @@ class GetReviewUseCaseTest {
             boolean result = getReviewService.isReviewCountUnderHundred(productId);
             assertThat(result).isTrue();
             verify(findReviewPort).countActive(productId, false);
+        }
+    }
+
+    @Nested
+    @DisplayName("작성자 리뷰 개수 조회")
+    class GetWriterReviewCountTest {
+
+        @Test
+        @DisplayName("작성자의 활성 리뷰 개수를 반환한다")
+        void shouldReturnWriterReviewCount() {
+            Long userId = 100L;
+            when(findReviewPort.countActive(userId)).thenReturn(15L);
+            GetReviewCountResult result = getReviewService.getWriterReviewCount(userId);
+            assertThat(result.totalCount()).isEqualTo(15L);
+            verify(findReviewPort).countActive(userId);
+        }
+
+        @Test
+        @DisplayName("작성자의 리뷰가 없으면 0을 반환한다")
+        void shouldReturnZeroWhenNoReviews() {
+            Long userId = 100L;
+            when(findReviewPort.countActive(userId)).thenReturn(0L);
+            GetReviewCountResult result = getReviewService.getWriterReviewCount(userId);
+            assertThat(result.totalCount()).isEqualTo(0L);
+            verify(findReviewPort).countActive(userId);
         }
     }
 
