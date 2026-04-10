@@ -12,7 +12,7 @@ public class RegisterReviewRequest {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "주문 ID는 필수값입니다.")
-    @Positive(message = "주문 ID는 자연수만 입력 가능합니다.")
+    @Positive(message = "가격 정책 ID는 자연수만 입력 가능합니다.")
     @Min(value = 1, message = "주문 ID는 1 이상이어야 합니다.")
     @Max(value = Long.MAX_VALUE, message = "주문 ID는 정수형 최대값을 초과할 수 없습니다.")
     private Long orderId;
@@ -102,12 +102,4 @@ public class RegisterReviewRequest {
     )
     @NotNull(message = "포토 리뷰 여부는 필수값입니다.")
     private Boolean isPhoto;
-
-    @Schema(
-            name = "unitAmount",
-            description = "주문 상품 구매 시점 단가",
-            requiredMode = Schema.RequiredMode.NOT_REQUIRED
-    )
-    @Positive(message = "주문 상품 구매 시점 단가는 양수만 입력 가능합니다.")
-    private Long unitAmount;
 }

@@ -29,9 +29,6 @@ public class InventoryJpaEntity extends BaseEntity {
     @Column(name = "stock", nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer stock;
 
-    @Column(name = "reserved", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private Integer reserved;
-
     // RDBMS 낙관적 락 기반의 동시성 제어
     @Version
     @Column(name = "version", nullable = false, columnDefinition = "BIGINT DEFAULT 0")
@@ -42,14 +39,12 @@ public class InventoryJpaEntity extends BaseEntity {
                 inventory.getProductId(),
                 inventory.getPricePolicyId(),
                 inventory.getStockValue(),
-                inventory.getReserved(),
                 inventory.getVersion()
         );
     }
 
     public void updateFrom(Inventory inventory) {
         stock = inventory.getStockValue();
-        reserved = inventory.getReserved();
     }
 
     @PostLoad

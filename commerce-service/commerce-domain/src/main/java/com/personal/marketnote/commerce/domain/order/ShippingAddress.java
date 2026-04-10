@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
-import com.personal.marketnote.common.domain.delivery.PickupRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -17,7 +16,6 @@ public class ShippingAddress {
     private String addressDetail;
     private DeliveryRequestType deliveryRequestType;
     private String deliveryRequestMessage;
-    private PickupRequestType pickupRequestType;
 
     public static ShippingAddress of(
             String recipientName,
@@ -36,26 +34,6 @@ public class ShippingAddress {
                 .addressDetail(addressDetail)
                 .deliveryRequestType(deliveryRequestType)
                 .deliveryRequestMessage(deliveryRequestMessage)
-                .build();
-    }
-
-    public static ShippingAddress ofPickup(
-            String recipientName,
-            String recipientPhoneNumber,
-            String zipCode,
-            String address,
-            String addressDetail,
-            PickupRequestType pickupRequestType,
-            String pickupRequestMessage
-    ) {
-        return ShippingAddress.builder()
-                .recipientName(recipientName)
-                .recipientPhoneNumber(recipientPhoneNumber)
-                .zipCode(zipCode)
-                .address(address)
-                .addressDetail(addressDetail)
-                .pickupRequestType(pickupRequestType)
-                .deliveryRequestMessage(pickupRequestMessage)
                 .build();
     }
 
