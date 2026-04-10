@@ -128,7 +128,7 @@ public class OrderJpaEntityToDomainMapper {
             return null;
         }
 
-        return ShippingAddress.of(
+        return ShippingAddress.ofPickup(
                 entity.getPickupRecipientName(),
                 entity.getPickupRecipientPhoneNumber(),
                 entity.getPickupZipCode(),

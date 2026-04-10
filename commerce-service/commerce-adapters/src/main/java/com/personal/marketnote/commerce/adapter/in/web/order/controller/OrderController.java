@@ -3,12 +3,15 @@ package com.personal.marketnote.commerce.adapter.in.web.order.controller;
 import com.personal.marketnote.commerce.adapter.in.web.order.controller.apidocs.*;
 import com.personal.marketnote.commerce.adapter.in.web.order.mapper.AdminOrderRequestToCommandMapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.mapper.OrderRequestToCommandMapper;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestRefundRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusFilter;
+import com.personal.marketnote.commerce.port.in.command.order.ConfirmOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHistoryQuery;
 import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProductReviewStatusCommand;
 import com.personal.marketnote.commerce.port.in.result.order.*;
@@ -48,6 +51,9 @@ public class OrderController {
     private final RegisterOrderUseCase registerOrderUseCase;
     private final UpdateUserShippingAddressDeliveryRequestPort updateUserShippingAddressDeliveryRequestPort;
     private final GetOrderUseCase getOrderUseCase;
+    private final CancelOrderUseCase cancelOrderUseCase;
+    private final RequestRefundUseCase requestRefundUseCase;
+    private final ConfirmOrderUseCase confirmOrderUseCase;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
     private final GetAdminOrdersUseCase getAdminOrdersUseCase;
@@ -234,6 +240,109 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "나의 주문 내역 개수 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 주문 취소 요청
+     *
+     * @param id        주문 ID
+     * @param request   주문 취소 요청
+     * @param principal 인증된 사용자 정보
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 구매자가 주문 취소를 요청합니다. 주문 상태를 CANCEL_REQUESTED로 변경합니다.
+     */
+    @PostMapping("/api/v1/orders/{id}/cancel")
+    @CancelOrderApiDocs
+    public ResponseEntity<BaseResponse<Void>> cancelOrder(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody CancelOrderRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        cancelOrderUseCase.cancelOrder(
+                OrderRequestToCommandMapper.mapToCancelCommand(id, request, buyerId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "주문 취소 요청 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 환불(반품) 요청
+     *
+     * @param id        주문 ID
+     * @param request   환불 요청
+     * @param principal 인증된 사용자 정보
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 구매자가 환불(반품)을 요청합니다. 주문 상태를 REFUND_REQUESTED로 변경합니다.
+     */
+    @PostMapping("/api/v1/orders/{id}/refund-request")
+    @RequestRefundApiDocs
+    public ResponseEntity<BaseResponse<Void>> requestRefund(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody RequestRefundRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        requestRefundUseCase.requestRefund(
+                OrderRequestToCommandMapper.mapToRefundRequestCommand(id, request, buyerId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "환불(반품) 요청 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 구매 확정
+     *
+     * @param id        주문 ID
+     * @param principal 인증된 사용자 정보
+     * @Author 성효빈
+     * @Date 2026-04-05
+     * @Description 구매자가 구매 확정을 요청합니다. 주문 상태를 CONFIRMED로 변경합니다.
+     */
+    @PostMapping("/api/v1/orders/{id}/confirm")
+    @ConfirmOrderApiDocs
+    public ResponseEntity<BaseResponse<Void>> confirmOrder(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        confirmOrderUseCase.confirmOrder(
+                ConfirmOrderCommand.builder()
+                        .id(id)
+                        .buyerId(buyerId)
+                        .build()
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "구매 확정 성공"
                 ),
                 HttpStatus.OK
         );
