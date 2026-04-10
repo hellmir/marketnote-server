@@ -20,8 +20,10 @@ public class SecurityPropertiesValidator {
 
     private static final Set<String> WEAK_DEFAULTS = Set.of(
             "dev-secret-change-me", "dev-hmac-secret-change-me",
+            "dev-pin-key-change-me",
             "abc", "def", "ghi",
-            "change-me", "password", "root", "secret", "test"
+            "change-me", "password", "root", "secret", "test",
+            "0000", "1234567890123456"
     );
 
     @Value("${spring.jwt.secret:}")
@@ -48,6 +50,9 @@ public class SecurityPropertiesValidator {
     @Value("${spring.kafka.sasl.password:}")
     private String kafkaSaslPassword;
 
+    @Value("${gifticon.pin.encrypt-key:}")
+    private String gifticonPinEncryptKey;
+
     @PostConstruct
     public void validateSecurityProperties() {
         List<String> violations = new ArrayList<>();
@@ -61,6 +66,8 @@ public class SecurityPropertiesValidator {
             validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);
             validateRequired(violations, "spring.kafka.sasl.password (KAFKA_SASL_PASSWORD)", kafkaSaslPassword);
         }
+
+        validateRequired(violations, "gifticon.pin.encrypt-key (GIFTICON_PIN_ENCRYPT_KEY)", gifticonPinEncryptKey);
 
         if (!violations.isEmpty()) {
             String message = String.join("\n  - ", violations);

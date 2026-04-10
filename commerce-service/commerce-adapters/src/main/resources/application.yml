@@ -124,6 +124,13 @@ settlement:
     default-pg-fee-rate: ${SETTLEMENT_DEFAULT_PG_FEE_RATE:300}
     default-platform-fee-rate: ${SETTLEMENT_DEFAULT_PLATFORM_FEE_RATE:500}
 
+inventory:
+  reservation:
+    scheduler:
+      enabled: ${INVENTORY_RESERVATION_SCHEDULER_ENABLED:false}
+      timeout-minutes: ${INVENTORY_RESERVATION_TIMEOUT_MINUTES:10}
+      check-interval-ms: ${INVENTORY_RESERVATION_CHECK_INTERVAL_MS:60000}
+
 management:
   endpoints:
     web:

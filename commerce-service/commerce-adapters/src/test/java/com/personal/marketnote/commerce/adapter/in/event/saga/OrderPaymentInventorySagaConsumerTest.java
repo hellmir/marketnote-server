@@ -3,7 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.event.saga;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.inventory.ReleaseInventoryReservationUseCase;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
@@ -46,7 +46,7 @@ class OrderPaymentInventorySagaConsumerTest {
     private ReduceProductInventoryUseCase reduceProductInventoryUseCase;
 
     @Mock
-    private RestoreProductInventoryUseCase restoreProductInventoryUseCase;
+    private ReleaseInventoryReservationUseCase releaseInventoryReservationUseCase;
 
     @Mock
     private SagaResponsePublisher sagaResponsePublisher;
@@ -148,7 +148,7 @@ class OrderPaymentInventorySagaConsumerTest {
             consumer.handleInventoryStep(record, acknowledgment);
 
             // then
-            verify(restoreProductInventoryUseCase).restore(anyList(), eq(1L), anyString());
+            verify(releaseInventoryReservationUseCase).release(anyList(), eq(1L), anyString());
             verify(sagaResponsePublisher).publishSuccess(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{\"compensated\":true}");
             verify(acknowledgment).acknowledge();
@@ -163,7 +163,7 @@ class OrderPaymentInventorySagaConsumerTest {
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("복구 실패"))
-                    .when(restoreProductInventoryUseCase).restore(anyList(), eq(1L), anyString());
+                    .when(releaseInventoryReservationUseCase).release(anyList(), eq(1L), anyString());
 
             // when
             consumer.handleInventoryStep(record, acknowledgment);

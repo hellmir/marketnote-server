@@ -51,6 +51,7 @@ public class Review {
     private LocalDateTime modifiedAt;
 
     private Long orderNum;
+    private Long unitAmount;
 
     public static Review from(ReviewCreateState state) {
         return Review.builder()
@@ -66,6 +67,7 @@ public class Review {
                 .rating(round(state.getRating()))
                 .content(state.getContent())
                 .isPhoto(state.getIsPhoto())
+                .unitAmount(state.getUnitAmount())
                 .status(EntityStatus.ACTIVE)
                 .build();
     }
@@ -97,7 +99,12 @@ public class Review {
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .orderNum(state.getOrderNum())
+                .unitAmount(state.getUnitAmount())
                 .build();
+    }
+
+    public boolean hasUnitAmount() {
+        return FormatValidator.hasValue(unitAmount);
     }
 
     public void updateIsUserLiked(boolean isUserLiked) {

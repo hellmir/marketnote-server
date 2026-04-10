@@ -21,6 +21,11 @@ public interface OutboxEventJpaRepository extends JpaRepository<OutboxEventJpaEn
 
     long countByStatus(OutboxEventStatus status);
 
+    long countByStatusAndTopic(OutboxEventStatus status, String topic);
+
+    @Query("SELECT e.topic, COUNT(e) FROM OutboxEventJpaEntity e WHERE e.status = :status GROUP BY e.topic ORDER BY e.topic")
+    List<Object[]> countByStatusGroupByTopic(@Param("status") OutboxEventStatus status);
+
     @Query("SELECT DISTINCT e.topic FROM OutboxEventJpaEntity e WHERE e.status = :status")
     List<String> findDistinctTopicByStatus(@Param("status") OutboxEventStatus status);
 

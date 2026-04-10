@@ -93,6 +93,9 @@ import java.lang.annotation.*;
                 | orderStatus | string | 주문 상태 | Y | "PAYMENT_PENDING" |
                 | reasonCategory | string | 변경 사유 카테고리 | N | "CANCEL_ORDER" |
                 | reason | string | 변경 사유 | N | default: 변경된 주문 상태의 디스크립션 |
+                | pickupAddressId | number | 회수지 배송지 ID (반품 신청 시, 미입력 시 배송지 기본값) | N | 5 |
+                | pickupRequestType | string | 회수 요청 타입 (NONE, CALL_BEFORE_VISIT, LEAVE_AT_DOOR, LEAVE_AT_SECURITY, CUSTOM) | N | "LEAVE_AT_DOOR" |
+                | pickupRequestMessage | string | 회수 요청사항 (CUSTOM 시 필수, 60자 제한) | N | "부재시 경비실에 맡겨주세요" |
                 
                 ---
                 
@@ -122,9 +125,12 @@ import java.lang.annotation.*;
                         examples = @ExampleObject("""
                                 {
                                   "pricePolicyIds": [1, 2, 3],
-                                  "orderStatus": "PAYMENT_PENDING",
+                                  "orderStatus": "REFUND_REQUESTED",
                                   "reasonCategory": "CANCEL_ORDER",
-                                  "reason": "주문 상태 변경 사유"
+                                  "reason": "주문 상태 변경 사유",
+                                  "pickupAddressId": 5,
+                                  "pickupRequestType": "LEAVE_AT_DOOR",
+                                  "pickupRequestMessage": null
                                 }
                                 """)
                 )

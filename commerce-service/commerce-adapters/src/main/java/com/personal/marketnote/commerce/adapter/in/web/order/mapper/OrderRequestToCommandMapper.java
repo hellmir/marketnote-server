@@ -1,12 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 
+import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
-import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
-import com.personal.marketnote.commerce.port.in.command.order.OrderAmountCommand;
-import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
-import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestRefundRequest;
+import com.personal.marketnote.commerce.port.in.command.order.*;
 
 import java.util.List;
 
@@ -42,6 +40,30 @@ public class OrderRequestToCommandMapper {
                 .build();
     }
 
+    public static CancelOrderCommand mapToCancelCommand(Long id, CancelOrderRequest request, Long buyerId) {
+        return CancelOrderCommand.builder()
+                .id(id)
+                .reasonCategory(request.getReasonCategory())
+                .reason(request.getReason())
+                .buyerId(buyerId)
+                .build();
+    }
+
+    public static RequestRefundCommand mapToRefundRequestCommand(Long id, RequestRefundRequest request, Long buyerId) {
+        return RequestRefundCommand.builder()
+                .id(id)
+                .reasonCategory(request.getReasonCategory())
+                .reason(request.getReason())
+                .buyerId(buyerId)
+                .pickupRecipientName(request.getPickupRecipientName())
+                .pickupRecipientPhoneNumber(request.getPickupRecipientPhoneNumber())
+                .pickupZipCode(request.getPickupZipCode())
+                .pickupAddress(request.getPickupAddress())
+                .pickupAddressDetail(request.getPickupAddressDetail())
+                .pickupRequestMessage(request.getPickupRequestMessage())
+                .build();
+    }
+
     public static ChangeOrderStatusCommand mapToCommand(Long id, ChangeOrderStatusRequest request, String role, Long buyerId) {
         return ChangeOrderStatusCommand.builder()
                 .id(id)
@@ -51,15 +73,9 @@ public class OrderRequestToCommandMapper {
                 .reason(request.getReason())
                 .role(role)
                 .buyerId(buyerId)
-                .pickupAddress(ShippingAddress.of(
-                        request.getPickupRecipientName(),
-                        request.getPickupRecipientPhoneNumber(),
-                        request.getPickupZipCode(),
-                        request.getPickupAddress(),
-                        request.getPickupAddressDetail(),
-                        null,
-                        request.getPickupRequestMessage()
-                ))
+                .pickupAddressId(request.getPickupAddressId())
+                .pickupRequestType(request.getPickupRequestType())
+                .pickupRequestMessage(request.getPickupRequestMessage())
                 .build();
     }
 }
