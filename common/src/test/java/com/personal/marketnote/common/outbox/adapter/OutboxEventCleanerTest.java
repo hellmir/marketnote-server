@@ -53,4 +53,21 @@ class OutboxEventCleanerTest {
         // then
         verify(outboxEventJpaRepository).deleteByStatusAndPublishedAtBefore(OutboxEventStatus.PUBLISHED, expectedCutoff);
     }
+
+    @Test
+    @DisplayName("DISCARDED 이벤트가 보존기간 경과 후 자동 정리된다")
+    void cleanupDiscardedEvents_deletesDiscardedEventsOlderThanRetentionDays() {
+        // given
+        when(clock.instant()).thenReturn(FIXED_CLOCK.instant());
+        when(clock.getZone()).thenReturn(FIXED_CLOCK.getZone());
+        when(outboxProperties.getRetentionDays()).thenReturn(7);
+
+        LocalDateTime expectedCutoff = LocalDateTime.now(FIXED_CLOCK).minusDays(7);
+
+        // when
+        outboxEventCleaner.cleanupDiscardedEvents();
+
+        // then
+        verify(outboxEventJpaRepository).deleteByStatusAndDiscardedAtBefore(OutboxEventStatus.DISCARDED, expectedCutoff);
+    }
 }
