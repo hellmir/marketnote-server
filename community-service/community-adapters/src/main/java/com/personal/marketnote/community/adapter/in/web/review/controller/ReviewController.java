@@ -187,9 +187,11 @@ public class ReviewController {
             @PathVariable("id") Long id,
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
-        ReviewItemResult result = ReviewItemResult.from(
-                getReviewUseCase.getReview(id, ElementExtractor.extractUserId(principal))
-        );
+        Long userId = FormatValidator.hasValue(principal)
+                ? ElementExtractor.extractUserId(principal)
+                : null;
+
+        ReviewItemResult result = getReviewUseCase.getReviewDetail(id, userId);
 
         return new ResponseEntity<>(
                 BaseResponse.of(

@@ -20,4 +20,5 @@ public class ReviewCreateState {
     private final Float rating;
     private final String content;
     private final Boolean isPhoto;
+    private final Long unitAmount;
 }

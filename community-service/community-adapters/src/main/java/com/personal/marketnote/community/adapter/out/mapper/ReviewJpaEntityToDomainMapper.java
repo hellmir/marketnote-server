@@ -35,6 +35,7 @@ public class ReviewJpaEntityToDomainMapper {
                                 .createdAt(entity.getCreatedAt())
                                 .modifiedAt(entity.getModifiedAt())
                                 .orderNum(entity.getOrderNum())
+                                .unitAmount(entity.getUnitAmount())
                                 .build()
                 )
         );

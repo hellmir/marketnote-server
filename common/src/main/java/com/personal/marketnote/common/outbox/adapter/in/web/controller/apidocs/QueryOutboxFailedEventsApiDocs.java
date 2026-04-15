@@ -24,27 +24,27 @@ import java.lang.annotation.*;
         summary = "(관리자) Outbox FAILED 이벤트 조회",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 Outbox FAILED 상태의 이벤트 목록을 조회합니다. 토픽 필터를 적용할 수 있습니다.
-
+                
                 ---
-
+                
                 ## Query Parameters
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | topic | string | 토픽명 필터 | N | "commerce.payment.approved" |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | content | array | FAILED 이벤트 목록 | - |

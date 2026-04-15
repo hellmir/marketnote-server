@@ -60,6 +60,9 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "edited_yn", nullable = false, columnDefinition = BOOLEAN_DEFAULT_FALSE)
     private Boolean isEdited;
 
+    @Column(name = "unit_amount")
+    private Long unitAmount;
+
     @Formula("""
             (
                 SELECT count(l.user_id)
@@ -85,6 +88,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
                 .rating(review.getRating())
                 .content(review.getContent())
                 .isPhoto(review.getIsPhoto())
+                .unitAmount(review.getUnitAmount())
                 .build();
     }
 

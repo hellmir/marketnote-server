@@ -14,6 +14,7 @@ public record RegisterReviewCommand(
         String reviewerName,
         Float rating,
         String content,
-        Boolean isPhoto
+        Boolean isPhoto,
+        Long unitAmount
 ) {
 }

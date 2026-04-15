@@ -83,9 +83,4 @@ public class Stock {
         return this.stock + quantity;
     }
 
-    public void validateIsSufficient(int orderQuantity) {
-        if (stock < orderQuantity) {
-            throw new InsufficientQuantityException(stock, orderQuantity);
-        }
-    }
 }

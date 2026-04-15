@@ -139,10 +139,10 @@ class OutboxQueryServiceTest {
     }
 
     private OutboxEventJpaEntity createFailedEntity(Long id, String eventId, String topic, String partitionKey,
-                                                     String eventType, String source,
-                                                     int retryCount, int maxRetries,
-                                                     LocalDateTime createdAt, LocalDateTime failedAt,
-                                                     String lastErrorMessage) {
+                                                    String eventType, String source,
+                                                    int retryCount, int maxRetries,
+                                                    LocalDateTime createdAt, LocalDateTime failedAt,
+                                                    String lastErrorMessage) {
         OutboxEventJpaEntity entity = mock(OutboxEventJpaEntity.class);
         when(entity.getId()).thenReturn(id);
         when(entity.getEventId()).thenReturn(eventId);

@@ -2,12 +2,14 @@ package com.personal.marketnote.commerce.service.inventory;
 
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
+import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReduceProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,8 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
     private final SaveCacheStockPort saveCacheStockPort;
     private final InventoryLockPort inventoryLockPort;
     private final PublishInventoryEventPort publishInventoryEventPort;
+    private final FindInventoryReservationPort findInventoryReservationPort;
+    private final DeleteInventoryReservationPort deleteInventoryReservationPort;
 
     @Override
     public void reduce(List<OrderProduct> orderProducts, Long orderId, String reason) {
@@ -42,9 +46,28 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
         // Redisson Pub/Sub 모델 분산 락 기반의 동시성 제어
         inventoryLockPort.executeWithLock(stocksByPricePolicyId.keySet(), () -> {
             Set<Inventory> inventories = findInventoryPort.findByPricePolicyIds(stocksByPricePolicyId.keySet());
-            inventories.forEach(inventory -> inventory.reduce(
-                    stocksByPricePolicyId.get(inventory.getPricePolicyId())
-            ));
+
+            List<InventoryReservation> reservations = findInventoryReservationPort
+                    .findByOrderIdAndPricePolicyIds(orderId, stocksByPricePolicyId.keySet());
+
+            Map<Long, InventoryReservation> reservationByPricePolicyId = reservations.stream()
+                    .collect(Collectors.toMap(InventoryReservation::getPricePolicyId, r -> r));
+
+            Set<Long> reservedPricePolicyIds = reservationByPricePolicyId.keySet();
+
+            inventories.forEach(inventory -> {
+                int quantity = stocksByPricePolicyId.get(inventory.getPricePolicyId());
+                InventoryReservation reservation = reservationByPricePolicyId.get(inventory.getPricePolicyId());
+                if (FormatValidator.hasValue(reservation)) {
+                    inventory.confirmReservation(reservation.getQuantity());
+                    return;
+                }
+                inventory.reduce(quantity);
+            });
+
+            if (!reservedPricePolicyIds.isEmpty()) {
+                deleteInventoryReservationPort.deleteByOrderIdAndPricePolicyIds(orderId, reservedPricePolicyIds);
+            }
 
             updateInventoryPort.update(inventories);
             Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
