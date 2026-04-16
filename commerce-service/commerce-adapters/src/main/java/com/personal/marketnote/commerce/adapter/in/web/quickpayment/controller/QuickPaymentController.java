@@ -1,19 +1,28 @@
 package com.personal.marketnote.commerce.adapter.in.web.quickpayment.controller;
 
+import com.personal.marketnote.commerce.adapter.in.web.quickpayment.controller.apidocs.IssueBatchKeyApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.quickpayment.controller.apidocs.RegisterQuickPaymentTransactionApiDocs;
+import com.personal.marketnote.commerce.adapter.in.web.quickpayment.request.IssueBatchKeyRequest;
+import com.personal.marketnote.commerce.adapter.in.web.quickpayment.response.IssueBatchKeyResponse;
 import com.personal.marketnote.commerce.adapter.in.web.quickpayment.response.RegisterQuickPaymentTransactionResponse;
+import com.personal.marketnote.commerce.port.in.command.quickpayment.IssueBatchKeyCommand;
 import com.personal.marketnote.commerce.port.in.command.quickpayment.RegisterQuickPaymentTransactionCommand;
+import com.personal.marketnote.commerce.port.in.result.quickpayment.IssueBatchKeyResult;
 import com.personal.marketnote.commerce.port.in.result.quickpayment.RegisterQuickPaymentTransactionResult;
+import com.personal.marketnote.commerce.port.in.usecase.quickpayment.IssueBatchKeyUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.quickpayment.RegisterQuickPaymentTransactionUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
@@ -28,8 +37,10 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @Tag(name = "빠른결제 API", description = "빠른결제 관련 API")
 @RequiredArgsConstructor
+@Validated
 public class QuickPaymentController {
     private final RegisterQuickPaymentTransactionUseCase registerQuickPaymentTransactionUseCase;
+    private final IssueBatchKeyUseCase issueBatchKeyUseCase;
 
     /**
      * 빠른결제 거래 등록 (Mobile)
@@ -58,6 +69,42 @@ public class QuickPaymentController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "빠른결제 거래 등록 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 빠른결제 카드 배치키 발급
+     *
+     * @param request 배치키 발급 요청
+     * @return 배치키 발급 응답 {@link IssueBatchKeyResponse}
+     * @Author 성효빈
+     * @Date 2026-04-16
+     * @Description 결제창 인증 완료 후 enc_data/enc_info로 KCP 배치키를 발급합니다.
+     */
+    @PostMapping("/api/v1/quick-payments/cards")
+    @IssueBatchKeyApiDocs
+    public ResponseEntity<BaseResponse<IssueBatchKeyResponse>> issueBatchKey(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @Valid @RequestBody IssueBatchKeyRequest request
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        IssueBatchKeyResult result = issueBatchKeyUseCase.issueBatchKey(
+                IssueBatchKeyCommand.builder()
+                        .userId(userId)
+                        .encData(request.getEncData())
+                        .encInfo(request.getEncInfo())
+                        .build()
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        IssueBatchKeyResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "빠른결제 카드 배치키 발급 성공"
                 ),
                 HttpStatus.OK
         );

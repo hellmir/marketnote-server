@@ -23,6 +23,7 @@ public class KcpProperties {
         private String tradeRegisterUrl;
         private String paymentApprovalUrl;
         private String paymentCancelUrl;
+        private String batchKeyIssuanceUrl;
     }
 
     @Getter
