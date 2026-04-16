@@ -2,8 +2,8 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.reward.domain.gifticon.GifticonCategory;
 import com.personal.marketnote.reward.domain.gifticon.GifticonCategorySnapshotState;
-import com.personal.marketnote.reward.port.in.result.gifticon.GifticonCategoryItemResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonCategoriesResult;
+import com.personal.marketnote.reward.port.in.result.gifticon.GifticonCategoryItemResult;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonCategoryPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -75,7 +75,7 @@ class GetAdminGifticonCategoriesServiceTest {
     }
 
     private GifticonCategory createCategory(Long id, String categoryCode, String categoryName,
-                                             String displayName, boolean exposed, Integer orderNum) {
+                                            String displayName, boolean exposed, Integer orderNum) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
                 .id(id)
                 .categoryCode(categoryCode)

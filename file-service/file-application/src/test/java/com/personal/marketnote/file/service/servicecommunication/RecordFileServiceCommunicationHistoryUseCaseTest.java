@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -20,8 +21,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RecordFileServiceCommunicationHistoryUseCase 테스트")
 class RecordFileServiceCommunicationHistoryUseCaseTest {
-    @InjectMocks private RecordFileServiceCommunicationHistoryService recordService;
-    @Mock private SaveFileServiceCommunicationHistoryPort saveServiceCommunicationHistoryPort;
+    @InjectMocks
+    private RecordFileServiceCommunicationHistoryService recordService;
+    @Mock
+    private SaveFileServiceCommunicationHistoryPort saveServiceCommunicationHistoryPort;
 
     @Test
     @DisplayName("통신 기록 저장 시 Command를 CreateState로 매핑하여 저장하고 결과를 반환한다")

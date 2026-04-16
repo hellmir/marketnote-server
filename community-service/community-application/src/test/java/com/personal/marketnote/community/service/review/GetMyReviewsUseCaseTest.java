@@ -1,11 +1,11 @@
 package com.personal.marketnote.community.service.review;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.domain.review.ReviewSortProperty;
 import com.personal.marketnote.community.domain.review.Reviews;
-import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.community.port.in.result.review.GetMyReviewsResult;
 import com.personal.marketnote.community.port.in.result.review.MyReviewItemResult;
 import com.personal.marketnote.community.port.in.usecase.like.GetLikeUseCase;

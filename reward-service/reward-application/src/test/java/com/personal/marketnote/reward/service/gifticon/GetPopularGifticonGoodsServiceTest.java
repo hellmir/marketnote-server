@@ -64,7 +64,7 @@ class GetPopularGifticonGoodsServiceTest {
     }
 
     private GifticonGoods createGoods(Long id, String goodsCode, String goodsName,
-                                       Long salePrice, Long cashPrice) {
+                                      Long salePrice, Long cashPrice) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
                 .id(id)
                 .goodsCode(goodsCode)

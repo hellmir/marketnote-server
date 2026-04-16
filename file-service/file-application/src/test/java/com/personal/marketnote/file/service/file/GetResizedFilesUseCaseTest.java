@@ -15,8 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,9 +26,12 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("GetFileUseCase.getResizedFiles 테스트")
 class GetResizedFilesUseCaseTest {
-    @InjectMocks private GetFileService getFileService;
-    @Mock private FindFilePort findFilePort;
-    @Mock private FindResizedFilesPort findResizedFilesPort;
+    @InjectMocks
+    private GetFileService getFileService;
+    @Mock
+    private FindFilePort findFilePort;
+    @Mock
+    private FindResizedFilesPort findResizedFilesPort;
 
     @Nested
     @DisplayName("리사이즈 파일 조회")

@@ -3,7 +3,6 @@ package com.personal.marketnote.reward.service.gifticon;
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
-import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsDetailCommand;

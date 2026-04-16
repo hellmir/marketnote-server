@@ -1,10 +1,6 @@
 package com.personal.marketnote.commerce.service.inventory;
 
-import com.personal.marketnote.commerce.domain.inventory.Inventory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservationSnapshotState;
-import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistories;
-import com.personal.marketnote.commerce.domain.inventory.InventorySnapshotState;
+import com.personal.marketnote.commerce.domain.inventory.*;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;

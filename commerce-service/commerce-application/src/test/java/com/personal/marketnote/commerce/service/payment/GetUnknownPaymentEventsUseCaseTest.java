@@ -94,8 +94,8 @@ class GetUnknownPaymentEventsUseCaseTest {
     }
 
     private PspPaymentEvent createUnknownEvent(Long id, Long orderId, String orderKey,
-                                                Long amount, String method,
-                                                String resultCode, String resultMessage) {
+                                               Long amount, String method,
+                                               String resultCode, String resultMessage) {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
                 .id(id)
                 .orderId(orderId)
