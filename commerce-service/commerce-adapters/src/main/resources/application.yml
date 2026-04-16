@@ -96,6 +96,7 @@ kcp:
     trade-register-url: ${KCP_TRADE_REGISTER_URL:https://testsmpay.kcp.co.kr/trade/register.do}
     payment-approval-url: ${KCP_PAYMENT_APPROVAL_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
     payment-cancel-url: ${KCP_PAYMENT_CANCEL_URL:https://stg-spl.kcp.co.kr/gw/mod/v1/cancel}
+    batch-key-issuance-url: ${KCP_BATCH_KEY_ISSUANCE_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
   retry:
     max-attempts: ${KCP_RETRY_MAX_ATTEMPTS:3}
     initial-delay-ms: ${KCP_RETRY_INITIAL_DELAY_MS:1000}
