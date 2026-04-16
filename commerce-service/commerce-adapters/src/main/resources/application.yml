@@ -97,6 +97,7 @@ kcp:
     payment-approval-url: ${KCP_PAYMENT_APPROVAL_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
     payment-cancel-url: ${KCP_PAYMENT_CANCEL_URL:https://stg-spl.kcp.co.kr/gw/mod/v1/cancel}
     batch-key-issuance-url: ${KCP_BATCH_KEY_ISSUANCE_URL:https://stg-spl.kcp.co.kr/gw/enc/v1/payment}
+    batch-payment-approval-url: ${KCP_BATCH_PAYMENT_APPROVAL_URL:https://stg-spl.kcp.co.kr/gw/hub/v1/payment}
   retry:
     max-attempts: ${KCP_RETRY_MAX_ATTEMPTS:3}
     initial-delay-ms: ${KCP_RETRY_INITIAL_DELAY_MS:1000}

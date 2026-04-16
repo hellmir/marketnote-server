@@ -141,6 +141,33 @@ public class KcpApiClient {
         }
     }
 
+    public KcpBatchPaymentApprovalResponse approveBatchPayment(KcpBatchPaymentApprovalRequest request) {
+        String url = kcpProperties.getApi().getBatchPaymentApprovalUrl();
+
+        log.info("KCP 배치 결제승인 요청: url={}, site_cd={}, ordr_idxx={}", url, request.siteCd(), request.ordrIdxx());
+
+        ResponseEntity<String> rawResponse = restClient.post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .toEntity(String.class);
+
+        String responseBody = rawResponse.getBody();
+        log.debug("KCP 배치 결제승인 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+
+        if (FormatValidator.hasNoValue(responseBody)) {
+            throw new KcpCommunicationException("KCP 배치 결제승인 응답 본문이 비어 있습니다.");
+        }
+
+        try {
+            return objectMapper.readValue(responseBody, KcpBatchPaymentApprovalResponse.class);
+        } catch (Exception e) {
+            log.error("KCP 배치 결제승인 응답 파싱 실패: {}", e.getMessage());
+            throw new KcpCommunicationException("KCP 배치 결제승인 응답 파싱 실패", e);
+        }
+    }
+
     public JsonNode toJsonNode(Object object) {
         return objectMapper.valueToTree(object);
     }

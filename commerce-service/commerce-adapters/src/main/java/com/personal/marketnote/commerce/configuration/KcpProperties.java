@@ -24,6 +24,7 @@ public class KcpProperties {
         private String paymentApprovalUrl;
         private String paymentCancelUrl;
         private String batchKeyIssuanceUrl;
+        private String batchPaymentApprovalUrl;
     }
 
     @Getter
