@@ -1,14 +1,20 @@
 package com.personal.marketnote.commerce.adapter.in.web.quickpayment.controller;
 
+import com.personal.marketnote.commerce.adapter.in.web.quickpayment.controller.apidocs.ApproveQuickPaymentApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.quickpayment.controller.apidocs.IssueBatchKeyApiDocs;
 import com.personal.marketnote.commerce.adapter.in.web.quickpayment.controller.apidocs.RegisterQuickPaymentTransactionApiDocs;
+import com.personal.marketnote.commerce.adapter.in.web.quickpayment.request.ApproveQuickPaymentRequest;
 import com.personal.marketnote.commerce.adapter.in.web.quickpayment.request.IssueBatchKeyRequest;
+import com.personal.marketnote.commerce.adapter.in.web.quickpayment.response.ApproveQuickPaymentResponse;
 import com.personal.marketnote.commerce.adapter.in.web.quickpayment.response.IssueBatchKeyResponse;
 import com.personal.marketnote.commerce.adapter.in.web.quickpayment.response.RegisterQuickPaymentTransactionResponse;
+import com.personal.marketnote.commerce.port.in.command.quickpayment.ApproveQuickPaymentCommand;
 import com.personal.marketnote.commerce.port.in.command.quickpayment.IssueBatchKeyCommand;
 import com.personal.marketnote.commerce.port.in.command.quickpayment.RegisterQuickPaymentTransactionCommand;
+import com.personal.marketnote.commerce.port.in.result.quickpayment.ApproveQuickPaymentResult;
 import com.personal.marketnote.commerce.port.in.result.quickpayment.IssueBatchKeyResult;
 import com.personal.marketnote.commerce.port.in.result.quickpayment.RegisterQuickPaymentTransactionResult;
+import com.personal.marketnote.commerce.port.in.usecase.quickpayment.ApproveQuickPaymentUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.quickpayment.IssueBatchKeyUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.quickpayment.RegisterQuickPaymentTransactionUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
@@ -41,6 +47,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 public class QuickPaymentController {
     private final RegisterQuickPaymentTransactionUseCase registerQuickPaymentTransactionUseCase;
     private final IssueBatchKeyUseCase issueBatchKeyUseCase;
+    private final ApproveQuickPaymentUseCase approveQuickPaymentUseCase;
 
     /**
      * 빠른결제 거래 등록 (Mobile)
@@ -105,6 +112,43 @@ public class QuickPaymentController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "빠른결제 카드 배치키 발급 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 빠른결제 결제 승인
+     *
+     * @param request 빠른결제 승인 요청
+     * @return 승인 응답 {@link ApproveQuickPaymentResponse}
+     * @Author 성효빈
+     * @Date 2026-04-16
+     * @Description 저장된 배치키로 KCP 서버 투 서버 결제 승인을 수행합니다.
+     */
+    @PostMapping("/api/v1/quick-payments/approve")
+    @ApproveQuickPaymentApiDocs
+    public ResponseEntity<BaseResponse<ApproveQuickPaymentResponse>> approveQuickPayment(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @Valid @RequestBody ApproveQuickPaymentRequest request
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        ApproveQuickPaymentResult result = approveQuickPaymentUseCase.approve(
+                ApproveQuickPaymentCommand.builder()
+                        .buyerId(userId)
+                        .orderKey(request.getOrderKey())
+                        .quickPaymentCardId(request.getQuickPaymentCardId())
+                        .goodName(request.getGoodName())
+                        .build()
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        ApproveQuickPaymentResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "빠른결제 승인 성공"
                 ),
                 HttpStatus.OK
         );

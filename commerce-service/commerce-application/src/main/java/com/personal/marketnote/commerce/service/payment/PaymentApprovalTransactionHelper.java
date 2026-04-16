@@ -18,6 +18,7 @@ import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
+import com.personal.marketnote.commerce.port.out.payment.SavePspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.UpdatePaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.UpdatePspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorResult;
@@ -52,6 +53,7 @@ public class PaymentApprovalTransactionHelper {
     private final FindPaymentPort findPaymentPort;
     private final UpdatePaymentPort updatePaymentPort;
     private final FindPspPaymentEventPort findPspPaymentEventPort;
+    private final SavePspPaymentEventPort savePspPaymentEventPort;
     private final UpdatePspPaymentEventPort updatePspPaymentEventPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final ReserveInventoryUseCase reserveInventoryUseCase;
@@ -79,6 +81,40 @@ public class PaymentApprovalTransactionHelper {
         updatePspPaymentEventPort.update(event);
 
         return PaymentApprovalContext.of(payment, event);
+    }
+
+    /**
+     * TX-1: 빠른결제용 검증 + PspPaymentEvent 생성 + EXECUTING 상태 커밋
+     *
+     * <p>빠른결제에는 거래등록(ReadyPayment) 단계가 없어 PspPaymentEvent가 사전에 존재하지 않으므로,
+     * 이 메서드에서 직접 생성한다.</p>
+     */
+    @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
+    public PaymentApprovalContext prepareExecutionForQuickPayment(
+            Long buyerId, String orderKey, String pgCompanyKey, String pgShopKey
+    ) {
+        UUID orderKeyUuid = UUID.fromString(orderKey);
+        Payment payment = findPaymentPort.findByOrderKey(orderKeyUuid)
+                .orElseThrow(() -> new PaymentNotFoundException(orderKey));
+
+        Order order = findVerifiedOrder(payment.getOrderId(), buyerId);
+        verifyPaymentAmount(order, payment);
+
+        findPspPaymentEventPort.findByOrderKey(orderKey)
+                .filter(PspPaymentEvent::isUnresolved)
+                .ifPresent(event -> {
+                    log.warn("빠른결제 중복 결제 시도 - orderKey: {}, 기존 이벤트 상태: {}", orderKey, event.getPoStatus());
+                    throw new DuplicatePaymentReadyException(orderKey);
+                });
+
+        reserveInventory(order);
+
+        PspPaymentEvent event = PspPaymentEvent.createReady(payment, pgCompanyKey, pgShopKey, "PACA");
+        PspPaymentEvent savedEvent = savePspPaymentEventPort.save(event);
+        savedEvent.startExecution();
+        updatePspPaymentEventPort.update(savedEvent);
+
+        return PaymentApprovalContext.of(payment, savedEvent);
     }
 
     /**
