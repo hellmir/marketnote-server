@@ -2,8 +2,8 @@ package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetAdminGifticonGoodsApiDocs;
-import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsExposureApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageFeaturedGifticonGoodsApiDocs;
+import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsExposureApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.ManageGifticonGoodsOrderApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageFeaturedGifticonGoodsRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.ManageGifticonGoodsExposureRequest;

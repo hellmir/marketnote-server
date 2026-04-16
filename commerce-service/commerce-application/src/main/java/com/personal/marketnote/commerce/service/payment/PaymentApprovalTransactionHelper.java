@@ -16,11 +16,7 @@ import com.personal.marketnote.commerce.port.in.usecase.inventory.ReserveInvento
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
-import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
-import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort;
-import com.personal.marketnote.commerce.port.out.payment.SavePspPaymentEventPort;
-import com.personal.marketnote.commerce.port.out.payment.UpdatePaymentPort;
-import com.personal.marketnote.commerce.port.out.payment.UpdatePspPaymentEventPort;
+import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentApprovalVendorResult;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
@@ -110,9 +106,8 @@ public class PaymentApprovalTransactionHelper {
         reserveInventory(order);
 
         PspPaymentEvent event = PspPaymentEvent.createReady(payment, pgCompanyKey, pgShopKey, "PACA");
+        event.startExecution();
         PspPaymentEvent savedEvent = savePspPaymentEventPort.save(event);
-        savedEvent.startExecution();
-        updatePspPaymentEventPort.update(savedEvent);
 
         return PaymentApprovalContext.of(payment, savedEvent);
     }

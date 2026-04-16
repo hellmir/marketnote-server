@@ -3,8 +3,6 @@ package com.personal.marketnote.commerce.adapter.out.vendor.kcp;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.*;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyIssuanceRequest;
-import com.personal.marketnote.commerce.adapter.out.vendor.kcp.dto.KcpBatchKeyIssuanceResponse;
 import com.personal.marketnote.commerce.adapter.out.vendor.kcp.exception.KcpCommunicationException;
 import com.personal.marketnote.commerce.configuration.KcpProperties;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -165,6 +163,33 @@ public class KcpApiClient {
         } catch (Exception e) {
             log.error("KCP 배치 결제승인 응답 파싱 실패: {}", e.getMessage());
             throw new KcpCommunicationException("KCP 배치 결제승인 응답 파싱 실패", e);
+        }
+    }
+
+    public KcpBatchKeyDeletionResponse deleteBatchKey(KcpBatchKeyDeletionRequest request) {
+        String url = kcpProperties.getApi().getBatchPaymentApprovalUrl();
+
+        log.info("KCP 배치키 삭제 요청: url={}, site_cd={}", url, request.siteCd());
+
+        ResponseEntity<String> rawResponse = restClient.post()
+                .uri(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(request)
+                .retrieve()
+                .toEntity(String.class);
+
+        String responseBody = rawResponse.getBody();
+        log.debug("KCP 배치키 삭제 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+
+        if (FormatValidator.hasNoValue(responseBody)) {
+            throw new KcpCommunicationException("KCP 배치키 삭제 응답 본문이 비어 있습니다.");
+        }
+
+        try {
+            return objectMapper.readValue(responseBody, KcpBatchKeyDeletionResponse.class);
+        } catch (Exception e) {
+            log.error("KCP 배치키 삭제 응답 파싱 실패: {}", e.getMessage());
+            throw new KcpCommunicationException("KCP 배치키 삭제 응답 파싱 실패", e);
         }
     }
 

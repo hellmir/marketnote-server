@@ -70,6 +70,11 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "KAFKA_SASL_USERNAME",               value: env.KAFKA_SASL_USERNAME],
                 [name: "KAFKA_SASL_PASSWORD",               value: env.KAFKA_SASL_PASSWORD],
                 [name: "HMAC_SECRET_KEY",                   value: env.HMAC_SECRET_KEY],
+                [name: "GIFTICON_PIN_ENCRYPT_KEY",          value: env.GIFTICON_PIN_ENCRYPT_KEY],
+                [name: "GIFTICON_SYNC_SCHEDULER_ENABLED",   value: env.GIFTICON_SYNC_SCHEDULER_ENABLED],
+                [name: "GIFTICON_SYNC_SCHEDULER_CRON",      value: env.GIFTICON_SYNC_SCHEDULER_CRON],
+                [name: "GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED", value: env.GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED],
+                [name: "GIFTICON_COUPON_SYNC_SCHEDULER_CRON",    value: env.GIFTICON_COUPON_SYNC_SCHEDULER_CRON],
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -709,6 +714,11 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_USERNAME',                variable: 'KAFKA_SASL_USERNAME'),
                         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PASSWORD',                variable: 'KAFKA_SASL_PASSWORD'),
                         string(credentialsId: 'MARKETNOTE_QA_HMAC_SECRET_KEY',                    variable: 'HMAC_SECRET_KEY'),
+                        string(credentialsId: 'MARKETNOTE_QA_GIFTICON_PIN_ENCRYPT_KEY',           variable: 'GIFTICON_PIN_ENCRYPT_KEY'),
+                        string(credentialsId: 'MARKETNOTE_QA_GIFTICON_SYNC_SCHEDULER_ENABLED',   variable: 'GIFTICON_SYNC_SCHEDULER_ENABLED'),
+                        string(credentialsId: 'MARKETNOTE_QA_GIFTICON_SYNC_SCHEDULER_CRON',      variable: 'GIFTICON_SYNC_SCHEDULER_CRON'),
+                        string(credentialsId: 'MARKETNOTE_QA_GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED', variable: 'GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED'),
+                        string(credentialsId: 'MARKETNOTE_QA_GIFTICON_COUPON_SYNC_SCHEDULER_CRON',    variable: 'GIFTICON_COUPON_SYNC_SCHEDULER_CRON'),
                     ]) {
                         sh '''
                           LG="$CLOUDWATCH_LOG_GROUP"

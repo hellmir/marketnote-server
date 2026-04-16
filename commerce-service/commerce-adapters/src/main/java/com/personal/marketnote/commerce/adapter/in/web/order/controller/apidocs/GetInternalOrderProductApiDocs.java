@@ -17,29 +17,29 @@ import java.lang.annotation.*;
         summary = "주문 상품 조회 (서비스 간 통신용)",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 주문 ID와 가격 정책 ID로 주문 상품의 구매 시점 단가를 조회합니다.
                 - HMAC 인증 기반 서비스 간 통신 전용 API입니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | orderId | number | 주문 ID | Y | 1 |
                 | pricePolicyId | number | 가격 정책 ID | Y | 100 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 조회 성공 / 404: 주문 상품 미존재 |

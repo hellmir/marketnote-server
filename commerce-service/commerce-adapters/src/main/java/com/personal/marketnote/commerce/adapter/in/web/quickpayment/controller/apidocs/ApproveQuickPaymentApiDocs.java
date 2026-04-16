@@ -18,31 +18,31 @@ import java.lang.annotation.*;
         summary = "빠른결제 결제 승인",
         description = """
                 작성일자: 2026-04-16
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 저장된 배치키를 사용하여 서버 투 서버로 KCP 결제 승인을 수행합니다.
-
+                
                 - 클라이언트 결제창 경유 없이 배치키 기반으로 즉시 승인합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | orderKey | string | 주문 키 (UUID) | Y | "550e8400-e29b-41d4-a716-446655440000" |
                 | quickPaymentCardId | number | 빠른결제 카드 ID | Y | 1 |
                 | goodName | string | 상품명 | Y | "건강식품 외 2건" |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | orderId | number | 주문 ID | 1 |

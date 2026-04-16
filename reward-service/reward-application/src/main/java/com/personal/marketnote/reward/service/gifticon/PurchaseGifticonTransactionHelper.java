@@ -1,6 +1,5 @@
 package com.personal.marketnote.reward.service.gifticon;
 
-import com.personal.marketnote.reward.domain.exception.DuplicateGifticonOrderException;
 import com.personal.marketnote.reward.domain.exception.GifticonInsufficientCashException;
 import com.personal.marketnote.reward.domain.exception.GifticonOrderNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
@@ -11,8 +10,11 @@ import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
-import com.personal.marketnote.reward.port.out.gifticon.*;
+import com.personal.marketnote.reward.port.out.gifticon.EncryptGifticonPinPort;
+import com.personal.marketnote.reward.port.out.gifticon.FindGifticonOrderPort;
+import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonOrderPort;
 import com.personal.marketnote.reward.port.out.gifticon.SendGifticonCouponPort.SendCouponResult;
+import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonOrderPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -18,30 +18,30 @@ import java.lang.annotation.*;
         summary = "빠른결제 카드 배치키 발급",
         description = """
                 작성일자: 2026-04-16
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 결제창 인증 완료 후 enc_data/enc_info로 KCP 배치키를 발급합니다.
-
+                
                 - 발급된 배치키와 카드 정보를 DB에 저장하고 카드 정보를 반환합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | encData | string | KCP 결제창 인증결과 암호화 데이터 | Y | "encrypted_data..." |
                 | encInfo | string | KCP 결제창 인증결과 암호화 정보 | Y | "encrypted_info..." |
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | quickPaymentCardId | number | 빠른결제 카드 ID | 1 |

@@ -20,35 +20,35 @@ import java.lang.annotation.*;
         summary = "환불(반품) 요청",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 구매자가 환불(반품)을 요청합니다.
-
+                
                 - 주문 상태를 REFUND_REQUESTED(환불 요청됨)로 변경합니다.
-
+                
                 - 배송 완료, 부분 구매 확정, 부분 환불됨 상태에서만 환불 요청이 가능합니다.
-
+                
                 - 회수지 주소를 입력하면 입력값이 적용되고, 미입력 시 배송지가 회수지 기본값으로 적용됩니다.
-
+                
                 - 환불 사유 카테고리 목록
-
+                
                     - "CANCEL_ORDER": 구매 의사 취소
-
+                
                     - "CHANGE_OPTION": 색상, 사이즈 등 변경
-
+                
                     - "MISTAKE": 주문 실수
-
+                
                     - "ETC": 직접 입력
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | reasonCategory | string | 환불 사유 카테고리 | N | "ETC" |
@@ -59,11 +59,11 @@ import java.lang.annotation.*;
                 | pickupAddress | string | 회수지 주소 | N | "서울시 강남구" |
                 | pickupAddressDetail | string | 회수지 상세주소 | N | "테헤란로 123" |
                 | pickupRequestMessage | string | 회수 요청사항 | N | "부재시 경비실에 맡겨주세요" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 / 500: 그 외 |

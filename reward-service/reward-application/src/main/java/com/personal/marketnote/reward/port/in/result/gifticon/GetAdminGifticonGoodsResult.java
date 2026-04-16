@@ -1,6 +1,5 @@
 package com.personal.marketnote.reward.port.in.result.gifticon;
 
-import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort.FindAllForAdminResult;
 
 import java.util.List;

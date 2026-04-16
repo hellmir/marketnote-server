@@ -40,12 +40,12 @@ public interface GifticonGoodsJpaRepository extends JpaRepository<GifticonGoodsJ
                 g.createdAt DESC
             """,
             countQuery = """
-            SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
-            WHERE g.exposed = true
-              AND g.goodsStatus = 'SALE'
-              AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
-              AND (:brandCode = '' OR g.brandCode = :brandCode)
-            """)
+                    SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
+                    WHERE g.exposed = true
+                      AND g.goodsStatus = 'SALE'
+                      AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
+                      AND (:brandCode = '' OR g.brandCode = :brandCode)
+                    """)
     Page<GifticonGoodsJpaEntity> findAllExposed(
             @Param("categoryCode") String categoryCode,
             @Param("brandCode") String brandCode,
@@ -60,11 +60,11 @@ public interface GifticonGoodsJpaRepository extends JpaRepository<GifticonGoodsJ
             ORDER BY g.id DESC
             """,
             countQuery = """
-            SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
-            WHERE (:goodsStatus = '' OR g.goodsStatus = :goodsStatus)
-            AND (:exposed IS NULL OR g.exposed = :exposed)
-            AND (:keyword = '' OR g.goodsName LIKE CONCAT('%', :keyword, '%'))
-            """)
+                    SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
+                    WHERE (:goodsStatus = '' OR g.goodsStatus = :goodsStatus)
+                    AND (:exposed IS NULL OR g.exposed = :exposed)
+                    AND (:keyword = '' OR g.goodsName LIKE CONCAT('%', :keyword, '%'))
+                    """)
     Page<GifticonGoodsJpaEntity> findAllForAdmin(
             @Param("goodsStatus") String goodsStatus,
             @Param("exposed") Boolean exposed,

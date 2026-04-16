@@ -18,13 +18,13 @@ import java.lang.annotation.*;
         summary = "기프티콘 브랜드 목록 조회",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 특정 카테고리에 노출된 판매 중 상품이 있는 브랜드 목록을 조회합니다.
                 """,
         parameters = {

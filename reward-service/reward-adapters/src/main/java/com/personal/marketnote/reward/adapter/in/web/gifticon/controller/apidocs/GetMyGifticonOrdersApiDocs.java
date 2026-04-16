@@ -18,17 +18,17 @@ import java.lang.annotation.*;
         summary = "내 기프티콘 목록 조회",
         description = """
                 작성일자: 2026-04-06
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 사용자가 구매한 기프티콘 목록을 조회합니다.
                 AVAILABLE(사용가능) / COMPLETED_OR_EXPIRED(완료/만료) 탭별 필터링과
                 PURCHASE_LATEST(구매 최신순) / EXPIRY_SOONEST(유효기간 임박순) 정렬을 지원합니다.
-
+                
                 ### Parameters
                 - status: AVAILABLE(사용가능, ISSUED) / COMPLETED_OR_EXPIRED(사용완료/기간만료/취소)
                 - sort: PURCHASE_LATEST(구매 최신순) / EXPIRY_SOONEST(유효기간 임박순)

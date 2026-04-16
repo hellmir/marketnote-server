@@ -1,7 +1,10 @@
 package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.reward.domain.gifticon.*;
+import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
+import com.personal.marketnote.reward.domain.gifticon.GifticonOrderSortType;
+import com.personal.marketnote.reward.domain.gifticon.GifticonOrderStatus;
+import com.personal.marketnote.reward.domain.gifticon.GifticonOrderStatusFilter;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetMyGifticonOrdersCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrdersResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrdersResult.MyGifticonOrderItem;

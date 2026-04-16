@@ -76,7 +76,7 @@ public class GifticonOrderPersistenceAdapter
     }
 
     private List<GifticonOrder> findByPurchaseLatest(Long userId, List<GifticonOrderStatus> statuses,
-                                                    Long cursor, int pageSize) {
+                                                     Long cursor, int pageSize) {
         Pageable pageable = PageRequest.of(0, pageSize);
         return gifticonOrderJpaRepository.findByUserIdAndStatusesOrderByCreatedAtDesc(
                         userId, statuses, cursor, pageable)
@@ -94,7 +94,7 @@ public class GifticonOrderPersistenceAdapter
     }
 
     private List<GifticonOrder> findByExpirySoonest(Long userId, List<GifticonOrderStatus> statuses,
-                                                   Long cursor, int pageSize) {
+                                                    Long cursor, int pageSize) {
         int offset = (cursor <= 0) ? 0 : (int) Math.min(cursor, 10_000);
         int totalFetch = Math.addExact(offset, pageSize);
         Pageable pageable = PageRequest.of(0, totalFetch);

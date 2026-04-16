@@ -17,31 +17,31 @@ import java.lang.annotation.*;
         summary = "(관리자) 기프티콘 상품 노출 순서 관리",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 관리자가 노출 상품의 정렬 순서(orderNum)를 설정합니다.
-
+                
                 - exposed=true인 상품만 정렬 순서 설정이 가능합니다.
-
+                
                 ---
-
+                
                 ## Request Body
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | items | array | 순서 관리 항목 목록 | Y | [ ... ] |
                 | items[].goodsCode | string | 상품 코드 | Y | "G00001" |
                 | items[].orderNum | number | 정렬 순서 (null이면 순서 해제) | N | 1 |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200 |
