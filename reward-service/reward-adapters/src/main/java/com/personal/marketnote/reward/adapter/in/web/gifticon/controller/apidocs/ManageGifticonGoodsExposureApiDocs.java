@@ -17,33 +17,33 @@ import java.lang.annotation.*;
         summary = "(관리자) 기프티콘 노출 상품 관리",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 관리자가 기프티콘 상품의 노출 여부를 변경합니다.
-
+                
                 - exposed=true 설정은 SALE 상태인 상품만 가능합니다.
-
+                
                 - exposed=false 설정은 상태와 무관하게 항상 가능합니다.
-
+                
                 ---
-
+                
                 ## Request Body
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | items | array | 노출 관리 항목 목록 | Y | [ ... ] |
                 | items[].goodsCode | string | 상품 코드 | Y | "G00001" |
                 | items[].exposed | boolean | 노출 여부 | Y | true |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200 |

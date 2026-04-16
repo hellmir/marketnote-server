@@ -64,7 +64,7 @@ public class AdminGifticonCategoryController {
      * (관리자) 기프티콘 카테고리 수정
      *
      * @param categoryId 카테고리 ID
-     * @param request 카테고리 수정 요청
+     * @param request    카테고리 수정 요청
      * @Author 성효빈
      * @Date 2026-04-05
      * @Description 기프티콘 카테고리의 표시명과 아이콘 URL을 수정합니다.

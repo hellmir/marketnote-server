@@ -19,21 +19,21 @@ import java.lang.annotation.*;
         summary = "(관리자) 기프티콘 전체 상품 목록 조회",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 관리자가 기프티쇼에서 동기화된 전체 기프티콘 상품 목록을 조회합니다.
-
+                
                 - 오프셋 기반 페이지네이션을 사용합니다. (page: 1-based)
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | page | number | 페이지 번호 (1-based) | N | 1 |
@@ -41,11 +41,11 @@ import java.lang.annotation.*;
                 | goods-status | string | 상품 상태 필터 (SALE/SUS) | N | SALE |
                 | exposed | boolean | 노출 여부 필터 | N | true |
                 | keyword | string | 상품명 검색 키워드 | N | "아메리카노" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200 |
@@ -53,11 +53,11 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-04-05T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "관리자 기프티콘 상품 목록 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content > goods
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | page | number | 현재 페이지 번호 (1-based) | 1 |
@@ -65,11 +65,11 @@ import java.lang.annotation.*;
                 | totalElements | number | 총 아이템 수 | 50 |
                 | totalPages | number | 총 페이지 수 | 3 |
                 | items | array | 상품 목록 | [ ... ] |
-
+                
                 ---
-
+                
                 ### Response > content > goods > items
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | goodsCode | string | 상품 코드 | "G00001" |

@@ -54,4 +54,9 @@ public class QuickPaymentCard extends BaseDomain {
         card.status = state.getStatus();
         return card;
     }
+
+    @Override
+    public void deactivate() {
+        super.deactivate();
+    }
 }

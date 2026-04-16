@@ -18,28 +18,28 @@ import java.lang.annotation.*;
         summary = "(관리자) 기프티콘 카테고리 노출 관리",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 기프티콘 카테고리의 노출 여부(exposed)를 변경합니다.
-
+                
                 ---
-
+                
                 ## Request Body
-
+                
                 | 키 | 타입 | 설명 | 필수 | 예시 |
                 | --- | --- | --- | --- | --- |
                 | items[].categoryId | number | 카테고리 ID | Y | 1 |
                 | items[].exposed | boolean | 노출 여부 | Y | true |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 200 OK (content: null)
                 """,
         security = {@SecurityRequirement(name = "bearer")},

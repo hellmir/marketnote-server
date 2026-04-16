@@ -18,13 +18,13 @@ import java.lang.annotation.*;
         summary = "내 기프티콘 상세 조회",
         description = """
                 작성일자: 2026-04-06
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 사용자가 구매한 기프티콘의 상세 정보를 조회합니다.
                 ISSUED 상태인 경우 기프티쇼 API를 호출하여 최신 상태를 동기화합니다.
                 PIN 번호는 복호화되어 응답됩니다.

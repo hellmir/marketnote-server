@@ -17,19 +17,19 @@ import java.lang.annotation.*;
         summary = "(관리자) 기프티콘 카테고리 목록 조회",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 관리자가 전체 기프티콘 카테고리 목록을 조회합니다.
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | 키 | 타입 | 설명 | 예시 |
                 | --- | --- | --- | --- |
                 | categories[].id | number | 카테고리 ID | 1 |

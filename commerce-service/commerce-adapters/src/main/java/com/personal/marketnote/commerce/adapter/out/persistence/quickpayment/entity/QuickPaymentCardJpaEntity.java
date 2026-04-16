@@ -63,4 +63,8 @@ public class QuickPaymentCardJpaEntity extends BaseEntity {
                 .status(domain.getStatus())
                 .build();
     }
+
+    public void markInactive() {
+        this.status = EntityStatus.INACTIVE;
+    }
 }

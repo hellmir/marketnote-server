@@ -17,13 +17,13 @@ import java.lang.annotation.*;
         summary = "기프티콘 카테고리 목록 조회",
         description = """
                 작성일자: 2026-04-05
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 노출 설정된 기프티콘 카테고리 목록을 orderNum 오름차순으로 조회합니다.
                 """,
         security = {@SecurityRequirement(name = "bearer")},

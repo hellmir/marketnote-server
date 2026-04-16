@@ -15,23 +15,23 @@ import java.lang.annotation.*;
         summary = "빠른결제 거래 등록 (Mobile)",
         description = """
                 작성일자: 2026-04-16
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 빠른결제 카드 등록을 위한 KCP 거래등록 API를 호출합니다.
-
+                
                 - approvalKey와 payUrl을 반환하여 클라이언트가 KCP 결제창을 호출할 수 있도록 합니다.
-
+                
                 - 요청 본문은 필요하지 않으며, 인증 토큰만으로 처리됩니다.
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | transactionId | string | 거래 식별 ID (UUID) | "550e8400-e29b-41d4-a716-446655440000" |

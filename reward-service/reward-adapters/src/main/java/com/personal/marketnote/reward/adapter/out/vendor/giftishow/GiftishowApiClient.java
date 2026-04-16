@@ -45,7 +45,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getProductListPath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -59,7 +60,8 @@ public class GiftishowApiClient {
                 properties.getApi().getProductDetailPath(),
                 goodsCode,
                 "goods_code",
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -74,7 +76,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getBrandListPath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -88,7 +91,8 @@ public class GiftishowApiClient {
                 properties.getApi().getBrandDetailPath(),
                 brandCode,
                 "brand_code",
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -118,7 +122,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getCouponSendPath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -134,7 +139,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getCouponDetailPath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -151,7 +157,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getCouponCancelPath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -168,7 +175,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getCouponResendPath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -184,7 +192,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getBizMoneyBalancePath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 
@@ -201,7 +210,8 @@ public class GiftishowApiClient {
         return executePost(
                 properties.getApi().getCouponSendFailCancelPath(),
                 params,
-                new TypeReference<>() {}
+                new TypeReference<>() {
+                }
         );
     }
 

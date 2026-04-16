@@ -1,7 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.web.gifticon.response;
 
-import com.personal.marketnote.reward.port.in.result.gifticon.GifticonCategoryItemResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonCategoriesResult;
+import com.personal.marketnote.reward.port.in.result.gifticon.GifticonCategoryItemResult;
 import lombok.Builder;
 import lombok.Getter;
 
