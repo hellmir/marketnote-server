@@ -77,7 +77,7 @@ class GetGifticonCategoriesServiceTest {
     }
 
     private GifticonCategory createCategory(Long id, String categoryCode, String categoryName,
-                                             String displayName, String iconUrl, Integer orderNum) {
+                                            String displayName, String iconUrl, Integer orderNum) {
         return GifticonCategory.from(GifticonCategorySnapshotState.builder()
                 .id(id)
                 .categoryCode(categoryCode)

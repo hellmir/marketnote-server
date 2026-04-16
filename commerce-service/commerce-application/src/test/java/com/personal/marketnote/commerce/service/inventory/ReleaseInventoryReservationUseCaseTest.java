@@ -1,10 +1,6 @@
 package com.personal.marketnote.commerce.service.inventory;
 
-import com.personal.marketnote.commerce.domain.inventory.Inventory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservationSnapshotState;
-import com.personal.marketnote.commerce.domain.inventory.InventoryRestorationHistories;
-import com.personal.marketnote.commerce.domain.inventory.InventorySnapshotState;
+import com.personal.marketnote.commerce.domain.inventory.*;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
@@ -14,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;

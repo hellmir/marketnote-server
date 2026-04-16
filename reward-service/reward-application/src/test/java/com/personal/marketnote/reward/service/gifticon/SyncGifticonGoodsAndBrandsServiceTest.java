@@ -419,9 +419,9 @@ class SyncGifticonGoodsAndBrandsServiceTest {
     }
 
     private FetchedGifticonGoodsItem createGoodsItem(String goodsCode, String goodsName,
-                                                      String brandCode, String brandName, String brandIconImg,
-                                                      String category1Seq, long realPrice, long salePrice,
-                                                      int limitDay, String content, String goodsStatus) {
+                                                     String brandCode, String brandName, String brandIconImg,
+                                                     String category1Seq, long realPrice, long salePrice,
+                                                     int limitDay, String content, String goodsStatus) {
         return new FetchedGifticonGoodsItem(
                 goodsCode, goodsName, "https://img.com/" + goodsCode + ".png",
                 brandCode, brandName, brandIconImg,

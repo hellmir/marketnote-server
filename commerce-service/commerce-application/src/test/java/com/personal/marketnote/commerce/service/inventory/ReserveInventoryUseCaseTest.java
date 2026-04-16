@@ -1,8 +1,8 @@
 package com.personal.marketnote.commerce.service.inventory;
 
+import com.personal.marketnote.commerce.domain.inventory.InsufficientAvailableStockException;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
-import com.personal.marketnote.commerce.domain.inventory.InsufficientAvailableStockException;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryReservationException;
 import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
@@ -18,7 +18,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
@@ -575,7 +577,7 @@ class ReserveInventoryUseCaseTest {
     }
 
     private ReserveInventoryCommand buildCommand(Long orderId,
-                                                  List<ReserveInventoryCommand.OrderProductItem> orderProducts) {
+                                                 List<ReserveInventoryCommand.OrderProductItem> orderProducts) {
         return ReserveInventoryCommand.builder()
                 .orderId(orderId)
                 .orderProducts(orderProducts)

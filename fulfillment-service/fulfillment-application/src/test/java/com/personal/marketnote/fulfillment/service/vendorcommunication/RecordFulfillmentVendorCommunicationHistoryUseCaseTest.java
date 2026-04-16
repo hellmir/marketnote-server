@@ -1,10 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendorcommunication;
 
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationHistory;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
-import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.domain.vendorcommunication.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendorcommunication.FulfillmentVendorCommunicationHistoryCommand;
 import com.personal.marketnote.fulfillment.port.out.vendorcommunication.SaveFulfillmentVendorCommunicationHistoryPort;
 import org.junit.jupiter.api.DisplayName;

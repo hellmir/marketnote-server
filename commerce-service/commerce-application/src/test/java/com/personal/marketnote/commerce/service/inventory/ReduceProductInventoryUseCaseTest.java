@@ -1,11 +1,6 @@
 package com.personal.marketnote.commerce.service.inventory;
 
-import com.personal.marketnote.commerce.domain.inventory.Inventory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistories;
-import com.personal.marketnote.commerce.domain.inventory.InventoryDeductionHistory;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
-import com.personal.marketnote.commerce.domain.inventory.InventoryReservationSnapshotState;
-import com.personal.marketnote.commerce.domain.inventory.InventorySnapshotState;
+import com.personal.marketnote.commerce.domain.inventory.*;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionException;

@@ -92,7 +92,7 @@ class GetGifticonGoodsServiceTest {
     }
 
     private GifticonGoods createGoods(Long id, String goodsCode, String goodsName,
-                                       Long salePrice, Long cashPrice, Integer orderNum) {
+                                      Long salePrice, Long cashPrice, Integer orderNum) {
         return GifticonGoods.from(GifticonGoodsSnapshotState.builder()
                 .id(id)
                 .goodsCode(goodsCode)
