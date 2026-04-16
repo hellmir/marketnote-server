@@ -1,12 +1,11 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
+import com.personal.marketnote.user.mapper.ShippingAddressCommandToStateMapper;
 import com.personal.marketnote.user.exception.TooManyOtherAddressesException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
@@ -52,25 +51,8 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
                     });
         }
 
-        ShippingAddress shippingAddress = ShippingAddress.from(
-                ShippingAddressCreateState.builder()
-                        .userId(userId)
-                        .addressType(addressType)
-                        .address(command.address())
-                        .addressDetail(command.addressDetail())
-                        .companyName(command.companyName())
-                        .addressAlias(command.addressAlias())
-                        .recipientName(command.recipientName())
-                        .recipientPhoneNumber(command.recipientPhoneNumber())
-                        .deliveryRequestType(
-                                FormatValidator.hasValue(command.deliveryRequestType())
-                                        ? command.deliveryRequestType()
-                                        : DeliveryRequestType.NONE
-                        )
-                        .deliveryRequestMessage(command.deliveryRequestMessage())
-                        .isDefault(isDefault)
-                        .build()
-        );
+        ShippingAddressCreateState createState = ShippingAddressCommandToStateMapper.mapToCreateState(command, isDefault);
+        ShippingAddress shippingAddress = ShippingAddress.from(createState);
 
         ShippingAddress savedShippingAddress = saveShippingAddressPort.save(shippingAddress);
 
