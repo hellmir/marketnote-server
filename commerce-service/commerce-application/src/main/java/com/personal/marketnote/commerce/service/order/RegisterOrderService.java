@@ -3,12 +3,9 @@ package com.personal.marketnote.commerce.service.order;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.Payment;
-import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
-import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreateState;
-import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
-import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.commerce.exception.*;
+import com.personal.marketnote.commerce.mapper.OrderCommandToStateMapper;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
 import com.personal.marketnote.commerce.port.in.command.order.RegisterOrderCommand;
 import com.personal.marketnote.commerce.port.in.result.order.RegisterOrderResult;
@@ -102,36 +99,18 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             inventory.validateIsSufficient(orderQuantity);
         });
 
-        List<OrderProductCreateState> orderProductStates = command.orderProducts().stream()
-                .map(item -> OrderProductCreateState.builder()
-                        .sellerId(item.sellerId())
-                        .pricePolicyId(item.pricePolicyId())
-                        .sharerKey(item.sharerKey())
-                        .quantity(item.quantity())
-                        .unitAmount(item.unitAmount())
-                        .imageUrl(item.imageUrl())
-                        .build())
-                .toList();
+        List<OrderProductCreateState> orderProductStates = OrderCommandToStateMapper.mapToOrderProductStates(command.orderProducts());
 
         OrderAmount orderAmount = OrderAmount.from(
-                OrderAmountCreateState.builder()
-                        .totalAmount(command.amount().totalAmount())
-                        .couponAmount(command.amount().couponAmount())
-                        .pointAmount(command.amount().pointAmount())
-                        .shippingFee(command.amount().shippingFee())
-                        .build()
+                OrderCommandToStateMapper.mapToOrderAmountState(command.amount())
         );
 
         ShippingAddress shippingAddress = resolveShippingAddress(command);
 
         Order savedOrder = saveOrderPort.save(
                 Order.from(
-                        OrderCreateState.builder()
-                                .buyerId(command.buyerId())
-                                .amount(orderAmount)
-                                .shippingAddress(shippingAddress)
-                                .orderProductStates(orderProductStates)
-                                .build()
+                        OrderCommandToStateMapper.mapToOrderState(
+                                command.buyerId(), orderAmount, shippingAddress, orderProductStates)
                 )
         );
 
@@ -150,11 +129,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
         savePaymentPort.save(
                 Payment.from(
-                        PaymentCreateState.builder()
-                                .orderId(savedOrder.getId())
-                                .orderKey(savedOrder.getOrderKey())
-                                .paymentAmount(paymentAmount)
-                                .build()
+                        OrderCommandToStateMapper.mapToPaymentState(
+                                savedOrder.getId(), savedOrder.getOrderKey(), paymentAmount)
                 )
         );
 
@@ -174,14 +150,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         List<PaymentAllocation> allocations = sellerGrossAmounts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
                 .map(entry -> PaymentAllocation.from(
-                        PaymentAllocationCreateState.builder()
-                                .orderId(orderId)
-                                .sellerId(entry.getKey())
-                                .allocatedAmount(entry.getValue())
-                                .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                                .targetType(PaymentAllocationTargetType.ORDER)
-                                .idempotencyKey("ORDER_ALLOCATION:" + orderId + ":" + entry.getKey())
-                                .build()
+                        OrderCommandToStateMapper.mapToPaymentAllocationState(
+                                orderId, entry.getKey(), entry.getValue())
                 ))
                 .toList();
 
