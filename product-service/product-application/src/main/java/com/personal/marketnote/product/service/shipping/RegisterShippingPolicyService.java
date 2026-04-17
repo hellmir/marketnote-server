@@ -3,8 +3,8 @@ package com.personal.marketnote.product.service.shipping;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.ShippingPolicyChangeAction;
 import com.personal.marketnote.product.domain.shipping.ShippingPolicy;
-import com.personal.marketnote.product.domain.shipping.ShippingPolicyCreateState;
 import com.personal.marketnote.product.exception.ShippingPolicyAlreadyExistsException;
+import com.personal.marketnote.product.mapper.ShippingPolicyCommandToStateMapper;
 import com.personal.marketnote.product.port.in.command.RegisterShippingPolicyCommand;
 import com.personal.marketnote.product.port.in.result.shipping.RegisterShippingPolicyResult;
 import com.personal.marketnote.product.port.in.usecase.shipping.RegisterShippingPolicyUseCase;
@@ -29,12 +29,8 @@ public class RegisterShippingPolicyService implements RegisterShippingPolicyUseC
     public RegisterShippingPolicyResult registerShippingPolicy(Long sellerId, RegisterShippingPolicyCommand command) {
         validateNoDuplicatePolicy(sellerId);
 
-        ShippingPolicy shippingPolicy = ShippingPolicy.from(ShippingPolicyCreateState.builder()
-                .sellerId(sellerId)
-                .deliveryCompany(command.deliveryCompany())
-                .shippingFee(command.shippingFee())
-                .freeShippingThreshold(command.freeShippingThreshold())
-                .build());
+        ShippingPolicy shippingPolicy = ShippingPolicy.from(
+                ShippingPolicyCommandToStateMapper.mapToState(sellerId, command));
 
         Long savedId = saveShippingPolicyPort.save(shippingPolicy);
 
