@@ -6,6 +6,7 @@ import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.FileDomainSnapshotState;
 import com.personal.marketnote.file.domain.file.ResizedFile;
+import com.personal.marketnote.file.domain.file.ResizedFileSnapshotState;
 import com.personal.marketnote.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.file.port.out.file.FindFilePort;
 import com.personal.marketnote.file.port.out.resized.FindResizedFilesPort;
@@ -41,7 +42,9 @@ class GetFilesStringOwnerTypeUseCaseTest {
         @DisplayName("파일이 존재하면 리사이즈 URL을 포함한 결과를 반환한다")
         void shouldReturnFilesWithResizedUrls() {
             FileDomain file = buildFile(1L);
-            ResizedFile resizedFile = ResizedFile.of(1L, "SMALL", "https://example.com/resized.jpg");
+            ResizedFile resizedFile = ResizedFile.from(ResizedFileSnapshotState.builder()
+                    .fileId(1L).size("SMALL").storageUrl("https://example.com/resized.jpg")
+                    .status(EntityStatus.ACTIVE).build());
             when(findFilePort.findByOwnerAndSort(OwnerType.PRODUCT, 100L, FileSort.PRODUCT_CATALOG_IMAGE)).thenReturn(List.of(file));
             when(findResizedFilesPort.findByFileIds(List.of(1L))).thenReturn(List.of(resizedFile));
             GetFilesResult result = getFileService.getFiles("PRODUCT", 100L, "PRODUCT_CATALOG_IMAGE");

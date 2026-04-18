@@ -6,6 +6,7 @@ import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.ResizedFile;
+import com.personal.marketnote.file.domain.file.ResizedFileCreateState;
 import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.mapper.FileCommandToDomainMapper;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
@@ -104,7 +105,11 @@ public class UpdateFilesService implements UpdateFileUseCase {
                 List<ResizedFile> resizedWithUrls = new ArrayList<>(resizedToSave.size());
                 for (int i = 0; i < resizedToSave.size(); i++) {
                     ResizedFile base = resizedToSave.get(i);
-                    resizedWithUrls.add(ResizedFile.of(base.getFileId(), base.getSize(), resizedStorageUrls.get(i)));
+                    resizedWithUrls.add(ResizedFile.from(ResizedFileCreateState.builder()
+                            .fileId(base.getFileId())
+                            .size(base.getSize())
+                            .storageUrl(resizedStorageUrls.get(i))
+                            .build()));
                 }
                 saveResizedFilesPort.saveAll(resizedWithUrls);
             }
@@ -134,7 +139,10 @@ public class UpdateFilesService implements UpdateFileUseCase {
                         originalFile, size, appendSizeToFilename(originalFile.getOriginalFilename(), size + "x" + size)
                 );
                 resizedToUpload.add(resizedFile);
-                resizedToSave.add(ResizedFile.of(savedFile.getId(), size + "x" + size));
+                resizedToSave.add(ResizedFile.from(ResizedFileCreateState.builder()
+                        .fileId(savedFile.getId())
+                        .size(size + "x" + size)
+                        .build()));
             } catch (IOException ignored) {
             }
 
@@ -150,7 +158,10 @@ public class UpdateFilesService implements UpdateFileUseCase {
                             appendSizeToFilename(originalFile.getOriginalFilename(), String.valueOf(width))
                     );
                     resizedToUpload.add(resized);
-                    resizedToSave.add(ResizedFile.of(savedFile.getId(), String.valueOf(width)));
+                    resizedToSave.add(ResizedFile.from(ResizedFileCreateState.builder()
+                            .fileId(savedFile.getId())
+                            .size(String.valueOf(width))
+                            .build()));
                 } catch (IOException ignored) {
                 }
             }
