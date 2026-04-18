@@ -32,13 +32,13 @@ class RegisterFulfillmentReturnDeliveryUseCaseTest {
     void shouldReturnRegisterReturnDeliveryResultFromPort() {
         // given
         RegisterFulfillmentReturnDeliveryItemCommand itemCommand = RegisterFulfillmentReturnDeliveryItemCommand.builder()
-                .ordDt("20260402")
-                .ordNo("ORD001")
-                .parcelCd("PARCEL001")
-                .invoiceNo("INV001")
-                .custNm("테스트고객")
-                .custTelNo("01012345678")
-                .custAddr("서울시 강남구")
+                .orderDate("20260402")
+                .orderNumber("ORD001")
+                .courierCode("PARCEL001")
+                .invoiceNumber("INV001")
+                .recipientName("테스트고객")
+                .recipientPhoneNumber("01012345678")
+                .recipientAddress("서울시 강남구")
                 .build();
         RegisterFulfillmentReturnDeliveryCommand command = RegisterFulfillmentReturnDeliveryCommand.of(
                 "CUST001", "token", List.of(itemCommand)

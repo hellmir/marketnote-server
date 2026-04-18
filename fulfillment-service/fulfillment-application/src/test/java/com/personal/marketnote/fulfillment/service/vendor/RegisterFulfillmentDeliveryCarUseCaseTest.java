@@ -33,11 +33,11 @@ class RegisterFulfillmentDeliveryCarUseCaseTest {
     void shouldReturnRegisterDeliveryCarResultFromPort() {
         // given
         RegisterFulfillmentDeliveryCarItemCommand itemCommand = RegisterFulfillmentDeliveryCarItemCommand.builder()
-                .ordDt("20260402")
-                .ordNo("ORD001")
-                .outWay("01")
-                .cstShopCd("SHOP001")
-                .godCds(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
+                .orderDate("20260402")
+                .orderNumber("ORD001")
+                .releaseMethod("01")
+                .shopCode("SHOP001")
+                .products(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
                 .build();
         RegisterFulfillmentDeliveryCarCommand command = RegisterFulfillmentDeliveryCarCommand.of(
                 "CUST001", "token", List.of(itemCommand)

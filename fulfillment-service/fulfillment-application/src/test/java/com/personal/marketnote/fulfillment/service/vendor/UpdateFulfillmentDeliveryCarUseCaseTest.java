@@ -33,12 +33,12 @@ class UpdateFulfillmentDeliveryCarUseCaseTest {
     void shouldReturnUpdateDeliveryCarResultFromPort() {
         // given
         UpdateFulfillmentDeliveryCarItemCommand itemCommand = UpdateFulfillmentDeliveryCarItemCommand.builder()
-                .ordDt("20260402")
-                .ordNo("ORD001")
-                .slipNo("SLIP001")
-                .outWay("01")
-                .cstShopCd("SHOP001")
-                .godCds(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
+                .orderDate("20260402")
+                .orderNumber("ORD001")
+                .slipNumber("SLIP001")
+                .releaseMethod("01")
+                .shopCode("SHOP001")
+                .products(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
                 .build();
         UpdateFulfillmentDeliveryCarCommand command = UpdateFulfillmentDeliveryCarCommand.of(
                 "CUST001", "token", List.of(itemCommand)
