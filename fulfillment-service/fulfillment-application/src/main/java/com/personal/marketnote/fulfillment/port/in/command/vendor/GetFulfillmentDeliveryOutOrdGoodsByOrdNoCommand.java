@@ -5,15 +5,15 @@ public record GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand(
         String accessToken,
         String startDate,
         String endDate,
-        String ordNo
+        String orderNumber
 ) {
     public static GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand of(
             String customerCode,
             String accessToken,
             String startDate,
             String endDate,
-            String ordNo
+            String orderNumber
     ) {
-        return new GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand(customerCode, accessToken, startDate, endDate, ordNo);
+        return new GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand(customerCode, accessToken, startDate, endDate, orderNumber);
     }
 }

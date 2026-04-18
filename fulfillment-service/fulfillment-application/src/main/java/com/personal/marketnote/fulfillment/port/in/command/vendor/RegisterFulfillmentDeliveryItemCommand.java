@@ -6,20 +6,20 @@ import java.util.List;
 
 @Builder
 public record RegisterFulfillmentDeliveryItemCommand(
-        String ordDt,
-        String ordNo,
-        Integer ordSeq,
-        String slipNo,
-        String custNm,
-        String custTelNo,
-        String custAddr,
-        String outWay,
-        String sendNm,
-        String sendTelNo,
-        String salChanel,
-        String shipReqTerm,
-        List<RegisterFulfillmentDeliveryGoodsCommand> godCds,
-        String oneDayDeliveryCd,
+        String orderDate,
+        String orderNumber,
+        Integer orderSequence,
+        String slipNumber,
+        String recipientName,
+        String recipientPhoneNumber,
+        String recipientAddress,
+        String releaseMethod,
+        String senderName,
+        String senderPhoneNumber,
+        String salesChannel,
+        String shippingRequest,
+        List<RegisterFulfillmentDeliveryGoodsCommand> products,
+        String sameDayDeliveryCode,
         String remark
 ) {
 }

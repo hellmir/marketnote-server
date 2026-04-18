@@ -3,9 +3,9 @@ package com.personal.marketnote.fulfillment.port.in.command.vendor;
 import java.util.List;
 
 public record CompleteFulfillmentDeliveryIcsItemCommand(
-        List<String> ordNoList
+        List<String> orderNumbers
 ) {
-    public static CompleteFulfillmentDeliveryIcsItemCommand of(List<String> ordNoList) {
-        return new CompleteFulfillmentDeliveryIcsItemCommand(ordNoList);
+    public static CompleteFulfillmentDeliveryIcsItemCommand of(List<String> orderNumbers) {
+        return new CompleteFulfillmentDeliveryIcsItemCommand(orderNumbers);
     }
 }

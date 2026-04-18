@@ -7,7 +7,9 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.delivery.*;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.delivery.*;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoDeliveryCommandToRequestMapper;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
@@ -66,49 +68,57 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     @Override
-    public RegisterFulfillmentDeliveryResult registerDelivery(FulfillmentDeliveryMapper request) {
+    public RegisterFulfillmentDeliveryResult registerDelivery(RegisterFulfillmentDeliveryCommand command) {
+        FulfillmentDeliveryMapper request = FasstoDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryMutation(request, "REGISTER", HttpMethod.POST, false);
         return mapDeliveryResult(response);
     }
 
     @Override
-    public RegisterFulfillmentDeliveryResult updateDelivery(FulfillmentDeliveryMapper request) {
+    public RegisterFulfillmentDeliveryResult updateDelivery(UpdateFulfillmentDeliveryCommand command) {
+        FulfillmentDeliveryMapper request = FasstoDeliveryCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryMutation(request, "UPDATE", HttpMethod.PATCH, true);
         return mapDeliveryResult(response);
     }
 
     @Override
-    public RegisterFulfillmentDeliveryResult registerDeliveryCar(FulfillmentDeliveryCarMapper request) {
+    public RegisterFulfillmentDeliveryResult registerDeliveryCar(RegisterFulfillmentDeliveryCarCommand command) {
+        FulfillmentDeliveryCarMapper request = FasstoDeliveryCommandToRequestMapper.mapToRegisterCarRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryCarMutation(request, "REGISTER_CAR", HttpMethod.POST, false);
         return mapDeliveryResult(response);
     }
 
     @Override
-    public RegisterFulfillmentDeliveryResult registerDeliveryIcs(FulfillmentDeliveryIcsMapper request) {
+    public RegisterFulfillmentDeliveryResult registerDeliveryIcs(RegisterFulfillmentDeliveryIcsCommand command) {
+        FulfillmentDeliveryIcsMapper request = FasstoDeliveryCommandToRequestMapper.mapToRegisterIcsRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryIcsMutation(request, "REGISTER_ICS", HttpMethod.POST);
         return mapDeliveryResult(response);
     }
 
     @Override
-    public CompleteFulfillmentDeliveryIcsResult completeDeliveryIcs(FulfillmentDeliveryIcsCompletionMapper request) {
+    public CompleteFulfillmentDeliveryIcsResult completeDeliveryIcs(CompleteFulfillmentDeliveryIcsCommand command) {
+        FulfillmentDeliveryIcsCompletionMapper request = FasstoDeliveryCommandToRequestMapper.mapToIcsCompletionRequest(command);
         FulfillmentDeliveryIcsCompletionListResponse response = executeDeliveryIcsCompletionMutation(request, "COMPLETE_ICS");
         return mapDeliveryIcsCompletionResult(response);
     }
 
     @Override
-    public RegisterFulfillmentDeliveryResult updateDeliveryCar(FulfillmentDeliveryCarMapper request) {
+    public RegisterFulfillmentDeliveryResult updateDeliveryCar(UpdateFulfillmentDeliveryCarCommand command) {
+        FulfillmentDeliveryCarMapper request = FasstoDeliveryCommandToRequestMapper.mapToUpdateCarRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryCarMutation(request, "UPDATE_CAR", HttpMethod.PATCH, true);
         return mapDeliveryResult(response);
     }
 
     @Override
-    public CancelFulfillmentDeliveryResult cancelDelivery(FulfillmentDeliveryCancelMapper request) {
+    public CancelFulfillmentDeliveryResult cancelDelivery(CancelFulfillmentDeliveryCommand command) {
+        FulfillmentDeliveryCancelMapper request = FasstoDeliveryCommandToRequestMapper.mapToCancelRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDeliveryCancellation(request, "CANCEL");
         return mapCancelDeliveryResult(response);
     }
 
     @Override
-    public GetFulfillmentDeliveriesResult getDeliveries(FulfillmentDeliveryQuery query) {
+    public GetFulfillmentDeliveriesResult getDeliveries(GetFulfillmentDeliveriesCommand command) {
+        FulfillmentDeliveryQuery query = FasstoDeliveryCommandToRequestMapper.mapToQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment delivery query is required.");
         }
@@ -225,7 +235,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     @Override
-    public GetFulfillmentDeliveryStatusesResult getDeliveryStatuses(FulfillmentDeliveryStatusQuery query) {
+    public GetFulfillmentDeliveryStatusesResult getDeliveryStatuses(GetFulfillmentDeliveryStatusesCommand command) {
+        FulfillmentDeliveryStatusQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryStatusQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment delivery status query is required.");
         }
@@ -340,7 +351,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     @Override
-    public GetFulfillmentDeliveryOutOrdGoodsDetailResult getOutOrdGoodsDetail(FulfillmentDeliveryOutOrdGoodsDetailQuery query) {
+    public GetFulfillmentDeliveryOutOrdGoodsDetailResult getOutOrdGoodsDetail(GetFulfillmentDeliveryOutOrdGoodsDetailCommand command) {
+        FulfillmentDeliveryOutOrdGoodsDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment out-ord goods detail query is required.");
         }
@@ -455,7 +467,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     @Override
-    public GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult getOutOrdGoodsByOrdNo(FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query) {
+    public GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult getOutOrdGoodsByOrdNo(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command) {
+        FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query = FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsByOrdNoQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment out-ord goods by ordNo query is required.");
         }
@@ -570,7 +583,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     @Override
-    public GetFulfillmentDeliveryGoodDetailResult getDeliveryGoodDetail(FulfillmentDeliveryGoodDetailQuery query) {
+    public GetFulfillmentDeliveryGoodDetailResult getDeliveryGoodDetail(GetFulfillmentDeliveryGoodDetailCommand command) {
+        FulfillmentDeliveryGoodDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryGoodDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment delivery good detail query is required.");
         }
@@ -685,7 +699,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     @Override
-    public GetFulfillmentDeliveryDetailResult getDeliveryDetail(FulfillmentDeliveryDetailQuery query) {
+    public GetFulfillmentDeliveryDetailResult getDeliveryDetail(GetFulfillmentDeliveryDetailCommand command) {
+        FulfillmentDeliveryDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment delivery detail query is required.");
         }

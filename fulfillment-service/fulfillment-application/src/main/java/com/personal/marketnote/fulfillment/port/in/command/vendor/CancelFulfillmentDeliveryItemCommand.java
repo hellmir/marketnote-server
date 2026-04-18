@@ -1,13 +1,13 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
 public record CancelFulfillmentDeliveryItemCommand(
-        String slipNo,
-        String ordNo
+        String slipNumber,
+        String orderNumber
 ) {
     public static CancelFulfillmentDeliveryItemCommand of(
-            String slipNo,
-            String ordNo
+            String slipNumber,
+            String orderNumber
     ) {
-        return new CancelFulfillmentDeliveryItemCommand(slipNo, ordNo);
+        return new CancelFulfillmentDeliveryItemCommand(slipNumber, orderNumber);
     }
 }

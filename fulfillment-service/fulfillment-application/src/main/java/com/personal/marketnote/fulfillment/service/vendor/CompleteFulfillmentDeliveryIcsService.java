@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.CompleteFulfillmentDeliveryIcsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.CompleteFulfillmentDeliveryIcsResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.CompleteFulfillmentDeliveryIcsUseCase;
@@ -19,8 +18,6 @@ public class CompleteFulfillmentDeliveryIcsService implements CompleteFulfillmen
 
     @Override
     public CompleteFulfillmentDeliveryIcsResult completeDeliveryIcs(CompleteFulfillmentDeliveryIcsCommand command) {
-        return completeFulfillmentDeliveryIcsPort.completeDeliveryIcs(
-                FulfillmentDeliveryCommandToRequestMapper.mapToIcsCompletionRequest(command)
-        );
+        return completeFulfillmentDeliveryIcsPort.completeDeliveryIcs(command);
     }
 }

@@ -3,23 +3,23 @@ package com.personal.marketnote.fulfillment.port.in.command.vendor;
 public record GetFulfillmentDeliveryDetailCommand(
         String customerCode,
         String accessToken,
-        String slipNo,
-        String ordNo
+        String slipNumber,
+        String orderNumber
 ) {
     public static GetFulfillmentDeliveryDetailCommand of(
             String customerCode,
             String accessToken,
-            String slipNo
+            String slipNumber
     ) {
-        return new GetFulfillmentDeliveryDetailCommand(customerCode, accessToken, slipNo, null);
+        return new GetFulfillmentDeliveryDetailCommand(customerCode, accessToken, slipNumber, null);
     }
 
     public static GetFulfillmentDeliveryDetailCommand of(
             String customerCode,
             String accessToken,
-            String slipNo,
-            String ordNo
+            String slipNumber,
+            String orderNumber
     ) {
-        return new GetFulfillmentDeliveryDetailCommand(customerCode, accessToken, slipNo, ordNo);
+        return new GetFulfillmentDeliveryDetailCommand(customerCode, accessToken, slipNumber, orderNumber);
     }
 }

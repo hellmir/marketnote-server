@@ -31,19 +31,19 @@ public class FulfillmentDirectReturnDeliveryRequestToCommandMapper {
                 : List.of();
 
         return RegisterFulfillmentDirectReturnDeliveryItemCommand.builder()
-                .ordDt(item.getOrdDt())
-                .supCd(item.getSupCd())
-                .orgParcelCd(item.getOrgParcelCd())
-                .orgInvoiceNo(item.getOrgInvoiceNo())
-                .inWay(item.getInWay())
-                .custNm(item.getCustNm())
-                .rtnParcelComp(item.getRtnParcelComp())
-                .rtnInvoiceNo(item.getRtnInvoiceNo())
-                .rtnGubun(item.getRtnGubun())
-                .rtnReason(item.getRtnReason())
-                .rtnDetailReason(item.getRtnDetailReason())
+                .orderDate(item.getOrdDt())
+                .supplierCode(item.getSupCd())
+                .originalCourierCode(item.getOrgParcelCd())
+                .originalInvoiceNumber(item.getOrgInvoiceNo())
+                .returnReceiveMethod(item.getInWay())
+                .recipientName(item.getCustNm())
+                .returnCourierCompany(item.getRtnParcelComp())
+                .returnInvoiceNumber(item.getRtnInvoiceNo())
+                .returnType(item.getRtnGubun())
+                .returnReason(item.getRtnReason())
+                .returnDetailReason(item.getRtnDetailReason())
                 .remark(item.getRemark())
-                .godCds(goods)
+                .products(goods)
                 .build();
     }
 

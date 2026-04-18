@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentDeliveryStatusesCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentDeliveryStatusesUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentDeliveryStatusesService implements GetFulfillmentDeli
 
     @Override
     public GetFulfillmentDeliveryStatusesResult getDeliveryStatuses(GetFulfillmentDeliveryStatusesCommand command) {
-        return getFulfillmentDeliveryStatusesPort.getDeliveryStatuses(
-                FulfillmentDeliveryCommandToRequestMapper.mapToDeliveryStatusQuery(command)
-        );
+        return getFulfillmentDeliveryStatusesPort.getDeliveryStatuses(command);
     }
 }

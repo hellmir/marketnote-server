@@ -12,7 +12,7 @@ public class FasstoCommandToStateMapper {
     public static FulfillmentDeliveryRegistrationCreateState mapToDeliveryRegistrationCreateState(
             RegisterFulfillmentDeliveryCommand command
     ) {
-        Long orderId = Long.parseLong(command.deliveryRequests().getFirst().ordNo());
+        Long orderId = Long.parseLong(command.deliveryRequests().getFirst().orderNumber());
 
         return FulfillmentDeliveryRegistrationCreateState.builder()
                 .orderId(orderId)

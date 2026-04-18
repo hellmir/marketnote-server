@@ -5,15 +5,15 @@ public record GetFulfillmentDeliveryGoodDetailCommand(
         String accessToken,
         String startDate,
         String endDate,
-        String ordNo
+        String orderNumber
 ) {
     public static GetFulfillmentDeliveryGoodDetailCommand of(
             String customerCode,
             String accessToken,
             String startDate,
             String endDate,
-            String ordNo
+            String orderNumber
     ) {
-        return new GetFulfillmentDeliveryGoodDetailCommand(customerCode, accessToken, startDate, endDate, ordNo);
+        return new GetFulfillmentDeliveryGoodDetailCommand(customerCode, accessToken, startDate, endDate, orderNumber);
     }
 }

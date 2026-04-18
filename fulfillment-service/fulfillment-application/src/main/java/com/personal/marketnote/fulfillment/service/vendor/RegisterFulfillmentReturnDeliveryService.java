@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentReturnDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentReturnDeliveryUseCase;
@@ -19,8 +18,6 @@ public class RegisterFulfillmentReturnDeliveryService implements RegisterFulfill
 
     @Override
     public RegisterFulfillmentDeliveryResult registerReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
-        return registerFulfillmentReturnDeliveryPort.registerReturnDelivery(
-                FulfillmentReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command)
-        );
+        return registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command);
     }
 }

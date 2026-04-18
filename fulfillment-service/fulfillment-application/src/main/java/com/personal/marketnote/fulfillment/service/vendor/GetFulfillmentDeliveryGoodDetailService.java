@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentDeliveryGoodDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryGoodDetailResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentDeliveryGoodDetailUseCase;
@@ -21,8 +20,6 @@ public class GetFulfillmentDeliveryGoodDetailService implements GetFulfillmentDe
     public GetFulfillmentDeliveryGoodDetailResult getDeliveryGoodDetail(
             GetFulfillmentDeliveryGoodDetailCommand command
     ) {
-        return getFulfillmentDeliveryGoodDetailPort.getDeliveryGoodDetail(
-                FulfillmentDeliveryCommandToRequestMapper.mapToDeliveryGoodDetailQuery(command)
-        );
+        return getFulfillmentDeliveryGoodDetailPort.getDeliveryGoodDetail(command);
     }
 }

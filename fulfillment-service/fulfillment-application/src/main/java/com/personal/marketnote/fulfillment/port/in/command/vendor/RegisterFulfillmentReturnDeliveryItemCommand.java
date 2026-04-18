@@ -6,22 +6,22 @@ import java.util.List;
 
 @Builder
 public record RegisterFulfillmentReturnDeliveryItemCommand(
-        String ordDt,
-        String ordNo,
-        String parcelCd,
-        String invoiceNo,
-        String custNm,
-        String custTelNo,
-        String custAddr,
-        String rtnEmpNm,
-        String rtnTelNo,
-        String rtnZipCd,
-        String rtnAddr1,
-        String rtnAddr2,
-        String rtnGubun,
-        String rtnReason,
-        String getRtnDetailReason,
-        String rtnShipReqTerm,
-        List<RegisterFulfillmentDeliveryGoodsCommand> godCds
+        String orderDate,
+        String orderNumber,
+        String courierCode,
+        String invoiceNumber,
+        String recipientName,
+        String recipientPhoneNumber,
+        String recipientAddress,
+        String returnReceiverName,
+        String returnReceiverPhoneNumber,
+        String returnZipCode,
+        String returnAddress1,
+        String returnAddress2,
+        String returnType,
+        String returnReason,
+        String returnDetailReason,
+        String returnShippingRequest,
+        List<RegisterFulfillmentDeliveryGoodsCommand> products
 ) {
 }

@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentReturnDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentReturnGodDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentReturnGodDetailResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentReturnGodDetailUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentReturnGodDetailService implements GetFulfillmentRetur
 
     @Override
     public GetFulfillmentReturnGodDetailResult getReturnGodDetail(GetFulfillmentReturnGodDetailCommand command) {
-        return getFulfillmentReturnGodDetailPort.getReturnGodDetail(
-                FulfillmentReturnDeliveryCommandToRequestMapper.mapToReturnGodDetailQuery(command)
-        );
+        return getFulfillmentReturnGodDetailPort.getReturnGodDetail(command);
     }
 }

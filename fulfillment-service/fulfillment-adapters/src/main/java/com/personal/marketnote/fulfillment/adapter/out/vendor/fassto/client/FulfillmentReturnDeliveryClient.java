@@ -7,8 +7,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.returndelivery.FulfillmentReturnDeliveryMapper;
-import com.personal.marketnote.fulfillment.domain.vendor.returndelivery.FulfillmentReturnGodDetailQuery;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoReturnDeliveryCommandToRequestMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnDeliveryMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentReturnGodDetailQuery;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentReturnGodDetailCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
@@ -69,13 +72,15 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     }
 
     @Override
-    public RegisterFulfillmentDeliveryResult registerReturnDelivery(FulfillmentReturnDeliveryMapper request) {
+    public RegisterFulfillmentDeliveryResult registerReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
+        FulfillmentReturnDeliveryMapper request = FasstoReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeReturnDeliveryMutation(request, "REGISTER_RETURN");
         return mapDeliveryResult(response);
     }
 
     @Override
-    public GetFulfillmentReturnGodDetailResult getReturnGodDetail(FulfillmentReturnGodDetailQuery query) {
+    public GetFulfillmentReturnGodDetailResult getReturnGodDetail(GetFulfillmentReturnGodDetailCommand command) {
+        FulfillmentReturnGodDetailQuery query = FasstoReturnDeliveryCommandToRequestMapper.mapToReturnGodDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment return god detail query is required.");
         }

@@ -6,8 +6,8 @@ public record GetFulfillmentDeliveriesCommand(
         String startDate,
         String endDate,
         String status,
-        String outDiv,
-        String ordNo
+        String releaseType,
+        String orderNumber
 ) {
     public static GetFulfillmentDeliveriesCommand of(
             String customerCode,
@@ -15,9 +15,9 @@ public record GetFulfillmentDeliveriesCommand(
             String startDate,
             String endDate,
             String status,
-            String outDiv
+            String releaseType
     ) {
-        return new GetFulfillmentDeliveriesCommand(customerCode, accessToken, startDate, endDate, status, outDiv, null);
+        return new GetFulfillmentDeliveriesCommand(customerCode, accessToken, startDate, endDate, status, releaseType, null);
     }
 
     public static GetFulfillmentDeliveriesCommand of(
@@ -26,9 +26,9 @@ public record GetFulfillmentDeliveriesCommand(
             String startDate,
             String endDate,
             String status,
-            String outDiv,
-            String ordNo
+            String releaseType,
+            String orderNumber
     ) {
-        return new GetFulfillmentDeliveriesCommand(customerCode, accessToken, startDate, endDate, status, outDiv, ordNo);
+        return new GetFulfillmentDeliveriesCommand(customerCode, accessToken, startDate, endDate, status, releaseType, orderNumber);
     }
 }
