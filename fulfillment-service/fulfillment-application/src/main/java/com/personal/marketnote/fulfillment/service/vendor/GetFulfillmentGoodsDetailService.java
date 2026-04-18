@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentGoodsCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentGoodsResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentGoodsDetailUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentGoodsDetailService implements GetFulfillmentGoodsDeta
 
     @Override
     public GetFulfillmentGoodsResult getGoodsDetail(GetFulfillmentGoodsDetailCommand command) {
-        return getFulfillmentGoodsDetailPort.getGoodsDetail(
-                FulfillmentGoodsCommandToRequestMapper.mapToGoodsDetailQuery(command)
-        );
+        return getFulfillmentGoodsDetailPort.getGoodsDetail(command);
     }
 }

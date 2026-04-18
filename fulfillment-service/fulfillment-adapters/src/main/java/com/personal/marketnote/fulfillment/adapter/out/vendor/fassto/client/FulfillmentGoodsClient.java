@@ -5,17 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsDetailQuery;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsElementQuery;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.goods.FulfillmentGoodsQuery;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoGoodsCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.*;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.goods.FulfillmentGoodsDetailQuery;
-import com.personal.marketnote.fulfillment.domain.vendor.goods.FulfillmentGoodsElementQuery;
-import com.personal.marketnote.fulfillment.domain.vendor.goods.FulfillmentGoodsMapper;
-import com.personal.marketnote.fulfillment.domain.vendor.goods.FulfillmentGoodsQuery;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
 import com.personal.marketnote.fulfillment.exception.*;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.*;
 import com.personal.marketnote.fulfillment.port.out.vendor.*;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
@@ -69,12 +71,15 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     }
 
     @Override
-    public RegisterFulfillmentGoodsResult registerGoods(FulfillmentGoodsMapper request) {
+    public RegisterFulfillmentGoodsResult registerGoods(RegisterFulfillmentGoodsCommand command) {
+        FulfillmentGoodsMapper request = FasstoGoodsCommandToRequestMapper.mapToRegisterRequest(command);
         return executeGoodsRegistration(request, "REGISTER");
     }
 
     @Override
-    public GetFulfillmentGoodsResult getGoods(FulfillmentGoodsQuery query) {
+    public GetFulfillmentGoodsResult getGoods(GetFulfillmentGoodsCommand command) {
+        FulfillmentGoodsQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsQuery(command);
+
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment goods query is required.");
         }
@@ -90,7 +95,9 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     }
 
     @Override
-    public GetFulfillmentGoodsResult getGoodsDetail(FulfillmentGoodsDetailQuery query) {
+    public GetFulfillmentGoodsResult getGoodsDetail(GetFulfillmentGoodsDetailCommand command) {
+        FulfillmentGoodsDetailQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsDetailQuery(command);
+
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment goods detail query is required.");
         }
@@ -106,7 +113,9 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     }
 
     @Override
-    public GetFulfillmentGoodsElementsResult getGoodsElements(FulfillmentGoodsElementQuery query) {
+    public GetFulfillmentGoodsElementsResult getGoodsElements(GetFulfillmentGoodsElementsCommand command) {
+        FulfillmentGoodsElementQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsElementsQuery(command);
+
         if (FormatValidator.hasNoValue(query)) {
             throw new IllegalArgumentException("Fulfillment goods element query is required.");
         }
@@ -339,7 +348,8 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     }
 
     @Override
-    public UpdateFulfillmentGoodsResult updateGoods(FulfillmentGoodsMapper request) {
+    public UpdateFulfillmentGoodsResult updateGoods(UpdateFulfillmentGoodsCommand command) {
+        FulfillmentGoodsMapper request = FasstoGoodsCommandToRequestMapper.mapToUpdateRequest(command);
         return executeGoodsUpdate(request, "UPDATE");
     }
 
@@ -834,14 +844,14 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         return "UNKNOWN_FAILURE";
     }
 
-    private JsonNode buildListRequestPayloadJson(FulfillmentGoodsQuery query, URI uri, int attempt) {
-        return buildListRequestPayloadJson(
-                query.getCustomerCode(),
-                query.getAccessToken(),
-                null,
-                uri,
-                attempt
-        );
+    private JsonNode buildListRequestPayloadJson(FulfillmentGoodsElementQuery query, URI uri, int attempt) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("method", HttpMethod.GET.name());
+        payload.put("url", uri.toString());
+        payload.put("customerCode", query.getCustomerCode());
+        payload.put(ACCESS_TOKEN_HEADER, maskValue(query.getAccessToken()));
+        payload.put("attempt", attempt);
+        return vendorCommunicationPayloadGenerator.buildPayloadJson(payload);
     }
 
     private JsonNode buildListRequestPayloadJson(
@@ -859,16 +869,6 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             payload.put("godNm", godNm);
         }
         payload.put(ACCESS_TOKEN_HEADER, maskValue(accessToken));
-        payload.put("attempt", attempt);
-        return vendorCommunicationPayloadGenerator.buildPayloadJson(payload);
-    }
-
-    private JsonNode buildListRequestPayloadJson(FulfillmentGoodsElementQuery query, URI uri, int attempt) {
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("method", HttpMethod.GET.name());
-        payload.put("url", uri.toString());
-        payload.put("customerCode", query.getCustomerCode());
-        payload.put(ACCESS_TOKEN_HEADER, maskValue(query.getAccessToken()));
         payload.put("attempt", attempt);
         return vendorCommunicationPayloadGenerator.buildPayloadJson(payload);
     }
