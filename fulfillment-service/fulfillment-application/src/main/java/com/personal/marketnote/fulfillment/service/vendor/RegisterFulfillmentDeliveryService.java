@@ -2,7 +2,7 @@ package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
-import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistrationCreateState;
+import com.personal.marketnote.fulfillment.mapper.FasstoCommandToStateMapper;
 import com.personal.marketnote.fulfillment.mapper.FulfillmentDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
@@ -31,12 +31,8 @@ public class RegisterFulfillmentDeliveryService implements RegisterFulfillmentDe
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public RegisterFulfillmentDeliveryResult registerDeliveryIdempotent(RegisterFulfillmentDeliveryCommand command) {
-        Long orderId = Long.parseLong(command.deliveryRequests().getFirst().ordNo());
-
         FulfillmentDeliveryRegistration registration = FulfillmentDeliveryRegistration.from(
-                FulfillmentDeliveryRegistrationCreateState.builder()
-                        .orderId(orderId)
-                        .build()
+                FasstoCommandToStateMapper.mapToDeliveryRegistrationCreateState(command)
         );
         saveFulfillmentDeliveryRegistrationPort.save(registration);
 
