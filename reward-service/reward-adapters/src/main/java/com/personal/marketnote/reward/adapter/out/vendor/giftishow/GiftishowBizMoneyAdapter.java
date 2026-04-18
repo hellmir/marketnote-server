@@ -3,7 +3,7 @@ package com.personal.marketnote.reward.adapter.out.vendor.giftishow;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowApiResponse;
 import com.personal.marketnote.reward.adapter.out.vendor.giftishow.dto.GiftishowBizMoneyResponse;
 import com.personal.marketnote.reward.configuration.GiftishowApiProperties;
-import com.personal.marketnote.reward.port.out.gifticon.FetchGiftishowBizMoneyPort;
+import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonVendorBalancePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class GiftishowBizMoneyAdapter implements FetchGiftishowBizMoneyPort {
+public class GiftishowBizMoneyAdapter implements FetchGifticonVendorBalancePort {
 
     private final GiftishowApiClient giftishowApiClient;
     private final GiftishowApiProperties properties;
