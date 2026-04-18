@@ -93,7 +93,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
         FulfillmentWarehousingInfoResult item = buildWarehousingInfo("ORD-1", "WH1", "4");
         GetFulfillmentWarehousingResult result = GetFulfillmentWarehousingResult.of(1, List.of(item));
         when(getFulfillmentWarehousingUseCase.getWarehousing(
-                argThat(command -> FormatValidator.hasValue(command) && "4".equals(command.wrkStat()))
+                argThat(command -> FormatValidator.hasValue(command) && "4".equals(command.workStatus()))
         ))
                 .thenReturn(result);
         scheduler.schedule(buildCommand("ORD-1"));
@@ -110,10 +110,10 @@ class FulfillmentWarehousingPollingSchedulerTest {
         verify(getFulfillmentWarehousingUseCase).getWarehousing(commandCaptor.capture());
         assertThat(commandCaptor.getValue().startDate()).isEqualTo("20260116");
         assertThat(commandCaptor.getValue().endDate()).isEqualTo("20260116");
-        assertThat(commandCaptor.getValue().wrkStat()).isEqualTo("4");
+        assertThat(commandCaptor.getValue().workStatus()).isEqualTo("4");
 
         verify(getFulfillmentWarehousingUseCase, never())
-                .getWarehousing(argThat(command -> "5".equals(command.wrkStat())));
+                .getWarehousing(argThat(command -> "5".equals(command.workStatus())));
     }
 
     @Test
@@ -128,7 +128,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
         when(getFulfillmentWarehousingUseCase.getWarehousing(any()))
                 .thenAnswer(invocation -> {
                     GetFulfillmentWarehousingCommand command = invocation.getArgument(0);
-                    if ("4".equals(command.wrkStat())) {
+                    if ("4".equals(command.workStatus())) {
                         return GetFulfillmentWarehousingResult.of(0, List.of());
                     }
                     return GetFulfillmentWarehousingResult.of(1, List.of(completed));
@@ -147,7 +147,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
         verify(getFulfillmentWarehousingUseCase, org.mockito.Mockito.times(2))
                 .getWarehousing(commandCaptor.capture());
         assertThat(commandCaptor.getAllValues())
-                .extracting(GetFulfillmentWarehousingCommand::wrkStat)
+                .extracting(GetFulfillmentWarehousingCommand::workStatus)
                 .containsExactly("4", "5");
     }
 
