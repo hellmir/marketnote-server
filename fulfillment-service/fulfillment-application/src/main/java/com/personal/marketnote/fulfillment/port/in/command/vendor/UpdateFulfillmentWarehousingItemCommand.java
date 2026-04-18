@@ -3,46 +3,46 @@ package com.personal.marketnote.fulfillment.port.in.command.vendor;
 import java.util.List;
 
 public record UpdateFulfillmentWarehousingItemCommand(
-        String ordDt,
-        String ordNo,
-        String inWay,
-        String slipNo,
-        String parcelComp,
-        String parcelInvoiceNo,
+        String orderDate,
+        String orderNumber,
+        String warehousingMethod,
+        String slipNumber,
+        String courierCompany,
+        String trackingNumber,
         String remark,
-        String cstSupCd,
-        String distTermDt,
-        String makeDt,
-        String preArv,
-        List<UpdateFulfillmentWarehousingGoodsCommand> godCds
+        String supplierCode,
+        String expirationDate,
+        String manufacturingDate,
+        String preArrival,
+        List<UpdateFulfillmentWarehousingGoodsCommand> products
 ) {
     public static UpdateFulfillmentWarehousingItemCommand of(
-            String ordDt,
-            String ordNo,
-            String inWay,
-            String slipNo,
-            String parcelComp,
-            String parcelInvoiceNo,
+            String orderDate,
+            String orderNumber,
+            String warehousingMethod,
+            String slipNumber,
+            String courierCompany,
+            String trackingNumber,
             String remark,
-            String cstSupCd,
-            String distTermDt,
-            String makeDt,
-            String preArv,
-            List<UpdateFulfillmentWarehousingGoodsCommand> godCds
+            String supplierCode,
+            String expirationDate,
+            String manufacturingDate,
+            String preArrival,
+            List<UpdateFulfillmentWarehousingGoodsCommand> products
     ) {
         return new UpdateFulfillmentWarehousingItemCommand(
-                ordDt,
-                ordNo,
-                inWay,
-                slipNo,
-                parcelComp,
-                parcelInvoiceNo,
+                orderDate,
+                orderNumber,
+                warehousingMethod,
+                slipNumber,
+                courierCompany,
+                trackingNumber,
                 remark,
-                cstSupCd,
-                distTermDt,
-                makeDt,
-                preArv,
-                godCds
+                supplierCode,
+                expirationDate,
+                manufacturingDate,
+                preArrival,
+                products
         );
     }
 }

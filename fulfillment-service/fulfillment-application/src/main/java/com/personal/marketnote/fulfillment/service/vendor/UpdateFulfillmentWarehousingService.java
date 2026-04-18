@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentWarehousingCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentWarehousingCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillmentWarehousingResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.UpdateFulfillmentWarehousingUseCase;
@@ -19,8 +18,6 @@ public class UpdateFulfillmentWarehousingService implements UpdateFulfillmentWar
 
     @Override
     public UpdateFulfillmentWarehousingResult updateWarehousing(UpdateFulfillmentWarehousingCommand command) {
-        return updateFulfillmentWarehousingPort.updateWarehousing(
-                FulfillmentWarehousingCommandToRequestMapper.mapToUpdateRequest(command)
-        );
+        return updateFulfillmentWarehousingPort.updateWarehousing(command);
     }
 }

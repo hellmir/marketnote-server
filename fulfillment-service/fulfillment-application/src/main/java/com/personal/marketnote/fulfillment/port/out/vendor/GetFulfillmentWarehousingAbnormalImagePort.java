@@ -1,6 +1,6 @@
 package com.personal.marketnote.fulfillment.port.out.vendor;
 
-import com.personal.marketnote.fulfillment.domain.vendor.warehousing.FulfillmentWarehousingAbnormalImageQuery;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingAbnormalImageCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentWarehousingAbnormalImageResult;
 
 /**
@@ -13,11 +13,11 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentW
 public interface GetFulfillmentWarehousingAbnormalImagePort {
 
     /**
-     * @param query 파스토 입고 이상 이미지 조회 쿼리
+     * @param command 파스토 입고 이상 이미지 조회 커맨드
      * @return 파스토 입고 이상 이미지 조회 결과 {@link GetFulfillmentWarehousingAbnormalImageResult}
      * @Date 2026-02-17
      * @Author 성효빈
      * @Description 파스토 입고 이상 이미지를 조회합니다.
      */
-    GetFulfillmentWarehousingAbnormalImageResult getWarehousingAbnormalImage(FulfillmentWarehousingAbnormalImageQuery query);
+    GetFulfillmentWarehousingAbnormalImageResult getWarehousingAbnormalImage(GetFulfillmentWarehousingAbnormalImageCommand command);
 }

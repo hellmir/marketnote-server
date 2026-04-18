@@ -1,15 +1,15 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
 public record RegisterFulfillmentWarehousingGoodsCommand(
-        String cstGodCd,
-        String distTermDt,
-        Integer ordQty
+        String productCode,
+        String expirationDate,
+        Integer orderQuantity
 ) {
     public static RegisterFulfillmentWarehousingGoodsCommand of(
-            String cstGodCd,
-            String distTermDt,
-            Integer ordQty
+            String productCode,
+            String expirationDate,
+            Integer orderQuantity
     ) {
-        return new RegisterFulfillmentWarehousingGoodsCommand(cstGodCd, distTermDt, ordQty);
+        return new RegisterFulfillmentWarehousingGoodsCommand(productCode, expirationDate, orderQuantity);
     }
 }

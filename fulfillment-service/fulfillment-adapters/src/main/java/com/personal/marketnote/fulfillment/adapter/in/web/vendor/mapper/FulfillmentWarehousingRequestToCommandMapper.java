@@ -96,18 +96,18 @@ public class FulfillmentWarehousingRequestToCommandMapper {
                 .toList();
 
         return RegisterFulfillmentWarehousingItemCommand.builder()
-                .ordDt(item.getOrdDt())
-                .ordNo(item.getOrdNo())
-                .inWay(item.getInWay())
-                .slipNo(item.getSlipNo())
-                .parcelComp(item.getParcelComp())
-                .parcelInvoiceNo(item.getParcelInvoiceNo())
+                .orderDate(item.getOrdDt())
+                .orderNumber(item.getOrdNo())
+                .warehousingMethod(item.getInWay())
+                .slipNumber(item.getSlipNo())
+                .courierCompany(item.getParcelComp())
+                .trackingNumber(item.getParcelInvoiceNo())
                 .remark(item.getRemark())
-                .cstSupCd(item.getCstSupCd())
-                .distTermDt(item.getDistTermDt())
-                .makeDt(item.getMakeDt())
-                .preArv(item.getPreArv())
-                .godCds(goods)
+                .supplierCode(item.getCstSupCd())
+                .expirationDate(item.getDistTermDt())
+                .manufacturingDate(item.getMakeDt())
+                .preArrival(item.getPreArv())
+                .products(goods)
                 .build();
     }
 

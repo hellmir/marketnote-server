@@ -1,6 +1,6 @@
 package com.personal.marketnote.fulfillment.port.out.vendor;
 
-import com.personal.marketnote.fulfillment.domain.vendor.warehousing.FulfillmentWarehousingMapper;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentWarehousingCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillmentWarehousingResult;
 
 /**
@@ -13,11 +13,11 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillme
 public interface UpdateFulfillmentWarehousingPort {
 
     /**
-     * @param request 파스토 입고 수정 요청 매퍼
+     * @param command 파스토 입고 수정 커맨드
      * @return 파스토 입고 수정 결과 {@link UpdateFulfillmentWarehousingResult}
      * @Date 2026-02-05
      * @Author 성효빈
      * @Description 파스토 입고를 수정합니다.
      */
-    UpdateFulfillmentWarehousingResult updateWarehousing(FulfillmentWarehousingMapper request);
+    UpdateFulfillmentWarehousingResult updateWarehousing(UpdateFulfillmentWarehousingCommand command);
 }

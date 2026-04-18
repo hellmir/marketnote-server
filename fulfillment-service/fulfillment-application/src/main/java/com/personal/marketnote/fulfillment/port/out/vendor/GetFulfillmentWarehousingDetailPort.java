@@ -1,6 +1,6 @@
 package com.personal.marketnote.fulfillment.port.out.vendor;
 
-import com.personal.marketnote.fulfillment.domain.vendor.warehousing.FulfillmentWarehousingDetailQuery;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentWarehousingDetailResult;
 
 /**
@@ -13,11 +13,11 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentW
 public interface GetFulfillmentWarehousingDetailPort {
 
     /**
-     * @param query 파스토 입고 상세 조회 쿼리
+     * @param command 파스토 입고 상세 조회 커맨드
      * @return 파스토 입고 상세 조회 결과 {@link GetFulfillmentWarehousingDetailResult}
      * @Date 2026-02-14
      * @Author 성효빈
      * @Description 파스토 입고 상세 정보를 조회합니다.
      */
-    GetFulfillmentWarehousingDetailResult getWarehousingDetail(FulfillmentWarehousingDetailQuery query);
+    GetFulfillmentWarehousingDetailResult getWarehousingDetail(GetFulfillmentWarehousingDetailCommand command);
 }
