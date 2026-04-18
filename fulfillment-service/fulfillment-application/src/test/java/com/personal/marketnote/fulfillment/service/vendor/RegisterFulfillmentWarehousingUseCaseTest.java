@@ -35,10 +35,10 @@ class RegisterFulfillmentWarehousingUseCaseTest {
     void shouldDelegateToPort() {
         // given
         RegisterFulfillmentWarehousingItemCommand item = RegisterFulfillmentWarehousingItemCommand.builder()
-                .ordNo("ORD001")
-                .ordDt("20260402")
-                .inWay("01")
-                .godCds(List.of(RegisterFulfillmentWarehousingGoodsCommand.of("GOD001", "20260501", 10)))
+                .orderNumber("ORD001")
+                .orderDate("20260402")
+                .warehousingMethod("01")
+                .products(List.of(RegisterFulfillmentWarehousingGoodsCommand.of("GOD001", "20260501", 10)))
                 .build();
         RegisterFulfillmentWarehousingCommand command = RegisterFulfillmentWarehousingCommand.of("CUST001", "token", List.of(item));
         RegisterFulfillmentWarehousingResult expectedResult = RegisterFulfillmentWarehousingResult.of(0, List.of());
