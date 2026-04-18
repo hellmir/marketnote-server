@@ -1,6 +1,6 @@
 package com.personal.marketnote.user.port.in.result;
 
-import com.personal.marketnote.user.domain.user.UserOauth2Vendor;
+import com.personal.marketnote.user.domain.user.UserAuthProvider;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 public record AccountInfoResult(
         List<AccountResult> accounts
 ) {
-    public static AccountInfoResult from(List<UserOauth2Vendor> userOauth2Vendors) {
+    public static AccountInfoResult from(List<UserAuthProvider> userAuthProviders) {
         return new AccountInfoResult(
-                userOauth2Vendors.stream()
+                userAuthProviders.stream()
                         .map(AccountResult::from)
                         .collect(Collectors.toList())
         );

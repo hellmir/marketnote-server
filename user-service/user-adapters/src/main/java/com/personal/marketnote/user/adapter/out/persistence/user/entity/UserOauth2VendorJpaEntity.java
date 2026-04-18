@@ -1,7 +1,7 @@
 package com.personal.marketnote.user.adapter.out.persistence.user.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
-import com.personal.marketnote.user.domain.user.UserOauth2Vendor;
+import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,11 +24,11 @@ public class UserOauth2VendorJpaEntity extends BaseGeneralEntity {
     @Column(name = "oidc_id", length = 255)
     private String oidcId;
 
-    public static UserOauth2VendorJpaEntity from(UserOauth2Vendor userOauth2Vendor) {
+    public static UserOauth2VendorJpaEntity from(UserAuthProvider userAuthProvider) {
         return UserOauth2VendorJpaEntity.builder()
-                .userJpaEntity(UserJpaEntity.from(userOauth2Vendor.getUser()))
-                .authVendor(userOauth2Vendor.getAuthVendor())
-                .oidcId(userOauth2Vendor.getOidcId())
+                .userJpaEntity(UserJpaEntity.from(userAuthProvider.getUser()))
+                .authVendor(userAuthProvider.getAuthVendor())
+                .oidcId(userAuthProvider.getOidcId())
                 .build();
     }
 
@@ -40,9 +40,9 @@ public class UserOauth2VendorJpaEntity extends BaseGeneralEntity {
                 .build();
     }
 
-    public void updateFrom(UserJpaEntity userJpaEntity, UserOauth2Vendor userOauth2Vendor) {
+    public void updateFrom(UserJpaEntity userJpaEntity, UserAuthProvider userAuthProvider) {
         this.userJpaEntity = userJpaEntity;
-        authVendor = userOauth2Vendor.getAuthVendor();
-        oidcId = userOauth2Vendor.getOidcId();
+        authVendor = userAuthProvider.getAuthVendor();
+        oidcId = userAuthProvider.getOidcId();
     }
 }

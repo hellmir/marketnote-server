@@ -36,7 +36,7 @@ public class User extends BaseDomain {
     private String referenceCode;
     private String referredUserCode;
     private Role role;
-    private List<UserOauth2Vendor> userOauth2Vendors;
+    private List<UserAuthProvider> userAuthProviders;
     private List<UserTerms> userTerms;
     private LocalDateTime signedUpAt;
     private LocalDateTime lastLoggedInAt;
@@ -53,23 +53,23 @@ public class User extends BaseDomain {
                 ? state.getTerms()
                 : List.of();
 
-        List<UserOauth2Vendor> userOauth2Vendors = new ArrayList<>(AuthVendor.size());
+        List<UserAuthProvider> userAuthProviders = new ArrayList<>(AuthVendor.size());
         AuthVendor[] allAuthVendors = AuthVendor.values();
 
         // 최초 회원 가입 시 모든 공급업체 튜플 추가
         for (AuthVendor authVendor : allAuthVendors) {
-            UserOauth2Vendor userOauth2Vendor = UserOauth2Vendor.of(authVendor);
-            userOauth2Vendors.add(userOauth2Vendor);
+            UserAuthProvider userAuthProvider = UserAuthProvider.of(authVendor);
+            userAuthProviders.add(userAuthProvider);
 
             // 실제 가입한 공급업체만 OIDC ID 삽입
             if (authVendor.isMe(targetAuthVendor)) {
-                userOauth2Vendor.addOidcId(targetAuthVendor, state.getOidcId(), state.getEmail());
+                userAuthProvider.addOidcId(targetAuthVendor, state.getOidcId(), state.getEmail());
             }
         }
 
         User user = User.builder()
                 .userKey(RandomCodeGenerator.generateUserKey())
-                .userOauth2Vendors(userOauth2Vendors)
+                .userAuthProviders(userAuthProviders)
                 .nickname(state.getNickname())
                 .email(state.getEmail())
                 .fullName(state.getFullName())
@@ -109,7 +109,7 @@ public class User extends BaseDomain {
                 .referenceCode(state.getReferenceCode())
                 .referredUserCode(state.getReferredUserCode())
                 .role(state.getRole())
-                .userOauth2Vendors(state.getUserOauth2Vendors())
+                .userAuthProviders(state.getUserAuthProviders())
                 .userTerms(state.getUserTerms())
                 .signedUpAt(state.getSignedUpAt())
                 .lastLoggedInAt(state.getLastLoggedInAt())
@@ -136,14 +136,14 @@ public class User extends BaseDomain {
         return User.builder()
                 .id(id)
                 .role(Role.getGuest())
-                .userOauth2Vendors(new ArrayList<>())
+                .userAuthProviders(new ArrayList<>())
                 .userTerms(new ArrayList<>())
                 .build();
     }
 
     private static User createGuest(UserCreateState state) {
         return User.builder()
-                .userOauth2Vendors(List.of(UserOauth2Vendor.of(state.getAuthVendor(), state.getOidcId())))
+                .userAuthProviders(List.of(UserAuthProvider.of(state.getAuthVendor(), state.getOidcId())))
                 .role(Role.getGuest())
                 .build();
     }
@@ -195,8 +195,8 @@ public class User extends BaseDomain {
     }
 
     public void addLoginAccountInfo(AuthVendor authVendor, String oidcId, String password, PasswordEncoder passwordEncoder) {
-        userOauth2Vendors.forEach(
-                userOauth2Vendor -> userOauth2Vendor.update(authVendor, oidcId)
+        userAuthProviders.forEach(
+                userAuthProvider -> userAuthProvider.update(authVendor, oidcId)
         );
 
         if (FormatValidator.hasValue(password)) {
@@ -244,21 +244,21 @@ public class User extends BaseDomain {
     }
 
     public String getOidcIdByVendor(AuthVendor vendor) {
-        return userOauth2Vendors.stream()
+        return userAuthProviders.stream()
                 .filter(v -> v.isVendor(vendor))
                 .findFirst()
-                .map(UserOauth2Vendor::getOidcId)
+                .map(UserAuthProvider::getOidcId)
                 .orElse(null);
     }
 
     public boolean hasAccount(AuthVendor vendor) {
-        return userOauth2Vendors.stream()
+        return userAuthProviders.stream()
                 .anyMatch(v -> v.hasAccount(vendor));
     }
 
     public void removeOidcId(AuthVendor vendor) {
-        userOauth2Vendors.stream()
+        userAuthProviders.stream()
                 .filter(v -> v.isVendor(vendor))
-                .forEach(UserOauth2Vendor::removeOidcId);
+                .forEach(UserAuthProvider::removeOidcId);
     }
 }

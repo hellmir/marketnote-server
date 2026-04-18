@@ -3,7 +3,7 @@ package com.personal.marketnote.user.service.user;
 import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.domain.user.User;
-import com.personal.marketnote.user.domain.user.UserOauth2Vendor;
+import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserSnapshotState;
 
 import java.time.LocalDateTime;
@@ -20,7 +20,7 @@ final class UserTestObjectFactory {
             Long id,
             EntityStatus status,
             boolean withdrawalYn,
-            List<UserOauth2Vendor> userOauth2Vendors
+            List<UserAuthProvider> userAuthProviders
     ) {
         return createUser(
                 id,
@@ -30,7 +30,7 @@ final class UserTestObjectFactory {
                 "010-1111-2222",
                 "ref-123",
                 Role.getBuyer(),
-                userOauth2Vendors,
+                userAuthProviders,
                 LocalDateTime.of(2024, 1, 1, 10, 0),
                 LocalDateTime.of(2024, 1, 2, 11, 0),
                 status,
@@ -47,7 +47,7 @@ final class UserTestObjectFactory {
             String phoneNumber,
             String referenceCode,
             Role role,
-            List<UserOauth2Vendor> userOauth2Vendors,
+            List<UserAuthProvider> userAuthProviders,
             LocalDateTime signedUpAt,
             LocalDateTime lastLoggedInAt,
             EntityStatus status,
@@ -63,7 +63,7 @@ final class UserTestObjectFactory {
                 .phoneNumber(phoneNumber)
                 .referenceCode(referenceCode)
                 .role(role)
-                .userOauth2Vendors(userOauth2Vendors)
+                .userAuthProviders(userAuthProviders)
                 .userTerms(List.of())
                 .signedUpAt(signedUpAt)
                 .lastLoggedInAt(lastLoggedInAt)

@@ -25,7 +25,7 @@ public class UserSnapshotState {
     private final String referenceCode;
     private final String referredUserCode;
     private final Role role;
-    private final List<UserOauth2Vendor> userOauth2Vendors;
+    private final List<UserAuthProvider> userAuthProviders;
     private final List<UserTerms> userTerms;
     private final LocalDateTime signedUpAt;
     private final LocalDateTime lastLoggedInAt;

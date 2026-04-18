@@ -25,7 +25,7 @@ public record GetUserInfoResult(
     public static GetUserInfoResult from(User user) {
         return GetUserInfoResult.builder()
                 .id(user.getId())
-                .accountInfo(AccountInfoResult.from(user.getUserOauth2Vendors()))
+                .accountInfo(AccountInfoResult.from(user.getUserAuthProviders()))
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
