@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.service.report;
 
 import com.personal.marketnote.community.domain.report.Report;
+import com.personal.marketnote.community.domain.report.ReportSnapshotState;
 import com.personal.marketnote.community.domain.report.ReportTargetType;
 import com.personal.marketnote.community.port.out.report.FindReportPort;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +32,20 @@ class GetReportsUseCaseTest {
         ReportTargetType targetType = ReportTargetType.REVIEW;
         Long targetId = 1L;
         List<Report> reports = List.of(
-                Report.of(targetType, targetId, 100L, "부적절한 콘텐츠", LocalDateTime.now()),
-                Report.of(targetType, targetId, 200L, "스팸 리뷰", LocalDateTime.now())
+                Report.from(ReportSnapshotState.builder()
+                        .targetType(targetType)
+                        .targetId(targetId)
+                        .reporterId(100L)
+                        .reason("부적절한 콘텐츠")
+                        .createdAt(LocalDateTime.now())
+                        .build()),
+                Report.from(ReportSnapshotState.builder()
+                        .targetType(targetType)
+                        .targetId(targetId)
+                        .reporterId(200L)
+                        .reason("스팸 리뷰")
+                        .createdAt(LocalDateTime.now())
+                        .build())
         );
         when(findReportPort.findByTargetTypeAndTargetId(targetType, targetId))
                 .thenReturn(reports);
