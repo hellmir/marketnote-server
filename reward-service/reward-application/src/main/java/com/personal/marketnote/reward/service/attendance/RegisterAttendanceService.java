@@ -6,7 +6,6 @@ import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.UserAttendance;
-import com.personal.marketnote.reward.domain.attendance.UserAttendanceCreateState;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
 import com.personal.marketnote.reward.exception.InvalidAttendanceTimeException;
 import com.personal.marketnote.reward.mapper.RewardCommandToStateMapper;
@@ -84,12 +83,7 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
         return findUserAttendancePort.findByUserIdAndYearAndMonth(userId, year, month)
                 .orElseGet(() -> saveUserAttendancePort.save(
                         UserAttendance.from(
-                                UserAttendanceCreateState.builder()
-                                        .userId(userId)
-                                        .year(year)
-                                        .month(month)
-                                        .totalRewardQuantity(0L)
-                                        .build()
+                                RewardCommandToStateMapper.mapToUserAttendanceCreateState(userId, year, month)
                         )
                 ));
     }

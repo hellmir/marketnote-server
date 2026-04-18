@@ -1,7 +1,10 @@
 package com.personal.marketnote.reward.mapper;
 
+import com.personal.marketnote.common.domain.calendar.Month;
+import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicyCreateState;
+import com.personal.marketnote.reward.domain.attendance.UserAttendanceCreateState;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistoryCreateState;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapperCreateState;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
@@ -133,6 +136,19 @@ public class RewardCommandToStateMapper {
                 .continuousPeriod(continuousPeriod)
                 .rewardYn(Boolean.TRUE)
                 .attendedAt(command.attendedAt())
+                .build();
+    }
+
+    public static UserAttendanceCreateState mapToUserAttendanceCreateState(
+            Long userId,
+            Year year,
+            Month month
+    ) {
+        return UserAttendanceCreateState.builder()
+                .userId(userId)
+                .year(year)
+                .month(month)
+                .totalRewardQuantity(0L)
                 .build();
     }
 
