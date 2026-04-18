@@ -3,7 +3,6 @@ package com.personal.marketnote.fulfillment.service.vendor;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.fulfillment.domain.goods.FulfillmentGoodsRegistration;
 import com.personal.marketnote.fulfillment.mapper.FasstoCommandToStateMapper;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentGoodsCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentGoodsResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentGoodsUseCase;
@@ -23,9 +22,7 @@ public class RegisterFulfillmentGoodsService implements RegisterFulfillmentGoods
 
     @Override
     public RegisterFulfillmentGoodsResult registerGoods(RegisterFulfillmentGoodsCommand command) {
-        return registerFulfillmentGoodsPort.registerGoods(
-                FulfillmentGoodsCommandToRequestMapper.mapToRegisterRequest(command)
-        );
+        return registerFulfillmentGoodsPort.registerGoods(command);
     }
 
     @Override
@@ -36,8 +33,6 @@ public class RegisterFulfillmentGoodsService implements RegisterFulfillmentGoods
         );
         saveFulfillmentGoodsRegistrationPort.save(registration);
 
-        return registerFulfillmentGoodsPort.registerGoods(
-                FulfillmentGoodsCommandToRequestMapper.mapToRegisterRequest(command)
-        );
+        return registerFulfillmentGoodsPort.registerGoods(command);
     }
 }

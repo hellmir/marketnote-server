@@ -1,6 +1,6 @@
 package com.personal.marketnote.fulfillment.port.out.vendor;
 
-import com.personal.marketnote.fulfillment.domain.vendor.goods.FulfillmentGoodsElementQuery;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsElementsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentGoodsElementsResult;
 
 /**
@@ -13,11 +13,11 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentG
 public interface GetFulfillmentGoodsElementsPort {
 
     /**
-     * @param query 파스토 상품 구성 요소 조회 쿼리
+     * @param command 파스토 상품 구성 요소 조회 커맨드
      * @return 파스토 상품 구성 요소 조회 결과 {@link GetFulfillmentGoodsElementsResult}
      * @Date 2026-01-30
      * @Author 성효빈
      * @Description 파스토 상품 구성 요소를 조회합니다.
      */
-    GetFulfillmentGoodsElementsResult getGoodsElements(FulfillmentGoodsElementQuery query);
+    GetFulfillmentGoodsElementsResult getGoodsElements(GetFulfillmentGoodsElementsCommand command);
 }

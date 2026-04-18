@@ -22,7 +22,7 @@ public class FasstoCommandToStateMapper {
     public static FulfillmentGoodsRegistrationCreateState mapToGoodsRegistrationCreateState(
             RegisterFulfillmentGoodsCommand command
     ) {
-        Long productId = Long.parseLong(command.goods().getFirst().cstGodCd());
+        Long productId = Long.parseLong(command.goods().getFirst().productCode());
 
         return FulfillmentGoodsRegistrationCreateState.builder()
                 .productId(productId)

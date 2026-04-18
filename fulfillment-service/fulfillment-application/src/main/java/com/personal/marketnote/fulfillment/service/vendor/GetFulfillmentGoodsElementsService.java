@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentGoodsCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsElementsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentGoodsElementsResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentGoodsElementsUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentGoodsElementsService implements GetFulfillmentGoodsEl
 
     @Override
     public GetFulfillmentGoodsElementsResult getGoodsElements(GetFulfillmentGoodsElementsCommand command) {
-        return getFulfillmentGoodsElementsPort.getGoodsElements(
-                FulfillmentGoodsCommandToRequestMapper.mapToGoodsElementsQuery(command)
-        );
+        return getFulfillmentGoodsElementsPort.getGoodsElements(command);
     }
 }
