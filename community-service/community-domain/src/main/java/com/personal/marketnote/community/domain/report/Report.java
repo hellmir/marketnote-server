@@ -24,6 +24,7 @@ public class Report {
                 .build();
     }
 
+    @Deprecated
     public static Report of(
             ReportTargetType targetType, Long targetId, Long reporterId, String reason, LocalDateTime createdAt
     ) {
@@ -33,6 +34,16 @@ public class Report {
                 .reporterId(reporterId)
                 .reason(reason)
                 .createdAt(createdAt)
+                .build();
+    }
+
+    public static Report from(ReportSnapshotState state) {
+        return Report.builder()
+                .targetType(state.getTargetType())
+                .targetId(state.getTargetId())
+                .reporterId(state.getReporterId())
+                .reason(state.getReason())
+                .createdAt(state.getCreatedAt())
                 .build();
     }
 }

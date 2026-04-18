@@ -3,6 +3,7 @@ package com.personal.marketnote.community.adapter.out.mapper;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.adapter.out.persistence.report.entity.ReportJpaEntity;
 import com.personal.marketnote.community.domain.report.Report;
+import com.personal.marketnote.community.domain.report.ReportSnapshotState;
 
 import java.util.Optional;
 
@@ -13,12 +14,14 @@ public class ReportJpaEntityToDomainMapper {
         }
 
         return Optional.of(
-                Report.of(
-                        entity.getId().getTargetType(),
-                        entity.getTargetId(),
-                        entity.getReporterId(),
-                        entity.getReason(),
-                        entity.getCreatedAt()
+                Report.from(
+                        ReportSnapshotState.builder()
+                                .targetType(entity.getId().getTargetType())
+                                .targetId(entity.getTargetId())
+                                .reporterId(entity.getReporterId())
+                                .reason(entity.getReason())
+                                .createdAt(entity.getCreatedAt())
+                                .build()
                 )
         );
     }
