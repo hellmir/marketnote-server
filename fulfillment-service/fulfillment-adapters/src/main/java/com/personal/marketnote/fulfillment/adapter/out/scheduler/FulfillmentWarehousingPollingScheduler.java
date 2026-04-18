@@ -46,7 +46,7 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
         Instant requestAt = clock.instant();
         if (FormatValidator.hasNoValue(command)
                 || FormatValidator.hasNoValue(command.customerCode())
-                || FormatValidator.hasNoValue(command.ordNo())) {
+                || FormatValidator.hasNoValue(command.orderNumber())) {
             return;
         }
 
@@ -210,7 +210,7 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
             Instant windowEnd = ZonedDateTime.of(requestDate, POLLING_END_TIME, DEFAULT_ZONE).toInstant();
             return new PollingContext(
                     command.customerCode(),
-                    command.ordNo(),
+                    command.orderNumber(),
                     normalizedDate,
                     normalizedDate,
                     requestDate,

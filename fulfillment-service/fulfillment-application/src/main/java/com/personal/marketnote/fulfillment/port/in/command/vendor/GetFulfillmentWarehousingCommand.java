@@ -5,9 +5,9 @@ public record GetFulfillmentWarehousingCommand(
         String accessToken,
         String startDate,
         String endDate,
-        String inWay,
-        String ordNo,
-        String wrkStat
+        String warehousingMethod,
+        String orderNumber,
+        String workStatus
 ) {
     public static GetFulfillmentWarehousingCommand of(
             String customerCode,
@@ -23,10 +23,10 @@ public record GetFulfillmentWarehousingCommand(
             String accessToken,
             String startDate,
             String endDate,
-            String inWay,
-            String ordNo,
-            String wrkStat
+            String warehousingMethod,
+            String orderNumber,
+            String workStatus
     ) {
-        return new GetFulfillmentWarehousingCommand(customerCode, accessToken, startDate, endDate, inWay, ordNo, wrkStat);
+        return new GetFulfillmentWarehousingCommand(customerCode, accessToken, startDate, endDate, warehousingMethod, orderNumber, workStatus);
     }
 }

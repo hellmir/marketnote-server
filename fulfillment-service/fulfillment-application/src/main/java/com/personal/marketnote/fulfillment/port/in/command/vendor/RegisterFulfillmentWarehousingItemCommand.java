@@ -6,17 +6,17 @@ import java.util.List;
 
 @Builder
 public record RegisterFulfillmentWarehousingItemCommand(
-        String ordDt,
-        String ordNo,
-        String inWay,
-        String slipNo,
-        String parcelComp,
-        String parcelInvoiceNo,
+        String orderDate,
+        String orderNumber,
+        String warehousingMethod,
+        String slipNumber,
+        String courierCompany,
+        String trackingNumber,
         String remark,
-        String cstSupCd,
-        String distTermDt,
-        String makeDt,
-        String preArv,
-        List<RegisterFulfillmentWarehousingGoodsCommand> godCds
+        String supplierCode,
+        String expirationDate,
+        String manufacturingDate,
+        String preArrival,
+        List<RegisterFulfillmentWarehousingGoodsCommand> products
 ) {
 }

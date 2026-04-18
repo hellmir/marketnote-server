@@ -1,15 +1,15 @@
 package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
 public record UpdateFulfillmentWarehousingGoodsCommand(
-        String cstGodCd,
-        String distTermDt,
-        Integer ordQty
+        String productCode,
+        String expirationDate,
+        Integer orderQuantity
 ) {
     public static UpdateFulfillmentWarehousingGoodsCommand of(
-            String cstGodCd,
-            String distTermDt,
-            Integer ordQty
+            String productCode,
+            String expirationDate,
+            Integer orderQuantity
     ) {
-        return new UpdateFulfillmentWarehousingGoodsCommand(cstGodCd, distTermDt, ordQty);
+        return new UpdateFulfillmentWarehousingGoodsCommand(productCode, expirationDate, orderQuantity);
     }
 }

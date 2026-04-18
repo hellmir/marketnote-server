@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentWarehousingCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingInspecDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentWarehousingInspecDetailResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentWarehousingInspecDetailUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentWarehousingInspecDetailService implements GetFulfillm
 
     @Override
     public GetFulfillmentWarehousingInspecDetailResult getWarehousingInspecDetail(GetFulfillmentWarehousingInspecDetailCommand command) {
-        return getFulfillmentWarehousingInspecDetailPort.getWarehousingInspecDetail(
-                FulfillmentWarehousingCommandToRequestMapper.mapToInspecDetailQuery(command)
-        );
+        return getFulfillmentWarehousingInspecDetailPort.getWarehousingInspecDetail(command);
     }
 }

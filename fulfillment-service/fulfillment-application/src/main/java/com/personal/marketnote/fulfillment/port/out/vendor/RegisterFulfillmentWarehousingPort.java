@@ -1,6 +1,6 @@
 package com.personal.marketnote.fulfillment.port.out.vendor;
 
-import com.personal.marketnote.fulfillment.domain.vendor.warehousing.FulfillmentWarehousingMapper;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentWarehousingCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentWarehousingResult;
 
 /**
@@ -13,11 +13,11 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfill
 public interface RegisterFulfillmentWarehousingPort {
 
     /**
-     * @param request 파스토 입고 등록 요청 매퍼
+     * @param command 파스토 입고 등록 커맨드
      * @return 파스토 입고 등록 결과 {@link RegisterFulfillmentWarehousingResult}
      * @Date 2026-01-31
      * @Author 성효빈
      * @Description 파스토 입고를 등록합니다.
      */
-    RegisterFulfillmentWarehousingResult registerWarehousing(FulfillmentWarehousingMapper request);
+    RegisterFulfillmentWarehousingResult registerWarehousing(RegisterFulfillmentWarehousingCommand command);
 }
