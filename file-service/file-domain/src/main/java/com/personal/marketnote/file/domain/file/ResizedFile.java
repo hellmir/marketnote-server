@@ -5,9 +5,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
@@ -19,6 +21,26 @@ public class ResizedFile {
     private LocalDateTime createdAt;
     private EntityStatus status;
 
+    public static ResizedFile from(ResizedFileCreateState state) {
+        return ResizedFile.builder()
+                .fileId(state.getFileId())
+                .size(state.getSize())
+                .storageUrl(state.getStorageUrl())
+                .build();
+    }
+
+    public static ResizedFile from(ResizedFileSnapshotState state) {
+        return ResizedFile.builder()
+                .id(state.getId())
+                .fileId(state.getFileId())
+                .size(state.getSize())
+                .storageUrl(state.getStorageUrl())
+                .createdAt(state.getCreatedAt())
+                .status(state.getStatus())
+                .build();
+    }
+
+    @Deprecated
     public static ResizedFile of(Long fileId, String size) {
         return ResizedFile.builder()
                 .fileId(fileId)
@@ -26,6 +48,7 @@ public class ResizedFile {
                 .build();
     }
 
+    @Deprecated
     public static ResizedFile of(Long fileId, String size, String storageUrl) {
         return ResizedFile.builder()
                 .fileId(fileId)
@@ -34,6 +57,7 @@ public class ResizedFile {
                 .build();
     }
 
+    @Deprecated
     public static ResizedFile of(Long id, Long fileId, String size, LocalDateTime createdAt, EntityStatus status) {
         return ResizedFile.builder()
                 .id(id)
@@ -44,6 +68,7 @@ public class ResizedFile {
                 .build();
     }
 
+    @Deprecated
     public static ResizedFile of(Long id, Long fileId, String size, String storageUrl, LocalDateTime createdAt, EntityStatus status) {
         return ResizedFile.builder()
                 .id(id)
@@ -67,5 +92,3 @@ public class ResizedFile {
         status = EntityStatus.INACTIVE;
     }
 }
-
-

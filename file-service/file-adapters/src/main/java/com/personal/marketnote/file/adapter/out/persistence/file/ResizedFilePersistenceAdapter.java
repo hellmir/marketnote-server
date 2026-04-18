@@ -7,6 +7,7 @@ import com.personal.marketnote.file.adapter.out.persistence.file.entity.ResizedF
 import com.personal.marketnote.file.adapter.out.persistence.file.repository.FileJpaRepository;
 import com.personal.marketnote.file.adapter.out.persistence.file.repository.ResizedFileJpaRepository;
 import com.personal.marketnote.file.domain.file.ResizedFile;
+import com.personal.marketnote.file.domain.file.ResizedFileSnapshotState;
 import com.personal.marketnote.file.port.out.resized.FindResizedFilesPort;
 import com.personal.marketnote.file.port.out.resized.SaveResizedFilesPort;
 import lombok.RequiredArgsConstructor;
@@ -39,13 +40,14 @@ public class ResizedFilePersistenceAdapter implements SaveResizedFilesPort, Find
     public List<ResizedFile> findByFileIds(List<Long> fileIds) {
         if (FormatValidator.hasValue(fileIds)) {
             return resizedFileJpaRepository.findAllByFile_IdIn(fileIds).stream()
-                    .map(e -> ResizedFile.of(
-                            e.getId(),
-                            e.getFile().getId(),
-                            e.getSize(),
-                            e.getStorageUrl(),
-                            e.getCreatedAt(),
-                            e.getStatus()
+                    .map(e -> ResizedFile.from(ResizedFileSnapshotState.builder()
+                            .id(e.getId())
+                            .fileId(e.getFile().getId())
+                            .size(e.getSize())
+                            .storageUrl(e.getStorageUrl())
+                            .createdAt(e.getCreatedAt())
+                            .status(e.getStatus())
+                            .build()
                     )).toList();
         }
 
