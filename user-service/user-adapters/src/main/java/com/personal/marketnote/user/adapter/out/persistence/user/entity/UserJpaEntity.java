@@ -8,7 +8,7 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.BaseOrderedG
 import com.personal.marketnote.user.adapter.out.persistence.authentication.entity.RoleJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.TermsJpaRepository;
 import com.personal.marketnote.user.domain.user.User;
-import com.personal.marketnote.user.domain.user.UserOauth2Vendor;
+import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserTerms;
 import jakarta.persistence.*;
 import lombok.*;
@@ -96,7 +96,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .build();
 
         // set vendors after building to avoid recursive mapping
-        userJpaEntity.userOauth2VendorsJpaEntities = user.getUserOauth2Vendors().stream()
+        userJpaEntity.userOauth2VendorsJpaEntities = user.getUserAuthProviders().stream()
                 .map(v -> UserOauth2VendorJpaEntity.of(userJpaEntity, v.getAuthVendor(), v.getOidcId()))
                 .collect(Collectors.toList());
 
@@ -128,7 +128,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .withdrawalYn(user.isWithdrawn())
                 .build();
 
-        userJpaEntity.userOauth2VendorsJpaEntities = user.getUserOauth2Vendors().stream()
+        userJpaEntity.userOauth2VendorsJpaEntities = user.getUserAuthProviders().stream()
                 .map(v -> UserOauth2VendorJpaEntity.of(userJpaEntity, v.getAuthVendor(), v.getOidcId()))
                 .collect(Collectors.toList());
 
@@ -150,8 +150,8 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         // 회원 계정 정보 업데이트
         for (int i = 0; i < userOauth2VendorsJpaEntities.size(); i++) {
             UserOauth2VendorJpaEntity userOauth2VendorJpaEntity = userOauth2VendorsJpaEntities.get(i);
-            UserOauth2Vendor userOauth2Vendor = user.getUserOauth2Vendors().get(i);
-            userOauth2VendorJpaEntity.updateFrom(this, userOauth2Vendor);
+            UserAuthProvider userAuthProvider = user.getUserAuthProviders().get(i);
+            userOauth2VendorJpaEntity.updateFrom(this, userAuthProvider);
         }
 
         // 회원 약관 동의 정보 업데이트

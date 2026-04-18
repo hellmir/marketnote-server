@@ -4,7 +4,7 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.domain.user.User;
-import com.personal.marketnote.user.domain.user.UserOauth2Vendor;
+import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.result.AccountResult;
@@ -51,9 +51,9 @@ class GetUserUseCaseTest {
         String phoneNumber = "010-1111-2222";
         String referenceCode = "ref-123";
         Role role = Role.getBuyer();
-        List<UserOauth2Vendor> userOauth2Vendors = List.of(
-                UserOauth2Vendor.of(AuthVendor.KAKAO, "kakao-oidc"),
-                UserOauth2Vendor.of(AuthVendor.GOOGLE, "google-oidc")
+        List<UserAuthProvider> userAuthProviders = List.of(
+                UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc"),
+                UserAuthProvider.of(AuthVendor.GOOGLE, "google-oidc")
         );
         LocalDateTime signedUpAt = LocalDateTime.of(2024, 1, 1, 10, 0);
         LocalDateTime lastLoggedInAt = LocalDateTime.of(2024, 1, 2, 11, 0);
@@ -69,7 +69,7 @@ class GetUserUseCaseTest {
                 phoneNumber,
                 referenceCode,
                 role,
-                userOauth2Vendors,
+                userAuthProviders,
                 signedUpAt,
                 lastLoggedInAt,
                 status,
@@ -131,8 +131,8 @@ class GetUserUseCaseTest {
         String phoneNumber = "010-2222-3333";
         String referenceCode = "ref-456";
         Role role = Role.getBuyer();
-        List<UserOauth2Vendor> userOauth2Vendors = List.of(
-                UserOauth2Vendor.of(AuthVendor.KAKAO, "kakao-oidc-2")
+        List<UserAuthProvider> userAuthProviders = List.of(
+                UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc-2")
         );
         LocalDateTime signedUpAt = LocalDateTime.of(2024, 2, 1, 9, 0);
         LocalDateTime lastLoggedInAt = LocalDateTime.of(2024, 2, 2, 10, 0);
@@ -148,7 +148,7 @@ class GetUserUseCaseTest {
                 phoneNumber,
                 referenceCode,
                 role,
-                userOauth2Vendors,
+                userAuthProviders,
                 signedUpAt,
                 lastLoggedInAt,
                 status,
@@ -491,7 +491,7 @@ class GetUserUseCaseTest {
                 "010-1000-0001",
                 "ref-1",
                 Role.getBuyer(),
-                List.of(UserOauth2Vendor.of(AuthVendor.KAKAO, "kakao-1")),
+                List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-1")),
                 LocalDateTime.of(2024, 3, 1, 9, 0),
                 LocalDateTime.of(2024, 3, 2, 10, 0),
                 EntityStatus.ACTIVE,
@@ -506,7 +506,7 @@ class GetUserUseCaseTest {
                 "010-1000-0002",
                 "ref-2",
                 Role.getBuyer(),
-                List.of(UserOauth2Vendor.of(AuthVendor.GOOGLE, "google-2")),
+                List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-2")),
                 LocalDateTime.of(2024, 3, 3, 9, 0),
                 LocalDateTime.of(2024, 3, 4, 10, 0),
                 EntityStatus.INACTIVE,
@@ -662,10 +662,10 @@ class GetUserUseCaseTest {
     void getUserInfo_unexposedUser_mapsStatusAndAccounts() {
         // given
         Long id = 3L;
-        List<UserOauth2Vendor> userOauth2Vendors = List.of(
-                UserOauth2Vendor.of(AuthVendor.APPLE, "apple-oidc")
+        List<UserAuthProvider> userAuthProviders = List.of(
+                UserAuthProvider.of(AuthVendor.APPLE, "apple-oidc")
         );
-        User user = UserTestObjectFactory.createDefaultUser(id, EntityStatus.UNEXPOSED, false, userOauth2Vendors);
+        User user = UserTestObjectFactory.createDefaultUser(id, EntityStatus.UNEXPOSED, false, userAuthProviders);
 
         when(findUserPort.findById(id)).thenReturn(Optional.of(user));
 

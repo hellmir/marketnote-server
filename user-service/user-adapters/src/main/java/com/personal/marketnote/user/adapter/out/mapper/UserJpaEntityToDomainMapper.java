@@ -19,7 +19,7 @@ public class UserJpaEntityToDomainMapper {
                 .map(entity -> {
                     Role role = mapToRoleDomain(entity.getRoleJpaEntity()).orElse(null);
                     List<UserTerms> userTerms = mapToUserTermsDomain(entity.getUserTermsJpaEntities()).orElse(List.of());
-                    List<UserOauth2Vendor> vendors = mapToVendorDomainWithoutUser(entity.getUserOauth2VendorsJpaEntities()).orElse(List.of());
+                    List<UserAuthProvider> vendors = mapToAuthProviderDomainWithoutUser(entity.getUserOauth2VendorsJpaEntities()).orElse(List.of());
 
                     User user = User.from(
                             UserSnapshotState.builder()
@@ -33,7 +33,7 @@ public class UserJpaEntityToDomainMapper {
                                     .referenceCode(entity.getReferenceCode())
                                     .referredUserCode(entity.getReferredUserCode())
                                     .role(role)
-                                    .userOauth2Vendors(vendors)
+                                    .userAuthProviders(vendors)
                                     .userTerms(userTerms)
                                     .signedUpAt(entity.getSignedUpAt())
                                     .lastLoggedInAt(entity.getLastLoggedInAt())
@@ -55,11 +55,11 @@ public class UserJpaEntityToDomainMapper {
                 .map(entity -> Role.of(entity.getId(), entity.getName()));
     }
 
-    private static Optional<List<UserOauth2Vendor>> mapToVendorDomainWithoutUser(List<UserOauth2VendorJpaEntity> userOauth2VendorsJpaEntities) {
+    private static Optional<List<UserAuthProvider>> mapToAuthProviderDomainWithoutUser(List<UserOauth2VendorJpaEntity> userOauth2VendorsJpaEntities) {
         return Optional.ofNullable(userOauth2VendorsJpaEntities)
                 .filter(Objects::nonNull)
                 .map(entities -> entities.stream()
-                        .map(entity -> UserOauth2Vendor.of(entity.getAuthVendor(), entity.getOidcId()))
+                        .map(entity -> UserAuthProvider.of(entity.getAuthVendor(), entity.getOidcId()))
                         .collect(Collectors.toList()));
     }
 
