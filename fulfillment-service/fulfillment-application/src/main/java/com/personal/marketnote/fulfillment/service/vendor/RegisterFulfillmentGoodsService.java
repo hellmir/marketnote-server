@@ -2,7 +2,7 @@ package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.fulfillment.domain.goods.FulfillmentGoodsRegistration;
-import com.personal.marketnote.fulfillment.domain.goods.FulfillmentGoodsRegistrationCreateState;
+import com.personal.marketnote.fulfillment.mapper.FasstoCommandToStateMapper;
 import com.personal.marketnote.fulfillment.mapper.FulfillmentGoodsCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentGoodsResult;
@@ -31,12 +31,8 @@ public class RegisterFulfillmentGoodsService implements RegisterFulfillmentGoods
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public RegisterFulfillmentGoodsResult registerGoodsIdempotent(RegisterFulfillmentGoodsCommand command) {
-        Long productId = Long.parseLong(command.goods().getFirst().cstGodCd());
-
         FulfillmentGoodsRegistration registration = FulfillmentGoodsRegistration.from(
-                FulfillmentGoodsRegistrationCreateState.builder()
-                        .productId(productId)
-                        .build()
+                FasstoCommandToStateMapper.mapToGoodsRegistrationCreateState(command)
         );
         saveFulfillmentGoodsRegistrationPort.save(registration);
 
