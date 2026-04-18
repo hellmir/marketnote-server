@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryCarCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentDeliveryCarUseCase;
@@ -19,8 +18,6 @@ public class RegisterFulfillmentDeliveryCarService implements RegisterFulfillmen
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDeliveryCar(RegisterFulfillmentDeliveryCarCommand command) {
-        return registerFulfillmentDeliveryCarPort.registerDeliveryCar(
-                FulfillmentDeliveryCommandToRequestMapper.mapToRegisterCarRequest(command)
-        );
+        return registerFulfillmentDeliveryCarPort.registerDeliveryCar(command);
     }
 }

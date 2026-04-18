@@ -5,19 +5,19 @@ public record GetFulfillmentReturnGodDetailCommand(
         String accessToken,
         String startDate,
         String endDate,
-        String rtnSlipNoList,
-        String whCd
+        String returnSlipNumbers,
+        String warehouseCode
 ) {
     public static GetFulfillmentReturnGodDetailCommand of(
             String customerCode,
             String accessToken,
             String startDate,
             String endDate,
-            String rtnSlipNoList,
-            String whCd
+            String returnSlipNumbers,
+            String warehouseCode
     ) {
         return new GetFulfillmentReturnGodDetailCommand(
-                customerCode, accessToken, startDate, endDate, rtnSlipNoList, whCd
+                customerCode, accessToken, startDate, endDate, returnSlipNumbers, warehouseCode
         );
     }
 }

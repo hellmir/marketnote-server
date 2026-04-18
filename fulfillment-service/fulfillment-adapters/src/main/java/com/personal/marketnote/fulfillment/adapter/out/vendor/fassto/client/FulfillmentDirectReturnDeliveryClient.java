@@ -8,7 +8,9 @@ import com.personal.marketnote.common.utility.http.client.CommunicationFailureHa
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentDeliveryResponse;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.returndelivery.FulfillmentDirectReturnDeliveryMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoDirectReturnDeliveryCommandToRequestMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.returndelivery.FulfillmentDirectReturnDeliveryMapper;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDirectReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
@@ -68,7 +70,8 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
     }
 
     @Override
-    public RegisterFulfillmentDeliveryResult registerDirectReturnDelivery(FulfillmentDirectReturnDeliveryMapper request) {
+    public RegisterFulfillmentDeliveryResult registerDirectReturnDelivery(RegisterFulfillmentDirectReturnDeliveryCommand command) {
+        FulfillmentDirectReturnDeliveryMapper request = FasstoDirectReturnDeliveryCommandToRequestMapper.mapToRegisterRequest(command);
         RegisterFulfillmentDeliveryResponse response = executeDirectReturnDeliveryMutation(request, "REGISTER_DIRECT_RETURN");
         return mapDeliveryResult(response);
     }

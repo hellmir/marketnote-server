@@ -6,18 +6,18 @@ import java.util.List;
 
 @Builder
 public record RegisterFulfillmentDirectReturnDeliveryItemCommand(
-        String ordDt,
-        String supCd,
-        String orgParcelCd,
-        String orgInvoiceNo,
-        String inWay,
-        String custNm,
-        String rtnParcelComp,
-        String rtnInvoiceNo,
-        String rtnGubun,
-        String rtnReason,
-        String rtnDetailReason,
+        String orderDate,
+        String supplierCode,
+        String originalCourierCode,
+        String originalInvoiceNumber,
+        String returnReceiveMethod,
+        String recipientName,
+        String returnCourierCompany,
+        String returnInvoiceNumber,
+        String returnType,
+        String returnReason,
+        String returnDetailReason,
         String remark,
-        List<RegisterFulfillmentDeliveryGoodsCommand> godCds
+        List<RegisterFulfillmentDeliveryGoodsCommand> products
 ) {
 }

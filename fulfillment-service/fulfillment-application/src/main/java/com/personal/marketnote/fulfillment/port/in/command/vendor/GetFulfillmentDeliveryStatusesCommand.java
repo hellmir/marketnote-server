@@ -5,15 +5,15 @@ public record GetFulfillmentDeliveryStatusesCommand(
         String accessToken,
         String startDate,
         String endDate,
-        String outDiv
+        String releaseType
 ) {
     public static GetFulfillmentDeliveryStatusesCommand of(
             String customerCode,
             String accessToken,
             String startDate,
             String endDate,
-            String outDiv
+            String releaseType
     ) {
-        return new GetFulfillmentDeliveryStatusesCommand(customerCode, accessToken, startDate, endDate, outDiv);
+        return new GetFulfillmentDeliveryStatusesCommand(customerCode, accessToken, startDate, endDate, releaseType);
     }
 }

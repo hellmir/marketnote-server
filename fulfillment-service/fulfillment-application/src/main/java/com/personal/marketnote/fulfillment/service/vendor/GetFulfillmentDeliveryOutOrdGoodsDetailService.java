@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentDeliveryCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentDeliveryOutOrdGoodsDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryOutOrdGoodsDetailResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentDeliveryOutOrdGoodsDetailUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentDeliveryOutOrdGoodsDetailService implements GetFulfil
 
     @Override
     public GetFulfillmentDeliveryOutOrdGoodsDetailResult getOutOrdGoodsDetail(GetFulfillmentDeliveryOutOrdGoodsDetailCommand command) {
-        return getFulfillmentDeliveryOutOrdGoodsDetailPort.getOutOrdGoodsDetail(
-                FulfillmentDeliveryCommandToRequestMapper.mapToOutOrdGoodsDetailQuery(command)
-        );
+        return getFulfillmentDeliveryOutOrdGoodsDetailPort.getOutOrdGoodsDetail(command);
     }
 }

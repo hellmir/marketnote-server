@@ -6,19 +6,19 @@ import java.util.List;
 
 @Builder
 public record RegisterFulfillmentDeliveryIcsItemCommand(
-        String ordDt,
-        String ordNo,
+        String orderDate,
+        String orderNumber,
         String platform,
-        String logiCenter,
-        String invoiceNo,
-        String custNm,
-        String custTelNo,
-        String custAddr,
-        String sendNm,
-        String sendTelNo,
-        String salChanel,
-        String shipReqTerm,
+        String logisticsCenter,
+        String invoiceNumber,
+        String recipientName,
+        String recipientPhoneNumber,
+        String recipientAddress,
+        String senderName,
+        String senderPhoneNumber,
+        String salesChannel,
+        String shippingRequest,
         String remark,
-        List<RegisterFulfillmentDeliveryGoodsCommand> godCds
+        List<RegisterFulfillmentDeliveryGoodsCommand> products
 ) {
 }
