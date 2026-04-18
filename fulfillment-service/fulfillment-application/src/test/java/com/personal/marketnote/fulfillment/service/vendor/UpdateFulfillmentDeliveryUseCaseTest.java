@@ -33,14 +33,14 @@ class UpdateFulfillmentDeliveryUseCaseTest {
     void shouldReturnUpdateDeliveryResultFromPort() {
         // given
         UpdateFulfillmentDeliveryItemCommand itemCommand = UpdateFulfillmentDeliveryItemCommand.builder()
-                .ordDt("20260402")
-                .ordNo("ORD001")
-                .slipNo("SLIP001")
-                .custNm("테스트고객")
-                .custTelNo("01012345678")
-                .custAddr("서울시 강남구")
-                .outWay("01")
-                .godCds(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
+                .orderDate("20260402")
+                .orderNumber("ORD001")
+                .slipNumber("SLIP001")
+                .recipientName("테스트고객")
+                .recipientPhoneNumber("01012345678")
+                .recipientAddress("서울시 강남구")
+                .releaseMethod("01")
+                .products(List.of(RegisterFulfillmentDeliveryGoodsCommand.of("GOD001", "20260430", 1)))
                 .build();
         UpdateFulfillmentDeliveryCommand command = UpdateFulfillmentDeliveryCommand.of(
                 "CUST001", "token", List.of(itemCommand)

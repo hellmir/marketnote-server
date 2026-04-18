@@ -32,13 +32,13 @@ class RegisterFulfillmentDirectReturnDeliveryUseCaseTest {
     void shouldReturnRegisterDirectReturnDeliveryResultFromPort() {
         // given
         RegisterFulfillmentDirectReturnDeliveryItemCommand itemCommand = RegisterFulfillmentDirectReturnDeliveryItemCommand.builder()
-                .ordDt("20260402")
-                .orgParcelCd("PARCEL001")
-                .orgInvoiceNo("INV001")
-                .inWay("01")
-                .custNm("테스트고객")
-                .rtnGubun("01")
-                .rtnReason("단순변심")
+                .orderDate("20260402")
+                .originalCourierCode("PARCEL001")
+                .originalInvoiceNumber("INV001")
+                .returnReceiveMethod("01")
+                .recipientName("테스트고객")
+                .returnType("01")
+                .returnReason("단순변심")
                 .build();
         RegisterFulfillmentDirectReturnDeliveryCommand command = RegisterFulfillmentDirectReturnDeliveryCommand.of(
                 "CUST001", "token", List.of(itemCommand)

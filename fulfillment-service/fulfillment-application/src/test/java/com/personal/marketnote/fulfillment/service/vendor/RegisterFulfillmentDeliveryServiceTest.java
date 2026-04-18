@@ -36,18 +36,18 @@ class RegisterFulfillmentDeliveryServiceTest {
     @Mock
     private SaveFulfillmentDeliveryRegistrationPort saveFulfillmentDeliveryRegistrationPort;
 
-    private RegisterFulfillmentDeliveryCommand buildCommand(String ordNo) {
+    private RegisterFulfillmentDeliveryCommand buildCommand(String orderNumber) {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
                 "PROD001", "20260309", 1
         );
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
-                .ordNo(ordNo)
-                .ordDt("20260309")
-                .custNm("홍길동")
-                .custTelNo("01012345678")
-                .custAddr("서울시 강남구")
-                .outWay("01")
-                .godCds(List.of(goodsCommand))
+                .orderNumber(orderNumber)
+                .orderDate("20260309")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("01012345678")
+                .recipientAddress("서울시 강남구")
+                .releaseMethod("01")
+                .products(List.of(goodsCommand))
                 .build();
         return RegisterFulfillmentDeliveryCommand.of("CUST001", "token", List.of(itemCommand));
     }
