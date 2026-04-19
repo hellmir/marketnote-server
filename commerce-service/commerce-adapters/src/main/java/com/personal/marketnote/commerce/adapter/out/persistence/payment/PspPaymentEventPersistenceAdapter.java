@@ -9,7 +9,7 @@ import com.personal.marketnote.commerce.port.out.payment.FindPspPaymentEventPort
 import com.personal.marketnote.commerce.port.out.payment.SavePspPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.payment.UpdatePspPaymentEventPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import jakarta.persistence.EntityNotFoundException;
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class PspPaymentEventPersistenceAdapter implements SavePspPaymentEventPor
     @Override
     public void update(PspPaymentEvent event) {
         PspPaymentEventJpaEntity entity = pspPaymentEventJpaRepository.findByOrderKey(event.getOrderKey())
-                .orElseThrow(() -> new EntityNotFoundException("PspPaymentEvent 엔티티를 찾을 수 없습니다."));
+                .orElseThrow(() -> new DomainNotFoundException("PspPaymentEvent 엔티티를 찾을 수 없습니다."));
         entity.updateFrom(event);
     }
 }

@@ -6,7 +6,7 @@ import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshot
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
 import com.personal.marketnote.reward.port.out.attendance.FindAttendancePolicyPort;
 import com.personal.marketnote.reward.port.out.attendance.UpdateAttendancePolicyPort;
-import jakarta.persistence.EntityNotFoundException;
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +59,7 @@ class DeleteAttendancePolicyUseCaseTest {
     }
 
     @Test
-    @DisplayName("출석 정책이 존재하지 않으면 EntityNotFoundException이 발생한다")
+    @DisplayName("출석 정책이 존재하지 않으면 DomainNotFoundException이 발생한다")
     void shouldThrowWhenPolicyNotFound() {
         // given
         Short policyId = (short) 999;
@@ -67,6 +67,6 @@ class DeleteAttendancePolicyUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> deleteAttendancePolicyService.delete(policyId))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(DomainNotFoundException.class);
     }
 }

@@ -7,13 +7,10 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.ValueMasker;
-import jakarta.persistence.Column;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -45,13 +42,10 @@ public class Post {
     @Builder.Default
     private List<Post> replies = Collections.emptyList();
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime modifiedAt;

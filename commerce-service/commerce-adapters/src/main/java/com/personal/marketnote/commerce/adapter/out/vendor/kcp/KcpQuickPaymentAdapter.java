@@ -63,8 +63,9 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
                 .retUrl(kcpProperties.getRetUrl())
                 .build();
 
-        recordRequest(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_TRADE_REGISTER,
-                command.transactionId(), request);
+        recordRequest(
+                CommerceVendorCommunicationTargetType.QUICK_PAYMENT_TRADE_REGISTER, command.transactionId(), request
+        );
 
         try {
             KcpTradeRegisterResponse response = kcpApiClient.registerTrade(request);
@@ -109,8 +110,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
 
         try {
             KcpBatchKeyIssuanceResponse response = kcpApiClient.issueBatchKey(request);
-            recordResponse(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_KEY_ISSUANCE,
-                    null, response);
+            recordResponse(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_KEY_ISSUANCE, null, response);
 
             boolean isSuccess = response.isSuccess();
             if (!isSuccess) {
@@ -155,8 +155,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
                 .mediaType(BATCH_PAYMENT_MEDIA_TYPE)
                 .build();
 
-        recordRequest(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_APPROVAL,
-                command.orderKey(), request);
+        recordRequest(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_APPROVAL, command.orderKey(), request);
 
         return executeBatchApprovalWithRetry(request, command.orderKey());
     }
@@ -211,8 +210,8 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 KcpBatchPaymentApprovalResponse response = kcpApiClient.approveBatchPayment(request);
-                recordResponse(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_APPROVAL,
-                        orderKey, response);
+                recordResponse(CommerceVendorCommunicationTargetType.QUICK_PAYMENT_BATCH_APPROVAL, orderKey, response);
+
                 return buildBatchApprovalResult(response);
             } catch (Exception e) {
                 lastException = e;
@@ -226,6 +225,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
                         sleepMillis *= retryConfig.getBackoffMultiplier();
                         continue;
                     }
+
                     throw new PaymentVendorConnectionFailedException(
                             "KCP 연결 실패: " + e.getMessage(), e
                     );
@@ -240,6 +240,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
                         sleepMillis *= retryConfig.getBackoffMultiplier();
                         continue;
                     }
+
                     throw new KcpCommunicationException(
                             "빠른결제 배치 결제승인 읽기 타임아웃 초과: " + e.getMessage(), e
                     );
@@ -294,8 +295,10 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
             if (causeType.isInstance(current)) {
                 return true;
             }
+
             current = current.getCause();
         }
+
         return false;
     }
 
@@ -309,8 +312,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
         }
     }
 
-    private void recordRequest(CommerceVendorCommunicationTargetType targetType,
-                               String targetId, Object request) {
+    private void recordRequest(CommerceVendorCommunicationTargetType targetType, String targetId, Object request) {
         JsonNode payloadJson = maskSensitiveFields(kcpApiClient.toJsonNode(request));
         vendorCommunicationRecorder.record(
                 targetType,
@@ -334,8 +336,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
         return node;
     }
 
-    private void recordResponse(CommerceVendorCommunicationTargetType targetType,
-                                String targetId, Object response) {
+    private void recordResponse(CommerceVendorCommunicationTargetType targetType, String targetId, Object response) {
         JsonNode payloadJson = maskSensitiveFields(kcpApiClient.toJsonNode(response));
         vendorCommunicationRecorder.record(
                 targetType,
@@ -348,8 +349,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
         );
     }
 
-    private void recordError(CommerceVendorCommunicationTargetType targetType,
-                             String targetId, Exception e) {
+    private void recordError(CommerceVendorCommunicationTargetType targetType, String targetId, Exception e) {
         JsonNode errorJson = kcpApiClient.toJsonNode(
                 Map.of("error", e.getClass().getSimpleName(), "message", e.getMessage())
         );

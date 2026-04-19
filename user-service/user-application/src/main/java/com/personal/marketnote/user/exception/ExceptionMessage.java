@@ -1,12 +1,12 @@
 package com.personal.marketnote.user.exception;
 
-import jakarta.persistence.EntityExistsException;
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class ExceptionMessage extends EntityExistsException {
+public class ExceptionMessage extends DomainAlreadyExistsException {
     public static final String USER_ID_NOT_FOUND_EXCEPTION_MESSAGE = "존재하지 않는 회원입니다. 전송된 회원 ID: %d";
     public static final String USER_OIDC_ID_NOT_FOUND_EXCEPTION_MESSAGE = "존재하지 않는 회원입니다. 전송된 회원 OIDC ID: %s";
     public static final String USER_EMAIL_NOT_FOUND_EXCEPTION_MESSAGE = "존재하지 않는 회원입니다. 전송된 회원 이메일 주소: %s";

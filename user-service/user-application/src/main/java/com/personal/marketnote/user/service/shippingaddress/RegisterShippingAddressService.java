@@ -14,7 +14,7 @@ import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPo
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
-import jakarta.persistence.EntityExistsException;
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,14 +70,14 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
         switch (addressType) {
             case HOME -> {
                 if (findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME)) {
-                    throw new EntityExistsException(
+                    throw new DomainAlreadyExistsException(
                             String.format("%s:: 이미 등록된 집 배송지가 존재합니다.", FIRST_ERROR_CODE)
                     );
                 }
             }
             case COMPANY -> {
                 if (findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.COMPANY)) {
-                    throw new EntityExistsException(
+                    throw new DomainAlreadyExistsException(
                             String.format("%s:: 이미 등록된 회사 배송지가 존재합니다.", FIRST_ERROR_CODE)
                     );
                 }

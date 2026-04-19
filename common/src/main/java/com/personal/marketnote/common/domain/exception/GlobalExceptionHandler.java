@@ -3,8 +3,6 @@ package com.personal.marketnote.common.domain.exception;
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -89,8 +87,8 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(httpStatus, httpStatus.name(), "서버 내부 오류가 발생했습니다.");
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException e) {
+    @ExceptionHandler(DomainNotFoundException.class)
+    ResponseEntity<ErrorResponse> handleDomainNotFoundException(DomainNotFoundException e) {
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, e.getMessage());
@@ -191,8 +189,8 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 토큰입니다.");
     }
 
-    @ExceptionHandler(EntityExistsException.class)
-    ResponseEntity<ErrorResponse> handleEntityExistsException(EntityExistsException e) {
+    @ExceptionHandler(DomainAlreadyExistsException.class)
+    ResponseEntity<ErrorResponse> handleDomainAlreadyExistsException(DomainAlreadyExistsException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "이미 존재하는 데이터입니다.");
