@@ -6,6 +6,8 @@ import kafka.testkit.KafkaClusterTestKit;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.common.TopicPartitionInfo;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -294,8 +296,34 @@ class KafkaBrokerFailureScenarioTest {
         }
     }
 
-    private void waitForLeaderElection() throws InterruptedException {
-        Thread.sleep(15_000);
+    private void waitForLeaderElection() throws Exception {
+        Map<String, Object> adminProps = new HashMap<>();
+        adminProps.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        adminProps.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 5000);
+
+        try (AdminClient adminClient = AdminClient.create(adminProps)) {
+            for (int attempt = 0; attempt < READY_CHECK_MAX_ATTEMPTS; attempt++) {
+                try {
+                    TopicDescription description = adminClient
+                            .describeTopics(Collections.singletonList(TEST_TOPIC))
+                            .allTopicNames()
+                            .get(10, TimeUnit.SECONDS)
+                            .get(TEST_TOPIC);
+
+                    boolean allPartitionsHaveLeader = description.partitions().stream()
+                            .map(TopicPartitionInfo::leader)
+                            .allMatch(leader -> FormatValidator.hasValue(leader) && leader.id() >= 0);
+
+                    if (allPartitionsHaveLeader) {
+                        Thread.sleep(2000);
+                        return;
+                    }
+                } catch (Exception e) {
+                    // 리더 선출 진행 중 — 재시도
+                }
+                Thread.sleep(1000);
+            }
+        }
     }
 
     private RecordMetadata publishWithRetry(String key, String value, int maxAttempts) throws Exception {
