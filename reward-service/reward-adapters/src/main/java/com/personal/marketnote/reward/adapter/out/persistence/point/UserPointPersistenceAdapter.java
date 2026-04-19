@@ -44,6 +44,11 @@ public class UserPointPersistenceAdapter implements SaveUserPointPort, FindUserP
     }
 
     @Override
+    public Optional<UserPoint> findByUserIdForUpdate(Long userId) {
+        return repository.findWithLockingByUserId(userId).map(UserPointJpaEntity::toDomain);
+    }
+
+    @Override
     public UserPoint update(UserPoint userPoint) throws UserPointNotFoundException {
         UserPointJpaEntity userPointJpaEntity = findEntityByUserId(userPoint.getUserId());
         userPointJpaEntity.updateFrom(userPoint);

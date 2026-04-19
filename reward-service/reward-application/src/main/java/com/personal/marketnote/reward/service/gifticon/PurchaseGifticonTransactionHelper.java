@@ -2,19 +2,20 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.reward.domain.exception.GifticonInsufficientCashException;
 import com.personal.marketnote.reward.domain.exception.GifticonOrderNotFoundException;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderCreateState;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
-import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import com.personal.marketnote.reward.port.out.gifticon.EncryptGifticonPinPort;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonOrderPort;
 import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonOrderPort;
 import com.personal.marketnote.reward.port.out.gifticon.SendGifticonCouponPort.SendCouponResult;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonOrderPort;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 @Slf4j
 public class PurchaseGifticonTransactionHelper {
 
-    private final GetUserPointUseCase getUserPointUseCase;
+    private final FindUserPointPort findUserPointPort;
     private final ModifyUserPointUseCase modifyUserPointUseCase;
     private final SaveGifticonOrderPort saveGifticonOrderPort;
     private final FindGifticonOrderPort findGifticonOrderPort;
@@ -59,7 +60,8 @@ public class PurchaseGifticonTransactionHelper {
             Long userId, String goodsCode, String goodsName, String brandName,
             String productImageUrl, Long cashPrice
     ) {
-        UserPoint userPoint = getUserPointUseCase.getUserPoint(userId);
+        UserPoint userPoint = findUserPointPort.findByUserIdForUpdate(userId)
+                .orElseThrow(() -> new UserPointNotFoundException(userId));
         Long currentBalance = userPoint.getAmountValue();
 
         if (currentBalance < cashPrice) {

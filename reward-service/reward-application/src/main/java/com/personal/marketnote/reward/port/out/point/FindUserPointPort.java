@@ -47,4 +47,13 @@ public interface FindUserPointPort {
      * @Description 회원 키로 포인트를 조회합니다.
      */
     Optional<UserPoint> findByUserKey(String userKey);
+
+    /**
+     * @param userId 회원 식별자
+     * @return 회원 포인트 {@link UserPoint}
+     * @Date 2026-04-20
+     * @Author 성효빈
+     * @Description 회원 식별자로 포인트를 배타적 잠금으로 조회합니다. 동시 수정 방지용.
+     */
+    Optional<UserPoint> findByUserIdForUpdate(Long userId);
 }
