@@ -6,11 +6,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.io.IOException;
 
 public class RegisterFulfillmentDirectReturnDeliveryFailedException extends ExternalOperationFailedException {
-    private static final String REGISTER_FASSTO_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE =
+    private static final String REGISTER_FULFILLMENT_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE =
             "Fulfillment direct return delivery registration request failed.";
 
     public RegisterFulfillmentDirectReturnDeliveryFailedException(IOException cause) {
-        super(REGISTER_FASSTO_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE, cause);
+        super(REGISTER_FULFILLMENT_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE, cause);
     }
 
     public RegisterFulfillmentDirectReturnDeliveryFailedException(String vendorMessage, IOException cause) {
@@ -19,7 +19,7 @@ public class RegisterFulfillmentDirectReturnDeliveryFailedException extends Exte
 
     private static String resolveMessage(String vendorMessage) {
         if (FormatValidator.hasNoValue(vendorMessage)) {
-            return REGISTER_FASSTO_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE;
+            return REGISTER_FULFILLMENT_DIRECT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE;
         }
         return vendorMessage;
     }

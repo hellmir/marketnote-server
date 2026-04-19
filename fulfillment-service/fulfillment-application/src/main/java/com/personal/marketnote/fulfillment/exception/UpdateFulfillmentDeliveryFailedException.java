@@ -6,7 +6,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.io.IOException;
 
 public class UpdateFulfillmentDeliveryFailedException extends ExternalOperationFailedException {
-    private static final String DEFAULT_MESSAGE = "파스토 출고 수정(택배) 중 오류가 발생했습니다.";
+    private static final String DEFAULT_MESSAGE = "풀필먼트 출고 수정(택배) 중 오류가 발생했습니다.";
 
     public UpdateFulfillmentDeliveryFailedException(IOException cause) {
         super(DEFAULT_MESSAGE, cause);
@@ -18,7 +18,7 @@ public class UpdateFulfillmentDeliveryFailedException extends ExternalOperationF
 
     private static String resolveMessage(String vendorMessage) {
         if (FormatValidator.hasValue(vendorMessage)) {
-            return String.format("파스토 출고 수정(택배) 실패: %s", vendorMessage);
+            return String.format("풀필먼트 출고 수정(택배) 실패: %s", vendorMessage);
         }
         return DEFAULT_MESSAGE;
     }

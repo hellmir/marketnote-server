@@ -6,11 +6,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.io.IOException;
 
 public class RegisterFulfillmentGoodsFailedException extends ExternalOperationFailedException {
-    private static final String REGISTER_FASSTO_GOODS_FAILED_EXCEPTION_MESSAGE =
+    private static final String REGISTER_FULFILLMENT_GOODS_FAILED_EXCEPTION_MESSAGE =
             "Fulfillment goods registration request failed.";
 
     public RegisterFulfillmentGoodsFailedException(IOException cause) {
-        super(REGISTER_FASSTO_GOODS_FAILED_EXCEPTION_MESSAGE, cause);
+        super(REGISTER_FULFILLMENT_GOODS_FAILED_EXCEPTION_MESSAGE, cause);
     }
 
     public RegisterFulfillmentGoodsFailedException(String vendorMessage, IOException cause) {
@@ -19,7 +19,7 @@ public class RegisterFulfillmentGoodsFailedException extends ExternalOperationFa
 
     private static String resolveMessage(String vendorMessage) {
         if (FormatValidator.hasNoValue(vendorMessage)) {
-            return REGISTER_FASSTO_GOODS_FAILED_EXCEPTION_MESSAGE;
+            return REGISTER_FULFILLMENT_GOODS_FAILED_EXCEPTION_MESSAGE;
         }
         return vendorMessage;
     }

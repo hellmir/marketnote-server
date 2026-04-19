@@ -6,11 +6,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.io.IOException;
 
 public class UpdateFulfillmentSupplierFailedException extends ExternalOperationFailedException {
-    private static final String UPDATE_FASSTO_SUPPLIER_FAILED_EXCEPTION_MESSAGE =
+    private static final String UPDATE_FULFILLMENT_SUPPLIER_FAILED_EXCEPTION_MESSAGE =
             "Fulfillment supplier update request failed.";
 
     public UpdateFulfillmentSupplierFailedException(IOException cause) {
-        super(UPDATE_FASSTO_SUPPLIER_FAILED_EXCEPTION_MESSAGE, cause);
+        super(UPDATE_FULFILLMENT_SUPPLIER_FAILED_EXCEPTION_MESSAGE, cause);
     }
 
     public UpdateFulfillmentSupplierFailedException(String vendorMessage, IOException cause) {
@@ -19,7 +19,7 @@ public class UpdateFulfillmentSupplierFailedException extends ExternalOperationF
 
     private static String resolveMessage(String vendorMessage) {
         if (FormatValidator.hasNoValue(vendorMessage)) {
-            return UPDATE_FASSTO_SUPPLIER_FAILED_EXCEPTION_MESSAGE;
+            return UPDATE_FULFILLMENT_SUPPLIER_FAILED_EXCEPTION_MESSAGE;
         }
         return vendorMessage;
     }

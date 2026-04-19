@@ -6,11 +6,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.io.IOException;
 
 public class GetFulfillmentShopsFailedException extends ExternalOperationFailedException {
-    private static final String GET_FASSTO_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE =
+    private static final String GET_FULFILLMENT_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE =
             "Fulfillment shop list request failed.";
 
     public GetFulfillmentShopsFailedException(IOException cause) {
-        super(GET_FASSTO_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE, cause);
+        super(GET_FULFILLMENT_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE, cause);
     }
 
     public GetFulfillmentShopsFailedException(String vendorMessage, IOException cause) {
@@ -19,7 +19,7 @@ public class GetFulfillmentShopsFailedException extends ExternalOperationFailedE
 
     private static String resolveMessage(String vendorMessage) {
         if (FormatValidator.hasNoValue(vendorMessage)) {
-            return GET_FASSTO_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE;
+            return GET_FULFILLMENT_MARKETNOTE_LIST_FAILED_EXCEPTION_MESSAGE;
         }
         return vendorMessage;
     }

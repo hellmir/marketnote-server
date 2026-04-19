@@ -6,11 +6,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.io.IOException;
 
 public class RegisterFulfillmentReturnDeliveryFailedException extends ExternalOperationFailedException {
-    private static final String REGISTER_FASSTO_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE =
+    private static final String REGISTER_FULFILLMENT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE =
             "Fulfillment return delivery registration request failed.";
 
     public RegisterFulfillmentReturnDeliveryFailedException(IOException cause) {
-        super(REGISTER_FASSTO_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE, cause);
+        super(REGISTER_FULFILLMENT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE, cause);
     }
 
     public RegisterFulfillmentReturnDeliveryFailedException(String vendorMessage, IOException cause) {
@@ -19,7 +19,7 @@ public class RegisterFulfillmentReturnDeliveryFailedException extends ExternalOp
 
     private static String resolveMessage(String vendorMessage) {
         if (FormatValidator.hasNoValue(vendorMessage)) {
-            return REGISTER_FASSTO_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE;
+            return REGISTER_FULFILLMENT_RETURN_DELIVERY_FAILED_EXCEPTION_MESSAGE;
         }
         return vendorMessage;
     }
