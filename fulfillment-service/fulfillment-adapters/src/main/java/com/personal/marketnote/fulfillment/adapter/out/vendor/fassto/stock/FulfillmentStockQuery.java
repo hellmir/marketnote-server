@@ -1,4 +1,4 @@
-package com.personal.marketnote.fulfillment.domain.vendor.warehousing;
+package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.stock;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
@@ -8,23 +8,31 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class FulfillmentWarehousingDetailQuery {
+public class FulfillmentStockQuery {
     private String customerCode;
     private String accessToken;
-    private String slipNo;
-    private String ordNo;
+    private String outOfStockYn;
+    private String whCd;
 
-    public static FulfillmentWarehousingDetailQuery of(
+    public static FulfillmentStockQuery of(
             String customerCode,
             String accessToken,
-            String slipNo,
-            String ordNo
+            String outOfStockYn
     ) {
-        FulfillmentWarehousingDetailQuery query = FulfillmentWarehousingDetailQuery.builder()
+        return FulfillmentStockQuery.of(customerCode, accessToken, outOfStockYn, null);
+    }
+
+    public static FulfillmentStockQuery of(
+            String customerCode,
+            String accessToken,
+            String outOfStockYn,
+            String whCd
+    ) {
+        FulfillmentStockQuery query = FulfillmentStockQuery.builder()
                 .customerCode(customerCode)
                 .accessToken(accessToken)
-                .slipNo(slipNo)
-                .ordNo(ordNo)
+                .outOfStockYn(outOfStockYn)
+                .whCd(whCd)
                 .build();
         query.validate();
         return query;
@@ -36,9 +44,6 @@ public class FulfillmentWarehousingDetailQuery {
         }
         if (FormatValidator.hasNoValue(accessToken)) {
             throw new FulfillmentQueryParameterNoValueException("accessToken");
-        }
-        if (FormatValidator.hasNoValue(slipNo)) {
-            throw new FulfillmentQueryParameterNoValueException("slipNo");
         }
     }
 }

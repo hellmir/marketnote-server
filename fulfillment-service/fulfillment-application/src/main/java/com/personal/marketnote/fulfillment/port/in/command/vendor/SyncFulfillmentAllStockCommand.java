@@ -2,7 +2,7 @@ package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
 public record SyncFulfillmentAllStockCommand(
         String customerCode,
-        String whCd
+        String warehouseCode
 ) {
     public static SyncFulfillmentAllStockCommand of(
             String customerCode
@@ -12,8 +12,8 @@ public record SyncFulfillmentAllStockCommand(
 
     public static SyncFulfillmentAllStockCommand of(
             String customerCode,
-            String whCd
+            String warehouseCode
     ) {
-        return new SyncFulfillmentAllStockCommand(customerCode, whCd);
+        return new SyncFulfillmentAllStockCommand(customerCode, warehouseCode);
     }
 }

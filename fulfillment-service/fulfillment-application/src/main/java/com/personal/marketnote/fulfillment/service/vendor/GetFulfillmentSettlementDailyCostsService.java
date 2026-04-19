@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentSettlementCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentSettlementDailyCostsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentSettlementDailyCostsResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentSettlementDailyCostsUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentSettlementDailyCostsService implements GetFulfillment
 
     @Override
     public GetFulfillmentSettlementDailyCostsResult getDailyCosts(GetFulfillmentSettlementDailyCostsCommand command) {
-        return getFulfillmentSettlementDailyCostsPort.getDailyCosts(
-                FulfillmentSettlementCommandToRequestMapper.mapToQuery(command)
-        );
+        return getFulfillmentSettlementDailyCostsPort.getDailyCosts(command);
     }
 }

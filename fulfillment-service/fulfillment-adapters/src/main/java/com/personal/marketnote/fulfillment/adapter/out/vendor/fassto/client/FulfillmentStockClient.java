@@ -5,18 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.VendorAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.http.client.CommunicationFailureHandler;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoStockCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentStockItemResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentStockListResponse;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.stock.FulfillmentStockDetailQuery;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.stock.FulfillmentStockQuery;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.stock.FulfillmentStockDetailQuery;
-import com.personal.marketnote.fulfillment.domain.vendor.stock.FulfillmentStockQuery;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStockDetailFailedException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStocksFailedException;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStocksCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentStockInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentStockDetailPort;
@@ -72,11 +75,12 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     }
 
     @Override
-    public GetFulfillmentStocksResult getStocks(FulfillmentStockQuery query) {
-        if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment stock query is required.");
+    public GetFulfillmentStocksResult getStocks(GetFulfillmentStocksCommand command) {
+        if (FormatValidator.hasNoValue(command)) {
+            throw new IllegalArgumentException("Fulfillment stock command is required.");
         }
 
+        FulfillmentStockQuery query = FasstoStockCommandToRequestMapper.mapToQuery(command);
         URI uri = buildStockListUri(query.getCustomerCode(), query.getOutOfStockYn(), query.getWhCd());
         return executeStockList(
                 uri,
@@ -90,11 +94,12 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     }
 
     @Override
-    public GetFulfillmentStocksResult getStockDetail(FulfillmentStockDetailQuery query) {
-        if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment stock detail query is required.");
+    public GetFulfillmentStocksResult getStockDetail(GetFulfillmentStockDetailCommand command) {
+        if (FormatValidator.hasNoValue(command)) {
+            throw new IllegalArgumentException("Fulfillment stock detail command is required.");
         }
 
+        FulfillmentStockDetailQuery query = FasstoStockCommandToRequestMapper.mapToDetailQuery(command);
         URI uri = buildStockDetailUri(query.getCustomerCode(), query.getCstGodCd(), query.getOutOfStockYn());
         return executeStockList(
                 uri,
@@ -334,18 +339,6 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
         return "UNKNOWN_FAILURE";
     }
 
-    private JsonNode buildListRequestPayloadJson(FulfillmentStockQuery query, URI uri, int attempt) {
-        return buildListRequestPayloadJson(
-                query.getCustomerCode(),
-                query.getAccessToken(),
-                query.getOutOfStockYn(),
-                query.getWhCd(),
-                null,
-                uri,
-                attempt
-        );
-    }
-
     private JsonNode buildListRequestPayloadJson(
             String customerCode,
             String accessToken,
@@ -405,7 +398,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     }
 
     private FulfillmentStockInfoResult mapStockInfo(FulfillmentStockItemResponse item) {
-        List<Object> goodsSerialNo = FormatValidator.hasValue(item.goodsSerialNo())
+        List<Object> goodsSerialNumbers = FormatValidator.hasValue(item.goodsSerialNo())
                 ? item.goodsSerialNo()
                 : List.of();
 
@@ -423,7 +416,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                 item.cstSupCd(),
                 item.supNm(),
                 item.giftDiv(),
-                goodsSerialNo,
+                goodsSerialNumbers,
                 item.slipNo()
         );
     }

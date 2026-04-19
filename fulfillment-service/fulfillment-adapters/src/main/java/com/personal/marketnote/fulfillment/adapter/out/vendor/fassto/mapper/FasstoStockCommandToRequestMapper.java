@@ -1,17 +1,17 @@
-package com.personal.marketnote.fulfillment.mapper;
+package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
-import com.personal.marketnote.fulfillment.domain.vendor.stock.FulfillmentStockDetailQuery;
-import com.personal.marketnote.fulfillment.domain.vendor.stock.FulfillmentStockQuery;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.stock.FulfillmentStockDetailQuery;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.stock.FulfillmentStockQuery;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStocksCommand;
 
-public class FulfillmentStockCommandToRequestMapper {
+public class FasstoStockCommandToRequestMapper {
     public static FulfillmentStockQuery mapToQuery(GetFulfillmentStocksCommand command) {
         return FulfillmentStockQuery.of(
                 command.customerCode(),
                 command.accessToken(),
                 command.outOfStockYn(),
-                command.whCd()
+                command.warehouseCode()
         );
     }
 
@@ -19,7 +19,7 @@ public class FulfillmentStockCommandToRequestMapper {
         return FulfillmentStockDetailQuery.of(
                 command.customerCode(),
                 command.accessToken(),
-                command.cstGodCd(),
+                command.customerProductCode(),
                 command.outOfStockYn()
         );
     }

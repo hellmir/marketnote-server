@@ -4,7 +4,7 @@ public record GetFulfillmentStocksCommand(
         String customerCode,
         String accessToken,
         String outOfStockYn,
-        String whCd
+        String warehouseCode
 ) {
     public static GetFulfillmentStocksCommand of(
             String customerCode,
@@ -25,8 +25,8 @@ public record GetFulfillmentStocksCommand(
             String customerCode,
             String accessToken,
             String outOfStockYn,
-            String whCd
+            String warehouseCode
     ) {
-        return new GetFulfillmentStocksCommand(customerCode, accessToken, outOfStockYn, whCd);
+        return new GetFulfillmentStocksCommand(customerCode, accessToken, outOfStockYn, warehouseCode);
     }
 }
