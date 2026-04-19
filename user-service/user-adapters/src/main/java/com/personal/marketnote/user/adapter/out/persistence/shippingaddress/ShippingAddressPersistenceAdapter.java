@@ -1,7 +1,7 @@
 package com.personal.marketnote.user.adapter.out.persistence.shippingaddress;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.user.adapter.out.mapper.ShippingAddressJpaEntityToDomainMapper;
 import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.entity.ShippingAddressJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.shippingaddress.repository.ShippingAddressJpaRepository;

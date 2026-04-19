@@ -1,6 +1,6 @@
 package com.personal.marketnote.product.service.option;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategorySnapshotState;

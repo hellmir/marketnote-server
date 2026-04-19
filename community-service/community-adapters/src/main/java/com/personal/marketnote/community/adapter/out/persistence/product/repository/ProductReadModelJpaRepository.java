@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.adapter.out.persistence.product.repository;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.product.entity.ProductReadModelJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 

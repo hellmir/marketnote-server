@@ -1,6 +1,6 @@
 package com.personal.marketnote.user.domain.user;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.exception.illegalstate.SameUpdateTargetException;
 import com.personal.marketnote.common.utility.FormatValidator;

@@ -1,6 +1,6 @@
 package com.personal.marketnote.product.service.category;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.category.Category;
 import com.personal.marketnote.product.domain.category.CategorySnapshotState;
 import com.personal.marketnote.product.exception.CategoryNotFoundException;

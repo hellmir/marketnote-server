@@ -1,7 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.review;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.persistence.review.entity.ReviewAggregateReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.review.repository.ReviewAggregateReadModelJpaRepository;

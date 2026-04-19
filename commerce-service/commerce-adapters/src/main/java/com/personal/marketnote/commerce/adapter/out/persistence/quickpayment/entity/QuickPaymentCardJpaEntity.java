@@ -2,7 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.persistence.quickpayment.en
 
 import com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCard;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

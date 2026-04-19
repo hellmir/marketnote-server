@@ -1,7 +1,7 @@
 package com.personal.marketnote.community.adapter.out.persistence.like.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.like.Like;
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.personal.marketnote.product.service.cart;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.cart.CartProduct;
 import com.personal.marketnote.product.domain.cart.CartProductSnapshotState;
 import com.personal.marketnote.product.domain.cart.InvalidCartProductQuantityException;

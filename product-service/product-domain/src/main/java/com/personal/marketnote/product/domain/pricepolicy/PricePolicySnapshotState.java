@@ -1,6 +1,6 @@
 package com.personal.marketnote.product.domain.pricepolicy;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.product.Product;
 import lombok.AccessLevel;

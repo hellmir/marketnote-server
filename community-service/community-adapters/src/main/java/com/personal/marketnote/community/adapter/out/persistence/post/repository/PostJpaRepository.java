@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.adapter.out.persistence.post.repository;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.post.entity.PostJpaEntity;
 import com.personal.marketnote.community.domain.post.Board;
 import com.personal.marketnote.community.domain.post.PostTargetGroupType;

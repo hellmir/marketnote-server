@@ -1,7 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.category;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.mapper.CategoryJpaEntityToDomainMapper;
 import com.personal.marketnote.product.adapter.out.persistence.category.entity.CategoryJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.category.repository.CategoryJpaRepository;

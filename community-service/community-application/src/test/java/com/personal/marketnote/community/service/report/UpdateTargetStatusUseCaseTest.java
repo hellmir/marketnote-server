@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.service.report;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.post.Board;
 import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.domain.post.PostSnapshotState;

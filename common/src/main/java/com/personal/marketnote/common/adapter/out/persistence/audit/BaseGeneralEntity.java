@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.adapter.out.persistence.audit;
 
+import com.personal.marketnote.common.domain.EntityStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

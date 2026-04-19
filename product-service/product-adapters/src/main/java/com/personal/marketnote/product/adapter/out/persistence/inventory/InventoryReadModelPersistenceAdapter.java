@@ -1,7 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.inventory;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.persistence.inventory.entity.InventoryReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.inventory.repository.InventoryReadModelJpaRepository;
 import com.personal.marketnote.product.port.out.inventory.FindStockPort;

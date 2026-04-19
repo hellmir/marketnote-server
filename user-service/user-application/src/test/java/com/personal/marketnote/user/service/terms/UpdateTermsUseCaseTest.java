@@ -1,6 +1,6 @@
 package com.personal.marketnote.user.service.terms;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.user.Terms;
 import com.personal.marketnote.user.domain.user.User;

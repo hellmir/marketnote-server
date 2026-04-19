@@ -50,8 +50,8 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             FROM PricePolicyJpaEntity pp
               JOIN pp.productJpaEntity p
             WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
                     :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
@@ -127,8 +127,8 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             FROM PricePolicyJpaEntity pp
               JOIN pp.productJpaEntity p
             WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
                     :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
@@ -244,8 +244,8 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             FROM PricePolicyJpaEntity pp
               JOIN pp.productJpaEntity p
             WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
                     :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
@@ -289,8 +289,8 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             FROM PricePolicyJpaEntity pp
               JOIN pp.productJpaEntity p
             WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
                     :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
@@ -334,8 +334,8 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             FROM PricePolicyJpaEntity pp
               JOIN pp.productJpaEntity p
             WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND EXISTS (
                 SELECT 1
                 FROM ProductCategoryJpaEntity pc
@@ -361,8 +361,8 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             FROM PricePolicyJpaEntity pp
               JOIN pp.productJpaEntity p
             WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
                     :pattern = ''
                  OR (:searchTarget = 'name' AND p.name LIKE :pattern)
@@ -386,7 +386,7 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
 
     @Query("""
             UPDATE PricePolicyJpaEntity pp
-            SET pp.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.INACTIVE
+            SET pp.status = com.personal.marketnote.common.domain.EntityStatus.INACTIVE
             WHERE pp.productJpaEntity.id = :productId
             """)
     @Modifying(clearAutomatically = true, flushAutomatically = true)

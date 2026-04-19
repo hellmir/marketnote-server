@@ -6,7 +6,7 @@ import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolic
 import com.personal.marketnote.commerce.port.out.product.SaveProductReadModelPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -215,7 +215,7 @@ class IssueBatchKeyUseCaseTest {
                         .cardName("현대카드")
                         .cardBinType01("0")
                         .cardBinType02("0")
-                        .status(com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE)
+                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
                         .build()
         );
         return card;

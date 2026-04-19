@@ -1,6 +1,6 @@
 package com.personal.marketnote.reward.service.attendance;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.reward.domain.attendance.*;

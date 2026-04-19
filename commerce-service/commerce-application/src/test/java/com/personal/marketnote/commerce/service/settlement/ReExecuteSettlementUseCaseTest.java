@@ -69,7 +69,7 @@ class ReExecuteSettlementUseCaseTest {
                 .id(id)
                 .name(name)
                 .accountType(AccountType.ASSET)
-                .status(com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE)
+                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .build());

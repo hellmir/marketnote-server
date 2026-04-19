@@ -1,6 +1,6 @@
 package com.personal.marketnote.reward.adapter.in.web.attendance.response;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
 import lombok.Builder;
