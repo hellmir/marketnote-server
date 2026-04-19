@@ -1016,6 +1016,149 @@ class CancelPaymentUseCaseTest {
     }
 
     @Nested
+    @DisplayName("부분 취소 적립 예정 포인트 스냅샷 기반 차감 검증")
+    class PartialCancelSnapshotDeductionTest {
+
+        @Test
+        @DisplayName("부분 취소 시 반품 상품의 스냅샷 적립금 합산으로 차감된다")
+        void shouldDeductBySnapshotAccumulatedPointOfCancelProducts() {
+            // 상품A: 10000원, 적립 1000원 / 상품B: 20000원, 적립 1000원 → 합계 30000원, 적립 2000원
+            // 상품A 반품 → 스냅샷 기반 차감 = 1000 (비례 계산이었다면 667)
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 10000L, cancelProducts);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
+                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 1000L, 1L);
+            verifyNoInteractions(findProductByPricePolicyPort);
+        }
+
+        @Test
+        @DisplayName("상품별 적립률이 다를 때 반품 상품의 실제 적립금만 차감된다")
+        void shouldDeductOnlyCancelProductAccumulatedPointWhenRatesDiffer() {
+            // 상품A: 10000원, 적립 100원(1%) / 상품B: 20000원, 적립 2000원(10%) → 합계 30000원
+            // 상품B 반품 → 스냅샷 기반 차감 = 2000 (비례 계산이었다면 1400)
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
+                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(100L, 2000L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 2000L, 1L);
+            verifyNoInteractions(findProductByPricePolicyPort);
+        }
+
+        @Test
+        @DisplayName("기존 주문 데이터(accumulatedPoint=null)는 기존 비례 계산으로 폴백된다")
+        void shouldFallbackToProportionalWhenSnapshotIsNull() {
+            // accumulatedPoint가 null인 기존 주문 → 비례 계산 폴백
+            // 결제 50000, 부분취소 20000(40%), 상품 적립포인트 1000 → 비례 400
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 2)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            // accumulatedPoint = null (기존 데이터)
+            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 25000L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
+                    .thenReturn(Map.of(100L, createProductInfoWithPoint(500L)));
+
+            cancelPaymentService.cancel(command);
+
+            // 폴백: 총 적립 500*2=1000, 비례 = round(20000/50000 * 1000) = 400
+            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 400L, 1L);
+            verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(100L));
+        }
+
+        @Test
+        @DisplayName("accumulatedPoint가 0인 상품 반품 시 차감이 0이다")
+        void shouldReturnZeroDeductionWhenAccumulatedPointIsZero() {
+            // 적립금 0원 상품 반품 → 차감 0 (폴백 안 됨)
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 10000L, cancelProducts);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
+                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(0L, 500L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            // 차감 0이므로 reducePartialPendingPoints 호출 안 됨
+            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
+            verifyNoInteractions(findProductByPricePolicyPort);
+        }
+
+        @Test
+        @DisplayName("cancelProducts 없이 부분 취소 시 비례 계산으로 폴백된다")
+        void shouldFallbackToProportionalWhenNoCancelProducts() {
+            // cancelProducts 미지정 → 스냅샷 계산 불가 → 비례 계산 폴백
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 10000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
+                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            // 스냅샷 기반: 총 적립 = 1000+1000=2000, 비례 = round(10000/30000*2000) = 667
+            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 667L, 1L);
+        }
+    }
+
+    @Nested
     @DisplayName("부분 취소 공유 적립 예정 포인트 비례 차감 검증")
     class PartialCancelSharedPurchasePointTest {
 
@@ -1273,6 +1416,31 @@ class CancelPaymentUseCaseTest {
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(50000L, null, null, 0L, null))
+                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
+                .orderProductStates(productStates)
+                .build();
+        return Order.from(state);
+    }
+
+    private Order createOrderWithSnapshotPoints(Long orderId, Long buyerId, Long totalAmount,
+                                                  List<Long> pricePolicyIds, List<Integer> quantities,
+                                                  List<Long> unitAmounts, List<Long> accumulatedPoints) {
+        List<OrderProductSnapshotState> productStates = new ArrayList<>();
+        for (int i = 0; i < pricePolicyIds.size(); i++) {
+            productStates.add(OrderProductSnapshotState.builder()
+                    .pricePolicyId(pricePolicyIds.get(i))
+                    .quantity(quantities.get(i))
+                    .sellerId(10L)
+                    .unitAmount(unitAmounts.get(i))
+                    .accumulatedPoint(accumulatedPoints.get(i))
+                    .build());
+        }
+        OrderSnapshotState state = OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(ORDER_KEY)
+                .orderStatus(OrderStatus.PAID)
+                .amount(OrderAmount.of(totalAmount, null, null, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)
                 .build();

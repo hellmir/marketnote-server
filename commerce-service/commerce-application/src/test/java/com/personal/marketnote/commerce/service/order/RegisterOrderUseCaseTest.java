@@ -444,6 +444,94 @@ class RegisterOrderUseCaseTest {
     }
 
     // ==================================================================================
+    // 주문 생성 시 accumulatedPoint 스냅샷 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("주문 생성 시 accumulatedPoint 스냅샷 검증")
+    class AccumulatedPointSnapshotTest {
+
+        @Test
+        @DisplayName("주문 생성 시 상품별 accumulatedPoint가 OrderProduct에 스냅샷 저장된다")
+        void registerOrder_savesAccumulatedPointSnapshot() {
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(buyerId)
+                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(2)
+                                    .unitAmount(25000L)
+                                    .build()
+                    ))
+                    .build();
+
+            ProductInfoResult productInfo = new ProductInfoResult(
+                    1L, 10L, "테스트 상품", "테스트 브랜드", 25000L, null, 500L, List.of()
+            );
+            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
+                    .thenReturn(Map.of(pricePolicyId, productInfo));
+
+            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
+                    .thenReturn(Set.of(inventory));
+
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            registerOrderService.registerOrder(command);
+
+            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
+            verify(saveOrderPort).save(captor.capture());
+            Order capturedOrder = captor.getValue();
+
+            assertThat(capturedOrder.getOrderProducts()).hasSize(1);
+            assertThat(capturedOrder.getOrderProducts().get(0).getAccumulatedPoint()).isEqualTo(500L);
+        }
+
+        @Test
+        @DisplayName("상품 서비스 응답에 accumulatedPoint가 null이면 OrderProduct에 null로 저장된다")
+        void registerOrder_nullAccumulatedPoint_savesNull() {
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(buyerId)
+                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(1)
+                                    .unitAmount(50000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPrice(pricePolicyId, 50000L);
+
+            Inventory inventory = Inventory.of(1L, pricePolicyId, 100);
+            when(getInventoryUseCase.getOrCreateInventories(anyMap()))
+                    .thenReturn(Set.of(inventory));
+
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            registerOrderService.registerOrder(command);
+
+            ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
+            verify(saveOrderPort).save(captor.capture());
+            Order capturedOrder = captor.getValue();
+
+            assertThat(capturedOrder.getOrderProducts().get(0).getAccumulatedPoint()).isNull();
+        }
+    }
+
+    // ==================================================================================
     // Order 생성 및 속성 검증
     // ==================================================================================
 
