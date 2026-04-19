@@ -13,12 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("GetFulfillmentSettlementDailyCostsService 테스트")
+@DisplayName("풀필먼트 정산 일별 비용 조회 테스트")
 class GetFulfillmentSettlementDailyCostsUseCaseTest {
     @InjectMocks
     private GetFulfillmentSettlementDailyCostsService getFulfillmentSettlementDailyCostsService;
@@ -27,20 +26,20 @@ class GetFulfillmentSettlementDailyCostsUseCaseTest {
     private GetFulfillmentSettlementDailyCostsPort getFulfillmentSettlementDailyCostsPort;
 
     @Test
-    @DisplayName("정산 일별 비용 조회 커맨드를 전달하면 포트를 통해 일별 비용을 반환한다")
-    void shouldReturnDailyCostsFromPort() {
+    @DisplayName("정산 일별 비용 조회 커맨드를 포트에 직접 전달하여 결과를 반환한다")
+    void shouldDelegateCommandDirectlyToPort() {
         // given
         GetFulfillmentSettlementDailyCostsCommand command = GetFulfillmentSettlementDailyCostsCommand.of(
                 "202604", "WH001", "CUST001", "token"
         );
         GetFulfillmentSettlementDailyCostsResult expectedResult = GetFulfillmentSettlementDailyCostsResult.of(0, List.of());
-        when(getFulfillmentSettlementDailyCostsPort.getDailyCosts(any())).thenReturn(expectedResult);
+        when(getFulfillmentSettlementDailyCostsPort.getDailyCosts(command)).thenReturn(expectedResult);
 
         // when
         GetFulfillmentSettlementDailyCostsResult result = getFulfillmentSettlementDailyCostsService.getDailyCosts(command);
 
         // then
         assertThat(result).isEqualTo(expectedResult);
-        verify(getFulfillmentSettlementDailyCostsPort).getDailyCosts(any());
+        verify(getFulfillmentSettlementDailyCostsPort).getDailyCosts(command);
     }
 }

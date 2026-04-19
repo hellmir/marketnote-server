@@ -103,7 +103,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
                 ArgumentCaptor.forClass(SyncFulfillmentAllStockCommand.class);
         verify(syncFulfillmentAllStockUseCase).syncAll(syncCaptor.capture());
         assertThat(syncCaptor.getValue().customerCode()).isEqualTo("CUST");
-        assertThat(syncCaptor.getValue().whCd()).isEqualTo("WH1");
+        assertThat(syncCaptor.getValue().warehouseCode()).isEqualTo("WH1");
 
         ArgumentCaptor<GetFulfillmentWarehousingCommand> commandCaptor =
                 ArgumentCaptor.forClass(GetFulfillmentWarehousingCommand.class);
@@ -140,7 +140,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
         ArgumentCaptor<SyncFulfillmentAllStockCommand> syncCaptor =
                 ArgumentCaptor.forClass(SyncFulfillmentAllStockCommand.class);
         verify(syncFulfillmentAllStockUseCase).syncAll(syncCaptor.capture());
-        assertThat(syncCaptor.getValue().whCd()).isEqualTo("WH2");
+        assertThat(syncCaptor.getValue().warehouseCode()).isEqualTo("WH2");
 
         ArgumentCaptor<GetFulfillmentWarehousingCommand> commandCaptor =
                 ArgumentCaptor.forClass(GetFulfillmentWarehousingCommand.class);
