@@ -33,10 +33,10 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | ad8c0accf2a011f0be620ab49498ff55 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
                 | yearMonth | path | string | 정산 월(YYYYMM) | Y | 202601 |
                 | whCd | path | string | 파스토 센터 코드 | Y | TEST |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 
                 ---
                 
@@ -86,7 +86,7 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "ad8c0accf2a011f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "yearMonth",
@@ -107,7 +107,7 @@ import java.lang.annotation.*;
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 )
         },
         responses = {

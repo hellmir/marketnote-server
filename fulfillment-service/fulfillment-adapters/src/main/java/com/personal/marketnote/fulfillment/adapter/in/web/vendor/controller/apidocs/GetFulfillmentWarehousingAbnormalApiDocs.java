@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | eefae1befa4c11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | whCd | path | string | 센터 | Y | TEST |
                 | slipNo | path | string | 입고요청번호 | Y | TESTIO260119000005 |
                 
@@ -69,7 +69,7 @@ import java.lang.annotation.*;
                 | goodsSerialNo | string | 상품일련번호 | "" |
                 | goodsSerialStatus | string | 상품일련번호상태 | "" |
                 | whCd | string | 센터 | "TEST" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | godCd | string | 상품코드 | "943881" |
                 | description | string | 설명 | "" |
@@ -90,14 +90,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "eefae1befa4c11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "whCd",

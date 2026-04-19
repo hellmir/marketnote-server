@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 61053082f5bb11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | startDate | path | string | 조회 시작일(YYYY-MM-DD) | Y | 2026-02-11 |
                 | endDate | path | string | 조회 종료일(YYYY-MM-DD) | Y | 2026-02-11 |
                 | status | path | string | 작업상태 코드(ALL:전체, ORDER:출고요청, WORKING:출고작업중, DONE:출고완료, PARTDONE:부분출고, CANCEL:출고요청취소, SHORTAGE:재고부족결품) | Y | ALL |
@@ -73,7 +73,7 @@ import java.lang.annotation.*;
                 | whCd | string | 창고코드 | "TEST" |
                 | whNm | string | 창고명 | "테스트" |
                 | slipNo | string | 전표번호 | "TESTOO260121000042" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | shopCd | string | 출고처코드 | "99999999" |
                 | mapSlipNo | string | 매핑전표번호 | "" |
@@ -101,7 +101,7 @@ import java.lang.annotation.*;
                 | custTelNo | string | 수령인 번호 | "01012345678" |
                 | sendNm | string | 발송자명 | "" |
                 | sendTelNo | string | 발송자 번호 | "" |
-                | updUserNm | string | 수정자 | "OPEN_API (94388)" |
+                | updUserNm | string | 수정자 | "OPEN_API (00000)" |
                 | updTime | string | 수정일 | "202601211159" |
                 | goodsSerialNo | array | 상품 일련번호 목록 | [] |
                 | supCd | string | 공급사코드 | "" |
@@ -115,14 +115,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "61053082f5bb11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "startDate",
@@ -179,7 +179,7 @@ import java.lang.annotation.*;
                                                 "whCd": "TEST",
                                                 "whNm": "테스트",
                                                 "slipNo": "TESTOO260121000042",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "shopCd": "99999999",
                                                 "mapSlipNo": "",
@@ -207,7 +207,7 @@ import java.lang.annotation.*;
                                                 "custTelNo": "01012345678",
                                                 "sendNm": "",
                                                 "sendTelNo": "",
-                                                "updUserNm": "OPEN_API (94388)",
+                                                "updUserNm": "OPEN_API (00000)",
                                                 "updTime": "202601211159",
                                                 "goodsSerialNo": [],
                                                 "supCd": "",

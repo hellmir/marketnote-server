@@ -37,8 +37,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 039a797bf66d11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 
                 ---
                 
@@ -89,14 +89,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "039a797bf66d11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 )
         },
         requestBody = @RequestBody(

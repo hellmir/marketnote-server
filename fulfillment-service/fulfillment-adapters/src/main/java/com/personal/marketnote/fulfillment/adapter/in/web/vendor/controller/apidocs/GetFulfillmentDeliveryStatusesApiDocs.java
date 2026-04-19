@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 7cd04d84f74911f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | startDate | path | string | 검색 시작일(YYYY-MM-DD) | Y | 2026-02-11 |
                 | endDate | path | string | 검색 종료일(YYYY-MM-DD) | Y | 2026-02-13 |
                 | outDiv | path | string | 출고 구분(ALL:전체, 1:택배, 2:차량배송, COUPANG:쿠팡쉽먼트, ONE_DAY:원데이배송) | Y | ALL |
@@ -73,7 +73,7 @@ import java.lang.annotation.*;
                 | boxTp | string | 박스 규격 사이즈 | "" |
                 | crgSt | string | 배송상태코드 | "" |
                 | crgStNm | string | 배송상태명 | "" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | custAddr | string | 배송 주소 | "" |
                 | custNm | string | 배송 고객명 | "" |
@@ -120,14 +120,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "7cd04d84f74911f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "startDate",

@@ -33,7 +33,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | eefae1befa4c11f0be620ab49498ff55 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
                 | slipNo | path | string | 입고요청번호 | Y | TESTIO260119000005 |
                 | godCd | path | string | 상품코드 | Y | 943881 |
                 | goodsSerialNo | path | string | 상품일련번호 | Y | SERIAL-0001 |
@@ -59,7 +59,7 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "eefae1befa4c11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "slipNo",

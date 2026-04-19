@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | eefae1befa4c11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | slipNo | path | string | 입고요청번호 | Y | TESTIO260130000001 |
                 | whCd | path | string | 센터 | Y | TEST |
                 
@@ -69,7 +69,7 @@ import java.lang.annotation.*;
                 | whCd | string | 창고코드 | "TEST" |
                 | whNm | string | 창고명 | "테스트" |
                 | slipNo | string | 전표번호(입고요청번호) | "TESTIO260130000001" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | supCd | string | 파스토공급사코드 | "99999999" |
                 | supNm | string | 공급사명 | "미지정 공급사" |
@@ -95,14 +95,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "eefae1befa4c11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "slipNo",
@@ -137,7 +137,7 @@ import java.lang.annotation.*;
                                                 "whCd": "TEST",
                                                 "whNm": "테스트",
                                                 "slipNo": "TESTIO260130000001",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "supCd": "99999999",
                                                 "supNm": "미지정 공급사",

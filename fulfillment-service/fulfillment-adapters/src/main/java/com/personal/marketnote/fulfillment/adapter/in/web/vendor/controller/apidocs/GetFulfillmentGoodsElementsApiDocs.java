@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 3169eb15ef7a11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 
                 ---
                 
@@ -75,7 +75,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | godCd | string | 상품코드 | "94388001" |
+                | godCd | string | 상품코드 | "00000001" |
                 | cstGodCd | string | 고객사상품코드 | "1" |
                 | godBarcd | string | 상품바코드 | "ABC123" |
                 | godNm | string | 상품명 | "구성 상품1" |
@@ -90,14 +90,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "3169eb15ef7a11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 )
         },
         responses = {
@@ -138,7 +138,7 @@ import java.lang.annotation.*;
                                                                 "useYn": "Y",
                                                                 "elementList": [
                                                                   {
-                                                                    "godCd": "94388001",
+                                                                    "godCd": "00000001",
                                                                     "cstGodCd": "1",
                                                                     "godBarcd": "ABC123",
                                                                     "godNm": "구성 상품1",

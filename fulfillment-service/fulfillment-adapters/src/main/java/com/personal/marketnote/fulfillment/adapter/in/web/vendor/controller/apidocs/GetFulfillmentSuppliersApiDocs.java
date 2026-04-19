@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 73c1195ae79411f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 
                 ---
                 
@@ -63,10 +63,10 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | supCd | string | 공급사 코드 | "94388001" |
+                | supCd | string | 공급사 코드 | "00000001" |
                 | supNm | string | 공급사명 | "테스트 공급사1" |
                 | cstSupCd | string | 고객사 공급사 코드 | "" |
-                | cstCd | string | 고객사 코드 | "94388" |
+                | cstCd | string | 고객사 코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | dealStrDt | string | 거래 시작일자 | "" |
                 | dealEndDt | string | 거래 종료일자 | "" |
@@ -96,14 +96,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "73c1195ae79411f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 )
         },
         responses = {
@@ -120,10 +120,10 @@ import java.lang.annotation.*;
                                             "dataCount": 3,
                                             "suppliers": [
                                               {
-                                                "supCd": "94388001",
+                                                "supCd": "00000001",
                                                 "supNm": "테스트 공급사1",
                                                 "cstSupCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "dealStrDt": "",
                                                 "dealEndDt": "",
@@ -147,10 +147,10 @@ import java.lang.annotation.*;
                                                 "useYn": "Y"
                                               },
                                               {
-                                                "supCd": "94388002",
+                                                "supCd": "00000002",
                                                 "supNm": "테스트 공급사2",
                                                 "cstSupCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "dealStrDt": "",
                                                 "dealEndDt": "",
@@ -174,10 +174,10 @@ import java.lang.annotation.*;
                                                 "useYn": "Y"
                                               },
                                               {
-                                                "supCd": "94388003",
+                                                "supCd": "00000003",
                                                 "supNm": "테스트 공급사3",
                                                 "cstSupCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "dealStrDt": "",
                                                 "dealEndDt": "",

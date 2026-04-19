@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | eefae1befa4c11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | slipNo | path | string | 입고요청번호 | Y | TESTIO260119000005 |
                 | ordNo | query | string | 주문번호 | N | 12345 |
                 
@@ -70,7 +70,7 @@ import java.lang.annotation.*;
                 | whNm | string | 창고명 | "테스트" |
                 | slipNo | string | 전표번호(입고요청번호) | "TESTIO260119000005" |
                 | ordNo | string | 주문번호 | "" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | supCd | string | FSS공급사코드 | "99999999" |
                 | supNm | string | 공급사명 | "미지정 공급사" |
@@ -98,7 +98,7 @@ import java.lang.annotation.*;
                 | ordDt | string | 입고일자 | "20260119" |
                 | whCd | string | 창고코드 | "TEST" |
                 | slipNo | string | 전표번호(입고요청번호) | "TESTIO260119000005" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | shopCd | string | 공급사코드 | null |
                 | supCd | string | FSS공급사코드 | "99999999" |
                 | godCd | string | 상품코드 | "943881" |
@@ -123,14 +123,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "eefae1befa4c11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "slipNo",
@@ -166,7 +166,7 @@ import java.lang.annotation.*;
                                                 "whNm": "테스트",
                                                 "slipNo": "TESTIO260119000005",
                                                 "ordNo": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "supCd": "99999999",
                                                 "supNm": "미지정 공급사",
@@ -188,7 +188,7 @@ import java.lang.annotation.*;
                                                     "ordDt": "20260119",
                                                     "whCd": "TEST",
                                                     "slipNo": "TESTIO260119000005",
-                                                    "cstCd": "94388",
+                                                    "cstCd": "00000",
                                                     "shopCd": null,
                                                     "supCd": "99999999",
                                                     "godCd": "943881",
