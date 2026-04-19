@@ -2,7 +2,7 @@ package com.personal.marketnote.common.domain.exception;
 
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import jakarta.persistence.EntityExistsException;
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -76,12 +76,12 @@ class GlobalExceptionHandlerTest {
         }
 
         @Test
-        @DisplayName("EntityNotFoundException 핸들러는 404를 반환한다")
-        void shouldReturn404ForEntityNotFoundException() {
-            jakarta.persistence.EntityNotFoundException exception =
-                    new jakarta.persistence.EntityNotFoundException("ERR_ENTITY_01::엔티티를 찾을 수 없습니다");
+        @DisplayName("DomainNotFoundException 핸들러는 404를 반환한다")
+        void shouldReturn404ForDomainNotFoundException() {
+            DomainNotFoundException exception =
+                    new DomainNotFoundException("ERR_ENTITY_01::엔티티를 찾을 수 없습니다");
 
-            ResponseEntity<ErrorResponse> response = handler.handleEntityNotFoundException(exception);
+            ResponseEntity<ErrorResponse> response = handler.handleDomainNotFoundException(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
             assertThat(response.getBody()).isNotNull();
@@ -328,12 +328,12 @@ class GlobalExceptionHandlerTest {
         }
 
         @Test
-        @DisplayName("EntityExistsException 핸들러는 고정 메시지를 반환한다")
-        void shouldReturnFixedMessageForEntityExistsException() {
-            EntityExistsException exception =
-                    new EntityExistsException("A different object with the same identifier value was already associated: [com.personal.marketnote.product.entity.ProductJpaEntity#123]");
+        @DisplayName("DomainAlreadyExistsException 핸들러는 고정 메시지를 반환한다")
+        void shouldReturnFixedMessageForDomainAlreadyExistsException() {
+            DomainAlreadyExistsException exception =
+                    new DomainAlreadyExistsException("A different object with the same identifier value was already associated: [com.personal.marketnote.product.entity.ProductJpaEntity#123]");
 
-            ResponseEntity<ErrorResponse> response = handler.handleEntityExistsException(exception);
+            ResponseEntity<ErrorResponse> response = handler.handleDomainAlreadyExistsException(exception);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
             assertThat(response.getBody()).isNotNull();

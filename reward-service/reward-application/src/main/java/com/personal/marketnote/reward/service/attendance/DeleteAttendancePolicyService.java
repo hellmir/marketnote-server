@@ -5,7 +5,7 @@ import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.port.in.usecase.attendance.DeleteAttendancePolicyUseCase;
 import com.personal.marketnote.reward.port.out.attendance.FindAttendancePolicyPort;
 import com.personal.marketnote.reward.port.out.attendance.UpdateAttendancePolicyPort;
-import jakarta.persistence.EntityNotFoundException;
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,7 @@ public class DeleteAttendancePolicyService implements DeleteAttendancePolicyUseC
     @Override
     public void delete(Short id) {
         AttendancePolicy policy = findAttendancePolicyPort.findByIdForUpdate(id)
-                .orElseThrow(() -> new EntityNotFoundException("대상 출석 정책을 찾을 수 없습니다. 전송된 id: " + id));
+                .orElseThrow(() -> new DomainNotFoundException("대상 출석 정책을 찾을 수 없습니다. 전송된 id: " + id));
 
         policy.delete();
         updateAttendancePolicyPort.update(policy);

@@ -1,8 +1,8 @@
 package com.personal.marketnote.commerce.exception;
 
-import jakarta.persistence.EntityNotFoundException;
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 
-public class AccountNotFoundException extends EntityNotFoundException {
+public class AccountNotFoundException extends DomainNotFoundException {
     public AccountNotFoundException(Long id) {
         super("계정과목을 찾을 수 없습니다. ID: " + id);
     }

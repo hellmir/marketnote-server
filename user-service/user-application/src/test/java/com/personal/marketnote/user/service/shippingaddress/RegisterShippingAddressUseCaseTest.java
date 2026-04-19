@@ -11,7 +11,7 @@ import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPo
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
-import jakarta.persistence.EntityExistsException;
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -135,8 +135,8 @@ class RegisterShippingAddressUseCaseTest {
     }
 
     @Test
-    @DisplayName("HOME 타입 배송지가 이미 존재하면 EntityExistsException이 발생한다")
-    void registerShippingAddress_duplicateHome_throwsEntityExistsException() {
+    @DisplayName("HOME 타입 배송지가 이미 존재하면 DomainAlreadyExistsException이 발생한다")
+    void registerShippingAddress_duplicateHome_throwsDomainAlreadyExistsException() {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
@@ -154,7 +154,7 @@ class RegisterShippingAddressUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(EntityExistsException.class)
+                .isInstanceOf(DomainAlreadyExistsException.class)
                 .hasMessageContaining("이미 등록된 집 배송지가 존재합니다");
 
         verify(findShippingAddressPort).existsByUserIdAndAddressType(userId, ShippingAddressType.HOME);
@@ -163,8 +163,8 @@ class RegisterShippingAddressUseCaseTest {
     }
 
     @Test
-    @DisplayName("COMPANY 타입 배송지가 이미 존재하면 EntityExistsException이 발생한다")
-    void registerShippingAddress_duplicateCompany_throwsEntityExistsException() {
+    @DisplayName("COMPANY 타입 배송지가 이미 존재하면 DomainAlreadyExistsException이 발생한다")
+    void registerShippingAddress_duplicateCompany_throwsDomainAlreadyExistsException() {
         // given
         Long userId = 1L;
         RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
@@ -183,7 +183,7 @@ class RegisterShippingAddressUseCaseTest {
 
         // when & then
         assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
-                .isInstanceOf(EntityExistsException.class)
+                .isInstanceOf(DomainAlreadyExistsException.class)
                 .hasMessageContaining("이미 등록된 회사 배송지가 존재합니다");
 
         verify(findShippingAddressPort).existsByUserIdAndAddressType(userId, ShippingAddressType.COMPANY);

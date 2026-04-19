@@ -8,7 +8,7 @@ import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.UpdatePaymentPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import jakarta.persistence.EntityNotFoundException;
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
@@ -41,7 +41,7 @@ public class PaymentPersistenceAdapter implements SavePaymentPort, FindPaymentPo
     @Override
     public void update(Payment payment) {
         PaymentJpaEntity entity = paymentJpaRepository.findByOrderKey(payment.getOrderKey())
-                .orElseThrow(() -> new EntityNotFoundException("결제 엔티티를 찾을 수 없습니다."));
+                .orElseThrow(() -> new DomainNotFoundException("결제 엔티티를 찾을 수 없습니다."));
         entity.updateFrom(payment);
     }
 }
