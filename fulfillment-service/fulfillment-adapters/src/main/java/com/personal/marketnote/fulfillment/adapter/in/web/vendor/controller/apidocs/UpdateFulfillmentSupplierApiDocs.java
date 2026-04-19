@@ -35,8 +35,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 73c1195ae79411f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 
                 ---
                 
@@ -44,8 +44,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
-                | cstSupCd | string | 고객사 공급사 코드 | N | "94388001" |
-                | supCd | string | 공급사 코드(수정 시 필수) | Y | "94388001" |
+                | cstSupCd | string | 고객사 공급사 코드 | N | "00000001" |
+                | supCd | string | 공급사 코드(수정 시 필수) | Y | "00000001" |
                 | supNm | string | 공급사명 | Y | "테스트 공급사4" |
                 | useYn | string | 사용여부 | N | "" |
                 | dealStrDt | string | 거래시작일자 | N | "" |
@@ -105,14 +105,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "73c1195ae79411f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 )
         },
         requestBody = @RequestBody(
@@ -121,8 +121,8 @@ import java.lang.annotation.*;
                         schema = @Schema(implementation = UpdateFulfillmentSupplierRequest.class),
                         examples = @ExampleObject("""
                                 {
-                                  "cstSupCd": "94388",
-                                  "supCd": "94388003",
+                                  "cstSupCd": "00000",
+                                  "supCd": "00000003",
                                   "supNm": "테스트 공급사4",
                                   "useYn": "",
                                   "dealStrDt": "",

@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 039a797bf66d11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | slipNo | path | string | 출고요청번호 | Y | TESTOO260121000042 |
                 | ordNo | query | string | 주문번호 | N | asdf |
                 
@@ -70,7 +70,7 @@ import java.lang.annotation.*;
                 | whCd | string | 창고코드 | "TEST" |
                 | whNm | string | 창고명 | "테스트" |
                 | slipNo | string | 전표번호 | "TESTOO260121000042" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | cstShopCd | string | 고객사출고처코드 | null |
                 | shopCd | string | 출고처코드 | "99999999" |
@@ -98,7 +98,7 @@ import java.lang.annotation.*;
                 | custTelNo | string | 수령인 번호 | "01012345678" |
                 | sendNm | string | 발송자명 | "" |
                 | sendTelNo | string | 발송자 번호 | "" |
-                | updUserNm | string | 수정자 | "OPEN_API (94388)" |
+                | updUserNm | string | 수정자 | "OPEN_API (00000)" |
                 | updTime | string | 수정일 | "202601211159" |
                 | goods | array | 출고 상품 목록 | [ ... ] |
                 | remark | string | 비고 | "" |
@@ -112,13 +112,13 @@ import java.lang.annotation.*;
                 | ordDt | string | 출고요청일자 | "20260121" |
                 | whCd | string | 창고코드 | "TEST" |
                 | slipNo | string | 전표번호 | "TESTOO260121000042" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | shopCd | string | 출고처코드 | "99999999" |
                 | supCd | string | 공급사코드 | null |
-                | godCd | string | 상품코드 | "94388IBA00001" |
+                | godCd | string | 상품코드 | "00000IBA00001" |
                 | cstGodCd | string | 고객사상품코드 | "IBA00001" |
                 | godNm | string | 상품명 | "테스트상품" |
-                | orgGodCd | string | 원상품코드 | "94388IBA00001" |
+                | orgGodCd | string | 원상품코드 | "00000IBA00001" |
                 | godType | string | 상품유형 | "1" |
                 | godTypeNm | string | 상품유형명 | "단품" |
                 | distTermDt | string | 유통기한 | "" |
@@ -137,14 +137,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "039a797bf66d11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "slipNo",
@@ -180,7 +180,7 @@ import java.lang.annotation.*;
                                                 "whCd": "TEST",
                                                 "whNm": "테스트",
                                                 "slipNo": "TESTOO260121000042",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "cstShopCd": null,
                                                 "shopCd": "99999999",
@@ -208,20 +208,20 @@ import java.lang.annotation.*;
                                                 "custTelNo": "01012345678",
                                                 "sendNm": "",
                                                 "sendTelNo": "",
-                                                "updUserNm": "OPEN_API (94388)",
+                                                "updUserNm": "OPEN_API (00000)",
                                                 "updTime": "202601211159",
                                                 "goods": [
                                                   {
                                                     "ordDt": "20260121",
                                                     "whCd": "TEST",
                                                     "slipNo": "TESTOO260121000042",
-                                                    "cstCd": "94388",
+                                                    "cstCd": "00000",
                                                     "shopCd": "99999999",
                                                     "supCd": null,
-                                                    "godCd": "94388IBA00001",
+                                                    "godCd": "00000IBA00001",
                                                     "cstGodCd": "IBA00001",
                                                     "godNm": "테스트상품",
-                                                    "orgGodCd": "94388IBA00001",
+                                                    "orgGodCd": "00000IBA00001",
                                                     "godType": "1",
                                                     "godTypeNm": "단품",
                                                     "distTermDt": "",

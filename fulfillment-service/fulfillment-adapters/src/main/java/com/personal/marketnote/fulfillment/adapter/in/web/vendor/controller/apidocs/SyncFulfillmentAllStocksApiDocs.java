@@ -33,7 +33,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | whCd | query | string | 창고 코드 | N | TEST |
                 
                 ---
@@ -55,7 +55,7 @@ import java.lang.annotation.*;
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "whCd",

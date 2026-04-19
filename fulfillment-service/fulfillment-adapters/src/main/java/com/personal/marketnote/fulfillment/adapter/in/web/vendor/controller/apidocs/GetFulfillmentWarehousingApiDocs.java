@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 3169eb15ef7a11f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | startDate | path | string | 조회 시작일(YYYYMMDD) | Y | 20260113 |
                 | endDate | path | string | 조회 종료일(YYYYMMDD) | Y | 20260113 |
                 | inWay | query | string | 입고방법(비어있으면:전체,01:택배,02:차량) | N | 01 |
@@ -73,7 +73,7 @@ import java.lang.annotation.*;
                 | whNm | string | 창고명 | "테스트" |
                 | ordNo | string | 주문번호 | "" |
                 | slipNo | string | 전표번호(입고요청번호) | "TESTIO260113000003" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | supCd | string | FSS공급사코드 | "99999999" |
                 | cstSupCd | string | 고객사공급사코드 | null |
@@ -98,14 +98,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "3169eb15ef7a11f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "startDate",
@@ -162,7 +162,7 @@ import java.lang.annotation.*;
                                                 "whNm": "테스트",
                                                 "ordNo": "",
                                                 "slipNo": "TESTIO260113000003",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "supCd": "99999999",
                                                 "cstSupCd": null,

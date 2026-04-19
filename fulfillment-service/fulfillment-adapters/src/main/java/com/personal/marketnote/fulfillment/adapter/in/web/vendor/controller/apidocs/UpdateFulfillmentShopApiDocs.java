@@ -35,8 +35,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 85352dc5e54811f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 
                 ---
                 
@@ -44,7 +44,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
-                | shopCd | string | 출고처 코드(수정 시 필수) | Y | "94388001" |
+                | shopCd | string | 출고처 코드(수정 시 필수) | Y | "00000001" |
                 | shopNm | string | 출고처명 | Y | "테스트 출고처1" |
                 | cstShopCd | string | 고객사 출고처 코드 | N | "" |
                 | dealStrDt | string | 거래 시작일자 | N | "" |
@@ -92,7 +92,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- |
                 | msg | string | 처리 결과 | "SUCCESS" |
                 | code | string | 응답 코드 | "200" |
-                | shopCd | string | 출고처 코드 | "94388001" |
+                | shopCd | string | 출고처 코드 | "00000001" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -101,14 +101,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "85352dc5e54811f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 )
         },
         requestBody = @RequestBody(
@@ -117,7 +117,7 @@ import java.lang.annotation.*;
                         schema = @Schema(implementation = UpdateFulfillmentShopRequest.class),
                         examples = @ExampleObject("""
                                 {
-                                  "shopCd": "94388001",
+                                  "shopCd": "00000001",
                                   "shopNm": "테스트 출고처1",
                                   "cstShopCd": "",
                                   "dealStrDt": "",
@@ -154,7 +154,7 @@ import java.lang.annotation.*;
                                             "shopInfo": {
                                               "msg": "SUCCESS",
                                               "code": "200",
-                                              "shopCd": "94388007"
+                                              "shopCd": "00000007"
                                             }
                                           },
                                           "message": "파스토 출고처 수정 성공"

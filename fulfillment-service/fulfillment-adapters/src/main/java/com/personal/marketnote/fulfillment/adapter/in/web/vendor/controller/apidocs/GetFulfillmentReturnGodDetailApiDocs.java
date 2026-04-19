@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 23ea2ab4f0e111f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | strDt | query | string | 반품예정일 검색 시작일(YYYY-MM-DD), rtnSlipNoList가 없으면 필수 | 조건부 | 2026-02-01 |
                 | endDt | query | string | 반품예정일 검색 종료일(YYYY-MM-DD), rtnSlipNoList가 없으면 필수 | 조건부 | 2026-02-20 |
                 | rtnSlipNoList | query | string | 반품요청번호(목록), 여러 개일 경우 ','로 연결, strDt/endDt가 없으면 필수 | 조건부 | TESTRI260204000001,TESTRI260204000002 |
@@ -70,7 +70,7 @@ import java.lang.annotation.*;
                 | ordNo | string | 주문번호 | "ORD20260204001" |
                 | supCd | string | 공급처코드 | "SUP001" |
                 | inSlipNo | string | 반품입고일 | "IN20260204001" |
-                | cstCd | string | 고객사코드 | "94388" |
+                | cstCd | string | 고객사코드 | "00000" |
                 | whCd | string | 창고코드 | "WH001" |
                 | inOrdSlipNo | string | 반품요청번호 | "TESTRI260204000001" |
                 | inOrdDt | string | 반품요청일 | "20260204" |
@@ -145,14 +145,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "23ea2ab4f0e111f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "strDt",
@@ -200,7 +200,7 @@ import java.lang.annotation.*;
                                                 "ordNo": "ORD20260204001",
                                                 "supCd": "SUP001",
                                                 "inSlipNo": "IN20260204001",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "whCd": "WH001",
                                                 "inOrdSlipNo": "TESTRI260204000001",
                                                 "inOrdDt": "20260204",

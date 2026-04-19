@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | de6d8483e5f311f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 
                 ---
                 
@@ -63,10 +63,10 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | shopCd | string | 출고처 코드 | "94388001" |
+                | shopCd | string | 출고처 코드 | "00000001" |
                 | shopNm | string | 출고처명 | "테스트 출고처1" |
                 | cstShopCd | string | 고객사 출고처 코드 | "" |
-                | cstCd | string | 고객사 코드 | "94388" |
+                | cstCd | string | 고객사 코드 | "00000" |
                 | cstNm | string | 고객사명 | "마켓노트 주식회사 테스트" |
                 | shopTp | string | 출고처 유형 | null |
                 | dealStrDt | string | 거래 시작일자 | "" |
@@ -93,14 +93,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "de6d8483e5f311f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 )
         },
         responses = {
@@ -117,10 +117,10 @@ import java.lang.annotation.*;
                                             "dataCount": 5,
                                             "shops": [
                                               {
-                                                "shopCd": "94388002",
+                                                "shopCd": "00000002",
                                                 "shopNm": "테스트 출고처1",
                                                 "cstShopCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "shopTp": null,
                                                 "dealStrDt": null,
@@ -141,10 +141,10 @@ import java.lang.annotation.*;
                                                 "useYn": "Y"
                                               },
                                               {
-                                                "shopCd": "94388003",
+                                                "shopCd": "00000003",
                                                 "shopNm": "테스트 출고처2",
                                                 "cstShopCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "shopTp": null,
                                                 "dealStrDt": null,
@@ -165,10 +165,10 @@ import java.lang.annotation.*;
                                                 "useYn": "Y"
                                               },
                                               {
-                                                "shopCd": "94388004",
+                                                "shopCd": "00000004",
                                                 "shopNm": "테스트 출고처3",
                                                 "cstShopCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "shopTp": null,
                                                 "dealStrDt": null,
@@ -189,10 +189,10 @@ import java.lang.annotation.*;
                                                 "useYn": "Y"
                                               },
                                               {
-                                                "shopCd": "94388005",
+                                                "shopCd": "00000005",
                                                 "shopNm": "테스트 출고처4",
                                                 "cstShopCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "shopTp": null,
                                                 "dealStrDt": null,
@@ -213,10 +213,10 @@ import java.lang.annotation.*;
                                                 "useYn": "Y"
                                               },
                                               {
-                                                "shopCd": "94388006",
+                                                "shopCd": "00000006",
                                                 "shopNm": "테스트 출고처5",
                                                 "cstShopCd": "",
-                                                "cstCd": "94388",
+                                                "cstCd": "00000",
                                                 "cstNm": "마켓노트 주식회사 테스트",
                                                 "shopTp": null,
                                                 "dealStrDt": null,

@@ -33,8 +33,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 23ea2ab4f0e111f0be620ab49498ff55 |
-                | customerCode | path | string | 파스토 고객사 코드 | Y | 94388 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
+                | customerCode | path | string | 파스토 고객사 코드 | Y | 00000 |
                 | cstGodCd | query | string | 고객사상품코드 | Y | 51 |
                 | outOfStockYn | query | string | 품절 상품 조회 여부(Y/N) | N | Y |
                 
@@ -66,7 +66,7 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | whCd | string | 창고번호 | "TEST" |
-                | godCd | string | 상품코드 | "94388IBA00001" |
+                | godCd | string | 상품코드 | "00000IBA00001" |
                 | cstGodCd | string | 고객사상품코드 | "51" |
                 | godNm | string | 상품명 | "테스트상품1" |
                 | distTermDt | string | 유통기한일자 | "" |
@@ -88,14 +88,14 @@ import java.lang.annotation.*;
                         description = "파스토 액세스 토큰",
                         in = ParameterIn.HEADER,
                         required = true,
-                        schema = @Schema(type = "string", example = "23ea2ab4f0e111f0be620ab49498ff55")
+                        schema = @Schema(type = "string", example = "your-access-token")
                 ),
                 @Parameter(
                         name = "customerCode",
                         description = "파스토 고객사 코드",
                         in = ParameterIn.PATH,
                         required = true,
-                        schema = @Schema(type = "string", example = "94388")
+                        schema = @Schema(type = "string", example = "00000")
                 ),
                 @Parameter(
                         name = "cstGodCd",
@@ -127,7 +127,7 @@ import java.lang.annotation.*;
                                             "stocks": [
                                               {
                                                 "whCd": "TEST",
-                                                "godCd": "94388IBA00001",
+                                                "godCd": "00000IBA00001",
                                                 "cstGodCd": "51",
                                                 "godNm": "테스트상품1",
                                                 "distTermDt": "",

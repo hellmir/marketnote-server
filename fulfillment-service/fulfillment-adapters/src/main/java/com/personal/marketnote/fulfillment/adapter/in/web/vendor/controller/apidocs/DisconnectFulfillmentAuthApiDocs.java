@@ -30,7 +30,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **위치** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
-                | accessToken | header | string | 파스토 액세스 토큰 | Y | 5a2af269e54f11f0be620ab49498ff55 |
+                | accessToken | header | string | 파스토 액세스 토큰 | Y | your-access-token |
                 
                 ---
                 

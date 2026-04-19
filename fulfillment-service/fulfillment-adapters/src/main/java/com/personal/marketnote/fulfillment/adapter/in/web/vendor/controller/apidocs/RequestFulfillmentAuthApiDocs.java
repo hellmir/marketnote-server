@@ -55,7 +55,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | accessToken | string | 파스토 액세스 토큰 | "ede4785770ab4949816247d1f0beff55" |
+                | accessToken | string | 파스토 액세스 토큰 | "your-access-token" |
                 | expiresAt | string(datetime) | 만료 일시 | "2026-01-25T14:40:32" |
                 
                 """,
@@ -72,7 +72,7 @@ import java.lang.annotation.*;
                                           "timestamp": "2026-01-24T14:40:32.868332",
                                           "content": {
                                             "tokenInfo": {
-                                              "accessToken": "ede4785770ab4949816247d1f0beff55",
+                                              "accessToken": "your-access-token",
                                               "expiresAt": "2026-01-25T14:40:32"
                                             }
                                           },
