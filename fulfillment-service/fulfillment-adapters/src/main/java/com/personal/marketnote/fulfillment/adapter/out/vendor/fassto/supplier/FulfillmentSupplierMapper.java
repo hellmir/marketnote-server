@@ -1,4 +1,4 @@
-package com.personal.marketnote.fulfillment.domain.vendor.supplier;
+package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.supplier;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;

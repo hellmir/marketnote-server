@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentSupplierCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentSupplierCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillmentSupplierResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.UpdateFulfillmentSupplierUseCase;
@@ -19,8 +18,6 @@ public class UpdateFulfillmentSupplierService implements UpdateFulfillmentSuppli
 
     @Override
     public UpdateFulfillmentSupplierResult updateSupplier(UpdateFulfillmentSupplierCommand command) {
-        return updateFulfillmentSupplierPort.updateSupplier(
-                FulfillmentSupplierCommandToRequestMapper.mapToUpdateRequest(command)
-        );
+        return updateFulfillmentSupplierPort.updateSupplier(command);
     }
 }

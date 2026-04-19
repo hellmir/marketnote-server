@@ -1,11 +1,11 @@
 package com.personal.marketnote.fulfillment.port.in.result.vendor;
 
 public record RegisterFulfillmentSupplierResult(
-        String msg,
+        String message,
         String code,
-        String supCd
+        String supplierCode
 ) {
-    public static RegisterFulfillmentSupplierResult of(String msg, String code, String supCd) {
-        return new RegisterFulfillmentSupplierResult(msg, code, supCd);
+    public static RegisterFulfillmentSupplierResult of(String message, String code, String supplierCode) {
+        return new RegisterFulfillmentSupplierResult(message, code, supplierCode);
     }
 }
