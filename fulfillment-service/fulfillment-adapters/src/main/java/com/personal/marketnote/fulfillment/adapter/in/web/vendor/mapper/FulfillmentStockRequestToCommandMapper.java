@@ -9,24 +9,24 @@ public class FulfillmentStockRequestToCommandMapper {
             String customerCode,
             String accessToken,
             String outOfStockYn,
-            String whCd
+            String warehouseCode
     ) {
-        return GetFulfillmentStocksCommand.of(customerCode, accessToken, outOfStockYn, whCd);
+        return GetFulfillmentStocksCommand.of(customerCode, accessToken, outOfStockYn, warehouseCode);
     }
 
     public static GetFulfillmentStockDetailCommand mapToStockDetailCommand(
             String customerCode,
             String accessToken,
-            String cstGodCd,
+            String customerProductCode,
             String outOfStockYn
     ) {
-        return GetFulfillmentStockDetailCommand.of(customerCode, accessToken, cstGodCd, outOfStockYn);
+        return GetFulfillmentStockDetailCommand.of(customerCode, accessToken, customerProductCode, outOfStockYn);
     }
 
     public static SyncFulfillmentAllStockCommand mapToSyncAllCommand(
             String customerCode,
-            String whCd
+            String warehouseCode
     ) {
-        return SyncFulfillmentAllStockCommand.of(customerCode, whCd);
+        return SyncFulfillmentAllStockCommand.of(customerCode, warehouseCode);
     }
 }

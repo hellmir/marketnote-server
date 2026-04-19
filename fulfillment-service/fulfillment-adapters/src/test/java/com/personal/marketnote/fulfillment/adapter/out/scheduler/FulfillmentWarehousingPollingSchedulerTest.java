@@ -84,7 +84,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
     }
 
     @Test
-    @DisplayName("wrkStat 4가 발견되면 재고 동기화를 호출한다")
+    @DisplayName("workStatus 4가 발견되면 재고 동기화를 호출한다")
     void poll_whenConfirmed_syncsStocks() {
         clock.setInstant(parseInstant("2026-02-08T10:00:00"));
         when(requestFulfillmentAuthUseCase.requestAccessToken())
@@ -117,7 +117,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
     }
 
     @Test
-    @DisplayName("wrkStat 4가 없고 5가 있으면 5 기준으로 동기화를 수행한다")
+    @DisplayName("workStatus 4가 없고 5가 있으면 5 기준으로 동기화를 수행한다")
     void poll_whenCompleted_syncsStocks() {
         clock.setInstant(parseInstant("2026-02-08T11:00:00"));
         when(requestFulfillmentAuthUseCase.requestAccessToken())
@@ -151,18 +151,16 @@ class FulfillmentWarehousingPollingSchedulerTest {
                 .containsExactly("4", "5");
     }
 
-    private ScheduleFulfillmentWarehousingPollingCommand buildCommand(String ordNo) {
-        return ScheduleFulfillmentWarehousingPollingCommand.of("CUST", ordNo, "20260116");
+    private ScheduleFulfillmentWarehousingPollingCommand buildCommand(String orderNumber) {
+        return ScheduleFulfillmentWarehousingPollingCommand.of("CUST", orderNumber, "20260116");
     }
 
-    private FulfillmentWarehousingInfoResult buildWarehousingInfo(String ordNo, String whCd, String wrkStat) {
+    private FulfillmentWarehousingInfoResult buildWarehousingInfo(String orderNumber, String warehouseCode, String workStatus) {
         return FulfillmentWarehousingInfoResult.of(
                 "20260116",
-                whCd,
+                warehouseCode,
                 null,
-                ordNo,
-                null,
-                null,
+                orderNumber,
                 null,
                 null,
                 null,
@@ -174,7 +172,9 @@ class FulfillmentWarehousingPollingSchedulerTest {
                 null,
                 null,
                 null,
-                wrkStat,
+                null,
+                null,
+                workStatus,
                 null,
                 null,
                 null,

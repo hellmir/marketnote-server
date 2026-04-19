@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentStockCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentStockDetailUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentStockDetailService implements GetFulfillmentStockDeta
 
     @Override
     public GetFulfillmentStocksResult getStockDetail(GetFulfillmentStockDetailCommand command) {
-        return getFulfillmentStockDetailPort.getStockDetail(
-                FulfillmentStockCommandToRequestMapper.mapToDetailQuery(command)
-        );
+        return getFulfillmentStockDetailPort.getStockDetail(command);
     }
 }

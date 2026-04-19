@@ -96,7 +96,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                         command.customerCode(),
                         accessToken.getValue(),
                         null,
-                        command.whCd()
+                        command.warehouseCode()
                 )
         );
         List<UpdateCommerceInventoryItemCommand> inventories = resolveInventories(stocksResult);
@@ -131,12 +131,12 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
             return null;
         }
 
-        Integer canStockQty = stockInfo.canStockQty();
-        if (FormatValidator.hasValue(canStockQty)) {
-            return canStockQty;
+        Integer availableStockQuantity = stockInfo.availableStockQuantity();
+        if (FormatValidator.hasValue(availableStockQuantity)) {
+            return availableStockQuantity;
         }
 
-        return stockInfo.stockQty();
+        return stockInfo.stockQuantity();
     }
 
     private List<UpdateCommerceInventoryItemCommand> resolveInventories(GetFulfillmentStocksResult result) {
@@ -146,13 +146,13 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
 
         Map<Long, Integer> stockByProductId = new LinkedHashMap<>();
         for (FulfillmentStockInfoResult stockInfo : result.stocks()) {
-            if (FormatValidator.hasNoValue(stockInfo) || FormatValidator.hasNoValue(stockInfo.cstGodCd())) {
+            if (FormatValidator.hasNoValue(stockInfo) || FormatValidator.hasNoValue(stockInfo.customerProductCode())) {
                 continue;
             }
 
             // QA 서버 스케줄러 작동 테스트 위해 임시로 변경
             Long productId = 1L;
-            // Long productId = resolveProductId(stockInfo.cstGodCd());
+            // Long productId = resolveProductId(stockInfo.customerProductCode());
             if (FormatValidator.hasNoValue(productId)) {
                 continue;
             }
@@ -175,13 +175,13 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                 .toList();
     }
 
-    private Long resolveProductId(String cstGodCd) {
-        if (FormatValidator.hasNoValue(cstGodCd)) {
+    private Long resolveProductId(String customerProductCode) {
+        if (FormatValidator.hasNoValue(customerProductCode)) {
             return null;
         }
 
         try {
-            return Long.parseLong(cstGodCd);
+            return Long.parseLong(customerProductCode);
         } catch (NumberFormatException e) {
             return null;
         }

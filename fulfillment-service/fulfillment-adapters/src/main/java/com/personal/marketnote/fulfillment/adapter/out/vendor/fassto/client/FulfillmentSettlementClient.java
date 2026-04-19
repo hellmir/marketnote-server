@@ -8,13 +8,15 @@ import com.personal.marketnote.common.utility.http.client.CommunicationFailureHa
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentErrorResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentSettlementDailyCostItemResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentSettlementDailyCostListResponse;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoSettlementCommandToRequestMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.settlement.FulfillmentSettlementDailyCostQuery;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.settlement.FulfillmentSettlementDailyCostQuery;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentSettlementDailyCostsFailedException;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentSettlementDailyCostsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentSettlementDailyCostInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentSettlementDailyCostsResult;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentSettlementDailyCostsPort;
@@ -71,11 +73,12 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     }
 
     @Override
-    public GetFulfillmentSettlementDailyCostsResult getDailyCosts(FulfillmentSettlementDailyCostQuery query) {
-        if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment settlement daily cost query is required.");
+    public GetFulfillmentSettlementDailyCostsResult getDailyCosts(GetFulfillmentSettlementDailyCostsCommand command) {
+        if (FormatValidator.hasNoValue(command)) {
+            throw new IllegalArgumentException("Fulfillment settlement daily cost command is required.");
         }
 
+        FulfillmentSettlementDailyCostQuery query = FasstoSettlementCommandToRequestMapper.mapToQuery(command);
         URI uri = buildSettlementDailyCostUri(query.getYearMonth(), query.getWhCd(), query.getCustomerCode());
 
         Exception error = new Exception();
@@ -305,19 +308,19 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
 
     private FulfillmentSettlementDailyCostInfoResult mapDailyCostInfo(FulfillmentSettlementDailyCostItemResponse item) {
         return FulfillmentSettlementDailyCostInfoResult.of(
-                item.cloDt(),
-                item.whCd(),
-                item.cstCd(),
-                item.inpAmt(),
-                item.outAmt(),
-                item.outcarAmt(),
-                item.outairAmt(),
-                item.keepAmt(),
-                item.retAmt(),
-                item.cashAmt(),
-                item.founAmt(),
-                item.othAmt(),
-                item.totAmt()
+                item.cloDt(),       // closeDate
+                item.whCd(),        // warehouseCode
+                item.cstCd(),       // customerCode
+                item.inpAmt(),      // inboundAmount
+                item.outAmt(),      // outboundAmount
+                item.outcarAmt(),   // outboundCarAmount
+                item.outairAmt(),   // outboundAirAmount
+                item.keepAmt(),     // storageAmount
+                item.retAmt(),      // returnAmount
+                item.cashAmt(),     // cashAmount
+                item.founAmt(),     // foundationAmount
+                item.othAmt(),      // otherAmount
+                item.totAmt()       // totalAmount
         );
     }
 

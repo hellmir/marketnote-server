@@ -1,4 +1,4 @@
-package com.personal.marketnote.fulfillment.domain.vendor.delivery;
+package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.stock;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
@@ -8,20 +8,23 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class FulfillmentDeliveryOutOrdGoodsDetailQuery {
+public class FulfillmentStockDetailQuery {
     private String customerCode;
     private String accessToken;
-    private String outOrdSlipNo;
+    private String cstGodCd;
+    private String outOfStockYn;
 
-    public static FulfillmentDeliveryOutOrdGoodsDetailQuery of(
+    public static FulfillmentStockDetailQuery of(
             String customerCode,
             String accessToken,
-            String outOrdSlipNo
+            String cstGodCd,
+            String outOfStockYn
     ) {
-        FulfillmentDeliveryOutOrdGoodsDetailQuery query = FulfillmentDeliveryOutOrdGoodsDetailQuery.builder()
+        FulfillmentStockDetailQuery query = FulfillmentStockDetailQuery.builder()
                 .customerCode(customerCode)
                 .accessToken(accessToken)
-                .outOrdSlipNo(outOrdSlipNo)
+                .cstGodCd(cstGodCd)
+                .outOfStockYn(outOfStockYn)
                 .build();
         query.validate();
         return query;
@@ -34,8 +37,8 @@ public class FulfillmentDeliveryOutOrdGoodsDetailQuery {
         if (FormatValidator.hasNoValue(accessToken)) {
             throw new FulfillmentQueryParameterNoValueException("accessToken");
         }
-        if (FormatValidator.hasNoValue(outOrdSlipNo)) {
-            throw new FulfillmentQueryParameterNoValueException("outOrdSlipNo");
+        if (FormatValidator.hasNoValue(cstGodCd)) {
+            throw new FulfillmentQueryParameterNoValueException("cstGodCd");
         }
     }
 }
