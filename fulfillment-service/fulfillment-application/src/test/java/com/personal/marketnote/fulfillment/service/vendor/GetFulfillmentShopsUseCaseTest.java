@@ -13,12 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("GetFulfillmentShopsService 테스트")
+@DisplayName("풀필먼트 출고처 목록 조회 테스트")
 class GetFulfillmentShopsUseCaseTest {
     @InjectMocks
     private GetFulfillmentShopsService getFulfillmentShopsService;
@@ -27,18 +26,18 @@ class GetFulfillmentShopsUseCaseTest {
     private GetFulfillmentShopsPort getFulfillmentShopsPort;
 
     @Test
-    @DisplayName("출고처 목록 조회 커맨드를 전달하면 포트를 통해 출고처 목록을 반환한다")
-    void shouldReturnShopsFromPort() {
+    @DisplayName("출고처 목록 조회 커맨드를 포트에 직접 전달하여 결과를 반환한다")
+    void shouldDelegateCommandDirectlyToPort() {
         // given
         GetFulfillmentShopsCommand command = GetFulfillmentShopsCommand.of("CUST001", "token");
         GetFulfillmentShopsResult expectedResult = GetFulfillmentShopsResult.of(0, List.of());
-        when(getFulfillmentShopsPort.getShops(any())).thenReturn(expectedResult);
+        when(getFulfillmentShopsPort.getShops(command)).thenReturn(expectedResult);
 
         // when
         GetFulfillmentShopsResult result = getFulfillmentShopsService.getShops(command);
 
         // then
         assertThat(result).isEqualTo(expectedResult);
-        verify(getFulfillmentShopsPort).getShops(any());
+        verify(getFulfillmentShopsPort).getShops(command);
     }
 }
