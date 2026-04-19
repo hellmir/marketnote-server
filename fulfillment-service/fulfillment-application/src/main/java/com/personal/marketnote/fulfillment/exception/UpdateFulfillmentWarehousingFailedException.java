@@ -6,7 +6,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import java.io.IOException;
 
 public class UpdateFulfillmentWarehousingFailedException extends ExternalOperationFailedException {
-    private static final String DEFAULT_MESSAGE = "파스토 상품 입고 수정 중 오류가 발생했습니다.";
+    private static final String DEFAULT_MESSAGE = "풀필먼트 상품 입고 수정 중 오류가 발생했습니다.";
 
     public UpdateFulfillmentWarehousingFailedException(IOException cause) {
         super(DEFAULT_MESSAGE, cause);
@@ -18,7 +18,7 @@ public class UpdateFulfillmentWarehousingFailedException extends ExternalOperati
 
     private static String resolveMessage(String vendorMessage) {
         if (FormatValidator.hasValue(vendorMessage)) {
-            return String.format("파스토 상품 입고 수정 실패: %s", vendorMessage);
+            return String.format("풀필먼트 상품 입고 수정 실패: %s", vendorMessage);
         }
         return DEFAULT_MESSAGE;
     }
