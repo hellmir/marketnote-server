@@ -8,8 +8,11 @@ import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTrans
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderAmountCommand;
 import com.personal.marketnote.commerce.port.in.command.order.OrderProductItemCommand;
+import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class OrderCommandToStateMapper {
@@ -25,17 +28,35 @@ public class OrderCommandToStateMapper {
                 .build();
     }
 
-    public static List<OrderProductCreateState> mapToOrderProductStates(List<OrderProductItemCommand> orderProducts) {
+    public static List<OrderProductCreateState> mapToOrderProductStates(
+            List<OrderProductItemCommand> orderProducts,
+            Map<Long, ProductInfoResult> productInfoMap
+    ) {
         return orderProducts.stream()
-                .map(item -> OrderProductCreateState.builder()
-                        .sellerId(item.sellerId())
-                        .pricePolicyId(item.pricePolicyId())
-                        .sharerKey(item.sharerKey())
-                        .quantity(item.quantity())
-                        .unitAmount(item.unitAmount())
-                        .imageUrl(item.imageUrl())
-                        .build())
+                .map(item -> {
+                    Long accumulatedPoint = resolveAccumulatedPoint(item.pricePolicyId(), productInfoMap);
+                    return OrderProductCreateState.builder()
+                            .sellerId(item.sellerId())
+                            .pricePolicyId(item.pricePolicyId())
+                            .sharerKey(item.sharerKey())
+                            .quantity(item.quantity())
+                            .unitAmount(item.unitAmount())
+                            .imageUrl(item.imageUrl())
+                            .accumulatedPoint(accumulatedPoint)
+                            .build();
+                })
                 .toList();
+    }
+
+    private static Long resolveAccumulatedPoint(Long pricePolicyId, Map<Long, ProductInfoResult> productInfoMap) {
+        if (FormatValidator.hasNoValue(productInfoMap)) {
+            return null;
+        }
+        ProductInfoResult productInfo = productInfoMap.get(pricePolicyId);
+        if (FormatValidator.hasNoValue(productInfo)) {
+            return null;
+        }
+        return productInfo.accumulatedPoint();
     }
 
     public static OrderAmountCreateState mapToOrderAmountState(OrderAmountCommand amountCommand) {

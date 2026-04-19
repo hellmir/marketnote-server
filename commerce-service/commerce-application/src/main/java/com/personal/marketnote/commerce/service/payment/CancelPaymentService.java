@@ -106,8 +106,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             refundPoints(order);
         } else {
             restorePartialCancelInventory(order, command);
-            partialProductPendingDeduction = resolveProportionalDeductionPoint(
-                    order.getOrderProducts(), payment.getPaymentAmount(), cancelAmount);
+            partialProductPendingDeduction = resolveDeductionPoint(
+                    order.getOrderProducts(), command, payment.getPaymentAmount(), cancelAmount);
             Long buyerId = order.getBuyerId();
             Long orderId = order.getId();
             Long precomputedDeduction = partialProductPendingDeduction;
@@ -312,6 +312,16 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts) {
+        boolean allHaveSnapshot = orderProducts.stream()
+                .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
+        if (allHaveSnapshot) {
+            long total = 0L;
+            for (OrderProduct orderProduct : orderProducts) {
+                total = Math.addExact(total, Math.multiplyExact(orderProduct.getAccumulatedPoint(), orderProduct.getQuantity()));
+            }
+            return total;
+        }
+
         List<Long> pricePolicyIds = orderProducts.stream()
                 .map(OrderProduct::getPricePolicyId)
                 .toList();
@@ -334,6 +344,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
 
     private Long calculateProportionalPoint(Long cancelAmount, Long paymentAmount, Long totalPoint) {
         if (FormatValidator.hasNoValue(paymentAmount) || paymentAmount <= 0) {
+            return 0L;
+        }
+        if (FormatValidator.hasNoValue(cancelAmount) || FormatValidator.hasNoValue(totalPoint)) {
             return 0L;
         }
         long numerator = Math.multiplyExact(cancelAmount, totalPoint);
@@ -369,25 +382,60 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 .toList();
     }
 
+    private Long resolveDeductionPoint(
+            List<OrderProduct> orderProducts, CancelPaymentCommand command,
+            Long paymentAmount, Long cancelAmount
+    ) {
+        try {
+            Long snapshotDeduction = calculateSnapshotDeductionPoint(orderProducts, command);
+            if (FormatValidator.hasValue(snapshotDeduction)) {
+                return snapshotDeduction;
+            }
+
+            return resolveProportionalDeductionPoint(orderProducts, paymentAmount, cancelAmount);
+        } catch (Exception e) {
+            log.error("부분 취소 포인트 사전 계산 실패 - error: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private Long calculateSnapshotDeductionPoint(
+            List<OrderProduct> orderProducts, CancelPaymentCommand command
+    ) {
+        if (!command.hasCancelProducts()) {
+            return null;
+        }
+
+        Map<Long, OrderProduct> orderProductMap = orderProducts.stream()
+                .collect(Collectors.toMap(OrderProduct::getPricePolicyId, op -> op, (a, b) -> a));
+
+        long total = 0L;
+        for (CancelPaymentCommand.CancelProductItem cancelItem : command.cancelProducts()) {
+            OrderProduct orderProduct = orderProductMap.get(cancelItem.pricePolicyId());
+            if (FormatValidator.hasNoValue(orderProduct)
+                    || FormatValidator.hasNoValue(orderProduct.getAccumulatedPoint())) {
+                return null;
+            }
+            total = Math.addExact(total, Math.multiplyExact(orderProduct.getAccumulatedPoint(), cancelItem.quantity()));
+        }
+
+        return total;
+    }
+
     private Long resolveProportionalDeductionPoint(
             List<OrderProduct> orderProducts, Long paymentAmount, Long cancelAmount
     ) {
-        try {
-            Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts);
-            if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
-                return null;
-            }
-
-            Long proportionalPoint = calculateProportionalPoint(cancelAmount, paymentAmount, totalAccumulatedPoint);
-            if (proportionalPoint <= 0) {
-                return null;
-            }
-
-            return proportionalPoint;
-        } catch (Exception e) {
-            log.error("부분 취소 비례 포인트 사전 계산 실패 - error: {}", e.getMessage(), e);
+        Long totalAccumulatedPoint = calculateTotalAccumulatedPoint(orderProducts);
+        if (FormatValidator.hasNoValue(totalAccumulatedPoint) || totalAccumulatedPoint <= 0) {
             return null;
         }
+
+        Long proportionalPoint = calculateProportionalPoint(cancelAmount, paymentAmount, totalAccumulatedPoint);
+        if (proportionalPoint <= 0) {
+            return null;
+        }
+
+        return proportionalPoint;
     }
 
     private void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,

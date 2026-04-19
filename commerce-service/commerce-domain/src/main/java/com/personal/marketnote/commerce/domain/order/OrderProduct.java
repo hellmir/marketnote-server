@@ -20,6 +20,7 @@ public class OrderProduct {
     private Integer quantity;
     private Long unitAmount;
     private String imageUrl;
+    private Long accumulatedPoint;
     private OrderStatus orderStatus;
     private Boolean isReviewed;
     private LocalDateTime confirmedAt;
@@ -32,6 +33,7 @@ public class OrderProduct {
                 .quantity(state.getQuantity())
                 .unitAmount(state.getUnitAmount())
                 .imageUrl(state.getImageUrl())
+                .accumulatedPoint(state.getAccumulatedPoint())
                 .orderStatus(OrderStatus.PAYMENT_PENDING)
                 .build();
     }
@@ -45,6 +47,7 @@ public class OrderProduct {
                 .quantity(state.getQuantity())
                 .unitAmount(state.getUnitAmount())
                 .imageUrl(state.getImageUrl())
+                .accumulatedPoint(state.getAccumulatedPoint())
                 .orderStatus(state.getOrderStatus())
                 .isReviewed(state.getIsReviewed())
                 .confirmedAt(state.getConfirmedAt())
