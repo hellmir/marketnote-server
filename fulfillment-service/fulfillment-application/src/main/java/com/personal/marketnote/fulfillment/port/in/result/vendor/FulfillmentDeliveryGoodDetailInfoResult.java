@@ -3,19 +3,19 @@ package com.personal.marketnote.fulfillment.port.in.result.vendor;
 import java.math.BigDecimal;
 
 public record FulfillmentDeliveryGoodDetailInfoResult(
-        String outDt,
-        String slipNo,
-        String outOrdSlipNo,
-        String orderNo,
+        String releaseDate,
+        String slipNumber,
+        String releaseOrderSlipNumber,
+        String orderNumber,
         String productOrderNo,
-        String ordDiv,
-        String invoiceNo,
+        String orderDivision,
+        String invoiceNumber,
         String sellerChannel,
-        String custNm,
-        String godCd,
-        String cstGodCd,
-        String godNm,
-        Integer outQty,
+        String recipientName,
+        String productCode,
+        String customerProductCode,
+        String productName,
+        Integer releaseQuantity,
         BigDecimal markedPrAmount,
         BigDecimal sellingPrAmount,
         BigDecimal dcAmount,
@@ -23,19 +23,19 @@ public record FulfillmentDeliveryGoodDetailInfoResult(
         BigDecimal naverDcAmount
 ) {
     public static FulfillmentDeliveryGoodDetailInfoResult of(
-            String outDt,
-            String slipNo,
-            String outOrdSlipNo,
-            String orderNo,
+            String releaseDate,
+            String slipNumber,
+            String releaseOrderSlipNumber,
+            String orderNumber,
             String productOrderNo,
-            String ordDiv,
-            String invoiceNo,
+            String orderDivision,
+            String invoiceNumber,
             String sellerChannel,
-            String custNm,
-            String godCd,
-            String cstGodCd,
-            String godNm,
-            Integer outQty,
+            String recipientName,
+            String productCode,
+            String customerProductCode,
+            String productName,
+            Integer releaseQuantity,
             BigDecimal markedPrAmount,
             BigDecimal sellingPrAmount,
             BigDecimal dcAmount,
@@ -43,9 +43,9 @@ public record FulfillmentDeliveryGoodDetailInfoResult(
             BigDecimal naverDcAmount
     ) {
         return new FulfillmentDeliveryGoodDetailInfoResult(
-                outDt, slipNo, outOrdSlipNo, orderNo, productOrderNo,
-                ordDiv, invoiceNo, sellerChannel, custNm, godCd,
-                cstGodCd, godNm, outQty, markedPrAmount, sellingPrAmount,
+                releaseDate, slipNumber, releaseOrderSlipNumber, orderNumber, productOrderNo,
+                orderDivision, invoiceNumber, sellerChannel, recipientName, productCode,
+                customerProductCode, productName, releaseQuantity, markedPrAmount, sellingPrAmount,
                 dcAmount, sellerDcAmount, naverDcAmount
         );
     }

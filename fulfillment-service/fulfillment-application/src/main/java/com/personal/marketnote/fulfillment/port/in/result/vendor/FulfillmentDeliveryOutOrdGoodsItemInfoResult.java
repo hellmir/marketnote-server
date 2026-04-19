@@ -1,15 +1,15 @@
 package com.personal.marketnote.fulfillment.port.in.result.vendor;
 
 public record FulfillmentDeliveryOutOrdGoodsItemInfoResult(
-        String cstGodCd,
-        String godNm,
-        Integer packQty
+        String customerProductCode,
+        String productName,
+        Integer packingQuantity
 ) {
     public static FulfillmentDeliveryOutOrdGoodsItemInfoResult of(
-            String cstGodCd,
-            String godNm,
-            Integer packQty
+            String customerProductCode,
+            String productName,
+            Integer packingQuantity
     ) {
-        return new FulfillmentDeliveryOutOrdGoodsItemInfoResult(cstGodCd, godNm, packQty);
+        return new FulfillmentDeliveryOutOrdGoodsItemInfoResult(customerProductCode, productName, packingQuantity);
     }
 }

@@ -109,10 +109,10 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
                 );
             }
             if (FormatValidator.hasValue(completed)) {
-                String whCd = completed.whCd();
-                if (FormatValidator.hasValue(whCd)) {
+                String warehouseCode = completed.warehouseCode();
+                if (FormatValidator.hasValue(warehouseCode)) {
                     syncFulfillmentAllStockUseCase.syncAll(
-                            SyncFulfillmentAllStockCommand.of(context.customerCode(), whCd)
+                            SyncFulfillmentAllStockCommand.of(context.customerCode(), warehouseCode)
                     );
                     stopPolling(context.ordNo());
                     return;
@@ -146,7 +146,7 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
         }
 
         return result.warehousing().stream()
-                .filter(item -> FormatValidator.hasValue(item) && workStatus.equals(item.wrkStat()))
+                .filter(item -> FormatValidator.hasValue(item) && workStatus.equals(item.workStatus()))
                 .findFirst()
                 .orElse(null);
     }

@@ -1,11 +1,6 @@
 package com.personal.marketnote.commerce.mapper;
 
-import com.personal.marketnote.commerce.domain.order.OrderAmount;
-import com.personal.marketnote.commerce.domain.order.OrderAmountCreateState;
-import com.personal.marketnote.commerce.domain.order.OrderCreateState;
-import com.personal.marketnote.commerce.domain.order.OrderProductCreateState;
-import com.personal.marketnote.commerce.domain.order.OrderStatusHistoryCreateState;
-import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
@@ -53,9 +48,9 @@ public class OrderCommandToStateMapper {
     }
 
     public static OrderCreateState mapToOrderState(Long buyerId,
-                                                    OrderAmount orderAmount,
-                                                    ShippingAddress shippingAddress,
-                                                    List<OrderProductCreateState> orderProductStates) {
+                                                   OrderAmount orderAmount,
+                                                   ShippingAddress shippingAddress,
+                                                   List<OrderProductCreateState> orderProductStates) {
         return OrderCreateState.builder()
                 .buyerId(buyerId)
                 .amount(orderAmount)
@@ -73,8 +68,8 @@ public class OrderCommandToStateMapper {
     }
 
     public static PaymentAllocationCreateState mapToPaymentAllocationState(Long orderId,
-                                                                            Long sellerId,
-                                                                            Long allocatedAmount) {
+                                                                           Long sellerId,
+                                                                           Long allocatedAmount) {
         return PaymentAllocationCreateState.builder()
                 .orderId(orderId)
                 .sellerId(sellerId)

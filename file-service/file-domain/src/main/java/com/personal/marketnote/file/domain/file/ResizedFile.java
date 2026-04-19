@@ -1,11 +1,7 @@
 package com.personal.marketnote.file.domain.file;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 

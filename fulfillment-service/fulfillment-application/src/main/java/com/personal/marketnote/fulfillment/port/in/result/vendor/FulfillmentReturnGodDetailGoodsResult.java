@@ -1,27 +1,27 @@
 package com.personal.marketnote.fulfillment.port.in.result.vendor;
 
 public record FulfillmentReturnGodDetailGoodsResult(
-        String cstGodCd,
-        String godNm,
-        String makeDt,
-        String distTermDt,
-        String inQty,
+        String customerProductCode,
+        String productName,
+        String manufacturingDate,
+        String expirationDate,
+        String inboundQuantity,
         String remark,
-        String rtnGodCheckStat,
-        String rtnGodCheckStatNm
+        String returnProductCheckStatus,
+        String returnProductCheckStatusName
 ) {
     public static FulfillmentReturnGodDetailGoodsResult of(
-            String cstGodCd,
-            String godNm,
-            String makeDt,
-            String distTermDt,
-            String inQty,
+            String customerProductCode,
+            String productName,
+            String manufacturingDate,
+            String expirationDate,
+            String inboundQuantity,
             String remark,
-            String rtnGodCheckStat,
-            String rtnGodCheckStatNm
+            String returnProductCheckStatus,
+            String returnProductCheckStatusName
     ) {
         return new FulfillmentReturnGodDetailGoodsResult(
-                cstGodCd, godNm, makeDt, distTermDt, inQty, remark, rtnGodCheckStat, rtnGodCheckStatNm
+                customerProductCode, productName, manufacturingDate, expirationDate, inboundQuantity, remark, returnProductCheckStatus, returnProductCheckStatusName
         );
     }
 }
