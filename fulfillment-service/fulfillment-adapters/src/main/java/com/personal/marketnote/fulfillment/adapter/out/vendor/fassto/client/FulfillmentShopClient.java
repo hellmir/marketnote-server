@@ -9,13 +9,17 @@ import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.Fu
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentShopItemResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentShopsResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentShopResponse;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoShopCommandToRequestMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.shop.FulfillmentShopMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.shop.FulfillmentShopQuery;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.shop.FulfillmentShopMapper;
-import com.personal.marketnote.fulfillment.domain.vendor.shop.FulfillmentShopQuery;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentShopsCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentShopCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentShopCommand;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentShopsFailedException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentShopFailedException;
 import com.personal.marketnote.fulfillment.exception.UpdateFulfillmentShopFailedException;
@@ -77,22 +81,25 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     }
 
     @Override
-    public RegisterFulfillmentShopResult registerShop(FulfillmentShopMapper request) {
+    public RegisterFulfillmentShopResult registerShop(RegisterFulfillmentShopCommand command) {
+        FulfillmentShopMapper request = FasstoShopCommandToRequestMapper.mapToRegisterRequest(command);
         return executeShopMutation(request, "REGISTER", false);
     }
 
     @Override
-    public UpdateFulfillmentShopResult updateShop(FulfillmentShopMapper request) {
+    public UpdateFulfillmentShopResult updateShop(UpdateFulfillmentShopCommand command) {
+        FulfillmentShopMapper request = FasstoShopCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentShopResult result = executeShopMutation(request, "UPDATE", true);
-        return UpdateFulfillmentShopResult.of(result.msg(), result.code(), result.shopCd());
+        return UpdateFulfillmentShopResult.of(result.message(), result.code(), result.shopCode());
     }
 
     @Override
-    public GetFulfillmentShopsResult getShops(FulfillmentShopQuery query) {
-        if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment shop query is required.");
+    public GetFulfillmentShopsResult getShops(GetFulfillmentShopsCommand command) {
+        if (FormatValidator.hasNoValue(command)) {
+            throw new IllegalArgumentException("Fulfillment shop command is required.");
         }
 
+        FulfillmentShopQuery query = FasstoShopCommandToRequestMapper.mapToShopsQuery(command);
         URI uri = buildShopUri(query.getCustomerCode());
 
         Exception error = new Exception();
@@ -434,9 +441,9 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
             if (isSuccess) {
                 return RegisterFulfillmentShopResult.of(
-                        parsedResponse.data().msg(),
-                        parsedResponse.data().code(),
-                        parsedResponse.data().shopCd()
+                        parsedResponse.data().msg(),     // message
+                        parsedResponse.data().code(),    // code
+                        parsedResponse.data().shopCd()   // shopCode
                 );
             }
 
@@ -537,28 +544,28 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     private FulfillmentShopInfoResult mapShopInfo(FulfillmentShopItemResponse item) {
         return FulfillmentShopInfoResult.of(
-                item.shopCd(),
-                item.shopNm(),
-                item.cstShopCd(),
-                item.cstCd(),
-                item.cstNm(),
-                item.shopTp(),
-                item.dealStrDt(),
-                item.dealEndDt(),
-                item.zipNo(),
-                item.addr1(),
-                item.addr2(),
-                item.ceoNm(),
-                item.busNo(),
-                item.telNo(),
-                item.unloadWay(),
-                item.checkWay(),
-                item.standYn(),
-                item.formType(),
-                item.empNm(),
-                item.empPosit(),
-                item.empTelNo(),
-                item.useYn()
+                item.shopCd(),       // shopCode
+                item.shopNm(),       // shopName
+                item.cstShopCd(),    // customerShopCode
+                item.cstCd(),        // customerCode
+                item.cstNm(),        // customerName
+                item.shopTp(),       // shopType
+                item.dealStrDt(),    // dealStartDate
+                item.dealEndDt(),    // dealEndDate
+                item.zipNo(),        // zipCode
+                item.addr1(),        // address1
+                item.addr2(),        // address2
+                item.ceoNm(),        // ceoName
+                item.busNo(),        // businessNumber
+                item.telNo(),        // phoneNumber
+                item.unloadWay(),    // unloadMethod
+                item.checkWay(),     // inspectionMethod
+                item.standYn(),      // standbyYn
+                item.formType(),     // formType
+                item.empNm(),        // managerName
+                item.empPosit(),     // managerPosition
+                item.empTelNo(),     // managerPhoneNumber
+                item.useYn()         // useYn
         );
     }
 

@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentShopCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentShopCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentShopResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentShopUseCase;
@@ -19,8 +18,6 @@ public class RegisterFulfillmentShopService implements RegisterFulfillmentShopUs
 
     @Override
     public RegisterFulfillmentShopResult registerShop(RegisterFulfillmentShopCommand command) {
-        return registerFulfillmentShopPort.registerShop(
-                FulfillmentShopCommandToRequestMapper.mapToRegisterRequest(command)
-        );
+        return registerFulfillmentShopPort.registerShop(command);
     }
 }

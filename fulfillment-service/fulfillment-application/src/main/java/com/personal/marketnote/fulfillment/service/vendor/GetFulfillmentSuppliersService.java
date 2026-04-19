@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.fulfillment.mapper.FulfillmentSupplierCommandToRequestMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentSuppliersCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentSuppliersResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentSuppliersUseCase;
@@ -19,8 +18,6 @@ public class GetFulfillmentSuppliersService implements GetFulfillmentSuppliersUs
 
     @Override
     public GetFulfillmentSuppliersResult getSuppliers(GetFulfillmentSuppliersCommand command) {
-        return getFulfillmentSuppliersPort.getSuppliers(
-                FulfillmentSupplierCommandToRequestMapper.mapToSuppliersQuery(command)
-        );
+        return getFulfillmentSuppliersPort.getSuppliers(command);
     }
 }

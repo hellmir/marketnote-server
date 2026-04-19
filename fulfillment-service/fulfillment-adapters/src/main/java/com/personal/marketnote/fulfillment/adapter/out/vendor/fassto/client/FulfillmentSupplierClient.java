@@ -9,13 +9,17 @@ import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.Fu
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentSuppliersItemResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.FulfillmentSuppliersResponse;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.response.RegisterFulfillmentSupplierResponse;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper.FasstoSupplierCommandToRequestMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.supplier.FulfillmentSupplierMapper;
+import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.supplier.FulfillmentSupplierQuery;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.vendor.supplier.FulfillmentSupplierMapper;
-import com.personal.marketnote.fulfillment.domain.vendor.supplier.FulfillmentSupplierQuery;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentSuppliersCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentSupplierCommand;
+import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentSupplierCommand;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentSuppliersFailedException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentSupplierFailedException;
 import com.personal.marketnote.fulfillment.exception.UpdateFulfillmentSupplierFailedException;
@@ -77,22 +81,25 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     }
 
     @Override
-    public RegisterFulfillmentSupplierResult registerSupplier(FulfillmentSupplierMapper request) {
+    public RegisterFulfillmentSupplierResult registerSupplier(RegisterFulfillmentSupplierCommand command) {
+        FulfillmentSupplierMapper request = FasstoSupplierCommandToRequestMapper.mapToRegisterRequest(command);
         return executeSupplierMutation(request, "REGISTER", false);
     }
 
     @Override
-    public UpdateFulfillmentSupplierResult updateSupplier(FulfillmentSupplierMapper request) {
+    public UpdateFulfillmentSupplierResult updateSupplier(UpdateFulfillmentSupplierCommand command) {
+        FulfillmentSupplierMapper request = FasstoSupplierCommandToRequestMapper.mapToUpdateRequest(command);
         RegisterFulfillmentSupplierResult result = executeSupplierMutation(request, "UPDATE", true);
-        return UpdateFulfillmentSupplierResult.of(result.msg(), result.code(), result.supCd());
+        return UpdateFulfillmentSupplierResult.of(result.message(), result.code(), result.supplierCode());
     }
 
     @Override
-    public GetFulfillmentSuppliersResult getSuppliers(FulfillmentSupplierQuery query) {
-        if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment supplier query is required.");
+    public GetFulfillmentSuppliersResult getSuppliers(GetFulfillmentSuppliersCommand command) {
+        if (FormatValidator.hasNoValue(command)) {
+            throw new IllegalArgumentException("Fulfillment supplier command is required.");
         }
 
+        FulfillmentSupplierQuery query = FasstoSupplierCommandToRequestMapper.mapToSuppliersQuery(command);
         URI uri = buildSupplierUri(query.getCustomerCode());
 
         Exception error = new Exception();
@@ -290,9 +297,9 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
             if (isSuccess) {
                 return RegisterFulfillmentSupplierResult.of(
-                        parsedResponse.data().msg(),
-                        parsedResponse.data().code(),
-                        parsedResponse.data().supCd()
+                        parsedResponse.data().msg(),     // message
+                        parsedResponse.data().code(),    // code
+                        parsedResponse.data().supCd()    // supplierCode
                 );
             }
 
@@ -511,31 +518,31 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     private FulfillmentSupplierInfoResult mapSupplierInfo(FulfillmentSuppliersItemResponse item) {
         return FulfillmentSupplierInfoResult.of(
-                item.supCd(),
-                item.supNm(),
-                item.cstSupCd(),
-                item.cstCd(),
-                item.cstNm(),
-                item.dealStrDt(),
-                item.dealEndDt(),
-                item.zipNo(),
-                item.addr1(),
-                item.addr2(),
-                item.ceoNm(),
-                item.busNo(),
-                item.busSp(),
-                item.busTp(),
-                item.telNo(),
-                item.faxNo(),
-                item.empNm1(),
-                item.empPosit1(),
-                item.empTelNo1(),
-                item.empEmail1(),
-                item.empNm2(),
-                item.empPosit2(),
-                item.empTelNo2(),
-                item.empEmail2(),
-                item.useYn()
+                item.supCd(),        // supplierCode
+                item.supNm(),        // supplierName
+                item.cstSupCd(),     // customerSupplierCode
+                item.cstCd(),        // customerCode
+                item.cstNm(),        // customerName
+                item.dealStrDt(),    // dealStartDate
+                item.dealEndDt(),    // dealEndDate
+                item.zipNo(),        // zipCode
+                item.addr1(),        // address1
+                item.addr2(),        // address2
+                item.ceoNm(),        // ceoName
+                item.busNo(),        // businessNumber
+                item.busSp(),        // businessCategory
+                item.busTp(),        // businessType
+                item.telNo(),        // phoneNumber
+                item.faxNo(),        // faxNumber
+                item.empNm1(),       // primaryManagerName
+                item.empPosit1(),    // primaryManagerPosition
+                item.empTelNo1(),    // primaryManagerPhoneNumber
+                item.empEmail1(),    // primaryManagerEmail
+                item.empNm2(),       // secondaryManagerName
+                item.empPosit2(),    // secondaryManagerPosition
+                item.empTelNo2(),    // secondaryManagerPhoneNumber
+                item.empEmail2(),    // secondaryManagerEmail
+                item.useYn()         // useYn
         );
     }
 

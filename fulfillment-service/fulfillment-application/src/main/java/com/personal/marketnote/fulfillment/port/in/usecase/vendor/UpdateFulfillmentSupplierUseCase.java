@@ -4,11 +4,11 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillm
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillmentSupplierResult;
 
 /**
- * 파스토 공급사 수정 유스케이스
+ * 풀필먼트 공급사 수정 유스케이스
  *
  * @Author 성효빈
  * @Date 2026-01-28
- * @Description 파스토 공급사 수정 기능을 제공합니다.
+ * @Description 풀필먼트 공급사 수정 기능을 제공합니다.
  */
 public interface UpdateFulfillmentSupplierUseCase {
     /**
@@ -16,7 +16,7 @@ public interface UpdateFulfillmentSupplierUseCase {
      * @return 공급사 수정 결과 {@link UpdateFulfillmentSupplierResult}
      * @Date 2026-01-28
      * @Author 성효빈
-     * @Description 파스토 공급사를 수정합니다.
+     * @Description 풀필먼트 공급사를 수정합니다.
      */
     UpdateFulfillmentSupplierResult updateSupplier(UpdateFulfillmentSupplierCommand command);
 }

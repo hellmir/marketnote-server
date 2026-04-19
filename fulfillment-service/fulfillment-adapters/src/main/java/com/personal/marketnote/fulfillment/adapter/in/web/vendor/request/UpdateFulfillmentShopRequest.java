@@ -7,104 +7,104 @@ import lombok.Getter;
 @Getter
 public class UpdateFulfillmentShopRequest {
     @Schema(
-            name = "shopCd",
+            name = "shopCode",
             description = "출고처 코드(수정 시 필수)",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotEmpty(message = "출고처 코드는 필수값입니다.")
-    private String shopCd;
+    private String shopCode;
 
     @Schema(
-            name = "shopNm",
+            name = "shopName",
             description = "출고처명",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotEmpty(message = "출고처명은 필수값입니다.")
-    private String shopNm;
+    private String shopName;
 
     @Schema(
-            name = "cstShopCd",
+            name = "customerShopCode",
             description = "고객사 출고처 코드(없으면 자동 생성)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String cstShopCd;
+    private String customerShopCode;
 
     @Schema(
-            name = "dealStrDt",
+            name = "dealStartDate",
             description = "거래 시작일자",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String dealStrDt;
+    private String dealStartDate;
 
     @Schema(
-            name = "dealEndDt",
+            name = "dealEndDate",
             description = "거래 종료일자",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String dealEndDt;
+    private String dealEndDate;
 
     @Schema(
-            name = "zipNo",
+            name = "zipCode",
             description = "우편번호",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String zipNo;
+    private String zipCode;
 
     @Schema(
-            name = "addr1",
+            name = "address1",
             description = "주소1",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String addr1;
+    private String address1;
 
     @Schema(
-            name = "addr2",
+            name = "address2",
             description = "주소2",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String addr2;
+    private String address2;
 
     @Schema(
-            name = "ceoNm",
+            name = "ceoName",
             description = "대표자명",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String ceoNm;
+    private String ceoName;
 
     @Schema(
-            name = "busNo",
+            name = "businessNumber",
             description = "사업자번호",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String busNo;
+    private String businessNumber;
 
     @Schema(
-            name = "telNo",
+            name = "phoneNumber",
             description = "전화번호",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String telNo;
+    private String phoneNumber;
 
     @Schema(
-            name = "unloadWay",
+            name = "unloadMethod",
             description = "하차방식(01: 지게차, 02: 수작업)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String unloadWay;
+    private String unloadMethod;
 
     @Schema(
-            name = "checkWay",
+            name = "inspectionMethod",
             description = "검수방식(01: 전수검수, 02: 샘플검수)",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String checkWay;
+    private String inspectionMethod;
 
     @Schema(
-            name = "standYn",
+            name = "standbyYn",
             description = "대기여부",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String standYn;
+    private String standbyYn;
 
     @Schema(
             name = "formType",
@@ -114,25 +114,25 @@ public class UpdateFulfillmentShopRequest {
     private String formType;
 
     @Schema(
-            name = "empNm",
+            name = "managerName",
             description = "담당자명",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String empNm;
+    private String managerName;
 
     @Schema(
-            name = "empPosit",
+            name = "managerPosition",
             description = "담당자 직위",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String empPosit;
+    private String managerPosition;
 
     @Schema(
-            name = "empTelNo",
+            name = "managerPhoneNumber",
             description = "담당자 전화번호",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    private String empTelNo;
+    private String managerPhoneNumber;
 
     @Schema(
             name = "useYn",
