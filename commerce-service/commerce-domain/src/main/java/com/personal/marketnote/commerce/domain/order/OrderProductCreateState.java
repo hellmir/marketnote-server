@@ -17,5 +17,6 @@ public class OrderProductCreateState {
     private final Integer quantity;
     private final Long unitAmount;
     private final String imageUrl;
+    private final Long accumulatedPoint;
 }
 

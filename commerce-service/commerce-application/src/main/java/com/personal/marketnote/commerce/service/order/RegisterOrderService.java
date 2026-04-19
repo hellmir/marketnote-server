@@ -102,7 +102,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             inventory.validateIsSufficient(orderQuantity);
         });
 
-        List<OrderProductCreateState> orderProductStates = OrderCommandToStateMapper.mapToOrderProductStates(command.orderProducts());
+        List<OrderProductCreateState> orderProductStates = OrderCommandToStateMapper.mapToOrderProductStates(command.orderProducts(), productInfoMap);
 
         OrderAmount orderAmount = OrderAmount.from(
                 OrderCommandToStateMapper.mapToOrderAmountState(command.amount())

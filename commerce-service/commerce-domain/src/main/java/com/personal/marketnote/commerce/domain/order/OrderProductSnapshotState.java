@@ -19,6 +19,7 @@ public class OrderProductSnapshotState {
     private final Integer quantity;
     private final Long unitAmount;
     private final String imageUrl;
+    private final Long accumulatedPoint;
     private final OrderStatus orderStatus;
     private final Boolean isReviewed;
     private final LocalDateTime confirmedAt;

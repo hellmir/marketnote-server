@@ -172,6 +172,11 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     }
 
     private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts, List<Long> pricePolicyIds) {
+        Long snapshotTotal = calculateSnapshotAccumulatedPoint(orderProducts);
+        if (FormatValidator.hasValue(snapshotTotal)) {
+            return snapshotTotal;
+        }
+
         Map<Long, ProductInfoResult> productInfoMap = findProductByPricePolicyPort.findByPricePolicyIds(pricePolicyIds);
 
         long totalAccumulatedPoint = 0L;
@@ -189,6 +194,20 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
 
         return totalAccumulatedPoint;
+    }
+
+    private Long calculateSnapshotAccumulatedPoint(List<OrderProduct> orderProducts) {
+        boolean allHaveSnapshot = orderProducts.stream()
+                .allMatch(op -> FormatValidator.hasValue(op.getAccumulatedPoint()));
+        if (!allHaveSnapshot) {
+            return null;
+        }
+
+        long total = 0L;
+        for (OrderProduct orderProduct : orderProducts) {
+            total = Math.addExact(total, Math.multiplyExact(orderProduct.getAccumulatedPoint(), orderProduct.getQuantity()));
+        }
+        return total;
     }
 
     private void addPendingProductAccumulationPoints(Long buyerId, Long totalAccumulatedPoint, Long orderId) {

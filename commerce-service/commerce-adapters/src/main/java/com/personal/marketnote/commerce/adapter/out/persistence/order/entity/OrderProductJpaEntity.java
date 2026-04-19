@@ -45,6 +45,9 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "image_url", length = 511)
     private String imageUrl;
 
+    @Column(name = "accumulated_point")
+    private Long accumulatedPoint;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false, length = 31)
     private OrderStatus orderStatus;
@@ -64,6 +67,7 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .quantity(orderProduct.getQuantity())
                 .unitAmount(orderProduct.getUnitAmount())
                 .imageUrl(orderProduct.getImageUrl())
+                .accumulatedPoint(orderProduct.getAccumulatedPoint())
                 .orderStatus(orderProduct.getOrderStatus())
                 .confirmedAt(orderProduct.getConfirmedAt())
                 .build();
@@ -73,6 +77,7 @@ public class OrderProductJpaEntity extends BaseEntity {
         quantity = orderProduct.getQuantity();
         unitAmount = orderProduct.getUnitAmount();
         imageUrl = orderProduct.getImageUrl();
+        accumulatedPoint = orderProduct.getAccumulatedPoint();
         orderStatus = orderProduct.getOrderStatus();
         isReviewed = orderProduct.getIsReviewed();
         confirmedAt = orderProduct.getConfirmedAt();
