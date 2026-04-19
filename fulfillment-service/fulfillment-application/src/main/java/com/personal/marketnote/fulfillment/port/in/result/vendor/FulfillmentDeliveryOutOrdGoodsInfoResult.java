@@ -3,13 +3,13 @@ package com.personal.marketnote.fulfillment.port.in.result.vendor;
 import java.util.List;
 
 public record FulfillmentDeliveryOutOrdGoodsInfoResult(
-        String invoiceNo,
+        String invoiceNumber,
         List<FulfillmentDeliveryOutOrdGoodsItemInfoResult> goodsDeliveredList
 ) {
     public static FulfillmentDeliveryOutOrdGoodsInfoResult of(
-            String invoiceNo,
+            String invoiceNumber,
             List<FulfillmentDeliveryOutOrdGoodsItemInfoResult> goodsDeliveredList
     ) {
-        return new FulfillmentDeliveryOutOrdGoodsInfoResult(invoiceNo, goodsDeliveredList);
+        return new FulfillmentDeliveryOutOrdGoodsInfoResult(invoiceNumber, goodsDeliveredList);
     }
 }

@@ -1,17 +1,17 @@
 package com.personal.marketnote.fulfillment.port.in.result.vendor;
 
 public record RegisterFulfillmentWarehousingItemResult(
-        String msg,
+        String message,
         String code,
-        String slipNo,
-        String ordNo
+        String slipNumber,
+        String orderNumber
 ) {
     public static RegisterFulfillmentWarehousingItemResult of(
-            String msg,
+            String message,
             String code,
-            String slipNo,
-            String ordNo
+            String slipNumber,
+            String orderNumber
     ) {
-        return new RegisterFulfillmentWarehousingItemResult(msg, code, slipNo, ordNo);
+        return new RegisterFulfillmentWarehousingItemResult(message, code, slipNumber, orderNumber);
     }
 }

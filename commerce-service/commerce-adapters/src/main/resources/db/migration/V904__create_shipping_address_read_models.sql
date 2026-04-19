@@ -1,5 +1,6 @@
-CREATE TABLE shipping_address_read_models (
-    id                     BIGSERIAL    PRIMARY KEY,
+CREATE TABLE shipping_address_read_models
+(
+    id                     BIGSERIAL PRIMARY KEY,
     shipping_address_id    BIGINT       NOT NULL,
     user_id                BIGINT       NOT NULL,
     recipient_name         VARCHAR(31)  NOT NULL,
