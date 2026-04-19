@@ -36,10 +36,10 @@ class RegisterFulfillmentGoodsServiceTest {
 
     private RegisterFulfillmentGoodsCommand buildCommand(String productId) {
         RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
-                .cstGodCd(productId)
-                .godNm("테스트 상품")
-                .godType("1")
-                .giftDiv("01")
+                .productCode(productId)
+                .productName("테스트 상품")
+                .productType("1")
+                .giftDivision("01")
                 .build();
         return RegisterFulfillmentGoodsCommand.of("CUST001", "token", List.of(itemCommand));
     }
