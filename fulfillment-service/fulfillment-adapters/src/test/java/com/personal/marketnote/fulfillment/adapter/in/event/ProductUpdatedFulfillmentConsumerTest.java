@@ -104,10 +104,10 @@ class ProductUpdatedFulfillmentConsumerTest {
         assertThat(command.customerCode()).isEqualTo("CUST001");
         assertThat(command.accessToken()).isEqualTo("valid-token");
         assertThat(command.goods()).hasSize(1);
-        assertThat(command.goods().get(0).cstGodCd()).isEqualTo("10");
-        assertThat(command.goods().get(0).godNm()).isEqualTo("테스트 상품");
-        assertThat(command.goods().get(0).godType()).isEqualTo("1");
-        assertThat(command.goods().get(0).giftDiv()).isEqualTo("01");
+        assertThat(command.goods().get(0).productCode()).isEqualTo("10");
+        assertThat(command.goods().get(0).productName()).isEqualTo("테스트 상품");
+        assertThat(command.goods().get(0).productType()).isEqualTo("1");
+        assertThat(command.goods().get(0).giftDivision()).isEqualTo("01");
 
         verify(acknowledgment).acknowledge();
     }
@@ -128,19 +128,19 @@ class ProductUpdatedFulfillmentConsumerTest {
         verify(updateFulfillmentGoodsUseCase).updateGoods(captor.capture());
 
         UpdateFulfillmentGoodsCommand command = captor.getValue();
-        assertThat(command.goods().get(0).cstGodCd()).isEqualTo("10");
-        assertThat(command.goods().get(0).godNm()).isEqualTo("테스트 상품");
-        assertThat(command.goods().get(0).godType()).isEqualTo("2");
-        assertThat(command.goods().get(0).giftDiv()).isEqualTo("99");
-        assertThat(command.goods().get(0).godOptCd1()).isEqualTo("opt1");
-        assertThat(command.goods().get(0).godOptCd2()).isEqualTo("opt2");
-        assertThat(command.goods().get(0).invGodNmUseYn()).isEqualTo("Y");
-        assertThat(command.goods().get(0).invGodNm()).isEqualTo("상품명");
-        assertThat(command.goods().get(0).supCd()).isEqualTo("SUP");
-        assertThat(command.goods().get(0).cateCd()).isEqualTo("CATE");
+        assertThat(command.goods().get(0).productCode()).isEqualTo("10");
+        assertThat(command.goods().get(0).productName()).isEqualTo("테스트 상품");
+        assertThat(command.goods().get(0).productType()).isEqualTo("2");
+        assertThat(command.goods().get(0).giftDivision()).isEqualTo("99");
+        assertThat(command.goods().get(0).productOptionCode1()).isEqualTo("opt1");
+        assertThat(command.goods().get(0).productOptionCode2()).isEqualTo("opt2");
+        assertThat(command.goods().get(0).inventoryProductNameUseYn()).isEqualTo("Y");
+        assertThat(command.goods().get(0).inventoryProductName()).isEqualTo("상품명");
+        assertThat(command.goods().get(0).supplierCode()).isEqualTo("SUP");
+        assertThat(command.goods().get(0).categoryCode()).isEqualTo("CATE");
         assertThat(command.goods().get(0).origin()).isEqualTo("KR");
-        assertThat(command.goods().get(0).cstGodImgUrl()).isEqualTo("https://example.com/image.jpg");
-        assertThat(command.goods().get(0).externalGodImgUrl()).isEqualTo("https://example.com/external.jpg");
+        assertThat(command.goods().get(0).customerProductImageUrl()).isEqualTo("https://example.com/image.jpg");
+        assertThat(command.goods().get(0).externalProductImageUrl()).isEqualTo("https://example.com/external.jpg");
 
         verify(acknowledgment).acknowledge();
     }

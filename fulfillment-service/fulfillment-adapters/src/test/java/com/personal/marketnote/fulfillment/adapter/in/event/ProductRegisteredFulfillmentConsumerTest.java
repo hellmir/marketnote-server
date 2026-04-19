@@ -86,10 +86,10 @@ class ProductRegisteredFulfillmentConsumerTest {
         assertThat(command.customerCode()).isEqualTo("CUST001");
         assertThat(command.accessToken()).isEqualTo("valid-token");
         assertThat(command.goods()).hasSize(1);
-        assertThat(command.goods().get(0).cstGodCd()).isEqualTo("10");
-        assertThat(command.goods().get(0).godNm()).isEqualTo("테스트 상품");
-        assertThat(command.goods().get(0).godType()).isEqualTo("1");
-        assertThat(command.goods().get(0).giftDiv()).isEqualTo("01");
+        assertThat(command.goods().get(0).productCode()).isEqualTo("10");
+        assertThat(command.goods().get(0).productName()).isEqualTo("테스트 상품");
+        assertThat(command.goods().get(0).productType()).isEqualTo("1");
+        assertThat(command.goods().get(0).giftDivision()).isEqualTo("01");
 
         verify(acknowledgment).acknowledge();
     }
@@ -109,7 +109,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         ArgumentCaptor<RegisterFulfillmentGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFulfillmentGoodsCommand.class);
         verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
-        assertThat(captor.getValue().goods().get(0).godType()).isEqualTo("2");
+        assertThat(captor.getValue().goods().get(0).productType()).isEqualTo("2");
         verify(acknowledgment).acknowledge();
     }
 
@@ -128,7 +128,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         ArgumentCaptor<RegisterFulfillmentGoodsCommand> captor = ArgumentCaptor.forClass(RegisterFulfillmentGoodsCommand.class);
         verify(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(captor.capture());
 
-        assertThat(captor.getValue().goods().get(0).godType()).isEqualTo("1");
+        assertThat(captor.getValue().goods().get(0).productType()).isEqualTo("1");
         verify(acknowledgment).acknowledge();
     }
 
