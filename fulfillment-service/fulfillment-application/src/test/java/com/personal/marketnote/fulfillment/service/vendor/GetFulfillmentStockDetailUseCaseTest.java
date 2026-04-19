@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -22,20 +21,25 @@ import static org.mockito.Mockito.when;
 class GetFulfillmentStockDetailUseCaseTest {
     @InjectMocks
     private GetFulfillmentStockDetailService service;
+
     @Mock
     private GetFulfillmentStockDetailPort getFulfillmentStockDetailPort;
 
     @Test
-    @DisplayName("Command를 Port에 위임하여 결과를 반환한다")
-    void shouldDelegateToPort() {
+    @DisplayName("재고 상세 조회 커맨드를 포트에 직접 전달하여 결과를 반환한다")
+    void shouldDelegateCommandDirectlyToPort() {
         // given
-        GetFulfillmentStockDetailCommand command = new GetFulfillmentStockDetailCommand("CUST001", "token", "GOD001", "Y");
+        GetFulfillmentStockDetailCommand command = GetFulfillmentStockDetailCommand.of(
+                "CUST001", "token", "GOD001", "Y"
+        );
         GetFulfillmentStocksResult expectedResult = GetFulfillmentStocksResult.of(0, List.of());
-        when(getFulfillmentStockDetailPort.getStockDetail(any())).thenReturn(expectedResult);
+        when(getFulfillmentStockDetailPort.getStockDetail(command)).thenReturn(expectedResult);
+
         // when
         GetFulfillmentStocksResult result = service.getStockDetail(command);
+
         // then
         assertThat(result).isEqualTo(expectedResult);
-        verify(getFulfillmentStockDetailPort).getStockDetail(any());
+        verify(getFulfillmentStockDetailPort).getStockDetail(command);
     }
 }
