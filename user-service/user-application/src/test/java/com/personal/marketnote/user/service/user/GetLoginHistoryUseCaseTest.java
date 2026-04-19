@@ -1,6 +1,6 @@
 package com.personal.marketnote.user.service.user;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.LoginHistorySnapshotState;
 import com.personal.marketnote.user.domain.user.LoginHistorySortProperty;

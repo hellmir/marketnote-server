@@ -1,7 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.cart.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
 import com.personal.marketnote.product.domain.cart.CartProduct;
 import jakarta.persistence.*;

@@ -16,7 +16,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
             FROM UserJpaEntity u
             WHERE 1 = 1
-                AND u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+                AND u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
                 AND EXISTS (
                 SELECT 1
                 FROM UserOauth2VendorJpaEntity uov
@@ -32,7 +32,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
             FROM UserJpaEntity u
             WHERE 1 = 1
-                AND u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+                AND u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
                 AND u.nickname = :nickname
             """)
     boolean existsByNickname(@Param("nickname") String nickname);
@@ -49,7 +49,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
             FROM UserJpaEntity u
             WHERE 1 = 1
-                AND u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+                AND u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND u.phoneNumber = :phoneNumber
             """)
     boolean existsByPhoneNumber(@Param("phoneNumber") String phoneNumber);
@@ -57,7 +57,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     @Query("""
             SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END
             FROM UserJpaEntity u
-            WHERE u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+            WHERE u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
                 AND u.referenceCode = :referenceCode
             """)
     boolean existsByReferenceCode(@Param("referenceCode") String referenceCode);
@@ -65,7 +65,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     @Query("""
             SELECT u
             FROM UserJpaEntity u
-            WHERE u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+            WHERE u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
                 AND u.id = :id
             ORDER BY u.orderNum ASC
             """)
@@ -74,7 +74,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     @Query("""
             SELECT u
             FROM UserJpaEntity u
-            WHERE u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+            WHERE u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
                 AND u.referenceCode = :referredUserCode
             ORDER BY u.orderNum ASC
             """)
@@ -84,7 +84,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             SELECT u
             FROM UserJpaEntity u
             WHERE 1 = 1
-                AND u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+                AND u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND EXISTS (
               SELECT 1
               FROM UserOauth2VendorJpaEntity uov
@@ -102,7 +102,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             SELECT u
             FROM UserJpaEntity u
             WHERE 1 = 1
-                AND u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+                AND u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
                 AND u.phoneNumber = :phoneNumber
             ORDER BY u.orderNum ASC
             """)
@@ -112,7 +112,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             SELECT u
             FROM UserJpaEntity u
             WHERE 1 = 1
-                AND u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+                AND u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
                 AND u.email = :email
             ORDER BY u.orderNum ASC
             """)
@@ -145,7 +145,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     @Query("""
             SELECT u
             FROM UserJpaEntity u
-            WHERE u.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
+            WHERE u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
                     :searchKeyword IS NULL
                  OR :searchKeyword = ''

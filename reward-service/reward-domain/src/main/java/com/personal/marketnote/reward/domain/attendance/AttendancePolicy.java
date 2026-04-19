@@ -1,6 +1,6 @@
 package com.personal.marketnote.reward.domain.attendance;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import lombok.*;
 
 import java.time.LocalDate;

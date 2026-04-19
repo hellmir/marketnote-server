@@ -6,7 +6,7 @@ import com.personal.marketnote.commerce.domain.settlement.SettlementPolicySnapsh
 import com.personal.marketnote.commerce.exception.SettlementPolicyNotFoundException;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPolicyPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPolicyPort;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

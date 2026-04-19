@@ -1,6 +1,6 @@
 package com.personal.marketnote.product.service.shipping;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.kafka.event.ShippingPolicyChangeAction;
 import com.personal.marketnote.product.domain.shipping.InvalidFreeShippingThresholdException;
 import com.personal.marketnote.product.domain.shipping.InvalidShippingFeeException;

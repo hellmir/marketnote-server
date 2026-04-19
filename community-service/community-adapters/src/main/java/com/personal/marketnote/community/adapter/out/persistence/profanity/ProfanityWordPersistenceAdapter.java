@@ -1,7 +1,7 @@
 package com.personal.marketnote.community.adapter.out.persistence.profanity;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.profanity.entity.ProfanityWordJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.profanity.repository.ProfanityWordJpaRepository;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;

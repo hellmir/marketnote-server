@@ -16,7 +16,7 @@ import com.personal.marketnote.commerce.port.out.quickpayment.ApproveQuickPaymen
 import com.personal.marketnote.commerce.port.out.quickpayment.FindQuickPaymentCardPort;
 import com.personal.marketnote.commerce.service.payment.PaymentApprovalContext;
 import com.personal.marketnote.commerce.service.payment.PaymentApprovalTransactionHelper;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

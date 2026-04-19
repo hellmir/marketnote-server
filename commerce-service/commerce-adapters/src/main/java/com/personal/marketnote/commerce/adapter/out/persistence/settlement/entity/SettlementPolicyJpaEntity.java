@@ -2,7 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.persistence.settlement.enti
 
 import com.personal.marketnote.commerce.domain.settlement.SettlementCycle;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicy;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.service.like;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.like.Like;
 import com.personal.marketnote.community.domain.like.LikeSnapshotState;
 import com.personal.marketnote.community.domain.like.LikeTargetType;

@@ -8,7 +8,7 @@ import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPolicy
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPolicyPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPolicyPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

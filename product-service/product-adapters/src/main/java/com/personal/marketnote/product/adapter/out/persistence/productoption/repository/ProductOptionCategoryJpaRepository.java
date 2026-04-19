@@ -15,8 +15,8 @@ public interface ProductOptionCategoryJpaRepository extends JpaRepository<Produc
               LEFT JOIN FETCH c.productOptionJpaEntities o
             WHERE 1 = 1
               AND p.id = :productId
-              AND c.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE
-              AND (o IS NULL OR o.status = com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus.ACTIVE)
+              AND c.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
+              AND (o IS NULL OR o.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
             ORDER BY c.orderNum ASC, o.orderNum ASC
             """)
     List<ProductOptionCategoryJpaEntity> findActiveWithOptionsByProductId(

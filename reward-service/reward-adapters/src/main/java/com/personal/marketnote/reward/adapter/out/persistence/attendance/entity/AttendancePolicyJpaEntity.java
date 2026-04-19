@@ -1,7 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.attendance.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;

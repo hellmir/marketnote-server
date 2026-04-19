@@ -2,7 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.persistence.ledger.entity;
 
 import com.personal.marketnote.commerce.domain.ledger.AccountType;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,6 +1,6 @@
 package com.personal.marketnote.file.service.file;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.file.domain.file.FileDomain;

@@ -6,7 +6,7 @@ import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettle
 import com.personal.marketnote.commerce.port.out.settlement.DefaultSettlementPolicyProvider;
 import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPolicyPort;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

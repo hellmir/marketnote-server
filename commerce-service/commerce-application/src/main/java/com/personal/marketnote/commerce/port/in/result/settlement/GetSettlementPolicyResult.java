@@ -2,7 +2,7 @@ package com.personal.marketnote.commerce.port.in.result.settlement;
 
 import com.personal.marketnote.commerce.domain.settlement.SettlementCycle;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicy;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.service.review;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregateSnapshotState;
 import com.personal.marketnote.community.domain.review.Review;

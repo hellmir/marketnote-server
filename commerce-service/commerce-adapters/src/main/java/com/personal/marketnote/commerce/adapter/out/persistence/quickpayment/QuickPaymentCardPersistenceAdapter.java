@@ -9,7 +9,7 @@ import com.personal.marketnote.commerce.port.out.quickpayment.DeleteQuickPayment
 import com.personal.marketnote.commerce.port.out.quickpayment.FindQuickPaymentCardPort;
 import com.personal.marketnote.commerce.port.out.quickpayment.SaveQuickPaymentCardPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 

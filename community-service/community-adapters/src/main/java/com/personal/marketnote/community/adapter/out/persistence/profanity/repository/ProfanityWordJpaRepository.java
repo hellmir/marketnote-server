@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.adapter.out.persistence.profanity.repository;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.profanity.entity.ProfanityWordJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 

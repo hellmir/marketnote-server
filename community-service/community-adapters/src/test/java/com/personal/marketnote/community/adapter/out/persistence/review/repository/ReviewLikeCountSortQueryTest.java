@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.adapter.out.persistence.review.repository;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.like.repository.LikeJpaRepository;

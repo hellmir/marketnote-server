@@ -1,6 +1,6 @@
 package com.personal.marketnote.reward.service.attendance;
 
-import com.personal.marketnote.common.adapter.out.persistence.audit.EntityStatus;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
