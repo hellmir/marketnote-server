@@ -83,8 +83,8 @@ import java.lang.annotation.*;
                                               },
                                               {
                                                 "id": 3,
-                                                "orderStatus": "CANCEL_REQUESTED",
-                                                "orderStatusDescription": "주문 취소 요청됨",
+                                                "orderStatus": "CANCELLED",
+                                                "orderStatusDescription": "주문 취소",
                                                 "reasonCategory": "CANCEL_ORDER",
                                                 "reason": "구매 의사 취소",
                                                 "createdAt": "2026-03-02T11:00:00"

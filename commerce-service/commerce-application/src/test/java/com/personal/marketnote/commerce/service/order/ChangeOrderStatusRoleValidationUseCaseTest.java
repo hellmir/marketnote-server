@@ -57,23 +57,6 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
     class BuyerAllowedStatusChangeTest {
 
         @Test
-        @DisplayName("구매자가 CANCEL_REQUESTED로 변경하면 정상 처리된다")
-        void buyer_cancelRequested_succeeds() {
-            Order order = createOrder(1L, OrderStatus.PAYMENT_PENDING);
-            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
-
-            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(1L)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
-                    .role("BUYER")
-                    .buyerId(1L)
-                    .build();
-
-            assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
-        }
-
-        @Test
         @DisplayName("구매자가 CONFIRMED로 변경하면 정상 처리된다")
         void buyer_confirmed_succeeds() {
             Order order = createOrder(1L, OrderStatus.DELIVERED);
@@ -187,7 +170,7 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
         @Test
         @DisplayName("구매자가 CANCELLED로 변경하면 UnauthorizedOrderStatusChangeException이 발생한다")
         void buyer_cancelled_throwsException() {
-            Order order = createOrder(1L, OrderStatus.CANCEL_REQUESTED);
+            Order order = createOrder(1L, OrderStatus.PAID);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -329,12 +312,12 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
         void buyer_ownOrder_succeeds() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .build();
@@ -349,12 +332,12 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
             Long orderId = 1L;
             Long ownerBuyerId = 100L;
             Long attackerBuyerId = 999L;
-            Order order = createOrderWithBuyerId(orderId, ownerBuyerId, OrderStatus.PAYMENT_PENDING);
+            Order order = createOrderWithBuyerId(orderId, ownerBuyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .buyerId(attackerBuyerId)
                     .build();
@@ -369,12 +352,12 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
             Long orderId = 1L;
             Long ownerBuyerId = 100L;
             Long attackerBuyerId = 999L;
-            Order order = createOrderWithBuyerId(orderId, ownerBuyerId, OrderStatus.PAYMENT_PENDING);
+            Order order = createOrderWithBuyerId(orderId, ownerBuyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .buyerId(attackerBuyerId)
                     .build();

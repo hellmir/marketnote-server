@@ -64,17 +64,17 @@ public class PaymentCancelledOrderStatusConsumer {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(payload.orderId())
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CANCELLED)
                     .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
-            log.info("Kafka 이벤트로 주문 상태 CANCEL_REQUESTED 변경 완료. orderId={}",
+            log.info("Kafka 이벤트로 주문 상태 CANCELLED 변경 완료. orderId={}",
                     payload.orderId());
         } catch (OrderStatusAlreadyChangedException e) {
             log.warn("멱등 처리: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage());
         } catch (Exception e) {
-            log.error("주문 상태 CANCEL_REQUESTED 변경 실패. eventId={}, key={}, error={}",
+            log.error("주문 상태 CANCELLED 변경 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }

@@ -29,7 +29,7 @@ import java.lang.annotation.*;
                 
                 - 구매자가 주문 취소를 요청합니다.
                 
-                - 주문 상태를 CANCEL_REQUESTED(주문 취소 요청됨)로 변경합니다.
+                - 주문 상태를 CANCELLED(주문 취소)로 변경합니다.
                 
                 - 결제 대기, 결제 완료, 상품 준비중 상태에서만 취소 요청이 가능합니다.
                 
@@ -118,7 +118,7 @@ import java.lang.annotation.*;
                 ),
                 @ApiResponse(
                         responseCode = "409",
-                        description = "이미 주문 취소 요청됨",
+                        description = "이미 주문 취소",
                         content = @Content(
                                 examples = @ExampleObject("""
                                         {
@@ -126,7 +126,7 @@ import java.lang.annotation.*;
                                           "code": "CONFLICT",
                                           "timestamp": "2026-04-05T12:00:00.000",
                                           "content": null,
-                                          "message": "이미 해당 주문 상태(주문 취소 요청됨)로 변경되었습니다."
+                                          "message": "이미 해당 주문 상태(주문 취소)로 변경되었습니다."
                                         }
                                         """)
                         )
@@ -141,7 +141,7 @@ import java.lang.annotation.*;
                                           "code": "BAD_REQUEST",
                                           "timestamp": "2026-04-05T12:00:00.000",
                                           "content": null,
-                                          "message": "주문 상태를 배송중에서 주문 취소 요청됨(으)로 변경할 수 없습니다."
+                                          "message": "주문 상태를 배송중에서 주문 취소(으)로 변경할 수 없습니다."
                                         }
                                         """)
                         )

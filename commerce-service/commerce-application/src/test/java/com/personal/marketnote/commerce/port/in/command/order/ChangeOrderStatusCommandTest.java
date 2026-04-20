@@ -20,7 +20,7 @@ class ChangeOrderStatusCommandTest {
         void isBuyerRole_buyer_returnsTrue() {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(1L)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .build();
 
@@ -78,7 +78,7 @@ class ChangeOrderStatusCommandTest {
         void isInternalCall_withRole_returnsFalse() {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(1L)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .build();
 
@@ -95,7 +95,7 @@ class ChangeOrderStatusCommandTest {
         void buildWithBuyerId_setsBuyerId() {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(1L)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .buyerId(100L)
                     .build();
@@ -151,7 +151,7 @@ class ChangeOrderStatusCommandTest {
         void isPartialProductChange_nullPricePolicyIds_returnsFalse() {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(1L)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .build();
 

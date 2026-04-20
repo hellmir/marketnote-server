@@ -13,12 +13,6 @@ class OrderStatusTest {
     class IsBuyerAllowedTest {
 
         @Test
-        @DisplayName("CANCEL_REQUESTED는 구매자가 변경 가능한 상태이다")
-        void cancelRequested_isBuyerAllowed() {
-            assertThat(OrderStatus.CANCEL_REQUESTED.isBuyerAllowed()).isTrue();
-        }
-
-        @Test
         @DisplayName("CONFIRMED는 구매자가 변경 가능한 상태이다")
         void confirmed_isBuyerAllowed() {
             assertThat(OrderStatus.CONFIRMED.isBuyerAllowed()).isTrue();

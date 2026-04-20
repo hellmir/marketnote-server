@@ -18,7 +18,6 @@ public enum OrderStatusFilter {
     CONFIRMED(List.of(OrderStatus.CONFIRMED)),
     CANCEL_EXCHANGE_REFUND(
             List.of(
-                    OrderStatus.CANCEL_REQUESTED,
                     OrderStatus.CANCELLED,
                     OrderStatus.REFUND_REQUESTED,
                     OrderStatus.REFUND_RECALLING,

@@ -30,7 +30,7 @@ public class CancelOrderService implements CancelOrderUseCase {
     private final UpdateOrderPort updateOrderPort;
     private final Clock clock;
 
-    private static final OrderStatus TARGET_STATUS = OrderStatus.CANCEL_REQUESTED;
+    private static final OrderStatus TARGET_STATUS = OrderStatus.CANCELLED;
 
     @Override
     public void cancelOrder(CancelOrderCommand command) {

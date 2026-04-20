@@ -253,7 +253,7 @@ public class OrderController {
      * @param principal 인증된 사용자 정보
      * @Author 성효빈
      * @Date 2026-04-05
-     * @Description 구매자가 주문 취소를 요청합니다. 주문 상태를 CANCEL_REQUESTED로 변경합니다.
+     * @Description 구매자가 주문 취소를 요청합니다. 주문 상태를 CANCELLED로 변경합니다.
      */
     @PostMapping("/api/v1/orders/{id}/cancel")
     @CancelOrderApiDocs

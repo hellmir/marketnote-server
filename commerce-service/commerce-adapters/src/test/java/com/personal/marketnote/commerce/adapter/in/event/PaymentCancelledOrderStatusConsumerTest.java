@@ -20,7 +20,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.personal.marketnote.commerce.domain.order.OrderStatus.CANCEL_REQUESTED;
+import static com.personal.marketnote.commerce.domain.order.OrderStatus.CANCELLED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +55,7 @@ class PaymentCancelledOrderStatusConsumerTest {
     }
 
     @Test
-    @DisplayName("전체 취소 이벤트 수신 시 주문 상태를 CANCEL_REQUESTED로 변경하고 acknowledge한다")
+    @DisplayName("전체 취소 이벤트 수신 시 주문 상태를 CANCELLED로 변경하고 acknowledge한다")
     void handlePaymentCancelledEvent_fullCancel_changesOrderStatusToCancelRequestedAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", true, 50000L);
@@ -69,7 +69,7 @@ class PaymentCancelledOrderStatusConsumerTest {
 
         ChangeOrderStatusCommand command = captor.getValue();
         assertThat(command.id()).isEqualTo(1L);
-        assertThat(command.orderStatus()).isEqualTo(CANCEL_REQUESTED);
+        assertThat(command.orderStatus()).isEqualTo(CANCELLED);
 
         verify(acknowledgment).acknowledge();
     }
@@ -107,7 +107,7 @@ class PaymentCancelledOrderStatusConsumerTest {
     void handlePaymentCancelledEvent_alreadyChanged_acknowledgesGracefully() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", true, 50000L);
-        doThrow(new OrderStatusAlreadyChangedException(CANCEL_REQUESTED))
+        doThrow(new OrderStatusAlreadyChangedException(CANCELLED))
                 .when(changeOrderStatusUseCase).changeOrderStatus(any(ChangeOrderStatusCommand.class));
 
         // when
