@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProcessSellerSettlementService 테스트")
-class ProcessSellerSettlementServiceTest {
+class ProcessSellerSettlementUseCaseTest {
 
     @InjectMocks
     private ProcessSellerSettlementService processSellerSettlementService;
