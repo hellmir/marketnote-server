@@ -411,16 +411,16 @@ class GetOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("REFUNDED 상태의 주문을 정상 조회한다")
-        void getOrder_refunded_succeeds() {
+        @DisplayName("RETURNED 상태의 주문을 정상 조회한다")
+        void getOrder_returned_succeeds() {
             Long orderId = 1L;
-            Order order = createOrderWithStatus(orderId, OrderStatus.REFUNDED);
+            Order order = createOrderWithStatus(orderId, OrderStatus.RETURNED);
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.REFUNDED);
+            assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.RETURNED);
         }
 
         @Test
@@ -437,16 +437,16 @@ class GetOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("PARTIALLY_REFUNDED 상태의 주문을 정상 조회한다")
-        void getOrder_partiallyRefunded_succeeds() {
+        @DisplayName("PARTIALLY_RETURNED 상태의 주문을 정상 조회한다")
+        void getOrder_partiallyReturned_succeeds() {
             Long orderId = 1L;
-            Order order = createOrderWithStatus(orderId, OrderStatus.PARTIALLY_REFUNDED);
+            Order order = createOrderWithStatus(orderId, OrderStatus.PARTIALLY_RETURNED);
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_REFUNDED);
+            assertThat(result.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_RETURNED);
         }
     }
 

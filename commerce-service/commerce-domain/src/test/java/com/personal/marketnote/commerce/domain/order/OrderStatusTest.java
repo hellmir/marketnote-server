@@ -19,9 +19,9 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("REFUND_REQUESTED는 구매자가 변경 가능한 상태이다")
-        void refundRequested_isBuyerAllowed() {
-            assertThat(OrderStatus.REFUND_REQUESTED.isBuyerAllowed()).isTrue();
+        @DisplayName("RETURN_REQUESTED는 구매자가 변경 가능한 상태이다")
+        void returnRequested_isBuyerAllowed() {
+            assertThat(OrderStatus.RETURN_REQUESTED.isBuyerAllowed()).isTrue();
         }
 
         @Test
@@ -73,27 +73,27 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("REFUND_RECALLING는 구매자가 변경할 수 없는 상태이다")
-        void refundRecalling_isNotBuyerAllowed() {
-            assertThat(OrderStatus.REFUND_RECALLING.isBuyerAllowed()).isFalse();
+        @DisplayName("RETURN_RECALLING는 구매자가 변경할 수 없는 상태이다")
+        void returnRecalling_isNotBuyerAllowed() {
+            assertThat(OrderStatus.RETURN_RECALLING.isBuyerAllowed()).isFalse();
         }
 
         @Test
-        @DisplayName("REFUND_SHIPPING는 구매자가 변경할 수 없는 상태이다")
-        void refundShipping_isNotBuyerAllowed() {
-            assertThat(OrderStatus.REFUND_SHIPPING.isBuyerAllowed()).isFalse();
+        @DisplayName("RETURN_SHIPPING는 구매자가 변경할 수 없는 상태이다")
+        void returnShipping_isNotBuyerAllowed() {
+            assertThat(OrderStatus.RETURN_SHIPPING.isBuyerAllowed()).isFalse();
         }
 
         @Test
-        @DisplayName("PARTIALLY_REFUNDED는 구매자가 변경할 수 없는 상태이다")
-        void partiallyRefunded_isNotBuyerAllowed() {
-            assertThat(OrderStatus.PARTIALLY_REFUNDED.isBuyerAllowed()).isFalse();
+        @DisplayName("PARTIALLY_RETURNED는 구매자가 변경할 수 없는 상태이다")
+        void partiallyReturned_isNotBuyerAllowed() {
+            assertThat(OrderStatus.PARTIALLY_RETURNED.isBuyerAllowed()).isFalse();
         }
 
         @Test
-        @DisplayName("REFUNDED는 구매자가 변경할 수 없는 상태이다")
-        void refunded_isNotBuyerAllowed() {
-            assertThat(OrderStatus.REFUNDED.isBuyerAllowed()).isFalse();
+        @DisplayName("RETURNED는 구매자가 변경할 수 없는 상태이다")
+        void returned_isNotBuyerAllowed() {
+            assertThat(OrderStatus.RETURNED.isBuyerAllowed()).isFalse();
         }
     }
 }

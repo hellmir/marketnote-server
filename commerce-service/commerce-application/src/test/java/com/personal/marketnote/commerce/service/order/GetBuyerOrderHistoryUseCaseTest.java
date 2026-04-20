@@ -628,7 +628,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
                     OrderStatus.PREPARING,
                     OrderStatus.SHIPPING,
-                    OrderStatus.REFUND_SHIPPING
+                    OrderStatus.RETURN_SHIPPING
             );
         }
 
@@ -667,10 +667,10 @@ class GetBuyerOrderHistoryUseCaseTest {
         }
 
         @Test
-        @DisplayName("status가 CANCEL_EXCHANGE_REFUND이면 취소/교환/환불 관련 상태들이 전달된다")
-        void passesCancelExchangeRefundStatusesWhenStatusIsCancelExchangeRefund() {
+        @DisplayName("status가 CANCEL_RETURN이면 취소/반품 관련 상태들이 전달된다")
+        void passesCancelReturnStatusesWhenStatusIsCancelReturn() {
             Long buyerId = 1L;
-            GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, OrderStatusFilter.CANCEL_EXCHANGE_REFUND, null);
+            GetBuyerOrderHistoryQuery query = createQuery(buyerId, null, OrderStatusFilter.CANCEL_RETURN, null);
 
             when(findOrderPort.findByBuyerId(any(), any(), any(), anyList()))
                     .thenReturn(List.of());
@@ -682,11 +682,11 @@ class GetBuyerOrderHistoryUseCaseTest {
             );
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
                     OrderStatus.CANCELLED,
-                    OrderStatus.REFUND_REQUESTED,
-                    OrderStatus.REFUND_RECALLING,
-                    OrderStatus.REFUND_SHIPPING,
-                    OrderStatus.PARTIALLY_REFUNDED,
-                    OrderStatus.REFUNDED
+                    OrderStatus.RETURN_REQUESTED,
+                    OrderStatus.RETURN_RECALLING,
+                    OrderStatus.RETURN_SHIPPING,
+                    OrderStatus.PARTIALLY_RETURNED,
+                    OrderStatus.RETURNED
             );
         }
     }

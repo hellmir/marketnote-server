@@ -51,16 +51,16 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
     private ChangeOrderStatusService changeOrderStatusService;
 
     // ==================================================================================
-    // 환불 요청 시 pickupAddressId 기반 회수지 조회 + 적용
+    // 반품 요청 시 pickupAddressId 기반 회수지 조회 + 적용
     // ==================================================================================
 
     @Nested
-    @DisplayName("환불 요청 시 pickupAddressId 기반 회수지 적용")
+    @DisplayName("반품 요청 시 pickupAddressId 기반 회수지 적용")
     class PickupAddressLookupTest {
 
         @Test
         @DisplayName("pickupAddressId가 있으면 회수지를 조회하여 적용한다")
-        void refundRequested_withPickupAddressId_appliesLookedUpAddress() {
+        void returnRequested_withPickupAddressId_appliesLookedUpAddress() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Long pickupAddressId = 50L;
@@ -71,7 +71,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .pickupAddressId(pickupAddressId)
@@ -92,7 +92,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
         @Test
         @DisplayName("pickupAddressId가 없으면 배송지가 회수지 기본값으로 적용된다")
-        void refundRequested_withoutPickupAddressId_appliesShippingAddressAsDefault() {
+        void returnRequested_withoutPickupAddressId_appliesShippingAddressAsDefault() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
@@ -100,7 +100,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .build();
@@ -117,7 +117,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
         @Test
         @DisplayName("pickupAddressId가 있으면 FindUserShippingAddressPort를 호출한다")
-        void refundRequested_withPickupAddressId_callsFindPort() {
+        void returnRequested_withPickupAddressId_callsFindPort() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Long pickupAddressId = 50L;
@@ -128,7 +128,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .pickupAddressId(pickupAddressId)
@@ -162,7 +162,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .pickupAddressId(pickupAddressId)
@@ -187,7 +187,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .pickupAddressId(pickupAddressId)
@@ -210,7 +210,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .pickupAddressId(pickupAddressId)
@@ -233,7 +233,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .pickupAddressId(pickupAddressId)
@@ -249,16 +249,16 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
     }
 
     // ==================================================================================
-    // 환불 요청이 아닌 경우 회수지 미조회
+    // 반품 요청이 아닌 경우 회수지 미조회
     // ==================================================================================
 
     @Nested
-    @DisplayName("환불 요청이 아닌 경우")
-    class NonRefundRequestTest {
+    @DisplayName("반품 요청이 아닌 경우")
+    class NonReturnRequestTest {
 
         @Test
-        @DisplayName("환불 요청이 아닌 상태 변경 시 FindUserShippingAddressPort를 호출하지 않는다")
-        void nonRefundRequest_doesNotCallFindPort() {
+        @DisplayName("반품 요청이 아닌 상태 변경 시 FindUserShippingAddressPort를 호출하지 않는다")
+        void nonReturnRequest_doesNotCallFindPort() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
@@ -277,8 +277,8 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
         }
 
         @Test
-        @DisplayName("환불 요청이 아닌 상태 변경 시 회수지가 적용되지 않는다")
-        void nonRefundRequest_pickupAddressNotApplied() {
+        @DisplayName("반품 요청이 아닌 상태 변경 시 회수지가 적용되지 않는다")
+        void nonReturnRequest_pickupAddressNotApplied() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);

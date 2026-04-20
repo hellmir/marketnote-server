@@ -749,11 +749,11 @@ class GetBuyerOrderProductsUseCaseTest {
         }
 
         @Test
-        @DisplayName("주문 상품의 orderStatus가 REFUNDED이면 결과에서 제외된다")
-        void excludesRefundedOrderProduct() {
+        @DisplayName("주문 상품의 orderStatus가 RETURNED이면 결과에서 제외된다")
+        void excludesReturnedOrderProduct() {
             Long buyerId = 1L;
             Order order = createOrderWithReviewedProducts(1L, buyerId, List.of(
-                    productStateWithStatus(100L, null, OrderStatus.REFUNDED)
+                    productStateWithStatus(100L, null, OrderStatus.RETURNED)
             ));
             GetBuyerOrderProductsQuery query = createQuery(buyerId, null);
 
