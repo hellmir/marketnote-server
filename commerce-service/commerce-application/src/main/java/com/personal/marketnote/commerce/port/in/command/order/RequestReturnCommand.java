@@ -4,7 +4,7 @@ import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import lombok.Builder;
 
 @Builder
-public record RequestRefundCommand(
+public record RequestReturnCommand(
         Long id,
         OrderStatusReasonCategory reasonCategory,
         String reason,

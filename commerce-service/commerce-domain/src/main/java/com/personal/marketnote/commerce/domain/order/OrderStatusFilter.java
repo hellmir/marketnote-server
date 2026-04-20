@@ -11,19 +11,19 @@ public enum OrderStatusFilter {
             List.of(
                     OrderStatus.PREPARING,
                     OrderStatus.SHIPPING,
-                    OrderStatus.REFUND_SHIPPING
+                    OrderStatus.RETURN_SHIPPING
             )
     ),
     DELIVERED(List.of(OrderStatus.DELIVERED)),
     CONFIRMED(List.of(OrderStatus.CONFIRMED)),
-    CANCEL_EXCHANGE_REFUND(
+    CANCEL_RETURN(
             List.of(
                     OrderStatus.CANCELLED,
-                    OrderStatus.REFUND_REQUESTED,
-                    OrderStatus.REFUND_RECALLING,
-                    OrderStatus.REFUND_SHIPPING,
-                    OrderStatus.PARTIALLY_REFUNDED,
-                    OrderStatus.REFUNDED
+                    OrderStatus.RETURN_REQUESTED,
+                    OrderStatus.RETURN_RECALLING,
+                    OrderStatus.RETURN_SHIPPING,
+                    OrderStatus.PARTIALLY_RETURNED,
+                    OrderStatus.RETURNED
             )
     ),
     ALL(Collections.emptyList());

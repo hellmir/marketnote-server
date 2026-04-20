@@ -40,17 +40,19 @@ import java.lang.annotation.*;
                 
                     - "DELIVERED": 배송 완료
                 
+                    - "PARTIALLY_CONFIRMED": 부분 구매 확정
+
                     - "CONFIRMED": 구매 확정
-                
-                    - "REFUND_REQUESTED": 환불 요청됨
-                
-                    - "REFUND_RECALLING": 환불 회수 중
-                
-                    - "REFUND_SHIPPING": 환불 배송 중
-                
-                    - "PARTIALLY_REFUNDED": 부분 환불됨
-                
-                    - "REFUNDED": 환불 완료
+
+                    - "RETURN_REQUESTED": 반품 요청됨
+
+                    - "RETURN_RECALLING": 반품 회수 중
+
+                    - "RETURN_SHIPPING": 반품 배송 중
+
+                    - "PARTIALLY_RETURNED": 부분 반품됨
+
+                    - "RETURNED": 반품 완료
                 
                 ---
                 
@@ -59,7 +61,7 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | period | string | 조회 기간(ONE_MONTH, THREE_MONTHS, SIX_MONTHS, ONE_YEAR, ALL) | N | ONE_YEAR |
-                | status | string | 주문 상태 필터(SHIPPING, DELIVERED, CONFIRMED, CANCEL_EXCHANGE_REFUND, ALL) | N | SHIPPING |
+                | status | string | 주문 상태 필터(SHIPPING, DELIVERED, CONFIRMED, CANCEL_RETURN, ALL) | N | SHIPPING |
                 | productName | string | 상품명 검색 키워드 | N | "공책" |
                 
                 ---

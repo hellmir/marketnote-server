@@ -20,17 +20,17 @@ public enum OrderStatus {
     DELIVERED("배송 완료"),
     PARTIALLY_CONFIRMED("부분 구매 확정"),
     CONFIRMED("구매 확정"),
-    REFUND_REQUESTED("환불 요청됨"),
-    REFUND_RECALLING("환불 회수 중"),
-    REFUND_SHIPPING("환불 배송 중"),
-    PARTIALLY_REFUNDED("부분 환불됨"),
-    REFUNDED("환불 완료");
+    RETURN_REQUESTED("반품 요청됨"),
+    RETURN_RECALLING("반품 회수 중"),
+    RETURN_SHIPPING("반품 배송 중"),
+    PARTIALLY_RETURNED("부분 반품됨"),
+    RETURNED("반품 완료");
 
     private final String description;
 
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
     private static final Set<OrderStatus> BUYER_ALLOWED_STATUSES = EnumSet.of(
-            CONFIRMED, REFUND_REQUESTED
+            CONFIRMED, RETURN_REQUESTED
     );
 
     static {
@@ -40,14 +40,14 @@ public enum OrderStatus {
         ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED));
-        ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, PARTIALLY_CONFIRMED, REFUND_REQUESTED));
-        ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, REFUND_REQUESTED));
+        ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, PARTIALLY_CONFIRMED, RETURN_REQUESTED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
         ALLOWED_TRANSITIONS.put(CONFIRMED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(REFUND_REQUESTED, EnumSet.of(REFUND_RECALLING));
-        ALLOWED_TRANSITIONS.put(REFUND_RECALLING, EnumSet.of(REFUND_SHIPPING));
-        ALLOWED_TRANSITIONS.put(REFUND_SHIPPING, EnumSet.of(REFUNDED, PARTIALLY_REFUNDED));
-        ALLOWED_TRANSITIONS.put(PARTIALLY_REFUNDED, EnumSet.of(REFUND_REQUESTED, REFUNDED));
-        ALLOWED_TRANSITIONS.put(REFUNDED, EnumSet.noneOf(OrderStatus.class));
+        ALLOWED_TRANSITIONS.put(RETURN_REQUESTED, EnumSet.of(RETURN_RECALLING));
+        ALLOWED_TRANSITIONS.put(RETURN_RECALLING, EnumSet.of(RETURN_SHIPPING));
+        ALLOWED_TRANSITIONS.put(RETURN_SHIPPING, EnumSet.of(RETURNED, PARTIALLY_RETURNED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_RETURNED, EnumSet.of(RETURN_REQUESTED, RETURNED));
+        ALLOWED_TRANSITIONS.put(RETURNED, EnumSet.noneOf(OrderStatus.class));
     }
 
     public boolean canTransitionTo(OrderStatus target) {
@@ -58,16 +58,16 @@ public enum OrderStatus {
         return ALLOWED_TRANSITIONS.getOrDefault(this, EnumSet.noneOf(OrderStatus.class)).isEmpty();
     }
 
-    public boolean isRefunded() {
-        return this == REFUNDED;
+    public boolean isReturned() {
+        return this == RETURNED;
     }
 
     public static OrderStatus getPartiallyConfirmed() {
         return PARTIALLY_CONFIRMED;
     }
 
-    public static OrderStatus getPartiallyRefunded() {
-        return PARTIALLY_REFUNDED;
+    public static OrderStatus getPartiallyReturned() {
+        return PARTIALLY_RETURNED;
     }
 
     public boolean isPaid() {
@@ -90,18 +90,18 @@ public enum OrderStatus {
         return this == SHIPPING;
     }
 
-    public boolean isRefundRequested() {
-        return this == REFUND_REQUESTED;
+    public boolean isReturnRequested() {
+        return this == RETURN_REQUESTED;
     }
 
     public boolean isNotPartialChanged() {
-        return this != PARTIALLY_CONFIRMED && this != PARTIALLY_REFUNDED;
+        return this != PARTIALLY_CONFIRMED && this != PARTIALLY_RETURNED;
     }
 
     /**
      * 구매자가 직접 변경할 수 있는 주문 상태인지 확인한다.
      * <p>
-     * 구매자 허용 상태: CONFIRMED, REFUND_REQUESTED
+     * 구매자 허용 상태: CONFIRMED, RETURN_REQUESTED
      * </p>
      *
      * @return 구매자가 변경 가능한 상태이면 true

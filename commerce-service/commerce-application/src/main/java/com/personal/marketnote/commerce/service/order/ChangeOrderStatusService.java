@@ -60,7 +60,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), status);
         }
 
-        applyPickupAddressIfRefundRequested(command, order);
+        applyPickupAddressIfReturnRequested(command, order);
         changeOrderStatus(command, order);
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(OrderCommandToStateMapper.mapToState(command));
         updateOrderPort.update(order, orderStatusHistory);
@@ -98,8 +98,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         }
     }
 
-    private void applyPickupAddressIfRefundRequested(ChangeOrderStatusCommand command, Order order) {
-        if (!command.orderStatus().isRefundRequested()) {
+    private void applyPickupAddressIfReturnRequested(ChangeOrderStatusCommand command, Order order) {
+        if (!command.orderStatus().isReturnRequested()) {
             return;
         }
 
