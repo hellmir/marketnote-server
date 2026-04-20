@@ -112,7 +112,7 @@ class OrderPickupAddressTest {
                     .buyerId(1L)
                     .orderKey(UUID.randomUUID())
                     .orderNumber("ORD-1")
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .amount(OrderAmount.of(50000L, null, null, null, null))
                     .shippingAddress(ShippingAddress.of("배송 수령인", "01012345678", "12345", "서울시 강남구", "테헤란로 123", null, null))
                     .pickupAddress(ShippingAddress.of("회수 수령인", "01099998888", "54321", "회수지 주소", "회수지 상세주소", null, "회수 요청사항"))

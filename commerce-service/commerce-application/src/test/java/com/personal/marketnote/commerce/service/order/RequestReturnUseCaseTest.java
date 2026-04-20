@@ -4,7 +4,7 @@ import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
-import com.personal.marketnote.commerce.port.in.command.order.RequestRefundCommand;
+import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class RequestRefundUseCaseTest {
+class RequestReturnUseCaseTest {
     @Mock
     private GetOrderUseCase getOrderUseCase;
     @Mock
@@ -37,99 +37,99 @@ class RequestRefundUseCaseTest {
     private Clock clock = Clock.fixed(Instant.parse("2026-04-05T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @InjectMocks
-    private RequestRefundService requestRefundService;
+    private RequestReturnService requestReturnService;
 
     // ==================================================================================
-    // 정상 환불 요청
+    // 정상 반품 요청
     // ==================================================================================
 
     @Nested
-    @DisplayName("정상 환불 요청")
-    class SuccessfulRefundRequestTest {
+    @DisplayName("정상 반품 요청")
+    class SuccessfulReturnRequestTest {
 
         @Test
-        @DisplayName("배송 완료 상태의 주문을 환불 요청하면 정상 처리된다")
-        void requestRefund_fromDelivered_succeeds() {
+        @DisplayName("배송 완료 상태의 주문을 반품 요청하면 정상 처리된다")
+        void requestReturn_fromDelivered_succeeds() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .reasonCategory(OrderStatusReasonCategory.ETC)
                     .reason("상품 불량")
                     .buyerId(buyerId)
                     .build();
 
-            assertThatCode(() -> requestRefundService.requestRefund(command))
+            assertThatCode(() -> requestReturnService.requestReturn(command))
                     .doesNotThrowAnyException();
         }
 
         @Test
-        @DisplayName("부분 구매 확정 상태의 주문을 환불 요청하면 정상 처리된다")
-        void requestRefund_fromPartiallyConfirmed_succeeds() {
+        @DisplayName("부분 구매 확정 상태의 주문을 반품 요청하면 정상 처리된다")
+        void requestReturn_fromPartiallyConfirmed_succeeds() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PARTIALLY_CONFIRMED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .reasonCategory(OrderStatusReasonCategory.ETC)
                     .buyerId(buyerId)
                     .build();
 
-            assertThatCode(() -> requestRefundService.requestRefund(command))
+            assertThatCode(() -> requestReturnService.requestReturn(command))
                     .doesNotThrowAnyException();
         }
 
         @Test
-        @DisplayName("부분 환불됨 상태의 주문을 환불 요청하면 정상 처리된다")
-        void requestRefund_fromPartiallyRefunded_succeeds() {
+        @DisplayName("부분 반품됨 상태의 주문을 반품 요청하면 정상 처리된다")
+        void requestReturn_fromPartiallyReturned_succeeds() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PARTIALLY_REFUNDED);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PARTIALLY_RETURNED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(buyerId)
                     .build();
 
-            assertThatCode(() -> requestRefundService.requestRefund(command))
+            assertThatCode(() -> requestReturnService.requestReturn(command))
                     .doesNotThrowAnyException();
         }
 
         @Test
-        @DisplayName("환불 요청 성공 시 UpdateOrderPort를 호출한다")
-        void requestRefund_callsUpdateOrderPort() {
+        @DisplayName("반품 요청 성공 시 UpdateOrderPort를 호출한다")
+        void requestReturn_callsUpdateOrderPort() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .reasonCategory(OrderStatusReasonCategory.ETC)
                     .reason("상품 불량")
                     .buyerId(buyerId)
                     .build();
 
-            requestRefundService.requestRefund(command);
+            requestReturnService.requestReturn(command);
 
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
         }
 
         @Test
         @DisplayName("회수지 주소를 입력하면 입력된 회수지가 적용된다")
-        void requestRefund_withPickupAddress_appliesProvidedAddress() {
+        void requestReturn_withPickupAddress_appliesProvidedAddress() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .reasonCategory(OrderStatusReasonCategory.ETC)
                     .reason("상품 불량")
@@ -142,7 +142,7 @@ class RequestRefundUseCaseTest {
                     .pickupRequestMessage("부재시 경비실에 맡겨주세요")
                     .build();
 
-            requestRefundService.requestRefund(command);
+            requestReturnService.requestReturn(command);
 
             assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("회수 수령인");
             assertThat(order.getPickupAddress().getRecipientPhoneNumber()).isEqualTo("01099998888");
@@ -154,19 +154,19 @@ class RequestRefundUseCaseTest {
 
         @Test
         @DisplayName("회수지 주소를 미입력하면 배송지가 회수지 기본값으로 적용된다")
-        void requestRefund_withoutPickupAddress_appliesShippingAddressAsDefault() {
+        void requestReturn_withoutPickupAddress_appliesShippingAddressAsDefault() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .reasonCategory(OrderStatusReasonCategory.ETC)
                     .buyerId(buyerId)
                     .build();
 
-            requestRefundService.requestRefund(command);
+            requestReturnService.requestReturn(command);
 
             assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("수령인");
             assertThat(order.getPickupAddress().getRecipientPhoneNumber()).isEqualTo("01012345678");
@@ -185,38 +185,38 @@ class RequestRefundUseCaseTest {
     class BuyerOwnershipValidationTest {
 
         @Test
-        @DisplayName("타인의 주문을 환불 요청하면 UnauthorizedOrderAccessException이 발생한다")
-        void requestRefund_otherBuyerOrder_throwsException() {
+        @DisplayName("타인의 주문을 반품 요청하면 UnauthorizedOrderAccessException이 발생한다")
+        void requestReturn_otherBuyerOrder_throwsException() {
             Long orderId = 1L;
             Long ownerBuyerId = 100L;
             Long attackerBuyerId = 999L;
             Order order = createOrderWithBuyerId(orderId, ownerBuyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(attackerBuyerId)
                     .build();
 
-            assertThatThrownBy(() -> requestRefundService.requestRefund(command))
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
                     .isInstanceOf(UnauthorizedOrderAccessException.class);
         }
 
         @Test
-        @DisplayName("타인의 주문 환불 요청 시 UpdateOrderPort를 호출하지 않는다")
-        void requestRefund_otherBuyerOrder_doesNotCallUpdatePort() {
+        @DisplayName("타인의 주문 반품 요청 시 UpdateOrderPort를 호출하지 않는다")
+        void requestReturn_otherBuyerOrder_doesNotCallUpdatePort() {
             Long orderId = 1L;
             Long ownerBuyerId = 100L;
             Long attackerBuyerId = 999L;
             Order order = createOrderWithBuyerId(orderId, ownerBuyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(attackerBuyerId)
                     .build();
 
-            assertThatThrownBy(() -> requestRefundService.requestRefund(command))
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
                     .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(updateOrderPort);
@@ -232,87 +232,87 @@ class RequestRefundUseCaseTest {
     class StatusTransitionValidationTest {
 
         @Test
-        @DisplayName("이미 환불 요청된 주문을 다시 환불 요청하면 OrderStatusAlreadyChangedException이 발생한다")
-        void requestRefund_alreadyRefundRequested_throwsException() {
+        @DisplayName("이미 반품 요청된 주문을 다시 반품 요청하면 OrderStatusAlreadyChangedException이 발생한다")
+        void requestReturn_alreadyReturnRequested_throwsException() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.REFUND_REQUESTED);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.RETURN_REQUESTED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(buyerId)
                     .build();
 
-            assertThatThrownBy(() -> requestRefundService.requestRefund(command))
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
                     .isInstanceOf(OrderStatusAlreadyChangedException.class);
         }
 
         @Test
-        @DisplayName("결제 대기 상태의 주문을 환불 요청하면 InvalidOrderStatusTransitionException이 발생한다")
-        void requestRefund_fromPaymentPending_throwsException() {
+        @DisplayName("결제 대기 상태의 주문을 반품 요청하면 InvalidOrderStatusTransitionException이 발생한다")
+        void requestReturn_fromPaymentPending_throwsException() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(buyerId)
                     .build();
 
-            assertThatThrownBy(() -> requestRefundService.requestRefund(command))
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
-        @DisplayName("배송중 상태의 주문을 환불 요청하면 InvalidOrderStatusTransitionException이 발생한다")
-        void requestRefund_fromShipping_throwsException() {
+        @DisplayName("배송중 상태의 주문을 반품 요청하면 InvalidOrderStatusTransitionException이 발생한다")
+        void requestReturn_fromShipping_throwsException() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.SHIPPING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(buyerId)
                     .build();
 
-            assertThatThrownBy(() -> requestRefundService.requestRefund(command))
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
-        @DisplayName("구매 확정 상태의 주문을 환불 요청하면 InvalidOrderStatusTransitionException이 발생한다")
-        void requestRefund_fromConfirmed_throwsException() {
+        @DisplayName("구매 확정 상태의 주문을 반품 요청하면 InvalidOrderStatusTransitionException이 발생한다")
+        void requestReturn_fromConfirmed_throwsException() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.CONFIRMED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(buyerId)
                     .build();
 
-            assertThatThrownBy(() -> requestRefundService.requestRefund(command))
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
         }
 
         @Test
         @DisplayName("상태 전이 실패 시 UpdateOrderPort를 호출하지 않는다")
-        void requestRefund_invalidTransition_doesNotCallUpdatePort() {
+        void requestReturn_invalidTransition_doesNotCallUpdatePort() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.SHIPPING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
-            RequestRefundCommand command = RequestRefundCommand.builder()
+            RequestReturnCommand command = RequestReturnCommand.builder()
                     .id(orderId)
                     .buyerId(buyerId)
                     .build();
 
-            assertThatThrownBy(() -> requestRefundService.requestRefund(command))
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);

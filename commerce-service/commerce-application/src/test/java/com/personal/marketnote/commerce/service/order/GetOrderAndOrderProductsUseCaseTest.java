@@ -983,10 +983,10 @@ class GetOrderAndOrderProductsUseCaseTest {
         }
 
         @Test
-        @DisplayName("주문 상태가 REFUNDED인 경우도 정상 조회된다")
-        void getOrderAndOrderProducts_refundedOrder_succeeds() {
+        @DisplayName("주문 상태가 RETURNED인 경우도 정상 조회된다")
+        void getOrderAndOrderProducts_returnedOrder_succeeds() {
             Long orderId = 1L;
-            Order order = createOrderWithStatus(orderId, OrderStatus.REFUNDED, List.of());
+            Order order = createOrderWithStatus(orderId, OrderStatus.RETURNED, List.of());
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
@@ -994,7 +994,7 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
-            assertThat(result.orderStatus()).isEqualTo(OrderStatus.REFUNDED);
+            assertThat(result.orderStatus()).isEqualTo(OrderStatus.RETURNED);
         }
     }
 
@@ -1148,7 +1148,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
                 .orderNumber("ORD-" + orderId)
-                .orderStatus(OrderStatus.PARTIALLY_REFUNDED)
+                .orderStatus(OrderStatus.PARTIALLY_RETURNED)
                 .amount(OrderAmount.of(300000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(
@@ -1166,7 +1166,7 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .pricePolicyId(200L)
                                 .quantity(1)
                                 .unitAmount(100000L)
-                                .orderStatus(OrderStatus.REFUNDED)
+                                .orderStatus(OrderStatus.RETURNED)
                                 .build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(orderId)

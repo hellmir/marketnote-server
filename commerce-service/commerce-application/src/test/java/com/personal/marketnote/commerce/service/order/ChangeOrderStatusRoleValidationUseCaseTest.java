@@ -74,14 +74,14 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
         }
 
         @Test
-        @DisplayName("구매자가 REFUND_REQUESTED로 변경하면 정상 처리된다")
-        void buyer_refundRequested_succeeds() {
+        @DisplayName("구매자가 RETURN_REQUESTED로 변경하면 정상 처리된다")
+        void buyer_returnRequested_succeeds() {
             Order order = createOrder(1L, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(1L)
-                    .orderStatus(OrderStatus.REFUND_REQUESTED)
+                    .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .role("BUYER")
                     .buyerId(1L)
                     .build();

@@ -56,7 +56,7 @@ class PaymentCancelledOrderStatusConsumerTest {
 
     @Test
     @DisplayName("전체 취소 이벤트 수신 시 주문 상태를 CANCELLED로 변경하고 acknowledge한다")
-    void handlePaymentCancelledEvent_fullCancel_changesOrderStatusToCancelRequestedAndAcknowledges() {
+    void handlePaymentCancelledEvent_fullCancel_changesOrderStatusToCancelledAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", true, 50000L);
 
