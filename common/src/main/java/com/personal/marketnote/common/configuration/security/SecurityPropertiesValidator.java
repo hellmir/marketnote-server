@@ -50,6 +50,9 @@ public class SecurityPropertiesValidator {
     @Value("${spring.kafka.sasl.password:}")
     private String kafkaSaslPassword;
 
+    @Value("${security.validation.gifticon-pin-enabled:false}")
+    private boolean gifticonPinValidationEnabled;
+
     @Value("${gifticon.pin.encrypt-key:}")
     private String gifticonPinEncryptKey;
 
@@ -67,7 +70,9 @@ public class SecurityPropertiesValidator {
             validateRequired(violations, "spring.kafka.sasl.password (KAFKA_SASL_PASSWORD)", kafkaSaslPassword);
         }
 
-        validateRequired(violations, "gifticon.pin.encrypt-key (GIFTICON_PIN_ENCRYPT_KEY)", gifticonPinEncryptKey);
+        if (gifticonPinValidationEnabled) {
+            validateRequired(violations, "gifticon.pin.encrypt-key (GIFTICON_PIN_ENCRYPT_KEY)", gifticonPinEncryptKey);
+        }
 
         if (!violations.isEmpty()) {
             String message = String.join("\n  - ", violations);
