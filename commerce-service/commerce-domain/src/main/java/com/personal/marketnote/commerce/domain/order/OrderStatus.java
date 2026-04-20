@@ -22,10 +22,6 @@ public enum OrderStatus {
     DELIVERED("배송 완료"),
     PARTIALLY_CONFIRMED("부분 구매 확정"),
     CONFIRMED("구매 확정"),
-    EXCHANGE_REQUESTED("교환 요청됨"),
-    EXCHANGE_RECALLING("교환 회수 중"),
-    EXCHANGE_SHIPPING("교환 배송 중"),
-    EXCHANGED("교환 완료"),
     REFUND_REQUESTED("환불 요청됨"),
     REFUND_RECALLING("환불 회수 중"),
     REFUND_SHIPPING("환불 배송 중"),
@@ -36,7 +32,7 @@ public enum OrderStatus {
 
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
     private static final Set<OrderStatus> BUYER_ALLOWED_STATUSES = EnumSet.of(
-            CANCEL_REQUESTED, CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED
+            CANCEL_REQUESTED, CONFIRMED, REFUND_REQUESTED
     );
 
     static {
@@ -48,13 +44,9 @@ public enum OrderStatus {
         ALLOWED_TRANSITIONS.put(CANCEL_REQUESTED, EnumSet.of(CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED));
-        ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, PARTIALLY_CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED));
-        ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED));
+        ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, PARTIALLY_CONFIRMED, REFUND_REQUESTED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, REFUND_REQUESTED));
         ALLOWED_TRANSITIONS.put(CONFIRMED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(EXCHANGE_REQUESTED, EnumSet.of(EXCHANGE_RECALLING));
-        ALLOWED_TRANSITIONS.put(EXCHANGE_RECALLING, EnumSet.of(EXCHANGE_SHIPPING));
-        ALLOWED_TRANSITIONS.put(EXCHANGE_SHIPPING, EnumSet.of(EXCHANGED));
-        ALLOWED_TRANSITIONS.put(EXCHANGED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(REFUND_REQUESTED, EnumSet.of(REFUND_RECALLING));
         ALLOWED_TRANSITIONS.put(REFUND_RECALLING, EnumSet.of(REFUND_SHIPPING));
         ALLOWED_TRANSITIONS.put(REFUND_SHIPPING, EnumSet.of(REFUNDED, PARTIALLY_REFUNDED));
@@ -113,7 +105,7 @@ public enum OrderStatus {
     /**
      * 구매자가 직접 변경할 수 있는 주문 상태인지 확인한다.
      * <p>
-     * 구매자 허용 상태: CANCEL_REQUESTED, CONFIRMED, EXCHANGE_REQUESTED, REFUND_REQUESTED
+     * 구매자 허용 상태: CANCEL_REQUESTED, CONFIRMED, REFUND_REQUESTED
      * </p>
      *
      * @return 구매자가 변경 가능한 상태이면 true
