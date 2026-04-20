@@ -110,6 +110,10 @@ vendor:
       biz-money-balance-path: /bizApi/bizMoney
       coupon-send-fail-cancel-path: /bizApi/coupon/sendFailCancel
 
+security:
+  validation:
+    gifticon-pin-enabled: true
+
 gifticon:
   pin:
     encrypt-key: ${GIFTICON_PIN_ENCRYPT_KEY:dev-pin-key-change-me}
