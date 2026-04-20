@@ -8,13 +8,13 @@ import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
-import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import com.personal.marketnote.reward.port.out.gifticon.EncryptGifticonPinPort;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonOrderPort;
 import com.personal.marketnote.reward.port.out.gifticon.SaveGifticonOrderPort;
 import com.personal.marketnote.reward.port.out.gifticon.SendGifticonCouponPort.SendCouponResult;
 import com.personal.marketnote.reward.port.out.gifticon.UpdateGifticonOrderPort;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.service.gifticon.PurchaseGifticonTransactionHelper.DeductCashAndCreateOrderContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class PurchaseGifticonTransactionHelperTest {
     private PurchaseGifticonTransactionHelper helper;
 
     @Mock
-    private GetUserPointUseCase getUserPointUseCase;
+    private FindUserPointPort findUserPointPort;
 
     @Mock
     private ModifyUserPointUseCase modifyUserPointUseCase;
@@ -78,7 +78,7 @@ class PurchaseGifticonTransactionHelperTest {
     void shouldSaveOrderAsPendingAfterCashDeduction() {
         // given
         UserPoint userPoint = createUserPointWithAmount(10000L);
-        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
         when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
@@ -114,7 +114,7 @@ class PurchaseGifticonTransactionHelperTest {
     void shouldThrowExceptionWhenInsufficientCash() {
         // given
         UserPoint userPoint = createUserPointWithAmount(3000L);
-        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
 
         // when & then
         assertThatThrownBy(() -> helper.deductCashAndCreateOrder(
@@ -130,11 +130,42 @@ class PurchaseGifticonTransactionHelperTest {
     }
 
     @Test
+    @DisplayName("잔액 조회 시 잠금 조회(findByUserIdForUpdate)를 사용한다")
+    void shouldUseFindByUserIdForUpdateForBalanceCheck() {
+        // given
+        UserPoint userPoint = createUserPointWithAmount(10000L);
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
+        when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
+        when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
+            GifticonOrder order = invocation.getArgument(0);
+            return GifticonOrder.from(GifticonOrderSnapshotState.builder()
+                    .id(1L)
+                    .userId(order.getUserId())
+                    .goodsCode(order.getGoodsCode())
+                    .goodsName(order.getGoodsName())
+                    .brandName(order.getBrandName())
+                    .productImageUrl(order.getProductImageUrl())
+                    .trId(order.getTrId())
+                    .cashPrice(order.getCashPrice())
+                    .orderStatus(order.getOrderStatus())
+                    .build());
+        });
+
+        // when
+        helper.deductCashAndCreateOrder(
+                USER_ID, GOODS_CODE, GOODS_NAME, BRAND_NAME, PRODUCT_IMAGE_URL, CASH_PRICE
+        );
+
+        // then
+        verify(findUserPointPort).findByUserIdForUpdate(USER_ID);
+    }
+
+    @Test
     @DisplayName("TR_ID가 NC{userId}_{yyMMddHHmmss} 형식으로 생성된다")
     void shouldGenerateTrIdInCorrectFormat() {
         // given
         UserPoint userPoint = createUserPointWithAmount(10000L);
-        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
         when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
@@ -168,7 +199,7 @@ class PurchaseGifticonTransactionHelperTest {
     void shouldRecordGifticonPurchaseSourceType() {
         // given
         UserPoint userPoint = createUserPointWithAmount(10000L);
-        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
         when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);

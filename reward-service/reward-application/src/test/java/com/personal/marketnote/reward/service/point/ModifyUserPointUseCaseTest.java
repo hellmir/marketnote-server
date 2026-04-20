@@ -2,10 +2,12 @@ package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.reward.domain.point.*;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
 import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,6 +36,9 @@ class ModifyUserPointUseCaseTest {
 
     @Mock
     private GetUserPointUseCase getUserPointUseCase;
+
+    @Mock
+    private FindUserPointPort findUserPointPort;
 
     @Mock
     private UpdateUserPointPort updateUserPointPort;
@@ -118,6 +125,27 @@ class ModifyUserPointUseCaseTest {
         }
 
         @Test
+        @DisplayName("적립 시 일반 조회를 사용하고 잠금 조회는 호출하지 않는다")
+        void shouldNotUseFindByUserIdForUpdateOnAccrual() {
+            // given
+            UserPoint userPoint = createUserPoint(1000L);
+            ModifyUserPointCommand command = createAccrualCommandWithUserId(500L);
+
+            when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+            when(updateUserPointPort.update(any(UserPoint.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+            when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            modifyUserPointService.modify(command);
+
+            // then
+            verify(getUserPointUseCase).getUserPoint(USER_ID);
+            verifyNoInteractions(findUserPointPort);
+        }
+
+        @Test
         @DisplayName("userKey로 포인트를 적립하면 기존 금액에 적립 금액이 더해진다")
         void shouldAccruePointByUserKey() {
             // given
@@ -152,7 +180,7 @@ class ModifyUserPointUseCaseTest {
             UserPoint userPoint = createUserPoint(1000L);
             ModifyUserPointCommand command = createDeductionCommandWithUserId(300L);
 
-            when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+            when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
             when(updateUserPointPort.update(any(UserPoint.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
@@ -163,6 +191,45 @@ class ModifyUserPointUseCaseTest {
 
             // then
             assertThat(result.amount()).isEqualTo(700L);
+        }
+
+        @Test
+        @DisplayName("차감 시 잠금 조회(findByUserIdForUpdate)를 사용하고 일반 조회는 호출하지 않는다")
+        void shouldUseFindByUserIdForUpdateOnDeduction() {
+            // given
+            UserPoint userPoint = createUserPoint(1000L);
+            ModifyUserPointCommand command = createDeductionCommandWithUserId(300L);
+
+            when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
+            when(updateUserPointPort.update(any(UserPoint.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+            when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            // when
+            modifyUserPointService.modify(command);
+
+            // then
+            verify(findUserPointPort).findByUserIdForUpdate(USER_ID);
+            verifyNoInteractions(getUserPointUseCase);
+        }
+
+        @Test
+        @DisplayName("차감 시 잠금 조회 결과가 없으면 UserPointNotFoundException이 발생한다")
+        void shouldThrowWhenUserPointNotFoundOnDeductionWithLock() {
+            // given
+            ModifyUserPointCommand command = createDeductionCommandWithUserId(300L);
+
+            when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.empty());
+
+            // expect
+            assertThatThrownBy(() -> modifyUserPointService.modify(command))
+                    .isInstanceOf(UserPointNotFoundException.class);
+
+            verify(findUserPointPort).findByUserIdForUpdate(USER_ID);
+            verifyNoInteractions(getUserPointUseCase);
+            verify(updateUserPointPort, never()).update(any());
+            verify(saveUserPointHistoryPort, never()).save(any());
         }
     }
 
@@ -203,7 +270,7 @@ class ModifyUserPointUseCaseTest {
             UserPoint userPoint = createUserPoint(1000L);
             ModifyUserPointCommand command = createDeductionCommandWithUserId(300L);
 
-            when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+            when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
             when(updateUserPointPort.update(any(UserPoint.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
             when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
