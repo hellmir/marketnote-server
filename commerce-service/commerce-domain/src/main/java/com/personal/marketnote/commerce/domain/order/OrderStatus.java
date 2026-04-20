@@ -15,7 +15,6 @@ public enum OrderStatus {
     PAID("결제 완료"),
     FAILED("결제 실패"),
     PREPARING("상품 준비중"),
-    PREPARED("상품 준비 완료"),
     CANCEL_REQUESTED("주문 취소 요청됨"),
     CANCELLED("주문 취소"),
     SHIPPING("배송중"),
@@ -39,8 +38,7 @@ public enum OrderStatus {
         ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCEL_REQUESTED, CANCELLED));
         ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED, CANCELLED));
         ALLOWED_TRANSITIONS.put(FAILED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(PREPARED, CANCEL_REQUESTED, CANCELLED));
-        ALLOWED_TRANSITIONS.put(PREPARED, EnumSet.of(SHIPPING, CANCEL_REQUESTED, CANCELLED));
+        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCEL_REQUESTED, CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCEL_REQUESTED, EnumSet.of(CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED));

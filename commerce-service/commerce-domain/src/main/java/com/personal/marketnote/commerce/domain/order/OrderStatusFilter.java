@@ -10,7 +10,6 @@ public enum OrderStatusFilter {
     SHIPPING(
             List.of(
                     OrderStatus.PREPARING,
-                    OrderStatus.PREPARED,
                     OrderStatus.SHIPPING,
                     OrderStatus.REFUND_SHIPPING
             )

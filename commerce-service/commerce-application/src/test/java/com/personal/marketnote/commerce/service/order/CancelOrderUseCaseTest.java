@@ -103,23 +103,6 @@ class CancelOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("상품 준비 완료 상태의 주문을 취소 요청하면 정상 처리된다")
-        void cancelOrder_fromPrepared_succeeds() {
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PREPARED);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-
-            CancelOrderCommand command = CancelOrderCommand.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .build();
-
-            assertThatCode(() -> cancelOrderService.cancelOrder(command))
-                    .doesNotThrowAnyException();
-        }
-
-        @Test
         @DisplayName("취소 요청 성공 시 UpdateOrderPort를 호출한다")
         void cancelOrder_callsUpdateOrderPort() {
             Long orderId = 1L;

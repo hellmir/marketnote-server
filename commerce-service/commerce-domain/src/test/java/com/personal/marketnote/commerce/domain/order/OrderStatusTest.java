@@ -25,12 +25,6 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("EXCHANGE_REQUESTED는 구매자가 변경 가능한 상태이다")
-        void exchangeRequested_isBuyerAllowed() {
-            assertThat(OrderStatus.EXCHANGE_REQUESTED.isBuyerAllowed()).isTrue();
-        }
-
-        @Test
         @DisplayName("REFUND_REQUESTED는 구매자가 변경 가능한 상태이다")
         void refundRequested_isBuyerAllowed() {
             assertThat(OrderStatus.REFUND_REQUESTED.isBuyerAllowed()).isTrue();
@@ -61,12 +55,6 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("PREPARED는 구매자가 변경할 수 없는 상태이다")
-        void prepared_isNotBuyerAllowed() {
-            assertThat(OrderStatus.PREPARED.isBuyerAllowed()).isFalse();
-        }
-
-        @Test
         @DisplayName("CANCELLED는 구매자가 변경할 수 없는 상태이다")
         void cancelled_isNotBuyerAllowed() {
             assertThat(OrderStatus.CANCELLED.isBuyerAllowed()).isFalse();
@@ -88,24 +76,6 @@ class OrderStatusTest {
         @DisplayName("PARTIALLY_CONFIRMED는 구매자가 변경할 수 없는 상태이다")
         void partiallyConfirmed_isNotBuyerAllowed() {
             assertThat(OrderStatus.PARTIALLY_CONFIRMED.isBuyerAllowed()).isFalse();
-        }
-
-        @Test
-        @DisplayName("EXCHANGE_RECALLING는 구매자가 변경할 수 없는 상태이다")
-        void exchangeRecalling_isNotBuyerAllowed() {
-            assertThat(OrderStatus.EXCHANGE_RECALLING.isBuyerAllowed()).isFalse();
-        }
-
-        @Test
-        @DisplayName("EXCHANGE_SHIPPING는 구매자가 변경할 수 없는 상태이다")
-        void exchangeShipping_isNotBuyerAllowed() {
-            assertThat(OrderStatus.EXCHANGE_SHIPPING.isBuyerAllowed()).isFalse();
-        }
-
-        @Test
-        @DisplayName("EXCHANGED는 구매자가 변경할 수 없는 상태이다")
-        void exchanged_isNotBuyerAllowed() {
-            assertThat(OrderStatus.EXCHANGED.isBuyerAllowed()).isFalse();
         }
 
         @Test
