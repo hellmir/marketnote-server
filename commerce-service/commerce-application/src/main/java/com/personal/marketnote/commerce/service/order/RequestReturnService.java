@@ -4,9 +4,9 @@ import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
-import com.personal.marketnote.commerce.port.in.command.order.RequestRefundCommand;
+import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.order.RequestRefundUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.order.RequestReturnUseCase;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +22,15 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
 @Slf4j
-public class RequestRefundService implements RequestRefundUseCase {
+public class RequestReturnService implements RequestReturnUseCase {
     private final GetOrderUseCase getOrderUseCase;
     private final UpdateOrderPort updateOrderPort;
     private final Clock clock;
 
-    private static final OrderStatus TARGET_STATUS = OrderStatus.REFUND_REQUESTED;
+    private static final OrderStatus TARGET_STATUS = OrderStatus.RETURN_REQUESTED;
 
     @Override
-    public void requestRefund(RequestRefundCommand command) {
+    public void requestReturn(RequestReturnCommand command) {
         Order order = getOrderUseCase.getOrder(command.id());
 
         validateBuyerOwnership(command, order);
@@ -52,7 +52,7 @@ public class RequestRefundService implements RequestRefundUseCase {
         updateOrderPort.update(order, orderStatusHistory);
     }
 
-    private void validateBuyerOwnership(RequestRefundCommand command, Order order) {
+    private void validateBuyerOwnership(RequestReturnCommand command, Order order) {
         if (!order.getBuyerId().equals(command.buyerId())) {
             log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
                     command.id(), order.getBuyerId(), command.buyerId());
@@ -70,7 +70,7 @@ public class RequestRefundService implements RequestRefundUseCase {
         }
     }
 
-    private ShippingAddress buildPickupAddress(RequestRefundCommand command) {
+    private ShippingAddress buildPickupAddress(RequestReturnCommand command) {
         return ShippingAddress.of(
                 command.pickupRecipientName(),
                 command.pickupRecipientPhoneNumber(),

@@ -31,7 +31,7 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | period | string | 조회 기간(ONE_MONTH, THREE_MONTHS, SIX_MONTHS, ONE_YEAR, ALL) | N | ONE_YEAR |
-                | status | string | 주문 상태 필터(SHIPPING, DELIVERED, CONFIRMED, CANCEL_EXCHANGE_REFUND, ALL) | N | SHIPPING |
+                | status | string | 주문 상태 필터(SHIPPING, DELIVERED, CONFIRMED, CANCEL_RETURN, ALL) | N | SHIPPING |
                 | productName | string | 상품명 검색 키워드 | N | "공책" |
                 
                 ---

@@ -8,20 +8,20 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class RequestRefundRequest {
+public class RequestReturnRequest {
     @Schema(
             name = "reasonCategory",
-            description = "환불 사유 카테고리",
+            description = "반품 사유 카테고리",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private OrderStatusReasonCategory reasonCategory;
 
     @Schema(
             name = "reason",
-            description = "환불 사유",
+            description = "반품 사유",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @Size(max = 500, message = "환불 사유는 500자 이내여야 합니다.")
+    @Size(max = 500, message = "반품 사유는 500자 이내여야 합니다.")
     private String reason;
 
     @Schema(

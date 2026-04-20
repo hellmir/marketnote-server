@@ -3,7 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
-import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestRefundRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestReturnRequest;
 import com.personal.marketnote.commerce.port.in.command.order.*;
 
 import java.util.List;
@@ -49,8 +49,8 @@ public class OrderRequestToCommandMapper {
                 .build();
     }
 
-    public static RequestRefundCommand mapToRefundRequestCommand(Long id, RequestRefundRequest request, Long buyerId) {
-        return RequestRefundCommand.builder()
+    public static RequestReturnCommand mapToReturnRequestCommand(Long id, RequestReturnRequest request, Long buyerId) {
+        return RequestReturnCommand.builder()
                 .id(id)
                 .reasonCategory(request.getReasonCategory())
                 .reason(request.getReason())

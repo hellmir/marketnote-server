@@ -88,11 +88,11 @@ public class Order {
                 .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
 
         if (
-                orderStatus.isRefunded()
+                orderStatus.isReturned()
                         && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isRefunded())
+                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturned())
         ) {
-            this.orderStatus = OrderStatus.getPartiallyRefunded();
+            this.orderStatus = OrderStatus.getPartiallyReturned();
             return;
         }
 

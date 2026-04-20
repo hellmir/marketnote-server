@@ -43,17 +43,19 @@ import java.lang.annotation.*;
                 
                     - "DELIVERED": 배송 완료
                 
+                    - "PARTIALLY_CONFIRMED": 부분 구매 확정
+
                     - "CONFIRMED": 구매 확정
-                
-                    - "REFUND_REQUESTED": 환불 요청됨
-                
-                    - "REFUND_RECALLING": 환불 회수 중
-                
-                    - "REFUND_SHIPPING": 환불 배송 중
-                
-                    - "PARTIALLY_REFUNDED": 부분 환불됨
-                
-                    - "REFUNDED": 환불 완료
+
+                    - "RETURN_REQUESTED": 반품 요청됨
+
+                    - "RETURN_RECALLING": 반품 회수 중
+
+                    - "RETURN_SHIPPING": 반품 배송 중
+
+                    - "PARTIALLY_RETURNED": 부분 반품됨
+
+                    - "RETURNED": 반품 완료
                 
                 - 변경 사유 카테고리 목록
                 
