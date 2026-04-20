@@ -232,11 +232,11 @@ class ConfirmOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("취소 요청 상태의 주문을 구매 확정하면 InvalidOrderStatusTransitionException이 발생한다")
-        void confirmOrder_fromCancelRequested_throwsException() {
+        @DisplayName("취소 상태의 주문을 구매 확정하면 InvalidOrderStatusTransitionException이 발생한다")
+        void confirmOrder_fromCancelled_throwsException() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.CANCEL_REQUESTED);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.CANCELLED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ConfirmOrderCommand command = ConfirmOrderCommand.builder()

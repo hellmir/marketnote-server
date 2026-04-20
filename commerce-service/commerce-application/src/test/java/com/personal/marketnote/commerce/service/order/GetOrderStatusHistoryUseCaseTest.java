@@ -118,7 +118,7 @@ class GetOrderStatusHistoryUseCaseTest {
         when(findOrderPort.findById(orderId)).thenReturn(Optional.of(createOrder(orderId)));
 
         OrderStatusHistory history = createHistory(
-                3L, orderId, OrderStatus.CANCEL_REQUESTED, OrderStatusReasonCategory.CANCEL_ORDER,
+                3L, orderId, OrderStatus.CANCELLED, OrderStatusReasonCategory.CANCEL_ORDER,
                 "구매 의사 취소", LocalDateTime.of(2026, 2, 20, 11, 0));
         when(findOrderStatusHistoryPort.findAllByOrderId(orderId)).thenReturn(List.of(history));
 
@@ -128,7 +128,7 @@ class GetOrderStatusHistoryUseCaseTest {
         // then
         OrderStatusHistoryItem item = result.statusHistory().get(0);
         assertThat(item.id()).isEqualTo(3L);
-        assertThat(item.orderStatus()).isEqualTo(OrderStatus.CANCEL_REQUESTED);
+        assertThat(item.orderStatus()).isEqualTo(OrderStatus.CANCELLED);
         assertThat(item.reasonCategory()).isEqualTo(OrderStatusReasonCategory.CANCEL_ORDER);
         assertThat(item.reason()).isEqualTo("구매 의사 취소");
         assertThat(item.createdAt()).isEqualTo(LocalDateTime.of(2026, 2, 20, 11, 0));

@@ -43,8 +43,6 @@ import java.lang.annotation.*;
                 
                     - "PREPARING": 상품 준비중
                 
-                    - "CANCEL_REQUESTED": 주문 취소 요청됨
-                
                     - "CANCELLED": 주문 취소
                 
                     - "SHIPPING": 배송중

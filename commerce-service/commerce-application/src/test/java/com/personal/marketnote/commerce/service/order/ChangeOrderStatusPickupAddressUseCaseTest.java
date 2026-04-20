@@ -261,12 +261,12 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
         void nonRefundRequest_doesNotCallFindPort() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .build();
@@ -281,12 +281,12 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
         void nonRefundRequest_pickupAddressNotApplied() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
-                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
+                    .orderStatus(OrderStatus.CONFIRMED)
                     .role("BUYER")
                     .buyerId(buyerId)
                     .pickupAddressId(50L)
