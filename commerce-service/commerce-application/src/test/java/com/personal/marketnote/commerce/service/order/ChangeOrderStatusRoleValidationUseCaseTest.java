@@ -91,23 +91,6 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
         }
 
         @Test
-        @DisplayName("구매자가 EXCHANGE_REQUESTED로 변경하면 정상 처리된다")
-        void buyer_exchangeRequested_succeeds() {
-            Order order = createOrder(1L, OrderStatus.DELIVERED);
-            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
-
-            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(1L)
-                    .orderStatus(OrderStatus.EXCHANGE_REQUESTED)
-                    .role("BUYER")
-                    .buyerId(1L)
-                    .build();
-
-            assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
-        }
-
-        @Test
         @DisplayName("구매자가 REFUND_REQUESTED로 변경하면 정상 처리된다")
         void buyer_refundRequested_succeeds() {
             Order order = createOrder(1L, OrderStatus.DELIVERED);
@@ -170,7 +153,7 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
         @Test
         @DisplayName("구매자가 SHIPPING으로 변경하면 UnauthorizedOrderStatusChangeException이 발생한다")
         void buyer_shipping_throwsException() {
-            Order order = createOrder(1L, OrderStatus.PREPARED);
+            Order order = createOrder(1L, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()

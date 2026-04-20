@@ -627,9 +627,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             );
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
                     OrderStatus.PREPARING,
-                    OrderStatus.PREPARED,
                     OrderStatus.SHIPPING,
-                    OrderStatus.EXCHANGE_SHIPPING,
                     OrderStatus.REFUND_SHIPPING
             );
         }
@@ -685,10 +683,6 @@ class GetBuyerOrderHistoryUseCaseTest {
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
                     OrderStatus.CANCEL_REQUESTED,
                     OrderStatus.CANCELLED,
-                    OrderStatus.EXCHANGE_REQUESTED,
-                    OrderStatus.EXCHANGE_RECALLING,
-                    OrderStatus.EXCHANGE_SHIPPING,
-                    OrderStatus.EXCHANGED,
                     OrderStatus.REFUND_REQUESTED,
                     OrderStatus.REFUND_RECALLING,
                     OrderStatus.REFUND_SHIPPING,
