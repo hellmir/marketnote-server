@@ -89,6 +89,23 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
             assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
                     .doesNotThrowAnyException();
         }
+
+        @Test
+        @DisplayName("구매자가 CANCELLED로 변경하면 정상 처리된다")
+        void buyer_cancelled_succeeds() {
+            Order order = createOrder(1L, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
+
+            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
+                    .id(1L)
+                    .orderStatus(OrderStatus.CANCELLED)
+                    .role("BUYER")
+                    .buyerId(1L)
+                    .build();
+
+            assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
+                    .doesNotThrowAnyException();
+        }
     }
 
     // ==================================================================================
@@ -168,14 +185,14 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
         }
 
         @Test
-        @DisplayName("구매자가 CANCELLED로 변경하면 UnauthorizedOrderStatusChangeException이 발생한다")
-        void buyer_cancelled_throwsException() {
-            Order order = createOrder(1L, OrderStatus.PAID);
+        @DisplayName("구매자가 RETURN_IN_PROGRESS로 변경하면 UnauthorizedOrderStatusChangeException이 발생한다")
+        void buyer_returnInProgress_throwsException() {
+            Order order = createOrder(1L, OrderStatus.RETURN_REQUESTED);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(1L)
-                    .orderStatus(OrderStatus.CANCELLED)
+                    .orderStatus(OrderStatus.RETURN_IN_PROGRESS)
                     .role("BUYER")
                     .buyerId(1L)
                     .build();
