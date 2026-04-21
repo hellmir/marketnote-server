@@ -92,6 +92,240 @@ class OrderStatusTest {
     }
 
     @Nested
+    @DisplayName("상태 전이 가능 여부 검증 (canTransitionTo)")
+    class CanTransitionToTest {
+
+        @Test
+        @DisplayName("PAYMENT_PENDING에서 PAID로 전이할 수 있다")
+        void paymentPending_canTransitionTo_paid() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.PAID)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING에서 FAILED로 전이할 수 있다")
+        void paymentPending_canTransitionTo_failed() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.FAILED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING에서 CANCELLED로 전이할 수 있다")
+        void paymentPending_canTransitionTo_cancelled() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING에서 SHIPPING로 전이할 수 없다")
+        void paymentPending_cannotTransitionTo_shipping() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.SHIPPING)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAID에서 PREPARING로 전이할 수 있다")
+        void paid_canTransitionTo_preparing() {
+            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.PREPARING)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAID에서 CANCELLED로 전이할 수 있다")
+        void paid_canTransitionTo_cancelled() {
+            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAID에서 SHIPPING로 전이할 수 없다")
+        void paid_cannotTransitionTo_shipping() {
+            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.SHIPPING)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PREPARING에서 SHIPPING로 전이할 수 있다")
+        void preparing_canTransitionTo_shipping() {
+            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.SHIPPING)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PREPARING에서 CANCELLED로 전이할 수 있다")
+        void preparing_canTransitionTo_cancelled() {
+            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("SHIPPING에서 DELIVERED로 전이할 수 있다")
+        void shipping_canTransitionTo_delivered() {
+            assertThat(OrderStatus.SHIPPING.canTransitionTo(OrderStatus.DELIVERED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("SHIPPING에서 CANCELLED로 전이할 수 없다")
+        void shipping_cannotTransitionTo_cancelled() {
+            assertThat(OrderStatus.SHIPPING.canTransitionTo(OrderStatus.CANCELLED)).isFalse();
+        }
+
+        @Test
+        @DisplayName("DELIVERED에서 CONFIRMED로 전이할 수 있다")
+        void delivered_canTransitionTo_confirmed() {
+            assertThat(OrderStatus.DELIVERED.canTransitionTo(OrderStatus.CONFIRMED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("DELIVERED에서 RETURN_REQUESTED로 전이할 수 있다")
+        void delivered_canTransitionTo_returnRequested() {
+            assertThat(OrderStatus.DELIVERED.canTransitionTo(OrderStatus.RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CONFIRMED에서 CONFIRMED로 전이할 수 있다")
+        void partiallyConfirmed_canTransitionTo_confirmed() {
+            assertThat(OrderStatus.PARTIALLY_CONFIRMED.canTransitionTo(OrderStatus.CONFIRMED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CONFIRMED에서 RETURN_REQUESTED로 전이할 수 있다")
+        void partiallyConfirmed_canTransitionTo_returnRequested() {
+            assertThat(OrderStatus.PARTIALLY_CONFIRMED.canTransitionTo(OrderStatus.RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("RETURN_REQUESTED에서 RETURN_IN_PROGRESS로 전이할 수 있다")
+        void returnRequested_canTransitionTo_returnInProgress() {
+            assertThat(OrderStatus.RETURN_REQUESTED.canTransitionTo(OrderStatus.RETURN_IN_PROGRESS)).isTrue();
+        }
+
+        @Test
+        @DisplayName("RETURN_IN_PROGRESS에서 RETURNED로 전이할 수 있다")
+        void returnInProgress_canTransitionTo_returned() {
+            assertThat(OrderStatus.RETURN_IN_PROGRESS.canTransitionTo(OrderStatus.RETURNED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURNED에서 RETURN_REQUESTED로 전이할 수 있다")
+        void partiallyReturned_canTransitionTo_returnRequested() {
+            assertThat(OrderStatus.PARTIALLY_RETURNED.canTransitionTo(OrderStatus.RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURNED에서 RETURNED로 전이할 수 있다")
+        void partiallyReturned_canTransitionTo_returned() {
+            assertThat(OrderStatus.PARTIALLY_RETURNED.canTransitionTo(OrderStatus.RETURNED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("FAILED에서 어떤 상태로도 전이할 수 없다")
+        void failed_cannotTransitionToAny() {
+            for (OrderStatus target : OrderStatus.values()) {
+                assertThat(OrderStatus.FAILED.canTransitionTo(target)).isFalse();
+            }
+        }
+
+        @Test
+        @DisplayName("CANCELLED에서 어떤 상태로도 전이할 수 없다")
+        void cancelled_cannotTransitionToAny() {
+            for (OrderStatus target : OrderStatus.values()) {
+                assertThat(OrderStatus.CANCELLED.canTransitionTo(target)).isFalse();
+            }
+        }
+
+        @Test
+        @DisplayName("CONFIRMED에서 어떤 상태로도 전이할 수 없다")
+        void confirmed_cannotTransitionToAny() {
+            for (OrderStatus target : OrderStatus.values()) {
+                assertThat(OrderStatus.CONFIRMED.canTransitionTo(target)).isFalse();
+            }
+        }
+
+        @Test
+        @DisplayName("RETURNED에서 어떤 상태로도 전이할 수 없다")
+        void returned_cannotTransitionToAny() {
+            for (OrderStatus target : OrderStatus.values()) {
+                assertThat(OrderStatus.RETURNED.canTransitionTo(target)).isFalse();
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("최종 상태 검증 (isTerminal)")
+    class IsTerminalTest {
+
+        @Test
+        @DisplayName("FAILED는 최종 상태이다")
+        void failed_isTerminal() {
+            assertThat(OrderStatus.FAILED.isTerminal()).isTrue();
+        }
+
+        @Test
+        @DisplayName("CANCELLED는 최종 상태이다")
+        void cancelled_isTerminal() {
+            assertThat(OrderStatus.CANCELLED.isTerminal()).isTrue();
+        }
+
+        @Test
+        @DisplayName("CONFIRMED는 최종 상태이다")
+        void confirmed_isTerminal() {
+            assertThat(OrderStatus.CONFIRMED.isTerminal()).isTrue();
+        }
+
+        @Test
+        @DisplayName("RETURNED는 최종 상태이다")
+        void returned_isTerminal() {
+            assertThat(OrderStatus.RETURNED.isTerminal()).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING는 최종 상태가 아니다")
+        void paymentPending_isNotTerminal() {
+            assertThat(OrderStatus.PAYMENT_PENDING.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAID는 최종 상태가 아니다")
+        void paid_isNotTerminal() {
+            assertThat(OrderStatus.PAID.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PREPARING는 최종 상태가 아니다")
+        void preparing_isNotTerminal() {
+            assertThat(OrderStatus.PREPARING.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("SHIPPING는 최종 상태가 아니다")
+        void shipping_isNotTerminal() {
+            assertThat(OrderStatus.SHIPPING.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("DELIVERED는 최종 상태가 아니다")
+        void delivered_isNotTerminal() {
+            assertThat(OrderStatus.DELIVERED.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CONFIRMED는 최종 상태가 아니다")
+        void partiallyConfirmed_isNotTerminal() {
+            assertThat(OrderStatus.PARTIALLY_CONFIRMED.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("RETURN_REQUESTED는 최종 상태가 아니다")
+        void returnRequested_isNotTerminal() {
+            assertThat(OrderStatus.RETURN_REQUESTED.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("RETURN_IN_PROGRESS는 최종 상태가 아니다")
+        void returnInProgress_isNotTerminal() {
+            assertThat(OrderStatus.RETURN_IN_PROGRESS.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURNED는 최종 상태가 아니다")
+        void partiallyReturned_isNotTerminal() {
+            assertThat(OrderStatus.PARTIALLY_RETURNED.isTerminal()).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("배송 완료 상태 검증 (isDelivered)")
     class IsDeliveredTest {
 
