@@ -49,9 +49,9 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("CANCELLED는 구매자가 변경할 수 없는 상태이다")
-        void cancelled_isNotBuyerAllowed() {
-            assertThat(OrderStatus.CANCELLED.isBuyerAllowed()).isFalse();
+        @DisplayName("CANCELLED는 구매자가 변경 가능한 상태이다")
+        void cancelled_isBuyerAllowed() {
+            assertThat(OrderStatus.CANCELLED.isBuyerAllowed()).isTrue();
         }
 
         @Test
@@ -88,6 +88,29 @@ class OrderStatusTest {
         @DisplayName("RETURNED는 구매자가 변경할 수 없는 상태이다")
         void returned_isNotBuyerAllowed() {
             assertThat(OrderStatus.RETURNED.isBuyerAllowed()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("배송 완료 상태 검증 (isDelivered)")
+    class IsDeliveredTest {
+
+        @Test
+        @DisplayName("DELIVERED는 배송 완료 상태이다")
+        void delivered_isDelivered() {
+            assertThat(OrderStatus.DELIVERED.isDelivered()).isTrue();
+        }
+
+        @Test
+        @DisplayName("SHIPPING는 배송 완료 상태가 아니다")
+        void shipping_isNotDelivered() {
+            assertThat(OrderStatus.SHIPPING.isDelivered()).isFalse();
+        }
+
+        @Test
+        @DisplayName("CONFIRMED는 배송 완료 상태가 아니다")
+        void confirmed_isNotDelivered() {
+            assertThat(OrderStatus.CONFIRMED.isDelivered()).isFalse();
         }
     }
 }
