@@ -73,15 +73,9 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("RETURN_RECALLING는 구매자가 변경할 수 없는 상태이다")
-        void returnRecalling_isNotBuyerAllowed() {
-            assertThat(OrderStatus.RETURN_RECALLING.isBuyerAllowed()).isFalse();
-        }
-
-        @Test
-        @DisplayName("RETURN_SHIPPING는 구매자가 변경할 수 없는 상태이다")
-        void returnShipping_isNotBuyerAllowed() {
-            assertThat(OrderStatus.RETURN_SHIPPING.isBuyerAllowed()).isFalse();
+        @DisplayName("RETURN_IN_PROGRESS는 구매자가 변경할 수 없는 상태이다")
+        void returnInProgress_isNotBuyerAllowed() {
+            assertThat(OrderStatus.RETURN_IN_PROGRESS.isBuyerAllowed()).isFalse();
         }
 
         @Test

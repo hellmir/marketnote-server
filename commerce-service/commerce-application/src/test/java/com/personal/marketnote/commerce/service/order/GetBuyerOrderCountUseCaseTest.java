@@ -528,7 +528,7 @@ class GetBuyerOrderCountUseCaseTest {
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
                     OrderStatus.PREPARING,
                     OrderStatus.SHIPPING,
-                    OrderStatus.RETURN_SHIPPING
+                    OrderStatus.RETURN_IN_PROGRESS
             );
         }
 
@@ -583,8 +583,7 @@ class GetBuyerOrderCountUseCaseTest {
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
                     OrderStatus.CANCELLED,
                     OrderStatus.RETURN_REQUESTED,
-                    OrderStatus.RETURN_RECALLING,
-                    OrderStatus.RETURN_SHIPPING,
+                    OrderStatus.RETURN_IN_PROGRESS,
                     OrderStatus.PARTIALLY_RETURNED,
                     OrderStatus.RETURNED
             );
