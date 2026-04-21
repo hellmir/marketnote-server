@@ -103,7 +103,7 @@ public enum OrderStatus {
     /**
      * 구매자가 직접 변경할 수 있는 주문 상태인지 확인한다.
      * <p>
-     * 구매자 허용 상태: CONFIRMED, RETURN_REQUESTED
+     * 구매자 허용 상태: CONFIRMED, CANCELLED, RETURN_REQUESTED
      * </p>
      *
      * @return 구매자가 변경 가능한 상태이면 true
