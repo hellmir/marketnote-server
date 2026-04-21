@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.adapter.out.persistence.delivery.ent
 
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistrationSnapshotState;
+import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentWorkStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,6 +25,10 @@ public class FulfillmentDeliveryRegistrationJpaEntity {
     @Column(name = "order_id", nullable = false, unique = true)
     private Long orderId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "work_status", nullable = false)
+    private FulfillmentWorkStatus workStatus;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -32,6 +37,7 @@ public class FulfillmentDeliveryRegistrationJpaEntity {
         return FulfillmentDeliveryRegistrationJpaEntity.builder()
                 .id(registration.getId())
                 .orderId(registration.getOrderId())
+                .workStatus(registration.getWorkStatus())
                 .createdAt(registration.getCreatedAt())
                 .build();
     }
@@ -41,6 +47,7 @@ public class FulfillmentDeliveryRegistrationJpaEntity {
                 FulfillmentDeliveryRegistrationSnapshotState.builder()
                         .id(id)
                         .orderId(orderId)
+                        .workStatus(workStatus)
                         .createdAt(createdAt)
                         .build()
         );
