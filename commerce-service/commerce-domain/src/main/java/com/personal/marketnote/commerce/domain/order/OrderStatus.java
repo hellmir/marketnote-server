@@ -29,7 +29,7 @@ public enum OrderStatus {
 
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
     private static final Set<OrderStatus> BUYER_ALLOWED_STATUSES = EnumSet.of(
-            CONFIRMED, RETURN_REQUESTED
+            CONFIRMED, CANCELLED, RETURN_REQUESTED
     );
 
     static {
@@ -86,6 +86,10 @@ public enum OrderStatus {
 
     public boolean isShipping() {
         return this == SHIPPING;
+    }
+
+    public boolean isDelivered() {
+        return this == DELIVERED;
     }
 
     public boolean isReturnRequested() {
