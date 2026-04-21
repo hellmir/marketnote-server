@@ -10,5 +10,6 @@ import java.time.LocalDateTime;
 public class FulfillmentDeliveryRegistrationSnapshotState {
     private final Long id;
     private final Long orderId;
+    private final FulfillmentWorkStatus workStatus;
     private final LocalDateTime createdAt;
 }

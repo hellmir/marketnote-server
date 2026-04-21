@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class FulfillmentDeliveryRegistration {
     private Long id;
     private Long orderId;
+    private FulfillmentWorkStatus workStatus;
     private LocalDateTime createdAt;
 
     public static FulfillmentDeliveryRegistration from(FulfillmentDeliveryRegistrationCreateState state) {
@@ -21,6 +22,7 @@ public class FulfillmentDeliveryRegistration {
         }
         return FulfillmentDeliveryRegistration.builder()
                 .orderId(state.getOrderId())
+                .workStatus(FulfillmentWorkStatus.REGISTERED)
                 .build();
     }
 
@@ -28,6 +30,7 @@ public class FulfillmentDeliveryRegistration {
         return FulfillmentDeliveryRegistration.builder()
                 .id(state.getId())
                 .orderId(state.getOrderId())
+                .workStatus(state.getWorkStatus())
                 .createdAt(state.getCreatedAt())
                 .build();
     }
