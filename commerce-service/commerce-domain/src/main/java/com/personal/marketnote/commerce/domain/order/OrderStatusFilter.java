@@ -11,7 +11,7 @@ public enum OrderStatusFilter {
             List.of(
                     OrderStatus.PREPARING,
                     OrderStatus.SHIPPING,
-                    OrderStatus.RETURN_SHIPPING
+                    OrderStatus.RETURN_IN_PROGRESS
             )
     ),
     DELIVERED(List.of(OrderStatus.DELIVERED)),
@@ -20,8 +20,7 @@ public enum OrderStatusFilter {
             List.of(
                     OrderStatus.CANCELLED,
                     OrderStatus.RETURN_REQUESTED,
-                    OrderStatus.RETURN_RECALLING,
-                    OrderStatus.RETURN_SHIPPING,
+                    OrderStatus.RETURN_IN_PROGRESS,
                     OrderStatus.PARTIALLY_RETURNED,
                     OrderStatus.RETURNED
             )
