@@ -49,9 +49,7 @@ import java.lang.annotation.*;
 
                     - "RETURN_REQUESTED": 반품 요청됨
 
-                    - "RETURN_RECALLING": 반품 회수 중
-
-                    - "RETURN_SHIPPING": 반품 배송 중
+                    - "RETURN_IN_PROGRESS": 반품 진행 중
 
                     - "PARTIALLY_RETURNED": 부분 반품됨
 
