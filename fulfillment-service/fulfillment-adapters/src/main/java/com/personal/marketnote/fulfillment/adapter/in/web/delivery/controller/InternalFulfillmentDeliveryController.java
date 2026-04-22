@@ -1,19 +1,23 @@
 package com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.CancelInternalFulfillmentDeliveryApiDocs;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.GetFulfillmentWorkStatusApiDocs;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.CancelInternalFulfillmentDeliveryRequest;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.CancelInternalFulfillmentDeliveryResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetFulfillmentWorkStatusResponse;
+import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.GetFulfillmentWorkStatusCommand;
+import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.result.GetFulfillmentWorkStatusResult;
+import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.GetFulfillmentWorkStatusUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 
@@ -29,6 +33,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RequiredArgsConstructor
 public class InternalFulfillmentDeliveryController {
     private final GetFulfillmentWorkStatusUseCase getFulfillmentWorkStatusUseCase;
+    private final CancelInternalFulfillmentDeliveryUseCase cancelInternalFulfillmentDeliveryUseCase;
 
     /**
      * 풀필먼트 작업 상태 조회 (서비스 간 통신용)
@@ -50,6 +55,31 @@ public class InternalFulfillmentDeliveryController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "풀필먼트 작업 상태 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 풀필먼트 출고 취소 (서비스 간 통신용)
+     *
+     * @param request 출고 취소 요청 (orderId)
+     */
+    @PostMapping("/cancel")
+    @CancelInternalFulfillmentDeliveryApiDocs
+    public ResponseEntity<BaseResponse<CancelInternalFulfillmentDeliveryResponse>> cancelDelivery(
+            @Valid @RequestBody CancelInternalFulfillmentDeliveryRequest request
+    ) {
+        CancelInternalFulfillmentDeliveryResult result = cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(
+                new CancelInternalFulfillmentDeliveryCommand(request.orderId())
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        CancelInternalFulfillmentDeliveryResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "풀필먼트 출고 취소 처리 완료"
                 ),
                 HttpStatus.OK
         );

@@ -3,6 +3,9 @@ package com.personal.marketnote.fulfillment.domain.delivery;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 @RequiredArgsConstructor
 @Getter
 public enum FulfillmentWorkStatus {
@@ -14,6 +17,14 @@ public enum FulfillmentWorkStatus {
     RELEASED("출고 완료");
 
     private final String description;
+
+    private static final Set<FulfillmentWorkStatus> CANCELLABLE_STATUSES = EnumSet.of(
+            NOT_REGISTERED, REGISTERED, PICKING
+    );
+
+    public boolean isCancellable() {
+        return CANCELLABLE_STATUSES.contains(this);
+    }
 
     public boolean isNotRegistered() {
         return this == NOT_REGISTERED;
