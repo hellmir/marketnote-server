@@ -88,6 +88,9 @@ reward-service:
   base-url: ${REWARD_SERVICE_SERVER_ORIGIN:http://localhost:8084}
   share-point-rate: ${REWARD_SHARE_POINT_RATE:0.1}
 
+fulfillment-service:
+  base-url: ${FULFILLMENT_SERVICE_SERVER_ORIGIN:http://localhost:8083}
+
 kcp:
   site-cd: ${KCP_SITE_CD:T0000}
   cert-info-path: ${KCP_CERT_INFO_PATH:classpath:kcp/cert/kcp_test_cert.pem}
