@@ -34,4 +34,8 @@ public class FulfillmentDeliveryRegistration {
                 .createdAt(state.getCreatedAt())
                 .build();
     }
+
+    public boolean isCancellable() {
+        return workStatus.isCancellable();
+    }
 }
