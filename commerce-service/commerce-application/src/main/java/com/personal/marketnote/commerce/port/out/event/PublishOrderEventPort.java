@@ -12,4 +12,9 @@ public interface PublishOrderEventPort {
                                            Long totalAccumulatedPoint);
 
     void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys);
+
+    void publishOrderCancelledEvent(Long orderId, String orderKey, Long buyerId,
+                                    Long cancelAmount, Long paymentAmount, Long pointAmount,
+                                    Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
+                                    List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts);
 }
