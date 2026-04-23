@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.OrderCancelledEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
 import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
@@ -57,6 +58,42 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
         String topic = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED;
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
+                topic, SOURCE, payload, clock
+        );
+
+        saveToOutbox(envelope, topic, orderId.toString());
+    }
+
+    @Override
+    public void publishOrderCancelledEvent(Long orderId, String orderKey, Long buyerId,
+                                           Long cancelAmount, Long paymentAmount, Long pointAmount,
+                                           Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
+                                           List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts) {
+        List<OrderCancelledEvent.OrderProductItem> items = orderProducts.stream()
+                .map(op -> new OrderCancelledEvent.OrderProductItem(
+                        op.getPricePolicyId(),
+                        op.getSharerKey(),
+                        op.getQuantity(),
+                        op.getUnitAmount()
+                ))
+                .toList();
+
+        List<OrderCancelledEvent.OrderProductItem> cancelItems = cancelProducts.stream()
+                .map(op -> new OrderCancelledEvent.OrderProductItem(
+                        op.getPricePolicyId(),
+                        op.getSharerKey(),
+                        op.getQuantity(),
+                        op.getUnitAmount()
+                ))
+                .toList();
+
+        OrderCancelledEvent payload = new OrderCancelledEvent(
+                orderId, orderKey, buyerId, cancelAmount, paymentAmount,
+                pointAmount, shippingFee, isFullCancel, alreadyRefunded,
+                items, cancelItems
+        );
+        String topic = KafkaTopicConstants.ORDER_CANCELLED;
+        EventEnvelope<OrderCancelledEvent> envelope = EventEnvelope.of(
                 topic, SOURCE, payload, clock
         );
 
