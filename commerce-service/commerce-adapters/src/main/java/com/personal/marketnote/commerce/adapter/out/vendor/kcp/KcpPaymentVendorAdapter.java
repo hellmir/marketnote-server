@@ -242,26 +242,73 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
 
         recordRequest(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.transactionId(), request);
 
-        try {
-            KcpPaymentCancelResponse response = kcpApiClient.cancelPayment(request);
-            recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.transactionId(), response);
+        return executeCancelWithRetry(request, command.transactionId());
+    }
 
-            boolean isSuccess = response.isSuccess();
-            if (!isSuccess) {
-                log.error("KCP 결제취소 실패: resCd={}, resMsg={}", response.resCd(), response.resMsg());
+    private PaymentCancelVendorResult executeCancelWithRetry(
+            KcpPaymentCancelRequest request, String transactionId
+    ) {
+        KcpProperties.Retry retryConfig = kcpProperties.getRetry();
+        long sleepMillis = retryConfig.getInitialDelayMs();
+        int maxAttempts = retryConfig.getMaxAttempts();
+        int readTimeoutAttemptCount = 0;
+        Exception lastException = null;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                KcpPaymentCancelResponse response = kcpApiClient.cancelPayment(request);
+                recordResponse(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, transactionId, response);
+                return buildCancelResult(response);
+            } catch (Exception e) {
+                lastException = e;
+                recordError(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, transactionId, e);
+
+                if (isConnectionFailure(e)) {
+                    log.warn("KCP 결제취소 연결 실패 - transactionId: {}, attempt: {}/{}, error: {}",
+                            transactionId, attempt, maxAttempts, e.getMessage());
+                    if (attempt < maxAttempts) {
+                        sleep(sleepMillis);
+                        sleepMillis *= retryConfig.getBackoffMultiplier();
+                        continue;
+                    }
+                    throw new PaymentVendorConnectionFailedException(
+                            "KCP 연결 실패: " + e.getMessage(), e
+                    );
+                }
+
+                if (isReadTimeout(e)) {
+                    readTimeoutAttemptCount++;
+                    log.warn("KCP 결제취소 읽기 타임아웃 - transactionId: {}, attempt: {}/{}, readTimeoutCount: {}/{}",
+                            transactionId, attempt, maxAttempts, readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts());
+                    if (readTimeoutAttemptCount < retryConfig.getReadTimeoutMaxAttempts() && attempt < maxAttempts) {
+                        sleep(sleepMillis);
+                        sleepMillis *= retryConfig.getBackoffMultiplier();
+                        continue;
+                    }
+                    throw new KcpCommunicationException(
+                            "KCP 결제취소 읽기 타임아웃 초과: " + e.getMessage(), e
+                    );
+                }
+
+                throw e;
             }
-
-            return PaymentCancelVendorResult.builder()
-                    .success(isSuccess)
-                    .resultCode(response.resCd())
-                    .resultMessage(response.resMsg())
-                    .amount(response.amount())
-                    .rawResponse(kcpApiClient.toJsonNode(response).toString())
-                    .build();
-        } catch (KcpCommunicationException e) {
-            recordError(CommerceVendorCommunicationTargetType.PAYMENT_CANCEL, command.transactionId(), e);
-            throw e;
         }
+
+        throw new KcpCommunicationException("KCP 결제취소 재시도 소진", lastException);
+    }
+
+    private PaymentCancelVendorResult buildCancelResult(KcpPaymentCancelResponse response) {
+        boolean isSuccess = response.isSuccess();
+        if (!isSuccess) {
+            log.error("KCP 결제취소 실패: resCd={}, resMsg={}", response.resCd(), response.resMsg());
+        }
+        return PaymentCancelVendorResult.builder()
+                .success(isSuccess)
+                .resultCode(response.resCd())
+                .resultMessage(response.resMsg())
+                .amount(response.amount())
+                .rawResponse(kcpApiClient.toJsonNode(response).toString())
+                .build();
     }
 
     private void recordRequest(CommerceVendorCommunicationTargetType targetType, String targetId, Object request) {
