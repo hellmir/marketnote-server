@@ -62,6 +62,10 @@ public class Payment {
         refundAmount = paymentAmount;
     }
 
+    public boolean isAlreadyRefunded() {
+        return refundedYn;
+    }
+
     public void markAsPartiallyRefunded(Long amount) {
         long newRefundAmount = refundAmount + amount;
         if (newRefundAmount > paymentAmount) {
