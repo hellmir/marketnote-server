@@ -63,11 +63,11 @@ public class CancelOrderService implements CancelOrderUseCase {
             CancelFulfillmentReleaseResult result = cancelFulfillmentReleasePort.cancelRelease(order.getId());
             if (!result.cancelled()) {
                 log.warn("풀필먼트 출고 취소 거부 - orderId: {}, message: {}", order.getId(), result.message());
-                throw new OrderCancellationNotAllowedException(order.getId(), "출고 취소가 거부되었습니다");
+                throw new OrderCancellationNotAllowedException(order.getId());
             }
         } catch (FulfillmentServiceRequestFailedException e) {
             log.error("풀필먼트 서비스 통신 실패로 주문 취소 거부 - orderId: {}", order.getId(), e);
-            throw new OrderCancellationNotAllowedException(order.getId(), "풀필먼트 서비스 통신 실패");
+            throw new OrderCancellationNotAllowedException(order.getId());
         }
     }
 
