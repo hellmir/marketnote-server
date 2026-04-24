@@ -92,8 +92,24 @@ public enum OrderStatus {
         return this == DELIVERED;
     }
 
+    public boolean isPreparing() {
+        return this == PREPARING;
+    }
+
+    public boolean isCancelled() {
+        return this == CANCELLED;
+    }
+
     public boolean isReturnRequested() {
         return this == RETURN_REQUESTED;
+    }
+
+    public boolean requiresFulfillmentCancellation() {
+        return this == PREPARING;
+    }
+
+    public boolean requiresPaymentRefund() {
+        return this == PAID || this == PREPARING;
     }
 
     public boolean isNotPartialChanged() {
