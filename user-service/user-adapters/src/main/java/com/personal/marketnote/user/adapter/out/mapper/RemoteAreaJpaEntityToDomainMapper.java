@@ -10,9 +10,10 @@ public class RemoteAreaJpaEntityToDomainMapper {
         return RemoteArea.from(
                 RemoteAreaSnapshotState.builder()
                         .id(entity.getId())
-                        .zipCode(entity.getZipCode())
-                        .remoteAreaType(entity.getRemoteAreaType())
-                        .regionName(entity.getRegionName())
+                        .province(entity.getProvince())
+                        .district(entity.getDistrict())
+                        .village(entity.getVillage())
+                        .subarea(entity.getSubarea())
                         .build()
         );
     }

@@ -5,13 +5,10 @@ import com.personal.marketnote.user.adapter.out.persistence.remotearea.entity.Re
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface RemoteAreaJpaRepository extends JpaRepository<RemoteAreaJpaEntity, Long> {
 
-    Optional<RemoteAreaJpaEntity> findByZipCodeAndStatus(String zipCode, EntityStatus status);
+    boolean existsByProvinceAndDistrictAndVillageAndSubareaAndStatus(String province, String district, String village, String subarea, EntityStatus status);
 
     List<RemoteAreaJpaEntity> findAllByStatus(EntityStatus status);
-
-    boolean existsByZipCodeAndStatus(String zipCode, EntityStatus status);
 }

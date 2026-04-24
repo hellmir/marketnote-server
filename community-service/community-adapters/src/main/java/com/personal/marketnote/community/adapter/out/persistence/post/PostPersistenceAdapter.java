@@ -195,7 +195,7 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
             boolean isDesc,
             PostSortProperty sortProperty
     ) {
-        String sortField = getSortField(sortProperty);
+        String sortField = sortProperty.getSortField();
         Sort sort = isDesc ? Sort.by(Sort.Direction.DESC, sortField) : Sort.by(Sort.Direction.ASC, sortField);
         Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
 
@@ -204,13 +204,6 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
                         userId, board, EntityStatus.ACTIVE, pageable
                 )
         );
-    }
-
-    private String getSortField(PostSortProperty sortProperty) {
-        return switch (sortProperty) {
-            case ORDER_NUM -> "orderNum";
-            case IS_ANSWERED, ID -> "id";
-        };
     }
 
     @Override
