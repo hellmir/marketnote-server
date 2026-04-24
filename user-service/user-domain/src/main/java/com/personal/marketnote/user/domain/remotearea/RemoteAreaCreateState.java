@@ -9,7 +9,8 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RemoteAreaCreateState {
-    private final String zipCode;
-    private final RemoteAreaType remoteAreaType;
-    private final String regionName;
+    private final String province;
+    private final String district;
+    private final String village;
+    private final String subarea;
 }

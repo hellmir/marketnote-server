@@ -160,7 +160,7 @@ class OrderEventKafkaProducerTest {
     @DisplayName("주문 취소 이벤트 발행 시 올바른 토픽과 파티션 키로 Outbox에 저장된다")
     void publishOrderCancelledEvent_savesToOutboxWithCorrectTopicAndPartitionKey() throws Exception {
         // given
-        setUpClock("2026-04-07T10:00:00Z");
+        setUpClock("2026-04-24T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         List<OrderProduct> orderProducts = createOrderProducts();
@@ -190,7 +190,7 @@ class OrderEventKafkaProducerTest {
     @SuppressWarnings("unchecked")
     void publishOrderCancelledEvent_envelopeContainsCorrectPayload() throws Exception {
         // given
-        setUpClock("2026-04-07T10:00:00Z");
+        setUpClock("2026-04-24T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         List<OrderProduct> orderProducts = createOrderProducts();

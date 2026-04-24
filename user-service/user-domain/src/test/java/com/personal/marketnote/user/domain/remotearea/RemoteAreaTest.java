@@ -1,9 +1,10 @@
 package com.personal.marketnote.user.domain.remotearea;
 
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaRegionNameLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaZipCodeException;
-import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaRegionNameNoValueException;
-import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaTypeNoValueException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaDistrictLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaProvinceLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaSubareaLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaVillageLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaProvinceNoValueException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,129 +19,152 @@ class RemoteAreaTest {
     class FromCreateState {
 
         @Test
-        @DisplayName("유효한 CreateState로 RemoteArea를 생성한다")
-        void shouldCreateRemoteAreaWithValidState() {
+        @DisplayName("광역시도만 지정하여 RemoteArea를 생성한다")
+        void shouldCreateRemoteAreaWithProvinceOnly() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode("63000")
-                    .remoteAreaType(RemoteAreaType.JEJU)
-                    .regionName("제주특별자치도 제주시")
+                    .province("인천")
                     .build();
 
             // when
             RemoteArea remoteArea = RemoteArea.from(state);
 
             // then
-            assertThat(remoteArea.getZipCode()).isEqualTo("63000");
-            assertThat(remoteArea.getRemoteAreaType()).isEqualTo(RemoteAreaType.JEJU);
-            assertThat(remoteArea.getRegionName()).isEqualTo("제주특별자치도 제주시");
+            assertThat(remoteArea.getProvince()).isEqualTo("인천");
+            assertThat(remoteArea.getDistrict()).isEmpty();
+            assertThat(remoteArea.getVillage()).isEmpty();
+            assertThat(remoteArea.getSubarea()).isEmpty();
             assertThat(remoteArea.isActive()).isTrue();
         }
 
         @Test
-        @DisplayName("우편번호가 null이면 InvalidRemoteAreaZipCodeException이 발생한다")
-        void shouldThrowWhenZipCodeIsNull() {
+        @DisplayName("광역시도, 시군구, 읍면동을 지정하여 RemoteArea를 생성한다")
+        void shouldCreateRemoteAreaWithProvinceDistrictVillage() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode(null)
-                    .remoteAreaType(RemoteAreaType.JEJU)
-                    .regionName("제주특별자치도 제주시")
+                    .province("경남")
+                    .district("통영시")
+                    .village("사량면")
                     .build();
 
-            // when & then
-            assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaZipCodeException.class);
+            // when
+            RemoteArea remoteArea = RemoteArea.from(state);
+
+            // then
+            assertThat(remoteArea.getProvince()).isEqualTo("경남");
+            assertThat(remoteArea.getDistrict()).isEqualTo("통영시");
+            assertThat(remoteArea.getVillage()).isEqualTo("사량면");
+            assertThat(remoteArea.getSubarea()).isEmpty();
         }
 
         @Test
-        @DisplayName("우편번호가 5자리가 아니면 InvalidRemoteAreaZipCodeException이 발생한다")
-        void shouldThrowWhenZipCodeIsNot5Digits() {
+        @DisplayName("모든 필드를 지정하여 RemoteArea를 생성한다")
+        void shouldCreateRemoteAreaWithAllFields() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode("1234")
-                    .remoteAreaType(RemoteAreaType.ISLAND_MOUNTAINOUS)
-                    .regionName("경남 통영시 한산면")
+                    .province("충남")
+                    .district("보령시")
+                    .village("오천면")
+                    .subarea("녹도리")
                     .build();
 
-            // when & then
-            assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaZipCodeException.class);
+            // when
+            RemoteArea remoteArea = RemoteArea.from(state);
+
+            // then
+            assertThat(remoteArea.getProvince()).isEqualTo("충남");
+            assertThat(remoteArea.getDistrict()).isEqualTo("보령시");
+            assertThat(remoteArea.getVillage()).isEqualTo("오천면");
+            assertThat(remoteArea.getSubarea()).isEqualTo("녹도리");
         }
 
         @Test
-        @DisplayName("우편번호에 숫자가 아닌 문자가 포함되면 InvalidRemoteAreaZipCodeException이 발생한다")
-        void shouldThrowWhenZipCodeContainsNonDigit() {
+        @DisplayName("광역시도가 null이면 RemoteAreaProvinceNoValueException이 발생한다")
+        void shouldThrowWhenProvinceIsNull() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode("6300a")
-                    .remoteAreaType(RemoteAreaType.JEJU)
-                    .regionName("제주특별자치도 제주시")
+                    .province(null)
+                    .district("옹진군")
                     .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaZipCodeException.class);
+                    .isInstanceOf(RemoteAreaProvinceNoValueException.class);
         }
 
         @Test
-        @DisplayName("지역 유형이 null이면 RemoteAreaTypeNoValueException이 발생한다")
-        void shouldThrowWhenRemoteAreaTypeIsNull() {
+        @DisplayName("광역시도가 빈 문자열이면 RemoteAreaProvinceNoValueException이 발생한다")
+        void shouldThrowWhenProvinceIsBlank() {
             // given
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode("63000")
-                    .remoteAreaType(null)
-                    .regionName("제주특별자치도 제주시")
+                    .province("   ")
                     .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(RemoteAreaTypeNoValueException.class);
+                    .isInstanceOf(RemoteAreaProvinceNoValueException.class);
         }
 
         @Test
-        @DisplayName("지역명이 null이면 RemoteAreaRegionNameNoValueException이 발생한다")
-        void shouldThrowWhenRegionNameIsNull() {
+        @DisplayName("광역시도가 50자를 초과하면 InvalidRemoteAreaProvinceLengthException이 발생한다")
+        void shouldThrowWhenProvinceExceeds50Characters() {
             // given
+            String longProvince = "가".repeat(51);
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode("63000")
-                    .remoteAreaType(RemoteAreaType.JEJU)
-                    .regionName(null)
+                    .province(longProvince)
                     .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(RemoteAreaRegionNameNoValueException.class);
+                    .isInstanceOf(InvalidRemoteAreaProvinceLengthException.class);
         }
 
         @Test
-        @DisplayName("지역명이 빈 문자열이면 RemoteAreaRegionNameNoValueException이 발생한다")
-        void shouldThrowWhenRegionNameIsBlank() {
+        @DisplayName("시군구가 50자를 초과하면 InvalidRemoteAreaDistrictLengthException이 발생한다")
+        void shouldThrowWhenDistrictExceeds50Characters() {
             // given
+            String longDistrict = "가".repeat(51);
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode("63000")
-                    .remoteAreaType(RemoteAreaType.JEJU)
-                    .regionName("   ")
+                    .province("충남")
+                    .district(longDistrict)
                     .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(RemoteAreaRegionNameNoValueException.class);
+                    .isInstanceOf(InvalidRemoteAreaDistrictLengthException.class);
         }
 
         @Test
-        @DisplayName("지역명이 100자를 초과하면 InvalidRemoteAreaRegionNameLengthException이 발생한다")
-        void shouldThrowWhenRegionNameExceeds100Characters() {
+        @DisplayName("읍면동이 50자를 초과하면 InvalidRemoteAreaVillageLengthException이 발생한다")
+        void shouldThrowWhenVillageExceeds50Characters() {
             // given
-            String longRegionName = "가".repeat(101);
+            String longVillage = "가".repeat(51);
             RemoteAreaCreateState state = RemoteAreaCreateState.builder()
-                    .zipCode("63000")
-                    .remoteAreaType(RemoteAreaType.JEJU)
-                    .regionName(longRegionName)
+                    .province("충남")
+                    .district("보령시")
+                    .village(longVillage)
                     .build();
 
             // when & then
             assertThatThrownBy(() -> RemoteArea.from(state))
-                    .isInstanceOf(InvalidRemoteAreaRegionNameLengthException.class);
+                    .isInstanceOf(InvalidRemoteAreaVillageLengthException.class);
+        }
+
+        @Test
+        @DisplayName("세부지역이 50자를 초과하면 InvalidRemoteAreaSubareaLengthException이 발생한다")
+        void shouldThrowWhenSubareaExceeds50Characters() {
+            // given
+            String longSubarea = "가".repeat(51);
+            RemoteAreaCreateState state = RemoteAreaCreateState.builder()
+                    .province("충남")
+                    .district("보령시")
+                    .village("오천면")
+                    .subarea(longSubarea)
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> RemoteArea.from(state))
+                    .isInstanceOf(InvalidRemoteAreaSubareaLengthException.class);
         }
     }
 
@@ -154,9 +178,10 @@ class RemoteAreaTest {
             // given
             RemoteAreaSnapshotState state = RemoteAreaSnapshotState.builder()
                     .id(1L)
-                    .zipCode("63000")
-                    .remoteAreaType(RemoteAreaType.JEJU)
-                    .regionName("제주특별자치도 제주시")
+                    .province("충남")
+                    .district("보령시")
+                    .village("오천면")
+                    .subarea("녹도리")
                     .build();
 
             // when
@@ -164,50 +189,10 @@ class RemoteAreaTest {
 
             // then
             assertThat(remoteArea.getId()).isEqualTo(1L);
-            assertThat(remoteArea.getZipCode()).isEqualTo("63000");
-            assertThat(remoteArea.getRemoteAreaType()).isEqualTo(RemoteAreaType.JEJU);
-            assertThat(remoteArea.getRegionName()).isEqualTo("제주특별자치도 제주시");
-        }
-    }
-
-    @Nested
-    @DisplayName("술어 메서드")
-    class PredicateMethods {
-
-        @Test
-        @DisplayName("제주 지역이면 isJeju()가 true를 반환한다")
-        void shouldReturnTrueForJeju() {
-            // given
-            RemoteArea remoteArea = RemoteArea.from(
-                    RemoteAreaSnapshotState.builder()
-                            .id(1L)
-                            .zipCode("63000")
-                            .remoteAreaType(RemoteAreaType.JEJU)
-                            .regionName("제주특별자치도 제주시")
-                            .build()
-            );
-
-            // when & then
-            assertThat(remoteArea.isJeju()).isTrue();
-            assertThat(remoteArea.isIslandMountainous()).isFalse();
-        }
-
-        @Test
-        @DisplayName("도서산간 지역이면 isIslandMountainous()가 true를 반환한다")
-        void shouldReturnTrueForIslandMountainous() {
-            // given
-            RemoteArea remoteArea = RemoteArea.from(
-                    RemoteAreaSnapshotState.builder()
-                            .id(2L)
-                            .zipCode("53000")
-                            .remoteAreaType(RemoteAreaType.ISLAND_MOUNTAINOUS)
-                            .regionName("경남 통영시 한산면")
-                            .build()
-            );
-
-            // when & then
-            assertThat(remoteArea.isIslandMountainous()).isTrue();
-            assertThat(remoteArea.isJeju()).isFalse();
+            assertThat(remoteArea.getProvince()).isEqualTo("충남");
+            assertThat(remoteArea.getDistrict()).isEqualTo("보령시");
+            assertThat(remoteArea.getVillage()).isEqualTo("오천면");
+            assertThat(remoteArea.getSubarea()).isEqualTo("녹도리");
         }
     }
 }

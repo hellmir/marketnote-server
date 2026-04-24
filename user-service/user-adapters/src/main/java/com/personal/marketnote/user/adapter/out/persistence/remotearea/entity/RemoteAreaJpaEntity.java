@@ -2,14 +2,20 @@ package com.personal.marketnote.user.adapter.out.persistence.remotearea.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
-import com.personal.marketnote.user.domain.remotearea.RemoteAreaType;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(
         name = "remote_areas",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"zip_code"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"province", "district", "village", "subarea"})
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,21 +23,24 @@ import lombok.*;
 @Getter
 public class RemoteAreaJpaEntity extends BaseGeneralEntity {
 
-    @Column(name = "zip_code", nullable = false, length = 5)
-    private String zipCode;
+    @Column(name = "province", nullable = false, length = 50)
+    private String province;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "remote_area_type", nullable = false, length = 30)
-    private RemoteAreaType remoteAreaType;
+    @Column(name = "district", nullable = false, length = 50)
+    private String district;
 
-    @Column(name = "region_name", nullable = false, length = 100)
-    private String regionName;
+    @Column(name = "village", nullable = false, length = 50)
+    private String village;
+
+    @Column(name = "subarea", nullable = false, length = 50)
+    private String subarea;
 
     public static RemoteAreaJpaEntity from(RemoteArea remoteArea) {
         return RemoteAreaJpaEntity.builder()
-                .zipCode(remoteArea.getZipCode())
-                .remoteAreaType(remoteArea.getRemoteAreaType())
-                .regionName(remoteArea.getRegionName())
+                .province(remoteArea.getProvince())
+                .district(remoteArea.getDistrict())
+                .village(remoteArea.getVillage())
+                .subarea(remoteArea.getSubarea())
                 .build();
     }
 }

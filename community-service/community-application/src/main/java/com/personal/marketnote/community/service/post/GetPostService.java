@@ -53,7 +53,7 @@ public class GetPostService implements GetPostUseCase {
                 ? query.sortDirection()
                 : Sort.Direction.DESC;
         PostSortProperty sortProperty = resolveSortProperty(query);
-        Pageable pageable = PageRequest.of(0, query.pageSize() + 1, Sort.by(sortDirection, getSortField(sortProperty)));
+        Pageable pageable = PageRequest.of(0, query.pageSize() + 1, Sort.by(sortDirection, sortProperty.getSortField()));
 
         Posts posts = getBoardPosts(query, pageable, sortProperty);
 
@@ -277,13 +277,6 @@ public class GetPostService implements GetPostUseCase {
         }
 
         return FormatValidator.hasValue(query.sortProperty()) ? query.sortProperty() : PostSortProperty.ID;
-    }
-
-    private String getSortField(PostSortProperty sortProperty) {
-        return switch (sortProperty) {
-            case ORDER_NUM -> "orderNum";
-            case IS_ANSWERED, ID -> "id";
-        };
     }
 
     private boolean matchesKeyword(Post post, PostSearchTarget searchTarget, String searchKeyword) {

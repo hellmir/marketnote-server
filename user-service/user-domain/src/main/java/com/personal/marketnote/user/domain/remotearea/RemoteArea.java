@@ -2,17 +2,16 @@ package com.personal.marketnote.user.domain.remotearea;
 
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaRegionNameLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaZipCodeException;
-import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaRegionNameNoValueException;
-import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaTypeNoValueException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaDistrictLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaProvinceLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaSubareaLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaVillageLengthException;
+import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaProvinceNoValueException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.regex.Pattern;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,60 +19,77 @@ import java.util.regex.Pattern;
 @Getter
 public class RemoteArea extends BaseDomain {
 
-    private static final Pattern ZIP_CODE_PATTERN = Pattern.compile("^\\d{5}$");
+    private static final int MAX_PROVINCE_LENGTH = 50;
+    private static final int MAX_DISTRICT_LENGTH = 50;
+    private static final int MAX_VILLAGE_LENGTH = 50;
+    private static final int MAX_SUBAREA_LENGTH = 50;
 
     private Long id;
-    private String zipCode;
-    private RemoteAreaType remoteAreaType;
-    private String regionName;
+    private String province;
+    private String district;
+    private String village;
+    private String subarea;
 
     public static RemoteArea from(RemoteAreaCreateState state) {
-        validateZipCode(state.getZipCode());
-        validateRemoteAreaType(state.getRemoteAreaType());
-        validateRegionName(state.getRegionName());
+        validateProvince(state.getProvince());
+
+        String district = normalizeOptionalField(state.getDistrict());
+        String village = normalizeOptionalField(state.getVillage());
+        String subarea = normalizeOptionalField(state.getSubarea());
+
+        validateDistrictLength(district);
+        validateVillageLength(village);
+        validateSubareaLength(subarea);
 
         return RemoteArea.builder()
-                .zipCode(state.getZipCode())
-                .remoteAreaType(state.getRemoteAreaType())
-                .regionName(state.getRegionName())
+                .province(state.getProvince())
+                .district(district)
+                .village(village)
+                .subarea(subarea)
                 .build();
     }
 
     public static RemoteArea from(RemoteAreaSnapshotState state) {
         return RemoteArea.builder()
                 .id(state.getId())
-                .zipCode(state.getZipCode())
-                .remoteAreaType(state.getRemoteAreaType())
-                .regionName(state.getRegionName())
+                .province(state.getProvince())
+                .district(state.getDistrict())
+                .village(state.getVillage())
+                .subarea(state.getSubarea())
                 .build();
     }
 
-    public boolean isJeju() {
-        return remoteAreaType.isJeju();
+    private static String normalizeOptionalField(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return "";
+        }
+        return value;
     }
 
-    public boolean isIslandMountainous() {
-        return remoteAreaType.isIslandMountainous();
-    }
-
-    private static void validateZipCode(String zipCode) {
-        if (!FormatValidator.isValid(zipCode, ZIP_CODE_PATTERN)) {
-            throw new InvalidRemoteAreaZipCodeException();
+    private static void validateProvince(String province) {
+        if (FormatValidator.hasNoValue(province)) {
+            throw new RemoteAreaProvinceNoValueException();
+        }
+        if (province.length() > MAX_PROVINCE_LENGTH) {
+            throw new InvalidRemoteAreaProvinceLengthException();
         }
     }
 
-    private static void validateRemoteAreaType(RemoteAreaType remoteAreaType) {
-        if (FormatValidator.hasNoValue(remoteAreaType)) {
-            throw new RemoteAreaTypeNoValueException();
+    private static void validateDistrictLength(String district) {
+        if (district.length() > MAX_DISTRICT_LENGTH) {
+            throw new InvalidRemoteAreaDistrictLengthException();
         }
     }
 
-    private static void validateRegionName(String regionName) {
-        if (FormatValidator.hasNoValue(regionName)) {
-            throw new RemoteAreaRegionNameNoValueException();
+    private static void validateVillageLength(String village) {
+        if (village.length() > MAX_VILLAGE_LENGTH) {
+            throw new InvalidRemoteAreaVillageLengthException();
         }
-        if (regionName.length() > 100) {
-            throw new InvalidRemoteAreaRegionNameLengthException();
+    }
+
+    private static void validateSubareaLength(String subarea) {
+        if (subarea.length() > MAX_SUBAREA_LENGTH) {
+            throw new InvalidRemoteAreaSubareaLengthException();
         }
     }
 }
