@@ -174,7 +174,8 @@ class CancelOrderUseCaseTest {
             CancelOrderCommand command = createCommand(orderId, buyerId);
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderCancellationNotAllowedException.class);
+                    .isInstanceOf(OrderCancellationNotAllowedException.class)
+                    .hasMessageContaining("피킹완료 이후에는 주문 취소가 불가능합니다. 반품으로 처리해 주세요.");
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
@@ -193,7 +194,8 @@ class CancelOrderUseCaseTest {
             CancelOrderCommand command = createCommand(orderId, buyerId);
 
             assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderCancellationNotAllowedException.class);
+                    .isInstanceOf(OrderCancellationNotAllowedException.class)
+                    .hasMessageContaining("피킹완료 이후에는 주문 취소가 불가능합니다. 반품으로 처리해 주세요.");
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
