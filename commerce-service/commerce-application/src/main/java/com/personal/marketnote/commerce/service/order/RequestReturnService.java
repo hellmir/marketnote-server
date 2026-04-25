@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
+import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
@@ -9,6 +10,7 @@ import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.RequestReturnUseCase;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,7 @@ public class RequestReturnService implements RequestReturnUseCase {
         Order order = getOrderUseCase.getOrder(command.id());
 
         validateBuyerOwnership(command, order);
+        validateReasonCategory(command);
         validateStatusTransition(order);
 
         LocalDateTime now = LocalDateTime.now(clock);
@@ -57,6 +60,17 @@ public class RequestReturnService implements RequestReturnUseCase {
             log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
                     command.id(), order.getBuyerId(), command.buyerId());
             throw new UnauthorizedOrderAccessException();
+        }
+    }
+
+    private void validateReasonCategory(RequestReturnCommand command) {
+        OrderStatusReasonCategory reasonCategory = command.reasonCategory();
+        if (FormatValidator.hasNoValue(reasonCategory)) {
+            return;
+        }
+
+        if (!reasonCategory.isReturnReason()) {
+            throw new InvalidReasonCategoryException(reasonCategory);
         }
     }
 
