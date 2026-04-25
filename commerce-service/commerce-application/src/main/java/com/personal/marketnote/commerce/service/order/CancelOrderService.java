@@ -5,7 +5,9 @@ import com.personal.marketnote.commerce.domain.order.OrderAmount;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistoryCreateState;
+import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
+import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.OrderCancellationNotAllowedException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
@@ -18,6 +20,7 @@ import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentRe
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -45,6 +48,7 @@ public class CancelOrderService implements CancelOrderUseCase {
         Order order = getOrderUseCase.getOrder(command.id());
 
         validateBuyerOwnership(command, order);
+        validateReasonCategory(command);
         validateStatusTransition(order);
 
         OrderStatus originalStatus = order.getOrderStatus();
@@ -110,6 +114,17 @@ public class CancelOrderService implements CancelOrderUseCase {
                 order.getOrderProducts(),
                 order.getOrderProducts()
         );
+    }
+
+    private void validateReasonCategory(CancelOrderCommand command) {
+        OrderStatusReasonCategory reasonCategory = command.reasonCategory();
+        if (FormatValidator.hasNoValue(reasonCategory)) {
+            return;
+        }
+
+        if (!reasonCategory.isCancelReason()) {
+            throw new InvalidReasonCategoryException(reasonCategory);
+        }
     }
 
     private void validateBuyerOwnership(CancelOrderCommand command, Order order) {
