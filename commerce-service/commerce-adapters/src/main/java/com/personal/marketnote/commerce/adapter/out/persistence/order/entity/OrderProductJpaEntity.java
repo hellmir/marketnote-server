@@ -58,6 +58,9 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
 
+    @Column(name = "delivered_at")
+    private LocalDateTime deliveredAt;
+
     public static OrderProductJpaEntity from(OrderProduct orderProduct, OrderJpaEntity orderJpaEntity) {
         return OrderProductJpaEntity.builder()
                 .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
@@ -70,6 +73,7 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .accumulatedPoint(orderProduct.getAccumulatedPoint())
                 .orderStatus(orderProduct.getOrderStatus())
                 .confirmedAt(orderProduct.getConfirmedAt())
+                .deliveredAt(orderProduct.getDeliveredAt())
                 .build();
     }
 
@@ -81,6 +85,7 @@ public class OrderProductJpaEntity extends BaseEntity {
         orderStatus = orderProduct.getOrderStatus();
         isReviewed = orderProduct.getIsReviewed();
         confirmedAt = orderProduct.getConfirmedAt();
+        deliveredAt = orderProduct.getDeliveredAt();
     }
 
     public Long getPricePolicyId() {
