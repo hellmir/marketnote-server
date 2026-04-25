@@ -57,4 +57,6 @@ public interface FindOrderPort {
             LocalDateTime endDate,
             OrderStatus orderStatus
     );
+
+    List<Long> findOrderIdsEligibleForAutoConfirm(LocalDateTime deliveredBefore);
 }

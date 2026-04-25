@@ -238,7 +238,7 @@ class UpdateShippingAddressUseCaseTest {
         UpdateShippingAddressCommand command = UpdateShippingAddressCommand.builder()
                 .address("서울시 강남구 선릉로 100")
                 .addressDetail("10층")
-                .companyName("뉴트리캐시")
+                .companyName("마켓노트")
                 .addressAlias(null)
                 .recipientName("박민수")
                 .recipientPhoneNumber("010-7777-8888")

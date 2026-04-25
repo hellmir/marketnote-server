@@ -136,6 +136,13 @@ inventory:
       timeout-minutes: ${INVENTORY_RESERVATION_TIMEOUT_MINUTES:10}
       check-interval-ms: ${INVENTORY_RESERVATION_CHECK_INTERVAL_MS:60000}
 
+order:
+  auto-confirm:
+    scheduler:
+      enabled: ${ORDER_AUTO_CONFIRM_SCHEDULER_ENABLED:false}
+      cron: ${ORDER_AUTO_CONFIRM_SCHEDULER_CRON:0 59 23 * * ?}
+      auto-confirm-days: ${ORDER_AUTO_CONFIRM_DAYS:7}
+
 management:
   endpoints:
     web:

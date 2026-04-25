@@ -320,7 +320,7 @@ class GiftishowApiClientTest {
                             "01012345678",
                             "user1",
                             "기프티콘 발송",
-                            "뉴트리캐시"
+                            "마켓노트"
                     );
 
             // then
