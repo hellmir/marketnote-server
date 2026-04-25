@@ -23,5 +23,6 @@ public class OrderProductSnapshotState {
     private final OrderStatus orderStatus;
     private final Boolean isReviewed;
     private final LocalDateTime confirmedAt;
+    private final LocalDateTime deliveredAt;
 }
 

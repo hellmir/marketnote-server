@@ -24,6 +24,7 @@ public class OrderProduct {
     private OrderStatus orderStatus;
     private Boolean isReviewed;
     private LocalDateTime confirmedAt;
+    private LocalDateTime deliveredAt;
 
     public static OrderProduct from(OrderProductCreateState state) {
         return OrderProduct.builder()
@@ -51,6 +52,7 @@ public class OrderProduct {
                 .orderStatus(state.getOrderStatus())
                 .isReviewed(state.getIsReviewed())
                 .confirmedAt(state.getConfirmedAt())
+                .deliveredAt(state.getDeliveredAt())
                 .build();
     }
 
@@ -62,6 +64,9 @@ public class OrderProduct {
             throw new InvalidOrderProductStatusTransitionException(this.orderStatus, orderStatus);
         }
         this.orderStatus = orderStatus;
+        if (orderStatus.isDelivered()) {
+            this.deliveredAt = now;
+        }
         if (orderStatus.isConfirmed()) {
             this.confirmedAt = now;
         }
