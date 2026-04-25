@@ -3,6 +3,7 @@ package com.personal.marketnote.user.adapter.out.persistence.remotearea;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.user.adapter.out.persistence.remotearea.entity.RemoteAreaJpaEntity;
+import com.personal.marketnote.user.adapter.out.persistence.remotearea.mapper.RemoteAreaJpaEntityToDomainMapper;
 import com.personal.marketnote.user.adapter.out.persistence.remotearea.repository.RemoteAreaJpaRepository;
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
 import com.personal.marketnote.user.exception.RemoteAreaAlreadyExistsException;
@@ -10,6 +11,8 @@ import com.personal.marketnote.user.port.out.remotearea.FindRemoteAreaPort;
 import com.personal.marketnote.user.port.out.remotearea.SaveRemoteAreaPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import java.util.List;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
@@ -34,5 +37,12 @@ public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRem
         return remoteAreaJpaRepository.existsByProvinceAndDistrictAndVillageAndSubareaAndStatus(
                 province, district, village, subarea, EntityStatus.ACTIVE
         );
+    }
+
+    @Override
+    public List<RemoteArea> findAllActive() {
+        return remoteAreaJpaRepository.findAllByStatus(EntityStatus.ACTIVE).stream()
+                .map(RemoteAreaJpaEntityToDomainMapper::mapToDomain)
+                .toList();
     }
 }

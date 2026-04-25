@@ -1,9 +1,13 @@
 package com.personal.marketnote.user.adapter.in.web.remotearea.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.user.adapter.in.web.remotearea.controller.apidocs.GetRemoteAreaApiDocs;
 import com.personal.marketnote.user.adapter.in.web.remotearea.controller.apidocs.RegisterRemoteAreaApiDocs;
 import com.personal.marketnote.user.adapter.in.web.remotearea.request.RegisterRemoteAreaRequest;
+import com.personal.marketnote.user.adapter.in.web.remotearea.response.GetRemoteAreaResponse;
 import com.personal.marketnote.user.port.in.command.remotearea.RegisterRemoteAreaCommand;
+import com.personal.marketnote.user.port.in.result.remotearea.GetRemoteAreaResult;
+import com.personal.marketnote.user.port.in.usecase.remotearea.GetRemoteAreaUseCase;
 import com.personal.marketnote.user.port.in.usecase.remotearea.RegisterRemoteAreaUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -11,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +34,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class RemoteAreaAdminController {
 
     private final RegisterRemoteAreaUseCase registerRemoteAreaUseCase;
+    private final GetRemoteAreaUseCase getRemoteAreaUseCase;
 
     @PostMapping
     @PreAuthorize(ADMIN_POINTCUT)
@@ -48,6 +54,19 @@ public class RemoteAreaAdminController {
         return new ResponseEntity<>(
                 BaseResponse.of(null, HttpStatus.CREATED, DEFAULT_SUCCESS_CODE, "도서산간 지역 등록 성공"),
                 HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetRemoteAreaApiDocs
+    public ResponseEntity<BaseResponse<GetRemoteAreaResponse>> getRemoteAreas() {
+        GetRemoteAreaResult result = getRemoteAreaUseCase.getRemoteAreas();
+        GetRemoteAreaResponse response = GetRemoteAreaResponse.from(result);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "도서산간 지역 목록 조회 성공"),
+                HttpStatus.OK
         );
     }
 }

@@ -31,7 +31,7 @@ class AutoConfirmDeliveredOrdersUseCaseTest {
     @Mock
     private ChangeOrderStatusUseCase changeOrderStatusUseCase;
     @Spy
-    private Clock clock = Clock.fixed(Instant.parse("2026-04-08T14:59:00Z"), ZoneId.of("Asia/Seoul"));
+    private Clock clock = Clock.fixed(Instant.parse("2026-04-26T14:59:00Z"), ZoneId.of("Asia/Seoul"));
 
     @InjectMocks
     private AutoConfirmDeliveredOrdersService autoConfirmDeliveredOrdersService;
@@ -124,7 +124,7 @@ class AutoConfirmDeliveredOrdersUseCaseTest {
             autoConfirmDeliveredOrdersService.autoConfirmDeliveredOrders(AUTO_CONFIRM_DAYS);
 
             // then
-            // Clock이 2026-04-08T14:59:00Z = KST 2026-04-08 23:59:00
+            // Clock이 2026-04-26T14:59:00Z = KST 2026-04-26 23:59:00
             // deliveredBefore = 2026-04-01 23:59:00
             assertThat(expectedDeliveredBefore).isEqualTo(LocalDateTime.of(2026, 4, 1, 23, 59, 0));
             verify(findOrderPort).findOrderIdsEligibleForAutoConfirm(expectedDeliveredBefore);
