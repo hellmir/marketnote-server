@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
+import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.OrderCancellationNotAllowedException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
@@ -199,6 +200,76 @@ class CancelOrderUseCaseTest {
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
+        }
+    }
+
+    // ==================================================================================
+    // 취소 사유 카테고리 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("취소 사유 카테고리 검증")
+    class CancelReasonCategoryValidationTest {
+
+        @Test
+        @DisplayName("반품 전용 사유로 취소 요청하면 InvalidReasonCategoryException이 발생한다")
+        void cancelOrder_withReturnOnlyReason_throwsException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.PRODUCT_DAMAGE)
+                    .reason("상품 파손")
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
+                    .isInstanceOf(InvalidReasonCategoryException.class);
+
+            verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(cancelFulfillmentReleasePort);
+            verifyNoInteractions(publishOrderEventPort);
+        }
+
+        @Test
+        @DisplayName("취소 전용 사유로 취소 요청하면 정상 처리된다")
+        void cancelOrder_withCancelReason_succeeds() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("구매 의사 취소")
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatCode(() -> cancelOrderService.cancelOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("공용 사유(MISTAKE)로 취소 요청하면 정상 처리된다")
+        void cancelOrder_withBothReason_succeeds() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.MISTAKE)
+                    .reason("주문 실수")
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatCode(() -> cancelOrderService.cancelOrder(command))
+                    .doesNotThrowAnyException();
         }
     }
 

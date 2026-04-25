@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
+import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
@@ -173,6 +174,89 @@ class RequestReturnUseCaseTest {
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("상세주소");
+        }
+    }
+
+    // ==================================================================================
+    // 반품 사유 카테고리 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("반품 사유 카테고리 검증")
+    class ReturnReasonCategoryValidationTest {
+
+        @Test
+        @DisplayName("반품 전용 사유로 반품 요청하면 정상 처리된다")
+        void requestReturn_withReturnReason_succeeds() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND)
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatCode(() -> requestReturnService.requestReturn(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("공용 사유(ETC)로 반품 요청하면 정상 처리된다")
+        void requestReturn_withBothReason_succeeds() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.ETC)
+                    .reason("기타 사유")
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatCode(() -> requestReturnService.requestReturn(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("취소 전용 사유로 반품 요청하면 InvalidReasonCategoryException이 발생한다")
+        void requestReturn_withCancelOnlyReason_throwsException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
+                    .isInstanceOf(InvalidReasonCategoryException.class);
+
+            verifyNoInteractions(updateOrderPort);
+        }
+
+        @Test
+        @DisplayName("사유 카테고리가 null이면 검증을 건너뛴다")
+        void requestReturn_withNullReasonCategory_succeeds() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatCode(() -> requestReturnService.requestReturn(command))
+                    .doesNotThrowAnyException();
         }
     }
 
