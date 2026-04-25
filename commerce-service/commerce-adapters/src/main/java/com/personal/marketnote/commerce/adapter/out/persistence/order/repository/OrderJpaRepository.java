@@ -52,4 +52,18 @@ public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, Long> 
             WHERE o.id IN :ids
             """)
     List<OrderJpaEntity> findWithProductsByIds(@Param("ids") List<Long> ids);
+
+    @Query(value = """
+            SELECT DISTINCT o.id
+            FROM orders o
+            INNER JOIN order_product op ON o.id = op.order_id
+            WHERE o.order_status = 'DELIVERED'
+              AND op.order_status = 'DELIVERED'
+              AND op.delivered_at IS NOT NULL
+              AND op.delivered_at <= CAST(:deliveredBefore AS timestamp)
+            ORDER BY o.id
+            """, nativeQuery = true)
+    List<Long> findOrderIdsEligibleForAutoConfirm(
+            @Param("deliveredBefore") java.time.LocalDateTime deliveredBefore
+    );
 }
