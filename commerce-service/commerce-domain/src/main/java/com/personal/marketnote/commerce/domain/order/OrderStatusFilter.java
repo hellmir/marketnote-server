@@ -10,12 +10,16 @@ public enum OrderStatusFilter {
     SHIPPING(
             List.of(
                     OrderStatus.PREPARING,
-                    OrderStatus.SHIPPING,
-                    OrderStatus.RETURN_IN_PROGRESS
+                    OrderStatus.SHIPPING
             )
     ),
     DELIVERED(List.of(OrderStatus.DELIVERED)),
-    CONFIRMED(List.of(OrderStatus.CONFIRMED)),
+    CONFIRMED(
+            List.of(
+                    OrderStatus.PARTIALLY_CONFIRMED,
+                    OrderStatus.CONFIRMED
+            )
+    ),
     CANCEL_RETURN(
             List.of(
                     OrderStatus.CANCELLED,
