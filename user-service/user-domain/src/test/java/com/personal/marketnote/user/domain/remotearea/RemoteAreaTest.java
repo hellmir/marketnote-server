@@ -169,6 +169,33 @@ class RemoteAreaTest {
     }
 
     @Nested
+    @DisplayName("deactivate")
+    class Deactivate {
+
+        @Test
+        @DisplayName("deactivate를 호출하면 상태가 INACTIVE로 변경된다")
+        void shouldChangeStatusToInactive() {
+            // given
+            RemoteArea remoteArea = RemoteArea.from(
+                    RemoteAreaSnapshotState.builder()
+                            .id(1L)
+                            .province("충남")
+                            .district("보령시")
+                            .village("오천면")
+                            .subarea("녹도리")
+                            .build()
+            );
+
+            // when
+            remoteArea.deactivate();
+
+            // then
+            assertThat(remoteArea.isInactive()).isTrue();
+            assertThat(remoteArea.isActive()).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("from(SnapshotState)")
     class FromSnapshotState {
 
