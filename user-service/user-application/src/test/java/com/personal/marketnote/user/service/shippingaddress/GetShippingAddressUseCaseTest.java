@@ -3,6 +3,7 @@ package com.personal.marketnote.user.service.shippingaddress;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
@@ -49,6 +50,7 @@ class GetShippingAddressUseCaseTest {
                         .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                         .deliveryRequestMessage("문 앞에 놓아주세요")
                         .isDefault(true)
+                        .regionType(ShippingAddressRegionType.NORMAL)
                         .build()
         );
 

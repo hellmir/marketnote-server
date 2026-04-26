@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
@@ -53,6 +54,7 @@ class DeleteShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-1234-5678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
@@ -107,6 +109,7 @@ class DeleteShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-1234-5678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
@@ -140,6 +143,7 @@ class DeleteShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-1234-5678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))

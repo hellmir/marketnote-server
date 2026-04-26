@@ -3,6 +3,7 @@ package com.personal.marketnote.user.service.shippingaddress;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.domain.shippingaddress.exception.DeliveryRequestMessageNoValueException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidDeliveryRequestMessageLengthException;
@@ -52,6 +53,7 @@ class UpdateDeliveryRequestUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .deliveryRequestMessage(null)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
@@ -93,6 +95,7 @@ class UpdateDeliveryRequestUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .deliveryRequestMessage(null)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
@@ -131,6 +134,7 @@ class UpdateDeliveryRequestUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.CUSTOM)
                 .deliveryRequestMessage("기존 요청사항")
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
@@ -194,6 +198,7 @@ class UpdateDeliveryRequestUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .deliveryRequestMessage(null)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()
@@ -231,6 +236,7 @@ class UpdateDeliveryRequestUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .deliveryRequestMessage(null)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         UpdateDeliveryRequestCommand command = UpdateDeliveryRequestCommand.builder()

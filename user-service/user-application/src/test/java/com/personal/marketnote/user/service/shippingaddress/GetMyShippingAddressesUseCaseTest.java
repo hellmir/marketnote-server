@@ -3,6 +3,7 @@ package com.personal.marketnote.user.service.shippingaddress;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetMyShippingAddressResult;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetMyShippingAddressesResult;
@@ -46,6 +47,7 @@ class GetMyShippingAddressesUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .deliveryRequestMessage(null)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         ShippingAddress homeNonDefault = ShippingAddress.from(ShippingAddressSnapshotState.builder()
@@ -61,6 +63,7 @@ class GetMyShippingAddressesUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                 .deliveryRequestMessage(null)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         ShippingAddress companyDefault = ShippingAddress.from(ShippingAddressSnapshotState.builder()
@@ -76,6 +79,7 @@ class GetMyShippingAddressesUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .deliveryRequestMessage(null)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         // 의도적으로 정렬되지 않은 순서로 제공: OTHER(비기본) → HOME(비기본) → COMPANY(기본)
@@ -146,6 +150,7 @@ class GetMyShippingAddressesUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .deliveryRequestMessage(null)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         ShippingAddress companyNonDefault = ShippingAddress.from(ShippingAddressSnapshotState.builder()
@@ -161,6 +166,7 @@ class GetMyShippingAddressesUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .deliveryRequestMessage(null)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         ShippingAddress otherNonDefault = ShippingAddress.from(ShippingAddressSnapshotState.builder()
@@ -176,6 +182,7 @@ class GetMyShippingAddressesUseCaseTest {
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DELIVERY_BOX)
                 .deliveryRequestMessage(null)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         // 의도적으로 기본 배송지를 마지막에 배치: COMPANY(비기본) → OTHER(비기본) → HOME(기본)
