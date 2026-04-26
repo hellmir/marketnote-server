@@ -39,6 +39,9 @@ public class SettlementJpaEntity {
     @Column(name = "total_allocated_amount", nullable = false)
     private Long totalAllocatedAmount;
 
+    @Column(name = "shipping_fee", nullable = false)
+    private Long shippingFee;
+
     @Column(name = "pg_fee_amount", nullable = false)
     private Long pgFeeAmount;
 
@@ -71,6 +74,7 @@ public class SettlementJpaEntity {
                 .year(settlement.getYear())
                 .month(settlement.getMonth())
                 .totalAllocatedAmount(settlement.getTotalAllocatedAmount())
+                .shippingFee(settlement.getShippingFee())
                 .pgFeeAmount(settlement.getPgFeeAmount())
                 .platformFeeAmount(settlement.getPlatformFeeAmount())
                 .sellerPayoutAmount(settlement.getSellerPayoutAmount())

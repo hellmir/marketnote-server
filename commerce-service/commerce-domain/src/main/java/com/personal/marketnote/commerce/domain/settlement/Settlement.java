@@ -15,6 +15,7 @@ public class Settlement {
     private Integer year;
     private Integer month;
     private Long totalAllocatedAmount;
+    private Long shippingFee;
     private Long pgFeeAmount;
     private Long platformFeeAmount;
     private Long sellerPayoutAmount;
@@ -32,9 +33,14 @@ public class Settlement {
             throw new InvalidSettlementAmountException(
                     "판매자 지급액은 0보다 커야 합니다. sellerPayoutAmount=" + state.getSellerPayoutAmount());
         }
+        long shippingFee = FormatValidator.hasValue(state.getShippingFee()) ? state.getShippingFee() : 0L;
         long pgFee = FormatValidator.hasValue(state.getPgFeeAmount()) ? state.getPgFeeAmount() : 0L;
         long platformFee = FormatValidator.hasValue(state.getPlatformFeeAmount()) ? state.getPlatformFeeAmount() : 0L;
 
+        if (shippingFee < 0) {
+            throw new InvalidSettlementAmountException(
+                    "배송비는 음수일 수 없습니다. shippingFee=" + shippingFee);
+        }
         if (pgFee < 0) {
             throw new InvalidSettlementAmountException(
                     "PG 수수료는 음수일 수 없습니다. pgFeeAmount=" + pgFee);
@@ -44,11 +50,13 @@ public class Settlement {
                     "플랫폼 수수료는 음수일 수 없습니다. platformFeeAmount=" + platformFee);
         }
 
-        long expectedPayout = state.getTotalAllocatedAmount() - pgFee - platformFee;
+        long feeBase = Math.addExact(state.getTotalAllocatedAmount(), shippingFee);
+        long expectedPayout = feeBase - pgFee - platformFee;
         if (expectedPayout != state.getSellerPayoutAmount()) {
             throw new InvalidSettlementAmountException(
-                    "정산 금액 정합성 불일치: totalAllocatedAmount(" + state.getTotalAllocatedAmount()
-                            + ") - pgFeeAmount(" + pgFee + ") - platformFeeAmount(" + platformFee
+                    "정산 금액 정합성 불일치: (totalAllocatedAmount(" + state.getTotalAllocatedAmount()
+                            + ") + shippingFee(" + shippingFee
+                            + ")) - pgFeeAmount(" + pgFee + ") - platformFeeAmount(" + platformFee
                             + ") != sellerPayoutAmount(" + state.getSellerPayoutAmount() + ")");
         }
 
@@ -57,6 +65,7 @@ public class Settlement {
                 .year(state.getYear())
                 .month(state.getMonth())
                 .totalAllocatedAmount(state.getTotalAllocatedAmount())
+                .shippingFee(shippingFee)
                 .pgFeeAmount(pgFee)
                 .platformFeeAmount(platformFee)
                 .sellerPayoutAmount(state.getSellerPayoutAmount())
@@ -71,6 +80,7 @@ public class Settlement {
                 .year(state.getYear())
                 .month(state.getMonth())
                 .totalAllocatedAmount(state.getTotalAllocatedAmount())
+                .shippingFee(state.getShippingFee())
                 .pgFeeAmount(state.getPgFeeAmount())
                 .platformFeeAmount(state.getPlatformFeeAmount())
                 .sellerPayoutAmount(state.getSellerPayoutAmount())

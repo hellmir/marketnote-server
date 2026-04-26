@@ -17,6 +17,7 @@ public class SettlementEntityToDomainMapper {
                         .year(entity.getYear())
                         .month(entity.getMonth())
                         .totalAllocatedAmount(entity.getTotalAllocatedAmount())
+                        .shippingFee(entity.getShippingFee())
                         .pgFeeAmount(entity.getPgFeeAmount())
                         .platformFeeAmount(entity.getPlatformFeeAmount())
                         .sellerPayoutAmount(entity.getSellerPayoutAmount())

@@ -71,15 +71,21 @@ public class ProcessSellerSettlementService {
                 .mapToLong(PaymentAllocation::getAllocatedAmount)
                 .sum();
 
-        long pgFeeAmount = Math.multiplyExact(totalAllocatedAmount, pgFeeRate) / BASIS_POINT_DENOMINATOR;
-        long platformFeeAmount = Math.multiplyExact(totalAllocatedAmount, platformFeeRate) / BASIS_POINT_DENOMINATOR;
-        long sellerPayoutAmount = totalAllocatedAmount - pgFeeAmount - platformFeeAmount;
+        long totalShippingFee = sellerAllocations.stream()
+                .mapToLong(allocation -> allocation.getShippingFee() != null ? allocation.getShippingFee() : 0L)
+                .sum();
+
+        long feeBase = Math.addExact(totalAllocatedAmount, totalShippingFee);
+        long pgFeeAmount = Math.multiplyExact(feeBase, pgFeeRate) / BASIS_POINT_DENOMINATOR;
+        long platformFeeAmount = Math.multiplyExact(feeBase, platformFeeRate) / BASIS_POINT_DENOMINATOR;
+        long sellerPayoutAmount = feeBase - pgFeeAmount - platformFeeAmount;
 
         Settlement settlement = Settlement.from(SettlementCreateState.builder()
                 .sellerId(sellerId)
                 .year(year)
                 .month(month)
                 .totalAllocatedAmount(totalAllocatedAmount)
+                .shippingFee(totalShippingFee)
                 .pgFeeAmount(pgFeeAmount)
                 .platformFeeAmount(platformFeeAmount)
                 .sellerPayoutAmount(sellerPayoutAmount)
