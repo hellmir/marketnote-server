@@ -24,6 +24,7 @@ class PaymentAllocationTest {
                     .orderId(100L)
                     .sellerId(10L)
                     .allocatedAmount(50000L)
+                    .shippingFee(3000L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
                     .idempotencyKey("ORDER_ALLOCATION:100:10")
@@ -36,10 +37,78 @@ class PaymentAllocationTest {
             assertThat(allocation.getOrderId()).isEqualTo(100L);
             assertThat(allocation.getSellerId()).isEqualTo(10L);
             assertThat(allocation.getAllocatedAmount()).isEqualTo(50000L);
+            assertThat(allocation.getShippingFee()).isEqualTo(3000L);
             assertThat(allocation.getTransactionType()).isEqualTo(PaymentAllocationTransactionType.ORDER_REGISTRATION);
             assertThat(allocation.getTargetType()).isEqualTo(PaymentAllocationTargetType.ORDER);
             assertThat(allocation.getIdempotencyKey()).isEqualTo("ORDER_ALLOCATION:100:10");
             assertThat(allocation.getSettlementId()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("shippingFee 검증")
+    class ShippingFeeValidation {
+
+        @Test
+        @DisplayName("shippingFee가 null이면 0L로 기본값 처리된다")
+        void shouldDefaultToZeroWhenShippingFeeIsNull() {
+            // given
+            PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
+                    .orderId(100L)
+                    .sellerId(10L)
+                    .allocatedAmount(50000L)
+                    .shippingFee(null)
+                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .build();
+
+            // when
+            PaymentAllocation allocation = PaymentAllocation.from(state);
+
+            // then
+            assertThat(allocation.getShippingFee()).isEqualTo(0L);
+        }
+
+        @Test
+        @DisplayName("shippingFee가 0이면 허용된다")
+        void shouldAllowZeroShippingFee() {
+            // given
+            PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
+                    .orderId(100L)
+                    .sellerId(10L)
+                    .allocatedAmount(50000L)
+                    .shippingFee(0L)
+                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .build();
+
+            // when
+            PaymentAllocation allocation = PaymentAllocation.from(state);
+
+            // then
+            assertThat(allocation.getShippingFee()).isEqualTo(0L);
+        }
+
+        @Test
+        @DisplayName("shippingFee가 음수이면 InvalidSettlementAmountException을 던진다")
+        void shouldThrowWhenShippingFeeIsNegative() {
+            // given
+            PaymentAllocationCreateState state = PaymentAllocationCreateState.builder()
+                    .orderId(100L)
+                    .sellerId(10L)
+                    .allocatedAmount(50000L)
+                    .shippingFee(-1000L)
+                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> PaymentAllocation.from(state))
+                    .isInstanceOf(InvalidSettlementAmountException.class)
+                    .hasMessageContaining("배송비는 음수일 수 없습니다");
         }
     }
 
@@ -119,6 +188,7 @@ class PaymentAllocationTest {
                     .orderId(100L)
                     .sellerId(10L)
                     .allocatedAmount(50000L)
+                    .shippingFee(3000L)
                     .settlementId(5L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
@@ -134,6 +204,7 @@ class PaymentAllocationTest {
             assertThat(allocation.getOrderId()).isEqualTo(100L);
             assertThat(allocation.getSellerId()).isEqualTo(10L);
             assertThat(allocation.getAllocatedAmount()).isEqualTo(50000L);
+            assertThat(allocation.getShippingFee()).isEqualTo(3000L);
             assertThat(allocation.getSettlementId()).isEqualTo(5L);
             assertThat(allocation.getCreatedAt()).isEqualTo(createdAt);
         }

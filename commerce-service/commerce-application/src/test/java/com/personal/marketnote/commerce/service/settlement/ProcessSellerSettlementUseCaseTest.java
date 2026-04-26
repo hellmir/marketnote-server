@@ -60,6 +60,7 @@ class ProcessSellerSettlementUseCaseTest {
                 .orderId(100L)
                 .sellerId(sellerId)
                 .allocatedAmount(allocatedAmount)
+                .shippingFee(0L)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
                 .idempotencyKey("TEST:" + id)
