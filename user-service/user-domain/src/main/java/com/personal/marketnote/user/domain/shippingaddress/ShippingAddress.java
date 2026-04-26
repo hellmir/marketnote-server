@@ -28,6 +28,7 @@ public class ShippingAddress extends BaseDomain {
     private DeliveryRequestType deliveryRequestType;
     private String deliveryRequestMessage;
     private boolean isDefault;
+    private ShippingAddressRegionType regionType;
 
     public static ShippingAddress from(ShippingAddressCreateState state) {
         ShippingAddress shippingAddress = ShippingAddress.builder()
@@ -42,6 +43,7 @@ public class ShippingAddress extends BaseDomain {
                 .deliveryRequestType(state.getDeliveryRequestType())
                 .deliveryRequestMessage(state.getDeliveryRequestMessage())
                 .isDefault(state.isDefault())
+                .regionType(state.getRegionType())
                 .build();
 
         shippingAddress.validate();
@@ -62,6 +64,7 @@ public class ShippingAddress extends BaseDomain {
                 .deliveryRequestType(state.getDeliveryRequestType())
                 .deliveryRequestMessage(state.getDeliveryRequestMessage())
                 .isDefault(state.isDefault())
+                .regionType(state.getRegionType())
                 .build();
     }
 
@@ -77,6 +80,14 @@ public class ShippingAddress extends BaseDomain {
 
     public void unsetAsDefault() {
         this.isDefault = false;
+    }
+
+    public void assignRegionType(ShippingAddressRegionType regionType) {
+        if (FormatValidator.hasNoValue(regionType)) {
+            this.regionType = ShippingAddressRegionType.NORMAL;
+            return;
+        }
+        this.regionType = regionType;
     }
 
     public void delete() {

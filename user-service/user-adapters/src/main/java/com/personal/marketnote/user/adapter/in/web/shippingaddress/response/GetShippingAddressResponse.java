@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.adapter.in.web.shippingaddress.response;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.port.in.result.shippingaddress.GetShippingAddressResult;
 
@@ -15,7 +16,8 @@ public record GetShippingAddressResponse(
         String recipientPhoneNumber,
         DeliveryRequestType deliveryRequestType,
         String deliveryRequestMessage,
-        boolean isDefault
+        boolean isDefault,
+        ShippingAddressRegionType regionType
 ) {
     public static GetShippingAddressResponse from(GetShippingAddressResult result) {
         return new GetShippingAddressResponse(
@@ -29,7 +31,8 @@ public record GetShippingAddressResponse(
                 result.recipientPhoneNumber(),
                 result.deliveryRequestType(),
                 result.deliveryRequestMessage(),
-                result.isDefault()
+                result.isDefault(),
+                result.regionType()
         );
     }
 }

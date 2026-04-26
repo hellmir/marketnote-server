@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.TooManyOtherAddressesException;
 import com.personal.marketnote.user.mapper.ShippingAddressCommandToStateMapper;
@@ -11,6 +12,7 @@ import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShip
 import com.personal.marketnote.user.port.in.result.shippingaddress.RegisterShippingAddressResult;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.RegisterShippingAddressUseCase;
 import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
+import com.personal.marketnote.user.port.out.shippingaddress.ClassifyShippingAddressRegionPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
@@ -32,6 +34,7 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
     private final SaveShippingAddressPort saveShippingAddressPort;
     private final UpdateShippingAddressPort updateShippingAddressPort;
     private final PublishShippingAddressEventPort publishShippingAddressEventPort;
+    private final ClassifyShippingAddressRegionPort classifyShippingAddressRegionPort;
 
     @Override
     public RegisterShippingAddressResult registerShippingAddress(RegisterShippingAddressCommand command) {
@@ -51,7 +54,8 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
                     });
         }
 
-        ShippingAddressCreateState createState = ShippingAddressCommandToStateMapper.mapToCreateState(command, isDefault);
+        ShippingAddressRegionType regionType = classifyShippingAddressRegionPort.classify(command.address());
+        ShippingAddressCreateState createState = ShippingAddressCommandToStateMapper.mapToCreateState(command, isDefault, regionType);
         ShippingAddress shippingAddress = ShippingAddress.from(createState);
 
         ShippingAddress savedShippingAddress = saveShippingAddressPort.save(shippingAddress);
