@@ -53,8 +53,11 @@ public class SettlementExecutedLedgerConsumer {
         }
 
         try {
+            long shippingFee = payload.shippingFee() != null ? payload.shippingFee() : 0L;
+            long feeBase = Math.addExact(payload.totalAllocatedAmount(), shippingFee);
+
             recordLedgerEntryUseCase.recordPgSettlement(
-                    payload.settlementId(), payload.totalAllocatedAmount(), payload.pgFeeAmount()
+                    payload.settlementId(), feeBase, payload.pgFeeAmount()
             );
 
             long sellerSettlementDebit = Math.addExact(payload.sellerPayoutAmount(), payload.platformFeeAmount());

@@ -25,10 +25,11 @@ public class SettlementEventKafkaProducer implements PublishSettlementEventPort 
 
     @Override
     public void publishSettlementExecutedEvent(Long settlementId, Long sellerId,
-                                               Long totalAllocatedAmount, Long pgFeeAmount,
-                                               Long platformFeeAmount, Long sellerPayoutAmount) {
+                                               Long totalAllocatedAmount, Long shippingFee,
+                                               Long pgFeeAmount, Long platformFeeAmount,
+                                               Long sellerPayoutAmount) {
         SettlementExecutedEvent payload = new SettlementExecutedEvent(
-                settlementId, sellerId, totalAllocatedAmount,
+                settlementId, sellerId, totalAllocatedAmount, shippingFee,
                 pgFeeAmount, platformFeeAmount, sellerPayoutAmount
         );
         String topic = KafkaTopicConstants.SETTLEMENT_EXECUTED;
