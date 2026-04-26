@@ -90,11 +90,13 @@ public class OrderCommandToStateMapper {
 
     public static PaymentAllocationCreateState mapToPaymentAllocationState(Long orderId,
                                                                            Long sellerId,
-                                                                           Long allocatedAmount) {
+                                                                           Long allocatedAmount,
+                                                                           Long shippingFee) {
         return PaymentAllocationCreateState.builder()
                 .orderId(orderId)
                 .sellerId(sellerId)
                 .allocatedAmount(allocatedAmount)
+                .shippingFee(shippingFee)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
                 .idempotencyKey("ORDER_ALLOCATION:" + orderId + ":" + sellerId)

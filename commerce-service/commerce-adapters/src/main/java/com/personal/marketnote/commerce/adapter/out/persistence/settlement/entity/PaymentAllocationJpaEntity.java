@@ -36,6 +36,9 @@ public class PaymentAllocationJpaEntity {
     @Column(name = "allocated_amount", nullable = false)
     private Long allocatedAmount;
 
+    @Column(name = "shipping_fee", nullable = false)
+    private Long shippingFee;
+
     @Column(name = "settlement_id")
     private Long settlementId;
 
@@ -59,6 +62,7 @@ public class PaymentAllocationJpaEntity {
                 .orderId(allocation.getOrderId())
                 .sellerId(allocation.getSellerId())
                 .allocatedAmount(allocation.getAllocatedAmount())
+                .shippingFee(allocation.getShippingFee())
                 .settlementId(allocation.getSettlementId())
                 .transactionType(allocation.getTransactionType())
                 .targetType(allocation.getTargetType())

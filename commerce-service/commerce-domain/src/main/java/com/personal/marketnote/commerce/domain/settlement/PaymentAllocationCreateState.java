@@ -10,6 +10,7 @@ public class PaymentAllocationCreateState {
     private Long orderId;
     private Long sellerId;
     private Long allocatedAmount;
+    private Long shippingFee;
     private PaymentAllocationTransactionType transactionType;
     private PaymentAllocationTargetType targetType;
     private String idempotencyKey;
