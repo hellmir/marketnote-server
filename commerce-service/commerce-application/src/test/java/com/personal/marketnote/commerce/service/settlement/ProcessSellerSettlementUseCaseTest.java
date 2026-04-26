@@ -55,12 +55,16 @@ class ProcessSellerSettlementUseCaseTest {
     private ArgumentCaptor<List<Long>> allocationIdsCaptor;
 
     private PaymentAllocation createAllocation(Long id, Long sellerId, Long allocatedAmount) {
+        return createAllocation(id, sellerId, allocatedAmount, 0L);
+    }
+
+    private PaymentAllocation createAllocation(Long id, Long sellerId, Long allocatedAmount, Long shippingFee) {
         return PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
                 .id(id)
                 .orderId(100L)
                 .sellerId(sellerId)
                 .allocatedAmount(allocatedAmount)
-                .shippingFee(0L)
+                .shippingFee(shippingFee)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
                 .idempotencyKey("TEST:" + id)
@@ -161,6 +165,46 @@ class ProcessSellerSettlementUseCaseTest {
             Settlement saved = settlementCaptor.getValue();
             assertThat(saved.getPgFeeAmount()).isEqualTo(0L);
             assertThat(saved.getSellerPayoutAmount()).isEqualTo(9500L);
+        }
+
+        @Test
+        @DisplayName("배송비가 포함된 배분은 배송비를 합산하여 수수료를 계산한다")
+        void shouldIncludeShippingFeeInFeeCalculation() {
+            // given
+            // allocatedAmount=5000 + shippingFee=3000 = 8000 (수수료 기준)
+            PaymentAllocation allocation = createAllocation(1L, 10L, 5000L, 3000L);
+
+            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
+                    .thenReturn(false);
+            when(saveSettlementPort.save(any(Settlement.class)))
+                    .thenAnswer(invocation -> {
+                        Settlement s = invocation.getArgument(0);
+                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
+                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
+                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
+                    });
+            when(updateSettlementPort.update(any(Settlement.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
+                    .year(2026).month(2).build();
+
+            // when
+            // pgFeeRate=300 (3%), platformFeeRate=500 (5%)
+            // 수수료 기준 = 5000 + 3000 = 8000
+            // pgFee = 8000 * 300 / 10000 = 240
+            // platformFee = 8000 * 500 / 10000 = 400
+            // sellerPayout = 8000 - 240 - 400 = 7360
+            processSellerSettlementService.process(command, 10L, List.of(allocation), 300, 500);
+
+            // then
+            verify(saveSettlementPort).save(settlementCaptor.capture());
+            Settlement saved = settlementCaptor.getValue();
+            assertThat(saved.getTotalAllocatedAmount()).isEqualTo(5000L);
+            assertThat(saved.getShippingFee()).isEqualTo(3000L);
+            assertThat(saved.getPgFeeAmount()).isEqualTo(240L);
+            assertThat(saved.getPlatformFeeAmount()).isEqualTo(400L);
+            assertThat(saved.getSellerPayoutAmount()).isEqualTo(7360L);
         }
 
         @Test
