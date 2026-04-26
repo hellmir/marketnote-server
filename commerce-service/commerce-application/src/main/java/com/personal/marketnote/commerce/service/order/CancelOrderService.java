@@ -41,21 +41,28 @@ public class CancelOrderService implements CancelOrderUseCase {
     private final PlatformTransactionManager transactionManager;
     private final Clock clock;
 
-    private static final OrderStatus TARGET_STATUS = OrderStatus.CANCELLED;
-
     @Override
     public void cancelOrder(CancelOrderCommand command) {
         Order order = getOrderUseCase.getOrder(command.id());
 
         validateBuyerOwnership(command, order);
         validateReasonCategory(command);
-        validateStatusTransition(order);
+
+        OrderStatus targetStatus = resolveTargetStatus(order);
+        validateStatusTransition(order, targetStatus);
 
         OrderStatus originalStatus = order.getOrderStatus();
 
         cancelFulfillmentIfRequired(order);
 
-        persistCancellation(command, order, originalStatus);
+        persistCancellation(command, order, originalStatus, targetStatus);
+    }
+
+    private OrderStatus resolveTargetStatus(Order order) {
+        if (order.getOrderStatus().isPending()) {
+            return OrderStatus.CANCELLED;
+        }
+        return OrderStatus.CANCEL_REQUESTED;
     }
 
     private void cancelFulfillmentIfRequired(Order order) {
@@ -75,17 +82,17 @@ public class CancelOrderService implements CancelOrderUseCase {
         }
     }
 
-    private void persistCancellation(CancelOrderCommand command, Order order, OrderStatus originalStatus) {
+    private void persistCancellation(CancelOrderCommand command, Order order, OrderStatus originalStatus, OrderStatus targetStatus) {
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
         transactionTemplate.executeWithoutResult(status -> {
             LocalDateTime now = LocalDateTime.now(clock);
-            order.changeAllProductsStatus(TARGET_STATUS, now);
+            order.changeAllProductsStatus(targetStatus, now);
 
             OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
                     OrderStatusHistoryCreateState.builder()
                             .orderId(command.id())
-                            .orderStatus(TARGET_STATUS)
+                            .orderStatus(targetStatus)
                             .reasonCategory(command.reasonCategory())
                             .reason(command.reason())
                             .build()
@@ -135,13 +142,13 @@ public class CancelOrderService implements CancelOrderUseCase {
         }
     }
 
-    private void validateStatusTransition(Order order) {
-        if (TARGET_STATUS.isMe(order.getOrderStatus())) {
-            throw new OrderStatusAlreadyChangedException(TARGET_STATUS);
+    private void validateStatusTransition(Order order, OrderStatus targetStatus) {
+        if (targetStatus.isMe(order.getOrderStatus())) {
+            throw new OrderStatusAlreadyChangedException(targetStatus);
         }
 
-        if (!order.getOrderStatus().canTransitionTo(TARGET_STATUS)) {
-            throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), TARGET_STATUS);
+        if (!order.getOrderStatus().canTransitionTo(targetStatus)) {
+            throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), targetStatus);
         }
     }
 }

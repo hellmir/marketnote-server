@@ -15,6 +15,7 @@ public enum OrderStatus {
     PAID("결제 완료"),
     FAILED("결제 실패"),
     PREPARING("상품 준비중"),
+    CANCEL_REQUESTED("취소 요청"),
     CANCELLED("주문 취소"),
     SHIPPING("배송중"),
     DELIVERED("배송 완료"),
@@ -29,14 +30,15 @@ public enum OrderStatus {
 
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
     private static final Set<OrderStatus> BUYER_ALLOWED_STATUSES = EnumSet.of(
-            CONFIRMED, CANCELLED, RETURN_REQUESTED
+            CONFIRMED, CANCEL_REQUESTED, CANCELLED, RETURN_REQUESTED
     );
 
     static {
         ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCELLED));
-        ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCELLED));
+        ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED));
         ALLOWED_TRANSITIONS.put(FAILED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCELLED));
+        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCEL_REQUESTED));
+        ALLOWED_TRANSITIONS.put(CANCEL_REQUESTED, EnumSet.of(CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED));
         ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
@@ -96,6 +98,10 @@ public enum OrderStatus {
         return this == PREPARING;
     }
 
+    public boolean isCancelRequested() {
+        return this == CANCEL_REQUESTED;
+    }
+
     public boolean isCancelled() {
         return this == CANCELLED;
     }
@@ -119,7 +125,7 @@ public enum OrderStatus {
     /**
      * 구매자가 직접 변경할 수 있는 주문 상태인지 확인한다.
      * <p>
-     * 구매자 허용 상태: CONFIRMED, CANCELLED, RETURN_REQUESTED
+     * 구매자 허용 상태: CONFIRMED, CANCEL_REQUESTED, CANCELLED, RETURN_REQUESTED
      * </p>
      *
      * @return 구매자가 변경 가능한 상태이면 true
