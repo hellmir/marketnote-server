@@ -59,6 +59,7 @@ class GetSettlementDetailUseCaseTest {
                 .orderId(orderId)
                 .sellerId(sellerId)
                 .allocatedAmount(allocatedAmount)
+                .shippingFee(0L)
                 .settlementId(settlementId)
                 .transactionType(transactionType)
                 .targetType(targetType)
