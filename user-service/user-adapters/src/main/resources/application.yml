@@ -146,7 +146,3 @@ verification:
 profanity:
   init:
     enabled: ${PROFANITY_INIT_ENABLED:false}
-
-remote-area:
-  init:
-    enabled: ${REMOTE_AREA_INIT_ENABLED:false}
