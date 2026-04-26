@@ -3,6 +3,7 @@ package com.personal.marketnote.user.service.shippingaddress;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
@@ -50,6 +51,7 @@ class SetDefaultShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-1234-5678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         ShippingAddress currentDefault = ShippingAddress.from(ShippingAddressSnapshotState.builder()
@@ -63,6 +65,7 @@ class SetDefaultShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-9876-5432")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
@@ -102,6 +105,7 @@ class SetDefaultShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-1234-5678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
@@ -155,6 +159,7 @@ class SetDefaultShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-1234-5678")
                 .deliveryRequestType(DeliveryRequestType.NONE)
                 .isDefault(false)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         ShippingAddress defaultAddress1 = ShippingAddress.from(ShippingAddressSnapshotState.builder()
@@ -168,6 +173,7 @@ class SetDefaultShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-9876-5432")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         ShippingAddress defaultAddress2 = ShippingAddress.from(ShippingAddressSnapshotState.builder()
@@ -181,6 +187,7 @@ class SetDefaultShippingAddressUseCaseTest {
                 .recipientPhoneNumber("010-5555-6666")
                 .deliveryRequestType(DeliveryRequestType.LEAVE_AT_SECURITY)
                 .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
                 .build());
 
         when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
