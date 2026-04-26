@@ -137,13 +137,12 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 )
         );
 
-        createPaymentAllocations(savedOrder.getId(), command.orderProducts(), shippingPolicies);
+        createPaymentAllocations(savedOrder.getId(), command.orderProducts());
 
         return RegisterOrderResult.from(savedOrder);
     }
 
-    private void createPaymentAllocations(Long orderId, List<OrderProductItemCommand> orderProducts,
-                                          Map<Long, ShippingPolicyInfoResult> shippingPolicies) {
+    private void createPaymentAllocations(Long orderId, List<OrderProductItemCommand> orderProducts) {
         Map<Long, Long> sellerGrossAmounts = orderProducts.stream()
                 .collect(Collectors.groupingBy(
                         OrderProductItemCommand::sellerId,
@@ -151,47 +150,17 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
                 ));
 
-        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerGrossAmounts, shippingPolicies);
-
         List<PaymentAllocation> allocations = sellerGrossAmounts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
-                .map(entry -> {
-                    Long sellerId = entry.getKey();
-                    Long sellerShippingFee = sellerShippingFees.getOrDefault(sellerId, 0L);
-                    return PaymentAllocation.from(
-                            OrderCommandToStateMapper.mapToPaymentAllocationState(
-                                    orderId, sellerId, entry.getValue(), sellerShippingFee)
-                    );
-                })
+                .map(entry -> PaymentAllocation.from(
+                        OrderCommandToStateMapper.mapToPaymentAllocationState(
+                                orderId, entry.getKey(), entry.getValue(), 0L)
+                ))
                 .toList();
 
         if (!allocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(allocations);
         }
-    }
-
-    private Map<Long, Long> calculateSellerShippingFees(
-            Map<Long, Long> sellerAmounts,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicies
-    ) {
-        Map<Long, Long> sellerShippingFees = new java.util.HashMap<>();
-        for (Map.Entry<Long, Long> entry : sellerAmounts.entrySet()) {
-            Long sellerId = entry.getKey();
-            Long sellerAmount = entry.getValue();
-
-            ShippingPolicyInfoResult policy = shippingPolicies.get(sellerId);
-            if (FormatValidator.hasNoValue(policy)) {
-                sellerShippingFees.put(sellerId, 0L);
-                continue;
-            }
-
-            if (sellerAmount < policy.freeShippingThreshold()) {
-                sellerShippingFees.put(sellerId, policy.shippingFee());
-                continue;
-            }
-            sellerShippingFees.put(sellerId, 0L);
-        }
-        return sellerShippingFees;
     }
 
     private void validateTotalAmountConsistency(RegisterOrderCommand command) {
@@ -340,12 +309,21 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
                 ));
 
-        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerAmounts, shippingPolicies);
-
         long totalShippingFee = 0L;
-        for (Long fee : sellerShippingFees.values()) {
-            totalShippingFee = Math.addExact(totalShippingFee, fee);
+        for (Map.Entry<Long, Long> entry : sellerAmounts.entrySet()) {
+            Long sellerId = entry.getKey();
+            Long sellerAmount = entry.getValue();
+
+            ShippingPolicyInfoResult policy = shippingPolicies.get(sellerId);
+            if (FormatValidator.hasNoValue(policy)) {
+                continue;
+            }
+
+            if (sellerAmount < policy.freeShippingThreshold()) {
+                totalShippingFee = Math.addExact(totalShippingFee, policy.shippingFee());
+            }
         }
+
         return totalShippingFee;
     }
 

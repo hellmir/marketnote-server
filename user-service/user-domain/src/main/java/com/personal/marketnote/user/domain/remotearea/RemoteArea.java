@@ -59,6 +59,11 @@ public class RemoteArea extends BaseDomain {
                 .build();
     }
 
+    @Override
+    public void deactivate() {
+        super.deactivate();
+    }
+
     private static String normalizeOptionalField(String value) {
         if (FormatValidator.hasNoValue(value)) {
             return "";
