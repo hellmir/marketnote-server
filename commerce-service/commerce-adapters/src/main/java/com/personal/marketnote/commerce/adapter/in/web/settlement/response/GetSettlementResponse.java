@@ -14,6 +14,7 @@ public record GetSettlementResponse(
         Integer year,
         Integer month,
         Long totalAllocatedAmount,
+        Long shippingFee,
         Long pgFeeAmount,
         Long platformFeeAmount,
         Long sellerPayoutAmount,
@@ -28,6 +29,7 @@ public record GetSettlementResponse(
                 .year(result.year())
                 .month(result.month())
                 .totalAllocatedAmount(result.totalAllocatedAmount())
+                .shippingFee(result.shippingFee())
                 .pgFeeAmount(result.pgFeeAmount())
                 .platformFeeAmount(result.platformFeeAmount())
                 .sellerPayoutAmount(result.sellerPayoutAmount())

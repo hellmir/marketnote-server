@@ -14,6 +14,7 @@ public class SettlementSnapshotState {
     private Integer year;
     private Integer month;
     private Long totalAllocatedAmount;
+    private Long shippingFee;
     private Long pgFeeAmount;
     private Long platformFeeAmount;
     private Long sellerPayoutAmount;

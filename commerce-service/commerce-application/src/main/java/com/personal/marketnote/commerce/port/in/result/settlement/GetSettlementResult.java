@@ -13,6 +13,7 @@ public record GetSettlementResult(
         Integer year,
         Integer month,
         Long totalAllocatedAmount,
+        Long shippingFee,
         Long pgFeeAmount,
         Long platformFeeAmount,
         Long sellerPayoutAmount,
@@ -27,6 +28,7 @@ public record GetSettlementResult(
                 .year(settlement.getYear())
                 .month(settlement.getMonth())
                 .totalAllocatedAmount(settlement.getTotalAllocatedAmount())
+                .shippingFee(settlement.getShippingFee())
                 .pgFeeAmount(settlement.getPgFeeAmount())
                 .platformFeeAmount(settlement.getPlatformFeeAmount())
                 .sellerPayoutAmount(settlement.getSellerPayoutAmount())
