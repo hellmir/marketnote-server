@@ -2,6 +2,7 @@ package com.personal.marketnote.user.port.in.result.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,7 +19,8 @@ public record GetMyShippingAddressResult(
         String recipientPhoneNumber,
         DeliveryRequestType deliveryRequestType,
         String deliveryRequestMessage,
-        boolean isDefault
+        boolean isDefault,
+        ShippingAddressRegionType regionType
 ) {
     public static GetMyShippingAddressResult from(ShippingAddress shippingAddress) {
         return GetMyShippingAddressResult.builder()
@@ -33,6 +35,7 @@ public record GetMyShippingAddressResult(
                 .deliveryRequestType(shippingAddress.getDeliveryRequestType())
                 .deliveryRequestMessage(shippingAddress.getDeliveryRequestMessage())
                 .isDefault(shippingAddress.isDefault())
+                .regionType(shippingAddress.getRegionType())
                 .build();
     }
 }

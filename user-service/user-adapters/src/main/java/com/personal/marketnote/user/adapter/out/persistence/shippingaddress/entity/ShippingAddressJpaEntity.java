@@ -3,6 +3,7 @@ package com.personal.marketnote.user.adapter.out.persistence.shippingaddress.ent
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,6 +51,10 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
     @Column(name = "is_default", nullable = false, columnDefinition = "boolean default false")
     private Boolean isDefault;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "region_type", nullable = false, length = 15)
+    private ShippingAddressRegionType regionType;
+
     public void updateFrom(ShippingAddress shippingAddress) {
         if (shippingAddress.isInactive()) {
             deactivate();
@@ -63,6 +68,7 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
         this.deliveryRequestType = shippingAddress.getDeliveryRequestType();
         this.deliveryRequestMessage = shippingAddress.getDeliveryRequestMessage();
         this.isDefault = shippingAddress.isDefault();
+        this.regionType = shippingAddress.getRegionType();
     }
 
     public static ShippingAddressJpaEntity from(ShippingAddress shippingAddress) {
@@ -78,6 +84,7 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
                 .deliveryRequestType(shippingAddress.getDeliveryRequestType())
                 .deliveryRequestMessage(shippingAddress.getDeliveryRequestMessage())
                 .isDefault(shippingAddress.isDefault())
+                .regionType(shippingAddress.getRegionType())
                 .build();
     }
 }

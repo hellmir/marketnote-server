@@ -21,4 +21,5 @@ public class ShippingAddressCreateState {
     private final DeliveryRequestType deliveryRequestType;
     private final String deliveryRequestMessage;
     private final boolean isDefault;
+    private final ShippingAddressRegionType regionType;
 }

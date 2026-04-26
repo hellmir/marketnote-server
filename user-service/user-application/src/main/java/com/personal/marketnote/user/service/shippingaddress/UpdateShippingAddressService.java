@@ -3,10 +3,12 @@ package com.personal.marketnote.user.service.shippingaddress;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippingAddressCommand;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.UpdateShippingAddressUseCase;
 import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
+import com.personal.marketnote.user.port.out.shippingaddress.ClassifyShippingAddressRegionPort;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
     private final FindShippingAddressPort findShippingAddressPort;
     private final UpdateShippingAddressPort updateShippingAddressPort;
     private final PublishShippingAddressEventPort publishShippingAddressEventPort;
+    private final ClassifyShippingAddressRegionPort classifyShippingAddressRegionPort;
 
     @Override
     public void updateShippingAddress(Long shippingAddressId, Long userId, UpdateShippingAddressCommand command) {
@@ -37,6 +40,9 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
                 command.deliveryRequestType(),
                 command.deliveryRequestMessage()
         );
+
+        ShippingAddressRegionType regionType = classifyShippingAddressRegionPort.classify(command.address());
+        shippingAddress.assignRegionType(regionType);
 
         updateShippingAddressPort.update(shippingAddress);
 

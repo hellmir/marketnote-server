@@ -21,6 +21,7 @@ public class ShippingAddressJpaEntityToDomainMapper {
                         .deliveryRequestType(entity.getDeliveryRequestType())
                         .deliveryRequestMessage(entity.getDeliveryRequestMessage())
                         .isDefault(Boolean.TRUE.equals(entity.getIsDefault()))
+                        .regionType(entity.getRegionType())
                         .build()
         );
     }

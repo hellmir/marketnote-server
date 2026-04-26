@@ -3,6 +3,7 @@ package com.personal.marketnote.user.mapper;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
 
 public class ShippingAddressCommandToStateMapper {
@@ -10,7 +11,7 @@ public class ShippingAddressCommandToStateMapper {
     }
 
     public static ShippingAddressCreateState mapToCreateState(
-            RegisterShippingAddressCommand command, boolean isDefault
+            RegisterShippingAddressCommand command, boolean isDefault, ShippingAddressRegionType regionType
     ) {
         return ShippingAddressCreateState.builder()
                 .userId(command.userId())
@@ -28,6 +29,7 @@ public class ShippingAddressCommandToStateMapper {
                 )
                 .deliveryRequestMessage(command.deliveryRequestMessage())
                 .isDefault(isDefault)
+                .regionType(regionType)
                 .build();
     }
 }
