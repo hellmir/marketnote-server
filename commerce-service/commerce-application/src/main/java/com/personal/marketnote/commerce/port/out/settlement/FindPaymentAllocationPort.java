@@ -8,4 +8,6 @@ public interface FindPaymentAllocationPort {
     List<PaymentAllocation> findUnsettledAllocations(Integer year, Integer month);
 
     List<PaymentAllocation> findBySettlementId(Long settlementId);
+
+    List<PaymentAllocation> findByOrderId(Long orderId);
 }
