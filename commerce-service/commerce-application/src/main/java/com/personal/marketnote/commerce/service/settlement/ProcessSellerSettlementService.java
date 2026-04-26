@@ -104,18 +104,19 @@ public class ProcessSellerSettlementService {
         updateSettlementPort.update(savedSettlement);
 
         publishSettlementExecutedEvent(settlementId, sellerId, totalAllocatedAmount,
-                pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
+                totalShippingFee, pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
 
         log.info("정산 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}, total: {}, pgFee: {}, platformFee: {}, sellerPayout: {}",
                 settlementId, sellerId, year, month, totalAllocatedAmount, pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
     }
 
     private void publishSettlementExecutedEvent(Long settlementId, Long sellerId,
-                                                Long totalAllocatedAmount, Long pgFeeAmount,
-                                                Long platformFeeAmount, Long sellerPayoutAmount) {
+                                                Long totalAllocatedAmount, Long shippingFee,
+                                                Long pgFeeAmount, Long platformFeeAmount,
+                                                Long sellerPayoutAmount) {
         try {
             publishSettlementEventPort.publishSettlementExecutedEvent(
-                    settlementId, sellerId, totalAllocatedAmount,
+                    settlementId, sellerId, totalAllocatedAmount, shippingFee,
                     pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
         } catch (Exception e) {
             log.error("정산 실행 이벤트 발행 실패 - settlementId: {}, sellerId: {}, error: {}",
