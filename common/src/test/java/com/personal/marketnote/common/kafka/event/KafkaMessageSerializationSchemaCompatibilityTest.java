@@ -322,7 +322,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("SettlementExecutedEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void settlementExecutedEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            SettlementExecutedEvent event = new SettlementExecutedEvent(1L, 10L, 100000L, 3000L, 5000L, 92000L);
+            SettlementExecutedEvent event = new SettlementExecutedEvent(1L, 10L, 100000L, 0L, 3000L, 5000L, 92000L);
             EventEnvelope<SettlementExecutedEvent> envelope = EventEnvelope.of(
                     "commerce.settlement.executed", "commerce-service", event, FIXED_CLOCK);
 

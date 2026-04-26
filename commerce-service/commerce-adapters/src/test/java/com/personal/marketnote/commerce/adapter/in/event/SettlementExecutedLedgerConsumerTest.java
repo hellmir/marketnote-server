@@ -36,8 +36,12 @@ class SettlementExecutedLedgerConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long settlementId, Long sellerId) {
+        return buildRecord(settlementId, sellerId, 0L);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long settlementId, Long sellerId, Long shippingFee) {
         SettlementExecutedEvent event = new SettlementExecutedEvent(
-                settlementId, sellerId, 100000L, 3000L, 7000L, 90000L
+                settlementId, sellerId, 100000L, shippingFee, 3000L, 7000L, 90000L
         );
         EventEnvelope<SettlementExecutedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.settlement.executed", "commerce-service",
@@ -58,6 +62,26 @@ class SettlementExecutedLedgerConsumerTest {
         // then
         verify(recordLedgerEntryUseCase).recordPgSettlement(1L, 100000L, 3000L);
         verify(recordLedgerEntryUseCase).recordSellerSettlement(1L, 97000L, 90000L, 7000L);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("배송비가 포함된 정산 이벤트는 (totalAllocatedAmount + shippingFee)로 분개를 기록한다")
+    void handleSettlementExecutedEvent_withShippingFee_includesInFeeBase() {
+        // given
+        // totalAllocatedAmount=100000, shippingFee=5000, feeBase=105000
+        // pgFee=3000, platformFee=7000, sellerPayout=90000 (변하지 않음, 이미 계산된 값)
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 5000L);
+
+        // when
+        consumer.handleSettlementExecutedEvent(record, acknowledgment);
+
+        // then
+        // PG 정산: feeBase=105000을 totalAmount로 전달
+        verify(recordLedgerEntryUseCase).recordPgSettlement(1L, 105000L, 3000L);
+        // 판매자 정산: sellerPayout + platformFee = 97000 (debit)
+        long sellerSettlementDebit = Math.addExact(90000L, 7000L);
+        verify(recordLedgerEntryUseCase).recordSellerSettlement(1L, sellerSettlementDebit, 90000L, 7000L);
         verify(acknowledgment).acknowledge();
     }
 
@@ -140,7 +164,7 @@ class SettlementExecutedLedgerConsumerTest {
     void handleSettlementExecutedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         SettlementExecutedEvent event = new SettlementExecutedEvent(
-                1L, 100L, 100000L, 3000L, 7000L, 90000L
+                1L, 100L, 100000L, 0L, 3000L, 7000L, 90000L
         );
         EventEnvelope<SettlementExecutedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
