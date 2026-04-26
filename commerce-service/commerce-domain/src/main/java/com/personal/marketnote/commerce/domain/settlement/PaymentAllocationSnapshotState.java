@@ -13,6 +13,7 @@ public class PaymentAllocationSnapshotState {
     private Long orderId;
     private Long sellerId;
     private Long allocatedAmount;
+    private Long shippingFee;
     private Long settlementId;
     private PaymentAllocationTransactionType transactionType;
     private PaymentAllocationTargetType targetType;

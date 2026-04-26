@@ -154,7 +154,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 .filter(entry -> entry.getValue() > 0)
                 .map(entry -> PaymentAllocation.from(
                         OrderCommandToStateMapper.mapToPaymentAllocationState(
-                                orderId, entry.getKey(), entry.getValue())
+                                orderId, entry.getKey(), entry.getValue(), 0L)
                 ))
                 .toList();
 

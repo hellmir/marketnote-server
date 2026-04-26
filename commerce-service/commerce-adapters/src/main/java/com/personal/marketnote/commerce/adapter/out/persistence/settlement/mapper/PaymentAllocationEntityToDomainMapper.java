@@ -15,6 +15,7 @@ public class PaymentAllocationEntityToDomainMapper {
                 .orderId(entity.getOrderId())
                 .sellerId(entity.getSellerId())
                 .allocatedAmount(entity.getAllocatedAmount())
+                .shippingFee(entity.getShippingFee())
                 .settlementId(entity.getSettlementId())
                 .transactionType(entity.getTransactionType())
                 .targetType(entity.getTargetType())

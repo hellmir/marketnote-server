@@ -14,6 +14,7 @@ public record GetSettlementDetailResult(
         Long orderId,
         Long sellerId,
         Long allocatedAmount,
+        Long shippingFee,
         PaymentAllocationTransactionType transactionType,
         PaymentAllocationTargetType targetType,
         LocalDateTime createdAt
@@ -24,6 +25,7 @@ public record GetSettlementDetailResult(
                 .orderId(allocation.getOrderId())
                 .sellerId(allocation.getSellerId())
                 .allocatedAmount(allocation.getAllocatedAmount())
+                .shippingFee(allocation.getShippingFee())
                 .transactionType(allocation.getTransactionType())
                 .targetType(allocation.getTargetType())
                 .createdAt(allocation.getCreatedAt())
