@@ -35,6 +35,10 @@ public class RemoteAreaJpaEntity extends BaseGeneralEntity {
     @Column(name = "subarea", nullable = false, length = 50)
     private String subarea;
 
+    public void markInactive() {
+        super.deactivate();
+    }
+
     public static RemoteAreaJpaEntity from(RemoteArea remoteArea) {
         return RemoteAreaJpaEntity.builder()
                 .province(remoteArea.getProvince())

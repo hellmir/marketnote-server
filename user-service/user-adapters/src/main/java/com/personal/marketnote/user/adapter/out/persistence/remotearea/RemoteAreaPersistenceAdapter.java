@@ -7,16 +7,19 @@ import com.personal.marketnote.user.adapter.out.persistence.remotearea.mapper.Re
 import com.personal.marketnote.user.adapter.out.persistence.remotearea.repository.RemoteAreaJpaRepository;
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
 import com.personal.marketnote.user.exception.RemoteAreaAlreadyExistsException;
+import com.personal.marketnote.user.exception.RemoteAreaNotFoundException;
+import com.personal.marketnote.user.port.out.remotearea.DeleteRemoteAreaPort;
 import com.personal.marketnote.user.port.out.remotearea.FindRemoteAreaPort;
 import com.personal.marketnote.user.port.out.remotearea.SaveRemoteAreaPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
+import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRemoteAreaPort {
+public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRemoteAreaPort, DeleteRemoteAreaPort {
 
     private final RemoteAreaJpaRepository remoteAreaJpaRepository;
 
@@ -44,5 +47,18 @@ public class RemoteAreaPersistenceAdapter implements SaveRemoteAreaPort, FindRem
         return remoteAreaJpaRepository.findAllByStatus(EntityStatus.ACTIVE).stream()
                 .map(RemoteAreaJpaEntityToDomainMapper::mapToDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<RemoteArea> findActiveById(Long id) {
+        return remoteAreaJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
+                .map(RemoteAreaJpaEntityToDomainMapper::mapToDomain);
+    }
+
+    @Override
+    public void deactivate(RemoteArea remoteArea) {
+        RemoteAreaJpaEntity entity = remoteAreaJpaRepository.findById(remoteArea.getId())
+                .orElseThrow(() -> new RemoteAreaNotFoundException(remoteArea.getId()));
+        entity.markInactive();
     }
 }

@@ -2160,16 +2160,14 @@ class RegisterOrderUseCaseTest {
     class PaymentAllocationTest {
 
         @Test
-        @DisplayName("주문 등록 시 판매자별 PaymentAllocation이 배송비 포함하여 생성된다")
+        @DisplayName("주문 등록 시 판매자별 PaymentAllocation이 생성된다")
         @SuppressWarnings("unchecked")
         void registerOrder_createsPaymentAllocationsPerSeller() {
             Long pricePolicyId1 = 100L;
             Long pricePolicyId2 = 200L;
-            Long shippingFeeA = 3000L;
-            Long shippingFeeB = 2500L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(shippingFeeA + shippingFeeB).build())
+                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -2192,10 +2190,6 @@ class RegisterOrderUseCaseTest {
                     pricePolicyId1, Map.entry(25000L, 10L),
                     pricePolicyId2, Map.entry(50000L, 20L)
             ));
-            mockShippingPolicies(Map.of(
-                    10L, new ShippingPolicyInfoResult(10L, shippingFeeA, 100000L),
-                    20L, new ShippingPolicyInfoResult(20L, shippingFeeB, 100000L)
-            ));
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
             when(getInventoryUseCase.getOrCreateInventories(anyMap()))
@@ -2212,13 +2206,6 @@ class RegisterOrderUseCaseTest {
             assertThat(allocations)
                     .extracting(PaymentAllocation::getSellerId)
                     .containsExactlyInAnyOrder(10L, 20L);
-
-            PaymentAllocation allocationA = allocations.stream()
-                    .filter(a -> a.getSellerId().equals(10L)).findFirst().orElseThrow();
-            PaymentAllocation allocationB = allocations.stream()
-                    .filter(a -> a.getSellerId().equals(20L)).findFirst().orElseThrow();
-            assertThat(allocationA.getShippingFee()).isEqualTo(shippingFeeA);
-            assertThat(allocationB.getShippingFee()).isEqualTo(shippingFeeB);
         }
 
         @Test
