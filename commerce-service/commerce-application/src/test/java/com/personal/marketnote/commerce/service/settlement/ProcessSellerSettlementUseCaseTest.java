@@ -208,6 +208,59 @@ class ProcessSellerSettlementUseCaseTest {
         }
 
         @Test
+        @DisplayName("CANCELLATION 배분이 포함되면 정산 금액에서 차감된다")
+        void shouldSubtractCancellationAllocations() {
+            // given
+            // ORDER_REGISTRATION: 10000 + shipping 2000 = 12000
+            // CANCELLATION: 3000 + shipping 0 = 3000 (부분 취소 역배분)
+            // net: allocated=7000, shipping=2000, feeBase=9000
+            PaymentAllocation orderAllocation = createAllocation(1L, 10L, 10000L, 2000L);
+            PaymentAllocation cancelAllocation = PaymentAllocation.from(PaymentAllocationSnapshotState.builder()
+                    .id(2L)
+                    .orderId(100L)
+                    .sellerId(10L)
+                    .allocatedAmount(3000L)
+                    .shippingFee(0L)
+                    .transactionType(PaymentAllocationTransactionType.CANCELLATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .idempotencyKey("CANCEL:2")
+                    .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
+                    .build());
+
+            when(findSettlementPort.existsBySellerIdAndYearAndMonth(10L, 2026, 2))
+                    .thenReturn(false);
+            when(saveSettlementPort.save(any(Settlement.class)))
+                    .thenAnswer(invocation -> {
+                        Settlement s = invocation.getArgument(0);
+                        return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
+                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
+                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
+                    });
+            when(updateSettlementPort.update(any(Settlement.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            ExecuteSettlementCommand command = ExecuteSettlementCommand.builder()
+                    .year(2026).month(2).build();
+
+            // when
+            // feeBase = 7000 + 2000 = 9000
+            // pgFee = 9000 * 300 / 10000 = 270
+            // platformFee = 9000 * 500 / 10000 = 450
+            // sellerPayout = 9000 - 270 - 450 = 8280
+            processSellerSettlementService.process(
+                    command, 10L, List.of(orderAllocation, cancelAllocation), 300, 500);
+
+            // then
+            verify(saveSettlementPort).save(settlementCaptor.capture());
+            Settlement saved = settlementCaptor.getValue();
+            assertThat(saved.getTotalAllocatedAmount()).isEqualTo(7000L);
+            assertThat(saved.getShippingFee()).isEqualTo(2000L);
+            assertThat(saved.getPgFeeAmount()).isEqualTo(270L);
+            assertThat(saved.getPlatformFeeAmount()).isEqualTo(450L);
+            assertThat(saved.getSellerPayoutAmount()).isEqualTo(8280L);
+        }
+
+        @Test
         @DisplayName("수수료 역산 정합성이 유지된다")
         void shouldMaintainFeeIntegrity() {
             // given
