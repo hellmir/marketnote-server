@@ -11,4 +11,12 @@ public enum PaymentAllocationTransactionType {
     PARTIAL_REFUND("부분 환불 역배분");
 
     private final String description;
+
+    public boolean isPositiveContribution() {
+        return this == ORDER_REGISTRATION;
+    }
+
+    public boolean isNegativeContribution() {
+        return this == CANCELLATION || this == PARTIAL_REFUND;
+    }
 }

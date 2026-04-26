@@ -20,4 +20,6 @@ public interface PaymentAllocationJpaRepository extends JpaRepository<PaymentAll
     int bulkAssignSettlement(@Param("ids") List<Long> ids, @Param("settlementId") Long settlementId);
 
     List<PaymentAllocationJpaEntity> findAllBySettlementId(Long settlementId);
+
+    List<PaymentAllocationJpaEntity> findAllByOrderId(Long orderId);
 }

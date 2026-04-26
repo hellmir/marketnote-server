@@ -67,13 +67,10 @@ public class ProcessSellerSettlementService {
             throw new SettlementAlreadyExistsException(sellerId, year, month);
         }
 
-        long totalAllocatedAmount = sellerAllocations.stream()
-                .mapToLong(PaymentAllocation::getAllocatedAmount)
-                .sum();
+        long totalAllocatedAmount = calculateNetAmount(sellerAllocations, PaymentAllocation::getAllocatedAmount);
 
-        long totalShippingFee = sellerAllocations.stream()
-                .mapToLong(allocation -> allocation.getShippingFee() != null ? allocation.getShippingFee() : 0L)
-                .sum();
+        long totalShippingFee = calculateNetAmount(sellerAllocations,
+                allocation -> allocation.getShippingFee() != null ? allocation.getShippingFee() : 0L);
 
         long feeBase = Math.addExact(totalAllocatedAmount, totalShippingFee);
         long pgFeeAmount = Math.multiplyExact(feeBase, pgFeeRate) / BASIS_POINT_DENOMINATOR;
@@ -122,5 +119,20 @@ public class ProcessSellerSettlementService {
             log.error("정산 실행 이벤트 발행 실패 - settlementId: {}, sellerId: {}, error: {}",
                     settlementId, sellerId, e.getMessage(), e);
         }
+    }
+
+    private long calculateNetAmount(List<PaymentAllocation> allocations,
+                                    java.util.function.ToLongFunction<PaymentAllocation> amountExtractor) {
+        long positiveSum = 0L;
+        long negativeSum = 0L;
+        for (PaymentAllocation allocation : allocations) {
+            long amount = amountExtractor.applyAsLong(allocation);
+            if (allocation.getTransactionType().isPositiveContribution()) {
+                positiveSum = Math.addExact(positiveSum, amount);
+                continue;
+            }
+            negativeSum = Math.addExact(negativeSum, amount);
+        }
+        return positiveSum - negativeSum;
     }
 }
