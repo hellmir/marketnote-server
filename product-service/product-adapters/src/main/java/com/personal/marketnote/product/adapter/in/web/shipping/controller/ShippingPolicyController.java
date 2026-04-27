@@ -139,7 +139,9 @@ public class ShippingPolicyController {
                 new RegisterShippingPolicyCommand(
                         request.deliveryCompany(),
                         request.shippingFee(),
-                        request.freeShippingThreshold()
+                        request.freeShippingThreshold(),
+                        request.jejuSurcharge(),
+                        request.islandSurcharge()
                 )
         );
 
@@ -178,7 +180,9 @@ public class ShippingPolicyController {
                 new UpdateShippingPolicyCommand(
                         request.deliveryCompany(),
                         request.shippingFee(),
-                        request.freeShippingThreshold()
+                        request.freeShippingThreshold(),
+                        request.jejuSurcharge(),
+                        request.islandSurcharge()
                 )
         );
 

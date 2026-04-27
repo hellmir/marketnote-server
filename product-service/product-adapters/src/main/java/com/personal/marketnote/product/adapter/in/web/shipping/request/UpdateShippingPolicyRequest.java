@@ -20,6 +20,14 @@ public record UpdateShippingPolicyRequest(
         @NotNull(message = "무료배송 기준금액은 필수입니다")
         @Min(value = 0, message = "무료배송 기준금액은 0 이상이어야 합니다")
         @Schema(description = "무료배송 기준금액", example = "20000")
-        Long freeShippingThreshold
+        Long freeShippingThreshold,
+
+        @Min(value = 0, message = "제주 추가 배송비는 0 이상이어야 합니다")
+        @Schema(description = "제주 추가 배송비", example = "3000")
+        Long jejuSurcharge,
+
+        @Min(value = 0, message = "도서산간 추가 배송비는 0 이상이어야 합니다")
+        @Schema(description = "도서산간 추가 배송비", example = "5000")
+        Long islandSurcharge
 ) {
 }

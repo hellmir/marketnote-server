@@ -39,6 +39,8 @@ import java.lang.annotation.*;
                 | deliveryCompany | string | 배송업체 | Y | "CJ대한통운" |
                 | shippingFee | number | 배송비 | Y | 2500 |
                 | freeShippingThreshold | number | 무료배송 기준금액 | Y | 30000 |
+                | jejuSurcharge | number | 제주 추가 배송비 | N | 3000 |
+                | islandSurcharge | number | 도서산간 추가 배송비 | N | 5000 |
                 
                 ---
                 
@@ -60,6 +62,8 @@ import java.lang.annotation.*;
                 | deliveryCompany | string | 배송업체 | "CJ대한통운" |
                 | shippingFee | number | 배송비 | 2500 |
                 | freeShippingThreshold | number | 무료배송 기준금액 | 30000 |
+                | jejuSurcharge | number | 제주 추가 배송비 | 3000 |
+                | islandSurcharge | number | 도서산간 추가 배송비 | 5000 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -70,7 +74,9 @@ import java.lang.annotation.*;
                                 {
                                   "deliveryCompany": "CJ대한통운",
                                   "shippingFee": 2500,
-                                  "freeShippingThreshold": 30000
+                                  "freeShippingThreshold": 30000,
+                                  "jejuSurcharge": 3000,
+                                  "islandSurcharge": 5000
                                 }
                                 """)
                 )
@@ -90,7 +96,9 @@ import java.lang.annotation.*;
                                             "id": 1,
                                             "deliveryCompany": "CJ대한통운",
                                             "shippingFee": 2500,
-                                            "freeShippingThreshold": 30000
+                                            "freeShippingThreshold": 30000,
+                                            "jejuSurcharge": 3000,
+                                            "islandSurcharge": 5000
                                           },
                                           "message": "판매자 배송비 정책 수정 성공"
                                         }
