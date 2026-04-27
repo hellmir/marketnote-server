@@ -6,9 +6,7 @@ public record UpdateShippingPolicyResponse(
         Long id,
         String deliveryCompany,
         Long shippingFee,
-        Long freeShippingThreshold,
-        Long jejuSurcharge,
-        Long islandSurcharge
+        Long freeShippingThreshold
 ) {
 
     public static UpdateShippingPolicyResponse from(UpdateShippingPolicyResult result) {
@@ -16,9 +14,7 @@ public record UpdateShippingPolicyResponse(
                 result.id(),
                 result.deliveryCompany(),
                 result.shippingFee(),
-                result.freeShippingThreshold(),
-                result.jejuSurcharge(),
-                result.islandSurcharge()
+                result.freeShippingThreshold()
         );
     }
 }

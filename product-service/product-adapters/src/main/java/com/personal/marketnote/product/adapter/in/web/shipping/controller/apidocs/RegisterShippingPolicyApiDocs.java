@@ -41,8 +41,6 @@ import java.lang.annotation.*;
                 | deliveryCompany | string | 배송업체 | Y | "한진택배" |
                 | shippingFee | number | 배송비 | Y | 3000 |
                 | freeShippingThreshold | number | 무료배송 기준금액 | Y | 20000 |
-                | jejuSurcharge | number | 제주 추가 배송비 | N | 3000 |
-                | islandSurcharge | number | 도서산간 추가 배송비 | N | 5000 |
                 
                 ---
                 
@@ -71,9 +69,7 @@ import java.lang.annotation.*;
                                 {
                                   "deliveryCompany": "한진택배",
                                   "shippingFee": 3000,
-                                  "freeShippingThreshold": 20000,
-                                  "jejuSurcharge": 3000,
-                                  "islandSurcharge": 5000
+                                  "freeShippingThreshold": 20000
                                 }
                                 """)
                 )

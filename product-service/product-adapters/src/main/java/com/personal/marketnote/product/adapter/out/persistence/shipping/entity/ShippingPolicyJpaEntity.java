@@ -32,20 +32,12 @@ public class ShippingPolicyJpaEntity extends BaseGeneralEntity {
     @Column(name = "free_shipping_threshold", nullable = false)
     private Long freeShippingThreshold;
 
-    @Column(name = "jeju_surcharge")
-    private Long jejuSurcharge;
-
-    @Column(name = "island_surcharge")
-    private Long islandSurcharge;
-
     public static ShippingPolicyJpaEntity from(ShippingPolicy policy) {
         return ShippingPolicyJpaEntity.builder()
                 .sellerId(policy.getSellerId())
                 .deliveryCompany(policy.getDeliveryCompany())
                 .shippingFee(policy.getShippingFee())
                 .freeShippingThreshold(policy.getFreeShippingThreshold())
-                .jejuSurcharge(policy.getJejuSurcharge())
-                .islandSurcharge(policy.getIslandSurcharge())
                 .build();
     }
 
@@ -53,7 +45,5 @@ public class ShippingPolicyJpaEntity extends BaseGeneralEntity {
         this.deliveryCompany = policy.getDeliveryCompany();
         this.shippingFee = policy.getShippingFee();
         this.freeShippingThreshold = policy.getFreeShippingThreshold();
-        this.jejuSurcharge = policy.getJejuSurcharge();
-        this.islandSurcharge = policy.getIslandSurcharge();
     }
 }

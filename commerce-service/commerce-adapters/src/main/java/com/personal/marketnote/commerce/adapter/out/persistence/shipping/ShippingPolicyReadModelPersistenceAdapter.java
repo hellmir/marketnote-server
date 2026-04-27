@@ -42,9 +42,7 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
             result.put(entity.getSellerId(), new ShippingPolicyInfoResult(
                     entity.getSellerId(),
                     entity.getShippingFee(),
-                    entity.getFreeShippingThreshold(),
-                    entity.getJejuSurcharge(),
-                    entity.getIslandSurcharge()
+                    entity.getFreeShippingThreshold()
             ));
         }
 
@@ -53,24 +51,23 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long sellerId, Long shippingFee, Long freeShippingThreshold,
-                       Long jejuSurcharge, Long islandSurcharge) {
+    public void upsert(Long sellerId, Long shippingFee, Long freeShippingThreshold) {
         Optional<ShippingPolicyReadModelJpaEntity> existing = shippingPolicyReadModelJpaRepository.findBySellerId(sellerId);
 
         if (existing.isPresent()) {
-            existing.get().updateFrom(shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge);
+            existing.get().updateFrom(shippingFee, freeShippingThreshold);
             return;
         }
 
         try {
             ShippingPolicyReadModelJpaEntity entity = ShippingPolicyReadModelJpaEntity.of(
-                    sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
+                    sellerId, shippingFee, freeShippingThreshold
             );
             shippingPolicyReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
             log.info("배송비 정책 Read Model 중복 저장 (멱등 처리). sellerId={}", sellerId);
             shippingPolicyReadModelJpaRepository.findBySellerId(sellerId)
-                    .ifPresent(entity -> entity.updateFrom(shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge));
+                    .ifPresent(entity -> entity.updateFrom(shippingFee, freeShippingThreshold));
         }
     }
 

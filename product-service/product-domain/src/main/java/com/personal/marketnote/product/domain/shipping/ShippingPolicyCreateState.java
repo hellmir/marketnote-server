@@ -11,6 +11,4 @@ public class ShippingPolicyCreateState {
     private String deliveryCompany;
     private Long shippingFee;
     private Long freeShippingThreshold;
-    private Long jejuSurcharge;
-    private Long islandSurcharge;
 }

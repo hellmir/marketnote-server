@@ -20,8 +20,6 @@ public class ShippingPolicyJpaEntityToDomainMapper {
                                 .deliveryCompany(e.getDeliveryCompany())
                                 .shippingFee(e.getShippingFee())
                                 .freeShippingThreshold(e.getFreeShippingThreshold())
-                                .jejuSurcharge(e.getJejuSurcharge())
-                                .islandSurcharge(e.getIslandSurcharge())
                                 .status(e.getStatus())
                                 .createdAt(e.getCreatedAt())
                                 .modifiedAt(e.getModifiedAt())

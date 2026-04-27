@@ -48,8 +48,6 @@ import java.lang.annotation.*;
                 | deliveryCompany | string | 배송업체 | "한진택배" |
                 | shippingFee | number | 배송비 | 3000 |
                 | freeShippingThreshold | number | 무료배송 기준금액 | 20000 |
-                | jejuSurcharge | number | 제주 추가 배송비 | 3000 |
-                | islandSurcharge | number | 도서산간 추가 배송비 | 5000 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         responses = {
@@ -67,9 +65,7 @@ import java.lang.annotation.*;
                                             "id": 1,
                                             "deliveryCompany": "한진택배",
                                             "shippingFee": 3000,
-                                            "freeShippingThreshold": 20000,
-                                            "jejuSurcharge": 3000,
-                                            "islandSurcharge": 5000
+                                            "freeShippingThreshold": 20000
                                           },
                                           "message": "판매자 배송비 정책 조회 성공"
                                         }

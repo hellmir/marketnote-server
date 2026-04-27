@@ -55,7 +55,7 @@ class ShippingPolicyEventKafkaProducerTest {
 
         // when
         shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+                10L, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
         );
 
         // then
@@ -79,7 +79,7 @@ class ShippingPolicyEventKafkaProducerTest {
 
         // when
         shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+                10L, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
         );
 
         // then
@@ -96,8 +96,6 @@ class ShippingPolicyEventKafkaProducerTest {
         assertThat(payload.sellerId()).isEqualTo(10L);
         assertThat(payload.shippingFee()).isEqualTo(3000L);
         assertThat(payload.freeShippingThreshold()).isEqualTo(20000L);
-        assertThat(payload.jejuSurcharge()).isEqualTo(3000L);
-        assertThat(payload.islandSurcharge()).isEqualTo(5000L);
         assertThat(payload.action()).isEqualTo(ShippingPolicyChangeAction.CREATED);
     }
 
@@ -111,7 +109,7 @@ class ShippingPolicyEventKafkaProducerTest {
 
         // when
         shippingPolicyEventKafkaProducer.publishShippingPolicyChangedEvent(
-                20L, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
+                20L, 2500L, 30000L, ShippingPolicyChangeAction.UPDATED
         );
 
         // then
@@ -122,8 +120,6 @@ class ShippingPolicyEventKafkaProducerTest {
         assertThat(payload.sellerId()).isEqualTo(20L);
         assertThat(payload.shippingFee()).isEqualTo(2500L);
         assertThat(payload.freeShippingThreshold()).isEqualTo(30000L);
-        assertThat(payload.jejuSurcharge()).isEqualTo(4000L);
-        assertThat(payload.islandSurcharge()).isEqualTo(6000L);
         assertThat(payload.action()).isEqualTo(ShippingPolicyChangeAction.UPDATED);
     }
 }

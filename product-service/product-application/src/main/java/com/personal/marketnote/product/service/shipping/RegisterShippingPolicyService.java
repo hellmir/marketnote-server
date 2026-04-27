@@ -35,8 +35,7 @@ public class RegisterShippingPolicyService implements RegisterShippingPolicyUseC
         Long savedId = saveShippingPolicyPort.save(shippingPolicy);
 
         publishShippingPolicyEventPort.publishShippingPolicyChangedEvent(
-                sellerId, shippingPolicy.getShippingFee(), shippingPolicy.getFreeShippingThreshold(),
-                shippingPolicy.getJejuSurcharge(), shippingPolicy.getIslandSurcharge(), ShippingPolicyChangeAction.CREATED
+                sellerId, command.shippingFee(), command.freeShippingThreshold(), ShippingPolicyChangeAction.CREATED
         );
 
         return RegisterShippingPolicyResult.of(savedId);
