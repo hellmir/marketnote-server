@@ -18,18 +18,14 @@ public record GetShippingPoliciesBySellerIdsResponse(
     public record ShippingPolicyBySellerResponse(
             Long sellerId,
             Long shippingFee,
-            Long freeShippingThreshold,
-            Long jejuSurcharge,
-            Long islandSurcharge
+            Long freeShippingThreshold
     ) {
 
         public static ShippingPolicyBySellerResponse from(GetShippingPolicyBySellerResult result) {
             return new ShippingPolicyBySellerResponse(
                     result.sellerId(),
                     result.shippingFee(),
-                    result.freeShippingThreshold(),
-                    result.jejuSurcharge(),
-                    result.islandSurcharge()
+                    result.freeShippingThreshold()
             );
         }
     }

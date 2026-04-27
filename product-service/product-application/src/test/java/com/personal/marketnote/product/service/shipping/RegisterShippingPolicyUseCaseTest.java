@@ -66,7 +66,7 @@ class RegisterShippingPolicyUseCaseTest {
         when(saveShippingPolicyPort.save(any(ShippingPolicy.class))).thenReturn(1L);
 
         RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
-                "한진택배", 3000L, 20000L, 3000L, 5000L
+                "한진택배", 3000L, 20000L
         );
 
         // when
@@ -83,8 +83,6 @@ class RegisterShippingPolicyUseCaseTest {
         assertThat(savedPolicy.getDeliveryCompany()).isEqualTo("한진택배");
         assertThat(savedPolicy.getShippingFee()).isEqualTo(3000L);
         assertThat(savedPolicy.getFreeShippingThreshold()).isEqualTo(20000L);
-        assertThat(savedPolicy.getJejuSurcharge()).isEqualTo(3000L);
-        assertThat(savedPolicy.getIslandSurcharge()).isEqualTo(5000L);
         assertThat(savedPolicy.isActive()).isTrue();
     }
 
@@ -97,7 +95,7 @@ class RegisterShippingPolicyUseCaseTest {
                 .thenReturn(Optional.of(createSavedPolicy(sellerId)));
 
         RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
-                "한진택배", 3000L, 20000L, 3000L, 5000L
+                "한진택배", 3000L, 20000L
         );
 
         // when & then
@@ -115,7 +113,7 @@ class RegisterShippingPolicyUseCaseTest {
         when(findShippingPolicyPort.findActiveBySellerId(sellerId)).thenReturn(Optional.empty());
 
         RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
-                "한진택배", -1L, 20000L, 0L, 0L
+                "한진택배", -1L, 20000L
         );
 
         // when & then
@@ -133,7 +131,7 @@ class RegisterShippingPolicyUseCaseTest {
         when(findShippingPolicyPort.findActiveBySellerId(sellerId)).thenReturn(Optional.empty());
 
         RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
-                "한진택배", 3000L, -1L, 0L, 0L
+                "한진택배", 3000L, -1L
         );
 
         // when & then
@@ -152,7 +150,7 @@ class RegisterShippingPolicyUseCaseTest {
         when(saveShippingPolicyPort.save(any(ShippingPolicy.class))).thenReturn(1L);
 
         RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
-                "한진택배", 3000L, 20000L, 3000L, 5000L
+                "한진택배", 3000L, 20000L
         );
 
         // when
@@ -160,7 +158,7 @@ class RegisterShippingPolicyUseCaseTest {
 
         // then
         verify(publishShippingPolicyEventPort).publishShippingPolicyChangedEvent(
-                sellerId, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
+                sellerId, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
         );
     }
 
@@ -173,7 +171,7 @@ class RegisterShippingPolicyUseCaseTest {
                 .thenReturn(Optional.of(createSavedPolicy(sellerId)));
 
         RegisterShippingPolicyCommand command = new RegisterShippingPolicyCommand(
-                "한진택배", 3000L, 20000L, 3000L, 5000L
+                "한진택배", 3000L, 20000L
         );
 
         // when & then

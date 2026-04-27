@@ -36,8 +36,8 @@ class InternalShippingPolicyControllerTest {
             // given
             List<Long> sellerIds = List.of(10L, 20L);
             List<GetShippingPolicyBySellerResult> results = List.of(
-                    new GetShippingPolicyBySellerResult(10L, 3000L, 20000L, 3000L, 5000L),
-                    new GetShippingPolicyBySellerResult(20L, 2500L, 30000L, 4000L, 6000L)
+                    new GetShippingPolicyBySellerResult(10L, 3000L, 20000L),
+                    new GetShippingPolicyBySellerResult(20L, 2500L, 30000L)
             );
             when(getShippingPolicyUseCase.getShippingPolicies(sellerIds)).thenReturn(results);
 

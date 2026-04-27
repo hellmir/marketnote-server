@@ -40,6 +40,11 @@ public final class KafkaTopicConstants {
     public static final String SAGA_ORDER_PAYMENT_LEDGER = "saga.order-payment.ledger";
     public static final String SAGA_ORDER_PAYMENT_COMPLETED = "saga.order-payment.completed";
 
+    // OrderCancel SAGA 스텝
+    public static final String SAGA_ORDER_CANCEL_FULFILLMENT = "saga.order-cancel.fulfillment";
+    public static final String SAGA_ORDER_CANCEL_REFUND = "saga.order-cancel.refund";
+    public static final String SAGA_ORDER_CANCEL_COMPLETED = "saga.order-cancel.completed";
+
     // Inventory 이벤트
     public static final String INVENTORY_CHANGED = "commerce.inventory.changed";
 
