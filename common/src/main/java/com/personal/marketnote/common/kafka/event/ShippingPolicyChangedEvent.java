@@ -4,6 +4,8 @@ public record ShippingPolicyChangedEvent(
         Long sellerId,
         Long shippingFee,
         Long freeShippingThreshold,
+        Long jejuSurcharge,
+        Long islandSurcharge,
         ShippingPolicyChangeAction action
 ) {
 }

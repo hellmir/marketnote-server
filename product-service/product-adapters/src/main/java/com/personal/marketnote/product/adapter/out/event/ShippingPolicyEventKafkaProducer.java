@@ -25,8 +25,10 @@ public class ShippingPolicyEventKafkaProducer implements PublishShippingPolicyEv
     private final Clock clock;
 
     @Override
-    public void publishShippingPolicyChangedEvent(Long sellerId, Long shippingFee, Long freeShippingThreshold, ShippingPolicyChangeAction action) {
-        ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(sellerId, shippingFee, freeShippingThreshold, action);
+    public void publishShippingPolicyChangedEvent(Long sellerId, Long shippingFee, Long freeShippingThreshold,
+                                                  Long jejuSurcharge, Long islandSurcharge, ShippingPolicyChangeAction action) {
+        ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
+                sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge, action);
         String topic = KafkaTopicConstants.SHIPPING_POLICY_CHANGED;
         EventEnvelope<ShippingPolicyChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 

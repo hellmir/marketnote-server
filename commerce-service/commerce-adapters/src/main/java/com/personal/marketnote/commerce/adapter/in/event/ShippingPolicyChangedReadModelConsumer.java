@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.port.out.shipping.SaveShippingPolicyReadModelPort;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ShippingPolicyChangedEvent;
@@ -58,11 +59,15 @@ public class ShippingPolicyChangedReadModelConsumer {
         }
 
         if (payload.action().isCreated() || payload.action().isUpdated()) {
+            Long jejuSurcharge = FormatValidator.hasNoValue(payload.jejuSurcharge()) ? 0L : payload.jejuSurcharge();
+            Long islandSurcharge = FormatValidator.hasNoValue(payload.islandSurcharge()) ? 0L : payload.islandSurcharge();
             saveShippingPolicyReadModelPort.upsert(
-                    payload.sellerId(), payload.shippingFee(), payload.freeShippingThreshold()
+                    payload.sellerId(), payload.shippingFee(), payload.freeShippingThreshold(),
+                    jejuSurcharge, islandSurcharge
             );
-            log.info("배송비 정책 Read Model 저장 완료. sellerId={}, shippingFee={}, freeShippingThreshold={}",
-                    payload.sellerId(), payload.shippingFee(), payload.freeShippingThreshold());
+            log.info("배송비 정책 Read Model 저장 완료. sellerId={}, shippingFee={}, freeShippingThreshold={}, jejuSurcharge={}, islandSurcharge={}",
+                    payload.sellerId(), payload.shippingFee(), payload.freeShippingThreshold(),
+                    payload.jejuSurcharge(), payload.islandSurcharge());
         }
 
         acknowledgment.acknowledge();

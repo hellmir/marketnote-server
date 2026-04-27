@@ -56,6 +56,8 @@ import java.lang.annotation.*;
                 | sellerId | number | 판매자 ID | 10 |
                 | shippingFee | number | 배송비 | 3000 |
                 | freeShippingThreshold | number | 무료배송 기준금액 | 20000 |
+                | jejuSurcharge | number | 제주 추가 배송비 | 3000 |
+                | islandSurcharge | number | 도서산간 추가 배송비 | 5000 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -82,12 +84,16 @@ import java.lang.annotation.*;
                                               {
                                                 "sellerId": 10,
                                                 "shippingFee": 3000,
-                                                "freeShippingThreshold": 20000
+                                                "freeShippingThreshold": 20000,
+                                                "jejuSurcharge": 3000,
+                                                "islandSurcharge": 5000
                                               },
                                               {
                                                 "sellerId": 20,
                                                 "shippingFee": 2500,
-                                                "freeShippingThreshold": 30000
+                                                "freeShippingThreshold": 30000,
+                                                "jejuSurcharge": 4000,
+                                                "islandSurcharge": 6000
                                               }
                                             ]
                                           },

@@ -14,6 +14,8 @@ public class ShippingPolicyCommandToStateMapper {
                 .deliveryCompany(command.deliveryCompany())
                 .shippingFee(command.shippingFee())
                 .freeShippingThreshold(command.freeShippingThreshold())
+                .jejuSurcharge(command.jejuSurcharge())
+                .islandSurcharge(command.islandSurcharge())
                 .build();
     }
 }
