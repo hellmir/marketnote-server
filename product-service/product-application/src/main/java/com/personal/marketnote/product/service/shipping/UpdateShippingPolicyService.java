@@ -31,13 +31,16 @@ public class UpdateShippingPolicyService implements UpdateShippingPolicyUseCase 
         shippingPolicy.update(
                 command.deliveryCompany(),
                 command.shippingFee(),
-                command.freeShippingThreshold()
+                command.freeShippingThreshold(),
+                command.jejuSurcharge(),
+                command.islandSurcharge()
         );
 
         updateShippingPolicyPort.update(shippingPolicy);
 
         publishShippingPolicyEventPort.publishShippingPolicyChangedEvent(
-                sellerId, shippingPolicy.getShippingFee(), shippingPolicy.getFreeShippingThreshold(), ShippingPolicyChangeAction.UPDATED
+                sellerId, shippingPolicy.getShippingFee(), shippingPolicy.getFreeShippingThreshold(),
+                shippingPolicy.getJejuSurcharge(), shippingPolicy.getIslandSurcharge(), ShippingPolicyChangeAction.UPDATED
         );
 
         return UpdateShippingPolicyResult.from(shippingPolicy);

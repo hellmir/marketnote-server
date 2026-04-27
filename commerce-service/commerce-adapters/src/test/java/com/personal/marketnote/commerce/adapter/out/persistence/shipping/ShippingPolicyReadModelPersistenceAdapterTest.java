@@ -45,8 +45,8 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
         @DisplayName("ACTIVE 상태의 배송비 정책을 판매자 ID별 맵으로 반환한다")
         void returnsActivePoliciesAsMap() {
             // given
-            adapter.upsert(10L, 3000L, 20000L);
-            adapter.upsert(20L, 2500L, 30000L);
+            adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
+            adapter.upsert(20L, 2500L, 30000L, 4000L, 6000L);
 
             // when
             Map<Long, ShippingPolicyInfoResult> result = adapter.findBySellerIds(List.of(10L, 20L));
@@ -56,9 +56,13 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
             assertThat(result.get(10L).sellerId()).isEqualTo(10L);
             assertThat(result.get(10L).shippingFee()).isEqualTo(3000L);
             assertThat(result.get(10L).freeShippingThreshold()).isEqualTo(20000L);
+            assertThat(result.get(10L).jejuSurcharge()).isEqualTo(3000L);
+            assertThat(result.get(10L).islandSurcharge()).isEqualTo(5000L);
             assertThat(result.get(20L).sellerId()).isEqualTo(20L);
             assertThat(result.get(20L).shippingFee()).isEqualTo(2500L);
             assertThat(result.get(20L).freeShippingThreshold()).isEqualTo(30000L);
+            assertThat(result.get(20L).jejuSurcharge()).isEqualTo(4000L);
+            assertThat(result.get(20L).islandSurcharge()).isEqualTo(6000L);
         }
 
         @Test
@@ -85,7 +89,7 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
         @DisplayName("INACTIVE 상태의 배송비 정책은 조회하지 않는다")
         void excludesInactivePolicies() {
             // given
-            adapter.upsert(10L, 3000L, 20000L);
+            adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
             adapter.deactivateBySellerId(10L);
 
             // when
@@ -99,7 +103,7 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
         @DisplayName("존재하지 않는 sellerId는 결과에 포함하지 않는다")
         void excludesNonExistentSellerIds() {
             // given
-            adapter.upsert(10L, 3000L, 20000L);
+            adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
 
             // when
             Map<Long, ShippingPolicyInfoResult> result = adapter.findBySellerIds(List.of(10L, 999L));
@@ -119,7 +123,7 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
         @DisplayName("신규 배송비 정책을 저장한다")
         void insertsNewPolicy() {
             // when
-            adapter.upsert(10L, 3000L, 20000L);
+            adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
 
             // then
             Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(10L, EntityStatus.ACTIVE);
@@ -127,6 +131,8 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
             assertThat(entity.get().getSellerId()).isEqualTo(10L);
             assertThat(entity.get().getShippingFee()).isEqualTo(3000L);
             assertThat(entity.get().getFreeShippingThreshold()).isEqualTo(20000L);
+            assertThat(entity.get().getJejuSurcharge()).isEqualTo(3000L);
+            assertThat(entity.get().getIslandSurcharge()).isEqualTo(5000L);
             assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);
         }
 
@@ -134,27 +140,29 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
         @DisplayName("동일한 sellerId로 upsert 시 기존 데이터를 업데이트한다")
         void updatesExistingPolicy() {
             // given
-            adapter.upsert(10L, 3000L, 20000L);
+            adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
 
             // when
-            adapter.upsert(10L, 5000L, 50000L);
+            adapter.upsert(10L, 5000L, 50000L, 7000L, 8000L);
 
             // then
             Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(10L, EntityStatus.ACTIVE);
             assertThat(entity).isPresent();
             assertThat(entity.get().getShippingFee()).isEqualTo(5000L);
             assertThat(entity.get().getFreeShippingThreshold()).isEqualTo(50000L);
+            assertThat(entity.get().getJejuSurcharge()).isEqualTo(7000L);
+            assertThat(entity.get().getIslandSurcharge()).isEqualTo(8000L);
         }
 
         @Test
         @DisplayName("비활성화된 정책에 대해 upsert 시 다시 활성화된다")
         void reactivatesInactivePolicy() {
             // given
-            adapter.upsert(10L, 3000L, 20000L);
+            adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
             adapter.deactivateBySellerId(10L);
 
             // when
-            adapter.upsert(10L, 5000L, 50000L);
+            adapter.upsert(10L, 5000L, 50000L, 7000L, 8000L);
 
             // then
             Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(10L, EntityStatus.ACTIVE);
@@ -172,7 +180,7 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
         @DisplayName("배송비 정책을 비활성화한다")
         void deactivatesPolicy() {
             // given
-            adapter.upsert(10L, 3000L, 20000L);
+            adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
 
             // when
             adapter.deactivateBySellerId(10L);

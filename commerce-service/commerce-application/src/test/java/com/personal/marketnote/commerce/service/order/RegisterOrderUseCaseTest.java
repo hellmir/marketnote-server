@@ -2193,8 +2193,8 @@ class RegisterOrderUseCaseTest {
                     pricePolicyId2, Map.entry(50000L, 20L)
             ));
             mockShippingPolicies(Map.of(
-                    10L, new ShippingPolicyInfoResult(10L, shippingFeeA, 100000L),
-                    20L, new ShippingPolicyInfoResult(20L, shippingFeeB, 100000L)
+                    10L, new ShippingPolicyInfoResult(10L, shippingFeeA, 100000L, 0L, 0L),
+                    20L, new ShippingPolicyInfoResult(20L, shippingFeeB, 100000L, 0L, 0L)
             ));
             Inventory inventory1 = Inventory.of(1L, pricePolicyId1, 100);
             Inventory inventory2 = Inventory.of(2L, pricePolicyId2, 50);
@@ -2484,8 +2484,8 @@ class RegisterOrderUseCaseTest {
                     pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
             ));
             mockShippingPolicies(Map.of(
-                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L),
-                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L)
+                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L, 0L, 0L),
+                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L, 0L, 0L)
             ));
             mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
             Order savedOrder = mockSavedOrder(1L);
@@ -2532,8 +2532,8 @@ class RegisterOrderUseCaseTest {
                     pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
             ));
             mockShippingPolicies(Map.of(
-                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, 3000L, 20000L),
-                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L)
+                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, 3000L, 20000L, 0L, 0L),
+                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, shippingFeeB, 20000L, 0L, 0L)
             ));
             mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
             Order savedOrder = mockSavedOrder(1L);
@@ -2580,7 +2580,7 @@ class RegisterOrderUseCaseTest {
                     pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
             ));
             mockShippingPolicies(Map.of(
-                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L)
+                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, shippingFeeA, 20000L, 0L, 0L)
             ));
             mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
             Order savedOrder = mockSavedOrder(1L);
@@ -2806,7 +2806,7 @@ class RegisterOrderUseCaseTest {
 
     private void mockShippingPolicy(Long sellerId, Long shippingFee, Long freeShippingThreshold) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold)));
+                .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, 0L, 0L)));
     }
 
     private void mockShippingPolicies(Map<Long, ShippingPolicyInfoResult> policies) {

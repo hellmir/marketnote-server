@@ -66,7 +66,7 @@ class UpdateShippingPolicyUseCaseTest {
                 .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L
+                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when
@@ -77,6 +77,8 @@ class UpdateShippingPolicyUseCaseTest {
         assertThat(result.deliveryCompany()).isEqualTo("CJ대한통운");
         assertThat(result.shippingFee()).isEqualTo(2500L);
         assertThat(result.freeShippingThreshold()).isEqualTo(30000L);
+        assertThat(result.jejuSurcharge()).isEqualTo(4000L);
+        assertThat(result.islandSurcharge()).isEqualTo(6000L);
 
         verify(updateShippingPolicyPort).update(existingPolicy);
     }
@@ -90,7 +92,7 @@ class UpdateShippingPolicyUseCaseTest {
                 .thenReturn(Optional.empty());
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L
+                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when & then
@@ -110,7 +112,7 @@ class UpdateShippingPolicyUseCaseTest {
                 .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", -1L, 30000L
+                "CJ대한통운", -1L, 30000L, 0L, 0L
         );
 
         // when & then
@@ -130,7 +132,7 @@ class UpdateShippingPolicyUseCaseTest {
                 .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, -1L
+                "CJ대한통운", 2500L, -1L, 0L, 0L
         );
 
         // when & then
@@ -150,7 +152,7 @@ class UpdateShippingPolicyUseCaseTest {
                 .thenReturn(Optional.of(existingPolicy));
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L
+                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when
@@ -158,7 +160,7 @@ class UpdateShippingPolicyUseCaseTest {
 
         // then
         verify(publishShippingPolicyEventPort).publishShippingPolicyChangedEvent(
-                sellerId, 2500L, 30000L, ShippingPolicyChangeAction.UPDATED
+                sellerId, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
         );
     }
 
@@ -171,7 +173,7 @@ class UpdateShippingPolicyUseCaseTest {
                 .thenReturn(Optional.empty());
 
         UpdateShippingPolicyCommand command = new UpdateShippingPolicyCommand(
-                "CJ대한통운", 2500L, 30000L
+                "CJ대한통운", 2500L, 30000L, 4000L, 6000L
         );
 
         // when & then

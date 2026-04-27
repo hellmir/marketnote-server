@@ -58,7 +58,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_created_upsertsReadModel() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
+                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -67,7 +67,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
         consumer.handleShippingPolicyChangedEvent(record, acknowledgment);
 
         // then
-        verify(saveShippingPolicyReadModelPort).upsert(10L, 3000L, 20000L);
+        verify(saveShippingPolicyReadModelPort).upsert(10L, 3000L, 20000L, 3000L, 5000L);
         verify(acknowledgment).acknowledge();
     }
 
@@ -76,7 +76,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_updated_upsertsReadModel() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                20L, 2500L, 30000L, ShippingPolicyChangeAction.UPDATED
+                20L, 2500L, 30000L, 4000L, 6000L, ShippingPolicyChangeAction.UPDATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -85,7 +85,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
         consumer.handleShippingPolicyChangedEvent(record, acknowledgment);
 
         // then
-        verify(saveShippingPolicyReadModelPort).upsert(20L, 2500L, 30000L);
+        verify(saveShippingPolicyReadModelPort).upsert(20L, 2500L, 30000L, 4000L, 6000L);
         verify(acknowledgment).acknowledge();
     }
 
@@ -94,7 +94,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_deleted_deactivatesReadModel() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, ShippingPolicyChangeAction.DELETED
+                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.DELETED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -129,7 +129,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_eventTypeMismatch_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                10L, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
+                10L, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
@@ -153,7 +153,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_nullSellerId_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                null, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
+                null, 3000L, 20000L, 3000L, 5000L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -171,7 +171,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_zeroSellerId_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                0L, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
+                0L, 3000L, 20000L, 0L, 0L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -189,7 +189,7 @@ class ShippingPolicyChangedReadModelConsumerTest {
     void handleShippingPolicyChangedEvent_negativeSellerId_acknowledges() {
         // given
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                -1L, 3000L, 20000L, ShippingPolicyChangeAction.CREATED
+                -1L, 3000L, 20000L, 0L, 0L, ShippingPolicyChangeAction.CREATED
         );
         EventEnvelope<ShippingPolicyChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
