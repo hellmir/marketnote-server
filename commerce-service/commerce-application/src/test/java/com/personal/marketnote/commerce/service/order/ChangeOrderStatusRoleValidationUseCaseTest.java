@@ -91,14 +91,14 @@ class ChangeOrderStatusRoleValidationUseCaseTest {
         }
 
         @Test
-        @DisplayName("구매자가 CANCELLED로 변경하면 정상 처리된다")
-        void buyer_cancelled_succeeds() {
+        @DisplayName("구매자가 CANCEL_REQUESTED로 변경하면 정상 처리된다")
+        void buyer_cancelRequested_succeeds() {
             Order order = createOrder(1L, OrderStatus.PAID);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(1L)
-                    .orderStatus(OrderStatus.CANCELLED)
+                    .orderStatus(OrderStatus.CANCEL_REQUESTED)
                     .role("BUYER")
                     .buyerId(1L)
                     .build();

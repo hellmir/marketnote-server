@@ -49,6 +49,12 @@ class OrderStatusTest {
         }
 
         @Test
+        @DisplayName("CANCEL_REQUESTED는 구매자가 변경 가능한 상태이다")
+        void cancelRequested_isBuyerAllowed() {
+            assertThat(OrderStatus.CANCEL_REQUESTED.isBuyerAllowed()).isTrue();
+        }
+
+        @Test
         @DisplayName("CANCELLED는 구매자가 변경 가능한 상태이다")
         void cancelled_isBuyerAllowed() {
             assertThat(OrderStatus.CANCELLED.isBuyerAllowed()).isTrue();
@@ -126,9 +132,15 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("PAID에서 CANCELLED로 전이할 수 있다")
-        void paid_canTransitionTo_cancelled() {
-            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
+        @DisplayName("PAID에서 CANCEL_REQUESTED로 전이할 수 있다")
+        void paid_canTransitionTo_cancelRequested() {
+            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.CANCEL_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAID에서 CANCELLED로 직접 전이할 수 없다")
+        void paid_cannotTransitionTo_cancelled() {
+            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.CANCELLED)).isFalse();
         }
 
         @Test
@@ -144,9 +156,15 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("PREPARING에서 CANCELLED로 전이할 수 있다")
-        void preparing_canTransitionTo_cancelled() {
-            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
+        @DisplayName("PREPARING에서 CANCEL_REQUESTED로 전이할 수 있다")
+        void preparing_canTransitionTo_cancelRequested() {
+            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.CANCEL_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PREPARING에서 CANCELLED로 직접 전이할 수 없다")
+        void preparing_cannotTransitionTo_cancelled() {
+            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.CANCELLED)).isFalse();
         }
 
         @Test
@@ -207,6 +225,25 @@ class OrderStatusTest {
         @DisplayName("PARTIALLY_RETURNED에서 RETURNED로 전이할 수 있다")
         void partiallyReturned_canTransitionTo_returned() {
             assertThat(OrderStatus.PARTIALLY_RETURNED.canTransitionTo(OrderStatus.RETURNED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("CANCEL_REQUESTED에서 CANCELLED로 전이할 수 있다")
+        void cancelRequested_canTransitionTo_cancelled() {
+            assertThat(OrderStatus.CANCEL_REQUESTED.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("CANCEL_REQUESTED에서 CANCELLED 외 다른 상태로 전이할 수 없다")
+        void cancelRequested_cannotTransitionTo_otherStatuses() {
+            for (OrderStatus target : OrderStatus.values()) {
+                if (target == OrderStatus.CANCELLED) {
+                    continue;
+                }
+                assertThat(OrderStatus.CANCEL_REQUESTED.canTransitionTo(target))
+                        .as("CANCEL_REQUESTED → %s는 불가해야 한다", target)
+                        .isFalse();
+            }
         }
 
         @Test
@@ -271,6 +308,12 @@ class OrderStatusTest {
         }
 
         @Test
+        @DisplayName("CANCEL_REQUESTED는 최종 상태가 아니다")
+        void cancelRequested_isNotTerminal() {
+            assertThat(OrderStatus.CANCEL_REQUESTED.isTerminal()).isFalse();
+        }
+
+        @Test
         @DisplayName("PAYMENT_PENDING는 최종 상태가 아니다")
         void paymentPending_isNotTerminal() {
             assertThat(OrderStatus.PAYMENT_PENDING.isTerminal()).isFalse();
@@ -322,6 +365,29 @@ class OrderStatusTest {
         @DisplayName("PARTIALLY_RETURNED는 최종 상태가 아니다")
         void partiallyReturned_isNotTerminal() {
             assertThat(OrderStatus.PARTIALLY_RETURNED.isTerminal()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("취소 요청 상태 검증 (isCancelRequested)")
+    class IsCancelRequestedTest {
+
+        @Test
+        @DisplayName("CANCEL_REQUESTED는 취소 요청 상태이다")
+        void cancelRequested_isCancelRequested() {
+            assertThat(OrderStatus.CANCEL_REQUESTED.isCancelRequested()).isTrue();
+        }
+
+        @Test
+        @DisplayName("CANCELLED는 취소 요청 상태가 아니다")
+        void cancelled_isNotCancelRequested() {
+            assertThat(OrderStatus.CANCELLED.isCancelRequested()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAID는 취소 요청 상태가 아니다")
+        void paid_isNotCancelRequested() {
+            assertThat(OrderStatus.PAID.isCancelRequested()).isFalse();
         }
     }
 

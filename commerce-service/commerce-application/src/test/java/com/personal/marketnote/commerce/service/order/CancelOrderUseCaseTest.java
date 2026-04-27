@@ -310,11 +310,29 @@ class CancelOrderUseCaseTest {
     class StatusTransitionValidationTest {
 
         @Test
-        @DisplayName("이미 취소된 주문을 다시 취소 요청하면 OrderStatusAlreadyChangedException이 발생한다")
-        void cancelOrder_alreadyCancelled_throwsAlreadyChangedException() {
+        @DisplayName("이미 취소된 주문을 다시 취소 요청하면 InvalidOrderStatusTransitionException이 발생한다")
+        void cancelOrder_alreadyCancelled_throwsInvalidTransitionException() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrder(orderId, buyerId, OrderStatus.CANCELLED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = createCommand(orderId, buyerId);
+
+            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
+                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+
+            verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(cancelFulfillmentReleasePort);
+            verifyNoInteractions(publishOrderEventPort);
+        }
+
+        @Test
+        @DisplayName("이미 취소 요청된 주문을 다시 취소 요청하면 OrderStatusAlreadyChangedException이 발생한다")
+        void cancelOrder_alreadyCancelRequested_throwsAlreadyChangedException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.CANCEL_REQUESTED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             CancelOrderCommand command = createCommand(orderId, buyerId);
