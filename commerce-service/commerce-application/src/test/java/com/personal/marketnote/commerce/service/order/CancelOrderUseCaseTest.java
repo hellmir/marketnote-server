@@ -3,22 +3,21 @@ package com.personal.marketnote.commerce.service.order;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
-import com.personal.marketnote.commerce.exception.OrderCancellationNotAllowedException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.CancelOrderCommand;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderCancelSagaContext;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
-import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
-import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
+import com.personal.marketnote.common.saga.SagaDefinition;
+import com.personal.marketnote.common.saga.SagaOrchestrator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,12 +25,12 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -54,18 +53,32 @@ class CancelOrderUseCaseTest {
     private PlatformTransactionManager transactionManager;
     @Spy
     private Clock clock = Clock.fixed(Instant.parse("2026-04-05T00:00:00Z"), ZoneId.of("Asia/Seoul"));
+    @Mock
+    private SagaOrchestrator sagaOrchestrator;
+    @Mock
+    private SagaDefinition<OrderCancelSagaContext> orderCancelSagaDefinition;
 
-    @InjectMocks
     private CancelOrderService cancelOrderService;
 
     @BeforeEach
     void setUp() {
         lenient().when(transactionManager.getTransaction(any(TransactionDefinition.class)))
                 .thenReturn(mock(TransactionStatus.class));
+
+        cancelOrderService = new CancelOrderService(
+                getOrderUseCase,
+                updateOrderPort,
+                cancelFulfillmentReleasePort,
+                publishOrderEventPort,
+                transactionManager,
+                clock,
+                Optional.of(sagaOrchestrator),
+                Optional.of(orderCancelSagaDefinition)
+        );
     }
 
     // ==================================================================================
-    // 결제 대기 상태 취소
+    // 결제 대기 상태 취소 (SAGA 미사용)
     // ==================================================================================
 
     @Nested
@@ -73,8 +86,8 @@ class CancelOrderUseCaseTest {
     class PaymentPendingCancelTest {
 
         @Test
-        @DisplayName("결제 대기 상태의 주문을 취소하면 풀필먼트 취소 없이 즉시 CANCELLED 처리된다")
-        void cancelOrder_fromPaymentPending_cancelledWithoutFulfillmentAndEvent() {
+        @DisplayName("결제 대기 상태의 주문을 취소하면 풀필먼트 취소와 SAGA 없이 즉시 CANCELLED 처리된다")
+        void cancelOrder_fromPaymentPending_cancelledWithoutSaga() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
@@ -87,20 +100,21 @@ class CancelOrderUseCaseTest {
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
             verifyNoInteractions(cancelFulfillmentReleasePort);
             verifyNoInteractions(publishOrderEventPort);
+            verifyNoInteractions(sagaOrchestrator);
         }
     }
 
     // ==================================================================================
-    // 결제 완료 상태 취소
+    // SAGA 모드 — 결제 완료 상태 취소
     // ==================================================================================
 
     @Nested
-    @DisplayName("결제 완료 상태 취소")
-    class PaidCancelTest {
+    @DisplayName("SAGA 모드 — 결제 완료 상태 취소")
+    class SagaModePaidCancelTest {
 
         @Test
-        @DisplayName("결제 완료 상태의 주문을 취소하면 풀필먼트 취소 없이 이벤트를 발행한다")
-        void cancelOrder_fromPaid_publishesEventWithoutFulfillmentCancel() {
+        @DisplayName("결제 완료 상태의 주문을 취소하면 CANCEL_REQUESTED로 변경 후 SAGA를 시작한다")
+        void cancelOrder_fromPaid_startsSaga() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrder(orderId, buyerId, OrderStatus.PAID);
@@ -111,94 +125,41 @@ class CancelOrderUseCaseTest {
             cancelOrderService.cancelOrder(command);
 
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
+            verify(sagaOrchestrator).start(
+                    eq(orderCancelSagaDefinition),
+                    eq("ORDER_CANCEL:" + orderId),
+                    any(OrderCancelSagaContext.class));
             verifyNoInteractions(cancelFulfillmentReleasePort);
-            verify(publishOrderEventPort).publishOrderCancelledEvent(
-                    eq(orderId), any(String.class), eq(buyerId),
-                    eq(50000L), eq(50000L), eq(0L),
-                    eq(3000L), eq(true), eq(0L),
-                    any(), any()
-            );
+            verifyNoInteractions(publishOrderEventPort);
         }
     }
 
     // ==================================================================================
-    // 상품 준비중 상태 취소 — 풀필먼트 취소 성공
+    // SAGA 모드 — 상품 준비중 상태 취소
     // ==================================================================================
 
     @Nested
-    @DisplayName("상품 준비중 상태 취소 — 풀필먼트 취소 성공")
-    class PreparingCancelSuccessTest {
+    @DisplayName("SAGA 모드 — 상품 준비중 상태 취소")
+    class SagaModePreparingCancelTest {
 
         @Test
-        @DisplayName("상품 준비중 상태에서 풀필먼트 취소 성공 시 CANCELLED 처리되고 이벤트를 발행한다")
-        void cancelOrder_fromPreparing_fulfillmentApproved_cancelledAndPublishesEvent() {
+        @DisplayName("상품 준비중 상태의 주문을 취소하면 CANCEL_REQUESTED로 변경 후 SAGA를 시작한다")
+        void cancelOrder_fromPreparing_startsSaga() {
             Long orderId = 1L;
             Long buyerId = 100L;
             Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
-                    .thenReturn(new CancelFulfillmentReleaseResult(orderId, true, "취소 성공"));
 
             CancelOrderCommand command = createCommand(orderId, buyerId);
 
             cancelOrderService.cancelOrder(command);
 
-            verify(cancelFulfillmentReleasePort).cancelRelease(orderId);
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
-            verify(publishOrderEventPort).publishOrderCancelledEvent(
-                    eq(orderId), any(String.class), eq(buyerId),
-                    eq(50000L), eq(50000L), eq(0L),
-                    eq(3000L), eq(true), eq(0L),
-                    any(), any()
-            );
-        }
-    }
-
-    // ==================================================================================
-    // 풀필먼트 취소 실패
-    // ==================================================================================
-
-    @Nested
-    @DisplayName("풀필먼트 취소 실패")
-    class FulfillmentCancelFailureTest {
-
-        @Test
-        @DisplayName("풀필먼트가 출고 취소를 거부하면 OrderCancellationNotAllowedException이 발생한다")
-        void cancelOrder_fulfillmentRejected_throwsException() {
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
-                    .thenReturn(new CancelFulfillmentReleaseResult(orderId, false, "피킹 완료"));
-
-            CancelOrderCommand command = createCommand(orderId, buyerId);
-
-            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderCancellationNotAllowedException.class)
-                    .hasMessageContaining("피킹완료 이후에는 주문 취소가 불가능합니다. 반품으로 처리해 주세요.");
-
-            verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(publishOrderEventPort);
-        }
-
-        @Test
-        @DisplayName("풀필먼트 서비스 통신 실패 시 OrderCancellationNotAllowedException이 발생한다")
-        void cancelOrder_fulfillmentCommunicationFailure_throwsException() {
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
-                    .thenThrow(new FulfillmentServiceRequestFailedException(new IOException("connection refused")));
-
-            CancelOrderCommand command = createCommand(orderId, buyerId);
-
-            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderCancellationNotAllowedException.class)
-                    .hasMessageContaining("피킹완료 이후에는 주문 취소가 불가능합니다. 반품으로 처리해 주세요.");
-
-            verifyNoInteractions(updateOrderPort);
+            verify(sagaOrchestrator).start(
+                    eq(orderCancelSagaDefinition),
+                    eq("ORDER_CANCEL:" + orderId),
+                    any(OrderCancelSagaContext.class));
+            verifyNoInteractions(cancelFulfillmentReleasePort);
             verifyNoInteractions(publishOrderEventPort);
         }
     }
@@ -230,8 +191,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(InvalidReasonCategoryException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
+            verifyNoInteractions(sagaOrchestrator);
         }
 
         @Test
@@ -296,8 +256,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
+            verifyNoInteractions(sagaOrchestrator);
         }
     }
 
@@ -323,8 +282,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
+            verifyNoInteractions(sagaOrchestrator);
         }
 
         @Test
@@ -341,8 +299,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(OrderStatusAlreadyChangedException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
+            verifyNoInteractions(sagaOrchestrator);
         }
 
         @Test
@@ -359,8 +316,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
+            verifyNoInteractions(sagaOrchestrator);
         }
     }
 
