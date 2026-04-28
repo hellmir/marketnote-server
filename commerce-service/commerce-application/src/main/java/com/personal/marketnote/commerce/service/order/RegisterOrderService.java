@@ -19,6 +19,7 @@ import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
+import com.personal.marketnote.commerce.port.out.result.shipping.ShippingRegionType;
 import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
@@ -83,7 +84,13 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         Map<Long, ShippingPolicyInfoResult> shippingPolicies = joinFuture(shippingPolicyFuture);
 
         validateUnitAmountsAgainstActualPrices(command, productInfoMap);
-        validateShippingFee(command, shippingPolicies);
+
+        ShippingAddressInfoResult addressInfo = findUserShippingAddressPort.findByIdAndUserId(
+                command.shippingAddressId(), command.buyerId()
+        );
+        ShippingRegionType regionType = ShippingRegionType.from(addressInfo.regionType());
+
+        validateShippingFee(command, shippingPolicies, regionType);
 
         Map<Long, Long> productIdsByPricePolicyId = command.orderProducts().stream()
                 .collect(Collectors.toMap(
@@ -108,7 +115,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 OrderCommandToStateMapper.mapToOrderAmountState(command.amount())
         );
 
-        ShippingAddress shippingAddress = resolveShippingAddress(command);
+        ShippingAddress shippingAddress = resolveShippingAddress(command, addressInfo);
 
         Order savedOrder = saveOrderPort.save(
                 Order.from(
@@ -137,13 +144,14 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 )
         );
 
-        createPaymentAllocations(savedOrder.getId(), command.orderProducts(), shippingPolicies);
+        createPaymentAllocations(savedOrder.getId(), command.orderProducts(), shippingPolicies, regionType);
 
         return RegisterOrderResult.from(savedOrder);
     }
 
     private void createPaymentAllocations(Long orderId, List<OrderProductItemCommand> orderProducts,
-                                          Map<Long, ShippingPolicyInfoResult> shippingPolicies) {
+                                          Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+                                          ShippingRegionType regionType) {
         Map<Long, Long> sellerGrossAmounts = orderProducts.stream()
                 .collect(Collectors.groupingBy(
                         OrderProductItemCommand::sellerId,
@@ -151,7 +159,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
                 ));
 
-        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerGrossAmounts, shippingPolicies);
+        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerGrossAmounts, shippingPolicies, regionType);
 
         List<PaymentAllocation> allocations = sellerGrossAmounts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
@@ -172,7 +180,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
     private Map<Long, Long> calculateSellerShippingFees(
             Map<Long, Long> sellerAmounts,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicies
+            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+            ShippingRegionType regionType
     ) {
         Map<Long, Long> sellerShippingFees = new java.util.HashMap<>();
         for (Map.Entry<Long, Long> entry : sellerAmounts.entrySet()) {
@@ -185,13 +194,21 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 continue;
             }
 
-            if (sellerAmount < policy.freeShippingThreshold()) {
-                sellerShippingFees.put(sellerId, policy.shippingFee());
-                continue;
-            }
-            sellerShippingFees.put(sellerId, 0L);
+            long baseFee = sellerAmount < policy.freeShippingThreshold() ? policy.shippingFee() : 0L;
+            long surcharge = resolveSurcharge(policy, regionType);
+            sellerShippingFees.put(sellerId, Math.addExact(baseFee, surcharge));
         }
         return sellerShippingFees;
+    }
+
+    private long resolveSurcharge(ShippingPolicyInfoResult policy, ShippingRegionType regionType) {
+        if (regionType.isJeju()) {
+            return resolveAmount(policy.jejuSurcharge());
+        }
+        if (regionType.isIsland()) {
+            return resolveAmount(policy.islandSurcharge());
+        }
+        return 0L;
     }
 
     private void validateTotalAmountConsistency(RegisterOrderCommand command) {
@@ -312,7 +329,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     }
 
     private void validateShippingFee(RegisterOrderCommand command,
-                                     Map<Long, ShippingPolicyInfoResult> shippingPolicies) {
+                                     Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+                                     ShippingRegionType regionType) {
         long requestedShippingFee = resolveAmount(command.amount().shippingFee());
 
         if (shippingPolicies.isEmpty()) {
@@ -321,7 +339,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             return;
         }
 
-        long calculatedShippingFee = calculateExpectedShippingFee(command.orderProducts(), shippingPolicies);
+        long calculatedShippingFee = calculateExpectedShippingFee(command.orderProducts(), shippingPolicies, regionType);
 
         if (requestedShippingFee != calculatedShippingFee) {
             log.warn("배송비 불일치 - 전송된 배송비: {}, 계산된 배송비: {}", requestedShippingFee, calculatedShippingFee);
@@ -331,7 +349,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
     private long calculateExpectedShippingFee(
             List<OrderProductItemCommand> orderProducts,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicies
+            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+            ShippingRegionType regionType
     ) {
         Map<Long, Long> sellerAmounts = orderProducts.stream()
                 .collect(Collectors.groupingBy(
@@ -340,7 +359,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
                 ));
 
-        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerAmounts, shippingPolicies);
+        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerAmounts, shippingPolicies, regionType);
 
         long totalShippingFee = 0L;
         for (Long fee : sellerShippingFees.values()) {
@@ -349,11 +368,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         return totalShippingFee;
     }
 
-    private ShippingAddress resolveShippingAddress(RegisterOrderCommand command) {
-        ShippingAddressInfoResult addressInfo = findUserShippingAddressPort.findByIdAndUserId(
-                command.shippingAddressId(), command.buyerId()
-        );
-
+    private ShippingAddress resolveShippingAddress(RegisterOrderCommand command,
+                                                   ShippingAddressInfoResult addressInfo) {
         return ShippingAddress.of(
                 addressInfo.recipientName(),
                 addressInfo.recipientPhoneNumber(),

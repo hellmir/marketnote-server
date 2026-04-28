@@ -25,8 +25,8 @@ public class ShippingAddressEventKafkaProducer implements PublishShippingAddress
     private final Clock clock;
 
     @Override
-    public void publishShippingAddressChangedEvent(Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber, String address, String addressDetail, ShippingAddressChangeAction action) {
-        ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, action);
+    public void publishShippingAddressChangedEvent(Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber, String address, String addressDetail, String regionType, ShippingAddressChangeAction action) {
+        ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, regionType, action);
         String topic = KafkaTopicConstants.SHIPPING_ADDRESS_CHANGED;
         EventEnvelope<ShippingAddressChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
