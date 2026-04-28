@@ -4,6 +4,7 @@ public record ShippingAddressInfoResult(
         String recipientName,
         String recipientPhoneNumber,
         String address,
-        String addressDetail
+        String addressDetail,
+        String regionType
 ) {
 }

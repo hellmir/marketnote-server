@@ -7,6 +7,7 @@ public record ShippingAddressChangedEvent(
         String recipientPhoneNumber,
         String address,
         String addressDetail,
+        String regionType,
         ShippingAddressChangeAction action
 ) {
 }
