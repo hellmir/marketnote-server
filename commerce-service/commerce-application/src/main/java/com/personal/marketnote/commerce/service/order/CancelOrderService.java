@@ -12,6 +12,8 @@ import com.personal.marketnote.commerce.exception.OrderCancellationNotAllowedExc
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.CancelOrderCommand;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderCancelSagaContext;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentSagaContext.OrderProductItem;
 import com.personal.marketnote.commerce.port.in.usecase.order.CancelOrderUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
@@ -20,6 +22,8 @@ import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentRe
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
+import com.personal.marketnote.common.saga.SagaDefinition;
+import com.personal.marketnote.common.saga.SagaOrchestrator;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +33,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @UseCase
 @RequiredArgsConstructor
@@ -40,6 +46,8 @@ public class CancelOrderService implements CancelOrderUseCase {
     private final PublishOrderEventPort publishOrderEventPort;
     private final PlatformTransactionManager transactionManager;
     private final Clock clock;
+    private final Optional<SagaOrchestrator> sagaOrchestrator;
+    private final Optional<SagaDefinition<OrderCancelSagaContext>> orderCancelSagaDefinition;
 
     @Override
     public void cancelOrder(CancelOrderCommand command) {
@@ -53,9 +61,79 @@ public class CancelOrderService implements CancelOrderUseCase {
 
         OrderStatus originalStatus = order.getOrderStatus();
 
-        cancelFulfillmentIfRequired(order);
+        if (useSagaMode() && originalStatus.requiresPaymentRefund()) {
+            cancelOrderViaSaga(command, order, originalStatus);
+            return;
+        }
 
-        persistCancellation(command, order, originalStatus, targetStatus);
+        cancelOrderSync(command, order, originalStatus, targetStatus);
+    }
+
+    private boolean useSagaMode() {
+        return sagaOrchestrator.isPresent() && orderCancelSagaDefinition.isPresent();
+    }
+
+    private void cancelOrderViaSaga(CancelOrderCommand command, Order order, OrderStatus originalStatus) {
+        persistStatusChange(command, order, OrderStatus.CANCEL_REQUESTED);
+
+        OrderAmount amount = order.getAmount();
+        String sagaId = "ORDER_CANCEL:" + order.getId();
+
+        List<OrderProductItem> orderProductItems = order.getOrderProducts().stream()
+                .map(op -> new OrderProductItem(
+                        op.getPricePolicyId(), op.getSharerKey(),
+                        op.getQuantity(), op.getUnitAmount()))
+                .toList();
+
+        OrderCancelSagaContext context = new OrderCancelSagaContext(
+                order.getId(),
+                order.getOrderKey().toString(),
+                order.getBuyerId(),
+                amount.getPaidAmount(),
+                amount.getPaidAmount(),
+                amount.getPointAmount(),
+                amount.getShippingFee(),
+                true,
+                0L,
+                originalStatus.name(),
+                resolveReasonCategoryName(command.reasonCategory()),
+                command.reason(),
+                orderProductItems
+        );
+
+        sagaOrchestrator.get().start(orderCancelSagaDefinition.get(), sagaId, context);
+
+        log.info("주문 취소 SAGA 시작. orderId={}, sagaId={}", order.getId(), sagaId);
+    }
+
+    private void cancelOrderSync(CancelOrderCommand command, Order order,
+                                 OrderStatus originalStatus, OrderStatus targetStatus) {
+        cancelFulfillmentIfRequired(order);
+        persistStatusChange(command, order, targetStatus);
+
+        if (originalStatus.requiresPaymentRefund()) {
+            publishOrderCancelledEvent(order);
+        }
+    }
+
+    private void persistStatusChange(CancelOrderCommand command, Order order, OrderStatus targetStatus) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+        transactionTemplate.executeWithoutResult(status -> {
+            LocalDateTime now = LocalDateTime.now(clock);
+            order.changeAllProductsStatus(targetStatus, now);
+
+            OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
+                    OrderStatusHistoryCreateState.builder()
+                            .orderId(command.id())
+                            .orderStatus(targetStatus)
+                            .reasonCategory(command.reasonCategory())
+                            .reason(command.reason())
+                            .build()
+            );
+
+            updateOrderPort.update(order, orderStatusHistory);
+        });
     }
 
     private OrderStatus resolveTargetStatus(Order order) {
@@ -80,30 +158,6 @@ public class CancelOrderService implements CancelOrderUseCase {
             log.error("풀필먼트 서비스 통신 실패로 주문 취소 거부 - orderId: {}", order.getId(), e);
             throw new OrderCancellationNotAllowedException(order.getId());
         }
-    }
-
-    private void persistCancellation(CancelOrderCommand command, Order order, OrderStatus originalStatus, OrderStatus targetStatus) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-        transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-        transactionTemplate.executeWithoutResult(status -> {
-            LocalDateTime now = LocalDateTime.now(clock);
-            order.changeAllProductsStatus(targetStatus, now);
-
-            OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                    OrderStatusHistoryCreateState.builder()
-                            .orderId(command.id())
-                            .orderStatus(targetStatus)
-                            .reasonCategory(command.reasonCategory())
-                            .reason(command.reason())
-                            .build()
-            );
-
-            updateOrderPort.update(order, orderStatusHistory);
-
-            if (originalStatus.requiresPaymentRefund()) {
-                publishOrderCancelledEvent(order);
-            }
-        });
     }
 
     private void publishOrderCancelledEvent(Order order) {
@@ -150,5 +204,12 @@ public class CancelOrderService implements CancelOrderUseCase {
         if (!order.getOrderStatus().canTransitionTo(targetStatus)) {
             throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), targetStatus);
         }
+    }
+
+    private String resolveReasonCategoryName(OrderStatusReasonCategory reasonCategory) {
+        if (FormatValidator.hasNoValue(reasonCategory)) {
+            return null;
+        }
+        return reasonCategory.name();
     }
 }
