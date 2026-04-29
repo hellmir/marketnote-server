@@ -95,11 +95,6 @@ management:
     tags:
       application: ${spring.application.name}
 
-outbox:
-  enabled: ${OUTBOX_ENABLED:true}
-  polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
-  batch-size: ${OUTBOX_BATCH_SIZE:100}
-
 file:
   s3:
     credentials:

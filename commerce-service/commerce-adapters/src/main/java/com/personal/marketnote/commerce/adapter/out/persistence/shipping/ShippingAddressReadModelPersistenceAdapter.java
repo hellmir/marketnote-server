@@ -35,30 +35,31 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
                 entity.getRecipientName(),
                 entity.getRecipientPhoneNumber(),
                 entity.getAddress(),
-                entity.getAddressDetail()
+                entity.getAddressDetail(),
+                entity.getRegionType()
         );
     }
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber, String address, String addressDetail) {
+    public void upsert(Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber, String address, String addressDetail, String regionType) {
         Optional<ShippingAddressReadModelJpaEntity> existing =
                 shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId);
 
         if (existing.isPresent()) {
-            existing.get().updateFrom(recipientName, recipientPhoneNumber, address, addressDetail);
+            existing.get().updateFrom(recipientName, recipientPhoneNumber, address, addressDetail, regionType);
             return;
         }
 
         try {
             ShippingAddressReadModelJpaEntity entity = ShippingAddressReadModelJpaEntity.of(
-                    shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail
+                    shippingAddressId, userId, recipientName, recipientPhoneNumber, address, addressDetail, regionType
             );
             shippingAddressReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
             log.info("배송지 Read Model 중복 저장 (멱등 처리). shippingAddressId={}", shippingAddressId);
             shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId)
-                    .ifPresent(entity -> entity.updateFrom(recipientName, recipientPhoneNumber, address, addressDetail));
+                    .ifPresent(entity -> entity.updateFrom(recipientName, recipientPhoneNumber, address, addressDetail, regionType));
         }
     }
 

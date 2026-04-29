@@ -39,10 +39,13 @@ public class ShippingAddressReadModelJpaEntity extends BaseGeneralEntity {
     @Column(name = "address_detail", nullable = false)
     private String addressDetail;
 
+    @Column(name = "region_type", length = 20)
+    private String regionType;
+
     public static ShippingAddressReadModelJpaEntity of(
             Long shippingAddressId, Long userId,
             String recipientName, String recipientPhoneNumber,
-            String address, String addressDetail
+            String address, String addressDetail, String regionType
     ) {
         return ShippingAddressReadModelJpaEntity.builder()
                 .shippingAddressId(shippingAddressId)
@@ -51,17 +54,19 @@ public class ShippingAddressReadModelJpaEntity extends BaseGeneralEntity {
                 .recipientPhoneNumber(recipientPhoneNumber)
                 .address(address)
                 .addressDetail(addressDetail)
+                .regionType(regionType)
                 .build();
     }
 
     public void updateFrom(
             String recipientName, String recipientPhoneNumber,
-            String address, String addressDetail
+            String address, String addressDetail, String regionType
     ) {
         this.recipientName = recipientName;
         this.recipientPhoneNumber = recipientPhoneNumber;
         this.address = address;
         this.addressDetail = addressDetail;
+        this.regionType = regionType;
         activate();
     }
 
