@@ -50,7 +50,6 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
                 shippingAddressId, userId,
                 shippingAddress.getRecipientName(), shippingAddress.getRecipientPhoneNumber(),
                 shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
-                regionType.name(),
                 ShippingAddressChangeAction.UPDATED
         );
     }

@@ -69,7 +69,7 @@ class RegisterOrderUseCaseTest {
         lenient().when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
                 .thenReturn(Map.of());
         lenient().when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
-                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", "NORMAL"));
+                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호"));
     }
 
     // ==================================================================================

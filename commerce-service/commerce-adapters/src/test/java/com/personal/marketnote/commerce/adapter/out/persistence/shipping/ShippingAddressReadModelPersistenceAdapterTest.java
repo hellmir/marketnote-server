@@ -46,7 +46,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         @DisplayName("ACTIVE 상태의 배송지를 조회하여 ShippingAddressInfoResult를 반환한다")
         void returnsActiveShippingAddress() {
             // given
-            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
 
             // when
             ShippingAddressInfoResult result = adapter.findByIdAndUserId(1L, 100L);
@@ -70,7 +70,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         @DisplayName("비활성화된 배송지는 조회되지 않는다")
         void doesNotReturnInactiveAddress() {
             // given
-            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
             adapter.deactivateByShippingAddressId(1L);
 
             // when & then
@@ -82,7 +82,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         @DisplayName("userId가 일치하지 않으면 ShippingAddressNotFoundException이 발생한다")
         void throwsNotFoundForMismatchedUserId() {
             // given
-            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
 
             // when & then
             assertThatThrownBy(() -> adapter.findByIdAndUserId(1L, 999L))
@@ -98,7 +98,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         @DisplayName("신규 배송지를 저장한다")
         void insertsNewAddress() {
             // when
-            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
 
             // then
             Optional<ShippingAddressReadModelJpaEntity> entity =
@@ -117,10 +117,10 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         @DisplayName("동일한 shippingAddressId로 upsert 시 기존 데이터를 업데이트한다")
         void updatesExistingAddress() {
             // given
-            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
 
             // when
-            adapter.upsert(1L, 100L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL");
+            adapter.upsert(1L, 100L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호");
 
             // then
             Optional<ShippingAddressReadModelJpaEntity> entity =
@@ -136,11 +136,11 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         @DisplayName("비활성화된 배송지에 대해 upsert 시 다시 활성화된다")
         void reactivatesInactiveAddress() {
             // given
-            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
             adapter.deactivateByShippingAddressId(1L);
 
             // when
-            adapter.upsert(1L, 100L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL");
+            adapter.upsert(1L, 100L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호");
 
             // then
             Optional<ShippingAddressReadModelJpaEntity> entity =
@@ -159,7 +159,7 @@ class ShippingAddressReadModelPersistenceAdapterTest {
         @DisplayName("배송지를 비활성화한다")
         void deactivatesAddress() {
             // given
-            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+            adapter.upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
 
             // when
             adapter.deactivateByShippingAddressId(1L);
