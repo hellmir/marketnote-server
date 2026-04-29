@@ -67,7 +67,7 @@ class DeleteShippingAddressUseCaseTest {
         verify(findShippingAddressPort).findByIdAndUserId(shippingAddressId, userId);
         verify(updateShippingAddressPort).update(shippingAddress);
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "4층", ShippingAddressChangeAction.DELETED
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "4층", null, ShippingAddressChangeAction.DELETED
         );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }

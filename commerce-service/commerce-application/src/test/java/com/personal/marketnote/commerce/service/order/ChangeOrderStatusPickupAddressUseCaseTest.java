@@ -67,7 +67,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             when(findUserShippingAddressPort.findByIdAndUserId(pickupAddressId, buyerId))
-                    .thenReturn(new ShippingAddressInfoResult("회수 수령인", "01099998888", "회수지 주소", "회수지 상세주소"));
+                    .thenReturn(new ShippingAddressInfoResult("회수 수령인", "01099998888", "회수지 주소", "회수지 상세주소", "NORMAL"));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -124,7 +124,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             when(findUserShippingAddressPort.findByIdAndUserId(pickupAddressId, buyerId))
-                    .thenReturn(new ShippingAddressInfoResult("회수 수령인", "01099998888", "회수지 주소", "회수지 상세주소"));
+                    .thenReturn(new ShippingAddressInfoResult("회수 수령인", "01099998888", "회수지 주소", "회수지 상세주소", "NORMAL"));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -158,7 +158,7 @@ class ChangeOrderStatusPickupAddressUseCaseTest {
             Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             when(findUserShippingAddressPort.findByIdAndUserId(pickupAddressId, buyerId))
-                    .thenReturn(new ShippingAddressInfoResult("회수 수령인", "01099998888", "회수지 주소", "회수지 상세주소"));
+                    .thenReturn(new ShippingAddressInfoResult("회수 수령인", "01099998888", "회수지 주소", "회수지 상세주소", "NORMAL"));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)

@@ -69,7 +69,7 @@ class RegisterOrderUseCaseTest {
         lenient().when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
                 .thenReturn(Map.of());
         lenient().when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
-                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호"));
+                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", "NORMAL"));
     }
 
     // ==================================================================================
@@ -2632,6 +2632,194 @@ class RegisterOrderUseCaseTest {
     }
 
     // ==================================================================================
+    // 추가 배송비 검증 케이스
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("추가 배송비 검증 케이스")
+    class ShippingFeeSurchargeValidationTest {
+
+        @Test
+        @DisplayName("제주 지역 주문 시 기본 배송비에 제주 추가 배송비가 합산되어 검증된다")
+        void registerOrder_jejuRegion_addsJejuSurchargeToShippingFee() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long baseShippingFee = 3000L;
+            Long jejuSurcharge = 3000L;
+            Long freeShippingThreshold = 20000L;
+            Long expectedShippingFee = baseShippingFee + jejuSurcharge;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, jejuSurcharge, 0L);
+            mockShippingAddressWithRegionType("JEJU");
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("도서산간 지역 주문 시 기본 배송비에 도서산간 추가 배송비가 합산되어 검증된다")
+        void registerOrder_islandRegion_addsIslandSurchargeToShippingFee() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long baseShippingFee = 3000L;
+            Long islandSurcharge = 5000L;
+            Long freeShippingThreshold = 20000L;
+            Long expectedShippingFee = baseShippingFee + islandSurcharge;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, 0L, islandSurcharge);
+            mockShippingAddressWithRegionType("ISLAND");
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("무료배송 기준 충족 시에도 제주 추가 배송비는 부과된다")
+        void registerOrder_freeShippingWithJeju_chargesOnlySurcharge() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 25000L;
+            Long baseShippingFee = 3000L;
+            Long jejuSurcharge = 3000L;
+            Long freeShippingThreshold = 20000L;
+            Long expectedShippingFee = jejuSurcharge;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, expectedShippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, jejuSurcharge, 0L);
+            mockShippingAddressWithRegionType("JEJU");
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("무료배송 기준 충족 + 일반 지역이면 배송비가 0원이다")
+        void registerOrder_freeShippingNormalRegion_zeroShippingFee() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 25000L;
+            Long freeShippingThreshold = 20000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, 0L);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicyWithSurcharge(sellerId, 3000L, freeShippingThreshold, 3000L, 5000L);
+            mockShippingAddressWithRegionType("NORMAL");
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("제주 지역인데 추가 배송비를 미반영하면 ShippingFeeMismatchException이 발생한다")
+        void registerOrder_jejuRegionWithoutSurcharge_throwsException() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long baseShippingFee = 3000L;
+            Long jejuSurcharge = 3000L;
+            Long freeShippingThreshold = 20000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, baseShippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, jejuSurcharge, 0L);
+            mockShippingAddressWithRegionType("JEJU");
+
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(ShippingFeeMismatchException.class);
+        }
+
+        @Test
+        @DisplayName("복수 판매자 + 제주 지역 시 각 판매자별 추가 배송비가 합산된다")
+        void registerOrder_multipleSellerJeju_sumsAllSurcharges() {
+            Long pricePolicyIdA = 100L;
+            Long pricePolicyIdB = 200L;
+            Long sellerIdA = 10L;
+            Long sellerIdB = 20L;
+            Long unitAmountA = 15000L;
+            Long unitAmountB = 10000L;
+            Long baseShippingFeeA = 3000L;
+            Long baseShippingFeeB = 2500L;
+            Long jejuSurchargeA = 3000L;
+            Long jejuSurchargeB = 2000L;
+            Long expectedShippingFee = (baseShippingFeeA + jejuSurchargeA) + (baseShippingFeeB + jejuSurchargeB);
+
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(1L)
+                    .amount(OrderAmountCommand.builder()
+                            .totalAmount(unitAmountA + unitAmountB)
+                            .couponAmount(0L).pointAmount(0L)
+                            .shippingFee(expectedShippingFee).build())
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(1L).sellerId(sellerIdA)
+                                    .pricePolicyId(pricePolicyIdA).quantity(1).unitAmount(unitAmountA).build(),
+                            OrderProductItemCommand.builder()
+                                    .productId(2L).sellerId(sellerIdB)
+                                    .pricePolicyId(pricePolicyIdB).quantity(1).unitAmount(unitAmountB).build()
+                    ))
+                    .build();
+
+            mockProductPricesWithSellerIds(Map.of(
+                    pricePolicyIdA, Map.entry(unitAmountA, sellerIdA),
+                    pricePolicyIdB, Map.entry(unitAmountB, sellerIdB)
+            ));
+            mockShippingPolicies(Map.of(
+                    sellerIdA, new ShippingPolicyInfoResult(sellerIdA, baseShippingFeeA, 20000L, jejuSurchargeA, 0L),
+                    sellerIdB, new ShippingPolicyInfoResult(sellerIdB, baseShippingFeeB, 20000L, jejuSurchargeB, 0L)
+            ));
+            mockShippingAddressWithRegionType("JEJU");
+            mockInventoryMultiple(Map.of(pricePolicyIdA, 100, pricePolicyIdB, 100));
+            Order savedOrder = mockSavedOrder(1L);
+            when(saveOrderPort.save(any(Order.class))).thenReturn(savedOrder);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("regionType이 null이면 NORMAL로 처리되어 추가 배송비가 0원이다")
+        void registerOrder_nullRegionType_treatsAsNormal() {
+            Long pricePolicyId = 100L;
+            Long sellerId = 10L;
+            Long unitAmount = 15000L;
+            Long baseShippingFee = 3000L;
+            Long freeShippingThreshold = 20000L;
+
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, sellerId, pricePolicyId, unitAmount, 1, 0L, 0L, baseShippingFee);
+
+            mockProductPriceWithSellerId(pricePolicyId, unitAmount, sellerId);
+            mockShippingPolicyWithSurcharge(sellerId, baseShippingFee, freeShippingThreshold, 3000L, 5000L);
+            mockShippingAddressWithRegionType(null);
+            mockInventoryAndSave(pricePolicyId, 100, 1L);
+
+            assertThatCode(() -> registerOrderService.registerOrder(command))
+                    .doesNotThrowAnyException();
+        }
+    }
+
+    // ==================================================================================
     // 배송비 포함 결제 금액 검증
     // ==================================================================================
 
@@ -2807,6 +2995,17 @@ class RegisterOrderUseCaseTest {
     private void mockShippingPolicy(Long sellerId, Long shippingFee, Long freeShippingThreshold) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
                 .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, 0L, 0L)));
+    }
+
+    private void mockShippingPolicyWithSurcharge(Long sellerId, Long shippingFee, Long freeShippingThreshold,
+                                                  Long jejuSurcharge, Long islandSurcharge) {
+        when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
+                .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge)));
+    }
+
+    private void mockShippingAddressWithRegionType(String regionType) {
+        when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
+                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", regionType));
     }
 
     private void mockShippingPolicies(Map<Long, ShippingPolicyInfoResult> policies) {

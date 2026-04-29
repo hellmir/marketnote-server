@@ -34,6 +34,7 @@ public class DeleteShippingAddressService implements DeleteShippingAddressUseCas
                 shippingAddressId, userId,
                 shippingAddress.getRecipientName(), shippingAddress.getRecipientPhoneNumber(),
                 shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
+                null,
                 ShippingAddressChangeAction.DELETED
         );
     }
