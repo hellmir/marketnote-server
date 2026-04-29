@@ -132,6 +132,10 @@
 - Mockito
 - AssertJ
 
+### Configuration Management
+- Flyway
+- Git
+
 ### Issue Tracking
 - [Github Issues](https://github.com/hellmir/marketnote-server/issues)
   <br>
