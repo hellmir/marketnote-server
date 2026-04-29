@@ -81,8 +81,7 @@ public class ShippingAddressChangedReadModelConsumer {
             saveShippingAddressReadModelPort.upsert(
                     payload.shippingAddressId(), payload.userId(),
                     payload.recipientName(), payload.recipientPhoneNumber(),
-                    payload.address(), payload.addressDetail(),
-                    payload.regionType()
+                    payload.address(), payload.addressDetail()
             );
             log.info("배송지 Read Model 저장 완료. shippingAddressId={}, userId={}",
                     payload.shippingAddressId(), payload.userId());

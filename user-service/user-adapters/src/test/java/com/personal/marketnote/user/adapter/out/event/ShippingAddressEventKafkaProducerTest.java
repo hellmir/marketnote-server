@@ -55,7 +55,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
 
         // then
@@ -79,7 +79,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
 
         // then
@@ -112,7 +112,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL", ShippingAddressChangeAction.UPDATED
+                2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", ShippingAddressChangeAction.UPDATED
         );
 
         // then
@@ -135,7 +135,7 @@ class ShippingAddressEventKafkaProducerTest {
 
         // when
         shippingAddressEventKafkaProducer.publishShippingAddressChangedEvent(
-                3L, 300L, "이영희", "010-5555-6666", "서울시 마포구 월드컵로 789", "301동 501호", null, ShippingAddressChangeAction.DELETED
+                3L, 300L, "이영희", "010-5555-6666", "서울시 마포구 월드컵로 789", "301동 501호", ShippingAddressChangeAction.DELETED
         );
 
         // then

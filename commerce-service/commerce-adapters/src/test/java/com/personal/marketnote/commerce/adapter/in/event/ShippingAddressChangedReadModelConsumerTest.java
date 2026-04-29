@@ -58,7 +58,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_created_upsertsReadModel() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -67,7 +67,7 @@ class ShippingAddressChangedReadModelConsumerTest {
         consumer.handleShippingAddressChangedEvent(record, acknowledgment);
 
         // then
-        verify(saveShippingAddressReadModelPort).upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+        verify(saveShippingAddressReadModelPort).upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호");
         verify(acknowledgment).acknowledge();
     }
 
@@ -76,7 +76,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_updated_upsertsReadModel() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "JEJU", ShippingAddressChangeAction.UPDATED
+                2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", ShippingAddressChangeAction.UPDATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -85,7 +85,7 @@ class ShippingAddressChangedReadModelConsumerTest {
         consumer.handleShippingAddressChangedEvent(record, acknowledgment);
 
         // then
-        verify(saveShippingAddressReadModelPort).upsert(2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "JEJU");
+        verify(saveShippingAddressReadModelPort).upsert(2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호");
         verify(acknowledgment).acknowledge();
     }
 
@@ -94,7 +94,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_deleted_deactivatesReadModel() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", null, ShippingAddressChangeAction.DELETED
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.DELETED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -129,7 +129,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_eventTypeMismatch_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
@@ -153,7 +153,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_nullShippingAddressId_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                null, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                null, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -171,7 +171,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_nullUserId_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                1L, null, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, null, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -189,7 +189,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_nullAction_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", null
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", null
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -207,7 +207,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_zeroShippingAddressId_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                0L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                0L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -225,7 +225,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_negativeShippingAddressId_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                -1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                -1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -243,7 +243,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_nullRecipientName_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                1L, 100L, null, "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, null, "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -261,7 +261,7 @@ class ShippingAddressChangedReadModelConsumerTest {
     void handleShippingAddressChangedEvent_nullAddress_acknowledges() {
         // given
         ShippingAddressChangedEvent payload = new ShippingAddressChangedEvent(
-                1L, 100L, "홍길동", "010-1234-5678", null, "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 100L, "홍길동", "010-1234-5678", null, "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         EventEnvelope<ShippingAddressChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);

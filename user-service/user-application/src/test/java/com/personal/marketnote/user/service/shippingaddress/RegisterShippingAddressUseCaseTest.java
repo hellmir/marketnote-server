@@ -89,7 +89,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -141,7 +141,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 마포구 월드컵로 456");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                2L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                2L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -269,7 +269,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -316,7 +316,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 용산구 이태원로 200");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                3L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                3L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
         verifyNoInteractions(updateShippingAddressPort);
     }
@@ -362,7 +362,7 @@ class RegisterShippingAddressUseCaseTest {
                         && message.equals(sa.getDeliveryRequestMessage())
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -438,7 +438,7 @@ class RegisterShippingAddressUseCaseTest {
                         && sa.getDeliveryRequestMessage() == null
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
     }
 
@@ -480,7 +480,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 마포구 월드컵로 456");
         verify(saveShippingAddressPort).save(any(ShippingAddress.class));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                5L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED
+                5L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", ShippingAddressChangeAction.CREATED
         );
     }
 

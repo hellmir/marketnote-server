@@ -96,7 +96,7 @@ class UpdateShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 서초구 서초대로 456");
         verify(updateShippingAddressPort).update(shippingAddress);
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                1L, 100L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "NORMAL", ShippingAddressChangeAction.UPDATED
+                1L, 100L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", ShippingAddressChangeAction.UPDATED
         );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }
@@ -178,7 +178,7 @@ class UpdateShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(updateShippingAddressPort).update(shippingAddress);
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                3L, 300L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 201호", "NORMAL", ShippingAddressChangeAction.UPDATED
+                3L, 300L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 201호", ShippingAddressChangeAction.UPDATED
         );
     }
 
@@ -227,7 +227,7 @@ class UpdateShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(updateShippingAddressPort).update(shippingAddress);
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                4L, 400L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 201호", "NORMAL", ShippingAddressChangeAction.UPDATED
+                4L, 400L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 201호", ShippingAddressChangeAction.UPDATED
         );
     }
 
@@ -278,7 +278,7 @@ class UpdateShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 선릉로 100");
         verify(updateShippingAddressPort).update(shippingAddress);
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
-                2L, 200L, "박민수", "010-7777-8888", "서울시 강남구 선릉로 100", "10층", "NORMAL", ShippingAddressChangeAction.UPDATED
+                2L, 200L, "박민수", "010-7777-8888", "서울시 강남구 선릉로 100", "10층", ShippingAddressChangeAction.UPDATED
         );
         verifyNoMoreInteractions(findShippingAddressPort, updateShippingAddressPort);
     }
