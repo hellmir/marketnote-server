@@ -124,4 +124,81 @@ class OrderStatusReasonCategoryTest {
             assertThat(OrderStatusReasonCategory.ETC.isReturnReason()).isTrue();
         }
     }
+
+    // ==================================================================================
+    // 귀책 사유 구분
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("고객 귀책 사유")
+    class BuyerFaultTest {
+
+        @Test
+        @DisplayName("CANCEL_ORDER는 고객 귀책이다")
+        void cancelOrder_isBuyerFault() {
+            assertThat(OrderStatusReasonCategory.CANCEL_ORDER.isBuyerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.CANCEL_ORDER.isSellerFault()).isFalse();
+        }
+
+        @Test
+        @DisplayName("CHANGE_OPTION은 고객 귀책이다")
+        void changeOption_isBuyerFault() {
+            assertThat(OrderStatusReasonCategory.CHANGE_OPTION.isBuyerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.CHANGE_OPTION.isSellerFault()).isFalse();
+        }
+
+        @Test
+        @DisplayName("MISTAKE는 고객 귀책이다")
+        void mistake_isBuyerFault() {
+            assertThat(OrderStatusReasonCategory.MISTAKE.isBuyerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.MISTAKE.isSellerFault()).isFalse();
+        }
+
+        @Test
+        @DisplayName("ETC는 고객 귀책이다")
+        void etc_isBuyerFault() {
+            assertThat(OrderStatusReasonCategory.ETC.isBuyerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.ETC.isSellerFault()).isFalse();
+        }
+
+        @Test
+        @DisplayName("SIMPLE_CHANGE_OF_MIND는 고객 귀책이다")
+        void simpleChangeOfMind_isBuyerFault() {
+            assertThat(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND.isBuyerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND.isSellerFault()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("판매자 귀책 사유")
+    class SellerFaultTest {
+
+        @Test
+        @DisplayName("PRODUCT_DAMAGE는 판매자 귀책이다")
+        void productDamage_isSellerFault() {
+            assertThat(OrderStatusReasonCategory.PRODUCT_DAMAGE.isSellerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.PRODUCT_DAMAGE.isBuyerFault()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PRODUCT_MISMATCH는 판매자 귀책이다")
+        void productMismatch_isSellerFault() {
+            assertThat(OrderStatusReasonCategory.PRODUCT_MISMATCH.isSellerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.PRODUCT_MISMATCH.isBuyerFault()).isFalse();
+        }
+
+        @Test
+        @DisplayName("WRONG_DELIVERY는 판매자 귀책이다")
+        void wrongDelivery_isSellerFault() {
+            assertThat(OrderStatusReasonCategory.WRONG_DELIVERY.isSellerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.WRONG_DELIVERY.isBuyerFault()).isFalse();
+        }
+
+        @Test
+        @DisplayName("MISSING_COMPONENTS는 판매자 귀책이다")
+        void missingComponents_isSellerFault() {
+            assertThat(OrderStatusReasonCategory.MISSING_COMPONENTS.isSellerFault()).isTrue();
+            assertThat(OrderStatusReasonCategory.MISSING_COMPONENTS.isBuyerFault()).isFalse();
+        }
+    }
 }
