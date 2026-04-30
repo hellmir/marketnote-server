@@ -4,19 +4,27 @@ import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationSnapshotState;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.commerce.exception.InvalidCancelProductException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.payment.*;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
+import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
+import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.common.utility.FormatValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -69,6 +77,15 @@ class CancelPaymentUseCaseTest {
 
     @Mock
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
+
+    @Mock
+    private PublishPaymentEventPort publishPaymentEventPort;
+
+    @Mock
+    private FindPaymentAllocationPort findPaymentAllocationPort;
+
+    @Mock
+    private FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort;
 
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
@@ -1266,6 +1283,242 @@ class CancelPaymentUseCaseTest {
             verify(modifyUserPointPort, never()).reducePartialPendingSharedPurchasePoints(
                     anyList(), anyLong(), anyLong(), anyLong()
             );
+        }
+    }
+
+    @Nested
+    @DisplayName("부분 취소 배송비 재계산 검증")
+    class PartialCancelShippingFeeRecalculationTest {
+
+        private static final Long SELLER_A = 10L;
+        private static final Long SELLER_B = 20L;
+
+        @Test
+        @DisplayName("부분 취소 시 남은 금액이 무료배송 기준 미달이면 환불액에서 배송비가 차감된다")
+        void shouldDeductShippingFeeWhenRemainingAmountBelowThreshold() {
+            // 판매자A: 상품1(30000원) + 상품2(20000원) = 50000원, 무료배송 기준 50000원, 배송비 3000원
+            // 상품2(20000원) 취소 → 남은 금액 30000원 < 50000원 → 배송비 3000원 차감
+            // 환불액: 20000 - 3000 = 17000원
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+
+            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
+                    List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
+
+            PaymentAllocation allocation = createAllocation(1L, SELLER_A, 50000L, 0L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
+            when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
+                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(argThat(c ->
+                    c.cancelAmount().equals(17000L)
+            ));
+        }
+
+        @Test
+        @DisplayName("부분 취소 시 남은 금액이 무료배송 기준 이상이면 배송비 차감 없이 기존대로 환불된다")
+        void shouldNotDeductShippingFeeWhenRemainingAmountAboveThreshold() {
+            // 판매자A: 상품1(30000원) + 상품2(30000원) = 60000원, 무료배송 기준 50000원, 배송비 3000원
+            // 상품2(30000원) 취소 → 남은 금액 30000원 < 50000원... 이 아니라
+            // 상품1(30000원) + 상품2(30000원), 상품2 일부수량만 취소로 기준 이상 유지 시나리오
+            // → 간단하게: 남은 금액이 기준 이상이면 차감 없음
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 80000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 80000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+
+            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
+                    List.of(100L, 200L), List.of(1, 1), List.of(60000L, 20000L), List.of(SELLER_A, SELLER_A));
+
+            PaymentAllocation allocation = createAllocation(1L, SELLER_A, 80000L, 0L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
+            when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
+                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(argThat(c ->
+                    c.cancelAmount().equals(20000L)
+            ));
+        }
+
+        @Test
+        @DisplayName("여러 판매자 중 일부만 무료배송 기준 미달인 경우 해당 판매자의 배송비만 차감된다")
+        void shouldDeductOnlyAffectedSellerShippingFee() {
+            // 판매자A: 50000원 (무료배송 기준 50000원) → 20000원 취소 → 남은 30000원 < 50000 → 차감 3000원
+            // 판매자B: 40000원 (무료배송 기준 30000원) → 취소 없음 → 차감 없음
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 90000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 90000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+
+            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
+                    List.of(100L, 200L, 300L), List.of(1, 1, 1),
+                    List.of(20000L, 30000L, 40000L), List.of(SELLER_A, SELLER_A, SELLER_B));
+
+            PaymentAllocation allocationA = createAllocation(1L, SELLER_A, 50000L, 0L);
+            PaymentAllocation allocationB = createAllocation(1L, SELLER_B, 40000L, 0L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocationA, allocationB));
+            when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
+                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(argThat(c ->
+                    c.cancelAmount().equals(17000L)
+            ));
+        }
+
+        @Test
+        @DisplayName("원래 유료배송이었던 판매자는 배송비 차감 대상이 아니다")
+        void shouldNotDeductForPaidShippingSeller() {
+            // 판매자A: 20000원, 원래 배송비 3000원 (유료배송) → 10000원 취소 → 차감 대상 아님
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 23000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 23000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(100L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 10000L, cancelProducts);
+
+            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
+                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 10000L), List.of(SELLER_A, SELLER_A));
+
+            PaymentAllocation allocation = createAllocation(1L, SELLER_A, 20000L, 3000L);
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(argThat(c ->
+                    c.cancelAmount().equals(10000L)
+            ));
+            verifyNoInteractions(findShippingPolicyBySellerIdsPort);
+        }
+
+        @Test
+        @DisplayName("cancelProducts 없는 부분 취소는 배송비 재계산을 건너뛴다")
+        void shouldSkipShippingFeeRecalculationWithoutCancelProducts() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(argThat(c ->
+                    c.cancelAmount().equals(20000L)
+            ));
+            verifyNoInteractions(findPaymentAllocationPort);
+            verifyNoInteractions(findShippingPolicyBySellerIdsPort);
+        }
+
+        @Test
+        @DisplayName("배송비 재계산 실패 시에도 기존 환불이 정상 진행된다")
+        void shouldProceedWithOriginalRefundWhenRecalculationFails() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
+                    new CancelPaymentCommand.CancelProductItem(200L, 1)
+            );
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+
+            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
+                    List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(findPaymentAllocationPort.findByOrderId(1L)).thenThrow(new RuntimeException("DB 조회 실패"));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(argThat(c ->
+                    c.cancelAmount().equals(20000L)
+            ));
+        }
+
+        private Order createOrderWithMultipleSellers(Long orderId, Long buyerId,
+                                                      List<Long> pricePolicyIds, List<Integer> quantities,
+                                                      List<Long> unitAmounts, List<Long> sellerIds) {
+            List<OrderProductSnapshotState> productStates = new ArrayList<>();
+            for (int i = 0; i < pricePolicyIds.size(); i++) {
+                productStates.add(OrderProductSnapshotState.builder()
+                        .pricePolicyId(pricePolicyIds.get(i))
+                        .quantity(quantities.get(i))
+                        .sellerId(sellerIds.get(i))
+                        .unitAmount(unitAmounts.get(i))
+                        .build());
+            }
+            OrderSnapshotState state = OrderSnapshotState.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .orderKey(ORDER_KEY)
+                    .orderStatus(OrderStatus.PAID)
+                    .amount(OrderAmount.of(
+                            unitAmounts.stream().mapToLong(Long::longValue).sum(),
+                            null, null, 0L, null))
+                    .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
+                    .orderProductStates(productStates)
+                    .build();
+            return Order.from(state);
+        }
+
+        private PaymentAllocation createAllocation(Long orderId, Long sellerId, Long allocatedAmount, Long shippingFee) {
+            PaymentAllocationSnapshotState state = PaymentAllocationSnapshotState.builder()
+                    .id(1L)
+                    .orderId(orderId)
+                    .sellerId(sellerId)
+                    .allocatedAmount(allocatedAmount)
+                    .shippingFee(shippingFee)
+                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
+                    .targetType(PaymentAllocationTargetType.ORDER)
+                    .build();
+            return PaymentAllocation.from(state);
         }
     }
 
