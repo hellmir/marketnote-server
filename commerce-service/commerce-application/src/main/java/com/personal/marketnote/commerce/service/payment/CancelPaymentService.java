@@ -8,6 +8,9 @@ import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundCreateState;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
+import com.personal.marketnote.commerce.domain.shipping.ShippingFeeCalculator;
+import com.personal.marketnote.commerce.domain.shipping.ShippingFeeContext;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
@@ -20,7 +23,10 @@ import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVen
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
+import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
+import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
+import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +62,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     private final SaveRefundPort saveRefundPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final PublishPaymentEventPort publishPaymentEventPort;
+    private final FindPaymentAllocationPort findPaymentAllocationPort;
+    private final FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort;
 
     @Override
     public void cancel(CancelPaymentCommand command) {
@@ -75,17 +83,59 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 : PSP_PARTIAL_CANCEL_TYPE_CODE;
 
         Long alreadyRefunded = FormatValidator.hasValue(payment.getRefundAmount()) ? payment.getRefundAmount() : 0L;
-        Long refundableAmount = payment.getPaymentAmount() - alreadyRefunded;
+        Long refundableAmount = Math.subtractExact(payment.getPaymentAmount(), alreadyRefunded);
 
         Long cancelAmount = computeCancelAmount(isFullCancel, command.cancelAmount(), refundableAmount);
-        Long remainAmount = refundableAmount - cancelAmount;
 
         if (!isFullCancel && command.hasCancelProducts()) {
             validateCancelProducts(order, command.cancelProducts());
         }
 
+        long shippingFeeDeduction = 0L;
+        if (!isFullCancel && command.hasCancelProducts()) {
+            shippingFeeDeduction = calculateShippingFeeDeductionForPartialCancel(order, command);
+        }
+
+        Long adjustedCancelAmount = cancelAmount;
+        String adjustedCancelReason = command.cancelReason();
+        if (shippingFeeDeduction > 0L) {
+            adjustedCancelAmount = Math.subtractExact(cancelAmount, shippingFeeDeduction);
+            if (adjustedCancelAmount <= 0L) {
+                adjustedCancelAmount = 0L;
+            }
+            adjustedCancelReason = command.cancelReason()
+                    + " (무료 배송 기준 미달로 인한 배송비 차감 " + shippingFeeDeduction + "원)";
+            log.info("부분 취소 배송비 재계산 - orderId: {}, 원래 환불액: {}, 배송비 차감: {}, 조정 환불액: {}",
+                    order.getId(), cancelAmount, shippingFeeDeduction, adjustedCancelAmount);
+        }
+
+        Long remainAmount = Math.subtractExact(refundableAmount, adjustedCancelAmount);
+
+        if (adjustedCancelAmount <= 0L) {
+            log.info("부분 취소 환불 금액이 배송비 차감으로 0원 - orderId: {}, PG 환불 생략", order.getId());
+            updateDomain(isFullCancel, payment, event, null, 0L);
+            updatePaymentPort.update(payment);
+            updatePspPaymentEventPort.update(event);
+            saveRefundRecordWithoutPg(payment, cancelAmount, shippingFeeDeduction, adjustedCancelReason);
+            restorePartialCancelInventory(order, command);
+            Long pgSkipDeduction = resolveDeductionPoint(
+                    order.getOrderProducts(), command, payment.getPaymentAmount(), cancelAmount);
+            Long pgSkipBuyerId = order.getBuyerId();
+            Long pgSkipOrderId = order.getId();
+            runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(
+                    pgSkipBuyerId, pgSkipOrderId, pgSkipDeduction));
+            runAfterCommit(() -> reducePartialPendingSharedPurchasePoints(
+                    order, payment.getPaymentAmount(), cancelAmount));
+            List<OrderProduct> pgSkipCancelProducts = resolveCancelProducts(isFullCancel, command);
+            publishPaymentCancelledEvent(
+                    order.getId(), command.orderKey(), order.getBuyerId(), 0L,
+                    payment.getPaymentAmount(), order.getAmount().getPointAmount(), isFullCancel, alreadyRefunded,
+                    UUID.randomUUID().toString(), order.getOrderProducts(), pgSkipCancelProducts, pgSkipDeduction);
+            return;
+        }
+
         PaymentCancelVendorResult vendorResult = requestPaymentCancellationToPsp(
-                transactionNumber, modType, cancelAmount, remainAmount, command.cancelReason()
+                transactionNumber, modType, adjustedCancelAmount, remainAmount, adjustedCancelReason
         );
 
         if (!vendorResult.success()) {
@@ -94,11 +144,11 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             );
         }
 
-        updateDomain(isFullCancel, payment, event, vendorResult, cancelAmount);
+        updateDomain(isFullCancel, payment, event, vendorResult, adjustedCancelAmount);
         updatePaymentPort.update(payment);
         updatePspPaymentEventPort.update(event);
 
-        saveRefundRecord(payment, isFullCancel, cancelAmount, command.cancelReason(), vendorResult);
+        saveRefundRecord(payment, isFullCancel, adjustedCancelAmount, adjustedCancelReason, vendorResult);
 
         Long partialProductPendingDeduction = null;
         if (isFullCancel) {
@@ -168,12 +218,14 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     ) {
         if (isFullCancel) {
             payment.markAsRefunded();
-            event.cancel(vendorResult.rawResponse());
+            String rawResponse = FormatValidator.hasValue(vendorResult) ? vendorResult.rawResponse() : null;
+            event.cancel(rawResponse);
             return;
         }
 
         payment.markAsPartiallyRefunded(cancelAmount);
-        event.partialRefund(vendorResult.rawResponse());
+        String rawResponse = FormatValidator.hasValue(vendorResult) ? vendorResult.rawResponse() : null;
+        event.partialRefund(rawResponse);
     }
 
     private void saveRefundRecord(
@@ -196,6 +248,108 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             saveRefundPort.save(refund);
         } catch (Exception e) {
             log.error("환불 상세 기록 저장 실패 - orderId: {}, error: {}",
+                    payment.getOrderId(), e.getMessage(), e);
+        }
+    }
+
+    private long calculateShippingFeeDeductionForPartialCancel(Order order, CancelPaymentCommand command) {
+        try {
+            List<PaymentAllocation> allocations = findPaymentAllocationPort.findByOrderId(order.getId());
+            if (allocations.isEmpty()) {
+                return 0L;
+            }
+
+            Map<Long, Long> initialShippingFeeBySellerIdMap = allocations.stream()
+                    .collect(Collectors.toMap(
+                            PaymentAllocation::getSellerId,
+                            PaymentAllocation::getShippingFee,
+                            (existing, replacement) -> existing
+                    ));
+
+            Map<Long, Long> sellerTotalAmounts = order.getOrderProducts().stream()
+                    .collect(Collectors.groupingBy(
+                            OrderProduct::getSellerId,
+                            Collectors.summingLong(op -> Math.multiplyExact(op.getUnitAmount(), op.getQuantity().longValue()))
+                    ));
+
+            Map<Long, Long> sellerCancelAmounts = command.cancelProducts().stream()
+                    .collect(Collectors.groupingBy(
+                            item -> resolveSellerIdForCancelProduct(order, item.pricePolicyId()),
+                            Collectors.summingLong(item -> {
+                                OrderProduct orderProduct = findOrderProductByPricePolicyId(order, item.pricePolicyId());
+                                return Math.multiplyExact(orderProduct.getUnitAmount(), item.quantity().longValue());
+                            })
+                    ));
+
+            List<Long> targetSellerIds = initialShippingFeeBySellerIdMap.entrySet().stream()
+                    .filter(entry -> entry.getValue() == 0L)
+                    .map(Map.Entry::getKey)
+                    .filter(sellerCancelAmounts::containsKey)
+                    .toList();
+
+            if (targetSellerIds.isEmpty()) {
+                return 0L;
+            }
+
+            Map<Long, ShippingPolicyInfoResult> shippingPolicies =
+                    findShippingPolicyBySellerIdsPort.findBySellerIds(targetSellerIds);
+
+            long totalDeduction = 0L;
+            for (Long sellerId : targetSellerIds) {
+                ShippingPolicyInfoResult policy = shippingPolicies.get(sellerId);
+                if (FormatValidator.hasNoValue(policy)) {
+                    continue;
+                }
+
+                long sellerTotal = sellerTotalAmounts.getOrDefault(sellerId, 0L);
+                long sellerCancel = sellerCancelAmounts.getOrDefault(sellerId, 0L);
+                long remainingAmount = Math.subtractExact(sellerTotal, sellerCancel);
+
+                ShippingFeeContext context = ShippingFeeContext.of(
+                        remainingAmount, policy.shippingFee(), policy.freeShippingThreshold()
+                );
+                long baseFee = ShippingFeeCalculator.calculateBaseFee(context);
+                totalDeduction = Math.addExact(totalDeduction, baseFee);
+            }
+            return totalDeduction;
+        } catch (Exception e) {
+            log.error("부분 취소 배송비 재계산 실패 - orderId: {}, error: {}", order.getId(), e.getMessage(), e);
+            return 0L;
+        }
+    }
+
+    private Long resolveSellerIdForCancelProduct(Order order, Long pricePolicyId) {
+        return order.getOrderProducts().stream()
+                .filter(op -> op.getPricePolicyId().equals(pricePolicyId))
+                .map(OrderProduct::getSellerId)
+                .findFirst()
+                .orElse(0L);
+    }
+
+    private OrderProduct findOrderProductByPricePolicyId(Order order, Long pricePolicyId) {
+        return order.getOrderProducts().stream()
+                .filter(op -> op.getPricePolicyId().equals(pricePolicyId))
+                .findFirst()
+                .orElseThrow(() -> new InvalidCancelProductException(
+                        "주문에 존재하지 않는 상품입니다. pricePolicyId=" + pricePolicyId));
+    }
+
+    private void saveRefundRecordWithoutPg(
+            Payment payment, Long originalCancelAmount, long shippingFeeDeduction, String cancelReason
+    ) {
+        try {
+            RefundCreateState createState = RefundCreateState.builder()
+                    .paymentId(payment.getId())
+                    .orderId(payment.getOrderId())
+                    .refundType(RefundType.PARTIAL_REFUND)
+                    .refundAmount(0L)
+                    .cancelReason(cancelReason)
+                    .processedBy("SYSTEM")
+                    .build();
+            Refund refund = Refund.from(createState);
+            saveRefundPort.save(refund);
+        } catch (Exception e) {
+            log.error("배송비 차감 환불 기록 저장 실패 - orderId: {}, error: {}",
                     payment.getOrderId(), e.getMessage(), e);
         }
     }
