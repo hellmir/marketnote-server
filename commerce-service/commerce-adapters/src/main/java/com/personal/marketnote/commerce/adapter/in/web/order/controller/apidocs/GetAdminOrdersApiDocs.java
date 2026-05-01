@@ -52,6 +52,15 @@ import java.lang.annotation.*;
                 | orders[].orderInfo.orderStatus | string | 주문 상태 | "PAID" |
                 | orders[].orderInfo.totalAmount | number | 총 금액 | 100000 |
                 | orders[].orderInfo.paidAmount | number | 결제 금액 | 95000 |
+                | orders[].orderInfo.couponAmount | number | 쿠폰 할인 금액 | 3000 |
+                | orders[].orderInfo.pointAmount | number | 포인트 사용 금액 | 2000 |
+                | orders[].orderInfo.recipientName | string | 수령인 이름 | "홍길동" |
+                | orders[].orderInfo.recipientPhoneNumber | string | 수령인 전화번호 | "01012345678" |
+                | orders[].orderInfo.zipCode | string | 우편번호 | "06234" |
+                | orders[].orderInfo.address | string | 배송지 주소 | "서울특별시 강남구 테헤란로 123" |
+                | orders[].orderInfo.addressDetail | string | 배송지 상세 주소 | "101동 202호" |
+                | orders[].orderInfo.deliveryRequestType | string | 배송 요청사항 유형 | "LEAVE_AT_DOOR" |
+                | orders[].orderInfo.deliveryRequestMessage | string | 배송 요청사항 메시지 | "문 앞에 놓아주세요" |
                 | orders[].orderInfo.orderProducts | array | 주문 상품 목록 | - |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
@@ -77,6 +86,13 @@ import java.lang.annotation.*;
                                                   "paidAmount": 95000,
                                                   "couponAmount": 3000,
                                                   "pointAmount": 2000,
+                                                  "recipientName": "홍길동",
+                                                  "recipientPhoneNumber": "01012345678",
+                                                  "zipCode": "06234",
+                                                  "address": "서울특별시 강남구 테헤란로 123",
+                                                  "addressDetail": "101동 202호",
+                                                  "deliveryRequestType": "LEAVE_AT_DOOR",
+                                                  "deliveryRequestMessage": "문 앞에 놓아주세요",
                                                   "orderProducts": [
                                                     {
                                                       "sellerId": 10,
