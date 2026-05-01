@@ -174,6 +174,12 @@ class OrderStatusTest {
         }
 
         @Test
+        @DisplayName("SHIPPING에서 RETURN_REQUESTED로 전이할 수 있다")
+        void shipping_canTransitionTo_returnRequested() {
+            assertThat(OrderStatus.SHIPPING.canTransitionTo(OrderStatus.RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
         @DisplayName("SHIPPING에서 CANCELLED로 전이할 수 없다")
         void shipping_cannotTransitionTo_cancelled() {
             assertThat(OrderStatus.SHIPPING.canTransitionTo(OrderStatus.CANCELLED)).isFalse();
