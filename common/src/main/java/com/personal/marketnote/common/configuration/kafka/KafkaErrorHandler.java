@@ -36,6 +36,15 @@ public class KafkaErrorHandler {
     }
 
     @Bean
+    public CommonErrorHandler dltErrorHandler() {
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(
+                (record, exception) -> log.error("DLT 메시지 최종 처리 실패 (추가 DLT 발행 없음). topic={}, key={}, offset={}",
+                        record.topic(), record.key(), record.offset(), exception),
+                new FixedBackOff(0L, 0L));
+        return errorHandler;
+    }
+
+    @Bean
     public CommonErrorHandler commonErrorHandler(DeadLetterPublishingRecoverer deadLetterPublishingRecoverer) {
         FixedBackOff backOff = new FixedBackOff(RETRY_INTERVAL_MS, RETRY_MAX_ATTEMPTS);
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(deadLetterPublishingRecoverer, backOff);

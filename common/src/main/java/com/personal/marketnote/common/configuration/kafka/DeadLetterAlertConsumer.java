@@ -17,7 +17,7 @@ public class DeadLetterAlertConsumer {
     private final DltSlackNotifier dltSlackNotifier;
     private final DltMetricsCollector dltMetricsCollector;
 
-    @KafkaListener(topicPattern = ".*\\.dlt", groupId = "dlt-alert")
+    @KafkaListener(topicPattern = ".*\\.dlt", groupId = "dlt-alert", containerFactory = "dltKafkaListenerContainerFactory")
     public void handleDeadLetterMessage(
             ConsumerRecord<String, Object> record,
             Acknowledgment acknowledgment
