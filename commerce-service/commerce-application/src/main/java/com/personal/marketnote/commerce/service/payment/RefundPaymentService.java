@@ -50,14 +50,26 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         Long alreadyRefunded = FormatValidator.hasValue(command.alreadyRefunded()) ? command.alreadyRefunded() : 0L;
         Long refundableAmount = command.paymentAmount() - alreadyRefunded;
         Long cancelAmount = resolveCancelAmount(command.isFullCancel(), command.cancelAmount(), refundableAmount);
-        Long remainAmount = refundableAmount - cancelAmount;
+
+        Long adjustedCancelAmount = cancelAmount;
+        if (!command.isFullCancel()) {
+            adjustedCancelAmount = deductReturnShippingFee(cancelAmount, command.returnShippingFee(), command.orderId());
+        }
+
+        if (adjustedCancelAmount <= 0L) {
+            log.info("반품 배송비 차감으로 환불 금액 0원 - orderId: {}, PG 환불 생략", command.orderId());
+            persistRefundResultWithoutPg(command, payment, event);
+            return;
+        }
+
+        Long remainAmount = refundableAmount - adjustedCancelAmount;
         String cancelType = command.isFullCancel() ? PSP_FULL_CANCEL_TYPE_CODE : PSP_PARTIAL_CANCEL_TYPE_CODE;
 
         PaymentCancelVendorResult vendorResult = requestPgCancellation(
-                event.getPgPaymentKey(), cancelType, cancelAmount, remainAmount
+                event.getPgPaymentKey(), cancelType, adjustedCancelAmount, remainAmount
         );
 
-        persistRefundResult(command, payment, event, vendorResult, cancelAmount);
+        persistRefundResult(command, payment, event, vendorResult, adjustedCancelAmount);
     }
 
     private Payment findPayment(String orderKey) {
@@ -88,6 +100,53 @@ public class RefundPaymentService implements RefundPaymentUseCase {
             return refundableAmount;
         }
         return cancelAmount;
+    }
+
+    private Long deductReturnShippingFee(Long cancelAmount, Long returnShippingFee, Long orderId) {
+        if (FormatValidator.hasNoValue(returnShippingFee) || returnShippingFee <= 0L) {
+            return cancelAmount;
+        }
+
+        Long adjusted = Math.subtractExact(cancelAmount, returnShippingFee);
+        if (adjusted <= 0L) {
+            adjusted = 0L;
+        }
+
+        log.info("반품 배송비 차감 - orderId: {}, 원래 환불액: {}, 반품 배송비: {}, 조정 환불액: {}",
+                orderId, cancelAmount, returnShippingFee, adjusted);
+        return adjusted;
+    }
+
+    private void persistRefundResultWithoutPg(
+            RefundPaymentCommand command, Payment payment, PspPaymentEvent event
+    ) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+        transactionTemplate.executeWithoutResult(status -> {
+            updateDomain(command.isFullCancel(), payment, event, null, 0L);
+            updatePaymentPort.update(payment);
+            updatePspPaymentEventPort.update(event);
+            saveRefundRecordWithoutPg(payment, command.cancelAmount(), command.returnShippingFee());
+        });
+    }
+
+    private void saveRefundRecordWithoutPg(Payment payment, Long cancelAmount, Long returnShippingFee) {
+        try {
+            String cancelReason = "반품 환불 (반품 배송비 " + returnShippingFee + "원 차감, PG 환불 생략)";
+            RefundCreateState createState = RefundCreateState.builder()
+                    .paymentId(payment.getId())
+                    .orderId(payment.getOrderId())
+                    .refundType(RefundType.PARTIAL_REFUND)
+                    .refundAmount(cancelAmount)
+                    .cancelReason(cancelReason)
+                    .processedBy("SYSTEM")
+                    .build();
+            Refund refund = Refund.from(createState);
+            saveRefundPort.save(refund);
+        } catch (Exception e) {
+            log.error("반품 배송비 차감 환불 기록 저장 실패 - orderId: {}, error: {}",
+                    payment.getOrderId(), e.getMessage(), e);
+        }
     }
 
     private PaymentCancelVendorResult requestPgCancellation(
@@ -130,14 +189,16 @@ public class RefundPaymentService implements RefundPaymentUseCase {
             boolean isFullCancel, Payment payment, PspPaymentEvent event,
             PaymentCancelVendorResult vendorResult, Long cancelAmount
     ) {
+        String rawResponse = FormatValidator.hasValue(vendorResult) ? vendorResult.rawResponse() : null;
+
         if (isFullCancel) {
             payment.markAsRefunded();
-            event.cancel(vendorResult.rawResponse());
+            event.cancel(rawResponse);
             return;
         }
 
         payment.markAsPartiallyRefunded(cancelAmount);
-        event.partialRefund(vendorResult.rawResponse());
+        event.partialRefund(rawResponse);
     }
 
     private void saveRefundRecord(

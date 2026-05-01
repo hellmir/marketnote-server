@@ -9,6 +9,7 @@ public record RefundPaymentCommand(
         Long cancelAmount,
         Long paymentAmount,
         boolean isFullCancel,
-        Long alreadyRefunded
+        Long alreadyRefunded,
+        Long returnShippingFee
 ) {
 }
