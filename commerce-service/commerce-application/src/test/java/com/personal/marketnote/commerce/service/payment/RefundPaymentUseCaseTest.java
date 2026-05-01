@@ -267,6 +267,114 @@ class RefundPaymentUseCaseTest {
     }
 
     // ==================================================================================
+    // 반품 배송비 차감
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("반품 배송비 차감")
+    class ReturnShippingFeeDeductionTest {
+
+        @Test
+        @DisplayName("반품 배송비가 null이면 차감 없이 전액 환불한다")
+        void refund_nullReturnShippingFee_refundsFullAmount() {
+            Payment payment = createPayment(false, 0L);
+            PspPaymentEvent event = createPspPaymentEvent(PaymentEventStatus.COMPLETE);
+            when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
+                    .thenReturn(createSuccessVendorResult());
+
+            RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 30000L, 0L, null);
+
+            assertThatCode(() -> refundPaymentService.refund(command))
+                    .doesNotThrowAnyException();
+
+            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            verify(paymentVendorPort).cancelPayment(captor.capture());
+            assertThat(captor.getValue().cancelAmount()).isEqualTo(30000L);
+        }
+
+        @Test
+        @DisplayName("반품 배송비가 0원이면 차감 없이 전액 환불한다")
+        void refund_zeroReturnShippingFee_refundsFullAmount() {
+            Payment payment = createPayment(false, 0L);
+            PspPaymentEvent event = createPspPaymentEvent(PaymentEventStatus.COMPLETE);
+            when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
+                    .thenReturn(createSuccessVendorResult());
+
+            RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 30000L, 0L, 0L);
+
+            assertThatCode(() -> refundPaymentService.refund(command))
+                    .doesNotThrowAnyException();
+
+            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            verify(paymentVendorPort).cancelPayment(captor.capture());
+            assertThat(captor.getValue().cancelAmount()).isEqualTo(30000L);
+        }
+
+        @Test
+        @DisplayName("반품 배송비가 환불 금액보다 작으면 차감 후 조정된 금액으로 PG 환불한다")
+        void refund_returnShippingFeeLessThanCancel_refundsAdjustedAmount() {
+            Payment payment = createPayment(false, 0L);
+            PspPaymentEvent event = createPspPaymentEvent(PaymentEventStatus.COMPLETE);
+            when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any(PaymentCancelVendorCommand.class)))
+                    .thenReturn(createSuccessVendorResult());
+
+            RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 30000L, 0L, 6000L);
+
+            assertThatCode(() -> refundPaymentService.refund(command))
+                    .doesNotThrowAnyException();
+
+            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            verify(paymentVendorPort).cancelPayment(captor.capture());
+            assertThat(captor.getValue().cancelAmount()).isEqualTo(24000L);
+            assertThat(captor.getValue().remainAmount()).isEqualTo(PAYMENT_AMOUNT - 24000L);
+        }
+
+        @Test
+        @DisplayName("반품 배송비가 환불 금액과 같으면 PG 환불을 생략하고 감사 기록을 저장한다")
+        void refund_returnShippingFeeEqualsCancel_skipsPgRefundAndSavesAuditRecord() {
+            Payment payment = createPayment(false, 0L);
+            PspPaymentEvent event = createPspPaymentEvent(PaymentEventStatus.COMPLETE);
+            when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
+
+            RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 6000L, 0L, 6000L);
+
+            assertThatCode(() -> refundPaymentService.refund(command))
+                    .doesNotThrowAnyException();
+
+            verifyNoInteractions(paymentVendorPort);
+            verify(updatePaymentPort).update(payment);
+            verify(updatePspPaymentEventPort).update(event);
+            verify(saveRefundPort).save(any(Refund.class));
+        }
+
+        @Test
+        @DisplayName("반품 배송비가 환불 금액을 초과하면 PG 환불을 생략하고 감사 기록을 저장한다")
+        void refund_returnShippingFeeExceedsCancel_skipsPgRefundAndSavesAuditRecord() {
+            Payment payment = createPayment(false, 0L);
+            PspPaymentEvent event = createPspPaymentEvent(PaymentEventStatus.COMPLETE);
+            when(findPaymentPort.findByOrderKey(UUID.fromString(ORDER_KEY))).thenReturn(Optional.of(payment));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(event));
+
+            RefundPaymentCommand command = createCommandWithReturnShippingFee(false, 3000L, 0L, 6000L);
+
+            assertThatCode(() -> refundPaymentService.refund(command))
+                    .doesNotThrowAnyException();
+
+            verifyNoInteractions(paymentVendorPort);
+            verify(updatePaymentPort).update(payment);
+            verify(updatePspPaymentEventPort).update(event);
+            verify(saveRefundPort).save(any(Refund.class));
+        }
+    }
+
+    // ==================================================================================
     // 헬퍼 메서드
     // ==================================================================================
 
@@ -278,6 +386,20 @@ class RefundPaymentUseCaseTest {
                 .paymentAmount(PAYMENT_AMOUNT)
                 .isFullCancel(isFullCancel)
                 .alreadyRefunded(alreadyRefunded)
+                .build();
+    }
+
+    private RefundPaymentCommand createCommandWithReturnShippingFee(
+            boolean isFullCancel, Long cancelAmount, Long alreadyRefunded, Long returnShippingFee
+    ) {
+        return RefundPaymentCommand.builder()
+                .orderKey(ORDER_KEY)
+                .orderId(ORDER_ID)
+                .cancelAmount(cancelAmount)
+                .paymentAmount(PAYMENT_AMOUNT)
+                .isFullCancel(isFullCancel)
+                .alreadyRefunded(alreadyRefunded)
+                .returnShippingFee(returnShippingFee)
                 .build();
     }
 
