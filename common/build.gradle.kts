@@ -98,8 +98,9 @@ tasks.register<Test>("brokerFailureTest") {
     }
 }
 
-// brokerFailureTest는 수동 실행 전용 (./gradlew :common:brokerFailureTest)
-// EmbeddedKafka 브로커 장애 시뮬레이션은 타이밍 의존적이므로 일반 빌드에서 제외
+tasks.named("check") {
+    dependsOn("brokerFailureTest")
+}
 
 tasks.named("bootJar") {
     enabled = false
