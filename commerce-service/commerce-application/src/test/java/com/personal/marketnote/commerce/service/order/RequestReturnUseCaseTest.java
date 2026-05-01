@@ -68,6 +68,25 @@ class RequestReturnUseCaseTest {
         }
 
         @Test
+        @DisplayName("배송중 상태의 주문을 반품 요청하면 정상 처리된다")
+        void requestReturn_fromShipping_succeeds() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.SHIPPING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.ETC)
+                    .reason("상품 불량")
+                    .buyerId(buyerId)
+                    .build();
+
+            assertThatCode(() -> requestReturnService.requestReturn(command))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
         @DisplayName("부분 구매 확정 상태의 주문을 반품 요청하면 정상 처리된다")
         void requestReturn_fromPartiallyConfirmed_succeeds() {
             Long orderId = 1L;
@@ -350,11 +369,11 @@ class RequestReturnUseCaseTest {
         }
 
         @Test
-        @DisplayName("배송중 상태의 주문을 반품 요청하면 InvalidOrderStatusTransitionException이 발생한다")
-        void requestReturn_fromShipping_throwsException() {
+        @DisplayName("상품 준비중 상태의 주문을 반품 요청하면 InvalidOrderStatusTransitionException이 발생한다")
+        void requestReturn_fromPreparing_throwsException() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.SHIPPING);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
@@ -388,7 +407,7 @@ class RequestReturnUseCaseTest {
         void requestReturn_invalidTransition_doesNotCallUpdatePort() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.SHIPPING);
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RequestReturnCommand command = RequestReturnCommand.builder()
