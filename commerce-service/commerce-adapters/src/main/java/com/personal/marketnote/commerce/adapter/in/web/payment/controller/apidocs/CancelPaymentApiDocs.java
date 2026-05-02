@@ -46,6 +46,9 @@ import java.lang.annotation.*;
                 | cancelType | string | 취소 유형 (FULL/PARTIAL) | Y | "FULL" |
                 | cancelAmount | number | 취소 금액 (부분취소 시 필수) | N | 50000 |
                 | cancelReason | string | 취소 사유 | N | "고객 변심" |
+                | cancelProducts | array | 취소 대상 상품 목록 (부분취소 시 재고 복구용, 선택) | N | [{"pricePolicyId": 1, "quantity": 2}] |
+                | cancelProducts[].pricePolicyId | number | 가격 정책 ID | Y | 1 |
+                | cancelProducts[].quantity | number | 취소 수량 | Y | 2 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -56,7 +59,13 @@ import java.lang.annotation.*;
                                 {
                                   "cancelType": "FULL",
                                   "cancelAmount": null,
-                                  "cancelReason": "고객 변심"
+                                  "cancelReason": "고객 변심",
+                                  "cancelProducts": [
+                                    {
+                                      "pricePolicyId": 1,
+                                      "quantity": 2
+                                    }
+                                  ]
                                 }
                                 """)
                 )
