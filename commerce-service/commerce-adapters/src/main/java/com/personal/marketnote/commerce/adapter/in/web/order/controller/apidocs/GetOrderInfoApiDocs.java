@@ -101,21 +101,6 @@ import java.lang.annotation.*;
                 | paidAmount | number | 결제 금액(원) | 100000 |
                 | couponAmount | number | 쿠폰 할인 금액(원) | 5000 |
                 | pointAmount | number | 포인트 사용 금액(원) | 5000 |
-                | shippingFee | number | 배송비(원) | 3000 |
-                | recipientName | string | 수령인 이름 | "홍길동" |
-                | recipientPhoneNumber | string | 수령인 전화번호 | "01012345678" |
-                | zipCode | string | 우편번호 | "06234" |
-                | address | string | 배송지 주소 | "서울특별시 강남구 테헤란로 123" |
-                | addressDetail | string | 배송지 상세 주소 | "101동 202호" |
-                | deliveryRequestType | string | 배송 요청사항 유형 | "LEAVE_AT_DOOR" |
-                | deliveryRequestMessage | string | 배송 요청사항 메시지 | "문 앞에 놓아주세요" |
-                | pickupRecipientName | string | 회수지 수령인 이름 | "홍길동" |
-                | pickupRecipientPhoneNumber | string | 회수지 수령인 전화번호 | "01012345678" |
-                | pickupZipCode | string | 회수지 우편번호 | "06234" |
-                | pickupAddress | string | 회수지 주소 | "서울특별시 강남구 테헤란로 123" |
-                | pickupAddressDetail | string | 회수지 상세 주소 | "101동 202호" |
-                | pickupDeliveryRequestType | string | 회수 요청사항 유형 | "LEAVE_AT_DOOR" |
-                | pickupDeliveryRequestMessage | string | 회수 요청사항 메시지 | "문 앞에 놓아주세요" |
                 | orderProducts | array | 주문 상품 목록 | [ ... ] |
                 
                 ---
@@ -178,22 +163,7 @@ import java.lang.annotation.*;
                                               "paidAmount": 120000,
                                               "couponAmount": 5000,
                                               "pointAmount": 5000,
-                                              "shippingFee": 3000,
-                                              "recipientName": "홍길동",
-                                              "recipientPhoneNumber": "01012345678",
-                                              "zipCode": "06234",
-                                              "address": "서울특별시 강남구 테헤란로 123",
-                                              "addressDetail": "101동 202호",
-                                              "deliveryRequestType": "LEAVE_AT_DOOR",
-                                              "deliveryRequestMessage": "문 앞에 놓아주세요",
-                                              "pickupRecipientName": "홍길동",
-                                              "pickupRecipientPhoneNumber": "01012345678",
-                                              "pickupZipCode": "06234",
-                                              "pickupAddress": "서울특별시 강남구 테헤란로 123",
-                                              "pickupAddressDetail": "101동 202호",
-                                              "pickupDeliveryRequestType": "LEAVE_AT_DOOR",
-                                              "pickupDeliveryRequestMessage": "문 앞에 놓아주세요",
-                                              "orderProducts": [
+                                              "orderPrducts": [
                                                 {
                                                   "sellerId": 12,
                                                   "productId": 1,

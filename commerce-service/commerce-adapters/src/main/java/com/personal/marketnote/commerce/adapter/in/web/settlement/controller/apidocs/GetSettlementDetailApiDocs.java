@@ -42,6 +42,7 @@ import java.lang.annotation.*;
                 | orderId | number | 주문 ID | 100 |
                 | sellerId | number | 판매자 ID | 10 |
                 | allocatedAmount | number | 배분 금액 | 50000 |
+                | shippingFee | number | 배송비 | 0 |
                 | transactionType | string | 거래 유형 | "ORDER_REGISTRATION" |
                 | targetType | string | 대상 유형 | "ORDER" |
                 | createdAt | string | 생성일시 | "2026-02-15T14:30:00" |
@@ -63,6 +64,7 @@ import java.lang.annotation.*;
                                               "orderId": 100,
                                               "sellerId": 10,
                                               "allocatedAmount": 50000,
+                                              "shippingFee": 0,
                                               "transactionType": "ORDER_REGISTRATION",
                                               "targetType": "ORDER",
                                               "createdAt": "2026-02-15T14:30:00"
@@ -72,6 +74,7 @@ import java.lang.annotation.*;
                                               "orderId": 101,
                                               "sellerId": 10,
                                               "allocatedAmount": 30000,
+                                              "shippingFee": 0,
                                               "transactionType": "ORDER_REGISTRATION",
                                               "targetType": "ORDER",
                                               "createdAt": "2026-02-15T15:00:00"
