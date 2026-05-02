@@ -80,21 +80,21 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | orderHistory | array | 날짜별 주문 내역 묶음 | [ ... ] |
-
+                | orderHistories | array | 날짜별 주문 내역 묶음 | [ ... ] |
+                
                 ---
-                ### Response > content > orderHistory
-
+                ### Response > content > orderHistories
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | orderDate | string(date) | 주문 생성일(일 단위) | "2025-11-01" |
                 | count | number | 해당 날짜의 주문 건수 | 3 |
                 | orders | array | 주문 목록(주문 ID 내림차순) | [ ... ] |
-
+                
                 ---
-
-                ### Response > content > orderHistory > orders
-
+                
+                ### Response > content > orderHistories > orders
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 주문 ID | 1 |
@@ -106,11 +106,11 @@ import java.lang.annotation.*;
                 | couponAmount | number | 쿠폰 할인 금액(원) | 5000 |
                 | pointAmount | number | 포인트 사용 금액(원) | 5000 |
                 | orderProducts | array | 주문 상품 목록 | [ ... ] |
-
+                
                 ---
-
-                ### Response > content > orderHistory > orders > orderProducts
-
+                
+                ### Response > content > orderHistories > orders > orderProducts
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | sellerId | number | 판매자 회원 ID | 1 |
@@ -125,10 +125,10 @@ import java.lang.annotation.*;
                 | productName | string | 상품명 | "공책" |
                 | selectedOptions | array | 선택 옵션 목록 | [ ... ] |
                 | isReviewed | boolean | 리뷰 작성 여부 | true |
-
+                
                 ---
-
-                ### Response > content > orderHistory > orders > orderProducts > selectedOptions
+                
+                ### Response > content > orderHistories > orders > orderProducts > selectedOptions
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
