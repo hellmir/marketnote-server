@@ -71,6 +71,7 @@ import java.lang.annotation.*;
                 | deliveryRequestType | string(enum) | 배송 요청사항 타입 | "LEAVE_AT_DOOR" |
                 | deliveryRequestMessage | string | 직접입력 메시지 (CUSTOM 시) | "공동현관 비밀번호 *1234" |
                 | isDefault | boolean | 기본 배송지 여부 | true |
+                | regionType | string(enum) | 배송지 지역 타입 (NORMAL: 일반, JEJU: 제주, ISLAND: 도서산간) | "NORMAL" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         responses = {
@@ -96,7 +97,8 @@ import java.lang.annotation.*;
                                                 "recipientPhoneNumber": "01000000000",
                                                 "deliveryRequestType": "LEAVE_AT_DOOR",
                                                 "deliveryRequestMessage": null,
-                                                "isDefault": true
+                                                "isDefault": true,
+                                                "regionType": "NORMAL"
                                               },
                                               {
                                                 "id": 2,
@@ -109,7 +111,8 @@ import java.lang.annotation.*;
                                                 "recipientPhoneNumber": "01000000000",
                                                 "deliveryRequestType": "LEAVE_AT_SECURITY",
                                                 "deliveryRequestMessage": null,
-                                                "isDefault": false
+                                                "isDefault": false,
+                                                "regionType": "NORMAL"
                                               },
                                               {
                                                 "id": 3,
@@ -122,7 +125,8 @@ import java.lang.annotation.*;
                                                 "recipientPhoneNumber": "01011112222",
                                                 "deliveryRequestType": "CUSTOM",
                                                 "deliveryRequestMessage": "공동현관 비밀번호 *1234",
-                                                "isDefault": false
+                                                "isDefault": false,
+                                                "regionType": "ISLAND"
                                               }
                                             ]
                                           },
