@@ -59,7 +59,7 @@ import java.lang.annotation.*;
                 
                  | **키** | **타입** | **설명** | **예시** |
                  | --- | --- | --- | --- |
-                 | optionCategoryId | number | 생성된 카테고리 ID | 10004 |
+                 | id | number | 생성된 카테고리 ID | 10004 |
                  | parentCategoryId | number | 상위 카테고리 ID | 1 |
                  | name | string | 카테고리명 | "루테인" |
                 """,
@@ -88,7 +88,7 @@ import java.lang.annotation.*;
                                           "code": "SUC01",
                                           "timestamp": "2025-12-31T16:06:44.009132",
                                           "content": {
-                                            "optionCategoryId": 10004,
+                                            "id": 10004,
                                             "parentCategoryId": 1001,
                                             "name": "루테인"
                                           },
