@@ -50,7 +50,6 @@ import java.lang.annotation.*;
                 | discountPrice | number | 할인 판매가 | 8000 |
                 | accumulatedPoint | number | 적립 포인트 | 100 |
                 | discountRate | number | 할인율 | 20 |
-                | basePolicy | boolean | 기본 정책 여부(조합 미연결) | true |
                 | optionIds | array<number> | 연결된 옵션 ID 목록(조합 정책일 때) | [3,7] |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
@@ -73,7 +72,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 50000,
                                                 "accumulatedPoint": 30000,
                                                 "discountRate": 60,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34,
                                                   40
@@ -85,7 +83,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 50000,
                                                 "accumulatedPoint": 30000,
                                                 "discountRate": 60,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34,
                                                   40
@@ -97,7 +94,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34,
                                                   39
@@ -109,7 +105,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34,
                                                   38
@@ -121,7 +116,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   33,
                                                   40
@@ -133,7 +127,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   33,
                                                   39
@@ -145,7 +138,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   33,
                                                   38
@@ -157,7 +149,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   32,
                                                   40
@@ -169,7 +160,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   32,
                                                   39
@@ -181,7 +171,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   32,
                                                   38
@@ -193,7 +182,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   40
                                                 ]
@@ -204,7 +192,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   39
                                                 ]
@@ -215,7 +202,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   38
                                                 ]
@@ -226,7 +212,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34
                                                 ]
@@ -237,7 +222,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34
                                                 ]
@@ -248,7 +232,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34
                                                 ]
@@ -259,7 +242,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   33
                                                 ]
@@ -270,7 +252,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   33
                                                 ]
@@ -281,7 +262,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   33
                                                 ]
@@ -292,7 +272,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   32
                                                 ]
@@ -303,7 +282,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   32
                                                 ]
@@ -314,7 +292,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   32
                                                 ]
@@ -325,7 +302,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": []
                                               },
                                               {
@@ -334,7 +310,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": []
                                               },
                                               {
@@ -343,7 +318,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": []
                                               },
                                               {
@@ -352,7 +326,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   34
                                                 ]
@@ -363,7 +336,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   33
                                                 ]
@@ -374,7 +346,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": [
                                                   32
                                                 ]
@@ -385,7 +356,6 @@ import java.lang.annotation.*;
                                                 "discountPrice": 9000,
                                                 "accumulatedPoint": 1000,
                                                 "discountRate": 11.1,
-                                                "basePolicy": false,
                                                 "optionIds": []
                                               }
                                             ]
