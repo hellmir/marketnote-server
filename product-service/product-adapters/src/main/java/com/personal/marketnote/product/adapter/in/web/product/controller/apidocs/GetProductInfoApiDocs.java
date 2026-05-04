@@ -63,7 +63,6 @@ import java.lang.annotation.*;
                 | categories | array | 옵션 카테고리 목록 | [ ... ] |
                 | representativeImages | object | 상품 상세 정보 상단 대표 이미지 목록 | { ... } |
                 | contentImages | object | 상품 상세 정보 본문 이미지 목록 | { ... } |
-                | selectedOptionIds | array<number> | 선택된 옵션 ID 목록 | [4, 7] |
                 
                 ---
                 
