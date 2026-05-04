@@ -71,13 +71,11 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content > categories > options
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 옵션 ID | 101 |
                 | content | string | 옵션 내용 | "1박스" |
-                | price | number | 옵션 가격(원) | 37000 |
-                | accumulatedPoint | number | 적립 포인트 | 1200 |
                 | status | string | 상태 | "ACTIVE" |
                 """, security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -110,15 +108,11 @@ import java.lang.annotation.*;
                                                   {
                                                     "id": 4,
                                                     "content": "1박스",
-                                                    "price": 37000,
-                                                    "accumulatedPoint": 1200,
                                                     "status": "ACTIVE"
                                                   },
                                                   {
                                                     "id": 5,
                                                     "content": "3박스",
-                                                    "price": 99000,
-                                                    "accumulatedPoint": 1200,
                                                     "status": "ACTIVE"
                                                   }
                                                 ]
@@ -132,22 +126,16 @@ import java.lang.annotation.*;
                                                   {
                                                     "id": 6,
                                                     "content": "최상",
-                                                    "price": 37000,
-                                                    "accumulatedPoint": 1200,
                                                     "status": "ACTIVE"
                                                   },
                                                   {
                                                     "id": 7,
                                                     "content": "상",
-                                                    "price": 22000,
-                                                    "accumulatedPoint": 800,
                                                     "status": "ACTIVE"
                                                   },
                                                   {
                                                     "id": 8,
                                                     "content": "중",
-                                                    "price": 11000,
-                                                    "accumulatedPoint": 400,
                                                     "status": "ACTIVE"
                                                   }
                                                 ]
@@ -161,22 +149,16 @@ import java.lang.annotation.*;
                                                   {
                                                     "id": 9,
                                                     "content": "최상",
-                                                    "price": 37000,
-                                                    "accumulatedPoint": 1200,
                                                     "status": "ACTIVE"
                                                   },
                                                   {
                                                     "id": 10,
                                                     "content": "상",
-                                                    "price": 22000,
-                                                    "accumulatedPoint": 800,
                                                     "status": "ACTIVE"
                                                   },
                                                   {
                                                     "id": 11,
                                                     "content": "중",
-                                                    "price": 11000,
-                                                    "accumulatedPoint": 400,
                                                     "status": "ACTIVE"
                                                   }
                                                 ]
