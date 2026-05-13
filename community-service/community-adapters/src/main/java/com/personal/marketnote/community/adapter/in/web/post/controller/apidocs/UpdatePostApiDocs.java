@@ -48,14 +48,8 @@ import java.lang.annotation.*;
                 | statusCode | number | HTTP 상태 코드 | 201 |
                 | code | string | 응답 코드 | "SUC01" |
                 | timestamp | string(datetime) | 응답 일시 | "2026-01-09T16:32:18.828188" |
-                | content | object | 응답 본문 | { ... } |
+                | content | null | 응답 본문 (Void) | null |
                 | message | string | 처리 결과 | "게시글 수정 성공" |
-                
-                ### Response > content
-                
-                | **키** | **타입** | **설명** | **예시** |
-                | --- | --- | --- | --- |
-                | id | number | 수정된 게시글 ID | 3 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -89,9 +83,7 @@ import java.lang.annotation.*;
                                           "statusCode": 200,
                                           "code": "SUC01",
                                           "timestamp": "2026-01-13T16:39:31.057206",
-                                          "content": {
-                                            "id": 3
-                                          },
+                                          "content": null,
                                           "message": "게시글 수정 성공"
                                         }
                                         """)
