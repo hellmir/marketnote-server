@@ -121,7 +121,7 @@ import java.lang.annotation.*;
         requestBody = @RequestBody(
                 required = true,
                 content = @Content(
-                        schema = @Schema(implementation = RegisterFulfillmentDeliveryIcsRequest.class),
+                        schema = @Schema(type = "array", implementation = RegisterFulfillmentDeliveryIcsRequest.class),
                         examples = @ExampleObject("""
                                 [
                                   {

@@ -24,22 +24,6 @@ import java.lang.annotation.*;
                 ## Description
                 
                 - 정산 정책 ID로 단건 조회합니다.
-
-                ---
-
-                ## Response > content
-
-                | **키** | **타입** | **설명** | **예시** |
-                | --- | --- | --- | --- |
-                | id | number | 정산 정책 ID | 1 |
-                | sellerId | number | 판매자 ID | 100 |
-                | pgFeeRate | number | PG 수수료율 (basis point, 300 = 3%) | 300 |
-                | platformFeeRate | number | 플랫폼 수수료율 (basis point, 500 = 5%) | 500 |
-                | settlementCycle | string | 정산 주기 | "MONTHLY" |
-                | minPayoutAmount | number | 최소 지급 금액 | 10000 |
-                | status | string | 상태 | "ACTIVE" |
-                | createdAt | string | 생성일시 | "2026-03-02T12:00:00.000" |
-                | modifiedAt | string | 수정일시 | "2026-03-02T12:00:00.000" |
                 """,
         parameters = {
                 @Parameter(name = "id", description = "정산 정책 ID", required = true, example = "1")
@@ -62,9 +46,7 @@ import java.lang.annotation.*;
                                             "platformFeeRate": 500,
                                             "settlementCycle": "MONTHLY",
                                             "minPayoutAmount": 10000,
-                                            "status": "ACTIVE",
-                                            "createdAt": "2026-03-02T12:00:00.000",
-                                            "modifiedAt": "2026-03-02T12:00:00.000"
+                                            "status": "ACTIVE"
                                           },
                                           "message": "정산 정책 단건 조회 성공"
                                         }

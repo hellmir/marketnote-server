@@ -139,7 +139,7 @@ import java.lang.annotation.*;
         requestBody = @RequestBody(
                 required = true,
                 content = @Content(
-                        schema = @Schema(implementation = RegisterFulfillmentDirectReturnDeliveryRequest.class),
+                        schema = @Schema(type = "array", implementation = RegisterFulfillmentDirectReturnDeliveryRequest.class),
                         examples = @ExampleObject("""
                                 [
                                   {

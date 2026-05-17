@@ -76,7 +76,6 @@ import java.lang.annotation.*;
                 | userId | number | 회원 ID | 1 |
                 | authVendor | string | 인증 제공자 | "NATIVE"/"KAKAO"/"GOOGLE"/"APPLE" |
                 | ipAddress | string | 로그인 IP | "203.0.113.10" |
-                | loggedInAt | string(datetime) | 로그인 일시 | "2025-12-30T13:31:08.926108" |
                 """, security = {@SecurityRequirement(name = "bearer"),
         @SecurityRequirement(name = "admin")}, parameters = {
         @Parameter(

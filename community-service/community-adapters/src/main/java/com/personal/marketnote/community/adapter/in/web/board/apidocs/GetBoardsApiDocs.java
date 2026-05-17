@@ -45,11 +45,11 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | categories | array | 게시판 목록 | [ ... ] |
-
+                | boards | array | 게시판 목록 | [ ... ] |
+                
                 ---
-
-                ### Response > content > categories
+                
+                ### Response > content > boards
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |

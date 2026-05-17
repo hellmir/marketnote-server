@@ -51,7 +51,6 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | isDuplicated | boolean | 닉네임 중복 여부 | true / false |
-                | containsProfanity | boolean | 비속어 포함 여부 | true / false |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         responses = {
@@ -65,8 +64,7 @@ import java.lang.annotation.*;
                                           "code": "SUC01",
                                           "timestamp": "2026-03-19T12:00:00.000000",
                                           "content": {
-                                            "isDuplicated": false,
-                                            "containsProfanity": false
+                                            "isDuplicated": false
                                           },
                                           "message": "닉네임 중복 여부 조회 성공"
                                         }

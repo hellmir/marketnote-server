@@ -102,7 +102,7 @@ import java.lang.annotation.*;
         requestBody = @RequestBody(
                 required = true,
                 content = @Content(
-                        schema = @Schema(implementation = CancelFulfillmentDeliveryRequest.class),
+                        schema = @Schema(type = "array", implementation = CancelFulfillmentDeliveryRequest.class),
                         examples = @ExampleObject("""
                                 [
                                   {

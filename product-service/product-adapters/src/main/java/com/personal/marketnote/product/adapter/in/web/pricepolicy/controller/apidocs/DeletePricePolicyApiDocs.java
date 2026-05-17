@@ -71,13 +71,13 @@ import java.lang.annotation.*;
         },
         responses = {
                 @ApiResponse(
-                        responseCode = "200",
+                        responseCode = "201",
                         description = "삭제 성공",
                         content = @Content(
                                 schema = @Schema(implementation = StringResponseSchema.class),
                                 examples = @ExampleObject("""
                                         {
-                                          "statusCode": 200,
+                                          "statusCode": 201,
                                           "code": "SUC01",
                                           "timestamp": "2026-01-02T17:32:49.097185",
                                           "content": null,
