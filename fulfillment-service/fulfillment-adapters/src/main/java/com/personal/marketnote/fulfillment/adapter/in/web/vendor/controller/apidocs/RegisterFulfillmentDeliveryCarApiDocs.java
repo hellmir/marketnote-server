@@ -115,7 +115,7 @@ import java.lang.annotation.*;
         requestBody = @RequestBody(
                 required = true,
                 content = @Content(
-                        schema = @Schema(implementation = RegisterFulfillmentDeliveryCarRequest.class),
+                        schema = @Schema(type = "array", implementation = RegisterFulfillmentDeliveryCarRequest.class),
                         examples = @ExampleObject("""
                                 [
                                   {

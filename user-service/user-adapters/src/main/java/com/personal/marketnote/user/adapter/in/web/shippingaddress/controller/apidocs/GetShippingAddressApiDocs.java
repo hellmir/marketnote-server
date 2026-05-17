@@ -65,7 +65,6 @@ import java.lang.annotation.*;
                 | deliveryRequestType | string(enum) | 배송 요청사항 타입 | "LEAVE_AT_DOOR" |
                 | deliveryRequestMessage | string | 직접입력 메시지 (CUSTOM 시) | "공동현관 비밀번호 *1234" |
                 | isDefault | boolean | 기본 배송지 여부 | true |
-                | regionType | string(enum) | 배송지 지역 타입 (NORMAL: 일반, JEJU: 제주, ISLAND: 도서산간) | "NORMAL" |
                 """,
         parameters = {
                 @Parameter(name = "id", description = "배송지 ID", required = true, example = "1")
@@ -92,8 +91,7 @@ import java.lang.annotation.*;
                                             "recipientPhoneNumber": "01000000000",
                                             "deliveryRequestType": "LEAVE_AT_DOOR",
                                             "deliveryRequestMessage": null,
-                                            "isDefault": true,
-                                            "regionType": "NORMAL"
+                                            "isDefault": true
                                           },
                                           "message": "배송지 조회 성공"
                                         }

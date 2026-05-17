@@ -65,11 +65,10 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content > cartProducts > product
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 상품 ID | 1 |
-                | sellerId | number | 판매자 ID | 12 |
                 | name | string | 상품명 | "건기식테스트1" |
                 | brandName | string | 브랜드명 | "노트왕" |
                 | imageUrl | string | 상품 이미지 URL | "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png" |

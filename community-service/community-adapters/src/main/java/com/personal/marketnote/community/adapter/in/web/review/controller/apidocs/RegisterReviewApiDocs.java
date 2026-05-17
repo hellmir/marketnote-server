@@ -44,7 +44,6 @@ import java.lang.annotation.*;
                 | reviewerName | string | 리뷰 작성자 이름 | Y | "홍길동" |
                 | rating | number | 리뷰 평점(0.0~5.0, 소수점 1자리) | Y | 4.5 |
                 | content | string | 리뷰 내용(10자 이상) | Y | "배송이 빠르고 포장 상태도 좋았습니다." |
-                | unitAmount | number | 주문 상품 구매 시점 단가 | N | 29000 |
                 | isPhoto | boolean | 포토 리뷰 여부 | Y | false |
                 
                 ---
@@ -78,7 +77,6 @@ import java.lang.annotation.*;
                                   "productImageUrl": "https://example.com/image.jpg",
                                   "selectedOptions": "30개입, 5박스",
                                   "quantity": 2,
-                                  "unitAmount": 29000,
                                   "reviewerName": "홍길동",
                                   "rating": 5,
                                   "content": "배송이 빠르고 포장 상태도 좋았습니다.",
