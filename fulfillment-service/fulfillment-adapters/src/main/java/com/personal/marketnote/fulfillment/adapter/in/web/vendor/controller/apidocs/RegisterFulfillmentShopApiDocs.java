@@ -44,24 +44,24 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
-                | shopNm | string | 출고처명 | Y | "테스트 출고처1" |
-                | cstShopCd | string | 고객사 출고처 코드 | N | "" |
-                | dealStrDt | string | 거래 시작일자 | N | "" |
-                | dealEndDt | string | 거래 종료일자 | N | "" |
-                | zipNo | string | 우편번호 | N | "12345" |
-                | addr1 | string | 주소1 | N | "서울특별시 양천구 목동동로 123 132동 101호" |
-                | addr2 | string | 주소2 | N | "서울특별시 양천구 목동동로 123 132동 102호" |
-                | ceoNm | string | 대표자명 | N | "홍길동" |
-                | busNo | string | 사업자번호 | N | "1234567" |
-                | telNo | string | 전화번호 | N | "01012345678" |
-                | unloadWay | string | 하차방식(01: 지게차, 02: 수작업) | N | "02" |
-                | checkWay | string | 검수방식(01: 전수검수, 02: 샘플검수) | N | "02" |
-                | standYn | string | 대기여부 | N | "N" |
+                | shopName | string | 출고처명 | Y | "테스트 출고처1" |
+                | customerShopCode | string | 고객사 출고처 코드 | N | "" |
+                | dealStartDate | string | 거래 시작일자 | N | "" |
+                | dealEndDate | string | 거래 종료일자 | N | "" |
+                | zipCode | string | 우편번호 | N | "12345" |
+                | address1 | string | 주소1 | N | "서울특별시 양천구 목동동로 123 132동 101호" |
+                | address2 | string | 주소2 | N | "서울특별시 양천구 목동동로 123 132동 102호" |
+                | ceoName | string | 대표자명 | N | "홍길동" |
+                | businessNumber | string | 사업자번호 | N | "1234567" |
+                | phoneNumber | string | 전화번호 | N | "01012345678" |
+                | unloadMethod | string | 하차방식(01: 지게차, 02: 수작업) | N | "02" |
+                | inspectionMethod | string | 검수방식(01: 전수검수, 02: 샘플검수) | N | "02" |
+                | standbyYn | string | 대기여부 | N | "N" |
                 | formType | string | 거래명세서 양식(STDF001: 택배기본, STDF002: 차량기본) | N | "STDF001" |
-                | empNm | string | 담당자명 | N | "서영락" |
-                | empPosit | string | 담당자직위 | N | "대리" |
-                | empTelNo | string | 담당자전화번호 | N | "01012345678" |
-                | useYn | string | 사용여부 | N | "Y" |
+                | managerName | string | 담당자명 | N | "서영락" |
+                | managerPosition | string | 담당자 직위 | N | "대리" |
+                | managerPhoneNumber | string | 담당자 전화번호 | N | "01012345678" |
+                | useYn | string | 사용 여부 | N | "Y" |
                 
                 ---
                 
@@ -116,23 +116,23 @@ import java.lang.annotation.*;
                         schema = @Schema(implementation = RegisterFulfillmentShopRequest.class),
                         examples = @ExampleObject("""
                                 {
-                                  "shopNm": "테스트 출고처1",
-                                  "cstShopCd": "",
-                                  "dealStrDt": "",
-                                  "dealEndDt": "",
-                                  "zipNo": "12345",
-                                  "addr1": "서울특별시 양천구 목동동로 123 132동 101호",
-                                  "addr2": "서울특별시 양천구 목동동로 123 132동 102호",
-                                  "ceoNm": "홍길동",
-                                  "busNo": "1234567",
-                                  "telNo": "01012345678",
-                                  "unloadWay": "02",
-                                  "checkWay": "02",
-                                  "standYn": "N",
+                                  "shopName": "테스트 출고처1",
+                                  "customerShopCode": "",
+                                  "dealStartDate": "",
+                                  "dealEndDate": "",
+                                  "zipCode": "12345",
+                                  "address1": "서울특별시 양천구 목동동로 123 132동 101호",
+                                  "address2": "서울특별시 양천구 목동동로 123 132동 102호",
+                                  "ceoName": "홍길동",
+                                  "businessNumber": "1234567",
+                                  "phoneNumber": "01012345678",
+                                  "unloadMethod": "02",
+                                  "inspectionMethod": "02",
+                                  "standbyYn": "N",
                                   "formType": "STDF001",
-                                  "empNm": "서영락",
-                                  "empPosit": "대리",
-                                  "empTelNo": "01012345678",
+                                  "managerName": "서영락",
+                                  "managerPosition": "대리",
+                                  "managerPhoneNumber": "01012345678",
                                   "useYn": "Y"
                                 }
                                 """)
