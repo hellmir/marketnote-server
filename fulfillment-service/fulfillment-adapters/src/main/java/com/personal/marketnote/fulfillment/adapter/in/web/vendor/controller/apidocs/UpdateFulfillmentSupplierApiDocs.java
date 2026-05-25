@@ -44,29 +44,29 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
-                | cstSupCd | string | 고객사 공급사 코드 | N | "00000001" |
-                | supCd | string | 공급사 코드(수정 시 필수) | Y | "00000001" |
-                | supNm | string | 공급사명 | Y | "테스트 공급사4" |
+                | customerSupplierCode | string | 고객사 공급사 코드 | N | "00000001" |
+                | supplierCode | string | 공급사 코드(수정 시 필수) | Y | "00000001" |
+                | supplierName | string | 공급사명 | Y | "테스트 공급사4" |
                 | useYn | string | 사용여부 | N | "" |
-                | dealStrDt | string | 거래시작일자 | N | "" |
-                | dealEndDt | string | 거래종료일자 | N | "" |
-                | zipNo | string | 우편번호 | N | "12345" |
-                | addr1 | string | 주소1 | N | "서울특별시 양천구 목동동로 123 132동 101호" |
-                | addr2 | string | 주소2 | N | "서울특별시 양천구 목동동로 123 132동 102호" |
-                | ceoNm | string | 대표자명 | N | "고길동" |
-                | busNo | string | 사업자번호 | N | "7654321" |
-                | busSp | string | 업태 | N | "" |
-                | busTp | string | 업종 | N | "" |
-                | telNo | string | 전화번호 | N | "01012345678" |
-                | faxNo | string | 팩스번호 | N | "0212345678" |
-                | empNm1 | string | 담당자명1 | N | "서영락" |
-                | empPosit1 | string | 담당자직위1 | N | "대리" |
-                | empTelNo1 | string | 담당자전화번호1 | N | "0212345678" |
-                | empEmail1 | string | 담당자이메일1 | N | "abc@abc.com" |
-                | empNm2 | string | 담당자명2 | N | "오상식" |
-                | empPosit2 | string | 담당자직위2 | N | "차장" |
-                | empTelNo2 | string | 담당자전화번호2 | N | "0212345678" |
-                | empEmail2 | string | 담당자이메일2 | N | "abc@abc.com" |
+                | dealStartDate | string | 거래시작일자 | N | "" |
+                | dealEndDate | string | 거래종료일자 | N | "" |
+                | zipCode | string | 우편번호 | N | "12345" |
+                | address1 | string | 주소1 | N | "서울특별시 양천구 목동동로 123 132동 101호" |
+                | address2 | string | 주소2 | N | "서울특별시 양천구 목동동로 123 132동 102호" |
+                | ceoName | string | 대표자명 | N | "고길동" |
+                | businessNumber | string | 사업자번호 | N | "7654321" |
+                | businessCategory | string | 업태 | N | "" |
+                | businessType | string | 업종 | N | "" |
+                | phoneNumber | string | 전화번호 | N | "01012345678" |
+                | faxNumber | string | 팩스번호 | N | "0212345678" |
+                | primaryManagerName | string | 담당자명1 | N | "서영락" |
+                | primaryManagerPosition | string | 담당자직위1 | N | "대리" |
+                | primaryManagerPhoneNumber | string | 담당자전화번호1 | N | "0212345678" |
+                | primaryManagerEmail | string | 담당자이메일1 | N | "abc@abc.com" |
+                | secondaryManagerName | string | 담당자명2 | N | "오상식" |
+                | secondaryManagerPosition | string | 담당자직위2 | N | "차장" |
+                | secondaryManagerPhoneNumber | string | 담당자전화번호2 | N | "0212345678" |
+                | secondaryManagerEmail | string | 담당자이메일2 | N | "abc@abc.com" |
                 
                 ---
                 
@@ -121,29 +121,29 @@ import java.lang.annotation.*;
                         schema = @Schema(implementation = UpdateFulfillmentSupplierRequest.class),
                         examples = @ExampleObject("""
                                 {
-                                  "cstSupCd": "00000",
-                                  "supCd": "00000003",
-                                  "supNm": "테스트 공급사4",
+                                  "customerSupplierCode": "00000",
+                                  "supplierCode": "00000003",
+                                  "supplierName": "테스트 공급사4",
                                   "useYn": "",
-                                  "dealStrDt": "",
-                                  "dealEndDt": "",
-                                  "zipNo": "12345",
-                                  "addr1": "서울특별시 양천구 목동동로 123 132동 101호",
-                                  "addr2": "서울특별시 양천구 목동동로 123 132동 102호",
-                                  "ceoNm": "고길동",
-                                  "busNo": "7654321",
-                                  "busSp": "",
-                                  "busTp": "",
-                                  "telNo": "01012345678",
-                                  "faxNo": "0212345678",
-                                  "empNm1": "서영락",
-                                  "empPosit1": "대리",
-                                  "empTelNo1": "0212345678",
-                                  "empEmail1": "abc@abc.com",
-                                  "empNm2": "오상식",
-                                  "empPosit2": "차장",
-                                  "empTelNo2": "0212345678",
-                                  "empEmail2": "abc@abc.com"
+                                  "dealStartDate": "",
+                                  "dealEndDate": "",
+                                  "zipCode": "12345",
+                                  "address1": "서울특별시 양천구 목동동로 123 132동 101호",
+                                  "address2": "서울특별시 양천구 목동동로 123 132동 102호",
+                                  "ceoName": "고길동",
+                                  "businessNumber": "7654321",
+                                  "businessCategory": "",
+                                  "businessType": "",
+                                  "phoneNumber": "01012345678",
+                                  "faxNumber": "0212345678",
+                                  "primaryManagerName": "서영락",
+                                  "primaryManagerPosition": "대리",
+                                  "primaryManagerPhoneNumber": "0212345678",
+                                  "primaryManagerEmail": "abc@abc.com",
+                                  "secondaryManagerName": "오상식",
+                                  "secondaryManagerPosition": "차장",
+                                  "secondaryManagerPhoneNumber": "0212345678",
+                                  "secondaryManagerEmail": "abc@abc.com"
                                 }
                                 """)
                 )
