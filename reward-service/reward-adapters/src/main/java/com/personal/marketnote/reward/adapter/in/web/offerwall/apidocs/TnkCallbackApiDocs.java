@@ -34,18 +34,15 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
-                | reward_key | string | 리워드 키 | Y | 20241211-abc |
+                | seq_id | string | 리워드 키 | Y | 20241211-abc |
                 | md_user_nm | string | 회원 식별자 | Y | U1000 |
                 | user_device_type | string | 회원 디바이스 유형 | Y | ANDROID |
-                | campaign_key | string | 캠페인 키 | Y | C123 |
-                | actn_id | number | 캠페인 유형 | N | 1 |
-                | campaign_name | string | 캠페인 이름 | N | "앱 설치" |
+                | campaign_type | number | 캠페인 유형 | N | 1 |
                 | pay_pnt | number | 지급 수량 | Y | 100 |
                 | md_chk | string | 서명 값 | Y | "abc123" |
                 | app_key | number | 앱 키 | N | 10 |
                 | app_nm | string | 앱 이름 | N | "my-app" |
                 | app_id | string | 구글 광고 ID | N | "adid-1" |
-                | idfa | string | IDFA | N | "idfa-1" |
                 | pay_dt | string | 캠페인 완료 일시 | N | "2026-01-17T12:00:00" |
                 | pay_amt | number | 수익 | N | 100 |
                 
