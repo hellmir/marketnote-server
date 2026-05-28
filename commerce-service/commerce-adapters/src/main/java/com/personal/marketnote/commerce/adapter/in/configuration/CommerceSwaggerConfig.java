@@ -35,9 +35,11 @@ public class CommerceSwaggerConfig {
             "주문 API",
             "주문 상품 API",
             "결제 API",
+            "결제 이벤트 API",
             "회계 API",
             "정산 정책 API",
             "정산 API",
+            "DLT API",
             "서버 정보 API"
     );
 

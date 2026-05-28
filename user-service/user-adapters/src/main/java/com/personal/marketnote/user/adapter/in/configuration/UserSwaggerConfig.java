@@ -37,6 +37,7 @@ public class UserSwaggerConfig {
             "회원 API",
             "회원 약관 API",
             "배송지 API",
+            "도서산간 지역 관리자 API",
             "서버 정보 API"
     );
 

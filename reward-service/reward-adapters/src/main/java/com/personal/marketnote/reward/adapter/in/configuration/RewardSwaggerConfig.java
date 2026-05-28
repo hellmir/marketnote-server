@@ -35,6 +35,7 @@ public class RewardSwaggerConfig {
             "오퍼월 API",
             "출석 정책 API",
             "출석체크 API",
+            "DLT API",
             "서버 정보 API"
     );
 
