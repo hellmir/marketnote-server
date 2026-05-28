@@ -40,6 +40,7 @@ public class FulfillmentSwaggerConfig {
             "파스토 재고 API",
             "파스토 출고처 API",
             "파스토 정산 API",
+            "DLT API",
             "서버 정보 API"
     );
 

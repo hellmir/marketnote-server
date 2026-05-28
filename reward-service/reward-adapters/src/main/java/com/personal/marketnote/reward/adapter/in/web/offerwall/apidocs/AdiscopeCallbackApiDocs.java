@@ -37,7 +37,6 @@ import java.lang.annotation.*;
                 | transactionId | string | 리워드 키 | Y | 20241211-abc |
                 | userId | string | 회원 식별자 | Y | U1000 |
                 | user_device_type | string | 회원 디바이스 유형 | Y | ANDROID |
-                | unitId | string | 캠페인 키 | Y | C123 |
                 | shareAdType | string | 캠페인 유형 | N | 1 |
                 | adname | string | 캠페인 이름 | N | "앱 설치" |
                 | rewardUnit | string | 보상 화폐 단위 | N | "KRW" |
@@ -83,26 +82,26 @@ import java.lang.annotation.*;
                 @Parameter(
                         name = "adname",
                         in = ParameterIn.QUERY,
-                        required = true,
                         description = "캠페인 이름",
                         schema = @Schema(type = "string")
                 ),
                 @Parameter(
                         name = "rewardUnit",
                         in = ParameterIn.QUERY,
-                        required = true,
                         description = "보상 화폐 단위",
                         schema = @Schema(type = "string")
                 ),
                 @Parameter(
                         name = "rewardAmount",
                         in = ParameterIn.QUERY,
+                        required = true,
                         description = "지급 수량",
                         schema = @Schema(type = "number")
                 ),
                 @Parameter(
                         name = "signature",
                         in = ParameterIn.QUERY,
+                        required = true,
                         description = "서명 값",
                         schema = @Schema(type = "string")
                 ),

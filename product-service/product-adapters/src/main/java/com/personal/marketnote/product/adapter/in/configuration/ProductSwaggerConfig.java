@@ -37,6 +37,8 @@ public class ProductSwaggerConfig {
             "상품 옵션 API",
             "장바구니 API",
             "상품 주문 API",
+            "배송비 정책 API",
+            "DLT API",
             "서버 정보 API"
     );
 
