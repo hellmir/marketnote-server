@@ -14,24 +14,27 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Operation(
-        summary = "애드팝콘 리워드 콜백",
+        summary = "애드팝콘 리워드 콜백 (외부 콜백 전용 응답 형식)",
         description = """
                 작성일자: 2026-01-17
-                
+
                 작성자: 성효빈
-                
+
                 ---
-                
+
                 ## Description
-                
+
                 - 애드팝콘 리워드 적립 콜백을 처리합니다.
-                
+
                 - 서명 검증에 실패하거나 중복 지급인 경우 오류 코드를 반환합니다.
-                
+
+                - **⚠️ 이 API는 외부 콜백 전용 응답 형식을 사용합니다 (BaseResponse 아님).**
+                  응답 필드: `Result`(boolean), `ResultCode`(number), `ResultMsg`(string)
+
                 ---
-                
+
                 ## Request
-                
+
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | reward_key | string | 리워드 키 | Y | 20241211-abc |
@@ -47,12 +50,18 @@ import java.lang.annotation.*;
                 | adid | string | 구글 광고 ID | N | "adid-1" |
                 | idfa | string | IDFA | N | "idfa-1" |
                 | time_stamp | string | 캠페인 완료 일시 | N | "2026-01-17T12:00:00" |
-                
+
                 ---
-                
+
                 ## Response
-                
-                성공/실패 시 각 코드와 메시지를 포함한 JSON 문자열 반환
+
+                외부 콜백 전용 응답 형식 (BaseResponse 아님). 성공/실패 시 각 코드와 메시지를 포함한 JSON 문자열 반환
+
+                | **필드** | **타입** | **설명** |
+                | --- | --- | --- |
+                | Result | boolean | 성공 여부 |
+                | ResultCode | number | 결과 코드 (성공: 1, 실패: 1100/3100/3200/4000) |
+                | ResultMsg | string | 결과 메시지 |
                 """,
         parameters = {
                 @Parameter(
@@ -143,7 +152,7 @@ import java.lang.annotation.*;
         responses = {
                 @ApiResponse(
                         responseCode = "200",
-                        description = "성공 또는 실패",
+                        description = "외부 콜백 전용 응답 형식 (BaseResponse 아님) — Result, ResultCode, ResultMsg 필드로 구성",
                         content = @Content(
                                 mediaType = "application/json",
                                 examples = {
@@ -162,8 +171,8 @@ import java.lang.annotation.*;
                                                 value = """
                                                         {
                                                           "Result": false,
-                                                          "ResultCode": 3101,
-                                                          "ResultMsg": "signature verification failed"
+                                                          "ResultCode": 1100,
+                                                          "ResultMsg": "invalid signed value"
                                                         }
                                                         """
                                         ),
