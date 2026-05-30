@@ -28,6 +28,10 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               )
               AND (:filterUserId IS NULL OR p.userId = :filterUserId)
               AND (
+                :isAnsweredOnly = false
+                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+              )
+              AND (
                     :searchKeywordPattern IS NULL
                  OR (
                         :searchInTitle = true
@@ -53,6 +57,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
             @Param("isDesc") boolean isDesc,
             @Param("isPublicOnly") Boolean isPublicOnly,
             @Param("filterUserId") Long filterUserId,
+            @Param("isAnsweredOnly") boolean isAnsweredOnly,
             @Param("searchInTitle") boolean searchInTitle,
             @Param("searchInContent") boolean searchInContent,
             @Param("searchKeywordPattern") String searchKeywordPattern,
@@ -76,6 +81,10 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               )
               AND (:filterUserId IS NULL OR p.userId = :filterUserId)
               AND (
+                :isAnsweredOnly = false
+                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+              )
+              AND (
                     :searchKeywordPattern IS NULL
                  OR (
                         :searchInTitle = true
@@ -94,6 +103,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
             @Param("targetGroupId") Long targetGroupId,
             @Param("isPublicOnly") Boolean isPublicOnly,
             @Param("filterUserId") Long filterUserId,
+            @Param("isAnsweredOnly") boolean isAnsweredOnly,
             @Param("searchInTitle") boolean searchInTitle,
             @Param("searchInContent") boolean searchInContent,
             @Param("searchKeywordPattern") String searchKeywordPattern,
@@ -107,6 +117,10 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND p.board = :board
               AND p.userId = :userId
               AND p.parentId IS NULL
+              AND (
+                :isAnsweredOnly = false
+                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+              )
               AND (
                     :searchKeywordPattern IS NULL
                  OR (
@@ -122,6 +136,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
     long countByUserIdAndBoard(
             @Param("userId") Long userId,
             @Param("board") Board board,
+            @Param("isAnsweredOnly") boolean isAnsweredOnly,
             @Param("searchInTitle") boolean searchInTitle,
             @Param("searchInContent") boolean searchInContent,
             @Param("searchKeywordPattern") String searchKeywordPattern,
@@ -135,6 +150,10 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND p.board = :board
               AND p.userId = :userId
               AND p.parentId IS NULL
+              AND (
+                :isAnsweredOnly = false
+                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+              )
               AND (
                     :searchKeywordPattern IS NULL
                  OR (
@@ -157,6 +176,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
             @Param("board") Board board,
             @Param("cursor") Long cursor,
             @Param("isDesc") boolean isDesc,
+            @Param("isAnsweredOnly") boolean isAnsweredOnly,
             @Param("searchInTitle") boolean searchInTitle,
             @Param("searchInContent") boolean searchInContent,
             @Param("searchKeywordPattern") String searchKeywordPattern,
@@ -179,6 +199,10 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
                 OR (:isPublicOnly = false)
               )
               AND (:filterUserId IS NULL OR p.userId = :filterUserId)
+              AND (
+                :isAnsweredOnly = false
+                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+              )
               AND (
                     :searchKeywordPattern IS NULL
                  OR (
@@ -210,6 +234,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
             @Param("isDesc") boolean isDesc,
             @Param("isPublicOnly") Boolean isPublicOnly,
             @Param("filterUserId") Long filterUserId,
+            @Param("isAnsweredOnly") boolean isAnsweredOnly,
             @Param("searchInTitle") boolean searchInTitle,
             @Param("searchInContent") boolean searchInContent,
             @Param("searchKeywordPattern") String searchKeywordPattern,
@@ -224,6 +249,10 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND p.board = :board
               AND p.userId = :userId
               AND p.parentId IS NULL
+              AND (
+                :isAnsweredOnly = false
+                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+              )
               AND (
                     :searchKeywordPattern IS NULL
                  OR (
@@ -251,6 +280,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
             @Param("board") Board board,
             @Param("cursor") Long cursor,
             @Param("isDesc") boolean isDesc,
+            @Param("isAnsweredOnly") boolean isAnsweredOnly,
             @Param("searchInTitle") boolean searchInTitle,
             @Param("searchInContent") boolean searchInContent,
             @Param("searchKeywordPattern") String searchKeywordPattern,
