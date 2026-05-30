@@ -1,6 +1,6 @@
 package com.personal.marketnote.community.adapter.in.web.review.controller.apidocs;
 
-import com.personal.marketnote.community.adapter.in.web.review.request.RegisterReviewRequest;
+import com.personal.marketnote.community.adapter.in.web.review.request.UpdateReviewRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -61,7 +61,7 @@ import java.lang.annotation.*;
         requestBody = @RequestBody(
                 required = true,
                 content = @Content(
-                        schema = @Schema(implementation = RegisterReviewRequest.class),
+                        schema = @Schema(implementation = UpdateReviewRequest.class),
                         examples = @ExampleObject("""
                                 {
                                   "rating": 1,

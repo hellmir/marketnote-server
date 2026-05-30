@@ -79,7 +79,7 @@ import java.lang.annotation.*;
                 ### Response > headers
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                refreshToken(cookie) | string | Refresh Token; HTTP-only | "<jwt-refresh-token>" |
+                | Set-Cookie | string | Refresh Token (HttpOnly, Secure, SameSite=Strict) | "refresh_token=<jwt-refresh-token>; Path=/; Secure; HttpOnly; SameSite=Strict" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -107,7 +107,6 @@ import java.lang.annotation.*;
                                           "timestamp": "2025-12-28T10:38:42.720864",
                                           "content": {
                                             "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3NjIzMDY3MjIsImV4cCI6MTc2MjMwODUyMiwic3ViIjoiODUiLCJyb2xlSWRzIjpbIlJPTEVfQlVZRVIiXSwidXNlcklkIjo4NSwiYXV0aFZlbmRvciI6Ik5BVElWRSJ9.O053YP2Vs41O_LYI2P3IGk7GLzaMeYM5mGgj0PZklxY",
-                                            "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIX1RPS0VOIiwiaWF0IjoxNzYyMzA2NzIyLCJleHAiOjE3NjM1MTYzMjIsInN1YiI6Ijg1Iiwicm9sZUlkcyI6WyJST0xFX0JVWUVSIl0sInVzZXJJZCI6ODUsImF1dGhWZW5kb3IiOiJOQVRJVkUifQ.k55p3WUr3i0GB1AIZCtIFLuQiAcXfPOv3qwmUMhAjmc",
                                             "isNewUser": true
                                           },
                                           "message": "회원 가입 성공"

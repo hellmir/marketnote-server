@@ -35,7 +35,7 @@ import java.lang.annotation.*;
                 
                 - **OTHER** 타입일 때 `addressAlias`는 필수입니다.
                 
-                - `deliveryRequestType`이 **CUSTOM**일 때 `deliveryRequestMessage`는 필수이며, 최대 **30자**까지 입력 가능합니다.
+                - `deliveryRequestType`이 **CUSTOM**일 때 `deliveryRequestMessage`는 필수이며, 최대 **60자**까지 입력 가능합니다.
                 
                 ---
                 
@@ -50,7 +50,7 @@ import java.lang.annotation.*;
                 | recipientName | string | 받는 분 | Y | "박구글" |
                 | recipientPhoneNumber | string | 휴대폰 번호 | Y | "01000000000" |
                 | deliveryRequestType | string(enum) | 배송 요청사항 타입 (NONE: 선택 안 함, LEAVE_AT_DOOR: 문 앞에 놓아주세요, RECEIVE_OR_LEAVE_AT_DOOR: 직접 받고 부재시 문 앞에 놓아 주세요, LEAVE_AT_SECURITY: 경비실에 맡겨주세요, LEAVE_AT_DELIVERY_BOX: 택배함에 넣어주세요, CUSTOM: 직접 입력) | N | "LEAVE_AT_DOOR" |
-                | deliveryRequestMessage | string | 직접입력 메시지 (CUSTOM 시 필수, 최대 30자) | N | "공동현관 비밀번호 *1234" |
+                | deliveryRequestMessage | string | 직접입력 메시지 (CUSTOM 시 필수, 최대 60자) | N | "공동현관 비밀번호 *1234" |
                 
                 ---
                 

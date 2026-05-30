@@ -43,6 +43,7 @@ import java.lang.annotation.*;
                 | year | number | 정산 연도 | 2026 |
                 | month | number | 정산 월 | 2 |
                 | totalAllocatedAmount | number | 총 배분 금액 | 100000 |
+                | shippingFee | number | 배송비 | 0 |
                 | pgFeeAmount | number | PG 수수료 | 3000 |
                 | platformFeeAmount | number | 플랫폼 수수료 | 5000 |
                 | sellerPayoutAmount | number | 판매자 지급액 | 92000 |
@@ -67,6 +68,7 @@ import java.lang.annotation.*;
                                             "year": 2026,
                                             "month": 2,
                                             "totalAllocatedAmount": 100000,
+                                            "shippingFee": 0,
                                             "pgFeeAmount": 3000,
                                             "platformFeeAmount": 5000,
                                             "sellerPayoutAmount": 92000,

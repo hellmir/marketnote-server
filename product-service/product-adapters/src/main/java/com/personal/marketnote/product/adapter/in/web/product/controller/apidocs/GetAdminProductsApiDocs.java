@@ -249,7 +249,8 @@ import java.lang.annotation.*;
                                                     "price": 45000,
                                                     "discountPrice": 37000,
                                                     "discountRate": 3.2,
-                                                    "accumulatedPoint": 1200
+                                                    "accumulatedPoint": 1200,
+                                                    "optionIds": [8, 11]
                                                   },
                                                   "sales": 0,
                                                   "productTags": [

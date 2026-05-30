@@ -72,10 +72,11 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content > orderingProducts > product
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 상품 ID | 1 |
+                | sellerId | number | 판매자 ID | 1 |
                 | name | string | 상품명 | "건기식테스트1" |
                 | brandName | string | 브랜드명 | "노트왕" |
                 | imageUrl | string | 상품 이미지 URL | "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png" |
@@ -114,16 +115,19 @@ import java.lang.annotation.*;
                                   "orderingItemRequests": [
                                     {
                                       "pricePolicyId": 20,
+                                      "sharerKey": "550e8400-e29b-41d4-a716-446655440000",
                                       "quantity": 1,
                                       "imageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533914954_image_600.png"
                                     },
                                     {
                                       "pricePolicyId": 21,
+                                      "sharerKey": null,
                                       "quantity": 10,
                                       "imageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763533916081_image_600.png"
                                     },
                                     {
                                       "pricePolicyId": 23,
+                                      "sharerKey": null,
                                       "quantity": 5,
                                       "imageUrl": "https://marketnote.s3.amazonaws.com/product/30/1763534195922_image_600.png"
                                     }
