@@ -99,9 +99,10 @@ import java.lang.annotation.*;
                 | createdAt | string(datetime) | 생성 일시 | "2026-01-10T16:57:59.792312" |
                 | modifiedAt | string(datetime) | 수정 일시 | "2026-01-10T16:57:59.805601" |
                 | orderNum | number | 정렬 순서 | 1 |
-                
+                | product | object | 상품 정보 | { ... } |
+
                 ---
-                
+
                 ### Response > content > reviews > items > images
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
@@ -112,6 +113,41 @@ import java.lang.annotation.*;
                 | storageUrl | string | 스토리지 URL | "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png" |
                 | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | ["https://bucket.s3.amazonaws.com/product/1/300x300_original.jpg", "https://bucket.s3.amazonaws.com/product/1/500x500_original.jpg"] |
                 | orderNum | number | 정렬 순서 | 79 |
+
+                ---
+
+                ### Response > content > reviews > items > product
+                | **키** | **타입** | **설명** | **예시** |
+                | --- | --- | --- | --- |
+                | name | string | 상품명 | "마켓노트 멀티비타민" |
+                | brandName | string | 브랜드명 | "마켓노트" |
+                | pricePolicy | object | 가격 정책 | { ... } |
+                | catalogImage | object | 카탈로그 이미지 | { ... } |
+                | unitAmount | number | 단위 수량 | 30 |
+
+                ---
+
+                ### Response > content > reviews > items > product > pricePolicy
+                | **키** | **타입** | **설명** | **예시** |
+                | --- | --- | --- | --- |
+                | id | number | 가격 정책 ID | 11 |
+                | price | number | 정가 | 50000 |
+                | discountPrice | number | 할인가 | 39000 |
+                | discountRate | number | 할인율 | 22.0 |
+                | accumulatedPoint | number | 적립 포인트 | 390 |
+
+                ---
+
+                ### Response > content > reviews > items > product > catalogImage
+                | **키** | **타입** | **설명** | **예시** |
+                | --- | --- | --- | --- |
+                | id | number | 이미지 ID | 1 |
+                | sort | string | 이미지 정렬 순서 | "CATALOG" |
+                | extension | string | 이미지 확장자 | "jpg" |
+                | name | string | 이미지 이름 | "카탈로그" |
+                | storageUrl | string | 스토리지 URL | "https://marketnote.s3.amazonaws.com/product/1/catalog.jpg" |
+                | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | ["https://bucket.s3.amazonaws.com/product/1/300x300_catalog.jpg"] |
+                | orderNum | number | 정렬 순서 | 1 |
                 """,
         parameters = {
                 @Parameter(
@@ -220,7 +256,28 @@ import java.lang.annotation.*;
                                                   "status": "ACTIVE",
                                                   "createdAt": "2026-01-16T14:38:03.084745",
                                                   "modifiedAt": "2026-01-16T14:38:03.410822",
-                                                  "orderNum": 35
+                                                  "orderNum": 35,
+                                                  "product": {
+                                                    "name": "마켓노트 멀티비타민",
+                                                    "brandName": "마켓노트",
+                                                    "pricePolicy": {
+                                                      "id": 11222111,
+                                                      "price": 50000,
+                                                      "discountPrice": 39000,
+                                                      "discountRate": 22.0,
+                                                      "accumulatedPoint": 390
+                                                    },
+                                                    "catalogImage": {
+                                                      "id": 1,
+                                                      "sort": "CATALOG",
+                                                      "extension": "jpg",
+                                                      "name": "카탈로그",
+                                                      "storageUrl": "https://marketnote.s3.amazonaws.com/product/55/catalog.jpg",
+                                                      "resizedStorageUrls": [],
+                                                      "orderNum": 1
+                                                    },
+                                                    "unitAmount": 30
+                                                  }
                                                 },
                                                 {
                                                   "id": 34,
@@ -242,7 +299,28 @@ import java.lang.annotation.*;
                                                   "status": "ACTIVE",
                                                   "createdAt": "2026-01-16T14:07:32.571571",
                                                   "modifiedAt": "2026-01-16T14:07:47.737044",
-                                                  "orderNum": 34
+                                                  "orderNum": 34,
+                                                  "product": {
+                                                    "name": "마켓노트 멀티비타민",
+                                                    "brandName": "마켓노트",
+                                                    "pricePolicy": {
+                                                      "id": 11222,
+                                                      "price": 50000,
+                                                      "discountPrice": 39000,
+                                                      "discountRate": 22.0,
+                                                      "accumulatedPoint": 390
+                                                    },
+                                                    "catalogImage": {
+                                                      "id": 1,
+                                                      "sort": "CATALOG",
+                                                      "extension": "jpg",
+                                                      "name": "카탈로그",
+                                                      "storageUrl": "https://marketnote.s3.amazonaws.com/product/55/catalog.jpg",
+                                                      "resizedStorageUrls": [],
+                                                      "orderNum": 1
+                                                    },
+                                                    "unitAmount": 30
+                                                  }
                                                 },
                                                 {
                                                   "id": 21,
@@ -264,7 +342,28 @@ import java.lang.annotation.*;
                                                   "status": "ACTIVE",
                                                   "createdAt": "2026-01-10T15:29:33.861599",
                                                   "modifiedAt": "2026-01-16T14:37:49.032131",
-                                                  "orderNum": 21
+                                                  "orderNum": 21,
+                                                  "product": {
+                                                    "name": "마켓노트 멀티비타민",
+                                                    "brandName": "마켓노트",
+                                                    "pricePolicy": {
+                                                      "id": 66,
+                                                      "price": 50000,
+                                                      "discountPrice": 39000,
+                                                      "discountRate": 22.0,
+                                                      "accumulatedPoint": 390
+                                                    },
+                                                    "catalogImage": {
+                                                      "id": 1,
+                                                      "sort": "CATALOG",
+                                                      "extension": "jpg",
+                                                      "name": "카탈로그",
+                                                      "storageUrl": "https://marketnote.s3.amazonaws.com/product/55/catalog.jpg",
+                                                      "resizedStorageUrls": [],
+                                                      "orderNum": 1
+                                                    },
+                                                    "unitAmount": 30
+                                                  }
                                                 },
                                                 {
                                                   "id": 20,
@@ -286,7 +385,28 @@ import java.lang.annotation.*;
                                                   "status": "ACTIVE",
                                                   "createdAt": "2026-01-10T15:28:56.10613",
                                                   "modifiedAt": "2026-01-10T15:28:56.15211",
-                                                  "orderNum": 20
+                                                  "orderNum": 20,
+                                                  "product": {
+                                                    "name": "마켓노트 멀티비타민",
+                                                    "brandName": "마켓노트",
+                                                    "pricePolicy": {
+                                                      "id": 66,
+                                                      "price": 50000,
+                                                      "discountPrice": 39000,
+                                                      "discountRate": 22.0,
+                                                      "accumulatedPoint": 390
+                                                    },
+                                                    "catalogImage": {
+                                                      "id": 1,
+                                                      "sort": "CATALOG",
+                                                      "extension": "jpg",
+                                                      "name": "카탈로그",
+                                                      "storageUrl": "https://marketnote.s3.amazonaws.com/product/55/catalog.jpg",
+                                                      "resizedStorageUrls": [],
+                                                      "orderNum": 1
+                                                    },
+                                                    "unitAmount": 30
+                                                  }
                                                 }
                                               ]
                                             }

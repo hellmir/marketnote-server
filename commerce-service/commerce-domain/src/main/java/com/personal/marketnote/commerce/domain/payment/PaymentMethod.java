@@ -13,4 +13,13 @@ public enum PaymentMethod {
 
     private final String mobileCode;
     private final String description;
+
+    public static PaymentMethod fromMobileCode(String mobileCode) {
+        for (PaymentMethod method : values()) {
+            if (method.mobileCode.equals(mobileCode)) {
+                return method;
+            }
+        }
+        throw new UnknownPaymentMethodCodeException(mobileCode);
+    }
 }

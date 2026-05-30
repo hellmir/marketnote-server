@@ -1,7 +1,8 @@
 package com.personal.marketnote.user.adapter.in.web.user.controller.apidocs;
 
-import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
+import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -74,7 +75,7 @@ import java.lang.annotation.*;
         requestBody = @RequestBody(
                 required = true,
                 content = @Content(
-                        schema = @Schema(implementation = SignUpRequest.class),
+                        schema = @Schema(implementation = SignInRequest.class),
                         examples = @ExampleObject("""
                                 {
                                     "email": "example@example.com",
@@ -87,6 +88,11 @@ import java.lang.annotation.*;
                 @ApiResponse(
                         responseCode = "200",
                         description = "회원 로그인 성공",
+                        headers = @Header(
+                                name = "Set-Cookie",
+                                description = "Refresh Token; HttpOnly, Secure, SameSite=Strict",
+                                schema = @Schema(type = "string", example = "refreshToken=eyJhbGciOiJIUzI1NiJ9...; Path=/; HttpOnly; Secure; SameSite=Strict")
+                        ),
                         content = @Content(
                                 examples = @ExampleObject("""
                                         {
@@ -95,7 +101,6 @@ import java.lang.annotation.*;
                                           "timestamp": "2025-12-26T22:52:31.889943",
                                           "content": {
                                             "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJBQ0NFU1NfVE9LRU4iLCJpYXQiOjE3NjE1MjgzMTYsImV4cCI6MTc2MTUzMDExNiwic3ViIjoiOCIsInJvbGVJZHMiOlsiUk9MRV9CVVlFUiJdLCJ1c2VySWQiOjgsImF1dGhWZW5kb3IiOiJOQVRJVkUifQ.3nhlFNz9NBfcJKIteTICcUyN7F1w068CJKu5uy5kB0I",
-                                            "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlblR5cGUiOiJSRUZSRVNIX1RPS0VOIiwiaWF0IjoxNzYxNDg2NzUxLCJleHAiOjE3NjI2OTYzNTEsInN1YiI6Im51bGwiLCJyb2xlSWRzIjpbIlJPTEVfQlVZRVIiXSwiYXV0aFZlbmRvciI6Ik5BVElWRSJ9._YvI9YT4aklPzJdN5D4IRqx0uzsyz4wjBMgCLGcf_CA",
                                             "isRequiredTermsAgreed": true
                                           },
                                           "message": "회원 로그인 성공"

@@ -83,6 +83,7 @@ import java.lang.annotation.*;
                                                 "year": 2026,
                                                 "month": 1,
                                                 "totalAllocatedAmount": 100000,
+                                                "shippingFee": 0,
                                                 "pgFeeAmount": 3000,
                                                 "platformFeeAmount": 5000,
                                                 "sellerPayoutAmount": 92000,

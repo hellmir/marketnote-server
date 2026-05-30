@@ -11,8 +11,10 @@ import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusFilter;
+import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import com.personal.marketnote.commerce.port.in.command.order.ConfirmOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.order.GetBuyerOrderHistoryQuery;
+import com.personal.marketnote.commerce.port.in.command.order.GetReturnRefundInfoCommand;
 import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProductReviewStatusCommand;
 import com.personal.marketnote.commerce.port.in.result.order.*;
 import com.personal.marketnote.commerce.port.in.usecase.order.*;
@@ -32,6 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
@@ -58,6 +61,7 @@ public class OrderController {
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
     private final GetAdminOrdersUseCase getAdminOrdersUseCase;
     private final GetOrderStatusHistoryUseCase getOrderStatusHistoryUseCase;
+    private final GetReturnRefundInfoUseCase getReturnRefundInfoUseCase;
 
     /**
      * 주문 등록
@@ -308,6 +312,48 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "반품 요청 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 반품 환불 예정 정보 조회
+     *
+     * @param id                    주문 ID
+     * @param reasonCategory        반품 사유 카테고리
+     * @param returnPricePolicyIds  반품 대상 가격 정책 ID 목록
+     * @param principal             인증된 사용자 정보
+     * @return 반품 환불 예정 정보 조회 응답 {@link GetReturnRefundInfoResponse}
+     * @Author 성효빈
+     * @Date 2026-04-09
+     * @Description 반품 신청 전 환불 예정 정보를 조회합니다. 구매자 소유권 및 반품 가능 상태 검증을 수행합니다.
+     */
+    @GetMapping("/api/v1/orders/{id}/return-refund-info")
+    @GetReturnRefundInfoApiDocs
+    public ResponseEntity<BaseResponse<GetReturnRefundInfoResponse>> getReturnRefundInfo(
+            @PathVariable("id") Long id,
+            @RequestParam("reason-category") OrderStatusReasonCategory reasonCategory,
+            @RequestParam(value = "return-price-policy-ids", required = false) List<Long> returnPricePolicyIds,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        GetReturnRefundInfoResult result = getReturnRefundInfoUseCase.getReturnRefundInfo(
+                GetReturnRefundInfoCommand.builder()
+                        .orderId(id)
+                        .buyerId(buyerId)
+                        .reasonCategory(reasonCategory)
+                        .returnPricePolicyIds(returnPricePolicyIds)
+                        .build()
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetReturnRefundInfoResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "반품 환불 예정 정보 조회 성공"
                 ),
                 HttpStatus.OK
         );
