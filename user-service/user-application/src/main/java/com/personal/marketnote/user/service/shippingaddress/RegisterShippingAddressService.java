@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
@@ -16,7 +17,6 @@ import com.personal.marketnote.user.port.out.shippingaddress.ClassifyShippingAdd
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.SaveShippingAddressPort;
 import com.personal.marketnote.user.port.out.shippingaddress.UpdateShippingAddressPort;
-import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 

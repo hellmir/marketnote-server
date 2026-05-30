@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
-import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetFulfillmentWorkStatusResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

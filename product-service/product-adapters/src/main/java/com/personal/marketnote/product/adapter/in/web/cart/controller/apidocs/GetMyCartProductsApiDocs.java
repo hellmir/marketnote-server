@@ -65,7 +65,7 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content > cartProducts > product
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 상품 ID | 1 |

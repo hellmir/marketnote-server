@@ -1,7 +1,7 @@
 package com.personal.marketnote.user.domain.user;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.BaseDomain;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.exception.illegalstate.SameUpdateTargetException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;

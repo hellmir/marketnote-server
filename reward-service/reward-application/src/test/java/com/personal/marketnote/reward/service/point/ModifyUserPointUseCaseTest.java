@@ -2,8 +2,8 @@ package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.reward.domain.point.*;
-import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
 import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;

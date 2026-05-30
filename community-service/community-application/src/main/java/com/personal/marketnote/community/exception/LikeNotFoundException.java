@@ -1,7 +1,7 @@
 package com.personal.marketnote.community.exception;
 
-import com.personal.marketnote.community.domain.like.LikeTargetType;
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
+import com.personal.marketnote.community.domain.like.LikeTargetType;
 import lombok.Getter;
 
 @Getter

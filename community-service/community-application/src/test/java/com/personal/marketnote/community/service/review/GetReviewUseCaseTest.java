@@ -1,8 +1,8 @@
 package com.personal.marketnote.community.service.review;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.community.domain.like.LikeTargetType;
 import com.personal.marketnote.community.domain.review.Review;

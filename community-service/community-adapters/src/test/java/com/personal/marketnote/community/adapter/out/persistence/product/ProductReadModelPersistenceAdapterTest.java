@@ -1,7 +1,7 @@
 package com.personal.marketnote.community.adapter.out.persistence.product;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.product.entity.ProductReadModelJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.product.repository.ProductReadModelJpaRepository;
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;

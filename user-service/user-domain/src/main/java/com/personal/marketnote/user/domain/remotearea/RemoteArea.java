@@ -2,16 +2,8 @@ package com.personal.marketnote.user.domain.remotearea;
 
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaDistrictLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaProvinceLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaSubareaLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaVillageLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaProvinceNoValueException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.personal.marketnote.user.domain.remotearea.exception.*;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

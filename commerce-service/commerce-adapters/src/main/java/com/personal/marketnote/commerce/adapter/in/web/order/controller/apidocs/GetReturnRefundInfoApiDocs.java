@@ -18,30 +18,30 @@ import java.lang.annotation.*;
         summary = "반품 환불 예정 정보 조회",
         description = """
                 작성일자: 2026-04-09
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 반품 신청 전 환불 예정 정보(총 상품 금액, 반품 배송비, 환불 방법, 환불 예정 금액, 환불 예정 캐시)를 조회합니다.
                 - 구매자 소유권 검증 및 반품 가능 상태 검증을 수행합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- | --- |
                 | id | number | path | 주문 ID | Y | 1 |
                 | reason-category | string | query | 반품 사유 카테고리 | Y | "SIMPLE_CHANGE_OF_MIND" |
                 | return-price-policy-ids | number[] | query | 반품 대상 가격 정책 ID 목록 (미지정 시 전체 반품) | N | [200, 201] |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 |
@@ -49,11 +49,11 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-04-09T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "반품 환불 예정 정보 조회 성공" |
-
+                
                 ---
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | totalProductAmount | number | 총 상품 금액 (반품 대상 상품의 금액 합계) | 50000 |

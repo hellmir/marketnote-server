@@ -1,8 +1,8 @@
 package com.personal.marketnote.community.service.post;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.post.*;
 import com.personal.marketnote.community.port.in.command.post.GetUserOneOnOneInquiryPostsCommand;
 import com.personal.marketnote.community.port.in.result.post.GetUserOneOnOneInquiryPostsResult;
@@ -50,7 +50,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 buildOneOnOneInquiryPost(2L, userId)
         ));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(2L);
+        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(2L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
@@ -71,7 +71,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 1L, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(0L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
@@ -97,7 +97,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 buildOneOnOneInquiryPost(3L, 1L)
         ));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(7L);
+        when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(7L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
@@ -114,7 +114,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 1L, 2, 5, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(10L);
+        when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(10L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
@@ -136,7 +136,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(0L);
 
         // when
         getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
@@ -156,13 +156,13 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(0L);
 
         // when
         getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
 
         // then
-        verify(findPostPort).countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null);
+        verify(findPostPort).countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null);
     }
 
     // ========== D. 이미지 ==========
@@ -178,7 +178,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         Post photoPost = buildPhotoOneOnOneInquiryPost(1L, userId);
         Posts posts = Posts.from(List.of(photoPost));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(1L);
         GetFileResult fileResult = new GetFileResult(
                 1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
         );
@@ -203,7 +203,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         );
         Posts posts = Posts.from(List.of(buildOneOnOneInquiryPost(1L, userId)));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(1L);
 
         // when
         getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
@@ -227,7 +227,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         parentPost.addReplies(List.of(replyPost));
         Posts posts = Posts.from(List.of(parentPost));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(1L);
 
         // when
         GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
@@ -249,7 +249,7 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 userId, 1, 10, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null)).thenReturn(0L);
 
         // when
         getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);

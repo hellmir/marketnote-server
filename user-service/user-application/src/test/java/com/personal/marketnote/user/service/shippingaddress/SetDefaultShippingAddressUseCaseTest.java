@@ -2,8 +2,8 @@ package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
-import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;

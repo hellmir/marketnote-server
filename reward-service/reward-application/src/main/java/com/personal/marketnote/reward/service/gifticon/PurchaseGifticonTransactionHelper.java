@@ -2,12 +2,12 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.reward.domain.exception.GifticonInsufficientCashException;
 import com.personal.marketnote.reward.domain.exception.GifticonOrderNotFoundException;
-import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderCreateState;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import com.personal.marketnote.reward.port.out.gifticon.EncryptGifticonPinPort;

@@ -41,15 +41,15 @@ import java.lang.annotation.*;
                     - "DELIVERED": 배송 완료
                 
                     - "PARTIALLY_CONFIRMED": 부분 구매 확정
-
+                
                     - "CONFIRMED": 구매 확정
-
+                
                     - "RETURN_REQUESTED": 반품 요청됨
-
+                
                     - "RETURN_IN_PROGRESS": 반품 진행 중
-
+                
                     - "PARTIALLY_RETURNED": 부분 반품됨
-
+                
                     - "RETURNED": 반품 완료
                 
                 ---
@@ -81,20 +81,20 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | orderHistory | array | 날짜별 주문 내역 묶음 | [ ... ] |
-
+                
                 ---
                 ### Response > content > orderHistory
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | orderDate | string(date) | 주문 생성일(일 단위) | "2025-11-01" |
                 | count | number | 해당 날짜의 주문 건수 | 3 |
                 | orders | array | 주문 목록(주문 ID 내림차순) | [ ... ] |
-
+                
                 ---
-
+                
                 ### Response > content > orderHistory > orders
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 주문 ID | 1 |
@@ -106,11 +106,11 @@ import java.lang.annotation.*;
                 | couponAmount | number | 쿠폰 할인 금액(원) | 5000 |
                 | pointAmount | number | 포인트 사용 금액(원) | 5000 |
                 | orderProducts | array | 주문 상품 목록 | [ ... ] |
-
+                
                 ---
-
+                
                 ### Response > content > orderHistory > orders > orderProducts
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | sellerId | number | 판매자 회원 ID | 1 |
@@ -125,9 +125,9 @@ import java.lang.annotation.*;
                 | productName | string | 상품명 | "공책" |
                 | selectedOptions | array | 선택 옵션 목록 | [ ... ] |
                 | isReviewed | boolean | 리뷰 작성 여부 | true |
-
+                
                 ---
-
+                
                 ### Response > content > orderHistory > orders > orderProducts > selectedOptions
                 
                 | **키** | **타입** | **설명** | **예시** |

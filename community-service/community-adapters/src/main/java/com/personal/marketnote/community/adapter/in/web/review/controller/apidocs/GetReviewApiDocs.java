@@ -49,7 +49,7 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 리뷰 ID | 10 |
@@ -73,11 +73,11 @@ import java.lang.annotation.*;
                 | modifiedAt | string(datetime) | 수정 일시 | "2026-01-27T09:30:00.000000" |
                 | orderNum | number | 정렬 순서 | 10 |
                 | product | object | 상품 정보 | { ... } |
-
+                
                 ---
-
+                
                 ### Response > content > product
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | name | string | 상품명 | "비타민C 1000mg" |
@@ -85,11 +85,11 @@ import java.lang.annotation.*;
                 | pricePolicy | object | 가격 정책 | { ... } |
                 | catalogImage | object | 카탈로그 이미지 | { ... } |
                 | unitAmount | number | 단위 수량 | 60 |
-
+                
                 ---
-
+                
                 ### Response > content > product > pricePolicy
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 가격 정책 ID | 15 |
@@ -97,11 +97,11 @@ import java.lang.annotation.*;
                 | discountPrice | number | 할인가 | 25000 |
                 | discountRate | number | 할인율 | 16.67 |
                 | accumulatedPoint | number | 적립 포인트 | 250 |
-
+                
                 ---
-
+                
                 ### Response > content > product > catalogImage
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 파일 ID | 50 |

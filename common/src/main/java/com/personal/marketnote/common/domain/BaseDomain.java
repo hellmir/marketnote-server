@@ -1,6 +1,5 @@
 package com.personal.marketnote.common.domain;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import lombok.Getter;
 
 @Getter

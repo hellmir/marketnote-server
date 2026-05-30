@@ -51,7 +51,7 @@ public class GetUserProductInquiryPostsService implements GetUserProductInquiryP
         );
 
         long totalElements = findPostPort.countUserPosts(
-                command.userId(), Board.PRODUCT_INQUERY, null, null, null, null
+                command.userId(), Board.PRODUCT_INQUERY, null, null
         );
 
         int totalPages = computeTotalPages(totalElements, command.pageSize());

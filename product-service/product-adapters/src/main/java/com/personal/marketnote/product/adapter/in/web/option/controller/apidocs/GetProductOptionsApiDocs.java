@@ -71,7 +71,7 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content > categories > options
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 옵션 ID | 101 |

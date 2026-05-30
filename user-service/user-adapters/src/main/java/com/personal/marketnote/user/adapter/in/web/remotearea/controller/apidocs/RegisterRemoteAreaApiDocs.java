@@ -9,11 +9,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,35 +18,35 @@ import java.lang.annotation.Target;
         summary = "도서산간 지역 등록",
         description = """
                 작성일자: 2026-04-24
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
                 - 도서산간 지역을 등록합니다.
-
+                
                 - **광역시도(province)**는 필수이며, **시군구(district)**, **읍면동(village)**, **세부지역(subarea)**은 선택입니다.
-
+                
                 - 광역시도만 등록하면 해당 광역시도 전체가 도서산간 지역으로 지정됩니다.
-
+                
                 - 동일한 (광역시도, 시군구, 읍면동, 세부지역) 조합은 중복 등록할 수 없습니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | province | string | 광역시도 (최대 50자) | Y | "충남" |
                 | district | string | 시군구 (최대 50자) | N | "보령시" |
                 | village | string | 읍면동 (최대 50자) | N | "오천면" |
                 | subarea | string | 세부지역 (최대 50자) | N | "녹도리" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 201: 성공 / 400: 요청 검증 실패 / 409: 중복 등록 |

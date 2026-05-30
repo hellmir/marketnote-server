@@ -2,8 +2,8 @@ package com.personal.marketnote.product.domain.product;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.BaseDomain;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import lombok.*;

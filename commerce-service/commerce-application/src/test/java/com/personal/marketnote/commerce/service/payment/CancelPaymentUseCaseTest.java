@@ -1483,8 +1483,8 @@ class CancelPaymentUseCaseTest {
         }
 
         private Order createOrderWithMultipleSellers(Long orderId, Long buyerId,
-                                                      List<Long> pricePolicyIds, List<Integer> quantities,
-                                                      List<Long> unitAmounts, List<Long> sellerIds) {
+                                                     List<Long> pricePolicyIds, List<Integer> quantities,
+                                                     List<Long> unitAmounts, List<Long> sellerIds) {
             List<OrderProductSnapshotState> productStates = new ArrayList<>();
             for (int i = 0; i < pricePolicyIds.size(); i++) {
                 productStates.add(OrderProductSnapshotState.builder()
@@ -1676,8 +1676,8 @@ class CancelPaymentUseCaseTest {
     }
 
     private Order createOrderWithSnapshotPoints(Long orderId, Long buyerId, Long totalAmount,
-                                                  List<Long> pricePolicyIds, List<Integer> quantities,
-                                                  List<Long> unitAmounts, List<Long> accumulatedPoints) {
+                                                List<Long> pricePolicyIds, List<Integer> quantities,
+                                                List<Long> unitAmounts, List<Long> accumulatedPoints) {
         List<OrderProductSnapshotState> productStates = new ArrayList<>();
         for (int i = 0; i < pricePolicyIds.size(); i++) {
             productStates.add(OrderProductSnapshotState.builder()

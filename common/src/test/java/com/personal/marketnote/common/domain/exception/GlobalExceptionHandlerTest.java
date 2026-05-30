@@ -2,7 +2,6 @@ package com.personal.marketnote.common.domain.exception;
 
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -72,7 +72,7 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content > orderingProducts > product
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 상품 ID | 1 |

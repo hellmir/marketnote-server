@@ -100,9 +100,9 @@ import java.lang.annotation.*;
                 | modifiedAt | string(datetime) | 수정 일시 | "2026-01-10T16:57:59.805601" |
                 | orderNum | number | 정렬 순서 | 1 |
                 | product | object | 상품 정보 | { ... } |
-
+                
                 ---
-
+                
                 ### Response > content > reviews > items > images
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
@@ -113,9 +113,9 @@ import java.lang.annotation.*;
                 | storageUrl | string | 스토리지 URL | "https://marketnote.s3.amazonaws.com/review/35/1765528094927_image.png" |
                 | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | ["https://bucket.s3.amazonaws.com/product/1/300x300_original.jpg", "https://bucket.s3.amazonaws.com/product/1/500x500_original.jpg"] |
                 | orderNum | number | 정렬 순서 | 79 |
-
+                
                 ---
-
+                
                 ### Response > content > reviews > items > product
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
@@ -124,9 +124,9 @@ import java.lang.annotation.*;
                 | pricePolicy | object | 가격 정책 | { ... } |
                 | catalogImage | object | 카탈로그 이미지 | { ... } |
                 | unitAmount | number | 단위 수량 | 30 |
-
+                
                 ---
-
+                
                 ### Response > content > reviews > items > product > pricePolicy
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
@@ -135,9 +135,9 @@ import java.lang.annotation.*;
                 | discountPrice | number | 할인가 | 39000 |
                 | discountRate | number | 할인율 | 22.0 |
                 | accumulatedPoint | number | 적립 포인트 | 390 |
-
+                
                 ---
-
+                
                 ### Response > content > reviews > items > product > catalogImage
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |

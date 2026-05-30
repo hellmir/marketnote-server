@@ -1,7 +1,7 @@
 package com.personal.marketnote.user.exception;
 
-import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
+import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.Getter;
 
 @Getter

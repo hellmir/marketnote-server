@@ -1,8 +1,8 @@
 package com.personal.marketnote.community.service.post;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.post.*;
 import com.personal.marketnote.community.port.in.command.post.GetUserProductInquiryPostsCommand;
 import com.personal.marketnote.community.port.in.result.post.GetUserProductInquiryPostsResult;
@@ -55,7 +55,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 buildProductInquiryPost(2L, userId, 200L)
         ));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(2L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(2L);
         mockProductInfoPort(Map.of());
 
         // when
@@ -77,7 +77,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 1L, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null)).thenReturn(0L);
 
         // when
         GetUserProductInquiryPostsResult result = getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
@@ -103,7 +103,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 buildProductInquiryPost(3L, 1L, 300L)
         ));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(7L);
+        when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null)).thenReturn(7L);
         mockProductInfoPort(Map.of());
 
         // when
@@ -121,7 +121,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 1L, 2, 5, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(10L);
+        when(findPostPort.countUserPosts(1L, Board.PRODUCT_INQUERY, null, null)).thenReturn(10L);
 
         // when
         GetUserProductInquiryPostsResult result = getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
@@ -143,7 +143,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(0L);
 
         // when
         getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
@@ -163,13 +163,13 @@ class GetUserProductInquiryPostsUseCaseTest {
                 userId, 1, 10, Sort.Direction.DESC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(0L);
 
         // when
         getUserProductInquiryPostsService.getUserProductInquiryPosts(command);
 
         // then
-        verify(findPostPort).countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null);
+        verify(findPostPort).countUserPosts(userId, Board.PRODUCT_INQUERY, null, null);
     }
 
     // ========== D. 상품 정보 ==========
@@ -185,7 +185,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         );
         Posts posts = Posts.from(List.of(buildProductInquiryPost(1L, userId, targetId)));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
         ProductInfoResult productInfo = buildProductInfo(999L);
         when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(targetId)))
                 .thenReturn(Map.of(targetId, productInfo));
@@ -209,7 +209,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         );
         Posts posts = Posts.from(List.of(buildProductInquiryPostWithoutTarget(1L, userId)));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
         mockProductInfoPort(Map.of());
 
         // when
@@ -233,7 +233,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         Post photoPost = buildPhotoProductInquiryPost(1L, userId, 100L);
         Posts posts = Posts.from(List.of(photoPost));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
         mockProductInfoPort(Map.of());
         GetFileResult fileResult = new GetFileResult(
                 1L, "POST_IMAGE", "jpg", "image.jpg", "https://s3/image.jpg", List.of(), 1L
@@ -259,7 +259,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         );
         Posts posts = Posts.from(List.of(buildProductInquiryPost(1L, userId, 100L)));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
         mockProductInfoPort(Map.of());
 
         // when
@@ -285,7 +285,7 @@ class GetUserProductInquiryPostsUseCaseTest {
         parentPost.addReplies(List.of(replyPost));
         Posts posts = Posts.from(List.of(parentPost));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
         mockProductInfoPort(Map.of());
 
         // when
@@ -311,7 +311,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
         ));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
         mockProductInfoPort(Map.of());
 
         // when
@@ -334,7 +334,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 buildProductInquiryPostWithWriterName(1L, userId, 100L, "작성자이름")
         ));
         mockFindUserPostsByOffset(posts);
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(1L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(1L);
         mockProductInfoPort(Map.of());
 
         // when
@@ -362,7 +362,7 @@ class GetUserProductInquiryPostsUseCaseTest {
                 userId, 1, 10, Sort.Direction.ASC, PostSortProperty.ID
         );
         mockFindUserPostsByOffset(emptyPosts());
-        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null, null, null)).thenReturn(0L);
+        when(findPostPort.countUserPosts(userId, Board.PRODUCT_INQUERY, null, null)).thenReturn(0L);
 
         // when
         getUserProductInquiryPostsService.getUserProductInquiryPosts(command);

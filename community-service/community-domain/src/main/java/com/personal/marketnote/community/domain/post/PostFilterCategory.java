@@ -6,8 +6,7 @@ import lombok.Getter;
 @Getter
 public enum PostFilterCategory {
     IS_PUBLIC("비밀글 여부"),
-    IS_MINE("내 문의글 여부"),
-    IS_ANSWERED("답변 완료 여부");
+    IS_MINE("내 문의글 여부");
 
     private final String description;
     private final String camelCaseValue;
@@ -31,13 +30,5 @@ public enum PostFilterCategory {
 
     private boolean isMine() {
         return this == PostFilterCategory.IS_MINE;
-    }
-
-    public boolean isAnsweredOnly(PostFilterValue filterValue) {
-        return isAnswered() && filterValue.isTrue();
-    }
-
-    private boolean isAnswered() {
-        return this == PostFilterCategory.IS_ANSWERED;
     }
 }

@@ -4,8 +4,8 @@ import com.personal.marketnote.commerce.adapter.out.persistence.shipping.entity.
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.repository.ShippingAddressReadModelJpaRepository;
 import com.personal.marketnote.commerce.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
