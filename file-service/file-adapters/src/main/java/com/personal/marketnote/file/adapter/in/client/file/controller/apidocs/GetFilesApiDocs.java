@@ -91,6 +91,7 @@ import java.lang.annotation.*;
                 | name | string | 파일명 | "스프링노트1" |
                 | storageUrl | string | 스토리지 URL | "https://bucket.s3.amazonaws.com/product/1/original.jpg" |
                 | resizedStorageUrls | array | 리사이즈 이미지 스토리지 URL 목록 | ["https://bucket.s3.amazonaws.com/product/1/300x300_original.jpg", "https://bucket.s3.amazonaws.com/product/1/500x500_original.jpg"] |
+                | orderNum | number | 파일 정렬 순서 | 1 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -128,7 +129,8 @@ import java.lang.annotation.*;
                                                 "resizedStorageUrls": [
                                                   "https://marketnote.s3.amazonaws.com/product/1/1763456309061_gungisick1_300x300.png",
                                                   "https://marketnote.s3.amazonaws.com/product/1/1763456309061_gungisick1_500x500.png"
-                                                ]
+                                                ],
+                                                "orderNum": 1
                                               },
                                               {
                                                 "id": 10,
@@ -139,7 +141,8 @@ import java.lang.annotation.*;
                                                 "resizedStorageUrls": [
                                                   "https://marketnote.s3.amazonaws.com/product/1/1763456845957_gungisick2_300x300.png",
                                                   "https://marketnote.s3.amazonaws.com/product/1/1763456845957_gungisick2_500x500.png"
-                                                ]
+                                                ],
+                                                "orderNum": 2
                                               }
                                             ]
                                           },
