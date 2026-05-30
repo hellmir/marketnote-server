@@ -279,12 +279,12 @@ class GetPostsUseCaseTest {
                 .cursor(null)
                 .build();
         mockUserPosts(emptyPosts());
-        when(findPostPort.countUserPosts(any(), any(), any(), any())).thenReturn(99L);
+        when(findPostPort.countUserPosts(any(), any(), any(), any(), any(), any())).thenReturn(99L);
 
         GetPostsResult result = getPostService.getPosts(query);
 
         assertThat(result.totalElements()).isEqualTo(99L);
-        verify(findPostPort).countUserPosts(any(), any(), any(), any());
+        verify(findPostPort).countUserPosts(any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -644,7 +644,7 @@ class GetPostsUseCaseTest {
         GetPostsQuery query = userQuery().build();
         RuntimeException exception = new RuntimeException("database error");
         when(findPostPort.findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         )).thenThrow(exception);
 
         assertThatThrownBy(() -> getPostService.getPosts(query))
@@ -886,7 +886,7 @@ class GetPostsUseCaseTest {
 
     private void mockUserPosts(Posts posts) {
         when(findPostPort.findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         )).thenReturn(posts);
     }
 
@@ -908,7 +908,7 @@ class GetPostsUseCaseTest {
     private Pageable captureUserPostsPageable() {
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(findPostPort).findUserPosts(
-                any(), any(), any(), captor.capture(), anyBoolean(), any(), any(), any()
+                any(), any(), any(), captor.capture(), anyBoolean(), any(), any(), any(), any(), any()
         );
         return captor.getValue();
     }
@@ -929,13 +929,13 @@ class GetPostsUseCaseTest {
 
     private void verifyUserPostsCalled() {
         verify(findPostPort).findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         );
     }
 
     private void verifyUserPostsNeverCalled() {
         verify(findPostPort, never()).findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
         );
     }
 }
