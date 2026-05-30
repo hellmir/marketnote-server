@@ -24,11 +24,11 @@ import java.lang.annotation.*;
                 ## Description
                 
                 - 정산 정책 ID로 단건 조회합니다.
-
+                
                 ---
-
+                
                 ## Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 정산 정책 ID | 1 |

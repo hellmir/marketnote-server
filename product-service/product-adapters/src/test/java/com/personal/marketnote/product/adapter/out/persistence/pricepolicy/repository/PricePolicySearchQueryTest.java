@@ -1,7 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.pricepolicy.repository;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;

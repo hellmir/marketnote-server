@@ -64,8 +64,6 @@ public interface FindPostPort {
      * @param pageable      페이지네이션 정보
      * @param isDesc        내림차순 여부
      * @param sortProperty  정렬 속성
-     * @param filter        필터 카테고리
-     * @param filterValue   필터 값
      * @param searchTarget  검색 키워드 카테고리
      * @param searchKeyword 검색 키워드
      * @return 게시글 목록 {@link Posts}
@@ -80,8 +78,6 @@ public interface FindPostPort {
             Pageable pageable,
             boolean isDesc,
             PostSortProperty sortProperty,
-            PostFilterCategory filter,
-            PostFilterValue filterValue,
             PostSearchTarget searchTarget,
             String searchKeyword
     );
@@ -116,8 +112,6 @@ public interface FindPostPort {
     /**
      * @param userId        회원 ID
      * @param board         게시판
-     * @param filter        필터 카테고리
-     * @param filterValue   필터 값
      * @param searchTarget  검색 키워드 카테고리
      * @param searchKeyword 검색 키워드
      * @return 게시글 개수 {@link long}
@@ -125,14 +119,7 @@ public interface FindPostPort {
      * @Author 성효빈
      * @Description 회원 게시판 게시글 개수를 조회합니다.
      */
-    long countUserPosts(
-            Long userId,
-            Board board,
-            PostFilterCategory filter,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
-    );
+    long countUserPosts(Long userId, Board board, PostSearchTarget searchTarget, String searchKeyword);
 
     /**
      * @param userId       회원 ID

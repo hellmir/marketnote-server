@@ -61,10 +61,8 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
         boolean searchInTitle = shouldSearchIn(searchTarget, PostSearchTarget.TITLE);
         boolean searchInContent = shouldSearchIn(searchTarget, PostSearchTarget.CONTENT);
         String searchKeywordPattern = buildSearchPattern(searchKeyword);
-        boolean isAnsweredOnly = false;
         if (FormatValidator.hasValue(filterCategory) && FormatValidator.hasValue(filterValue)) {
             isPublicOnly = filterCategory.isPublicOnly(filterValue);
-            isAnsweredOnly = filterCategory.isAnsweredOnly(filterValue);
             if (filterCategory.isMineFiltered(filterValue)) {
                 userIdFilter = userId;
             }
@@ -81,7 +79,6 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
                             isDesc,
                             isPublicOnly,
                             userIdFilter,
-                            isAnsweredOnly,
                             searchInTitle,
                             searchInContent,
                             searchKeywordPattern,
@@ -101,7 +98,6 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
                         isDesc,
                         isPublicOnly,
                         userIdFilter,
-                        isAnsweredOnly,
                         searchInTitle,
                         searchInContent,
                         searchKeywordPattern,
@@ -119,22 +115,16 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
             Pageable pageable,
             boolean isDesc,
             PostSortProperty sortProperty,
-            PostFilterCategory filterCategory,
-            PostFilterValue filterValue,
             PostSearchTarget searchTarget,
             String searchKeyword
     ) {
         boolean searchInTitle = shouldSearchIn(searchTarget, PostSearchTarget.TITLE);
         boolean searchInContent = shouldSearchIn(searchTarget, PostSearchTarget.CONTENT);
         String searchKeywordPattern = buildSearchPattern(searchKeyword);
-        boolean isAnsweredOnly = FormatValidator.hasValue(filterCategory)
-                && FormatValidator.hasValue(filterValue)
-                && filterCategory.isAnsweredOnly(filterValue);
-
         if (FormatValidator.equals(sortProperty, PostSortProperty.IS_ANSWERED)) {
             return mapToPostsWithReplies(
                     postJpaRepository.findByUserIdAndBoardOrderByAnswered(
-                            userId, board, cursor, isDesc, isAnsweredOnly, searchInTitle, searchInContent,
+                            userId, board, cursor, isDesc, searchInTitle, searchInContent,
                             searchKeywordPattern, EntityStatus.ACTIVE, pageable
                     )
             );
@@ -142,7 +132,7 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
 
         return mapToPostsWithReplies(
                 postJpaRepository.findByUserIdAndBoard(
-                        userId, board, cursor, isDesc, isAnsweredOnly, searchInTitle, searchInContent,
+                        userId, board, cursor, isDesc, searchInTitle, searchInContent,
                         searchKeywordPattern, EntityStatus.ACTIVE, pageable
                 )
         );
@@ -165,10 +155,8 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
         boolean searchInTitle = shouldSearchIn(searchTarget, PostSearchTarget.TITLE);
         boolean searchInContent = shouldSearchIn(searchTarget, PostSearchTarget.CONTENT);
         String searchKeywordPattern = buildSearchPattern(searchKeyword);
-        boolean isAnsweredOnly = false;
         if (FormatValidator.hasValue(filterCategory) && FormatValidator.hasValue(filterValue)) {
             isPublicOnly = filterCategory.isPublicOnly(filterValue);
-            isAnsweredOnly = filterCategory.isAnsweredOnly(filterValue);
             if (filterCategory.isMineFiltered(filterValue)) {
                 userIdFilter = userId;
             }
@@ -181,7 +169,6 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
                 targetGroupId,
                 isPublicOnly,
                 userIdFilter,
-                isAnsweredOnly,
                 searchInTitle,
                 searchInContent,
                 searchKeywordPattern,
@@ -190,23 +177,12 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
     }
 
     @Override
-    public long countUserPosts(
-            Long userId,
-            Board board,
-            PostFilterCategory filterCategory,
-            PostFilterValue filterValue,
-            PostSearchTarget searchTarget,
-            String searchKeyword
-    ) {
+    public long countUserPosts(Long userId, Board board, PostSearchTarget searchTarget, String searchKeyword) {
         boolean searchInTitle = shouldSearchIn(searchTarget, PostSearchTarget.TITLE);
         boolean searchInContent = shouldSearchIn(searchTarget, PostSearchTarget.CONTENT);
         String searchKeywordPattern = buildSearchPattern(searchKeyword);
-        boolean isAnsweredOnly = FormatValidator.hasValue(filterCategory)
-                && FormatValidator.hasValue(filterValue)
-                && filterCategory.isAnsweredOnly(filterValue);
-
         return postJpaRepository.countByUserIdAndBoard(
-                userId, board, isAnsweredOnly, searchInTitle, searchInContent, searchKeywordPattern, EntityStatus.ACTIVE
+                userId, board, searchInTitle, searchInContent, searchKeywordPattern, EntityStatus.ACTIVE
         );
     }
 

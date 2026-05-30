@@ -46,7 +46,7 @@ public class GetUserOneOnOneInquiryPostsService implements GetUserOneOnOneInquir
         );
 
         long totalElements = findPostPort.countUserPosts(
-                command.userId(), Board.ONE_ON_ONE_INQUERY, null, null, null, null
+                command.userId(), Board.ONE_ON_ONE_INQUERY, null, null
         );
 
         int totalPages = computeTotalPages(totalElements, command.pageSize());

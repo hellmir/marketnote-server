@@ -6,11 +6,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -19,18 +15,18 @@ import java.lang.annotation.Target;
         summary = "도서산간 지역 목록 조회",
         description = """
                 작성일자: 2026-04-26
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
                 - ACTIVE 상태의 도서산간 지역 전체 목록을 조회합니다.
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200 |

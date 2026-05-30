@@ -2998,7 +2998,7 @@ class RegisterOrderUseCaseTest {
     }
 
     private void mockShippingPolicyWithSurcharge(Long sellerId, Long shippingFee, Long freeShippingThreshold,
-                                                  Long jejuSurcharge, Long islandSurcharge) {
+                                                 Long jejuSurcharge, Long islandSurcharge) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
                 .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge)));
     }

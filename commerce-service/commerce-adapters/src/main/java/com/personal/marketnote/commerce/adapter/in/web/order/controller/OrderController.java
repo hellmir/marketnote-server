@@ -320,10 +320,10 @@ public class OrderController {
     /**
      * 반품 환불 예정 정보 조회
      *
-     * @param id                    주문 ID
-     * @param reasonCategory        반품 사유 카테고리
-     * @param returnPricePolicyIds  반품 대상 가격 정책 ID 목록
-     * @param principal             인증된 사용자 정보
+     * @param id                   주문 ID
+     * @param reasonCategory       반품 사유 카테고리
+     * @param returnPricePolicyIds 반품 대상 가격 정책 ID 목록
+     * @param principal            인증된 사용자 정보
      * @return 반품 환불 예정 정보 조회 응답 {@link GetReturnRefundInfoResponse}
      * @Author 성효빈
      * @Date 2026-04-09

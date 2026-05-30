@@ -92,8 +92,6 @@ public class GetPostService implements GetPostUseCase {
                 pageable,
                 isDesc,
                 sortProperty,
-                query.filter(),
-                query.filterValue(),
                 query.searchTarget(),
                 query.searchKeyword()
         );
@@ -197,8 +195,6 @@ public class GetPostService implements GetPostUseCase {
         return findPostPort.countUserPosts(
                 userId,
                 board,
-                query.filter(),
-                query.filterValue(),
                 searchTarget,
                 searchKeyword
         );

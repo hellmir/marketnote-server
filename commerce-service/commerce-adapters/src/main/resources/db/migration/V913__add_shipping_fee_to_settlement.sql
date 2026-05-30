@@ -1,1 +1,2 @@
-ALTER TABLE settlement ADD COLUMN shipping_fee BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE settlement
+    ADD COLUMN shipping_fee BIGINT NOT NULL DEFAULT 0;

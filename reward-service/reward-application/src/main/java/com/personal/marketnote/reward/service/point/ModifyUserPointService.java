@@ -2,9 +2,9 @@ package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.mapper.RewardCommandToStateMapper;
 import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;

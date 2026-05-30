@@ -1,1 +1,2 @@
-ALTER TABLE order_product ADD COLUMN accumulated_point BIGINT;
+ALTER TABLE order_product
+    ADD COLUMN accumulated_point BIGINT;

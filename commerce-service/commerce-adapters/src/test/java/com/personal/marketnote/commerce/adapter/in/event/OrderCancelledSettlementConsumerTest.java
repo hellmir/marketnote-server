@@ -1,7 +1,10 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.commerce.domain.settlement.*;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationSnapshotState;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
+import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;

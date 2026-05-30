@@ -1,1 +1,2 @@
-ALTER TABLE shipping_addresses ADD COLUMN region_type VARCHAR(15) NOT NULL DEFAULT 'NORMAL';
+ALTER TABLE shipping_addresses
+    ADD COLUMN region_type VARCHAR(15) NOT NULL DEFAULT 'NORMAL';

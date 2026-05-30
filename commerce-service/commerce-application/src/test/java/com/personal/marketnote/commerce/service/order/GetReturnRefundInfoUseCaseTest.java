@@ -4,11 +4,7 @@ import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.PaymentMethod;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEventSnapshotState;
-import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
-import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
-import com.personal.marketnote.commerce.exception.PaymentEventNotFoundException;
-import com.personal.marketnote.commerce.exception.ReasonCategoryNoValueException;
-import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
+import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.CalculateReturnShippingFeeCommand;
 import com.personal.marketnote.commerce.port.in.command.order.GetReturnRefundInfoCommand;
 import com.personal.marketnote.commerce.port.in.result.order.CalculateReturnShippingFeeResult;
@@ -31,7 +27,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("GetReturnRefundInfoService 테스트")

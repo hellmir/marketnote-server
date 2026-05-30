@@ -1,8 +1,8 @@
 package com.personal.marketnote.community.service.post;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.post.*;
 import com.personal.marketnote.community.port.in.command.post.GetPostsQuery;
 import com.personal.marketnote.community.port.in.result.post.GetPostsResult;
@@ -279,12 +279,12 @@ class GetPostsUseCaseTest {
                 .cursor(null)
                 .build();
         mockUserPosts(emptyPosts());
-        when(findPostPort.countUserPosts(any(), any(), any(), any(), any(), any())).thenReturn(99L);
+        when(findPostPort.countUserPosts(any(), any(), any(), any())).thenReturn(99L);
 
         GetPostsResult result = getPostService.getPosts(query);
 
         assertThat(result.totalElements()).isEqualTo(99L);
-        verify(findPostPort).countUserPosts(any(), any(), any(), any(), any(), any());
+        verify(findPostPort).countUserPosts(any(), any(), any(), any());
     }
 
     @Test
@@ -623,64 +623,6 @@ class GetPostsUseCaseTest {
         assertThat(item.getReplies()).isNull();
     }
 
-    // ========== 답변 완료 필터 ==========
-
-    @Test
-    @DisplayName("회원 게시글 조회 시 filter와 filterValue가 findUserPosts에 전달된다")
-    void getPosts_userPosts_passesFilterToFindUserPosts() {
-        GetPostsQuery query = userQuery()
-                .filter(PostFilterCategory.IS_ANSWERED)
-                .filterValue(PostFilterValue.TRUE)
-                .build();
-        mockUserPosts(emptyPosts());
-
-        getPostService.getPosts(query);
-
-        verify(findPostPort).findUserPosts(
-                eq(1L), eq(Board.ONE_ON_ONE_INQUERY), any(), any(), anyBoolean(), any(),
-                eq(PostFilterCategory.IS_ANSWERED), eq(PostFilterValue.TRUE),
-                any(), any()
-        );
-    }
-
-    @Test
-    @DisplayName("회원 게시글 조회 시 filter가 null이면 findUserPosts에 null이 전달된다")
-    void getPosts_userPosts_nullFilter_passesNullToFindUserPosts() {
-        GetPostsQuery query = userQuery()
-                .filter(null)
-                .filterValue(null)
-                .build();
-        mockUserPosts(emptyPosts());
-
-        getPostService.getPosts(query);
-
-        verify(findPostPort).findUserPosts(
-                eq(1L), eq(Board.ONE_ON_ONE_INQUERY), any(), any(), anyBoolean(), any(),
-                isNull(), isNull(),
-                any(), any()
-        );
-    }
-
-    @Test
-    @DisplayName("커서가 없을 때 회원 게시글 카운트에 filter와 filterValue가 전달된다")
-    void getPosts_noCursor_userBoard_passesFilterToCountUserPosts() {
-        GetPostsQuery query = userQuery()
-                .cursor(null)
-                .filter(PostFilterCategory.IS_ANSWERED)
-                .filterValue(PostFilterValue.TRUE)
-                .build();
-        mockUserPosts(emptyPosts());
-        when(findPostPort.countUserPosts(any(), any(), any(), any(), any(), any())).thenReturn(10L);
-
-        getPostService.getPosts(query);
-
-        verify(findPostPort).countUserPosts(
-                eq(1L), eq(Board.ONE_ON_ONE_INQUERY),
-                eq(PostFilterCategory.IS_ANSWERED), eq(PostFilterValue.TRUE),
-                any(), any()
-        );
-    }
-
     // ========== J. 예외 전파 ==========
 
     @Test
@@ -702,7 +644,7 @@ class GetPostsUseCaseTest {
         GetPostsQuery query = userQuery().build();
         RuntimeException exception = new RuntimeException("database error");
         when(findPostPort.findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
         )).thenThrow(exception);
 
         assertThatThrownBy(() -> getPostService.getPosts(query))
@@ -944,7 +886,7 @@ class GetPostsUseCaseTest {
 
     private void mockUserPosts(Posts posts) {
         when(findPostPort.findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
         )).thenReturn(posts);
     }
 
@@ -966,7 +908,7 @@ class GetPostsUseCaseTest {
     private Pageable captureUserPostsPageable() {
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
         verify(findPostPort).findUserPosts(
-                any(), any(), any(), captor.capture(), anyBoolean(), any(), any(), any(), any(), any()
+                any(), any(), any(), captor.capture(), anyBoolean(), any(), any(), any()
         );
         return captor.getValue();
     }
@@ -987,13 +929,13 @@ class GetPostsUseCaseTest {
 
     private void verifyUserPostsCalled() {
         verify(findPostPort).findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
         );
     }
 
     private void verifyUserPostsNeverCalled() {
         verify(findPostPort, never()).findUserPosts(
-                any(), any(), any(), any(), anyBoolean(), any(), any(), any(), any(), any()
+                any(), any(), any(), any(), anyBoolean(), any(), any(), any()
         );
     }
 }

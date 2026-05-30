@@ -1,10 +1,6 @@
 package com.personal.marketnote.user.domain.remotearea;
 
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaDistrictLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaProvinceLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaSubareaLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.InvalidRemoteAreaVillageLengthException;
-import com.personal.marketnote.user.domain.remotearea.exception.RemoteAreaProvinceNoValueException;
+import com.personal.marketnote.user.domain.remotearea.exception.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -1,8 +1,8 @@
 package com.personal.marketnote.product.service.product;
 
-import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;

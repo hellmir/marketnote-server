@@ -1,11 +1,11 @@
 package com.personal.marketnote.reward.service.attendance;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.port.in.usecase.attendance.DeleteAttendancePolicyUseCase;
 import com.personal.marketnote.reward.port.out.attendance.FindAttendancePolicyPort;
 import com.personal.marketnote.reward.port.out.attendance.UpdateAttendancePolicyPort;
-import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
