@@ -143,6 +143,11 @@ order:
       cron: ${ORDER_AUTO_CONFIRM_SCHEDULER_CRON:0 59 23 * * ?}
       auto-confirm-days: ${ORDER_AUTO_CONFIRM_DAYS:7}
 
+return-inspection:
+  scheduler:
+    enabled: ${RETURN_INSPECTION_SCHEDULER_ENABLED:false}
+    fixed-delay-ms: ${RETURN_INSPECTION_SCHEDULER_FIXED_DELAY_MS:1800000}
+
 management:
   endpoints:
     web:
