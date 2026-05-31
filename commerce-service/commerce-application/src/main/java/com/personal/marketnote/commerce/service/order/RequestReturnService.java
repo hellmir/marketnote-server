@@ -8,15 +8,21 @@ import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessExcepti
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.RequestReturnUseCase;
+import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryCommand;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.service.returntracker.CreateReturnTrackerAfterReturnRequestService;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -27,7 +33,10 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RequestReturnService implements RequestReturnUseCase {
     private final GetOrderUseCase getOrderUseCase;
     private final UpdateOrderPort updateOrderPort;
+    private final CreateReturnTrackerAfterReturnRequestService createReturnTrackerAfterReturnRequestService;
     private final Clock clock;
+
+    private static final DateTimeFormatter ORDER_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private static final OrderStatus TARGET_STATUS = OrderStatus.RETURN_REQUESTED;
 
@@ -53,6 +62,9 @@ public class RequestReturnService implements RequestReturnUseCase {
         );
 
         updateOrderPort.update(order, orderStatusHistory);
+
+        RegisterFulfillmentReturnDeliveryCommand returnDeliveryCommand = buildReturnDeliveryCommand(command, order);
+        runAfterCommit(() -> createReturnTrackerAfterReturnRequestService.createReturnTracker(returnDeliveryCommand));
     }
 
     private void validateBuyerOwnership(RequestReturnCommand command, Order order) {
@@ -94,5 +106,69 @@ public class RequestReturnService implements RequestReturnUseCase {
                 null,
                 command.pickupRequestMessage()
         );
+    }
+
+    private RegisterFulfillmentReturnDeliveryCommand buildReturnDeliveryCommand(
+            RequestReturnCommand command,
+            Order order
+    ) {
+        ShippingAddress shippingAddress = order.getShippingAddress();
+        String orderDate = FormatValidator.hasValue(order.getCreatedAt())
+                ? order.getCreatedAt().format(ORDER_DATE_FORMATTER)
+                : "";
+
+        String fullAddress = buildFullAddress(shippingAddress);
+
+        List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> products = order.getOrderProducts().stream()
+                .map(op -> RegisterFulfillmentReturnDeliveryCommand.ProductItem.of(
+                        String.valueOf(op.getPricePolicyId()),
+                        op.getQuantity()
+                ))
+                .toList();
+
+        String reasonCategory = FormatValidator.hasValue(command.reasonCategory())
+                ? command.reasonCategory().getDescription()
+                : "";
+
+        return RegisterFulfillmentReturnDeliveryCommand.builder()
+                .orderId(command.id())
+                .orderDate(orderDate)
+                .recipientName(shippingAddress.getRecipientName())
+                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber())
+                .recipientAddress(fullAddress)
+                .pickupRecipientName(command.pickupRecipientName())
+                .pickupRecipientPhoneNumber(command.pickupRecipientPhoneNumber())
+                .pickupZipCode(command.pickupZipCode())
+                .pickupAddress(command.pickupAddress())
+                .pickupAddressDetail(command.pickupAddressDetail())
+                .returnReason(reasonCategory)
+                .returnDetailReason(command.reason())
+                .returnShippingRequest(command.pickupRequestMessage())
+                .products(products)
+                .build();
+    }
+
+    private String buildFullAddress(ShippingAddress shippingAddress) {
+        String address = FormatValidator.hasValue(shippingAddress.getAddress())
+                ? shippingAddress.getAddress()
+                : "";
+        String detail = FormatValidator.hasValue(shippingAddress.getAddressDetail())
+                ? " " + shippingAddress.getAddressDetail()
+                : "";
+        return address + detail;
+    }
+
+    private void runAfterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+            return;
+        }
+
+        action.run();
     }
 }

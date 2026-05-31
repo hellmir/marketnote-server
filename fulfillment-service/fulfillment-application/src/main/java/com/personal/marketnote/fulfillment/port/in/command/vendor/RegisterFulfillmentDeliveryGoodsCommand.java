@@ -12,4 +12,11 @@ public record RegisterFulfillmentDeliveryGoodsCommand(
     ) {
         return new RegisterFulfillmentDeliveryGoodsCommand(productCode, expirationDate, orderQuantity);
     }
+
+    public static RegisterFulfillmentDeliveryGoodsCommand of(
+            String productCode,
+            Integer orderQuantity
+    ) {
+        return new RegisterFulfillmentDeliveryGoodsCommand(productCode, null, orderQuantity);
+    }
 }
