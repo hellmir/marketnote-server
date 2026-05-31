@@ -119,14 +119,16 @@ springBoot {
 }
 
 tasks.register("printProjectName") {
+    val name = project.name
     doLast {
-        println(project.name)
+        println(name)
     }
 }
 
 tasks.register("printProjectVersion") {
+    val ver = version.toString()
     doLast {
-        println(version)
+        println(ver)
     }
 }
 
