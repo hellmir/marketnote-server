@@ -145,14 +145,16 @@ tasks.withType<JavaCompile>().configureEach {
 }
 
 tasks.register("printProjectName") {
+    val name = serviceName
     doLast {
-        println(serviceName)
+        println(name)
     }
 }
 
 tasks.register("printProjectVersion") {
+    val ver = version.toString()
     doLast {
-        println(version)
+        println(ver)
     }
 }
 
