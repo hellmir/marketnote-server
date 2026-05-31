@@ -12,7 +12,7 @@ public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, Long> 
             SELECT DISTINCT o.id
             FROM orders o
             WHERE o.buyer_id = :buyerId
-              AND o.order_status <> 'PAYMENT_PENDING'
+              AND o.order_status NOT IN ('PAYMENT_PENDING', 'FAILED')
               AND (CAST(:startDate AS timestamp) IS NULL OR o.created_at >= CAST(:startDate AS timestamp))
               AND (CAST(:endDate   AS timestamp) IS NULL OR o.created_at <  CAST(:endDate   AS timestamp))
               AND (:statusSize = 0 OR o.order_status IN (:statuses))

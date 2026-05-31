@@ -82,6 +82,10 @@ public class Order {
         return this.orderStatus.isPending();
     }
 
+    public boolean isFailed() {
+        return this.orderStatus.isFailed();
+    }
+
     public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))

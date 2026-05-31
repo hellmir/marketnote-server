@@ -82,6 +82,10 @@ public enum OrderStatus {
         return this == PAYMENT_PENDING;
     }
 
+    public boolean isFailed() {
+        return this == FAILED;
+    }
+
     public boolean isConfirmed() {
         return this == CONFIRMED;
     }

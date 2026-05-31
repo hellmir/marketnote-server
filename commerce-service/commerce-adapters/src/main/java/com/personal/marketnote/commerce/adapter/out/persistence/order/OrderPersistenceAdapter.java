@@ -98,7 +98,7 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
                 .map(OrderJpaEntityToDomainMapper::mapToDomain)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .filter(order -> order.getOrderStatus() != OrderStatus.PAYMENT_PENDING)
+                .filter(order -> !order.isPaymentPending() && !order.isFailed())
                 .toList();
     }
 

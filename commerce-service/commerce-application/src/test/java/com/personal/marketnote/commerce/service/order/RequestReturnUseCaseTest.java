@@ -8,7 +8,6 @@ import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessExcepti
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
-import com.personal.marketnote.commerce.service.returntracker.CreateReturnTrackerAfterReturnRequestService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,8 +34,6 @@ class RequestReturnUseCaseTest {
     private GetOrderUseCase getOrderUseCase;
     @Mock
     private UpdateOrderPort updateOrderPort;
-    @Mock
-    private CreateReturnTrackerAfterReturnRequestService createReturnTrackerAfterReturnRequestService;
     @Spy
     private Clock clock = Clock.fixed(Instant.parse("2026-04-05T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 
