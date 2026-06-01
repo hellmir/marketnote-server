@@ -651,7 +651,58 @@ class GetPostsUseCaseTest {
                 .isSameAs(exception);
     }
 
-    // ========== K. 응답 분리 ==========
+    // ========== K. 필터 ==========
+
+    @Test
+    @DisplayName("ONE_ON_ONE_INQUERY에서 IS_ANSWERED 필터 적용 시 findUserPosts에 필터가 전달된다")
+    void getPosts_oneOnOneInquery_isAnsweredFilter_passesFilterToFindUserPosts() {
+        GetPostsQuery query = userQuery()
+                .filter(PostFilterCategory.IS_ANSWERED)
+                .filterValue(PostFilterValue.TRUE)
+                .build();
+        mockUserPosts(emptyPosts());
+
+        getPostService.getPosts(query);
+
+        verify(findPostPort).findUserPosts(
+                eq(1L),
+                eq(Board.ONE_ON_ONE_INQUERY),
+                any(),
+                any(),
+                anyBoolean(),
+                any(),
+                eq(PostFilterCategory.IS_ANSWERED),
+                eq(PostFilterValue.TRUE),
+                any(),
+                any()
+        );
+    }
+
+    @Test
+    @DisplayName("ONE_ON_ONE_INQUERY에서 IS_ANSWERED 필터 적용 시 countUserPosts에도 필터가 전달된다")
+    void getPosts_oneOnOneInquery_isAnsweredFilter_passesFilterToCountUserPosts() {
+        GetPostsQuery query = userQuery()
+                .filter(PostFilterCategory.IS_ANSWERED)
+                .filterValue(PostFilterValue.TRUE)
+                .cursor(null)
+                .build();
+        mockUserPosts(emptyPosts());
+        when(findPostPort.countUserPosts(any(), any(), any(), any(), any(), any())).thenReturn(5L);
+
+        GetPostsResult result = getPostService.getPosts(query);
+
+        assertThat(result.totalElements()).isEqualTo(5L);
+        verify(findPostPort).countUserPosts(
+                eq(1L),
+                eq(Board.ONE_ON_ONE_INQUERY),
+                eq(PostFilterCategory.IS_ANSWERED),
+                eq(PostFilterValue.TRUE),
+                any(),
+                any()
+        );
+    }
+
+    // ========== L. 응답 분리 ==========
 
     @Test
     @DisplayName("상품 문의 목록 조회 시 응답에 maskedWriterName이 포함된다")
