@@ -57,7 +57,9 @@ import java.lang.annotation.*;
                             - targetId: 미전송
                 
                         - **"ONE_ON_ONE_INQUERY": 1:1 문의**
-                
+
+                            - 필터: IS_ANSWERED (답변 완료만 보기)
+
                 - 정렬 기준
                 
                    - ORDER_NUM: 지정된 정렬 순서순(기본)
@@ -240,7 +242,7 @@ import java.lang.annotation.*;
                         description = "필터 유형",
                         schema = @Schema(
                                 type = "string",
-                                allowableValues = {"IS_PUBLIC", "IS_MINE"}
+                                allowableValues = {"IS_PUBLIC", "IS_MINE", "IS_ANSWERED"}
                         )
                 ),
                 @Parameter(
