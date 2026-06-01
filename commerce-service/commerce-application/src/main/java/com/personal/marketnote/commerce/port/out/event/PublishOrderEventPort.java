@@ -17,4 +17,9 @@ public interface PublishOrderEventPort {
                                     Long cancelAmount, Long paymentAmount, Long pointAmount,
                                     Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
                                     List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts);
+
+    void publishOrderReturnedEvent(Long orderId, String orderKey, Long buyerId,
+                                   Long returnAmount, Long paymentAmount, Long pointAmount,
+                                   Long shippingFee, boolean isFullReturn,
+                                   List<OrderProduct> returnProducts);
 }

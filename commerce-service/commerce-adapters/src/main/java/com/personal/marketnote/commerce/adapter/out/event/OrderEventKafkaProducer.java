@@ -10,6 +10,7 @@ import com.personal.marketnote.common.kafka.event.OrderCancelledEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
 import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
+import com.personal.marketnote.common.kafka.event.OrderReturnedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import lombok.RequiredArgsConstructor;
@@ -94,6 +95,32 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         );
         String topic = KafkaTopicConstants.ORDER_CANCELLED;
         EventEnvelope<OrderCancelledEvent> envelope = EventEnvelope.of(
+                topic, SOURCE, payload, clock
+        );
+
+        saveToOutbox(envelope, topic, orderId.toString());
+    }
+
+    @Override
+    public void publishOrderReturnedEvent(Long orderId, String orderKey, Long buyerId,
+                                          Long returnAmount, Long paymentAmount, Long pointAmount,
+                                          Long shippingFee, boolean isFullReturn,
+                                          List<OrderProduct> returnProducts) {
+        List<OrderReturnedEvent.OrderProductItem> items = returnProducts.stream()
+                .map(op -> new OrderReturnedEvent.OrderProductItem(
+                        op.getPricePolicyId(),
+                        op.getSharerKey(),
+                        op.getQuantity(),
+                        op.getUnitAmount()
+                ))
+                .toList();
+
+        OrderReturnedEvent payload = new OrderReturnedEvent(
+                orderId, orderKey, buyerId, returnAmount, paymentAmount,
+                pointAmount, shippingFee, isFullReturn, items
+        );
+        String topic = KafkaTopicConstants.ORDER_RETURNED;
+        EventEnvelope<OrderReturnedEvent> envelope = EventEnvelope.of(
                 topic, SOURCE, payload, clock
         );
 
