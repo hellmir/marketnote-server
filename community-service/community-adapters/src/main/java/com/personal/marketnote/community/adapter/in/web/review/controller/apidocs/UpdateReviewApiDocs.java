@@ -33,7 +33,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- | --- |
                 | id | number | 리뷰 ID | Y | 1 |
                 | rating | number | 리뷰 평점(0.0~5.0, 소수점 1자리) | Y | 4.5 |
-                | content | string | 리뷰 내용(20자 이상) | Y | "배송이 느리고 포장 상태도 나빴습니다. 불만족합니다." |
+                | content | string | 리뷰 내용(10자 이상) | Y | "배송이 빠르고 포장 상태도 좋았습니다." |
                 | isPhoto | boolean | 포토 리뷰 여부 | Y | false |
                 
                 ---
@@ -65,7 +65,7 @@ import java.lang.annotation.*;
                         examples = @ExampleObject("""
                                 {
                                   "rating": 1,
-                                  "content": "배송이 느리고 포장 상태도 나빴습니다. 불만족합니다.",
+                                  "content": "배송이 느리고 포장 상태도 나빴습니다.",
                                   "isPhoto": false
                                 }
                                 """)
