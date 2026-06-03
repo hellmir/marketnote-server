@@ -7,8 +7,6 @@ import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
-import com.personal.marketnote.reward.domain.point.ReferralBonusTier;
-import com.personal.marketnote.reward.port.out.point.CheckReferralBonusClaimedPort;
 import com.personal.marketnote.reward.port.out.point.CountReferralPort;
 import com.personal.marketnote.reward.port.out.point.FindUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
@@ -26,7 +24,7 @@ import static com.personal.marketnote.common.utility.AccrualPointAmountConstant.
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryPort, FindUserPointHistoryPort, UpdateUserPointHistoryPort, CountReferralPort, CheckReferralBonusClaimedPort {
+public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryPort, FindUserPointHistoryPort, UpdateUserPointHistoryPort, CountReferralPort {
     private final UserPointHistoryJpaRepository repository;
 
     @Override
@@ -99,13 +97,6 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
     public long sumReferralEarnedAmount(Long userId) {
         return repository.sumReferralEarnedAmount(
                 userId, UserPointSourceType.USER, REFERRER_POINT_REASON, REFERRAL_BONUS_REASON_PREFIX
-        );
-    }
-
-    @Override
-    public boolean isAlreadyClaimed(Long userId, ReferralBonusTier tier) {
-        return repository.existsByUserIdAndSourceTypeAndSourceIdAndReason(
-                userId, UserPointSourceType.USER, userId, tier.getReason()
         );
     }
 }

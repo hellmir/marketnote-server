@@ -105,7 +105,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     public void publishOrderReturnedEvent(Long orderId, String orderKey, Long buyerId,
                                           Long returnAmount, Long paymentAmount, Long pointAmount,
                                           Long shippingFee, boolean isFullReturn,
-                                          Long returnShippingFee, List<OrderProduct> returnProducts) {
+                                          List<OrderProduct> returnProducts) {
         List<OrderReturnedEvent.OrderProductItem> items = returnProducts.stream()
                 .map(op -> new OrderReturnedEvent.OrderProductItem(
                         op.getPricePolicyId(),
@@ -117,7 +117,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
         OrderReturnedEvent payload = new OrderReturnedEvent(
                 orderId, orderKey, buyerId, returnAmount, paymentAmount,
-                pointAmount, shippingFee, isFullReturn, returnShippingFee, items
+                pointAmount, shippingFee, isFullReturn, items
         );
         String topic = KafkaTopicConstants.ORDER_RETURNED;
         EventEnvelope<OrderReturnedEvent> envelope = EventEnvelope.of(

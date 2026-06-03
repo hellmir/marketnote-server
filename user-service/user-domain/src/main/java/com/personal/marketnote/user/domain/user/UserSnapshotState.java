@@ -31,6 +31,7 @@ public class UserSnapshotState {
     private final LocalDateTime lastLoggedInAt;
     private final EntityStatus status;
     private final Boolean withdrawalYn;
+    private final LocalDateTime withdrawnAt;
     private final Long orderNum;
 }
 

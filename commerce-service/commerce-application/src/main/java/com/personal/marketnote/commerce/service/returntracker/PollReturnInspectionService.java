@@ -31,7 +31,6 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
     private final FindReturnTrackerPort findReturnTrackerPort;
     private final UpdateReturnTrackerPort updateReturnTrackerPort;
     private final GetReturnInspectionResultPort getReturnInspectionResultPort;
-    private final CompleteReturnInspectionService completeReturnInspectionService;
     private final Clock clock;
 
     @Override
@@ -124,15 +123,9 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         }
 
         LocalDateTime now = LocalDateTime.now(clock);
-
-        if (INSPECTION_PASSED.equals(overallStatus)) {
-            completeReturnInspectionService.completeInspection(tracker, now);
-            log.info("반품 검수 완료 이벤트 발행 - orderId: {}", tracker.getOrderId());
-            return;
-        }
-
         applyInspectionStatus(tracker, overallStatus, now);
         updateReturnTrackerPort.update(tracker);
+
         log.info("반품 검수 상태 업데이트 - orderId: {}, status: {}", tracker.getOrderId(), overallStatus);
     }
 
@@ -165,6 +158,10 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
     }
 
     private void applyInspectionStatus(ReturnTracker tracker, String status, LocalDateTime now) {
+        if (INSPECTION_PASSED.equals(status)) {
+            tracker.passInspection(now);
+            return;
+        }
         if (INSPECTION_FAILED.equals(status)) {
             tracker.failInspection(now);
             return;
