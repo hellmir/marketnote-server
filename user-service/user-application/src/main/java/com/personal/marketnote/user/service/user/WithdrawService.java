@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -27,13 +29,14 @@ public class WithdrawService implements WithdrawUseCase {
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserPort updateUserPort;
     private final Oauth2AccountUnlinkPort oauth2AccountUnlinkPort;
+    private final Clock clock;
 
     private final Logger log = LoggerFactory.getLogger(WithdrawService.class);
 
     @Override
     public WithdrawResult withdrawUser(Long id, Map<AuthVendor, String> vendorCredentials) {
         User user = getUserUseCase.getAllStatusUser(id);
-        user.withdraw();
+        user.withdraw(LocalDateTime.now(clock));
 
         Map<AuthVendor, Boolean> disconnectResults = new EnumMap<>(AuthVendor.class);
 
