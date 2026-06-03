@@ -326,7 +326,7 @@ public class OrderController {
      * @param principal            인증된 사용자 정보
      * @return 반품 환불 예정 정보 조회 응답 {@link GetReturnRefundInfoResponse}
      * @Author 성효빈
-     * @Date 2026-04-09
+     * @Date 2026-06-03
      * @Description 반품 신청 전 환불 예정 정보를 조회합니다. 구매자 소유권 및 반품 가능 상태 검증을 수행합니다.
      */
     @GetMapping("/api/v1/orders/{id}/return-refund-info")
