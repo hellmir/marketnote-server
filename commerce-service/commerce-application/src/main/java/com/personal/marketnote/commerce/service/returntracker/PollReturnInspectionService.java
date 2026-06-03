@@ -8,7 +8,6 @@ import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionRes
 import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult.ReturnInspectionGoodsItem;
 import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult.ReturnInspectionResultItem;
 import com.personal.marketnote.commerce.port.out.returntracker.FindReturnTrackerPort;
-import com.personal.marketnote.commerce.port.out.returntracker.UpdateReturnTrackerPort;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +28,9 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
     private static final String INSPECTION_ON_HOLD = "03";
 
     private final FindReturnTrackerPort findReturnTrackerPort;
-    private final UpdateReturnTrackerPort updateReturnTrackerPort;
     private final GetReturnInspectionResultPort getReturnInspectionResultPort;
     private final CompleteReturnInspectionService completeReturnInspectionService;
+    private final HandleInspectionFailedOrHoldService handleInspectionFailedOrHoldService;
     private final Clock clock;
 
     @Override
@@ -131,9 +130,7 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
             return;
         }
 
-        applyInspectionStatus(tracker, overallStatus, now);
-        updateReturnTrackerPort.update(tracker);
-        log.info("반품 검수 상태 업데이트 - orderId: {}, status: {}", tracker.getOrderId(), overallStatus);
+        handleInspectionFailedOrHoldService.handleFailedOrHold(tracker, overallStatus, now);
     }
 
     private String resolveOverallInspectionStatus(List<ReturnInspectionGoodsItem> products) {
@@ -162,15 +159,5 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         log.warn("반품 검수 폴링: 분류 불가능한 상태 조합 - statuses: {}",
                 products.stream().map(ReturnInspectionGoodsItem::returnProductCheckStatus).toList());
         return null;
-    }
-
-    private void applyInspectionStatus(ReturnTracker tracker, String status, LocalDateTime now) {
-        if (INSPECTION_FAILED.equals(status)) {
-            tracker.failInspection(now);
-            return;
-        }
-        if (INSPECTION_ON_HOLD.equals(status)) {
-            tracker.holdInspection();
-        }
     }
 }
