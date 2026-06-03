@@ -17,7 +17,7 @@ import java.lang.annotation.*;
 @Operation(
         summary = "반품 환불 예정 정보 조회",
         description = """
-                작성일자: 2026-04-09
+                작성일자: 2026-06-03
                 
                 작성자: 성효빈
                 
@@ -46,7 +46,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 |
                 | code | string | 응답 코드 | "SUC01" / "UNAUTHORIZED" / "FORBIDDEN" / "NOT_FOUND" / "INTERNAL_SERVER_ERROR" |
-                | timestamp | string(datetime) | 응답 일시 | "2026-04-09T12:00:00.000" |
+                | timestamp | string(datetime) | 응답 일시 | "2026-06-03T12:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "반품 환불 예정 정보 조회 성공" |
                 
@@ -95,7 +95,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 200,
                                           "code": "SUC01",
-                                          "timestamp": "2026-04-09T12:00:00.000",
+                                          "timestamp": "2026-06-03T12:00:00.000",
                                           "content": {
                                             "totalProductAmount": 50000,
                                             "returnShippingFee": 3000,
@@ -116,7 +116,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 401,
                                           "code": "UNAUTHORIZED",
-                                          "timestamp": "2026-04-09T12:00:00.000",
+                                          "timestamp": "2026-06-03T12:00:00.000",
                                           "content": null,
                                           "message": "Invalid token"
                                         }
@@ -131,7 +131,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 403,
                                           "code": "FORBIDDEN",
-                                          "timestamp": "2026-04-09T12:00:00.000",
+                                          "timestamp": "2026-06-03T12:00:00.000",
                                           "content": null,
                                           "message": "Access Denied"
                                         }
@@ -146,7 +146,7 @@ import java.lang.annotation.*;
                                         {
                                           "statusCode": 404,
                                           "code": "NOT_FOUND",
-                                          "timestamp": "2026-04-09T12:00:00.000",
+                                          "timestamp": "2026-06-03T12:00:00.000",
                                           "content": null,
                                           "message": "주문을 찾을 수 없습니다."
                                         }
