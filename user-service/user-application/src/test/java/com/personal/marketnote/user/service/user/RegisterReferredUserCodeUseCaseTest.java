@@ -38,7 +38,7 @@ class RegisterReferredUserCodeUseCaseTest {
     void registerReferredUserCode_notExists_throws() {
         // given
         Long requestUserId = 1L;
-        String referredUserCode = "ref-123";
+        String referredUserCode = "ref-456";
 
         when(getUserUseCase.existsUser(referredUserCode)).thenReturn(false);
 
@@ -59,7 +59,7 @@ class RegisterReferredUserCodeUseCaseTest {
     void registerReferredUserCode_success_publishesEvent() {
         // given
         Long requestUserId = 1L;
-        String referredUserCode = "ref-123";
+        String referredUserCode = "ref-456";
         Long referredUserId = 2L;
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
                 requestUserId, EntityStatus.ACTIVE, false, List.of()
@@ -77,9 +77,11 @@ class RegisterReferredUserCodeUseCaseTest {
         // then
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
+        verify(requestUser).isSelfReferral(referredUserCode);
+        verify(getUserUseCase).getUser(referredUserCode);
+        verify(referredUser).isMutualReferralWith(requestUser);
         verify(requestUser).registerReferredUserCode(referredUserCode);
         verify(updateUserPort).update(requestUser);
-        verify(getUserUseCase).getUser(referredUserCode);
         verify(referredUser).getId();
         verify(requestUser).getId();
         verify(publishUserEventPort).publishUserReferralCompletedEvent(requestUserId, referredUserId);
@@ -92,14 +94,16 @@ class RegisterReferredUserCodeUseCaseTest {
     void registerReferredUserCode_alreadyRegistered_throws() {
         // given
         Long requestUserId = 1L;
-        String referredUserCode = "ref-123";
+        String referredUserCode = "ref-456";
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
                 requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
         requestUser.registerReferredUserCode("existing");
+        User referredUser = mock(User.class);
 
         when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
         when(getUserUseCase.getUser(requestUserId)).thenReturn(requestUser);
+        when(getUserUseCase.getUser(referredUserCode)).thenReturn(referredUser);
 
         // expect
         assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
@@ -108,10 +112,12 @@ class RegisterReferredUserCodeUseCaseTest {
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
+        verify(requestUser).isSelfReferral(referredUserCode);
+        verify(getUserUseCase).getUser(referredUserCode);
+        verify(referredUser).isMutualReferralWith(requestUser);
         verify(requestUser).registerReferredUserCode(referredUserCode);
-        verify(getUserUseCase, never()).getUser(referredUserCode);
         verifyNoInteractions(updateUserPort, publishUserEventPort);
-        verifyNoMoreInteractions(getUserUseCase);
+        verifyNoMoreInteractions(getUserUseCase, referredUser);
     }
 
     @Test
@@ -119,7 +125,7 @@ class RegisterReferredUserCodeUseCaseTest {
     void registerReferredUserCode_requestUserNotFound_throws() {
         // given
         Long requestUserId = 1L;
-        String referredUserCode = "ref-123";
+        String referredUserCode = "ref-456";
         UserNotFoundException exception = new UserNotFoundException("not found");
 
         when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
@@ -141,7 +147,7 @@ class RegisterReferredUserCodeUseCaseTest {
     void registerReferredUserCode_referredUserNotFound_throws() {
         // given
         Long requestUserId = 1L;
-        String referredUserCode = "ref-123";
+        String referredUserCode = "ref-456";
         User requestUser = spy(UserTestObjectFactory.createDefaultUser(
                 requestUserId, EntityStatus.ACTIVE, false, List.of()
         ));
@@ -157,11 +163,10 @@ class RegisterReferredUserCodeUseCaseTest {
 
         verify(getUserUseCase).existsUser(referredUserCode);
         verify(getUserUseCase).getUser(requestUserId);
-        verify(requestUser).registerReferredUserCode(referredUserCode);
-        verify(updateUserPort).update(requestUser);
+        verify(requestUser).isSelfReferral(referredUserCode);
         verify(getUserUseCase).getUser(referredUserCode);
-        verifyNoInteractions(publishUserEventPort);
-        verify(requestUser, never()).removeReferredUserCode();
-        verifyNoMoreInteractions(getUserUseCase, updateUserPort);
+        verify(requestUser, never()).registerReferredUserCode(referredUserCode);
+        verifyNoInteractions(updateUserPort, publishUserEventPort);
+        verifyNoMoreInteractions(getUserUseCase);
     }
 }
