@@ -67,7 +67,7 @@ public class UserReferralCompletedRewardConsumer {
             Long referrerId = payload.referredUserId();
             Long referredId = payload.requestUserId();
 
-            accrueReferrerPointWithBonus(envelope.eventId(), referrerId, referredId);
+            accrueReferrerPointIfEligible(envelope.eventId(), referrerId, referredId);
             accrueReferredPointIdempotent(envelope.eventId(), referredId, referrerId);
 
             log.info("Kafka 이벤트로 추천 포인트 적립 완료. requestUserId={}, referredUserId={}",
@@ -81,7 +81,7 @@ public class UserReferralCompletedRewardConsumer {
         acknowledgment.acknowledge();
     }
 
-    private void accrueReferrerPointWithBonus(String eventId, Long referrerId, Long referredId) {
+    private void accrueReferrerPointIfEligible(String eventId, Long referrerId, Long referredId) {
         long referralCount = getReferralStatusUseCase.countCompletedReferrals(referrerId);
 
         if (ReferralBonusTier.isMaxReached(referralCount)) {
@@ -91,10 +91,6 @@ public class UserReferralCompletedRewardConsumer {
         }
 
         accrueReferrerPointIdempotent(eventId, referrerId, referredId);
-
-        long newCount = referralCount + 1;
-        ReferralBonusTier.findNewlyAchievedTier(newCount)
-                .ifPresent(tier -> accrueBonusIdempotent(eventId, referrerId, tier));
     }
 
     private void accrueReferrerPointIdempotent(String eventId, Long referrerId, Long referredId) {
@@ -112,15 +108,6 @@ public class UserReferralCompletedRewardConsumer {
         } catch (DuplicateUserPointHistoryException e) {
             log.info("이미 처리된 피추천인 포인트 적립 이벤트 (멱등 처리). eventId={}, message={}",
                     eventId, e.getMessage());
-        }
-    }
-
-    private void accrueBonusIdempotent(String eventId, Long userId, ReferralBonusTier tier) {
-        try {
-            accrueBonus(userId, tier);
-        } catch (DuplicateUserPointHistoryException e) {
-            log.info("이미 처리된 누적 보너스 적립 이벤트 (멱등 처리). eventId={}, tier={}, message={}",
-                    eventId, tier, e.getMessage());
         }
     }
 
@@ -146,17 +133,5 @@ public class UserReferralCompletedRewardConsumer {
                 .reason(REFERRED_POINT_REASON)
                 .build();
         modifyUserPointUseCase.modify(referredCommand);
-    }
-
-    private void accrueBonus(Long userId, ReferralBonusTier tier) {
-        ModifyUserPointCommand bonusCommand = ModifyUserPointCommand.builder()
-                .userId(userId)
-                .changeType(UserPointChangeType.ACCRUAL)
-                .amount((long) tier.getBonusAmount())
-                .sourceType(UserPointSourceType.USER)
-                .sourceId(userId)
-                .reason(tier.getReason())
-                .build();
-        modifyUserPointUseCase.modify(bonusCommand);
     }
 }

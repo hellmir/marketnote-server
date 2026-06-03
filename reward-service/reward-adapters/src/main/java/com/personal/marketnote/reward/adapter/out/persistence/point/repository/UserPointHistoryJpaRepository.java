@@ -75,6 +75,10 @@ public interface UserPointHistoryJpaRepository extends JpaRepository<UserPointHi
             Long userId, UserPointSourceType sourceType, String reason
     );
 
+    boolean existsByUserIdAndSourceTypeAndSourceIdAndReason(
+            Long userId, UserPointSourceType sourceType, Long sourceId, String reason
+    );
+
     @Query("""
             SELECT COALESCE(SUM(h.amount), 0) FROM UserPointHistoryJpaEntity h
             WHERE h.userId = :userId

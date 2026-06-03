@@ -7,13 +7,16 @@ import com.personal.marketnote.common.utility.Role;
 import com.personal.marketnote.reward.adapter.in.web.point.apidocs.*;
 import com.personal.marketnote.reward.adapter.in.web.point.mapper.PointRequestToCommandMapper;
 import com.personal.marketnote.reward.adapter.in.web.point.request.CancelPendingPointRequest;
+import com.personal.marketnote.reward.adapter.in.web.point.request.ClaimReferralBonusRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyUserPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.response.*;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
+import com.personal.marketnote.reward.port.in.command.point.ClaimReferralBonusCommand;
 import com.personal.marketnote.reward.port.in.command.point.GetUserPointHistoryCommand;
 import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
+import com.personal.marketnote.reward.port.in.result.point.ClaimReferralBonusResult;
 import com.personal.marketnote.reward.port.in.result.point.GetReferralStatusResult;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointResult;
@@ -50,6 +53,7 @@ public class PointController {
     private final GetUserPointUseCase getUserPointUseCase;
     private final GetUserPointHistoryUseCase getUserPointHistoryUseCase;
     private final GetReferralStatusUseCase getReferralStatusUseCase;
+    private final ClaimReferralBonusUseCase claimReferralBonusUseCase;
 
     /**
      * (관리자) 회원 포인트 정보 생성
@@ -307,6 +311,39 @@ public class PointController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "친구 초대 현황 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * 친구 초대 누적 보너스 클레임 요청
+     *
+     * @param principal 인증된 사용자 정보
+     * @param request   보너스 클레임 요청 {@link ClaimReferralBonusRequest}
+     * @return 보너스 클레임 결과 {@link ClaimReferralBonusResponse}
+     * @Author 성효빈
+     * @Date 2026-04-09
+     * @Description 사용자가 달성한 누적 보너스 티어의 보너스를 클레임합니다.
+     */
+    @PostMapping("/me/referral-bonus")
+    @ClaimReferralBonusApiDocs
+    public ResponseEntity<BaseResponse<ClaimReferralBonusResponse>> claimReferralBonus(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @RequestBody @Valid ClaimReferralBonusRequest request
+    ) {
+        ClaimReferralBonusResult result = claimReferralBonusUseCase.claim(
+                new ClaimReferralBonusCommand(
+                        ElementExtractor.extractUserId(principal),
+                        request.tier()
+                )
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        ClaimReferralBonusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "보너스 클레임 성공"
                 )
         );
     }

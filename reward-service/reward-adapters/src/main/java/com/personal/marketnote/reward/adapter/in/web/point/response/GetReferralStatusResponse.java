@@ -17,13 +17,17 @@ public record GetReferralStatusResponse(
     public record BonusTierResponse(
             int requiredCount,
             int bonusAmount,
-            boolean achieved
+            boolean achieved,
+            boolean claimed,
+            boolean claimable
     ) {
         public static BonusTierResponse from(GetReferralStatusResult.BonusTierStatus status) {
             return BonusTierResponse.builder()
                     .requiredCount(status.requiredCount())
                     .bonusAmount(status.bonusAmount())
                     .achieved(status.achieved())
+                    .claimed(status.claimed())
+                    .claimable(status.claimable())
                     .build();
         }
     }
