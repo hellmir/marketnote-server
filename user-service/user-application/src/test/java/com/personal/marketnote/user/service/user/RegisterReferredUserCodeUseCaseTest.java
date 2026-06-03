@@ -3,7 +3,9 @@ package com.personal.marketnote.user.service.user;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.user.User;
+import com.personal.marketnote.user.exception.MutualReferralNotAllowedException;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
+import com.personal.marketnote.user.exception.SelfReferralNotAllowedException;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
@@ -16,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
+import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
 import static com.personal.marketnote.user.exception.ExceptionMessage.USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -168,5 +171,64 @@ class RegisterReferredUserCodeUseCaseTest {
         verify(requestUser, never()).registerReferredUserCode(referredUserCode);
         verifyNoInteractions(updateUserPort, publishUserEventPort);
         verifyNoMoreInteractions(getUserUseCase);
+    }
+
+    @Test
+    @DisplayName("자기 자신의 referenceCode 입력 시 예외가 발생한다")
+    void registerReferredUserCode_selfReferral_throws() {
+        // given
+        Long requestUserId = 1L;
+        String referredUserCode = "ref-123"; // requestUser의 referenceCode와 동일
+        User requestUser = spy(UserTestObjectFactory.createDefaultUser(
+                requestUserId, EntityStatus.ACTIVE, false, List.of()
+        ));
+
+        when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
+        when(getUserUseCase.getUser(requestUserId)).thenReturn(requestUser);
+
+        // expect
+        assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
+                .isInstanceOf(SelfReferralNotAllowedException.class)
+                .hasMessage(new SelfReferralNotAllowedException(FIRST_ERROR_CODE).getMessage());
+
+        verify(getUserUseCase).existsUser(referredUserCode);
+        verify(getUserUseCase).getUser(requestUserId);
+        verify(requestUser).isSelfReferral(referredUserCode);
+        verify(requestUser, never()).registerReferredUserCode(referredUserCode);
+        verify(getUserUseCase, never()).getUser(referredUserCode);
+        verifyNoInteractions(updateUserPort, publishUserEventPort);
+        verifyNoMoreInteractions(getUserUseCase);
+    }
+
+    @Test
+    @DisplayName("상호 초대(A→B, B→A) 시 예외가 발생한다")
+    void registerReferredUserCode_mutualReferral_throws() {
+        // given
+        Long requestUserId = 1L;
+        String referredUserCode = "ref-456";
+        User requestUser = spy(UserTestObjectFactory.createDefaultUser(
+                requestUserId, EntityStatus.ACTIVE, false, List.of()
+        ));
+        User referredUser = mock(User.class);
+
+        // referredUser가 이미 requestUser의 referenceCode를 등록한 상태
+        when(getUserUseCase.existsUser(referredUserCode)).thenReturn(true);
+        when(getUserUseCase.getUser(requestUserId)).thenReturn(requestUser);
+        when(getUserUseCase.getUser(referredUserCode)).thenReturn(referredUser);
+        when(referredUser.isMutualReferralWith(requestUser)).thenReturn(true);
+
+        // expect
+        assertThatThrownBy(() -> registerReferredUserCodeService.registerReferredUserCode(requestUserId, referredUserCode))
+                .isInstanceOf(MutualReferralNotAllowedException.class)
+                .hasMessage(new MutualReferralNotAllowedException(FIRST_ERROR_CODE).getMessage());
+
+        verify(getUserUseCase).existsUser(referredUserCode);
+        verify(getUserUseCase).getUser(requestUserId);
+        verify(requestUser).isSelfReferral(referredUserCode);
+        verify(getUserUseCase).getUser(referredUserCode);
+        verify(referredUser).isMutualReferralWith(requestUser);
+        verify(requestUser, never()).registerReferredUserCode(referredUserCode);
+        verifyNoInteractions(updateUserPort, publishUserEventPort);
+        verifyNoMoreInteractions(getUserUseCase, referredUser);
     }
 }
