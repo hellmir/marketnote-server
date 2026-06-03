@@ -182,6 +182,16 @@ public class User extends BaseDomain {
         this.password = passwordEncoder.encode(password);
     }
 
+    public boolean isSelfReferral(String code) {
+        return FormatValidator.hasValue(referenceCode) && referenceCode.equals(code);
+    }
+
+    public boolean isMutualReferralWith(User otherUser) {
+        return FormatValidator.hasValue(this.referredUserCode)
+                && FormatValidator.hasValue(otherUser.referenceCode)
+                && this.referredUserCode.equals(otherUser.referenceCode);
+    }
+
     public void registerReferredUserCode(String referredUserCode) {
         if (FormatValidator.hasValue(this.referredUserCode)) {
             throw new ReferredUserCodeAlreadyExistsException(SECOND_ERROR_CODE);
