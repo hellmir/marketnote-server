@@ -21,5 +21,5 @@ public interface PublishOrderEventPort {
     void publishOrderReturnedEvent(Long orderId, String orderKey, Long buyerId,
                                    Long returnAmount, Long paymentAmount, Long pointAmount,
                                    Long shippingFee, boolean isFullReturn,
-                                   Long returnShippingFee, List<OrderProduct> returnProducts);
+                                   List<OrderProduct> returnProducts);
 }

@@ -14,7 +14,6 @@ public final class KafkaTopicConstants {
     public static final String ORDER_CANCELLED = "commerce.order.cancelled";
     public static final String ORDER_PURCHASE_CONFIRMED = "commerce.order.purchase-confirmed";
     public static final String ORDER_RETURNED = "commerce.order.returned";
-    public static final String RETURN_INSPECTION_COMPLETED = "commerce.return-inspection.completed";
 
     // Product 이벤트
     public static final String PRODUCT_REGISTERED = "product.product.registered";
