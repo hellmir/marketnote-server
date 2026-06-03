@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,6 +56,8 @@ class SignUpUseCaseTest {
     private PublishUserEventPort publishUserEventPort;
     @Mock
     private FindProfanityWordPort findProfanityWordPort;
+    @Mock
+    private Clock clock;
 
     @InjectMocks
     private SignUpService signUpService;

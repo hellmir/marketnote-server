@@ -15,6 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +33,8 @@ class WithdrawUseCaseTest {
     private UpdateUserPort updateUserPort;
     @Mock
     private Oauth2AccountUnlinkPort oauth2AccountUnlinkPort;
+    @Mock
+    private Clock clock;
 
     @InjectMocks
     private WithdrawService withdrawService;
@@ -41,6 +47,7 @@ class WithdrawUseCaseTest {
         User user = mock(User.class);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
+        stubClock();
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
@@ -52,7 +59,7 @@ class WithdrawUseCaseTest {
         assertThat(disconnectResults.get(AuthVendor.APPLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
-        verify(user).withdraw();
+        verify(user).withdraw(any(LocalDateTime.class));
         verify(user, never()).removeOidcId(any(AuthVendor.class));
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, updateUserPort);
@@ -69,6 +76,7 @@ class WithdrawUseCaseTest {
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
         when(user.getOidcIdByVendor(AuthVendor.KAKAO)).thenReturn(kakaoOidcId);
+        stubClock();
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
@@ -80,7 +88,7 @@ class WithdrawUseCaseTest {
         assertThat(disconnectResults.get(AuthVendor.APPLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
-        verify(user).withdraw();
+        verify(user).withdraw(any(LocalDateTime.class));
         verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.KAKAO, kakaoOidcId);
         verify(user).removeOidcId(AuthVendor.KAKAO);
         verify(updateUserPort).update(user);
@@ -98,6 +106,7 @@ class WithdrawUseCaseTest {
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
         when(user.getOidcIdByVendor(AuthVendor.KAKAO)).thenReturn(kakaoOidcId);
         doThrow(exception).when(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.KAKAO, kakaoOidcId);
+        stubClock();
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
@@ -107,7 +116,7 @@ class WithdrawUseCaseTest {
         assertThat(disconnectResults.get(AuthVendor.KAKAO)).isFalse();
 
         verify(getUserUseCase).getAllStatusUser(id);
-        verify(user).withdraw();
+        verify(user).withdraw(any(LocalDateTime.class));
         verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.KAKAO, kakaoOidcId);
         verify(user).removeOidcId(AuthVendor.KAKAO);
         verify(updateUserPort).update(user);
@@ -123,6 +132,7 @@ class WithdrawUseCaseTest {
         Map<AuthVendor, String> vendorCredentials = Map.of(AuthVendor.GOOGLE, googleAccessToken);
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
+        stubClock();
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, vendorCredentials);
@@ -132,7 +142,7 @@ class WithdrawUseCaseTest {
         assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
-        verify(user).withdraw();
+        verify(user).withdraw(any(LocalDateTime.class));
         verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleAccessToken);
         verify(user).removeOidcId(AuthVendor.GOOGLE);
         verify(updateUserPort).update(user);
@@ -148,6 +158,7 @@ class WithdrawUseCaseTest {
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
         lenient().when(user.getOidcIdByVendor(AuthVendor.GOOGLE)).thenReturn(googleOidcId);
+        stubClock();
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
@@ -157,7 +168,7 @@ class WithdrawUseCaseTest {
         assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
-        verify(user).withdraw();
+        verify(user).withdraw(any(LocalDateTime.class));
         verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleOidcId);
         verify(user).removeOidcId(AuthVendor.GOOGLE);
         verify(updateUserPort).update(user);
@@ -175,6 +186,7 @@ class WithdrawUseCaseTest {
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
         doThrow(exception).when(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleAccessToken);
+        stubClock();
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, vendorCredentials);
@@ -184,7 +196,7 @@ class WithdrawUseCaseTest {
         assertThat(disconnectResults.get(AuthVendor.GOOGLE)).isFalse();
 
         verify(getUserUseCase).getAllStatusUser(id);
-        verify(user).withdraw();
+        verify(user).withdraw(any(LocalDateTime.class));
         verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.GOOGLE, googleAccessToken);
         verify(user).removeOidcId(AuthVendor.GOOGLE);
         verify(updateUserPort).update(user);
@@ -200,6 +212,7 @@ class WithdrawUseCaseTest {
 
         when(getUserUseCase.getAllStatusUser(id)).thenReturn(user);
         lenient().when(user.getOidcIdByVendor(AuthVendor.APPLE)).thenReturn(appleOidcId);
+        stubClock();
 
         // when
         WithdrawResult result = withdrawService.withdrawUser(id, Map.of());
@@ -209,10 +222,16 @@ class WithdrawUseCaseTest {
         assertThat(disconnectResults.get(AuthVendor.APPLE)).isTrue();
 
         verify(getUserUseCase).getAllStatusUser(id);
-        verify(user).withdraw();
+        verify(user).withdraw(any(LocalDateTime.class));
         verify(oauth2AccountUnlinkPort).unlinkAccount(AuthVendor.APPLE, appleOidcId);
         verify(user).removeOidcId(AuthVendor.APPLE);
         verify(updateUserPort).update(user);
+    }
+
+    private void stubClock() {
+        Instant fixedInstant = Instant.parse("2026-06-03T00:00:00Z");
+        when(clock.instant()).thenReturn(fixedInstant);
+        when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
     }
 
     @Test

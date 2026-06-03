@@ -26,6 +26,8 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class User extends BaseDomain {
+    private static final int WITHDRAWAL_COOLDOWN_DAYS = 30;
+
     private Long id;
     private UUID userKey;
     private String nickname;
@@ -41,6 +43,7 @@ public class User extends BaseDomain {
     private LocalDateTime signedUpAt;
     private LocalDateTime lastLoggedInAt;
     private boolean withdrawalYn;
+    private LocalDateTime withdrawnAt;
     private Long orderNum;
 
     public static User from(UserCreateState state) {
@@ -114,6 +117,7 @@ public class User extends BaseDomain {
                 .signedUpAt(state.getSignedUpAt())
                 .lastLoggedInAt(state.getLastLoggedInAt())
                 .withdrawalYn(Boolean.TRUE.equals(state.getWithdrawalYn()))
+                .withdrawnAt(state.getWithdrawnAt())
                 .orderNum(state.getOrderNum())
                 .build();
 
@@ -227,20 +231,32 @@ public class User extends BaseDomain {
                 .allMatch(UserTerms::isRequiredTermsAgreed);
     }
 
-    public void withdraw() {
+    public void withdraw(LocalDateTime now) {
+        if (withdrawalYn) {
+            return;
+        }
         withdrawalYn = true;
+        withdrawnAt = now;
         deactivate();
         userTerms.forEach(UserTerms::disagree);
     }
 
-    public void cancelWithdrawal() {
+    public void cancelWithdrawal(LocalDateTime now) {
         withdrawalYn = false;
+        withdrawnAt = null;
         activate();
-        signedUpAt = LocalDateTime.now();
+        signedUpAt = now;
     }
 
     public boolean isWithdrawn() {
         return withdrawalYn;
+    }
+
+    public boolean canReSignUp(LocalDateTime now) {
+        if (withdrawnAt == null) {
+            return true;
+        }
+        return !now.isBefore(withdrawnAt.plusDays(WITHDRAWAL_COOLDOWN_DAYS));
     }
 
     public String getOidcIdByVendor(AuthVendor vendor) {
