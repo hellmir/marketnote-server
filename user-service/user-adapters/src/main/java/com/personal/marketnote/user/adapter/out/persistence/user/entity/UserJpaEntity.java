@@ -80,11 +80,6 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "withdrawn_yn", nullable = false, columnDefinition = BOOLEAN_DEFAULT_FALSE)
     private Boolean withdrawalYn;
 
-    @Column(name = "withdrawn_at")
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime withdrawnAt;
-
     public static UserJpaEntity from(User user, TermsJpaRepository termsJpaRepository) {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
                 .userKey(user.getUserKey())
@@ -97,7 +92,6 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .referredUserCode(user.getReferredUserCode())
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
                 .withdrawalYn(user.isWithdrawn())
-                .withdrawnAt(user.getWithdrawnAt())
                 .lastLoggedInAt(user.getLastLoggedInAt())
                 .build();
 
@@ -132,7 +126,6 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
                 .lastLoggedInAt(user.getLastLoggedInAt())
                 .withdrawalYn(user.isWithdrawn())
-                .withdrawnAt(user.getWithdrawnAt())
                 .build();
 
         userJpaEntity.userOauth2VendorsJpaEntities = user.getUserAuthProviders().stream()
@@ -153,7 +146,6 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         signedUpAt = user.getSignedUpAt();
         lastLoggedInAt = user.getLastLoggedInAt();
         withdrawalYn = user.isWithdrawn();
-        withdrawnAt = user.getWithdrawnAt();
 
         // 회원 계정 정보 업데이트
         for (int i = 0; i < userOauth2VendorsJpaEntities.size(); i++) {

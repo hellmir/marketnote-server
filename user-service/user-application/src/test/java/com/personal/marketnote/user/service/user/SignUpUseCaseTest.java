@@ -9,7 +9,6 @@ import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityEx
 import com.personal.marketnote.user.exception.InvalidVerificationCodeException;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.exception.UserNotActiveException;
-import com.personal.marketnote.user.exception.UserWithdrawalCooldownException;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
@@ -26,10 +25,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,8 +55,6 @@ class SignUpUseCaseTest {
     private PublishUserEventPort publishUserEventPort;
     @Mock
     private FindProfanityWordPort findProfanityWordPort;
-    @Mock
-    private Clock clock;
 
     @InjectMocks
     private SignUpService signUpService;
@@ -278,110 +271,6 @@ class SignUpUseCaseTest {
         verifyNoInteractions(saveUserPort, updateUserPort, saveLoginHistoryPort, publishUserEventPort, findTermsPort, getUserUseCase);
         verify(findUserPort, never()).existsByNickname(anyString());
         verify(verifyCodePort, never()).verify(anyString(), anyString());
-    }
-
-    @Test
-    @DisplayName("탈퇴 후 30일 미경과 시 재가입 시도하면 예외가 발생한다")
-    void signUp_withdrawnUserWithinCooldown_throws() {
-        // given
-        String email = "withdrawn@test.com";
-        SignUpCommand command = createCommand(email, null, "123456", "tester", "홍길동", null);
-
-        when(findUserPort.existsByEmail(email)).thenReturn(true);
-        when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
-        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
-        when(findUserPort.existsByNickname(anyString())).thenReturn(false);
-        when(verifyCodePort.verify(eq(email), anyString())).thenReturn(true);
-
-        User withdrawnUser = mock(User.class);
-        when(withdrawnUser.isWithdrawn()).thenReturn(true);
-        when(withdrawnUser.canReSignUp(any(LocalDateTime.class))).thenReturn(false);
-        when(getUserUseCase.getAllStatusUser(email)).thenReturn(withdrawnUser);
-
-        Instant fixedInstant = Instant.parse("2026-06-03T00:00:00Z");
-        when(clock.instant()).thenReturn(fixedInstant);
-        when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
-
-        // expect
-        assertThatThrownBy(() -> signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1"))
-                .isInstanceOf(UserWithdrawalCooldownException.class);
-
-        verify(withdrawnUser, never()).cancelWithdrawal(any(LocalDateTime.class));
-        verify(updateUserPort, never()).update(any());
-        verify(saveUserPort, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("탈퇴 후 30일 경과 시 재가입이 정상적으로 처리된다")
-    void signUp_withdrawnUserAfterCooldown_success() {
-        // given
-        String email = "withdrawn@test.com";
-        SignUpCommand command = createCommand(email, null, "123456", "tester", "홍길동", null);
-
-        when(findUserPort.existsByEmail(email)).thenReturn(true);
-        when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
-        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
-        when(findUserPort.existsByNickname(anyString())).thenReturn(false);
-        when(verifyCodePort.verify(eq(email), anyString())).thenReturn(true);
-
-        User withdrawnUser = mock(User.class);
-        when(withdrawnUser.isWithdrawn()).thenReturn(true);
-        when(withdrawnUser.canReSignUp(any(LocalDateTime.class))).thenReturn(true);
-        when(withdrawnUser.isActive()).thenReturn(true);
-        when(withdrawnUser.getId()).thenReturn(10L);
-        when(withdrawnUser.getRole()).thenReturn(Role.getBuyer());
-        when(getUserUseCase.getAllStatusUser(email)).thenReturn(withdrawnUser);
-
-        Instant fixedInstant = Instant.parse("2026-05-10T00:00:00Z");
-        when(clock.instant()).thenReturn(fixedInstant);
-        when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
-
-        // when
-        SignUpResult result = signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1");
-
-        // then
-        assertThat(result.id()).isEqualTo(10L);
-        assertThat(result.isNewUser()).isTrue();
-
-        verify(withdrawnUser).cancelWithdrawal(any(LocalDateTime.class));
-        verify(updateUserPort).update(withdrawnUser);
-        verify(saveLoginHistoryPort).saveLoginHistory(any(LoginHistory.class));
-    }
-
-    @Test
-    @DisplayName("탈퇴 후 정확히 30일째 되는 날 재가입이 정상적으로 처리된다")
-    void signUp_withdrawnUserExactly30Days_success() {
-        // given
-        String email = "withdrawn@test.com";
-        SignUpCommand command = createCommand(email, null, "123456", "tester", "홍길동", null);
-
-        when(findUserPort.existsByEmail(email)).thenReturn(true);
-        when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
-        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
-        when(findUserPort.existsByNickname(anyString())).thenReturn(false);
-        when(verifyCodePort.verify(eq(email), anyString())).thenReturn(true);
-
-        User withdrawnUser = mock(User.class);
-        when(withdrawnUser.isWithdrawn()).thenReturn(true);
-        when(withdrawnUser.canReSignUp(any(LocalDateTime.class))).thenReturn(true);
-        when(withdrawnUser.isActive()).thenReturn(true);
-        when(withdrawnUser.getId()).thenReturn(11L);
-        when(withdrawnUser.getRole()).thenReturn(Role.getBuyer());
-        when(getUserUseCase.getAllStatusUser(email)).thenReturn(withdrawnUser);
-
-        Instant fixedInstant = Instant.parse("2026-05-09T00:00:00Z");
-        when(clock.instant()).thenReturn(fixedInstant);
-        when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
-
-        // when
-        SignUpResult result = signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1");
-
-        // then
-        assertThat(result.id()).isEqualTo(11L);
-        assertThat(result.isNewUser()).isTrue();
-
-        verify(withdrawnUser).cancelWithdrawal(any(LocalDateTime.class));
-        verify(updateUserPort).update(withdrawnUser);
     }
 
     private SignUpCommand createCommand(

@@ -10,7 +10,6 @@ import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityEx
 import com.personal.marketnote.user.exception.InvalidVerificationCodeException;
 import com.personal.marketnote.user.exception.UserExistsException;
 import com.personal.marketnote.user.exception.UserNotActiveException;
-import com.personal.marketnote.user.exception.UserWithdrawalCooldownException;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.port.in.mapper.UserCommandToStateMapper;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
@@ -25,8 +24,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -48,7 +45,6 @@ public class SignUpService implements SignUpUseCase {
     private final SaveLoginHistoryPort saveLoginHistoryPort;
     private final PublishUserEventPort publishUserEventPort;
     private final FindProfanityWordPort findProfanityWordPort;
-    private final Clock clock;
 
     @Override
     public SignUpResult signUp(SignUpCommand signUpCommand, AuthVendor authVendor, String oidcId, String ipAddress) {
@@ -137,11 +133,7 @@ public class SignUpService implements SignUpUseCase {
 
         // 탈퇴 회원인 경우 재활성화
         if (signedUpUser.isWithdrawn()) {
-            LocalDateTime now = LocalDateTime.now(clock);
-            if (!signedUpUser.canReSignUp(now)) {
-                throw new UserWithdrawalCooldownException(SEVENTH_ERROR_CODE);
-            }
-            signedUpUser.cancelWithdrawal(now);
+            signedUpUser.cancelWithdrawal();
             isNewUser.set(true);
         }
 
