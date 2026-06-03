@@ -12,6 +12,7 @@ public record OrderReturnedEvent(
         Long pointAmount,
         Long shippingFee,
         boolean isFullReturn,
+        Long returnShippingFee,
         List<OrderProductItem> returnProducts
 ) {
 

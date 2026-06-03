@@ -6,6 +6,7 @@ import lombok.Builder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record GetReferralStatusResult(
@@ -18,20 +19,29 @@ public record GetReferralStatusResult(
     public record BonusTierStatus(
             int requiredCount,
             int bonusAmount,
-            boolean achieved
+            boolean achieved,
+            boolean claimed,
+            boolean claimable
     ) {
-        public static BonusTierStatus of(ReferralBonusTier tier, boolean achieved) {
+        public static BonusTierStatus of(ReferralBonusTier tier, boolean achieved, boolean claimed) {
             return BonusTierStatus.builder()
                     .requiredCount(tier.getRequiredCount())
                     .bonusAmount(tier.getBonusAmount())
                     .achieved(achieved)
+                    .claimed(claimed)
+                    .claimable(achieved && !claimed)
                     .build();
         }
     }
 
-    public static GetReferralStatusResult of(long totalInvitedCount, long totalEarnedCash) {
+    public static GetReferralStatusResult of(long totalInvitedCount, long totalEarnedCash,
+                                              Map<ReferralBonusTier, Boolean> claimedMap) {
         List<BonusTierStatus> tiers = Arrays.stream(ReferralBonusTier.values())
-                .map(tier -> BonusTierStatus.of(tier, tier.isAchieved(totalInvitedCount)))
+                .map(tier -> BonusTierStatus.of(
+                        tier,
+                        tier.isAchieved(totalInvitedCount),
+                        claimedMap.getOrDefault(tier, false)
+                ))
                 .toList();
 
         return GetReferralStatusResult.builder()

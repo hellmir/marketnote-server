@@ -39,7 +39,6 @@ public class UserJpaEntityToDomainMapper {
                                     .lastLoggedInAt(entity.getLastLoggedInAt())
                                     .status(entity.getStatus())
                                     .withdrawalYn(entity.getWithdrawalYn())
-                                    .withdrawnAt(entity.getWithdrawnAt())
                                     .orderNum(entity.getOrderNum())
                                     .build()
                     );
