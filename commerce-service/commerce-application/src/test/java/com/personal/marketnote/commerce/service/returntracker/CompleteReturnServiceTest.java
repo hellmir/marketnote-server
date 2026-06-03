@@ -76,6 +76,27 @@ class CompleteReturnServiceTest {
         }
 
         @Test
+        @DisplayName("RETURN_INSPECTING 상태의 주문을 RETURNED로 바로 전이한다")
+        void shouldTransitionFromReturnInspectingToReturned() {
+            Order order = createReturnableOrder(OrderStatus.RETURN_INSPECTING);
+            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(0L).build());
+
+            CompleteReturnCommand command = new CompleteReturnCommand(1L);
+
+            service.completeReturn(command);
+
+            verify(order, never()).changeAllProductsStatus(eq(OrderStatus.RETURN_IN_PROGRESS), any());
+            verify(order).changeAllProductsStatus(eq(OrderStatus.RETURNED), any());
+            verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
+            verify(publishOrderEventPort).publishOrderReturnedEvent(
+                    eq(1L), anyString(), eq(100L),
+                    eq(30000L), eq(49000L), eq(1000L), eq(3000L),
+                    eq(true), eq(0L), anyList());
+        }
+
+        @Test
         @DisplayName("RETURN_IN_PROGRESS 상태의 주문을 RETURNED로 바로 전이한다")
         void shouldTransitionFromReturnInProgressToReturned() {
             Order order = createReturnableOrder(OrderStatus.RETURN_IN_PROGRESS);
@@ -123,7 +144,7 @@ class CompleteReturnServiceTest {
     class CompleteReturnFailure {
 
         @Test
-        @DisplayName("RETURN_REQUESTED/RETURN_IN_PROGRESS가 아닌 상태이면 InvalidOrderStatusTransitionException을 던진다")
+        @DisplayName("반품 처리 가능한 상태가 아니면 InvalidOrderStatusTransitionException을 던진다")
         void shouldThrowOnInvalidStatus() {
             Order order = mock(Order.class);
             when(order.getOrderStatus()).thenReturn(OrderStatus.PAID);
