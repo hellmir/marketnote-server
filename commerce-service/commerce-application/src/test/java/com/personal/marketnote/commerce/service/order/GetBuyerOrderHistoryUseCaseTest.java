@@ -688,7 +688,8 @@ class GetBuyerOrderHistoryUseCaseTest {
                     OrderStatus.RETURN_IN_PROGRESS,
                     OrderStatus.RETURN_INSPECTING,
                     OrderStatus.PARTIALLY_RETURNED,
-                    OrderStatus.RETURNED
+                    OrderStatus.RETURNED,
+                    OrderStatus.RETURN_REJECTED
             );
         }
     }
