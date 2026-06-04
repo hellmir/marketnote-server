@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.returntracker.ReturnInspectionSta
 import com.personal.marketnote.commerce.domain.returntracker.ReturnTracker;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.PollReturnInspectionUseCase;
 import com.personal.marketnote.commerce.port.out.fulfillment.GetReturnInspectionResultPort;
+import com.personal.marketnote.commerce.port.out.slack.SendSlackAlertPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult;
 import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult.ReturnInspectionGoodsItem;
 import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult.ReturnInspectionResultItem;
@@ -31,6 +32,7 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
     private final GetReturnInspectionResultPort getReturnInspectionResultPort;
     private final CompleteReturnInspectionService completeReturnInspectionService;
     private final HandleInspectionFailedOrHoldService handleInspectionFailedOrHoldService;
+    private final SendSlackAlertPort sendSlackAlertPort;
     private final Clock clock;
 
     @Override
@@ -131,6 +133,22 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         }
 
         handleInspectionFailedOrHoldService.handleFailedOrHold(tracker, overallStatus, now);
+        sendInspectionAlert(tracker.getOrderId(), overallStatus, now);
+    }
+
+    private void sendInspectionAlert(Long orderId, String overallStatus, LocalDateTime now) {
+        String inspectionStatus = resolveInspectionStatusDescription(overallStatus);
+        sendSlackAlertPort.sendInspectionFailedOrHoldAlert(orderId, inspectionStatus, now);
+    }
+
+    private String resolveInspectionStatusDescription(String overallStatus) {
+        if (INSPECTION_FAILED.equals(overallStatus)) {
+            return "검수 실패";
+        }
+        if (INSPECTION_ON_HOLD.equals(overallStatus)) {
+            return "검수 보류";
+        }
+        return "알 수 없는 상태: " + overallStatus;
     }
 
     private String resolveOverallInspectionStatus(List<ReturnInspectionGoodsItem> products) {
