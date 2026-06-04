@@ -94,6 +94,10 @@ public class Order {
         return this.orderStatus.isReturned();
     }
 
+    public boolean isReturnRejected() {
+        return this.orderStatus.isReturnRejected();
+    }
+
     public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
