@@ -28,7 +28,8 @@ public enum OrderStatus {
     RETURNED("반품 완료"),
     RETURN_REJECTED("반품 불가"),
     RETURN_RESHIPPING_REQUESTED("회송 요청됨"),
-    RETURN_RESHIPPING("회송 중");
+    RETURN_RESHIPPING("회송 중"),
+    RETURN_RESHIPPED("회송 완료");
 
     private final String description;
 
@@ -55,7 +56,8 @@ public enum OrderStatus {
         ALLOWED_TRANSITIONS.put(RETURNED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(RETURN_REJECTED, EnumSet.of(RETURN_RESHIPPING_REQUESTED));
         ALLOWED_TRANSITIONS.put(RETURN_RESHIPPING_REQUESTED, EnumSet.of(RETURN_RESHIPPING));
-        ALLOWED_TRANSITIONS.put(RETURN_RESHIPPING, EnumSet.noneOf(OrderStatus.class));
+        ALLOWED_TRANSITIONS.put(RETURN_RESHIPPING, EnumSet.of(RETURN_RESHIPPED));
+        ALLOWED_TRANSITIONS.put(RETURN_RESHIPPED, EnumSet.noneOf(OrderStatus.class));
     }
 
     public boolean canTransitionTo(OrderStatus target) {
@@ -136,6 +138,10 @@ public enum OrderStatus {
 
     public boolean isReturnReshipping() {
         return this == RETURN_RESHIPPING;
+    }
+
+    public boolean isReturnReshipped() {
+        return this == RETURN_RESHIPPED;
     }
 
     public boolean requiresFulfillmentCancellation() {
