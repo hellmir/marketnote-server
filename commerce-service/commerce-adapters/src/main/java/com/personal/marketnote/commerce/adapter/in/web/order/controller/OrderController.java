@@ -19,7 +19,9 @@ import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProduct
 import com.personal.marketnote.commerce.port.in.result.order.*;
 import com.personal.marketnote.commerce.port.in.usecase.order.*;
 import com.personal.marketnote.commerce.port.in.command.returntracker.ApproveReturnInspectionCommand;
+import com.personal.marketnote.commerce.port.in.command.returntracker.RejectReturnInspectionCommand;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.ApproveReturnInspectionUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.returntracker.RejectReturnInspectionUseCase;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
@@ -65,6 +67,7 @@ public class OrderController {
     private final GetOrderStatusHistoryUseCase getOrderStatusHistoryUseCase;
     private final GetReturnRefundInfoUseCase getReturnRefundInfoUseCase;
     private final ApproveReturnInspectionUseCase approveReturnInspectionUseCase;
+    private final RejectReturnInspectionUseCase rejectReturnInspectionUseCase;
 
     /**
      * 주문 등록
@@ -553,6 +556,35 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "반품 검수 승인 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * CS 반품 불가 판정
+     *
+     * @param id 주문 ID
+     * @Author 성효빈
+     * @Date 2026-06-03
+     * @Description CS 담당자가 반품 검수 중 상태의 주문을 반품 불가로 전이합니다.
+     */
+    @PostMapping("/api/v1/admin/orders/{id}/reject-return-inspection")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @RejectReturnInspectionApiDocs
+    public ResponseEntity<BaseResponse<Void>> rejectReturnInspection(
+            @PathVariable("id") Long id
+    ) {
+        rejectReturnInspectionUseCase.rejectReturnInspection(
+                new RejectReturnInspectionCommand(id)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "반품 불가 판정 성공"
                 ),
                 HttpStatus.OK
         );

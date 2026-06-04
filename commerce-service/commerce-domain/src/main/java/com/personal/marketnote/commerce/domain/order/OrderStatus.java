@@ -25,7 +25,8 @@ public enum OrderStatus {
     RETURN_IN_PROGRESS("반품 진행 중"),
     RETURN_INSPECTING("반품 검수 중"),
     PARTIALLY_RETURNED("부분 반품됨"),
-    RETURNED("반품 완료");
+    RETURNED("반품 완료"),
+    RETURN_REJECTED("반품 불가");
 
     private final String description;
 
@@ -47,9 +48,10 @@ public enum OrderStatus {
         ALLOWED_TRANSITIONS.put(CONFIRMED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(RETURN_REQUESTED, EnumSet.of(RETURN_IN_PROGRESS));
         ALLOWED_TRANSITIONS.put(RETURN_IN_PROGRESS, EnumSet.of(RETURNED, RETURN_INSPECTING));
-        ALLOWED_TRANSITIONS.put(RETURN_INSPECTING, EnumSet.of(RETURNED));
+        ALLOWED_TRANSITIONS.put(RETURN_INSPECTING, EnumSet.of(RETURNED, RETURN_REJECTED));
         ALLOWED_TRANSITIONS.put(PARTIALLY_RETURNED, EnumSet.of(RETURN_REQUESTED, RETURNED));
         ALLOWED_TRANSITIONS.put(RETURNED, EnumSet.noneOf(OrderStatus.class));
+        ALLOWED_TRANSITIONS.put(RETURN_REJECTED, EnumSet.noneOf(OrderStatus.class));
     }
 
     public boolean canTransitionTo(OrderStatus target) {
@@ -118,6 +120,10 @@ public enum OrderStatus {
 
     public boolean isReturnInspecting() {
         return this == RETURN_INSPECTING;
+    }
+
+    public boolean isReturnRejected() {
+        return this == RETURN_REJECTED;
     }
 
     public boolean requiresFulfillmentCancellation() {
