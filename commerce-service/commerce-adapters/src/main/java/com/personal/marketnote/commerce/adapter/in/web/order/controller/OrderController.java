@@ -18,6 +18,8 @@ import com.personal.marketnote.commerce.port.in.command.order.GetReturnRefundInf
 import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProductReviewStatusCommand;
 import com.personal.marketnote.commerce.port.in.result.order.*;
 import com.personal.marketnote.commerce.port.in.usecase.order.*;
+import com.personal.marketnote.commerce.port.in.command.returntracker.ApproveReturnInspectionCommand;
+import com.personal.marketnote.commerce.port.in.usecase.returntracker.ApproveReturnInspectionUseCase;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
@@ -62,6 +64,7 @@ public class OrderController {
     private final GetAdminOrdersUseCase getAdminOrdersUseCase;
     private final GetOrderStatusHistoryUseCase getOrderStatusHistoryUseCase;
     private final GetReturnRefundInfoUseCase getReturnRefundInfoUseCase;
+    private final ApproveReturnInspectionUseCase approveReturnInspectionUseCase;
 
     /**
      * 주문 등록
@@ -521,6 +524,35 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "주문 상태 이력 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * CS 반��� 검수 승인
+     *
+     * @param id 주문 ID
+     * @Author 성효빈
+     * @Date 2026-06-03
+     * @Description CS 담당��가 반품 검수 중 상태의 주문을 반품 완료로 ��이합니다.
+     */
+    @PostMapping("/api/v1/admin/orders/{id}/approve-return-inspection")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ApproveReturnInspectionApiDocs
+    public ResponseEntity<BaseResponse<Void>> approveReturnInspection(
+            @PathVariable("id") Long id
+    ) {
+        approveReturnInspectionUseCase.approveReturnInspection(
+                new ApproveReturnInspectionCommand(id)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "반품 검수 승인 성공"
                 ),
                 HttpStatus.OK
         );
