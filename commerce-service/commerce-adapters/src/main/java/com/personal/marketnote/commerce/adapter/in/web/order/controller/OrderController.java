@@ -22,10 +22,12 @@ import com.personal.marketnote.commerce.port.in.command.returntracker.ApproveRet
 import com.personal.marketnote.commerce.port.in.command.returntracker.RejectReturnInspectionCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.RequestReturnReshippingCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.StartReturnReshippingCommand;
+import com.personal.marketnote.commerce.port.in.command.returntracker.CompleteReturnReshippingCommand;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.ApproveReturnInspectionUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.RejectReturnInspectionUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.RequestReturnReshippingUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.StartReturnReshippingUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.returntracker.CompleteReturnReshippingUseCase;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
@@ -74,6 +76,7 @@ public class OrderController {
     private final RejectReturnInspectionUseCase rejectReturnInspectionUseCase;
     private final RequestReturnReshippingUseCase requestReturnReshippingUseCase;
     private final StartReturnReshippingUseCase startReturnReshippingUseCase;
+    private final CompleteReturnReshippingUseCase completeReturnReshippingUseCase;
 
     /**
      * 주문 등록
@@ -649,6 +652,35 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "회송 출고 처리 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * CS 회송 완료 처리
+     *
+     * @param id 주문 ID
+     * @Author 성효빈
+     * @Date 2026-06-03
+     * @Description CS 담당자가 회송 중 상태의 주문에 대해 회송 완료 처리합니다.
+     */
+    @PostMapping("/api/v1/admin/orders/{id}/complete-return-reshipping")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @CompleteReturnReshippingApiDocs
+    public ResponseEntity<BaseResponse<Void>> completeReturnReshipping(
+            @PathVariable("id") Long id
+    ) {
+        completeReturnReshippingUseCase.completeReturnReshipping(
+                new CompleteReturnReshippingCommand(id)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회송 완료 처리 성공"
                 ),
                 HttpStatus.OK
         );
