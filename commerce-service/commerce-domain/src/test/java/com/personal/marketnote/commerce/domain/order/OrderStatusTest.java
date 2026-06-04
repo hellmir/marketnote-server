@@ -259,10 +259,29 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("RETURN_REJECTED에서 어떤 상태로도 전이할 수 없다")
-        void returnRejected_cannotTransitionToAny() {
+        @DisplayName("RETURN_REJECTED에서 RETURN_RESHIPPING_REQUESTED로 전이할 수 있다")
+        void returnRejected_canTransitionTo_returnReshippingRequested() {
+            assertThat(OrderStatus.RETURN_REJECTED.canTransitionTo(OrderStatus.RETURN_RESHIPPING_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("RETURN_REJECTED에서 RETURN_RESHIPPING_REQUESTED 외 다른 상태로 전이할 수 없다")
+        void returnRejected_cannotTransitionTo_otherStatuses() {
             for (OrderStatus target : OrderStatus.values()) {
-                assertThat(OrderStatus.RETURN_REJECTED.canTransitionTo(target)).isFalse();
+                if (target == OrderStatus.RETURN_RESHIPPING_REQUESTED) {
+                    continue;
+                }
+                assertThat(OrderStatus.RETURN_REJECTED.canTransitionTo(target))
+                        .as("RETURN_REJECTED → %s는 불가해야 한다", target)
+                        .isFalse();
+            }
+        }
+
+        @Test
+        @DisplayName("RETURN_RESHIPPING_REQUESTED에서 어떤 상태로도 전이할 수 없다")
+        void returnReshippingRequested_cannotTransitionToAny() {
+            for (OrderStatus target : OrderStatus.values()) {
+                assertThat(OrderStatus.RETURN_RESHIPPING_REQUESTED.canTransitionTo(target)).isFalse();
             }
         }
 

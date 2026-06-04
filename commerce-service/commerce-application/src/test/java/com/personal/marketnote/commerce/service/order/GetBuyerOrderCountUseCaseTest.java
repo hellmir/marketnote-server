@@ -589,7 +589,8 @@ class GetBuyerOrderCountUseCaseTest {
                     OrderStatus.RETURN_INSPECTING,
                     OrderStatus.PARTIALLY_RETURNED,
                     OrderStatus.RETURNED,
-                    OrderStatus.RETURN_REJECTED
+                    OrderStatus.RETURN_REJECTED,
+                    OrderStatus.RETURN_RESHIPPING_REQUESTED
             );
         }
 
