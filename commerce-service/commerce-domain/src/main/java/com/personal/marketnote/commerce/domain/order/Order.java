@@ -98,6 +98,10 @@ public class Order {
         return this.orderStatus.isReturnRejected();
     }
 
+    public boolean isReturnReshippingRequested() {
+        return this.orderStatus.isReturnReshippingRequested();
+    }
+
     public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
