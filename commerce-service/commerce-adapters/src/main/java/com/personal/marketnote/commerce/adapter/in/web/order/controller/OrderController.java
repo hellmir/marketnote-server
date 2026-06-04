@@ -20,8 +20,10 @@ import com.personal.marketnote.commerce.port.in.result.order.*;
 import com.personal.marketnote.commerce.port.in.usecase.order.*;
 import com.personal.marketnote.commerce.port.in.command.returntracker.ApproveReturnInspectionCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.RejectReturnInspectionCommand;
+import com.personal.marketnote.commerce.port.in.command.returntracker.RequestReturnReshippingCommand;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.ApproveReturnInspectionUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.RejectReturnInspectionUseCase;
+import com.personal.marketnote.commerce.port.in.usecase.returntracker.RequestReturnReshippingUseCase;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
@@ -68,6 +70,7 @@ public class OrderController {
     private final GetReturnRefundInfoUseCase getReturnRefundInfoUseCase;
     private final ApproveReturnInspectionUseCase approveReturnInspectionUseCase;
     private final RejectReturnInspectionUseCase rejectReturnInspectionUseCase;
+    private final RequestReturnReshippingUseCase requestReturnReshippingUseCase;
 
     /**
      * 주문 등록
@@ -585,6 +588,35 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "반품 불가 판정 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * CS 회송 요청
+     *
+     * @param id 주문 ID
+     * @Author 성효빈
+     * @Date 2026-06-03
+     * @Description CS 담당자가 반품 불가 상태의 주문에 대해 회송을 요청합니다.
+     */
+    @PostMapping("/api/v1/admin/orders/{id}/request-return-reshipping")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @RequestReturnReshippingApiDocs
+    public ResponseEntity<BaseResponse<Void>> requestReturnReshipping(
+            @PathVariable("id") Long id
+    ) {
+        requestReturnReshippingUseCase.requestReturnReshipping(
+                new RequestReturnReshippingCommand(id)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회송 요청 성공"
                 ),
                 HttpStatus.OK
         );
