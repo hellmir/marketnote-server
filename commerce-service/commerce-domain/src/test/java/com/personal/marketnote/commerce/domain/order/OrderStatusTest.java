@@ -240,15 +240,29 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("RETURN_INSPECTING에서 RETURNED 외 다른 상태로 전이할 수 없다")
+        @DisplayName("RETURN_INSPECTING에서 RETURN_REJECTED로 전이할 수 있다")
+        void returnInspecting_canTransitionTo_returnRejected() {
+            assertThat(OrderStatus.RETURN_INSPECTING.canTransitionTo(OrderStatus.RETURN_REJECTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("RETURN_INSPECTING에서 RETURNED/RETURN_REJECTED 외 다른 상태로 전이할 수 없다")
         void returnInspecting_cannotTransitionTo_otherStatuses() {
             for (OrderStatus target : OrderStatus.values()) {
-                if (target == OrderStatus.RETURNED) {
+                if (target == OrderStatus.RETURNED || target == OrderStatus.RETURN_REJECTED) {
                     continue;
                 }
                 assertThat(OrderStatus.RETURN_INSPECTING.canTransitionTo(target))
                         .as("RETURN_INSPECTING → %s는 불가해야 한다", target)
                         .isFalse();
+            }
+        }
+
+        @Test
+        @DisplayName("RETURN_REJECTED에서 어떤 상태로도 전이할 수 없다")
+        void returnRejected_cannotTransitionToAny() {
+            for (OrderStatus target : OrderStatus.values()) {
+                assertThat(OrderStatus.RETURN_REJECTED.canTransitionTo(target)).isFalse();
             }
         }
 
