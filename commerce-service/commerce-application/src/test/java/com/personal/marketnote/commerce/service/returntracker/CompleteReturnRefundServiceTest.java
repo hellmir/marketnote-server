@@ -6,7 +6,6 @@ import com.personal.marketnote.commerce.domain.returntracker.ReturnTracker;
 import com.personal.marketnote.commerce.domain.returntracker.ReturnTrackerSnapshotState;
 import com.personal.marketnote.commerce.exception.PaymentAlreadyRefundedException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
-import com.personal.marketnote.commerce.exception.ReturnPgRefundFailedException;
 import com.personal.marketnote.commerce.exception.ReturnTrackerNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.payment.RefundPaymentCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.CompleteReturnRefundCommand;
@@ -84,8 +83,8 @@ class CompleteReturnRefundServiceTest {
     class RefundFailure {
 
         @Test
-        @DisplayName("PG 환불 실패 시 ReturnTracker refundStatus가 FAILED로 변경되고 ReturnPgRefundFailedException을 던진다")
-        void shouldMarkRefundAsFailedOnPgErrorAndThrowException() {
+        @DisplayName("PG 환불 실패 시 ReturnTracker refundStatus가 FAILED로 변경된다")
+        void shouldMarkRefundAsFailedOnPgError() {
             ReturnTracker tracker = createTracker(ReturnRefundStatus.PENDING);
             when(findReturnTrackerPort.findByOrderId(1L)).thenReturn(Optional.of(tracker));
             doThrow(new PaymentCancelException("PG 환불 실패"))
@@ -93,8 +92,7 @@ class CompleteReturnRefundServiceTest {
 
             CompleteReturnRefundCommand command = createCommand();
 
-            assertThatThrownBy(() -> service.completeReturnRefund(command))
-                    .isInstanceOf(ReturnPgRefundFailedException.class);
+            service.completeReturnRefund(command);
 
             assertThat(tracker.isRefundFailed()).isTrue();
             verify(updateReturnTrackerPort).update(tracker);
@@ -133,57 +131,6 @@ class CompleteReturnRefundServiceTest {
 
             assertThat(tracker.isRefundCompleted()).isTrue();
             verify(updateReturnTrackerPort).update(tracker);
-        }
-
-        @Test
-        @DisplayName("이미 환불 완료된 ReturnTracker이면 PG 환불을 호출하지 않고 정상 종료한다")
-        void shouldSkipRefundWhenTrackerAlreadyCompleted() {
-            ReturnTracker tracker = createTracker(ReturnRefundStatus.COMPLETED);
-            when(findReturnTrackerPort.findByOrderId(1L)).thenReturn(Optional.of(tracker));
-
-            CompleteReturnRefundCommand command = createCommand();
-
-            service.completeReturnRefund(command);
-
-            verifyNoInteractions(refundPaymentUseCase);
-            assertThat(tracker.isRefundCompleted()).isTrue();
-        }
-    }
-
-    @Nested
-    @DisplayName("DLT 재시도")
-    class DltRetry {
-
-        @Test
-        @DisplayName("FAILED 상태의 ReturnTracker를 PENDING으로 리셋하고 PG 환불을 재시도한다")
-        void shouldRetryRefundWhenTrackerIsFailed() {
-            ReturnTracker tracker = createTracker(ReturnRefundStatus.FAILED);
-            when(findReturnTrackerPort.findByOrderId(1L)).thenReturn(Optional.of(tracker));
-
-            CompleteReturnRefundCommand command = createCommand();
-
-            service.completeReturnRefund(command);
-
-            verify(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
-            assertThat(tracker.isRefundCompleted()).isTrue();
-            verify(updateReturnTrackerPort, times(2)).update(tracker);
-        }
-
-        @Test
-        @DisplayName("FAILED 상태에서 재시도 후 다시 실패하면 FAILED로 유지하고 예외를 던진다")
-        void shouldFailAgainOnRetryAndThrowException() {
-            ReturnTracker tracker = createTracker(ReturnRefundStatus.FAILED);
-            when(findReturnTrackerPort.findByOrderId(1L)).thenReturn(Optional.of(tracker));
-            doThrow(new PaymentCancelException("PG 환불 재실패"))
-                    .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
-
-            CompleteReturnRefundCommand command = createCommand();
-
-            assertThatThrownBy(() -> service.completeReturnRefund(command))
-                    .isInstanceOf(ReturnPgRefundFailedException.class);
-
-            assertThat(tracker.isRefundFailed()).isTrue();
-            verify(updateReturnTrackerPort, times(2)).update(tracker);
         }
     }
 

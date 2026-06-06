@@ -17,8 +17,7 @@ public final class DltTopicRegistry {
             KafkaTopicConstants.PRODUCT_UPDATED,
             KafkaTopicConstants.USER_SIGNUP_COMPLETED,
             KafkaTopicConstants.USER_REFERRAL_COMPLETED,
-            KafkaTopicConstants.REVIEW_REGISTERED,
-            KafkaTopicConstants.ORDER_RETURNED
+            KafkaTopicConstants.REVIEW_REGISTERED
     );
 
     private DltTopicRegistry() {

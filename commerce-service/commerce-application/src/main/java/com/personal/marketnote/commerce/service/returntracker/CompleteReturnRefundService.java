@@ -3,7 +3,6 @@ package com.personal.marketnote.commerce.service.returntracker;
 import com.personal.marketnote.commerce.domain.returntracker.ReturnTracker;
 import com.personal.marketnote.commerce.exception.PaymentAlreadyRefundedException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
-import com.personal.marketnote.commerce.exception.ReturnPgRefundFailedException;
 import com.personal.marketnote.commerce.exception.ReturnTrackerNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.payment.RefundPaymentCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.CompleteReturnRefundCommand;
@@ -33,17 +32,6 @@ public class CompleteReturnRefundService implements CompleteReturnRefundUseCase 
         ReturnTracker tracker = findReturnTrackerPort.findByOrderId(command.orderId())
                 .orElseThrow(() -> new ReturnTrackerNotFoundException(command.orderId()));
 
-        if (tracker.isRefundCompleted()) {
-            log.info("이미 환불 완료된 ReturnTracker (멱등). orderId={}", command.orderId());
-            return;
-        }
-
-        if (tracker.isRefundFailed()) {
-            tracker.retryRefund();
-            updateReturnTrackerPort.update(tracker);
-            log.info("FAILED 상태 ReturnTracker를 PENDING으로 리셋 (재시도). orderId={}", command.orderId());
-        }
-
         RefundPaymentCommand refundCommand = buildRefundCommand(command);
 
         try {
@@ -56,7 +44,6 @@ public class CompleteReturnRefundService implements CompleteReturnRefundUseCase 
         } catch (PaymentCancelException e) {
             log.error("PG 환불 실패. orderId={}, message={}", command.orderId(), e.getMessage());
             failRefund(tracker);
-            throw new ReturnPgRefundFailedException(command.orderId(), e);
         }
     }
 

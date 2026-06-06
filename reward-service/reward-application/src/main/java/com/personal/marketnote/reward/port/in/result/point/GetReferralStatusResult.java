@@ -35,7 +35,7 @@ public record GetReferralStatusResult(
     }
 
     public static GetReferralStatusResult of(long totalInvitedCount, long totalEarnedCash,
-                                              Map<ReferralBonusTier, Boolean> claimedMap) {
+                                             Map<ReferralBonusTier, Boolean> claimedMap) {
         List<BonusTierStatus> tiers = Arrays.stream(ReferralBonusTier.values())
                 .map(tier -> BonusTierStatus.of(
                         tier,

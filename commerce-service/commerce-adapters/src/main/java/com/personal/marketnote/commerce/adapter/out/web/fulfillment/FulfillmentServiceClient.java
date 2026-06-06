@@ -1,16 +1,9 @@
 package com.personal.marketnote.commerce.adapter.out.web.fulfillment;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
-import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
-import com.personal.marketnote.commerce.port.out.fulfillment.GetFulfillmentWorkStatusPort;
-import com.personal.marketnote.commerce.port.out.fulfillment.GetReturnInspectionResultPort;
-import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult;
+import com.personal.marketnote.commerce.port.out.fulfillment.*;
 import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult.ReturnInspectionGoodsItem;
 import com.personal.marketnote.commerce.port.out.fulfillment.ReturnInspectionResult.ReturnInspectionResultItem;
-import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryCommand;
-import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryPort;
-import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryResult;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;

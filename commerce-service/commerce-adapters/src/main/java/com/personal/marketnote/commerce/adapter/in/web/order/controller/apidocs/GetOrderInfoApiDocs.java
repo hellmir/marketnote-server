@@ -50,9 +50,7 @@ import java.lang.annotation.*;
                     - "RETURN_REQUESTED": 반품 요청됨
                 
                     - "RETURN_IN_PROGRESS": 반품 진행 중
-
-                    - "RETURN_INSPECTING": 반품 검수 중
-
+                
                     - "PARTIALLY_RETURNED": 부분 반품됨
                 
                     - "RETURNED": 반품 완료

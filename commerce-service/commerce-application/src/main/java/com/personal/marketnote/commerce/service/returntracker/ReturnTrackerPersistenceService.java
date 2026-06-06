@@ -5,8 +5,6 @@ import com.personal.marketnote.commerce.domain.returntracker.ReturnTrackerCreate
 import com.personal.marketnote.commerce.port.out.returntracker.SaveReturnTrackerPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
