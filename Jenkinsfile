@@ -50,8 +50,7 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "COMMERCE_SERVICE_SERVER_ORIGIN",    value: env.COMMERCE_SERVICE_SERVER_ORIGIN],
                 [name: "COMMUNITY_SERVICE_SERVER_ORIGIN",   value: env.COMMUNITY_SERVICE_SERVER_ORIGIN],
                 [name: "REWARD_SERVICE_SERVER_ORIGIN",      value: env.REWARD_SERVICE_SERVER_ORIGIN],
-                [name: "FULFILLMENT_SERVICE_SERVER_ORIGIN",    value: env.FULFILLMENT_SERVICE_SERVER_ORIGIN],
-                [name: "NOTIFICATION_SERVICE_SERVER_ORIGIN", value: env.NOTIFICATION_SERVICE_SERVER_ORIGIN],
+                [name: "FULFILLMENT_SERVICE_SERVER_ORIGIN", value: env.FULFILLMENT_SERVICE_SERVER_ORIGIN],
                 [name: "JWT_ADMIN_ACCESS_TOKEN",            value: env.JWT_ADMIN_ACCESS_TOKEN],
                 [name: "ADPOPCORN_ANDROID_HASH_KEY",        value: env.ADPOPCORN_ANDROID_HASH_KEY],
                 [name: "ADPOPCORN_IOS_HASH_KEY",            value: env.ADPOPCORN_IOS_HASH_KEY],
@@ -217,8 +216,7 @@ def resolveServiceMapping(svc, credentials) {
         'community-service'  : [ecr: credentials.COMMUNITY_SERVICE_ECR_REPOSITORY,   ecs: credentials.COMMUNITY_SERVICE_ECS_SERVICE_NAME,   tg: credentials.COMMUNITY_SERVICE_TARGET_GROUP_ARN,   origin: credentials.COMMUNITY_SERVICE_SERVER_ORIGIN,   dbUrl: credentials.COMMUNITY_SERVICE_DB_URL,   dbPw: credentials.COMMUNITY_SERVICE_DB_PASSWORD],
         'reward-service'     : [ecr: credentials.REWARD_SERVICE_ECR_REPOSITORY,      ecs: credentials.REWARD_SERVICE_ECS_SERVICE_NAME,      tg: credentials.REWARD_SERVICE_TARGET_GROUP_ARN,      origin: credentials.REWARD_SERVICE_SERVER_ORIGIN,      dbUrl: credentials.REWARD_SERVICE_DB_URL,      dbPw: credentials.REWARD_SERVICE_DB_PASSWORD],
         'fulfillment-service': [ecr: credentials.FULFILLMENT_SERVICE_ECR_REPOSITORY, ecs: credentials.FULFILLMENT_SERVICE_ECS_SERVICE_NAME, tg: credentials.FULFILLMENT_SERVICE_TARGET_GROUP_ARN, origin: credentials.FULFILLMENT_SERVICE_SERVER_ORIGIN, dbUrl: credentials.FULFILLMENT_SERVICE_DB_URL, dbPw: credentials.FULFILLMENT_SERVICE_DB_PASSWORD],
-        'file-service'           : [ecr: credentials.FILE_SERVICE_ECR_REPOSITORY,            ecs: credentials.FILE_SERVICE_ECS_SERVICE_NAME,            tg: credentials.FILE_SERVICE_TARGET_GROUP_ARN,            origin: credentials.FILE_SERVICE_SERVER_ORIGIN,            dbUrl: credentials.FILE_SERVICE_DB_URL,            dbPw: credentials.FILE_SERVICE_DB_PASSWORD],
-        'notification-service'   : [ecr: credentials.NOTIFICATION_SERVICE_ECR_REPOSITORY,    ecs: credentials.NOTIFICATION_SERVICE_ECS_SERVICE_NAME,    tg: credentials.NOTIFICATION_SERVICE_TARGET_GROUP_ARN,    origin: credentials.NOTIFICATION_SERVICE_SERVER_ORIGIN,    dbUrl: credentials.NOTIFICATION_SERVICE_DB_URL,    dbPw: credentials.NOTIFICATION_SERVICE_DB_PASSWORD],
+        'file-service'       : [ecr: credentials.FILE_SERVICE_ECR_REPOSITORY,        ecs: credentials.FILE_SERVICE_ECS_SERVICE_NAME,        tg: credentials.FILE_SERVICE_TARGET_GROUP_ARN,        origin: credentials.FILE_SERVICE_SERVER_ORIGIN,        dbUrl: credentials.FILE_SERVICE_DB_URL,        dbPw: credentials.FILE_SERVICE_DB_PASSWORD],
     ]
     mappings[svc]
 }
@@ -227,7 +225,7 @@ pipeline {
 	agent any
 
 	parameters {
-		choice(name: 'SERVICE', choices: ['auto','user-service','product-service','commerce-service','community-service','reward-service','fulfillment-service','file-service','notification-service'], description: '배포 대상 서비스')
+		choice(name: 'SERVICE', choices: ['auto','user-service','product-service','commerce-service','community-service','reward-service','fulfillment-service','file-service'], description: '배포 대상 서비스')
 	}
 
 	environment {
@@ -254,9 +252,8 @@ pipeline {
 						'commerce-service'   : 'commerce-adapters',
 						'community-service'  : 'community-adapters',
 						'reward-service'     : 'reward-adapters',
-						'fulfillment-service'    : 'fulfillment-adapters',
-						'file-service'           : 'file-adapters',
-						'notification-service'   : 'notification-adapters',
+						'fulfillment-service': 'fulfillment-adapters',
+						'file-service'       : 'file-adapters',
 					]
 
 					def serviceTouched = {
@@ -424,8 +421,7 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_ECR_REPOSITORY',   variable: 'COMMUNITY_SERVICE_ECR_REPOSITORY'),
 						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_ECR_REPOSITORY',      variable: 'REWARD_SERVICE_ECR_REPOSITORY'),
 						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_ECR_REPOSITORY', variable: 'FULFILLMENT_SERVICE_ECR_REPOSITORY'),
-						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_ECR_REPOSITORY',            variable: 'FILE_SERVICE_ECR_REPOSITORY'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_ECR_REPOSITORY',    variable: 'NOTIFICATION_SERVICE_ECR_REPOSITORY'),
+						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_ECR_REPOSITORY',        variable: 'FILE_SERVICE_ECR_REPOSITORY'),
 
 						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_ECS_SERVICE_NAME',          variable: 'USER_SERVICE_ECS_SERVICE_NAME'),
 						string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_ECS_SERVICE_NAME',       variable: 'PRODUCT_SERVICE_ECS_SERVICE_NAME'),
@@ -433,8 +429,7 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_ECS_SERVICE_NAME',     variable: 'COMMUNITY_SERVICE_ECS_SERVICE_NAME'),
 						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_ECS_SERVICE_NAME',        variable: 'REWARD_SERVICE_ECS_SERVICE_NAME'),
 						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_ECS_SERVICE_NAME',   variable: 'FULFILLMENT_SERVICE_ECS_SERVICE_NAME'),
-						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_ECS_SERVICE_NAME',              variable: 'FILE_SERVICE_ECS_SERVICE_NAME'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_ECS_SERVICE_NAME',  variable: 'NOTIFICATION_SERVICE_ECS_SERVICE_NAME'),
+						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_ECS_SERVICE_NAME',          variable: 'FILE_SERVICE_ECS_SERVICE_NAME'),
 
 						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_TARGET_GROUP_ARN',          variable: 'USER_SERVICE_TARGET_GROUP_ARN'),
 						string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_TARGET_GROUP_ARN',       variable: 'PRODUCT_SERVICE_TARGET_GROUP_ARN'),
@@ -442,8 +437,7 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_TARGET_GROUP_ARN',     variable: 'COMMUNITY_SERVICE_TARGET_GROUP_ARN'),
 						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_TARGET_GROUP_ARN',        variable: 'REWARD_SERVICE_TARGET_GROUP_ARN'),
 						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_TARGET_GROUP_ARN',   variable: 'FULFILLMENT_SERVICE_TARGET_GROUP_ARN'),
-						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_TARGET_GROUP_ARN',              variable: 'FILE_SERVICE_TARGET_GROUP_ARN'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_TARGET_GROUP_ARN',  variable: 'NOTIFICATION_SERVICE_TARGET_GROUP_ARN'),
+						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_TARGET_GROUP_ARN',          variable: 'FILE_SERVICE_TARGET_GROUP_ARN'),
 
 						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_SERVER_ORIGIN',         variable: 'USER_SERVICE_SERVER_ORIGIN'),
 						string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_SERVER_ORIGIN',      variable: 'PRODUCT_SERVICE_SERVER_ORIGIN'),
@@ -451,8 +445,7 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_SERVER_ORIGIN',    variable: 'COMMUNITY_SERVICE_SERVER_ORIGIN'),
 						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_SERVER_ORIGIN',       variable: 'REWARD_SERVICE_SERVER_ORIGIN'),
 						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_SERVER_ORIGIN',  variable: 'FULFILLMENT_SERVICE_SERVER_ORIGIN'),
-						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_SERVER_ORIGIN',             variable: 'FILE_SERVICE_SERVER_ORIGIN'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_SERVER_ORIGIN', variable: 'NOTIFICATION_SERVICE_SERVER_ORIGIN'),
+						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_SERVER_ORIGIN',         variable: 'FILE_SERVICE_SERVER_ORIGIN'),
 
 						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_URL',              variable: 'USER_SERVICE_DB_URL'),
                         string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_URL',           variable: 'PRODUCT_SERVICE_DB_URL'),
@@ -460,8 +453,7 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_URL',         variable: 'COMMUNITY_SERVICE_DB_URL'),
                         string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_URL',            variable: 'REWARD_SERVICE_DB_URL'),
                         string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',       variable: 'FULFILLMENT_SERVICE_DB_URL'),
-                        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_URL',                  variable: 'FILE_SERVICE_DB_URL'),
-                        string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',       variable: 'NOTIFICATION_SERVICE_DB_URL'),
+                        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_URL',              variable: 'FILE_SERVICE_DB_URL'),
 
                         string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_PASSWORD',         variable: 'USER_SERVICE_DB_PASSWORD'),
                         string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_PASSWORD',      variable: 'PRODUCT_SERVICE_DB_PASSWORD'),
@@ -469,8 +461,7 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_PASSWORD',    variable: 'COMMUNITY_SERVICE_DB_PASSWORD'),
                         string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_PASSWORD',       variable: 'REWARD_SERVICE_DB_PASSWORD'),
                         string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',  variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
-                        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_PASSWORD',             variable: 'FILE_SERVICE_DB_PASSWORD'),
-                        string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD',  variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
+                        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_PASSWORD',         variable: 'FILE_SERVICE_DB_PASSWORD'),
 					]) {
 						def creds = [
 						USER_SERVICE_ECR_REPOSITORY: USER_SERVICE_ECR_REPOSITORY, USER_SERVICE_ECS_SERVICE_NAME: USER_SERVICE_ECS_SERVICE_NAME, USER_SERVICE_TARGET_GROUP_ARN: USER_SERVICE_TARGET_GROUP_ARN, USER_SERVICE_SERVER_ORIGIN: USER_SERVICE_SERVER_ORIGIN, USER_SERVICE_DB_URL: USER_SERVICE_DB_URL, USER_SERVICE_DB_PASSWORD: USER_SERVICE_DB_PASSWORD,
@@ -480,7 +471,6 @@ pipeline {
 						REWARD_SERVICE_ECR_REPOSITORY: REWARD_SERVICE_ECR_REPOSITORY, REWARD_SERVICE_ECS_SERVICE_NAME: REWARD_SERVICE_ECS_SERVICE_NAME, REWARD_SERVICE_TARGET_GROUP_ARN: REWARD_SERVICE_TARGET_GROUP_ARN, REWARD_SERVICE_SERVER_ORIGIN: REWARD_SERVICE_SERVER_ORIGIN, REWARD_SERVICE_DB_URL: REWARD_SERVICE_DB_URL, REWARD_SERVICE_DB_PASSWORD: REWARD_SERVICE_DB_PASSWORD,
 						FULFILLMENT_SERVICE_ECR_REPOSITORY: FULFILLMENT_SERVICE_ECR_REPOSITORY, FULFILLMENT_SERVICE_ECS_SERVICE_NAME: FULFILLMENT_SERVICE_ECS_SERVICE_NAME, FULFILLMENT_SERVICE_TARGET_GROUP_ARN: FULFILLMENT_SERVICE_TARGET_GROUP_ARN, FULFILLMENT_SERVICE_SERVER_ORIGIN: FULFILLMENT_SERVICE_SERVER_ORIGIN, FULFILLMENT_SERVICE_DB_URL: FULFILLMENT_SERVICE_DB_URL, FULFILLMENT_SERVICE_DB_PASSWORD: FULFILLMENT_SERVICE_DB_PASSWORD,
 						FILE_SERVICE_ECR_REPOSITORY: FILE_SERVICE_ECR_REPOSITORY, FILE_SERVICE_ECS_SERVICE_NAME: FILE_SERVICE_ECS_SERVICE_NAME, FILE_SERVICE_TARGET_GROUP_ARN: FILE_SERVICE_TARGET_GROUP_ARN, FILE_SERVICE_SERVER_ORIGIN: FILE_SERVICE_SERVER_ORIGIN, FILE_SERVICE_DB_URL: FILE_SERVICE_DB_URL, FILE_SERVICE_DB_PASSWORD: FILE_SERVICE_DB_PASSWORD,
-						NOTIFICATION_SERVICE_ECR_REPOSITORY: NOTIFICATION_SERVICE_ECR_REPOSITORY, NOTIFICATION_SERVICE_ECS_SERVICE_NAME: NOTIFICATION_SERVICE_ECS_SERVICE_NAME, NOTIFICATION_SERVICE_TARGET_GROUP_ARN: NOTIFICATION_SERVICE_TARGET_GROUP_ARN, NOTIFICATION_SERVICE_SERVER_ORIGIN: NOTIFICATION_SERVICE_SERVER_ORIGIN, NOTIFICATION_SERVICE_DB_URL: NOTIFICATION_SERVICE_DB_URL, NOTIFICATION_SERVICE_DB_PASSWORD: NOTIFICATION_SERVICE_DB_PASSWORD,
 					]
 					def mapping = resolveServiceMapping(env.SERVICE_NAME, creds)
 					if (!mapping) {
@@ -704,8 +694,7 @@ pipeline {
                         string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_SERVER_ORIGIN',     variable: 'COMMERCE_SERVICE_SERVER_ORIGIN'),
                         string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_SERVER_ORIGIN',    variable: 'COMMUNITY_SERVICE_SERVER_ORIGIN'),
                         string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_SERVER_ORIGIN',       variable: 'REWARD_SERVICE_SERVER_ORIGIN'),
-                        string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_SERVER_ORIGIN',      variable: 'FULFILLMENT_SERVICE_SERVER_ORIGIN'),
-                        string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_SERVER_ORIGIN',  variable: 'NOTIFICATION_SERVICE_SERVER_ORIGIN'),
+                        string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_SERVER_ORIGIN',  variable: 'FULFILLMENT_SERVICE_SERVER_ORIGIN'),
                         string(credentialsId: 'MARKETNOTE_QA_JWT_ADMIN_ACCESS_TOKEN',             variable: 'JWT_ADMIN_ACCESS_TOKEN'),
                         string(credentialsId: 'MARKETNOTE_QA_ADPOPCORN_ANDROID_HASH_KEY',         variable: 'ADPOPCORN_ANDROID_HASH_KEY'),
                         string(credentialsId: 'MARKETNOTE_QA_ADPOPCORN_IOS_HASH_KEY',             variable: 'ADPOPCORN_IOS_HASH_KEY'),

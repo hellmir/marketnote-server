@@ -36,8 +36,3 @@ include("file-service")
 include("file-service:file-adapters")
 include("file-service:file-application")
 include("file-service:file-domain")
-
-include("notification-service")
-include("notification-service:notification-adapters")
-include("notification-service:notification-application")
-include("notification-service:notification-domain")

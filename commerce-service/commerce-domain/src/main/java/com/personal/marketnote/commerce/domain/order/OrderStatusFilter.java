@@ -25,8 +25,11 @@ public enum OrderStatusFilter {
                     OrderStatus.CANCELLED,
                     OrderStatus.RETURN_REQUESTED,
                     OrderStatus.RETURN_IN_PROGRESS,
+                    OrderStatus.RETURN_INSPECTING,
                     OrderStatus.PARTIALLY_RETURNED,
-                    OrderStatus.RETURNED
+                    OrderStatus.RETURNED,
+                    OrderStatus.RETURN_REJECTED,
+                    OrderStatus.RETURN_RESHIPPING_REQUESTED
             )
     ),
     ALL(Collections.emptyList());
