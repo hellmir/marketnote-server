@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: ${env.SERVICE_NAME:notification-service}
+  jackson:
+    time-zone: Asia/Seoul
+  threads:
+    virtual:
+      enabled: true
+
+  jwt:
+    secret: ${JWT_SECRET_KEY:dev-secret-change-me}
+    admin-access-token: ${JWT_ADMIN_ACCESS_TOKEN:abc}
+
+  hmac:
+    secret-key: ${HMAC_SECRET_KEY:dev-hmac-secret-change-me}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/marketnote_notification}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST_NAME:localhost}
+      port: 6379
+      password: ${REDIS_PASSWORD:password}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    sasl:
+      enabled: ${KAFKA_SASL_ENABLED:false}
+      mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
+      protocol: ${KAFKA_SASL_PROTOCOL:SASL_PLAINTEXT}
+      username: ${KAFKA_SASL_USERNAME:}
+      password: ${KAFKA_SASL_PASSWORD:}
+    consumer:
+      group-id: ${spring.application.name}
+
+client:
+  origin: ${CLIENT_ORIGIN:http://localhost:3000}
+  cookie-domain: ${COOKIE_DOMAIN:localhost}
+  cors:
+    allowed-origins: ${ACCESS_CONTROL_ALLOWED_ORIGINS:http://localhost:3000}
+
+server:
+  origin: ${SERVER_ORIGIN:http://localhost:8088}
+  error:
+    include-exception: false
+    include-stacktrace: NEVER
+    include-message: NEVER
+    whitelabel:
+      enabled: false
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    org.springframework.security: ERROR
+
+kafka:
+  slack:
+    webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
