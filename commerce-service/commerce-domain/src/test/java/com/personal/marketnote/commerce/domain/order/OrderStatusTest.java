@@ -85,12 +85,6 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("RETURN_INSPECTING는 구매자가 변경할 수 없는 상태이다")
-        void returnInspecting_isNotBuyerAllowed() {
-            assertThat(OrderStatus.RETURN_INSPECTING.isBuyerAllowed()).isFalse();
-        }
-
-        @Test
         @DisplayName("PARTIALLY_RETURNED는 구매자가 변경할 수 없는 상태이다")
         void partiallyReturned_isNotBuyerAllowed() {
             assertThat(OrderStatus.PARTIALLY_RETURNED.isBuyerAllowed()).isFalse();
@@ -225,64 +219,6 @@ class OrderStatusTest {
         @DisplayName("RETURN_IN_PROGRESS에서 RETURNED로 전이할 수 있다")
         void returnInProgress_canTransitionTo_returned() {
             assertThat(OrderStatus.RETURN_IN_PROGRESS.canTransitionTo(OrderStatus.RETURNED)).isTrue();
-        }
-
-        @Test
-        @DisplayName("RETURN_IN_PROGRESS에서 RETURN_INSPECTING로 전이할 수 있다")
-        void returnInProgress_canTransitionTo_returnInspecting() {
-            assertThat(OrderStatus.RETURN_IN_PROGRESS.canTransitionTo(OrderStatus.RETURN_INSPECTING)).isTrue();
-        }
-
-        @Test
-        @DisplayName("RETURN_INSPECTING에서 RETURNED로 전이할 수 있다")
-        void returnInspecting_canTransitionTo_returned() {
-            assertThat(OrderStatus.RETURN_INSPECTING.canTransitionTo(OrderStatus.RETURNED)).isTrue();
-        }
-
-        @Test
-        @DisplayName("RETURN_INSPECTING에서 RETURN_REJECTED로 전이할 수 있다")
-        void returnInspecting_canTransitionTo_returnRejected() {
-            assertThat(OrderStatus.RETURN_INSPECTING.canTransitionTo(OrderStatus.RETURN_REJECTED)).isTrue();
-        }
-
-        @Test
-        @DisplayName("RETURN_INSPECTING에서 RETURNED/RETURN_REJECTED 외 다른 상태로 전이할 수 없다")
-        void returnInspecting_cannotTransitionTo_otherStatuses() {
-            for (OrderStatus target : OrderStatus.values()) {
-                if (target == OrderStatus.RETURNED || target == OrderStatus.RETURN_REJECTED) {
-                    continue;
-                }
-                assertThat(OrderStatus.RETURN_INSPECTING.canTransitionTo(target))
-                        .as("RETURN_INSPECTING → %s는 불가해야 한다", target)
-                        .isFalse();
-            }
-        }
-
-        @Test
-        @DisplayName("RETURN_REJECTED에서 RETURN_RESHIPPING_REQUESTED로 전이할 수 있다")
-        void returnRejected_canTransitionTo_returnReshippingRequested() {
-            assertThat(OrderStatus.RETURN_REJECTED.canTransitionTo(OrderStatus.RETURN_RESHIPPING_REQUESTED)).isTrue();
-        }
-
-        @Test
-        @DisplayName("RETURN_REJECTED에서 RETURN_RESHIPPING_REQUESTED 외 다른 상태로 전이할 수 없다")
-        void returnRejected_cannotTransitionTo_otherStatuses() {
-            for (OrderStatus target : OrderStatus.values()) {
-                if (target == OrderStatus.RETURN_RESHIPPING_REQUESTED) {
-                    continue;
-                }
-                assertThat(OrderStatus.RETURN_REJECTED.canTransitionTo(target))
-                        .as("RETURN_REJECTED → %s는 불가해야 한다", target)
-                        .isFalse();
-            }
-        }
-
-        @Test
-        @DisplayName("RETURN_RESHIPPING_REQUESTED에서 어떤 상태로도 전이할 수 없다")
-        void returnReshippingRequested_cannotTransitionToAny() {
-            for (OrderStatus target : OrderStatus.values()) {
-                assertThat(OrderStatus.RETURN_RESHIPPING_REQUESTED.canTransitionTo(target)).isFalse();
-            }
         }
 
         @Test
@@ -432,12 +368,6 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("RETURN_INSPECTING는 최종 상태가 아니다")
-        void returnInspecting_isNotTerminal() {
-            assertThat(OrderStatus.RETURN_INSPECTING.isTerminal()).isFalse();
-        }
-
-        @Test
         @DisplayName("PARTIALLY_RETURNED는 최종 상태가 아니다")
         void partiallyReturned_isNotTerminal() {
             assertThat(OrderStatus.PARTIALLY_RETURNED.isTerminal()).isFalse();
@@ -487,29 +417,6 @@ class OrderStatusTest {
         @DisplayName("CONFIRMED는 배송 완료 상태가 아니다")
         void confirmed_isNotDelivered() {
             assertThat(OrderStatus.CONFIRMED.isDelivered()).isFalse();
-        }
-    }
-
-    @Nested
-    @DisplayName("반품 검수 중 상태 검증 (isReturnInspecting)")
-    class IsReturnInspectingTest {
-
-        @Test
-        @DisplayName("RETURN_INSPECTING는 반품 검수 중 상태이다")
-        void returnInspecting_isReturnInspecting() {
-            assertThat(OrderStatus.RETURN_INSPECTING.isReturnInspecting()).isTrue();
-        }
-
-        @Test
-        @DisplayName("RETURN_IN_PROGRESS는 반품 검수 중 상태가 아니다")
-        void returnInProgress_isNotReturnInspecting() {
-            assertThat(OrderStatus.RETURN_IN_PROGRESS.isReturnInspecting()).isFalse();
-        }
-
-        @Test
-        @DisplayName("RETURNED는 반품 검수 중 상태가 아니다")
-        void returned_isNotReturnInspecting() {
-            assertThat(OrderStatus.RETURNED.isReturnInspecting()).isFalse();
         }
     }
 }
