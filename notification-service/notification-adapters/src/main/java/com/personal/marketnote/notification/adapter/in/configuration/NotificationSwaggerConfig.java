@@ -100,24 +100,24 @@ public class NotificationSwaggerConfig {
                         .title("마켓노트 알림 API 서버")
                         .description("""
                                 마켓노트 서비스 알림 API 서버입니다.
-
+                                
                                 ### 서비스 목록
                                 - [회원 서비스](https://users.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [상품 서비스](https://products.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [커머스 서비스](https://commerce.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [풀필먼트 서비스](https://fulfillment.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [커뮤니티 서비스](https://community.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [리워드 서비스](https://rewards.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [파일 서비스](https://files.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [알림 서비스](https://notifications.marketnote.store/swagger-ui/index.html)
-
+                                
                                 - [모니터링 대시보드](https://monitoring.marketnote.store/d/spring_boot_21/spring-boot-3-x-statistics) (인증 필요)
                                 """)
                         .version("1.0"))

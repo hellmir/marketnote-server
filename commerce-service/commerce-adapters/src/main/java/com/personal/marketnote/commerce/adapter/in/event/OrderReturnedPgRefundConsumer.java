@@ -52,21 +52,27 @@ public class OrderReturnedPgRefundConsumer {
             return;
         }
 
-        CompleteReturnRefundCommand command = CompleteReturnRefundCommand.builder()
-                .orderId(payload.orderId())
-                .orderKey(payload.orderKey())
-                .buyerId(payload.buyerId())
-                .returnAmount(payload.returnAmount())
-                .paymentAmount(payload.paymentAmount())
-                .pointAmount(payload.pointAmount())
-                .shippingFee(payload.shippingFee())
-                .isFullReturn(payload.isFullReturn())
-                .returnShippingFee(payload.returnShippingFee() != null ? payload.returnShippingFee() : 0L)
-                .build();
+        try {
+            CompleteReturnRefundCommand command = CompleteReturnRefundCommand.builder()
+                    .orderId(payload.orderId())
+                    .orderKey(payload.orderKey())
+                    .buyerId(payload.buyerId())
+                    .returnAmount(payload.returnAmount())
+                    .paymentAmount(payload.paymentAmount())
+                    .pointAmount(payload.pointAmount())
+                    .shippingFee(payload.shippingFee())
+                    .isFullReturn(payload.isFullReturn())
+                    .returnShippingFee(payload.returnShippingFee() != null ? payload.returnShippingFee() : 0L)
+                    .build();
 
-        completeReturnRefundUseCase.completeReturnRefund(command);
+            completeReturnRefundUseCase.completeReturnRefund(command);
 
-        log.info("반품 PG 환불 처리 완료. orderId={}", payload.orderId());
+            log.info("반품 PG 환불 처리 완료. orderId={}", payload.orderId());
+        } catch (Exception e) {
+            log.error("반품 PG 환불 처리 실패. orderId={}, error={}",
+                    payload.orderId(), e.getMessage(), e);
+        }
+
         acknowledgment.acknowledge();
     }
 }

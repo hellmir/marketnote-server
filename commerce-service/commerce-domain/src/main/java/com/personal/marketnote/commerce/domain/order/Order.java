@@ -86,30 +86,6 @@ public class Order {
         return this.orderStatus.isFailed();
     }
 
-    public boolean isReturnInspecting() {
-        return this.orderStatus.isReturnInspecting();
-    }
-
-    public boolean isReturned() {
-        return this.orderStatus.isReturned();
-    }
-
-    public boolean isReturnRejected() {
-        return this.orderStatus.isReturnRejected();
-    }
-
-    public boolean isReturnReshippingRequested() {
-        return this.orderStatus.isReturnReshippingRequested();
-    }
-
-    public boolean isReturnReshipping() {
-        return this.orderStatus.isReturnReshipping();
-    }
-
-    public boolean isReturnReshipped() {
-        return this.orderStatus.isReturnReshipped();
-    }
-
     public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
