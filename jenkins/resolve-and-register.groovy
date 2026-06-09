@@ -161,6 +161,7 @@ def registerTaskDefinition(parentScript) {
         string(credentialsId: 'MARKETNOTE_QA_GIFTICON_SYNC_SCHEDULER_CRON',      variable: 'GIFTICON_SYNC_SCHEDULER_CRON'),
         string(credentialsId: 'MARKETNOTE_QA_GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED', variable: 'GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED'),
         string(credentialsId: 'MARKETNOTE_QA_GIFTICON_COUPON_SYNC_SCHEDULER_CRON',    variable: 'GIFTICON_COUPON_SYNC_SCHEDULER_CRON'),
+        string(credentialsId: 'MARKETNOTE_QA_FIREBASE_SERVICE_ACCOUNT_JSON',           variable: 'FIREBASE_SERVICE_ACCOUNT_JSON'),
     ]) {
         sh '''
           LG="$CLOUDWATCH_LOG_GROUP"
