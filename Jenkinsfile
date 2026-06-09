@@ -76,7 +76,6 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "GIFTICON_SYNC_SCHEDULER_CRON",      value: env.GIFTICON_SYNC_SCHEDULER_CRON],
                 [name: "GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED", value: env.GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED],
                 [name: "GIFTICON_COUPON_SYNC_SCHEDULER_CRON",    value: env.GIFTICON_COUPON_SYNC_SCHEDULER_CRON],
-                [name: "FIREBASE_SERVICE_ACCOUNT_JSON",          value: env.FIREBASE_SERVICE_ACCOUNT_JSON],
             ],
             logConfiguration: [
                 logDriver: "awslogs",

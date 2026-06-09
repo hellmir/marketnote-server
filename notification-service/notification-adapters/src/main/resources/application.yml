@@ -68,9 +68,6 @@ logging:
   level:
     org.springframework.security: ERROR
 
-firebase:
-  service-account-json: ${FIREBASE_SERVICE_ACCOUNT_JSON:}
-
 kafka:
   slack:
     webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
