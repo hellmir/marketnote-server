@@ -113,6 +113,9 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
+    // Firebase Admin SDK
+    implementation("com.google.firebase:firebase-admin:9.4.3")
 }
 
 // ✅ 테스트 실행 시 JUnit 5 플랫폼 사용 설정
