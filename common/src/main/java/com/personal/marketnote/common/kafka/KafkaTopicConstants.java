@@ -53,9 +53,6 @@ public final class KafkaTopicConstants {
     // Shipping Policy 이벤트
     public static final String SHIPPING_POLICY_CHANGED = "product.shipping-policy.changed";
 
-    // Fulfillment 이벤트
-    public static final String SHIPPING_STATUS_CHANGED = "fulfillment.shipping.status-changed";
-
     // Dead Letter Topic 접미사
     public static final String DLT_SUFFIX = ".dlt";
 }
