@@ -1,9 +1,6 @@
 package com.personal.marketnote.notification.service.template;
 
-import com.personal.marketnote.notification.domain.template.DuplicateNotificationTemplateException;
-import com.personal.marketnote.notification.domain.template.NotificationTemplate;
-import com.personal.marketnote.notification.domain.template.NotificationTemplateCreateState;
-import com.personal.marketnote.notification.domain.template.NotificationType;
+import com.personal.marketnote.notification.domain.template.*;
 import com.personal.marketnote.notification.port.in.command.RegisterNotificationTemplateCommand;
 import com.personal.marketnote.notification.port.in.result.template.RegisterNotificationTemplateResult;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
@@ -41,6 +38,7 @@ class RegisterNotificationTemplateUseCaseTest {
         RegisterNotificationTemplateCommand command = new RegisterNotificationTemplateCommand(
                 "ORDER_PAYMENT_COMPLETED",
                 "ORDER_PAYMENT_COMPLETED",
+                "INFORMATIONAL",
                 "주문이 완료되었습니다",
                 "{productName} 외 {count}건이 결제되었습니다.",
                 "/order/{orderId}"
@@ -67,6 +65,7 @@ class RegisterNotificationTemplateUseCaseTest {
         RegisterNotificationTemplateCommand command = new RegisterNotificationTemplateCommand(
                 "ORDER_PAYMENT_COMPLETED",
                 "ORDER_PAYMENT_COMPLETED",
+                "INFORMATIONAL",
                 "주문이 완료되었습니다",
                 "본문",
                 "/order/{orderId}"
@@ -75,6 +74,7 @@ class RegisterNotificationTemplateUseCaseTest {
         NotificationTemplate existing = NotificationTemplate.from(NotificationTemplateCreateState.builder()
                 .templateCode("ORDER_PAYMENT_COMPLETED")
                 .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
                 .title("기존 제목")
                 .bodyTemplate("기존 본문")
                 .urlTemplate("/order/{orderId}")
