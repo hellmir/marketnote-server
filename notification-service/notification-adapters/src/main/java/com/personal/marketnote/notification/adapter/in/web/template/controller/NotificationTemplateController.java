@@ -66,6 +66,7 @@ public class NotificationTemplateController {
                 new RegisterNotificationTemplateCommand(
                         request.templateCode(),
                         request.notificationType().name(),
+                        request.notificationCategory().name(),
                         request.title(),
                         request.bodyTemplate(),
                         request.urlTemplate()

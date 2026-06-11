@@ -42,6 +42,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- | --- |
                 | templateCode | string | 템플릿 코드 | Y | "ORDER_PAYMENT_COMPLETED" |
                 | notificationType | string | 알림 유형 | Y | "ORDER_PAYMENT_COMPLETED" |
+                | notificationCategory | string | 알림 카테고리 (MANDATORY/INFORMATIONAL/PROMOTIONAL) | Y | "INFORMATIONAL" |
                 | title | string | 제목 | Y | "주문이 완료되었습니다" |
                 | bodyTemplate | string | 본문 템플릿 | Y | "{productName} 외 {count}건이 결제되었습니다." |
                 | urlTemplate | string | URL 템플릿 | N | "/order/{orderId}" |
@@ -63,6 +64,7 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 생성된 템플릿 ID | 1 |
+                | notificationCategory | string | 알림 카테고리 | "INFORMATIONAL" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -73,6 +75,7 @@ import java.lang.annotation.*;
                                 {
                                   "templateCode": "ORDER_PAYMENT_COMPLETED",
                                   "notificationType": "ORDER_PAYMENT_COMPLETED",
+                                  "notificationCategory": "INFORMATIONAL",
                                   "title": "주문이 완료되었습니다",
                                   "bodyTemplate": "{productName} 외 {count}건이 결제되었습니다.",
                                   "urlTemplate": "/order/{orderId}"

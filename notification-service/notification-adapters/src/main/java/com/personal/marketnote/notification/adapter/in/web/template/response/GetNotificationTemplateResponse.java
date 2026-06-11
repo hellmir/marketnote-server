@@ -1,5 +1,6 @@
 package com.personal.marketnote.notification.adapter.in.web.template.response;
 
+import com.personal.marketnote.notification.domain.template.NotificationCategory;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import com.personal.marketnote.notification.port.in.result.template.GetNotificationTemplateResult;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +16,9 @@ public record GetNotificationTemplateResponse(
 
         @Schema(description = "알림 유형", example = "ORDER_PAYMENT_COMPLETED")
         NotificationType notificationType,
+
+        @Schema(description = "알림 카테고리", example = "INFORMATIONAL")
+        NotificationCategory notificationCategory,
 
         @Schema(description = "제목", example = "주문이 완료되었습니다")
         String title,
@@ -37,6 +41,7 @@ public record GetNotificationTemplateResponse(
                 result.id(),
                 result.templateCode(),
                 result.notificationType(),
+                result.notificationCategory(),
                 result.title(),
                 result.bodyTemplate(),
                 result.urlTemplate(),

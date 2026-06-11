@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.persistence.template.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
+import com.personal.marketnote.notification.domain.template.NotificationCategory;
 import com.personal.marketnote.notification.domain.template.NotificationTemplate;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import jakarta.persistence.*;
@@ -25,6 +26,10 @@ public class NotificationTemplateJpaEntity extends BaseGeneralEntity {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
+    @Column(name = "notification_category", nullable = false, length = 30)
+    @Enumerated(EnumType.STRING)
+    private NotificationCategory notificationCategory;
+
     @Column(name = "title", nullable = false, length = 200)
     private String title;
 
@@ -38,6 +43,7 @@ public class NotificationTemplateJpaEntity extends BaseGeneralEntity {
         return NotificationTemplateJpaEntity.builder()
                 .templateCode(template.getTemplateCode())
                 .notificationType(template.getNotificationType())
+                .notificationCategory(template.getNotificationCategory())
                 .title(template.getTitle())
                 .bodyTemplate(template.getBodyTemplate())
                 .urlTemplate(template.getUrlTemplate())

@@ -61,6 +61,7 @@ import java.lang.annotation.*;
                 | id | number | 템플릿 ID | 1 |
                 | templateCode | string | 템플릿 코드 | "ORDER_PAYMENT_COMPLETED" |
                 | notificationType | string | 알림 유형 | "ORDER_PAYMENT_COMPLETED" |
+                | notificationCategory | string | 알림 카테고리 | "INFORMATIONAL" |
                 | title | string | 제목 | "수정된 알림 제목" |
                 | bodyTemplate | string | 본문 템플릿 | "수정된 본문 {productName}" |
                 | urlTemplate | string | URL 템플릿 | "/order/{orderId}" |
@@ -94,6 +95,7 @@ import java.lang.annotation.*;
                                             "id": 1,
                                             "templateCode": "ORDER_PAYMENT_COMPLETED",
                                             "notificationType": "ORDER_PAYMENT_COMPLETED",
+                                            "notificationCategory": "INFORMATIONAL",
                                             "title": "수정된 알림 제목",
                                             "bodyTemplate": "수정된 본문 {productName}",
                                             "urlTemplate": "/order/{orderId}"

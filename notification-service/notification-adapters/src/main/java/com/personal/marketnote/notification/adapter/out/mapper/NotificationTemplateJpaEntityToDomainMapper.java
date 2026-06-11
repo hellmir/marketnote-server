@@ -18,6 +18,7 @@ public class NotificationTemplateJpaEntityToDomainMapper {
                                 .id(e.getId())
                                 .templateCode(e.getTemplateCode())
                                 .notificationType(e.getNotificationType())
+                                .notificationCategory(e.getNotificationCategory())
                                 .title(e.getTitle())
                                 .bodyTemplate(e.getBodyTemplate())
                                 .urlTemplate(e.getUrlTemplate())
