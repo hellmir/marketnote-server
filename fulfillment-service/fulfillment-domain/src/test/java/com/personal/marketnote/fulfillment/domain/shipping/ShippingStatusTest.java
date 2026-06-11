@@ -64,8 +64,8 @@ class ShippingStatusTest {
         }
 
         @ParameterizedTest
-        @EnumSource(value = ShippingStatus.class, names = {"DELIVERED", "CANCELLED", "RETURN_DELIVERED"})
-        @DisplayName("DELIVERED/CANCELLED/RETURN_DELIVERED 상태는 폴링 대상이 아니다")
+        @EnumSource(value = ShippingStatus.class, names = {"DELIVERED", "CANCELLED", "RETURN_DELIVERED", "DELIVERY_FAILED"})
+        @DisplayName("DELIVERED/CANCELLED/RETURN_DELIVERED/DELIVERY_FAILED 상태는 폴링 대상이 아니다")
         void nonPollingTargetStatuses(ShippingStatus status) {
             assertThat(status.isPollingTarget()).isFalse();
         }
@@ -76,8 +76,8 @@ class ShippingStatusTest {
     class TerminalTests {
 
         @ParameterizedTest
-        @EnumSource(value = ShippingStatus.class, names = {"DELIVERED", "CANCELLED", "RETURN_DELIVERED"})
-        @DisplayName("DELIVERED/CANCELLED/RETURN_DELIVERED 상태는 종료 상태이다")
+        @EnumSource(value = ShippingStatus.class, names = {"DELIVERED", "CANCELLED", "RETURN_DELIVERED", "DELIVERY_FAILED"})
+        @DisplayName("DELIVERED/CANCELLED/RETURN_DELIVERED/DELIVERY_FAILED 상태는 종료 상태이다")
         void terminalStatuses(ShippingStatus status) {
             assertThat(status.isTerminal()).isTrue();
         }
@@ -162,6 +162,43 @@ class ShippingStatusTest {
             for (ShippingStatus target : ShippingStatus.values()) {
                 assertThat(ShippingStatus.RETURN_DELIVERED.canTransitionTo(target)).isFalse();
             }
+        }
+
+        @Test
+        @DisplayName("SHIPPING에서 DELIVERY_FAILED로 전이할 수 있다")
+        void shippingToDeliveryFailed() {
+            assertThat(ShippingStatus.SHIPPING.canTransitionTo(ShippingStatus.DELIVERY_FAILED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PREPARING에서 DELIVERY_FAILED로 직접 전이할 수 없다")
+        void preparingToDeliveryFailed() {
+            assertThat(ShippingStatus.PREPARING.canTransitionTo(ShippingStatus.DELIVERY_FAILED)).isFalse();
+        }
+
+        @Test
+        @DisplayName("DELIVERY_FAILED에서는 어떤 상태로도 전이할 수 없다")
+        void deliveryFailedToAny() {
+            for (ShippingStatus target : ShippingStatus.values()) {
+                assertThat(ShippingStatus.DELIVERY_FAILED.canTransitionTo(target)).isFalse();
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("DELIVERY_FAILED 술어 메서드")
+    class DeliveryFailedPredicateTests {
+
+        @Test
+        @DisplayName("DELIVERY_FAILED 상태는 isDeliveryFailed()가 true를 반환한다")
+        void deliveryFailedIsDeliveryFailed() {
+            assertThat(ShippingStatus.DELIVERY_FAILED.isDeliveryFailed()).isTrue();
+        }
+
+        @Test
+        @DisplayName("SHIPPING 상태는 isDeliveryFailed()가 false를 반환한다")
+        void shippingIsNotDeliveryFailed() {
+            assertThat(ShippingStatus.SHIPPING.isDeliveryFailed()).isFalse();
         }
     }
 }

@@ -258,6 +258,93 @@ class ShippingTrackerTest {
         }
     }
 
+    @Nested
+    @DisplayName("markDeliveryFailed - 배송불가 처리")
+    class MarkDeliveryFailedTests {
+
+        @Test
+        @DisplayName("SHIPPING 상태에서 배송불가 처리하면 DELIVERY_FAILED 상태가 되고 폴링이 비활성화된다")
+        void markDeliveryFailedFromShipping() {
+            ShippingTracker tracker = createShippingTracker();
+
+            tracker.markDeliveryFailed();
+
+            assertThat(tracker.isDeliveryFailed()).isTrue();
+            assertThat(tracker.isPollingActive()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PREPARING 상태에서 배송불가 처리하면 예외가 발생한다")
+        void markDeliveryFailedFromPreparing() {
+            ShippingTracker tracker = createPreparingTracker();
+
+            assertThatThrownBy(() -> tracker.markDeliveryFailed())
+                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("advanceToShipping - 송장번호 없이 배송중 전이")
+    class AdvanceToShippingTests {
+
+        @Test
+        @DisplayName("PREPARING 상태에서 advanceToShipping하면 SHIPPING 상태가 되고 송장번호는 null이다")
+        void advanceToShippingFromPreparing() {
+            ShippingTracker tracker = createPreparingTracker();
+
+            tracker.advanceToShipping();
+
+            assertThat(tracker.isShipping()).isTrue();
+            assertThat(tracker.getTrackingNumber()).isNull();
+            assertThat(tracker.getCarrierCode()).isNull();
+        }
+
+        @Test
+        @DisplayName("SHIPPING 상태에서 advanceToShipping하면 예외가 발생한다")
+        void advanceToShippingFromShipping() {
+            ShippingTracker tracker = createShippingTracker();
+
+            assertThatThrownBy(() -> tracker.advanceToShipping())
+                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("updateTrackingInfo - 송장번호 갱신")
+    class UpdateTrackingInfoTests {
+
+        @Test
+        @DisplayName("SHIPPING 상태에서 송장번호를 갱신할 수 있다")
+        void updateTrackingInfoInShipping() {
+            ShippingTracker tracker = createPreparingTracker();
+            tracker.advanceToShipping();
+
+            tracker.updateTrackingInfo("9876543210", "HANJIN");
+
+            assertThat(tracker.getTrackingNumber()).isEqualTo("9876543210");
+            assertThat(tracker.getCarrierCode()).isEqualTo("HANJIN");
+        }
+
+        @Test
+        @DisplayName("PREPARING 상태에서 송장번호를 갱신하면 예외가 발생한다")
+        void updateTrackingInfoInPreparing() {
+            ShippingTracker tracker = createPreparingTracker();
+
+            assertThatThrownBy(() -> tracker.updateTrackingInfo("1234567890", "CJ"))
+                    .isInstanceOf(InvalidShippingStatusTransitionException.class);
+        }
+
+        @Test
+        @DisplayName("송장번호가 null이면 예외가 발생한다")
+        void updateTrackingInfoWithNullTrackingNumber() {
+            ShippingTracker tracker = createPreparingTracker();
+            tracker.advanceToShipping();
+
+            assertThatThrownBy(() -> tracker.updateTrackingInfo(null, "CJ"))
+                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+        }
+    }
+
     // --- 테스트 헬퍼 ---
 
     private ShippingTracker createPreparingTracker() {
