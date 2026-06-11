@@ -14,6 +14,7 @@ public class NotificationTemplate extends BaseDomain {
     private Long id;
     private String templateCode;
     private NotificationType notificationType;
+    private NotificationCategory notificationCategory;
     private String title;
     private String bodyTemplate;
     private String urlTemplate;
@@ -26,6 +27,7 @@ public class NotificationTemplate extends BaseDomain {
         NotificationTemplate template = NotificationTemplate.builder()
                 .templateCode(state.getTemplateCode())
                 .notificationType(state.getNotificationType())
+                .notificationCategory(state.getNotificationCategory())
                 .title(state.getTitle())
                 .bodyTemplate(state.getBodyTemplate())
                 .urlTemplate(state.getUrlTemplate())
@@ -39,6 +41,7 @@ public class NotificationTemplate extends BaseDomain {
                 .id(state.getId())
                 .templateCode(state.getTemplateCode())
                 .notificationType(state.getNotificationType())
+                .notificationCategory(state.getNotificationCategory())
                 .title(state.getTitle())
                 .bodyTemplate(state.getBodyTemplate())
                 .urlTemplate(state.getUrlTemplate())

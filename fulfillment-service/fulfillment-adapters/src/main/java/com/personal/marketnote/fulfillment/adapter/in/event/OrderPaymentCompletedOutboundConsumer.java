@@ -6,6 +6,9 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.exception.ShippingTrackerAlreadyExistsException;
+import com.personal.marketnote.fulfillment.port.in.command.CreateShippingTrackerCommand;
+import com.personal.marketnote.fulfillment.port.in.usecase.CreateShippingTrackerUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderPaymentCompletedOutboundConsumer {
     private final ObjectMapper objectMapper;
+    private final CreateShippingTrackerUseCase createShippingTrackerUseCase;
 
     @KafkaListener(
             topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
@@ -79,8 +83,13 @@ public class OrderPaymentCompletedOutboundConsumer {
             //  — orderId 기반 출고 이력 DB 저장 (UNIQUE 제약) → 중복 시 FulfillmentDeliveryAlreadyRegisteredException
             //  — Consumer에서 FulfillmentDeliveryAlreadyRegisteredException catch → warn + acknowledge
 
-            log.info("Fulfillment 출고 요청 이벤트 검증 완료. orderId={}, orderProducts={}건",
+            createShippingTracker(payload.orderId(), envelope.eventId());
+
+            log.info("Fulfillment 출고 요청 이벤트 처리 완료. orderId={}, orderProducts={}건",
                     payload.orderId(), payload.orderProducts().size());
+        } catch (ShippingTrackerAlreadyExistsException e) {
+            log.warn("이미 배송 추적이 등록된 주문 (멱등 처리). eventId={}, orderId={}",
+                    envelope.eventId(), e.getMessage());
         } catch (Exception e) {
             log.error("Fulfillment 출고 요청 이벤트 처리 실패. eventId={}, key={}, error={}",
                     envelope.eventId(), record.key(), e.getMessage(), e);
@@ -88,5 +97,11 @@ public class OrderPaymentCompletedOutboundConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private void createShippingTracker(Long orderId, String eventId) {
+        CreateShippingTrackerCommand command = new CreateShippingTrackerCommand(orderId);
+        createShippingTrackerUseCase.createShippingTracker(command);
+        log.info("배송 추적 생성 완료. eventId={}, orderId={}", eventId, orderId);
     }
 }

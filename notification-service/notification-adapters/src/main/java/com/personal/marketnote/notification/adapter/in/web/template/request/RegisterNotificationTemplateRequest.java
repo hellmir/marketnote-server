@@ -1,5 +1,6 @@
 package com.personal.marketnote.notification.adapter.in.web.template.request;
 
+import com.personal.marketnote.notification.domain.template.NotificationCategory;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -15,6 +16,10 @@ public record RegisterNotificationTemplateRequest(
         @NotNull(message = "알림 유형은 필수입니다")
         @Schema(description = "알림 유형", example = "ORDER_PAYMENT_COMPLETED")
         NotificationType notificationType,
+
+        @NotNull(message = "알림 카테고리는 필수입니다")
+        @Schema(description = "알림 카테고리", example = "INFORMATIONAL")
+        NotificationCategory notificationCategory,
 
         @NotBlank(message = "제목은 필수입니다")
         @Size(max = 200, message = "제목은 200자 이하여야 합니다")
