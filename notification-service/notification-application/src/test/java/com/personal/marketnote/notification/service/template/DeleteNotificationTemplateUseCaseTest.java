@@ -1,9 +1,6 @@
 package com.personal.marketnote.notification.service.template;
 
-import com.personal.marketnote.notification.domain.template.NotificationTemplate;
-import com.personal.marketnote.notification.domain.template.NotificationTemplateCreateState;
-import com.personal.marketnote.notification.domain.template.NotificationTemplateNotFoundException;
-import com.personal.marketnote.notification.domain.template.NotificationType;
+import com.personal.marketnote.notification.domain.template.*;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import com.personal.marketnote.notification.port.out.template.UpdateNotificationTemplatePort;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +37,7 @@ class DeleteNotificationTemplateUseCaseTest {
         NotificationTemplate template = NotificationTemplate.from(NotificationTemplateCreateState.builder()
                 .templateCode("ORDER_PAYMENT_COMPLETED")
                 .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
                 .title("주문이 완료되었습니다")
                 .bodyTemplate("본문")
                 .urlTemplate("/order/{orderId}")

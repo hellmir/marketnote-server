@@ -1,9 +1,6 @@
 package com.personal.marketnote.notification.service.template;
 
-import com.personal.marketnote.notification.domain.template.NotificationTemplate;
-import com.personal.marketnote.notification.domain.template.NotificationTemplateCreateState;
-import com.personal.marketnote.notification.domain.template.NotificationTemplateNotFoundException;
-import com.personal.marketnote.notification.domain.template.NotificationType;
+import com.personal.marketnote.notification.domain.template.*;
 import com.personal.marketnote.notification.port.in.result.template.GetNotificationTemplateResult;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import org.junit.jupiter.api.DisplayName;
@@ -102,6 +99,7 @@ class GetNotificationTemplateUseCaseTest {
         return NotificationTemplate.from(NotificationTemplateCreateState.builder()
                 .templateCode(templateCode)
                 .notificationType(type)
+                .notificationCategory(NotificationCategory.INFORMATIONAL)
                 .title(title)
                 .bodyTemplate("본문")
                 .urlTemplate("/order/{orderId}")
