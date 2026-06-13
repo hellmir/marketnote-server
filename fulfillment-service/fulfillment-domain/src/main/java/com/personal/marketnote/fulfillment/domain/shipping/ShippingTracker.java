@@ -84,6 +84,31 @@ public class ShippingTracker {
         this.pollingActive = false;
     }
 
+    public void markDeliveryFailed() {
+        validateTransition(ShippingStatus.DELIVERY_FAILED);
+        this.shippingStatus = ShippingStatus.DELIVERY_FAILED;
+        this.pollingActive = false;
+    }
+
+    public void advanceToShipping() {
+        validateTransition(ShippingStatus.SHIPPING);
+        this.shippingStatus = ShippingStatus.SHIPPING;
+    }
+
+    public void updateTrackingInfo(String trackingNumber, String carrierCode) {
+        if (!isShipping()) {
+            throw new InvalidShippingStatusTransitionException(this.shippingStatus, ShippingStatus.SHIPPING);
+        }
+        if (FormatValidator.hasNoValue(trackingNumber)) {
+            throw new FulfillmentQueryParameterNoValueException("trackingNumber", "updateTrackingInfo");
+        }
+        if (FormatValidator.hasNoValue(carrierCode)) {
+            throw new FulfillmentQueryParameterNoValueException("carrierCode", "updateTrackingInfo");
+        }
+        this.trackingNumber = trackingNumber;
+        this.carrierCode = carrierCode;
+    }
+
     public void updateLastPolledAt(LocalDateTime polledAt) {
         if (FormatValidator.hasNoValue(polledAt)) {
             throw new FulfillmentQueryParameterNoValueException("polledAt", "updateLastPolledAt");
@@ -113,6 +138,18 @@ public class ShippingTracker {
 
     public boolean isReturnDelivered() {
         return shippingStatus.isReturnDelivered();
+    }
+
+    public boolean isDeliveryFailed() {
+        return shippingStatus.isDeliveryFailed();
+    }
+
+    public boolean hasStatus(ShippingStatus status) {
+        return this.shippingStatus == status;
+    }
+
+    public boolean hasNoTrackingNumber() {
+        return FormatValidator.hasNoValue(trackingNumber);
     }
 
     private void validateTransition(ShippingStatus target) {
