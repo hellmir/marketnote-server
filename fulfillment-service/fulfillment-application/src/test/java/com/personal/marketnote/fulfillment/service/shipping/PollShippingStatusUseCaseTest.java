@@ -1,5 +1,6 @@
 package com.personal.marketnote.fulfillment.service.shipping;
 
+import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
@@ -9,6 +10,7 @@ import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCom
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.port.out.event.PublishShippingStatusChangedEventPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentDeliveryStatusesPort;
@@ -55,6 +57,9 @@ class PollShippingStatusUseCaseTest {
     @Mock
     private PlatformTransactionManager transactionManager;
 
+    @Mock
+    private PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort;
+
     private final Clock clock = Clock.fixed(
             Instant.parse("2026-06-03T10:00:00Z"),
             ZoneId.of("Asia/Seoul")
@@ -68,6 +73,7 @@ class PollShippingStatusUseCaseTest {
                 updateShippingTrackerPort,
                 requestFulfillmentAuthUseCase,
                 getDeliveryStatusesPort,
+                publishShippingStatusChangedEventPort,
                 clock,
                 transactionManager
         );
@@ -115,6 +121,14 @@ class PollShippingStatusUseCaseTest {
         assertThat(updated.getTrackingNumber()).isEqualTo("INV001");
         assertThat(updated.getCarrierCode()).isEqualTo("CJ");
         assertThat(updated.getLastPolledAt()).isNotNull();
+
+        ArgumentCaptor<ShippingStatusChangedEvent> eventCaptor = ArgumentCaptor.forClass(ShippingStatusChangedEvent.class);
+        verify(publishShippingStatusChangedEventPort).publish(eventCaptor.capture());
+        ShippingStatusChangedEvent event = eventCaptor.getValue();
+        assertThat(event.orderId()).isEqualTo(100L);
+        assertThat(event.shippingStatus()).isEqualTo("SHIPPING");
+        assertThat(event.trackingNumber()).isEqualTo("INV001");
+        assertThat(event.carrierCode()).isEqualTo("CJ");
     }
 
     @Test
@@ -141,6 +155,8 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isShipping()).isTrue();
         assertThat(updated.getTrackingNumber()).isNull();
+
+        verify(publishShippingStatusChangedEventPort).publish(any(ShippingStatusChangedEvent.class));
     }
 
     @Test
@@ -167,6 +183,10 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isDelivered()).isTrue();
         assertThat(updated.isPollingActive()).isFalse();
+
+        ArgumentCaptor<ShippingStatusChangedEvent> eventCaptor = ArgumentCaptor.forClass(ShippingStatusChangedEvent.class);
+        verify(publishShippingStatusChangedEventPort).publish(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().shippingStatus()).isEqualTo("DELIVERED");
     }
 
     @Test
@@ -193,6 +213,10 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isDeliveryFailed()).isTrue();
         assertThat(updated.isPollingActive()).isFalse();
+
+        ArgumentCaptor<ShippingStatusChangedEvent> eventCaptor = ArgumentCaptor.forClass(ShippingStatusChangedEvent.class);
+        verify(publishShippingStatusChangedEventPort).publish(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().shippingStatus()).isEqualTo("DELIVERY_FAILED");
     }
 
     @Test
@@ -219,6 +243,8 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isPreparing()).isTrue();
         assertThat(updated.getLastPolledAt()).isNotNull();
+
+        verifyNoInteractions(publishShippingStatusChangedEventPort);
     }
 
     @Test
@@ -308,6 +334,8 @@ class PollShippingStatusUseCaseTest {
         assertThat(updated.isShipping()).isTrue();
         assertThat(updated.getTrackingNumber()).isEqualTo("INV001");
         assertThat(updated.getCarrierCode()).isEqualTo("CJ");
+
+        verifyNoInteractions(publishShippingStatusChangedEventPort);
     }
 
     // --- 테스트 헬퍼 ---
