@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.service.shipping;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
@@ -11,6 +12,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeli
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.PollShippingStatusUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.port.out.event.PublishShippingStatusChangedEventPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentDeliveryStatusesPort;
@@ -39,6 +41,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     private final UpdateShippingTrackerPort updateShippingTrackerPort;
     private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
     private final GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort;
+    private final PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort;
     private final Clock clock;
     private final TransactionTemplate transactionTemplate;
 
@@ -47,6 +50,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
             UpdateShippingTrackerPort updateShippingTrackerPort,
             RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase,
             GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort,
+            PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort,
             Clock clock,
             PlatformTransactionManager transactionManager
     ) {
@@ -54,6 +58,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
         this.updateShippingTrackerPort = updateShippingTrackerPort;
         this.requestFulfillmentAuthUseCase = requestFulfillmentAuthUseCase;
         this.getDeliveryStatusesPort = getDeliveryStatusesPort;
+        this.publishShippingStatusChangedEventPort = publishShippingStatusChangedEventPort;
         this.clock = clock;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.transactionTemplate.setIsolationLevel(Isolation.READ_COMMITTED.value());
@@ -150,6 +155,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     ) {
         if (newStatus.isShipping() && tracker.isPreparing()) {
             applyShippingTransition(tracker, deliveryStatus);
+            publishStatusChanged(tracker);
             return;
         }
         if (newStatus.isShipping() && tracker.isShipping()) {
@@ -158,11 +164,23 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
         }
         if (newStatus.isDelivered()) {
             tracker.completeDelivery();
+            publishStatusChanged(tracker);
             return;
         }
         if (newStatus.isDeliveryFailed()) {
             tracker.markDeliveryFailed();
+            publishStatusChanged(tracker);
         }
+    }
+
+    private void publishStatusChanged(ShippingTracker tracker) {
+        publishShippingStatusChangedEventPort.publish(new ShippingStatusChangedEvent(
+                tracker.getOrderId(),
+                tracker.getShippingStatus().name(),
+                tracker.getTrackingNumber(),
+                tracker.getCarrierCode(),
+                LocalDateTime.now(clock)
+        ));
     }
 
     private void applyShippingTransition(ShippingTracker tracker, FulfillmentDeliveryStatusInfoResult deliveryStatus) {

@@ -108,6 +108,10 @@ fulfillment:
     enabled: ${FULFILLMENT_DELIVERY_POLLING_ENABLED:false}
     interval-ms: ${FULFILLMENT_DELIVERY_POLLING_INTERVAL_MS:1800000}
 
+outbox:
+  enabled: ${OUTBOX_ENABLED:true}
+  polling-interval-ms: ${OUTBOX_POLLING_INTERVAL_MS:3000}
+
 commerce-service:
   base-url: ${COMMERCE_SERVICE_SERVER_ORIGIN:http://localhost:8082}
 
