@@ -5,21 +5,25 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.CancelInternalFulfillmentDeliveryApiDocs;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.GetFulfillmentWorkStatusApiDocs;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.GetInternalReturnGodDetailApiDocs;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.GetShippingStatusApiDocs;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.RegisterInternalReturnDeliveryApiDocs;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.CancelInternalFulfillmentDeliveryRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.RegisterInternalReturnDeliveryRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.CancelInternalFulfillmentDeliveryResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetFulfillmentWorkStatusResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetInternalReturnGodDetailResponse;
+import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetShippingStatusResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.RegisterInternalReturnDeliveryResponse;
 import com.personal.marketnote.fulfillment.port.in.command.*;
 import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.result.GetFulfillmentWorkStatusResult;
 import com.personal.marketnote.fulfillment.port.in.result.GetInternalReturnGodDetailResult;
+import com.personal.marketnote.fulfillment.port.in.result.GetShippingStatusResult;
 import com.personal.marketnote.fulfillment.port.in.result.RegisterInternalReturnDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.GetFulfillmentWorkStatusUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.GetInternalReturnGodDetailUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.GetShippingStatusUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.RegisterInternalReturnDeliveryUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -47,6 +51,7 @@ public class InternalFulfillmentDeliveryController {
     private final CancelInternalFulfillmentDeliveryUseCase cancelInternalFulfillmentDeliveryUseCase;
     private final RegisterInternalReturnDeliveryUseCase registerInternalReturnDeliveryUseCase;
     private final GetInternalReturnGodDetailUseCase getInternalReturnGodDetailUseCase;
+    private final GetShippingStatusUseCase getShippingStatusUseCase;
 
     /**
      * 풀필먼트 작업 상태 조회 (서비스 간 통신용)
@@ -68,6 +73,31 @@ public class InternalFulfillmentDeliveryController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "풀필먼트 작업 상태 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 배송 상태 조회 (서비스 간 통신용)
+     *
+     * @param orderId 주문 ID
+     */
+    @GetMapping("/shipping-status")
+    @GetShippingStatusApiDocs
+    public ResponseEntity<BaseResponse<GetShippingStatusResponse>> getShippingStatus(
+            @RequestParam("order-id") Long orderId
+    ) {
+        GetShippingStatusResult result = getShippingStatusUseCase.getShippingStatus(
+                new GetShippingStatusCommand(orderId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetShippingStatusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "배송 상태 조회 성공"
                 ),
                 HttpStatus.OK
         );
