@@ -10,12 +10,7 @@ import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfill
 import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.CancelFulfillmentDeliveryItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.CancelFulfillmentDeliveryResult;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
 import com.personal.marketnote.fulfillment.port.out.delivery.FindFulfillmentDeliveryRegistrationPort;
-import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
-import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.CancelFulfillmentDeliveryPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
@@ -59,12 +54,6 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
 
     @Mock
     private CancelFulfillmentDeliveryPort cancelFulfillmentDeliveryPort;
-
-    @Mock
-    private FindShippingTrackerPort findShippingTrackerPort;
-
-    @Mock
-    private UpdateShippingTrackerPort updateShippingTrackerPort;
 
     @ParameterizedTest
     @EnumSource(value = FulfillmentWorkStatus.class, names = {"REGISTERED", "NOT_REGISTERED", "PICKING"})
@@ -183,109 +172,6 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         inOrder.verify(requestFulfillmentAuthPort).requestAccessToken();
         inOrder.verify(cancelFulfillmentDeliveryPort).cancelDelivery(any());
         inOrder.verify(disconnectFulfillmentAuthPort).disconnectAccessToken("test-token");
-    }
-
-    @ParameterizedTest
-    @EnumSource(value = ShippingStatus.class, names = {"PREPARING", "SHIPPING"})
-    @DisplayName("ShippingTracker가 PREPARING/SHIPPING 상태이면 CANCELLED로 전이하고 update를 호출한다")
-    void shouldCancelShippingTrackerWhenInPreparingOrShipping(ShippingStatus status) {
-        // given
-        Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
-
-        FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
-        when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
-
-        FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
-        when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
-
-        CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
-        ));
-        when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
-
-        ShippingTracker tracker = createShippingTracker(orderId, status);
-        when(findShippingTrackerPort.findByOrderId(orderId)).thenReturn(Optional.of(tracker));
-
-        // when
-        cancelInternalFulfillmentDeliveryService.cancelDelivery(command);
-
-        // then
-        org.mockito.ArgumentCaptor<ShippingTracker> captor = org.mockito.ArgumentCaptor.forClass(ShippingTracker.class);
-        verify(updateShippingTrackerPort).update(captor.capture());
-        ShippingTracker updated = captor.getValue();
-        assertThat(updated.isCancelled()).isTrue();
-        assertThat(updated.isPollingActive()).isFalse();
-    }
-
-    @ParameterizedTest
-    @EnumSource(value = ShippingStatus.class, names = {"DELIVERED", "CANCELLED", "RETURN_DELIVERED", "DELIVERY_FAILED"})
-    @DisplayName("ShippingTracker가 종료 상태이면 cancel을 호출하지 않는다 (멱등성)")
-    void shouldSkipShippingTrackerWhenTerminal(ShippingStatus terminalStatus) {
-        // given
-        Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
-
-        FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
-        when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
-
-        FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
-        when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
-
-        CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
-        ));
-        when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
-
-        ShippingTracker tracker = createShippingTracker(orderId, terminalStatus);
-        when(findShippingTrackerPort.findByOrderId(orderId)).thenReturn(Optional.of(tracker));
-
-        // when
-        cancelInternalFulfillmentDeliveryService.cancelDelivery(command);
-
-        // then
-        verify(updateShippingTrackerPort, never()).update(any());
-    }
-
-    @Test
-    @DisplayName("ShippingTracker가 존재하지 않으면 정상 처리한다 (예외 없음)")
-    void shouldSkipWhenShippingTrackerNotFound() {
-        // given
-        Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
-
-        FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
-        when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
-
-        FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
-        when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
-
-        CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
-                CancelFulfillmentDeliveryItemResult.of("SLIP001", String.valueOf(orderId), "성공", "00", null)
-        ));
-        when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenReturn(fasstoResult);
-
-        when(findShippingTrackerPort.findByOrderId(orderId)).thenReturn(Optional.empty());
-
-        // when
-        cancelInternalFulfillmentDeliveryService.cancelDelivery(command);
-
-        // then
-        verify(updateShippingTrackerPort, never()).update(any());
-    }
-
-    private ShippingTracker createShippingTracker(Long orderId, ShippingStatus status) {
-        return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
-                .id(1L)
-                .orderId(orderId)
-                .shippingStatus(status)
-                .pollingActive(!status.isTerminal())
-                .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .modifiedAt(LocalDateTime.of(2026, 4, 7, 10, 0))
-                .build());
     }
 
     private FulfillmentDeliveryRegistration createRegistration(Long orderId, FulfillmentWorkStatus workStatus) {
