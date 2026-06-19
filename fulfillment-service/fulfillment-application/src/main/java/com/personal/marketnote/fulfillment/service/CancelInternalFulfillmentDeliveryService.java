@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.service;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
+import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryRegistrationNotFoundException;
 import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfillmentDeliveryCommand;
@@ -11,6 +12,8 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.CancelFulfillm
 import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
 import com.personal.marketnote.fulfillment.port.out.delivery.FindFulfillmentDeliveryRegistrationPort;
+import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
+import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.CancelFulfillmentDeliveryPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
@@ -24,13 +27,15 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 
 @UseCase
 @RequiredArgsConstructor
-@Transactional(isolation = READ_COMMITTED, readOnly = true)
+@Transactional(isolation = READ_COMMITTED)
 public class CancelInternalFulfillmentDeliveryService implements CancelInternalFulfillmentDeliveryUseCase {
     private final FindFulfillmentDeliveryRegistrationPort findFulfillmentDeliveryRegistrationPort;
     private final GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
     private final RequestFulfillmentAuthPort requestFulfillmentAuthPort;
     private final DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
     private final CancelFulfillmentDeliveryPort cancelFulfillmentDeliveryPort;
+    private final FindShippingTrackerPort findShippingTrackerPort;
+    private final UpdateShippingTrackerPort updateShippingTrackerPort;
 
     @Override
     public CancelInternalFulfillmentDeliveryResult cancelDelivery(CancelInternalFulfillmentDeliveryCommand command) {
@@ -45,10 +50,22 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
             );
             cancelFulfillmentDeliveryPort.cancelDelivery(cancelCommand);
 
+            cancelShippingTrackerIfActive(command.orderId());
+
             return new CancelInternalFulfillmentDeliveryResult(command.orderId(), true, "출고 취소 성공");
         } finally {
             disconnectFulfillmentAuthPort.disconnectAccessToken(accessToken.getValue());
         }
+    }
+
+    private void cancelShippingTrackerIfActive(Long orderId) {
+        findShippingTrackerPort.findByOrderId(orderId).ifPresent(tracker -> {
+            if (!tracker.isPreparing() && !tracker.isShipping()) {
+                return;
+            }
+            tracker.cancel();
+            updateShippingTrackerPort.update(tracker);
+        });
     }
 
     private FulfillmentDeliveryRegistration findRegistration(Long orderId) {

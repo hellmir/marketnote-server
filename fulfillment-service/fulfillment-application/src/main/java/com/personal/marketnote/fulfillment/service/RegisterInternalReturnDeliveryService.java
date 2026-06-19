@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.service;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.port.in.command.RegisterInternalReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentReturnDeliveryCommand;
@@ -11,6 +12,8 @@ import com.personal.marketnote.fulfillment.port.in.result.RegisterInternalReturn
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.RegisterInternalReturnDeliveryUseCase;
+import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
+import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentReturnDeliveryPort;
@@ -28,6 +31,8 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
     private final RequestFulfillmentAuthPort requestFulfillmentAuthPort;
     private final DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
     private final RegisterFulfillmentReturnDeliveryPort registerFulfillmentReturnDeliveryPort;
+    private final FindShippingTrackerPort findShippingTrackerPort;
+    private final UpdateShippingTrackerPort updateShippingTrackerPort;
 
     @Override
     public RegisterInternalReturnDeliveryResult registerReturnDelivery(RegisterInternalReturnDeliveryCommand command) {
@@ -39,10 +44,24 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
             );
             RegisterFulfillmentDeliveryResult fasstoResult = registerFulfillmentReturnDeliveryPort.registerReturnDelivery(fasstoCommand);
 
-            return mapToResult(command.orderId(), fasstoResult);
+            RegisterInternalReturnDeliveryResult result = mapToResult(command.orderId(), fasstoResult);
+            if (result.registered()) {
+                startReturnShippingIfDelivered(command.orderId());
+            }
+            return result;
         } finally {
             disconnectFulfillmentAuthPort.disconnectAccessToken(accessToken.getValue());
         }
+    }
+
+    private void startReturnShippingIfDelivered(Long orderId) {
+        findShippingTrackerPort.findByOrderId(orderId).ifPresent(tracker -> {
+            if (!tracker.isDelivered()) {
+                return;
+            }
+            tracker.startReturnShipping();
+            updateShippingTrackerPort.update(tracker);
+        });
     }
 
     private RegisterFulfillmentReturnDeliveryCommand buildFasstoCommand(
