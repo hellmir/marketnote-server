@@ -7,8 +7,10 @@ import com.personal.marketnote.notification.adapter.out.persistence.preference.e
 import com.personal.marketnote.notification.adapter.out.persistence.preference.repository.NotificationPreferenceJpaRepository;
 import com.personal.marketnote.notification.domain.preference.DuplicateNotificationPreferenceException;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
+import com.personal.marketnote.notification.domain.template.NotificationType;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.preference.SaveNotificationPreferencePort;
+import com.personal.marketnote.notification.port.out.preference.UpdateNotificationPreferencePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -17,7 +19,7 @@ import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class NotificationPreferencePersistenceAdapter implements SaveNotificationPreferencePort, FindNotificationPreferencePort {
+public class NotificationPreferencePersistenceAdapter implements SaveNotificationPreferencePort, FindNotificationPreferencePort, UpdateNotificationPreferencePort {
 
     private final NotificationPreferenceJpaRepository notificationPreferenceJpaRepository;
 
@@ -40,5 +42,18 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
                 .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
                 .flatMap(Optional::stream)
                 .toList();
+    }
+
+    @Override
+    public Optional<NotificationPreference> findByUserIdAndNotificationType(Long userId, NotificationType notificationType) {
+        return notificationPreferenceJpaRepository
+                .findByUserIdAndNotificationTypeAndStatus(userId, notificationType, EntityStatus.ACTIVE)
+                .flatMap(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain);
+    }
+
+    @Override
+    public void update(NotificationPreference preference) {
+        notificationPreferenceJpaRepository.findById(preference.getId())
+                .ifPresent(entity -> entity.updateFrom(preference));
     }
 }
