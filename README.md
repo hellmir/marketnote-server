@@ -6,7 +6,9 @@
   <br><br>
 
 ## 📅 프로젝트 기간
-<b>2025. 12. 24 ~ </b>
+<b>2025. 12. 24 ~ 2026. 06. 20</b>
+<br>
+<b>2026. 09. 01 ~ </b>
 <br><br>
 
 ## 👫 구성원
@@ -23,6 +25,7 @@
 - [풀필먼트 서비스](https://fulfillment.marketnote.store/swagger-ui/index.html)
 - [커뮤니티 서비스](https://community.marketnote.store/swagger-ui/index.html)
 - [리워드 서비스](https://rewards.marketnote.store/swagger-ui/index.html)
+- [알림 서비스](https://notifications.marketnote.store/swagger-ui/index.html)
 - [파일 서비스](https://files.marketnote.store/swagger-ui/index.html)
   <br><br>
 
