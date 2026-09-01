@@ -6,6 +6,14 @@ public enum Platform {
     ANDROID,
     IOS;
 
+    public boolean isAndroid() {
+        return this == ANDROID;
+    }
+
+    public boolean isIos() {
+        return this == IOS;
+    }
+
     public static Platform from(String value) {
         if (FormatValidator.hasNoValue(value)) {
             throw new InvalidPlatformException("플랫폼 값이 비어있습니다.");
