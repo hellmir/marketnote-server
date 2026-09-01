@@ -52,4 +52,28 @@ class PlatformTest {
         assertThatThrownBy(() -> Platform.from(""))
                 .isInstanceOf(InvalidPlatformException.class);
     }
+
+    @Test
+    @DisplayName("ANDROID는 isAndroid()가 true를 반환한다")
+    void shouldReturnTrueForAndroidIsAndroid() {
+        assertThat(Platform.ANDROID.isAndroid()).isTrue();
+    }
+
+    @Test
+    @DisplayName("IOS는 isAndroid()가 false를 반환한다")
+    void shouldReturnFalseForIosIsAndroid() {
+        assertThat(Platform.IOS.isAndroid()).isFalse();
+    }
+
+    @Test
+    @DisplayName("IOS는 isIos()가 true를 반환한다")
+    void shouldReturnTrueForIosIsIos() {
+        assertThat(Platform.IOS.isIos()).isTrue();
+    }
+
+    @Test
+    @DisplayName("ANDROID는 isIos()가 false를 반환한다")
+    void shouldReturnFalseForAndroidIsIos() {
+        assertThat(Platform.ANDROID.isIos()).isFalse();
+    }
 }
