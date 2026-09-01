@@ -1,7 +1,6 @@
 package com.personal.marketnote.notification.adapter.out.fcm;
 
 import com.google.firebase.messaging.*;
-import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.notification.domain.device.Platform;
 import com.personal.marketnote.notification.domain.notification.FcmSendFailedException;
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
@@ -9,12 +8,9 @@ import com.personal.marketnote.notification.port.out.notification.SendPushNotifi
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 
 @Slf4j
-@ServiceAdapter
 @RequiredArgsConstructor
-@ConditionalOnBean(FirebaseMessaging.class)
 public class FcmPushNotificationClient implements SendPushNotificationPort {
 
     private final FirebaseMessaging firebaseMessaging;
@@ -50,7 +46,7 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
     }
 
     private void applyPlatformConfig(Message.Builder builder, Platform platform) {
-        if (platform == Platform.ANDROID) {
+        if (platform.isAndroid()) {
             builder.setAndroidConfig(AndroidConfig.builder()
                     .setNotification(AndroidNotification.builder()
                             .setChannelId("default")

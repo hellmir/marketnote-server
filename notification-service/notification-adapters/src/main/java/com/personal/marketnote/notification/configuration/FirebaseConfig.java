@@ -4,6 +4,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.personal.marketnote.notification.adapter.out.fcm.FcmPushNotificationClient;
+import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -48,5 +50,10 @@ public class FirebaseConfig {
     @Bean
     public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
         return FirebaseMessaging.getInstance(firebaseApp);
+    }
+
+    @Bean
+    public SendPushNotificationPort sendPushNotificationPort(FirebaseMessaging firebaseMessaging) {
+        return new FcmPushNotificationClient(firebaseMessaging);
     }
 }
