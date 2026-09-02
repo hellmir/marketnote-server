@@ -11,6 +11,7 @@ import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 import java.util.List;
@@ -25,6 +26,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     private final SaveOutboxEventPort saveOutboxEventPort;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public void publishOrderPaymentCompletedEvent(Long orderId, Long buyerId, Long totalAmount,
@@ -121,6 +123,24 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         );
 
         saveToOutbox(envelope, topic, orderId.toString());
+    }
+
+    @Override
+    public void publishOrderCancelFailedEvent(Long orderId, Long buyerId) {
+        OrderCancelFailedEvent payload = new OrderCancelFailedEvent(orderId, buyerId);
+        String topic = KafkaTopicConstants.ORDER_CANCEL_FAILED;
+        EventEnvelope<OrderCancelFailedEvent> envelope = EventEnvelope.of(
+                topic, SOURCE, payload, clock
+        );
+
+        try {
+            kafkaTemplate.send(topic, orderId.toString(), envelope).get();
+            log.info("주문 취소 실패 이벤트 발행. topic={}, orderId={}, buyerId={}",
+                    topic, orderId, buyerId);
+        } catch (Exception e) {
+            log.error("주문 취소 실패 이벤트 발행 실패. topic={}, orderId={}, error={}",
+                    topic, orderId, e.getMessage(), e);
+        }
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
