@@ -69,6 +69,10 @@ public class Notification extends BaseDomain {
         return notification;
     }
 
+    public boolean isOwnedBy(Long userId) {
+        return this.userId.equals(userId);
+    }
+
     public void markAsRead() {
         this.isRead = true;
     }
