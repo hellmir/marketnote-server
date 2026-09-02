@@ -7,7 +7,9 @@ import com.personal.marketnote.notification.adapter.in.web.notification.response
 import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
 import com.personal.marketnote.notification.port.in.command.MarkNotificationAsReadCommand;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
+import com.personal.marketnote.notification.port.in.result.notification.GetUnreadNotificationCountResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.GetNotificationHistoryUseCase;
+import com.personal.marketnote.notification.port.in.usecase.notification.GetUnreadNotificationCountUseCase;
 import com.personal.marketnote.notification.port.in.usecase.notification.MarkNotificationAsReadUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
@@ -39,6 +41,7 @@ public class NotificationController {
 
     private final GetNotificationHistoryUseCase getNotificationHistoryUseCase;
     private final MarkNotificationAsReadUseCase markNotificationAsReadUseCase;
+    private final GetUnreadNotificationCountUseCase getUnreadNotificationCountUseCase;
 
     /**
      * 알림 이력 조회
@@ -95,6 +98,25 @@ public class NotificationController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "알림 읽음 처리 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/unread-count")
+    public ResponseEntity<BaseResponse<GetUnreadNotificationCountResult>> getUnreadNotificationCount(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        GetUnreadNotificationCountResult result = getUnreadNotificationCountUseCase.getUnreadCount(
+                ElementExtractor.extractUserId(principal)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        result,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "미읽음 알림 수 조회 성공"
                 ),
                 HttpStatus.OK
         );
