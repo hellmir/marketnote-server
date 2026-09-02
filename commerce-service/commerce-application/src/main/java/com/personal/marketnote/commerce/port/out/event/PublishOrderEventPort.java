@@ -22,4 +22,6 @@ public interface PublishOrderEventPort {
                                    Long returnAmount, Long paymentAmount, Long pointAmount,
                                    Long shippingFee, boolean isFullReturn,
                                    Long returnShippingFee, List<OrderProduct> returnProducts);
+
+    void publishOrderCancelFailedEvent(Long orderId, Long buyerId);
 }
