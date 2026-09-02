@@ -5,8 +5,10 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetNotificationHistoryApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
 import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
+import com.personal.marketnote.notification.port.in.command.MarkNotificationAsReadCommand;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.GetNotificationHistoryUseCase;
+import com.personal.marketnote.notification.port.in.usecase.notification.MarkNotificationAsReadUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -16,10 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 
@@ -38,6 +38,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 public class NotificationController {
 
     private final GetNotificationHistoryUseCase getNotificationHistoryUseCase;
+    private final MarkNotificationAsReadUseCase markNotificationAsReadUseCase;
 
     /**
      * 알림 이력 조회
@@ -72,6 +73,28 @@ public class NotificationController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "알림 이력 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<BaseResponse<Void>> markNotificationAsRead(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
+            @PathVariable("id") Long id
+    ) {
+        MarkNotificationAsReadCommand command = new MarkNotificationAsReadCommand(
+                id,
+                ElementExtractor.extractUserId(principal)
+        );
+        markNotificationAsReadUseCase.markAsRead(command);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "알림 읽음 처리 성공"
                 ),
                 HttpStatus.OK
         );

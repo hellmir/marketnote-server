@@ -8,8 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NotificationJpaRepository extends JpaRepository<NotificationJpaEntity, Long> {
+
+    Optional<NotificationJpaEntity> findByIdAndStatus(Long id, EntityStatus status);
 
     @Query("""
             SELECT n FROM NotificationJpaEntity n

@@ -14,12 +14,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class NotificationPersistenceAdapter implements FindNotificationPort, SaveNotificationPort, UpdateNotificationPort {
 
     private final NotificationJpaRepository notificationJpaRepository;
+
+    @Override
+    public Optional<Notification> findActiveById(Long id) {
+        return notificationJpaRepository.findByIdAndStatus(id, EntityStatus.ACTIVE)
+                .flatMap(NotificationJpaEntityToDomainMapper::mapToDomain);
+    }
 
     @Override
     public List<Notification> findByUserId(Long userId, Long cursor, int fetchSize) {
