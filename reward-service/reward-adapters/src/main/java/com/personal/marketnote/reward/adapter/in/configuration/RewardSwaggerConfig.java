@@ -120,6 +120,8 @@ public class RewardSwaggerConfig {
                                 
                                 - [리워드 서비스](https://rewards.marketnote.store/swagger-ui/index.html)
                                 
+                                - [알림 서비스](https://notifications.marketnote.store/swagger-ui/index.html)
+                                
                                 - [파일 서비스](https://files.marketnote.store/swagger-ui/index.html)
                                 """)
                         .version("1.0"))

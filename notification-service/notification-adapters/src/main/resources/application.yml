@@ -55,7 +55,7 @@ client:
     allowed-origins: ${ACCESS_CONTROL_ALLOWED_ORIGINS:http://localhost:3000}
 
 server:
-  origin: ${SERVER_ORIGIN:http://localhost:8088}
+  origin: ${SERVER_ORIGIN:http://localhost:8086}
   error:
     include-exception: false
     include-stacktrace: NEVER

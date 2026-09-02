@@ -114,9 +114,9 @@ public class NotificationSwaggerConfig {
                                 
                                 - [리워드 서비스](https://rewards.marketnote.store/swagger-ui/index.html)
                                 
-                                - [파일 서비스](https://files.marketnote.store/swagger-ui/index.html)
-                                
                                 - [알림 서비스](https://notifications.marketnote.store/swagger-ui/index.html)
+                                
+                                - [파일 서비스](https://files.marketnote.store/swagger-ui/index.html)
                                 
                                 - [모니터링 대시보드](https://monitoring.marketnote.store/d/spring_boot_21/spring-boot-3-x-statistics) (인증 필요)
                                 """)
