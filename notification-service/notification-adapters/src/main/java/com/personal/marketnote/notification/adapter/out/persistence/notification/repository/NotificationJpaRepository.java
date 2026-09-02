@@ -29,4 +29,6 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
     );
 
     long countByUserIdAndStatus(Long userId, EntityStatus status);
+
+    long countByUserIdAndStatusAndIsRead(Long userId, EntityStatus status, boolean isRead);
 }

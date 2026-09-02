@@ -12,4 +12,6 @@ public interface FindNotificationPort {
     List<Notification> findByUserId(Long userId, Long cursor, int fetchSize);
 
     long countByUserId(Long userId);
+
+    long countUnreadByUserId(Long userId);
 }

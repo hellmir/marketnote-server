@@ -45,6 +45,11 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     }
 
     @Override
+    public long countUnreadByUserId(Long userId) {
+        return notificationJpaRepository.countByUserIdAndStatusAndIsRead(userId, EntityStatus.ACTIVE, false);
+    }
+
+    @Override
     public Notification save(Notification notification) {
         NotificationJpaEntity entity = NotificationJpaEntity.from(notification);
         NotificationJpaEntity saved = notificationJpaRepository.save(entity);
