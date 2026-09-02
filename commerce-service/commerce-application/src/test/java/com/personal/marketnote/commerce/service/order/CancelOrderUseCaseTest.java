@@ -4,12 +4,15 @@ import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
+import com.personal.marketnote.commerce.exception.OrderCancellationNotAllowedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.CancelOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.saga.OrderCancelSagaContext;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
+import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
+import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.common.saga.SagaDefinition;
 import com.personal.marketnote.common.saga.SagaOrchestrator;
@@ -317,6 +320,100 @@ class CancelOrderUseCaseTest {
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(sagaOrchestrator);
+        }
+    }
+
+    // ==================================================================================
+    // 주문 취소 실패 이벤트 발행 (SAGA 미사용, sync 경로)
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("주문 취소 실패 이벤트 발행")
+    class OrderCancelFailedEventPublishTest {
+
+        private CancelOrderService syncCancelOrderService;
+
+        @BeforeEach
+        void setUp() {
+            syncCancelOrderService = new CancelOrderService(
+                    getOrderUseCase,
+                    updateOrderPort,
+                    cancelFulfillmentReleasePort,
+                    publishOrderEventPort,
+                    transactionManager,
+                    clock,
+                    Optional.empty(),
+                    Optional.empty()
+            );
+        }
+
+        @Test
+        @DisplayName("풀필먼트 취소 거부 시 OrderCancelFailedEvent가 발행된다")
+        void cancelOrder_fulfillmentRejected_publishesCancelFailedEvent() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
+                    .thenReturn(new CancelFulfillmentReleaseResult(orderId, false, "이미 출고 완료"));
+
+            CancelOrderCommand command = createCommand(orderId, buyerId);
+
+            assertThatThrownBy(() -> syncCancelOrderService.cancelOrder(command))
+                    .isInstanceOf(OrderCancellationNotAllowedException.class);
+
+            verify(publishOrderEventPort).publishOrderCancelFailedEvent(orderId, buyerId);
+        }
+
+        @Test
+        @DisplayName("발행된 이벤트에 orderId, buyerId가 포함된다")
+        void cancelOrder_fulfillmentRejected_eventContainsOrderIdAndBuyerId() {
+            Long orderId = 5L;
+            Long buyerId = 200L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
+                    .thenReturn(new CancelFulfillmentReleaseResult(orderId, false, "출고 진행중"));
+
+            CancelOrderCommand command = createCommand(orderId, buyerId);
+
+            assertThatThrownBy(() -> syncCancelOrderService.cancelOrder(command))
+                    .isInstanceOf(OrderCancellationNotAllowedException.class);
+
+            verify(publishOrderEventPort).publishOrderCancelFailedEvent(5L, 200L);
+        }
+
+        @Test
+        @DisplayName("풀필먼트 서비스 통신 실패 시 OrderCancelFailedEvent가 발행된다")
+        void cancelOrder_fulfillmentCommunicationFailed_publishesCancelFailedEvent() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
+                    .thenThrow(new FulfillmentServiceRequestFailedException(new java.io.IOException("Connection refused")));
+
+            CancelOrderCommand command = createCommand(orderId, buyerId);
+
+            assertThatThrownBy(() -> syncCancelOrderService.cancelOrder(command))
+                    .isInstanceOf(OrderCancellationNotAllowedException.class);
+
+            verify(publishOrderEventPort).publishOrderCancelFailedEvent(orderId, buyerId);
+        }
+
+        @Test
+        @DisplayName("취소 가능한 주문은 이벤트를 발행하지 않는다")
+        void cancelOrder_cancellable_doesNotPublishCancelFailedEvent() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = createCommand(orderId, buyerId);
+
+            syncCancelOrderService.cancelOrder(command);
+
+            verify(publishOrderEventPort, never()).publishOrderCancelFailedEvent(any(), any());
         }
     }
 
