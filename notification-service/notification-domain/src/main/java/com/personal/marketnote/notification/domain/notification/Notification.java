@@ -81,6 +81,10 @@ public class Notification extends BaseDomain {
         this.sendStatus = SendStatus.FAILED;
     }
 
+    public void markAsSkipped() {
+        this.sendStatus = SendStatus.SKIPPED;
+    }
+
     private static void validate(NotificationCreateState state) {
         if (FormatValidator.hasNoValue(state.getUserId())) {
             throw new InvalidNotificationException("사용자 ID는 필수입니다.");

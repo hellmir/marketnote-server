@@ -15,6 +15,7 @@ import com.personal.marketnote.notification.port.out.device.UpdateDeviceTokenPor
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.List;
 import java.util.Optional;
 
 @PersistenceAdapter
@@ -23,6 +24,13 @@ public class DeviceTokenPersistenceAdapter
         implements FindDeviceTokenPort, SaveDeviceTokenPort, UpdateDeviceTokenPort, DeleteDeviceTokenPort {
 
     private final DeviceTokenJpaRepository deviceTokenJpaRepository;
+
+    @Override
+    public List<DeviceToken> findActiveByUserId(Long userId) {
+        return deviceTokenJpaRepository.findByUserIdAndStatus(userId, EntityStatus.ACTIVE).stream()
+                .flatMap(entity -> DeviceTokenJpaEntityToDomainMapper.mapToDomain(entity).stream())
+                .toList();
+    }
 
     @Override
     public Optional<DeviceToken> findActiveByDeviceId(String deviceId) {

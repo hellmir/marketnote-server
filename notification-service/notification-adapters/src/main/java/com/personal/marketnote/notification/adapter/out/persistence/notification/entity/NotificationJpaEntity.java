@@ -55,6 +55,11 @@ public class NotificationJpaEntity extends BaseGeneralEntity {
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
+    public void updateFrom(Notification notification) {
+        this.sendStatus = notification.getSendStatus();
+        this.isRead = notification.isRead();
+    }
+
     public static NotificationJpaEntity from(Notification notification) {
         return NotificationJpaEntity.builder()
                 .userId(notification.getUserId())
