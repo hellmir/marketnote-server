@@ -76,7 +76,6 @@ class AutoConfirmDeliveredOrdersUseCaseTest {
             ChangeOrderStatusCommand command = captor.getValue();
             assertThat(command.id()).isEqualTo(100L);
             assertThat(command.orderStatus()).isEqualTo(OrderStatus.CONFIRMED);
-            assertThat(command.isInternalCall()).isTrue();
             assertThat(command.isPartialProductChange()).isFalse();
         }
 

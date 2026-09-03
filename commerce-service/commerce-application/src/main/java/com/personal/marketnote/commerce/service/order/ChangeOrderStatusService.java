@@ -1,7 +1,8 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.exception.*;
+import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
+import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.mapper.OrderCommandToStateMapper;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
@@ -10,11 +11,8 @@ import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
-import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
-import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.domain.delivery.PickupRequestType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,16 +39,12 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final ModifyUserPointPort modifyUserPointPort;
     private final PublishOrderEventPort publishOrderEventPort;
-    private final FindUserShippingAddressPort findUserShippingAddressPort;
     private final Clock clock;
 
     @Override
     public void changeOrderStatus(ChangeOrderStatusCommand command) {
         Order order = getOrderUseCase.getOrder(command.id());
         OrderStatus status = command.orderStatus();
-
-        validateBuyerRoleRestriction(command);
-        validateBuyerOwnership(command, order);
 
         if (status.isMe(order.getOrderStatus()) && status.isNotPartialChanged()) {
             throw new OrderStatusAlreadyChangedException(status);
@@ -60,7 +54,6 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), status);
         }
 
-        applyPickupAddressIfReturnRequested(command, order);
         changeOrderStatus(command, order);
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(OrderCommandToStateMapper.mapToState(command));
         updateOrderPort.update(order, orderStatusHistory);
@@ -71,70 +64,6 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
         if (status.isConfirmed() && !command.isPartialProductChange()) {
             updateConfirmSubsequentProcesses(order);
-        }
-    }
-
-    private void validateBuyerRoleRestriction(ChangeOrderStatusCommand command) {
-        if (command.isBuyerRole() && !command.orderStatus().isBuyerAllowed()) {
-            log.warn("구매자 허용되지 않은 상태 변경 시도 - orderId: {}, targetStatus: {}, role: {}",
-                    command.id(), command.orderStatus(), command.role());
-            throw new UnauthorizedOrderStatusChangeException();
-        }
-    }
-
-    private void validateBuyerOwnership(ChangeOrderStatusCommand command, Order order) {
-        if (command.isInternalCall()) {
-            return;
-        }
-
-        if (!command.isBuyerRole()) {
-            return;
-        }
-
-        if (!order.getBuyerId().equals(command.buyerId())) {
-            log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    command.id(), order.getBuyerId(), command.buyerId());
-            throw new UnauthorizedOrderAccessException();
-        }
-    }
-
-    private void applyPickupAddressIfReturnRequested(ChangeOrderStatusCommand command, Order order) {
-        if (!command.orderStatus().isReturnRequested()) {
-            return;
-        }
-
-        validatePickupRequestType(command);
-
-        if (!command.hasPickupAddressId()) {
-            order.applyPickupAddress(null);
-            return;
-        }
-
-        ShippingAddressInfoResult addressInfo = findUserShippingAddressPort.findByIdAndUserId(
-                command.pickupAddressId(), command.buyerId()
-        );
-
-        ShippingAddress pickupAddress = ShippingAddress.ofPickup(
-                addressInfo.recipientName(),
-                addressInfo.recipientPhoneNumber(),
-                null,
-                addressInfo.address(),
-                addressInfo.addressDetail(),
-                command.pickupRequestType(),
-                command.pickupRequestMessage()
-        );
-
-        order.applyPickupAddress(pickupAddress);
-    }
-
-    private void validatePickupRequestType(ChangeOrderStatusCommand command) {
-        PickupRequestType pickupRequestType = command.pickupRequestType();
-        if (FormatValidator.hasNoValue(pickupRequestType)) {
-            return;
-        }
-
-        if (pickupRequestType.isCustom() && FormatValidator.hasNoValue(command.pickupRequestMessage())) {
-            throw new InvalidPickupRequestMessageException();
         }
     }
 
