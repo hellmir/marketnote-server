@@ -37,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
+import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_OR_SELLER_PRINCIPAL_POINTCUT;
 import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 
 /**
@@ -395,27 +396,23 @@ public class OrderController {
     }
 
     /**
-     * 주문 상태 변경
+     * 주문 상태 변경 (관리자/판매자 전용)
      *
-     * @param id        주문 ID
-     * @param request   주문 상태 변경 요청
-     * @param principal 인증된 사용자 정보
+     * @param id      주문 ID
+     * @param request 주문 상태 변경 요청
      * @Author 성효빈
      * @Date 2026-01-05
-     * @Description 주문 상태를 변경합니다. 구매자 역할일 경우 허용된 상태만 변경 가능합니다.
+     * @Description 주문 상태를 변경합니다. 관리자/판매자 권한이 필요합니다.
      */
     @PatchMapping("/api/v1/orders/{id}")
     @ChangeOrderStatusApiDocs
+    @PreAuthorize(ADMIN_OR_SELLER_PRINCIPAL_POINTCUT)
     public ResponseEntity<BaseResponse<Void>> changeOrderStatus(
             @PathVariable("id") Long id,
-            @Valid @RequestBody ChangeOrderStatusRequest request,
-            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+            @Valid @RequestBody ChangeOrderStatusRequest request
     ) {
-        Long buyerId = ElementExtractor.extractUserId(principal);
-        String role = ElementExtractor.extractRole(principal);
-
         changeOrderStatusUseCase.changeOrderStatus(
-                OrderRequestToCommandMapper.mapToCommand(id, request, role, buyerId)
+                OrderRequestToCommandMapper.mapToCommand(id, request)
         );
 
         return new ResponseEntity<>(

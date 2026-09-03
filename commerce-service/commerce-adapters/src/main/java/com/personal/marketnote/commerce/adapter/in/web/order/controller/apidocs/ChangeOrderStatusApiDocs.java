@@ -17,78 +17,75 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Operation(
-        summary = "주문 상태 변경",
+        summary = "주문 상태 변경 (관리자/판매자 전용)",
         description = """
                 작성일자: 2026-01-05
-                
+
                 작성자: 성효빈
-                
+
                 ---
-                
+
                 ## Description
-                
-                - 주문 상태를 변경합니다.
-                
+
+                - 주문 상태를 변경합니다. (관리자/판매자 권한 필요)
+
                 - 가격 정책 목록 전송 시, 해당하는 주문 상품의 상태만 변경합니다.
-                
+
                 - 가격 정책 목록 미전송 시, 모든 주문 상품의 상태를 변경합니다.
-                
+
                 - 주문 상태 목록
-                
+
                     - "PAYMENT_PENDING": 결제 대기
-                
+
                     - "PAID": 결제 완료
-                
+
                     - "FAILED": 결제 실패
-                
+
                     - "PREPARING": 상품 준비중
-                
+
                     - "CANCELLED": 주문 취소
-                
+
                     - "SHIPPING": 배송중
-                
+
                     - "DELIVERED": 배송 완료
-                
+
                     - "PARTIALLY_CONFIRMED": 부분 구매 확정
-                
+
                     - "CONFIRMED": 구매 확정
-                
+
                     - "RETURN_REQUESTED": 반품 요청됨
-                
+
                     - "RETURN_IN_PROGRESS": 반품 진행 중
-                
+
                     - "PARTIALLY_RETURNED": 부분 반품됨
-                
+
                     - "RETURNED": 반품 완료
-                
+
                 - 변경 사유 카테고리 목록
-                
+
                     - "CANCEL_ORDER": 구매 의사 취소
-                
+
                     - "CHANGE_OPTION": 색상, 사이즈 등 변경
-                
+
                     - "MISTAKE": 주문 실수
-                
+
                     - "ETC": 직접 입력
-                
+
                 ---
-                
+
                 ## Request
-                
+
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | pricePolicyIds | array<number> | 가격 정책 ID 목록 | N | [1, 2, 3] |
-                | orderStatus | string | 주문 상태 | Y | "PAYMENT_PENDING" |
+                | orderStatus | string | 주문 상태 | Y | "PREPARING" |
                 | reasonCategory | string | 변경 사유 카테고리 | N | "CANCEL_ORDER" |
                 | reason | string | 변경 사유 | N | default: 변경된 주문 상태의 디스크립션 |
-                | pickupAddressId | number | 회수지 배송지 ID (반품 신청 시, 미입력 시 배송지 기본값) | N | 5 |
-                | pickupRequestType | string | 회수 요청 타입 (NONE, CALL_BEFORE_VISIT, LEAVE_AT_DOOR, LEAVE_AT_SECURITY, CUSTOM) | N | "LEAVE_AT_DOOR" |
-                | pickupRequestMessage | string | 회수 요청사항 (CUSTOM 시 필수, 60자 제한) | N | "부재시 경비실에 맡겨주세요" |
-                
+
                 ---
-                
+
                 ## Response
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 |
@@ -113,12 +110,9 @@ import java.lang.annotation.*;
                         examples = @ExampleObject("""
                                 {
                                   "pricePolicyIds": [1, 2, 3],
-                                  "orderStatus": "RETURN_REQUESTED",
+                                  "orderStatus": "PREPARING",
                                   "reasonCategory": "CANCEL_ORDER",
-                                  "reason": "주문 상태 변경 사유",
-                                  "pickupAddressId": 5,
-                                  "pickupRequestType": "LEAVE_AT_DOOR",
-                                  "pickupRequestMessage": null
+                                  "reason": "주문 상태 변경 사유"
                                 }
                                 """)
                 )
@@ -156,7 +150,7 @@ import java.lang.annotation.*;
                 ),
                 @ApiResponse(
                         responseCode = "403",
-                        description = "토큰 인가 실패",
+                        description = "토큰 인가 실패 (관리자/판매자 권한 필요)",
                         content = @Content(
                                 examples = @ExampleObject("""
                                         {
@@ -202,4 +196,3 @@ import java.lang.annotation.*;
         })
 public @interface ChangeOrderStatusApiDocs {
 }
-

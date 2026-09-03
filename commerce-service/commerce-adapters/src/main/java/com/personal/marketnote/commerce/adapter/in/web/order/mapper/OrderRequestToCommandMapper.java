@@ -64,18 +64,13 @@ public class OrderRequestToCommandMapper {
                 .build();
     }
 
-    public static ChangeOrderStatusCommand mapToCommand(Long id, ChangeOrderStatusRequest request, String role, Long buyerId) {
+    public static ChangeOrderStatusCommand mapToCommand(Long id, ChangeOrderStatusRequest request) {
         return ChangeOrderStatusCommand.builder()
                 .id(id)
                 .pricePolicyIds(request.getPricePolicyIds())
                 .orderStatus(request.getOrderStatus())
                 .reasonCategory(request.getReasonCategory())
                 .reason(request.getReason())
-                .role(role)
-                .buyerId(buyerId)
-                .pickupAddressId(request.getPickupAddressId())
-                .pickupRequestType(request.getPickupRequestType())
-                .pickupRequestMessage(request.getPickupRequestMessage())
                 .build();
     }
 }
