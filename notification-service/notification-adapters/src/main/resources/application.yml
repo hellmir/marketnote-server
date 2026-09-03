@@ -75,6 +75,13 @@ kafka:
   slack:
     webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
 
+sse:
+  max-connections: ${SSE_MAX_CONNECTIONS:5000}
+  emitter:
+    timeout-ms: ${SSE_EMITTER_TIMEOUT_MS:1800000}
+  heartbeat:
+    interval-ms: ${SSE_HEARTBEAT_INTERVAL_MS:30000}
+
 management:
   endpoints:
     web:

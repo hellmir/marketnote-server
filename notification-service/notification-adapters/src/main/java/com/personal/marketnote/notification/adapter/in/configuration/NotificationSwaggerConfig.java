@@ -32,6 +32,7 @@ public class NotificationSwaggerConfig {
 
     private static final List<String> TAGS_ORDER = List.of(
             "알림 API",
+            "SSE 알림 스트림 API",
             "서버 정보 API"
     );
 
