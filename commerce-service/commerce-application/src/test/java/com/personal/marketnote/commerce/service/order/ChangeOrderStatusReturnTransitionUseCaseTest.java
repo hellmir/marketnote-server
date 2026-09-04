@@ -8,7 +8,6 @@ import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
-import com.personal.marketnote.commerce.port.out.user.FindUserShippingAddressPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,8 +40,6 @@ class ChangeOrderStatusReturnTransitionUseCaseTest {
     private ModifyUserPointPort modifyUserPointPort;
     @Mock
     private PublishOrderEventPort publishOrderEventPort;
-    @Mock
-    private FindUserShippingAddressPort findUserShippingAddressPort;
     @Spy
     private Clock clock = Clock.fixed(Instant.parse("2026-04-24T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 
