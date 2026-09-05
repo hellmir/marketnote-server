@@ -57,6 +57,9 @@ public final class KafkaTopicConstants {
     // Fulfillment 이벤트
     public static final String SHIPPING_STATUS_CHANGED = "fulfillment.shipping.status-changed";
 
+    // Reward 이벤트
+    public static final String POINT_ACCRUED = "reward.point.accrued";
+
     // Dead Letter Topic 접미사
     public static final String DLT_SUFFIX = ".dlt";
 }
