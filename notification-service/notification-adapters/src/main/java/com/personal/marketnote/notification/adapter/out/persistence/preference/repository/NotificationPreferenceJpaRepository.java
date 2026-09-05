@@ -12,4 +12,7 @@ public interface NotificationPreferenceJpaRepository extends JpaRepository<Notif
     List<NotificationPreferenceJpaEntity> findAllByUserIdAndStatus(Long userId, EntityStatus status);
 
     Optional<NotificationPreferenceJpaEntity> findByUserIdAndNotificationTypeAndStatus(Long userId, NotificationType notificationType, EntityStatus status);
+
+    List<NotificationPreferenceJpaEntity> findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(
+            List<Long> userIds, NotificationType notificationType, EntityStatus status);
 }

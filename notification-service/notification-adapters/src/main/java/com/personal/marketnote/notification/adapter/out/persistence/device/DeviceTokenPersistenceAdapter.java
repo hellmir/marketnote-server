@@ -33,6 +33,13 @@ public class DeviceTokenPersistenceAdapter
     }
 
     @Override
+    public List<DeviceToken> findActiveByUserIds(List<Long> userIds) {
+        return deviceTokenJpaRepository.findByUserIdInAndStatus(userIds, EntityStatus.ACTIVE).stream()
+                .flatMap(entity -> DeviceTokenJpaEntityToDomainMapper.mapToDomain(entity).stream())
+                .toList();
+    }
+
+    @Override
     public Optional<DeviceToken> findActiveByDeviceId(String deviceId) {
         return deviceTokenJpaRepository.findByDeviceIdAndStatus(deviceId, EntityStatus.ACTIVE)
                 .flatMap(DeviceTokenJpaEntityToDomainMapper::mapToDomain);
