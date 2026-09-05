@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.personal.marketnote.notification.domain.notification.SendStatus;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,4 +34,17 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
     long countByUserIdAndStatus(Long userId, EntityStatus status);
 
     long countByUserIdAndStatusAndIsRead(Long userId, EntityStatus status, boolean isRead);
+
+    @Query("""
+            SELECT n FROM NotificationJpaEntity n
+            WHERE n.sendStatus = :sendStatus
+              AND n.scheduledAt <= :now
+              AND n.status = :status
+            ORDER BY n.scheduledAt ASC
+            """)
+    List<NotificationJpaEntity> findScheduledNotificationsDue(
+            @Param("sendStatus") SendStatus sendStatus,
+            @Param("now") LocalDateTime now,
+            @Param("status") EntityStatus status
+    );
 }
