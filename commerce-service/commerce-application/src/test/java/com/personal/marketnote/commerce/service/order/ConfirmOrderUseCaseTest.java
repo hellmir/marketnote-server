@@ -119,7 +119,7 @@ class ConfirmOrderUseCaseTest {
             confirmOrderService.confirmOrder(command);
 
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), anyList()
+                    eq(orderId), eq(buyerId), anyList(), eq(false)
             );
         }
     }

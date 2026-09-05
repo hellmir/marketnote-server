@@ -304,7 +304,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("OrderPurchaseConfirmedEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void orderPurchaseConfirmedEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 10L, List.of(SHARER_KEY_1, SHARER_KEY_2, SHARER_KEY_3));
+            OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 10L, List.of(SHARER_KEY_1, SHARER_KEY_2, SHARER_KEY_3), false);
             EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
                     "commerce.order.purchase-confirmed", "commerce-service", event, FIXED_CLOCK);
 

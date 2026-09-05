@@ -53,8 +53,8 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     }
 
     @Override
-    public void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys) {
-        OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
+    public void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed) {
+        OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, isAutoConfirmed);
         String topic = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED;
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(
                 topic, SOURCE, payload, clock

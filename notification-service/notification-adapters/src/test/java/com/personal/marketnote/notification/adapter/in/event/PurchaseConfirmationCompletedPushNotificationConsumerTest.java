@@ -40,7 +40,7 @@ class PurchaseConfirmationCompletedPushNotificationConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                orderId, buyerId, List.of(UUID.randomUUID())
+                orderId, buyerId, List.of(UUID.randomUUID()), false
         );
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
@@ -94,7 +94,7 @@ class PurchaseConfirmationCompletedPushNotificationConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                100L, 1L, List.of()
+                100L, 1L, List.of(), false
         );
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
