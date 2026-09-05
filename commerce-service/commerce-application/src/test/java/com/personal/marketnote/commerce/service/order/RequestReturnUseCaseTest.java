@@ -148,6 +148,26 @@ class RequestReturnUseCaseTest {
         }
 
         @Test
+        @DisplayName("반품 요청 성공 시 ReturnRequestedEvent를 발행한다")
+        void requestReturn_publishesReturnRequestedEvent() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithBuyerId(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.ETC)
+                    .reason("상품 불량")
+                    .buyerId(buyerId)
+                    .build();
+
+            requestReturnService.requestReturn(command);
+
+            verify(publishOrderEventPort).publishReturnRequestedEvent(orderId, buyerId);
+        }
+
+        @Test
         @DisplayName("회수지 주소를 입력하면 입력된 회수지가 적용된다")
         void requestReturn_withPickupAddress_appliesProvidedAddress() {
             Long orderId = 1L;
@@ -265,6 +285,7 @@ class RequestReturnUseCaseTest {
                     .isInstanceOf(InvalidReasonCategoryException.class);
 
             verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(publishOrderEventPort);
         }
 
         @Test
@@ -329,6 +350,7 @@ class RequestReturnUseCaseTest {
                     .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(publishOrderEventPort);
         }
     }
 
@@ -425,6 +447,7 @@ class RequestReturnUseCaseTest {
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(publishOrderEventPort);
         }
     }
 
