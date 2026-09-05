@@ -9,4 +9,6 @@ public interface FindDeviceTokenPort {
     Optional<DeviceToken> findActiveByDeviceId(String deviceId);
 
     List<DeviceToken> findActiveByUserId(Long userId);
+
+    List<DeviceToken> findActiveByUserIds(List<Long> userIds);
 }

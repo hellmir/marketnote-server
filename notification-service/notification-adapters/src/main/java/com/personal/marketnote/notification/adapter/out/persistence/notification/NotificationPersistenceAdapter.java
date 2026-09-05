@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
@@ -50,6 +52,17 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     }
 
     @Override
+    public List<Notification> saveAll(List<Notification> notifications) {
+        List<NotificationJpaEntity> entities = notifications.stream()
+                .map(NotificationJpaEntity::from)
+                .toList();
+        List<NotificationJpaEntity> savedEntities = notificationJpaRepository.saveAll(entities);
+        return savedEntities.stream()
+                .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
+                .toList();
+    }
+
+    @Override
     public Notification save(Notification notification) {
         NotificationJpaEntity entity = NotificationJpaEntity.from(notification);
         NotificationJpaEntity saved = notificationJpaRepository.save(entity);
@@ -61,5 +74,19 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
         NotificationJpaEntity entity = notificationJpaRepository.findById(notification.getId())
                 .orElseThrow(() -> new com.personal.marketnote.notification.domain.notification.NotificationNotFoundException(notification.getId()));
         entity.updateFrom(notification);
+    }
+
+    @Override
+    public void updateAll(List<Notification> notifications) {
+        List<Long> ids = notifications.stream().map(Notification::getId).toList();
+        Map<Long, NotificationJpaEntity> entityMap = notificationJpaRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(NotificationJpaEntity::getId, e -> e));
+        for (Notification notification : notifications) {
+            NotificationJpaEntity entity = entityMap.get(notification.getId());
+            if (FormatValidator.hasNoValue(entity)) {
+                continue;
+            }
+            entity.updateFrom(notification);
+        }
     }
 }

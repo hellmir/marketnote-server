@@ -12,4 +12,6 @@ public interface DeviceTokenJpaRepository extends JpaRepository<DeviceTokenJpaEn
     Optional<DeviceTokenJpaEntity> findByDeviceIdAndStatus(String deviceId, EntityStatus status);
 
     List<DeviceTokenJpaEntity> findByUserIdAndStatus(Long userId, EntityStatus status);
+
+    List<DeviceTokenJpaEntity> findByUserIdInAndStatus(List<Long> userIds, EntityStatus status);
 }
