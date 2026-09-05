@@ -14,11 +14,13 @@ import com.personal.marketnote.notification.port.in.usecase.notification.SendNot
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
 import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
+import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +45,8 @@ public class SendNotificationService implements SendNotificationUseCase {
     private final UpdateNotificationPort updateNotificationPort;
     private final SendPushNotificationPort sendPushNotificationPort;
     private final DeleteDeviceTokenPort deleteDeviceTokenPort;
+    private final FindNotificationPort findNotificationPort;
+    private final PublishSseEventPort publishSseEventPort;
     private final Clock clock;
 
     @Override
@@ -52,7 +56,9 @@ public class SendNotificationService implements SendNotificationUseCase {
         NotificationCategory category = template.getNotificationCategory();
 
         if (shouldSkipByConsent(category, command.userId(), template)) {
-            return saveSkippedNotification(command, template);
+            SendNotificationResult skippedResult = saveSkippedNotification(command, template);
+            publishUnreadCountChangedEvent(command.userId());
+            return skippedResult;
         }
 
         String title = TemplateRenderer.render(template.getTitle(), command.variables());
@@ -73,14 +79,18 @@ public class SendNotificationService implements SendNotificationUseCase {
                 command, template, title, body, landingUrl, deliveryChannel, scheduledAt);
 
         if (!notification.getSendStatus().isPending()) {
+            publishUnreadCountChangedEvent(command.userId());
             return toResult(notification, 0, 0);
         }
 
         if (!deliveryChannel.hasPush()) {
+            publishUnreadCountChangedEvent(command.userId());
             return toResult(notification, 0, 0);
         }
 
-        return sendPushNotifications(notification, title, body, landingUrl, command.userId());
+        SendNotificationResult result = sendPushNotifications(notification, title, body, landingUrl, command.userId());
+        publishUnreadCountChangedEvent(command.userId());
+        return result;
     }
 
     private NotificationTemplate findTemplate(String templateCode) {
@@ -178,6 +188,12 @@ public class SendNotificationService implements SendNotificationUseCase {
         updateNotificationPort.update(notification);
 
         return toResult(notification, sentCount, failedCount);
+    }
+
+    private void publishUnreadCountChangedEvent(Long userId) {
+        long unreadCount = findNotificationPort.countUnreadByUserId(userId);
+        publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED",
+                "{\"unreadCount\":" + unreadCount + "}");
     }
 
     private SendNotificationResult toResult(Notification notification, int sentCount, int failedCount) {
