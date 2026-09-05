@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedExcep
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.service.returntracker.CreateReturnTrackerAfterReturnRequestService;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +36,8 @@ class RequestReturnUseCaseTest {
     private GetOrderUseCase getOrderUseCase;
     @Mock
     private UpdateOrderPort updateOrderPort;
+    @Mock
+    private PublishOrderEventPort publishOrderEventPort;
     @Mock
     private CreateReturnTrackerAfterReturnRequestService createReturnTrackerAfterReturnRequestService;
     @Spy
