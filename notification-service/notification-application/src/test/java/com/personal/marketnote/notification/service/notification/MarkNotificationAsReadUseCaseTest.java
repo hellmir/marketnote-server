@@ -6,6 +6,7 @@ import com.personal.marketnote.notification.domain.template.NotificationType;
 import com.personal.marketnote.notification.port.in.command.MarkNotificationAsReadCommand;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
+import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,9 @@ class MarkNotificationAsReadUseCaseTest {
 
     @Mock
     private UpdateNotificationPort updateNotificationPort;
+
+    @Mock
+    private PublishSseEventPort publishSseEventPort;
 
     @Test
     @DisplayName("알림이 존재하고 본인 소유이면 읽음 처리한다")
