@@ -11,9 +11,11 @@ import com.personal.marketnote.notification.domain.template.TemplateRenderer;
 import com.personal.marketnote.notification.port.in.command.SendNotificationCommand;
 import com.personal.marketnote.notification.port.in.result.notification.SendNotificationResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.SendNotificationUseCase;
+import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
 import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
+import com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
@@ -47,6 +49,7 @@ public class SendNotificationService implements SendNotificationUseCase {
     private final DeleteDeviceTokenPort deleteDeviceTokenPort;
     private final FindNotificationPort findNotificationPort;
     private final PublishSseEventPort publishSseEventPort;
+    private final PublishNotificationSentEventPort publishNotificationSentEventPort;
     private final Clock clock;
 
     @Override
@@ -187,6 +190,10 @@ public class SendNotificationService implements SendNotificationUseCase {
         }
         updateNotificationPort.update(notification);
 
+        if (notification.getSendStatus().isSent()) {
+            publishNotificationSentEvent(notification, sentCount, failedCount);
+        }
+
         return toResult(notification, sentCount, failedCount);
     }
 
@@ -194,6 +201,19 @@ public class SendNotificationService implements SendNotificationUseCase {
         long unreadCount = findNotificationPort.countUnreadByUserId(userId);
         publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED",
                 "{\"unreadCount\":" + unreadCount + "}");
+    }
+
+    private void publishNotificationSentEvent(Notification notification, int sentCount, int failedCount) {
+        PushNotificationSentEvent event = new PushNotificationSentEvent(
+                notification.getId(),
+                notification.getUserId(),
+                notification.getNotificationType().name(),
+                notification.getSendStatus().name(),
+                sentCount,
+                failedCount,
+                LocalDateTime.now(clock)
+        );
+        publishNotificationSentEventPort.publish(event);
     }
 
     private SendNotificationResult toResult(Notification notification, int sentCount, int failedCount) {

@@ -75,6 +75,9 @@ kafka:
   slack:
     webhook-url: ${KAFKA_SLACK_WEBHOOK_URL:}
 
+outbox:
+  enabled: true
+
 sse:
   max-connections: ${SSE_MAX_CONNECTIONS:5000}
   emitter:
