@@ -126,6 +126,7 @@ class PollShippingStatusUseCaseTest {
         verify(publishShippingStatusChangedEventPort).publish(eventCaptor.capture());
         ShippingStatusChangedEvent event = eventCaptor.getValue();
         assertThat(event.orderId()).isEqualTo(100L);
+        assertThat(event.buyerId()).isEqualTo(1L);
         assertThat(event.shippingStatus()).isEqualTo("SHIPPING");
         assertThat(event.trackingNumber()).isEqualTo("INV001");
         assertThat(event.carrierCode()).isEqualTo("CJ");
@@ -309,6 +310,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = ShippingTracker.from(ShippingTrackerSnapshotState.builder()
                 .id(1L)
                 .orderId(100L)
+                .buyerId(1L)
                 .shippingStatus(ShippingStatus.SHIPPING)
                 .pollingActive(true)
                 .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
@@ -344,6 +346,7 @@ class PollShippingStatusUseCaseTest {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
                 .id(id)
                 .orderId(orderId)
+                .buyerId(1L)
                 .shippingStatus(ShippingStatus.PREPARING)
                 .pollingActive(true)
                 .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
@@ -355,6 +358,7 @@ class PollShippingStatusUseCaseTest {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
                 .id(id)
                 .orderId(orderId)
+                .buyerId(1L)
                 .trackingNumber("INV001")
                 .carrierCode("CJ")
                 .shippingStatus(ShippingStatus.SHIPPING)

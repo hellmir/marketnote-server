@@ -176,6 +176,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     private void publishStatusChanged(ShippingTracker tracker) {
         publishShippingStatusChangedEventPort.publish(new ShippingStatusChangedEvent(
                 tracker.getOrderId(),
+                tracker.getBuyerId(),
                 tracker.getShippingStatus().name(),
                 tracker.getTrackingNumber(),
                 tracker.getCarrierCode(),

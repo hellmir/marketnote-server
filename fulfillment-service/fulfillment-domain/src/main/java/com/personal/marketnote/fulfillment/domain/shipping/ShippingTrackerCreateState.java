@@ -7,4 +7,5 @@ import lombok.Getter;
 @Builder
 public class ShippingTrackerCreateState {
     private final Long orderId;
+    private final Long buyerId;
 }

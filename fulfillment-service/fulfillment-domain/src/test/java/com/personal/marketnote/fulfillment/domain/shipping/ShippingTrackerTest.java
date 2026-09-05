@@ -23,6 +23,7 @@ class ShippingTrackerTest {
         void createWithOrderId() {
             ShippingTrackerCreateState state = ShippingTrackerCreateState.builder()
                     .orderId(100L)
+                    .buyerId(1L)
                     .build();
 
             ShippingTracker tracker = ShippingTracker.from(state);
@@ -39,6 +40,19 @@ class ShippingTrackerTest {
         void createWithNullOrderId() {
             ShippingTrackerCreateState state = ShippingTrackerCreateState.builder()
                     .orderId(null)
+                    .buyerId(1L)
+                    .build();
+
+            assertThatThrownBy(() -> ShippingTracker.from(state))
+                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
+        }
+
+        @Test
+        @DisplayName("buyerId가 null이면 예외가 발생한다")
+        void createWithNullBuyerId() {
+            ShippingTrackerCreateState state = ShippingTrackerCreateState.builder()
+                    .orderId(100L)
+                    .buyerId(null)
                     .build();
 
             assertThatThrownBy(() -> ShippingTracker.from(state))
@@ -57,6 +71,7 @@ class ShippingTrackerTest {
             ShippingTrackerSnapshotState state = ShippingTrackerSnapshotState.builder()
                     .id(1L)
                     .orderId(100L)
+                    .buyerId(1L)
                     .trackingNumber("1234567890")
                     .carrierCode("CJ")
                     .shippingStatus(ShippingStatus.SHIPPING)
@@ -350,6 +365,7 @@ class ShippingTrackerTest {
     private ShippingTracker createPreparingTracker() {
         return ShippingTracker.from(ShippingTrackerCreateState.builder()
                 .orderId(100L)
+                .buyerId(1L)
                 .build());
     }
 

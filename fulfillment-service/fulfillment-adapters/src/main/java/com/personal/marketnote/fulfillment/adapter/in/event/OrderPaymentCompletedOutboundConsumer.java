@@ -83,7 +83,7 @@ public class OrderPaymentCompletedOutboundConsumer {
             //  — orderId 기반 출고 이력 DB 저장 (UNIQUE 제약) → 중복 시 FulfillmentDeliveryAlreadyRegisteredException
             //  — Consumer에서 FulfillmentDeliveryAlreadyRegisteredException catch → warn + acknowledge
 
-            createShippingTracker(payload.orderId(), envelope.eventId());
+            createShippingTracker(payload.orderId(), payload.buyerId(), envelope.eventId());
 
             log.info("Fulfillment 출고 요청 이벤트 처리 완료. orderId={}, orderProducts={}건",
                     payload.orderId(), payload.orderProducts().size());
@@ -99,9 +99,9 @@ public class OrderPaymentCompletedOutboundConsumer {
         acknowledgment.acknowledge();
     }
 
-    private void createShippingTracker(Long orderId, String eventId) {
-        CreateShippingTrackerCommand command = new CreateShippingTrackerCommand(orderId);
+    private void createShippingTracker(Long orderId, Long buyerId, String eventId) {
+        CreateShippingTrackerCommand command = new CreateShippingTrackerCommand(orderId, buyerId);
         createShippingTrackerUseCase.createShippingTracker(command);
-        log.info("배송 추적 생성 완료. eventId={}, orderId={}", eventId, orderId);
+        log.info("배송 추적 생성 완료. eventId={}, orderId={}, buyerId={}", eventId, orderId, buyerId);
     }
 }

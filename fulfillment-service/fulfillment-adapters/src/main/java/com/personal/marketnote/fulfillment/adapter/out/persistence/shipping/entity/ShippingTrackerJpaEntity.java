@@ -27,6 +27,9 @@ public class ShippingTrackerJpaEntity {
     @Column(name = "order_id", nullable = false, unique = true)
     private Long orderId;
 
+    @Column(name = "buyer_id", nullable = false)
+    private Long buyerId;
+
     @Column(name = "tracking_number")
     private String trackingNumber;
 
@@ -55,6 +58,7 @@ public class ShippingTrackerJpaEntity {
         return ShippingTrackerJpaEntity.builder()
                 .id(shippingTracker.getId())
                 .orderId(shippingTracker.getOrderId())
+                .buyerId(shippingTracker.getBuyerId())
                 .trackingNumber(shippingTracker.getTrackingNumber())
                 .carrierCode(shippingTracker.getCarrierCode())
                 .shippingStatus(shippingTracker.getShippingStatus())
@@ -70,6 +74,7 @@ public class ShippingTrackerJpaEntity {
                 ShippingTrackerSnapshotState.builder()
                         .id(id)
                         .orderId(orderId)
+                        .buyerId(buyerId)
                         .trackingNumber(trackingNumber)
                         .carrierCode(carrierCode)
                         .shippingStatus(shippingStatus)

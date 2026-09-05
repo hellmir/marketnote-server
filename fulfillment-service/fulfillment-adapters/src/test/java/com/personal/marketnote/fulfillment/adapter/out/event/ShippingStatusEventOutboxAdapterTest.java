@@ -52,6 +52,7 @@ class ShippingStatusEventOutboxAdapterTest {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
                 100L,
+                1L,
                 "SHIPPING",
                 "INV001",
                 "CJ",
@@ -83,6 +84,7 @@ class ShippingStatusEventOutboxAdapterTest {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
                 200L,
+                2L,
                 "DELIVERED",
                 "INV002",
                 "HANJIN",
@@ -109,6 +111,7 @@ class ShippingStatusEventOutboxAdapterTest {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
                 300L,
+                3L,
                 "DELIVERY_FAILED",
                 "INV003",
                 "CJ",
