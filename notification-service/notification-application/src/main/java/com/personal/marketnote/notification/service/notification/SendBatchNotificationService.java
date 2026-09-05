@@ -18,8 +18,10 @@ import com.personal.marketnote.notification.port.out.notification.SaveNotificati
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
+import com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort;
 import com.personal.marketnote.notification.port.out.result.SendBatchPushNotificationResult;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
+import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +47,7 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     private final UpdateNotificationPort updateNotificationPort;
     private final SendPushNotificationPort sendPushNotificationPort;
     private final DeleteDeviceTokenPort deleteDeviceTokenPort;
+    private final PublishNotificationSentEventPort publishNotificationSentEventPort;
     private final Clock clock;
 
     @Override
@@ -235,6 +238,8 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
 
         updateNotificationPort.updateAll(new ArrayList<>(userIdToNotification.values()));
 
+        publishSentEvents(userIdToNotification.values(), sentDeviceCount, failedDeviceCount);
+
         int sentUserCount = (int) userIdToNotification.values().stream()
                 .filter(n -> n.getSendStatus().isSent())
                 .count();
@@ -268,6 +273,26 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
         return new SendBatchNotificationResult(
                 totalUserCount, sentUserCount, skippedCount,
                 failedUserCount, sentDeviceCount, failedDeviceCount);
+    }
+
+    private void publishSentEvents(Collection<Notification> notifications,
+                                     int sentDeviceCount, int failedDeviceCount) {
+        LocalDateTime now = LocalDateTime.now(clock);
+        for (Notification notification : notifications) {
+            if (!notification.getSendStatus().isSent()) {
+                continue;
+            }
+            PushNotificationSentEvent event = new PushNotificationSentEvent(
+                    notification.getId(),
+                    notification.getUserId(),
+                    notification.getNotificationType().name(),
+                    notification.getSendStatus().name(),
+                    sentDeviceCount,
+                    failedDeviceCount,
+                    now
+            );
+            publishNotificationSentEventPort.publish(event);
+        }
     }
 
     private SendBatchNotificationResult emptyResult() {
