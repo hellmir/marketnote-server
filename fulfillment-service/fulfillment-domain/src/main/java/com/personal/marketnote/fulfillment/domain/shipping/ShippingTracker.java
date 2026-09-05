@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ShippingTracker {
     private Long id;
     private Long orderId;
+    private Long buyerId;
     private String trackingNumber;
     private String carrierCode;
     private ShippingStatus shippingStatus;
@@ -26,8 +27,12 @@ public class ShippingTracker {
         if (FormatValidator.hasNoValue(state.getOrderId())) {
             throw new FulfillmentQueryParameterNoValueException("orderId");
         }
+        if (FormatValidator.hasNoValue(state.getBuyerId())) {
+            throw new FulfillmentQueryParameterNoValueException("buyerId");
+        }
         return ShippingTracker.builder()
                 .orderId(state.getOrderId())
+                .buyerId(state.getBuyerId())
                 .shippingStatus(ShippingStatus.PREPARING)
                 .pollingActive(true)
                 .build();
@@ -37,6 +42,7 @@ public class ShippingTracker {
         return ShippingTracker.builder()
                 .id(state.getId())
                 .orderId(state.getOrderId())
+                .buyerId(state.getBuyerId())
                 .trackingNumber(state.getTrackingNumber())
                 .carrierCode(state.getCarrierCode())
                 .shippingStatus(state.getShippingStatus())

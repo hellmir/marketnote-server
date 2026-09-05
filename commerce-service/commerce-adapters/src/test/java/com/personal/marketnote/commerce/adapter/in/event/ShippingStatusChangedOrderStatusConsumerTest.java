@@ -43,7 +43,7 @@ class ShippingStatusChangedOrderStatusConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, String shippingStatus) {
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                orderId, shippingStatus, "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0)
+                orderId, 1L, shippingStatus, "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0)
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
@@ -255,7 +255,7 @@ class ShippingStatusChangedOrderStatusConsumerTest {
     void handleShippingStatusChangedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                1L, "SHIPPING", "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0)
+                1L, 1L, "SHIPPING", "TRACK-001", "CJ", LocalDateTime.of(2026, 4, 9, 10, 0)
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "fulfillment-service",

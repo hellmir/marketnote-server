@@ -22,6 +22,7 @@ public class CreateShippingTrackerService implements CreateShippingTrackerUseCas
         ShippingTracker shippingTracker = ShippingTracker.from(
                 ShippingTrackerCreateState.builder()
                         .orderId(command.orderId())
+                        .buyerId(command.buyerId())
                         .build()
         );
         saveShippingTrackerPort.save(shippingTracker);

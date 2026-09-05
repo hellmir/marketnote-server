@@ -30,7 +30,7 @@ class CreateShippingTrackerUseCaseTest {
     @DisplayName("orderId로 ShippingTracker를 생성하면 PREPARING 상태로 저장된다")
     void createShippingTrackerWithOrderId() {
         // given
-        CreateShippingTrackerCommand command = new CreateShippingTrackerCommand(100L);
+        CreateShippingTrackerCommand command = new CreateShippingTrackerCommand(100L, 1L);
 
         // when
         createShippingTrackerService.createShippingTracker(command);
@@ -41,6 +41,7 @@ class CreateShippingTrackerUseCaseTest {
 
         ShippingTracker savedTracker = captor.getValue();
         assertThat(savedTracker.getOrderId()).isEqualTo(100L);
+        assertThat(savedTracker.getBuyerId()).isEqualTo(1L);
         assertThat(savedTracker.isPreparing()).isTrue();
         assertThat(savedTracker.isPollingActive()).isTrue();
     }
@@ -49,7 +50,7 @@ class CreateShippingTrackerUseCaseTest {
     @DisplayName("orderId가 null이면 예외가 발생한다")
     void createShippingTrackerWithNullOrderId() {
         // given
-        CreateShippingTrackerCommand command = new CreateShippingTrackerCommand(null);
+        CreateShippingTrackerCommand command = new CreateShippingTrackerCommand(null, 1L);
 
         // when & then
         assertThatThrownBy(() -> createShippingTrackerService.createShippingTracker(command))

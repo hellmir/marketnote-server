@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class ShippingTrackerSnapshotState {
     private final Long id;
     private final Long orderId;
+    private final Long buyerId;
     private final String trackingNumber;
     private final String carrierCode;
     private final ShippingStatus shippingStatus;
