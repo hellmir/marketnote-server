@@ -10,4 +10,6 @@ public interface FindNotificationPreferencePort {
     List<NotificationPreference> findAllByUserId(Long userId);
 
     Optional<NotificationPreference> findByUserIdAndNotificationType(Long userId, NotificationType notificationType);
+
+    List<NotificationPreference> findEnabledByUserIdsAndNotificationType(List<Long> userIds, NotificationType notificationType);
 }
