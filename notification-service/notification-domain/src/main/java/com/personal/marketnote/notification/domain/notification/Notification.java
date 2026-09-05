@@ -89,6 +89,14 @@ public class Notification extends BaseDomain {
         this.sendStatus = SendStatus.SKIPPED;
     }
 
+    public void markAsPending() {
+        if (!this.sendStatus.isScheduled()) {
+            throw new InvalidNotificationException(
+                    "SCHEDULED 상태에서만 PENDING으로 전환할 수 있습니다. 현재 상태: " + this.sendStatus);
+        }
+        this.sendStatus = SendStatus.PENDING;
+    }
+
     private static void validate(NotificationCreateState state) {
         if (FormatValidator.hasNoValue(state.getUserId())) {
             throw new InvalidNotificationException("사용자 ID는 필수입니다.");

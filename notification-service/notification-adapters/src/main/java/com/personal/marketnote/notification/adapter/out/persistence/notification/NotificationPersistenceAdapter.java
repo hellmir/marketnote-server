@@ -6,6 +6,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.out.mapper.NotificationJpaEntityToDomainMapper;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.repository.NotificationJpaRepository;
 import com.personal.marketnote.notification.domain.notification.Notification;
+import com.personal.marketnote.notification.domain.notification.SendStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.entity.NotificationJpaEntity;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
@@ -13,6 +14,7 @@ import com.personal.marketnote.notification.port.out.notification.UpdateNotifica
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +51,15 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public long countUnreadByUserId(Long userId) {
         return notificationJpaRepository.countByUserIdAndStatusAndIsRead(userId, EntityStatus.ACTIVE, false);
+    }
+
+    @Override
+    public List<Notification> findScheduledNotificationsDue(LocalDateTime now) {
+        return notificationJpaRepository.findScheduledNotificationsDue(
+                        SendStatus.SCHEDULED, now, EntityStatus.ACTIVE)
+                .stream()
+                .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
+                .toList();
     }
 
     @Override
