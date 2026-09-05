@@ -70,6 +70,9 @@ class SendBatchNotificationUseCaseTest {
     @Mock
     private DeleteDeviceTokenPort deleteDeviceTokenPort;
 
+    @Mock
+    private com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort publishNotificationSentEventPort;
+
     @Spy
     private Clock clock = Clock.fixed(
             Instant.parse("2026-09-03T05:00:00Z"),
