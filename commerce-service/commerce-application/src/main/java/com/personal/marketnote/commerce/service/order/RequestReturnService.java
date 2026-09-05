@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessExcepti
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.RequestReturnUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryCommand;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.service.returntracker.CreateReturnTrackerAfterReturnRequestService;
@@ -33,6 +34,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RequestReturnService implements RequestReturnUseCase {
     private final GetOrderUseCase getOrderUseCase;
     private final UpdateOrderPort updateOrderPort;
+    private final PublishOrderEventPort publishOrderEventPort;
     private final CreateReturnTrackerAfterReturnRequestService createReturnTrackerAfterReturnRequestService;
     private final Clock clock;
 
@@ -62,6 +64,7 @@ public class RequestReturnService implements RequestReturnUseCase {
         );
 
         updateOrderPort.update(order, orderStatusHistory);
+        publishOrderEventPort.publishReturnRequestedEvent(order.getId(), order.getBuyerId());
 
         RegisterFulfillmentReturnDeliveryCommand returnDeliveryCommand = buildReturnDeliveryCommand(command, order);
         runAfterCommit(() -> createReturnTrackerAfterReturnRequestService.createReturnTracker(returnDeliveryCommand));
