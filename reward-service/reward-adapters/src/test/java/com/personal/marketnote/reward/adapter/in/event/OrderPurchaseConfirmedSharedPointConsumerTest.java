@@ -52,7 +52,7 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<UUID> sharerKeys) {
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, false);
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event
@@ -143,7 +143,7 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2));
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2), false);
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event

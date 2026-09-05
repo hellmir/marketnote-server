@@ -6,6 +6,7 @@ import java.util.UUID;
 public record OrderPurchaseConfirmedEvent(
         Long orderId,
         Long buyerId,
-        List<UUID> sharerKeys
+        List<UUID> sharerKeys,
+        boolean isAutoConfirmed
 ) {
 }

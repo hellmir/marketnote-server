@@ -168,7 +168,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
     private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys) {
         try {
-            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
+            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, true);
         } catch (Exception e) {
             log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
                     orderId, buyerId, e.getMessage(), e);
