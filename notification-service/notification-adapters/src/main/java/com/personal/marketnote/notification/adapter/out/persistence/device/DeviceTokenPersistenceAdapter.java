@@ -13,6 +13,8 @@ import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.SaveDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.UpdateDeviceTokenPort;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -62,6 +64,12 @@ public class DeviceTokenPersistenceAdapter
                 .orElseThrow(() -> new DeviceTokenNotFoundException(deviceToken.getId()));
         entity.updateFrom(deviceToken);
         return entity.getId();
+    }
+
+    @Override
+    public int deactivateStaleTokens(LocalDateTime threshold) {
+        return deviceTokenJpaRepository.deactivateStaleTokens(
+                threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE);
     }
 
     @Override
