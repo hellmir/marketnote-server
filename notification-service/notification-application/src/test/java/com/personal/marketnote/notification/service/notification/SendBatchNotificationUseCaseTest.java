@@ -13,11 +13,13 @@ import com.personal.marketnote.notification.port.in.result.notification.SendBatc
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
 import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
+import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.result.SendBatchPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -72,6 +74,12 @@ class SendBatchNotificationUseCaseTest {
 
     @Mock
     private com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort publishNotificationSentEventPort;
+
+    @Mock
+    private FindNotificationPort findNotificationPort;
+
+    @Mock
+    private PublishSseEventPort publishSseEventPort;
 
     @Spy
     private Clock clock = Clock.fixed(
