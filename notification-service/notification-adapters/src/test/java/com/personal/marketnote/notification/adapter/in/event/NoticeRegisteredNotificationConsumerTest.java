@@ -193,4 +193,46 @@ class NoticeRegisteredNotificationConsumerTest {
         verifyNoInteractions(sendBatchNotificationUseCase);
         verify(acknowledgment).acknowledge();
     }
+
+    @Test
+    @DisplayName("공지사항 등록 시 인앱 알림이 포함된 PUSH_AND_IN_APP 채널로 발송한다")
+    void shouldSendWithPushAndInAppDeliveryChannel() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(200L, "서비스 업데이트 안내");
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(10L, 20L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(SendBatchNotificationCommand.class);
+        verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
+
+        SendBatchNotificationCommand command = captor.getValue();
+        assertThat(command.deliveryChannel()).isEqualTo("PUSH_AND_IN_APP");
+        assertThat(command.variables()).containsEntry("post_id", "200");
+        assertThat(command.variables()).containsEntry("notice_title", "서비스 업데이트 안내");
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("공지사항 알림의 landingUrl 변수(post_id)가 올바르게 전달된다")
+    void shouldPassCorrectPostIdForLandingUrl() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(999L, "긴급 공지");
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(SendBatchNotificationCommand.class);
+        verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
+
+        SendBatchNotificationCommand command = captor.getValue();
+        assertThat(command.variables()).containsEntry("post_id", "999");
+
+        verify(acknowledgment).acknowledge();
+    }
 }
