@@ -9,6 +9,8 @@ import com.personal.marketnote.community.mapper.PostCommandToStateMapper;
 import com.personal.marketnote.community.port.in.command.post.RegisterPostCommand;
 import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
 import com.personal.marketnote.community.port.in.usecase.post.RegisterPostUseCase;
+import com.personal.marketnote.community.domain.post.NoticePostCategory;
+import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
@@ -27,6 +29,7 @@ public class RegisterPostService implements RegisterPostUseCase {
     private final SavePostPort savePostPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final FindProfanityWordPort findProfanityWordPort;
+    private final PublishPostEventPort publishPostEventPort;
 
     @Override
     public RegisterPostResult registerPost(boolean isSeller, RegisterPostCommand command) {
@@ -49,6 +52,10 @@ public class RegisterPostService implements RegisterPostUseCase {
         Post savedPost = savePostPort.save(
                 Post.from(PostCommandToStateMapper.mapToState(command))
         );
+
+        if (command.board().isNotice() && NoticePostCategory.ANNOUNCEMENT.isMe(command.category())) {
+            publishPostEventPort.publishNoticeRegisteredEvent(savedPost.getId(), command.title());
+        }
 
         return RegisterPostResult.from(savedPost);
     }
