@@ -8,6 +8,7 @@ import com.personal.marketnote.notification.adapter.out.persistence.notification
 import com.personal.marketnote.notification.domain.notification.Notification;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.entity.NotificationJpaEntity;
+import com.personal.marketnote.notification.port.out.notification.DeleteNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class NotificationPersistenceAdapter implements FindNotificationPort, SaveNotificationPort, UpdateNotificationPort {
+public class NotificationPersistenceAdapter implements FindNotificationPort, SaveNotificationPort, UpdateNotificationPort, DeleteNotificationPort {
 
     private final NotificationJpaRepository notificationJpaRepository;
 
@@ -99,5 +100,11 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
             }
             entity.updateFrom(notification);
         }
+    }
+
+    @Override
+    public int deactivateExpiredNotifications(LocalDateTime threshold) {
+        return notificationJpaRepository.deactivateExpiredNotifications(
+                threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE);
     }
 }
