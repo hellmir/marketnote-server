@@ -35,6 +35,7 @@ public final class KafkaTopicConstants {
     public static final String REVIEW_REPLY_REGISTERED = "community.review.reply-registered";
     public static final String NOTICE_REGISTERED = "community.notice.registered";
     public static final String EVENT_REGISTERED = "community.event.registered";
+    public static final String INQUIRY_ANSWERED = "community.inquiry.answered";
 
     // File 이벤트
     public static final String FILE_IMAGE_CHANGED = "file.image.changed";

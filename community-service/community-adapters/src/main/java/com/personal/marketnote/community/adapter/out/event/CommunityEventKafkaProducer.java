@@ -5,6 +5,7 @@ import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.InquiryAnsweredEvent;
 import com.personal.marketnote.common.kafka.event.NoticeRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
@@ -69,6 +70,15 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
         EventRegisteredEvent payload = new EventRegisteredEvent(postId, title);
         String topic = KafkaTopicConstants.EVENT_REGISTERED;
         EventEnvelope<EventRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
+
+        saveOutboxEvent(topic, postId.toString(), envelope);
+    }
+
+    @Override
+    public void publishInquiryAnsweredEvent(Long userId, Long postId, String title, String board) {
+        InquiryAnsweredEvent payload = new InquiryAnsweredEvent(userId, postId, title, board);
+        String topic = KafkaTopicConstants.INQUIRY_ANSWERED;
+        EventEnvelope<InquiryAnsweredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
         saveOutboxEvent(topic, postId.toString(), envelope);
     }
