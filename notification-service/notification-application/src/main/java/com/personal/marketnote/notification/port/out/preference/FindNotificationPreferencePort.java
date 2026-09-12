@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.port.out.preference;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +15,6 @@ public interface FindNotificationPreferencePort {
     List<NotificationPreference> findEnabledByUserIdsAndNotificationType(List<Long> userIds, NotificationType notificationType);
 
     List<Long> findAllDistinctUserIds();
+
+    List<NotificationPreference> findConsentReminderDue(LocalDateTime threshold);
 }

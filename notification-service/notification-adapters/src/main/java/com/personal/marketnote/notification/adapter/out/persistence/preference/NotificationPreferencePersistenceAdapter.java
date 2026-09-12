@@ -14,6 +14,7 @@ import com.personal.marketnote.notification.port.out.preference.UpdateNotificati
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,15 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
     @Override
     public List<Long> findAllDistinctUserIds() {
         return notificationPreferenceJpaRepository.findAllDistinctUserIds();
+    }
+
+    @Override
+    public List<NotificationPreference> findConsentReminderDue(LocalDateTime threshold) {
+        return notificationPreferenceJpaRepository.findConsentReminderDue(threshold, EntityStatus.ACTIVE)
+                .stream()
+                .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     @Override
