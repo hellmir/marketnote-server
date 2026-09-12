@@ -68,7 +68,7 @@ class NoticeRegisteredNotificationConsumerTest {
         SendBatchNotificationCommand command = captor.getValue();
         assertThat(command.userIds()).containsExactly(1L, 2L, 3L);
         assertThat(command.templateCode()).isEqualTo("NOTICE_REGISTERED");
-        assertThat(command.deliveryChannel()).isEqualTo("PUSH_ONLY");
+        assertThat(command.deliveryChannel()).isEqualTo("PUSH_AND_IN_APP");
         assertThat(command.variables()).containsEntry("post_id", "100");
         assertThat(command.variables()).containsEntry("notice_title", "시스템 점검 안내");
         assertThat(command.scheduledAt()).isNull();
