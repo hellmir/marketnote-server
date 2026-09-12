@@ -2,15 +2,19 @@ package com.personal.marketnote.reward.adapter.in.web.attendance;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.reward.adapter.in.web.attendance.apidocs.GetAttendanceRelayStatusApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.attendance.apidocs.GetMonthlyAttendanceApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.attendance.apidocs.RegisterAttendanceApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.attendance.mapper.AttendanceRequestToCommandMapper;
 import com.personal.marketnote.reward.adapter.in.web.attendance.request.RegisterAttendanceRequest;
+import com.personal.marketnote.reward.adapter.in.web.attendance.response.GetAttendanceRelayStatusResponse;
 import com.personal.marketnote.reward.adapter.in.web.attendance.response.GetMonthlyAttendanceResponse;
 import com.personal.marketnote.reward.adapter.in.web.attendance.response.RegisterAttendanceResponse;
 import com.personal.marketnote.reward.port.in.command.attendance.GetMonthlyAttendanceQuery;
+import com.personal.marketnote.reward.port.in.result.attendance.GetAttendanceRelayStatusResult;
 import com.personal.marketnote.reward.port.in.result.attendance.GetMonthlyAttendanceResult;
 import com.personal.marketnote.reward.port.in.result.attendance.RegisterAttendanceResult;
+import com.personal.marketnote.reward.port.in.usecase.attendance.GetAttendanceRelayStatusUseCase;
 import com.personal.marketnote.reward.port.in.usecase.attendance.GetMonthlyAttendanceUseCase;
 import com.personal.marketnote.reward.port.in.usecase.attendance.RegisterAttendanceUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +35,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 public class AttendanceController {
     private final RegisterAttendanceUseCase registerAttendanceUseCase;
     private final GetMonthlyAttendanceUseCase getMonthlyAttendanceUseCase;
+    private final GetAttendanceRelayStatusUseCase getAttendanceRelayStatusUseCase;
 
     /**
      * 회원 출석체크 등록
@@ -62,6 +67,34 @@ public class AttendanceController {
                         "회원 출석체크 등록 성공"
                 ),
                 HttpStatus.CREATED
+        );
+    }
+
+    /**
+     * 출석 릴레이 현황 조회
+     *
+     * @param principal 인증된 사용자 정보
+     * @return 출석 릴레이 현황 응답
+     * @Author 성효빈
+     * @Date 2026-09-03
+     * @Description 현재 릴레이 사이클의 진행 상태를 조회합니다.
+     */
+    @GetMapping("/relay-status")
+    @GetAttendanceRelayStatusApiDocs
+    public ResponseEntity<BaseResponse<GetAttendanceRelayStatusResponse>> getAttendanceRelayStatus(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        GetAttendanceRelayStatusResult result = getAttendanceRelayStatusUseCase.getRelayStatus(
+                ElementExtractor.extractUserId(principal)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetAttendanceRelayStatusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "출석 릴레이 현황 조회 성공"
+                )
         );
     }
 
