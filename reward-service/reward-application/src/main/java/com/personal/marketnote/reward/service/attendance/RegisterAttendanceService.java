@@ -7,6 +7,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.UserAttendance;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
+import com.personal.marketnote.reward.exception.AttendancePolicyNotFoundException;
 import com.personal.marketnote.reward.exception.InvalidAttendanceTimeException;
 import com.personal.marketnote.reward.mapper.RewardCommandToStateMapper;
 import com.personal.marketnote.reward.port.in.command.attendance.RegisterAttendanceCommand;
@@ -26,6 +27,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @Transactional(isolation = READ_COMMITTED)
 public class RegisterAttendanceService implements RegisterAttendanceUseCase {
     private static final long ALLOWED_DELAY_MINUTES = 1L;
+    private static final short RELAY_CYCLE_SIZE = 4;
     private static final short DEFAULT_POLICY_ID = 10_000;
 
     private final SaveUserAttendanceHistoryPort saveUserAttendanceHistoryPort;
@@ -60,9 +62,12 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
                 userAttendance.withAddedReward(attendancePolicy.getRewardQuantity())
         );
 
-        return RegisterAttendanceResult.builder()
-                .id(savedHistory.getId())
-                .build();
+        return new RegisterAttendanceResult(
+                savedHistory.getId(),
+                attendancePolicy.getRewardType(),
+                attendancePolicy.getRewardQuantity(),
+                continuousPeriod
+        );
     }
 
     private void validateAttendedAt(LocalDateTime attendedAt) {
@@ -93,7 +98,7 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
 
         return findUserAttendanceHistoryPort.findLatestByUserAttendanceId(userAttendanceId)
                 .filter(last -> last.getAttendedAt().toLocalDate().equals(attendedDate.minusDays(1)))
-                .map(last -> (short) (last.getContinuousPeriod() + 1))
+                .map(last -> (short) ((last.getContinuousPeriod() % RELAY_CYCLE_SIZE) + 1))
                 .orElse((short) 1);
     }
 
@@ -111,6 +116,6 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
         return findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDate(continuousPeriod, attendedDate)
                 .or(() -> findAttendancePolicyPort.findByContinuousPeriodAndAttendenceDateIsNull(continuousPeriod))
                 .or(() -> findAttendancePolicyPort.findById(DEFAULT_POLICY_ID))
-                .orElseThrow(() -> new IllegalStateException("기본 출석 정책을 찾을 수 없습니다. 서버 담당자에게 문의 바랍니다."));
+                .orElseThrow(() -> new AttendancePolicyNotFoundException(DEFAULT_POLICY_ID));
     }
 }
