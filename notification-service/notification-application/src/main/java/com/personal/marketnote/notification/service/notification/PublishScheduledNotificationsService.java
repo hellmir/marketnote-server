@@ -12,6 +12,7 @@ import com.personal.marketnote.notification.port.out.notification.FindNotificati
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +30,7 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
     private final SendPushNotificationPort sendPushNotificationPort;
     private final UpdateNotificationPort updateNotificationPort;
     private final DeleteDeviceTokenPort deleteDeviceTokenPort;
+    private final PublishSseEventPort publishSseEventPort;
     private final Clock clock;
 
     @Override
@@ -59,11 +61,23 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
 
         if (!notification.getDeliveryChannel().hasPush()) {
             updateNotificationPort.update(notification);
+            publishUnreadCountChangedEvent(notification.getUserId());
             return;
         }
 
         sendPushForNotification(notification);
         updateNotificationPort.update(notification);
+        publishUnreadCountChangedEvent(notification.getUserId());
+    }
+
+    private void publishUnreadCountChangedEvent(Long userId) {
+        try {
+            long unreadCount = findNotificationPort.countUnreadByUserId(userId);
+            publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED",
+                    "{\"unreadCount\":" + unreadCount + "}");
+        } catch (Exception e) {
+            log.error("SSE unreadCount 이벤트 발행 실패: userId={}", userId, e);
+        }
     }
 
     private void sendPushForNotification(Notification notification) {

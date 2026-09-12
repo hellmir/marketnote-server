@@ -14,12 +14,14 @@ import com.personal.marketnote.notification.port.in.usecase.notification.SendBat
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
 import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
+import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort;
 import com.personal.marketnote.notification.port.out.result.SendBatchPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +50,8 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     private final SendPushNotificationPort sendPushNotificationPort;
     private final DeleteDeviceTokenPort deleteDeviceTokenPort;
     private final PublishNotificationSentEventPort publishNotificationSentEventPort;
+    private final FindNotificationPort findNotificationPort;
+    private final PublishSseEventPort publishSseEventPort;
     private final Clock clock;
 
     @Override
@@ -104,14 +108,21 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
                 .filter(n -> n.getSendStatus().isPending())
                 .toList();
 
+        Set<Long> allSavedUserIds = savedNotifications.stream()
+                .map(Notification::getUserId)
+                .collect(Collectors.toSet());
+
         if (pendingNotifications.isEmpty() || !deliveryChannel.hasPush()) {
+            publishUnreadCountChangedEvents(allSavedUserIds);
             return buildResult(userIds.size(), 0, skippedUserIds.size(),
                     0, 0, 0);
         }
 
-        return sendPushAndProcessResults(
+        SendBatchNotificationResult result = sendPushAndProcessResults(
                 pendingNotifications, title, body, landingUrl,
                 userIds.size(), skippedUserIds.size());
+        publishUnreadCountChangedEvents(allSavedUserIds);
+        return result;
     }
 
     private NotificationTemplate findTemplate(String templateCode) {
@@ -292,6 +303,18 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
                     now
             );
             publishNotificationSentEventPort.publish(event);
+        }
+    }
+
+    private void publishUnreadCountChangedEvents(Set<Long> userIds) {
+        for (Long userId : userIds) {
+            try {
+                long unreadCount = findNotificationPort.countUnreadByUserId(userId);
+                publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED",
+                        "{\"unreadCount\":" + unreadCount + "}");
+            } catch (Exception e) {
+                log.error("SSE unreadCount 이벤트 발행 실패: userId={}", userId, e);
+            }
         }
     }
 
