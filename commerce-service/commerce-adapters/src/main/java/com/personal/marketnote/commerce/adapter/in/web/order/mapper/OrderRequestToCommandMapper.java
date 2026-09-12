@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.web.order.mapper;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RejectReturnRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestReturnRequest;
 import com.personal.marketnote.commerce.port.in.command.order.*;
 
@@ -61,6 +62,14 @@ public class OrderRequestToCommandMapper {
                 .pickupAddress(request.getPickupAddress())
                 .pickupAddressDetail(request.getPickupAddressDetail())
                 .pickupRequestMessage(request.getPickupRequestMessage())
+                .build();
+    }
+
+    public static RejectReturnCommand mapToRejectReturnCommand(Long id, RejectReturnRequest request) {
+        return RejectReturnCommand.builder()
+                .id(id)
+                .reasonCategory(request.getReasonCategory())
+                .reason(request.getReason())
                 .build();
     }
 

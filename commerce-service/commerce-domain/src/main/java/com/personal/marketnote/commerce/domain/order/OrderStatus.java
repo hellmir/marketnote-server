@@ -22,6 +22,7 @@ public enum OrderStatus {
     PARTIALLY_CONFIRMED("부분 구매 확정"),
     CONFIRMED("구매 확정"),
     RETURN_REQUESTED("반품 요청됨"),
+    RETURN_REJECTED("반품 불가"),
     RETURN_IN_PROGRESS("반품 진행 중"),
     PARTIALLY_RETURNED("부분 반품됨"),
     RETURNED("반품 완료");
@@ -41,7 +42,8 @@ public enum OrderStatus {
         ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
         ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
         ALLOWED_TRANSITIONS.put(CONFIRMED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(RETURN_REQUESTED, EnumSet.of(RETURN_IN_PROGRESS));
+        ALLOWED_TRANSITIONS.put(RETURN_REQUESTED, EnumSet.of(RETURN_IN_PROGRESS, RETURN_REJECTED));
+        ALLOWED_TRANSITIONS.put(RETURN_REJECTED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(RETURN_IN_PROGRESS, EnumSet.of(RETURNED));
         ALLOWED_TRANSITIONS.put(PARTIALLY_RETURNED, EnumSet.of(RETURN_REQUESTED, RETURNED));
         ALLOWED_TRANSITIONS.put(RETURNED, EnumSet.noneOf(OrderStatus.class));
@@ -109,6 +111,10 @@ public enum OrderStatus {
 
     public boolean isReturnRequested() {
         return this == RETURN_REQUESTED;
+    }
+
+    public boolean isReturnRejected() {
+        return this == RETURN_REJECTED;
     }
 
     public boolean requiresFulfillmentCancellation() {

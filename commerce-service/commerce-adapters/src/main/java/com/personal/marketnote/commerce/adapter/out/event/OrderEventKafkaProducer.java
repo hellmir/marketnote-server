@@ -137,6 +137,17 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     }
 
     @Override
+    public void publishReturnRejectedEvent(Long orderId, Long buyerId) {
+        ReturnRejectedEvent payload = new ReturnRejectedEvent(orderId, buyerId);
+        String topic = KafkaTopicConstants.RETURN_REJECTED;
+        EventEnvelope<ReturnRejectedEvent> envelope = EventEnvelope.of(
+                topic, SOURCE, payload, clock
+        );
+
+        saveToOutbox(envelope, topic, orderId.toString());
+    }
+
+    @Override
     public void publishOrderCancelFailedEvent(Long orderId, Long buyerId) {
         OrderCancelFailedEvent payload = new OrderCancelFailedEvent(orderId, buyerId);
         String topic = KafkaTopicConstants.ORDER_CANCEL_FAILED;
