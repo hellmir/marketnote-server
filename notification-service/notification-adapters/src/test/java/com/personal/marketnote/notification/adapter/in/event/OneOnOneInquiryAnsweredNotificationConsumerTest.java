@@ -61,7 +61,7 @@ class OneOnOneInquiryAnsweredNotificationConsumerTest {
         SendNotificationCommand command = captor.getValue();
         assertThat(command.userId()).isEqualTo(10L);
         assertThat(command.templateCode()).isEqualTo("ONE_ON_ONE_INQUIRY_REPLY");
-        assertThat(command.deliveryChannel()).isEqualTo("PUSH_ONLY");
+        assertThat(command.deliveryChannel()).isEqualTo("PUSH_AND_IN_APP");
         assertThat(command.variables()).containsEntry("post_id", "200");
         assertThat(command.variables()).containsEntry("inquiry_title", "배송 문의");
         assertThat(command.scheduledAt()).isNull();
