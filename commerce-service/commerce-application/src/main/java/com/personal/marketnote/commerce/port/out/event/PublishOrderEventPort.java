@@ -26,4 +26,6 @@ public interface PublishOrderEventPort {
     void publishOrderCancelFailedEvent(Long orderId, Long buyerId);
 
     void publishReturnRequestedEvent(Long orderId, Long buyerId);
+
+    void publishReturnRejectedEvent(Long orderId, Long buyerId);
 }

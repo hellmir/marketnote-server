@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.adapter.in.web.order.mapper.OrderRequest
 import com.personal.marketnote.commerce.adapter.in.web.order.request.CancelOrderRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.ChangeOrderStatusRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RegisterOrderRequest;
+import com.personal.marketnote.commerce.adapter.in.web.order.request.RejectReturnRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.request.RequestReturnRequest;
 import com.personal.marketnote.commerce.adapter.in.web.order.response.*;
 import com.personal.marketnote.commerce.domain.order.OrderPeriod;
@@ -18,6 +19,7 @@ import com.personal.marketnote.commerce.port.in.command.order.GetReturnRefundInf
 import com.personal.marketnote.commerce.port.in.command.order.UpdateOrderProductReviewStatusCommand;
 import com.personal.marketnote.commerce.port.in.result.order.*;
 import com.personal.marketnote.commerce.port.in.usecase.order.*;
+import com.personal.marketnote.commerce.port.in.usecase.order.RejectReturnUseCase;
 import com.personal.marketnote.commerce.port.out.user.UpdateUserShippingAddressDeliveryRequestPort;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
@@ -62,6 +64,7 @@ public class OrderController {
     private final UpdateOrderProductUseCase updateOrderProductUseCase;
     private final GetAdminOrdersUseCase getAdminOrdersUseCase;
     private final GetOrderStatusHistoryUseCase getOrderStatusHistoryUseCase;
+    private final RejectReturnUseCase rejectReturnUseCase;
     private final GetReturnRefundInfoUseCase getReturnRefundInfoUseCase;
 
     /**
@@ -313,6 +316,37 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "반품 요청 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 반품 불가 판정 (관리자/판매자 전용)
+     *
+     * @param id      주문 ID
+     * @param request 반품 불가 판정 요청
+     * @Author 성효빈
+     * @Date 2026-09-03
+     * @Description 관리자/판매자가 반품 요청된 주문을 반품 불가로 판정합니다. 주문 상태를 RETURN_REJECTED로 변경합니다.
+     */
+    @PostMapping("/api/v1/admin/orders/{id}/reject-return")
+    @RejectReturnApiDocs
+    @PreAuthorize(ADMIN_OR_SELLER_PRINCIPAL_POINTCUT)
+    public ResponseEntity<BaseResponse<Void>> rejectReturn(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody RejectReturnRequest request
+    ) {
+        rejectReturnUseCase.rejectReturn(
+                OrderRequestToCommandMapper.mapToRejectReturnCommand(id, request)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "반품 불가 판정 성공"
                 ),
                 HttpStatus.OK
         );
