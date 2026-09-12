@@ -685,6 +685,7 @@ class GetBuyerOrderHistoryUseCaseTest {
             assertThat(statusesCaptor.getValue()).containsExactlyInAnyOrder(
                     OrderStatus.CANCELLED,
                     OrderStatus.RETURN_REQUESTED,
+                    OrderStatus.RETURN_REJECTED,
                     OrderStatus.RETURN_IN_PROGRESS,
                     OrderStatus.PARTIALLY_RETURNED,
                     OrderStatus.RETURNED

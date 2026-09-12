@@ -8,6 +8,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderCancelledEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
+import com.personal.marketnote.common.kafka.event.ReturnRejectedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import org.junit.jupiter.api.DisplayName;
@@ -244,5 +245,52 @@ class OrderEventKafkaProducerTest {
         assertThat(cancelItem.sharerKey()).isEqualTo(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
         assertThat(cancelItem.quantity()).isEqualTo(2);
         assertThat(cancelItem.unitAmount()).isEqualTo(30000L);
+    }
+
+    @Test
+    @DisplayName("반품 불가 이벤트 발행 시 올바른 토픽과 파티션 키로 Outbox에 저장된다")
+    void publishReturnRejectedEvent_savesToOutboxWithCorrectTopicAndPartitionKey() throws Exception {
+        // given
+        setUpClock("2026-09-03T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        orderEventKafkaProducer.publishReturnRejectedEvent(1L, 50L);
+
+        // then
+        ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+        verify(saveOutboxEventPort).save(outboxCaptor.capture());
+
+        OutboxEvent captured = outboxCaptor.getValue();
+        assertThat(captured.getTopic()).isEqualTo(KafkaTopicConstants.RETURN_REJECTED);
+        assertThat(captured.getPartitionKey()).isEqualTo("1");
+        assertThat(captured.getSource()).isEqualTo("commerce-service");
+        assertThat(captured.getEventId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("반품 불가 이벤트 발행 시 EventEnvelope에 올바른 페이로드가 포함된다")
+    @SuppressWarnings("unchecked")
+    void publishReturnRejectedEvent_envelopeContainsCorrectPayload() throws Exception {
+        // given
+        setUpClock("2026-09-03T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        orderEventKafkaProducer.publishReturnRejectedEvent(10L, 50L);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+        assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.RETURN_REJECTED);
+        assertThat(capturedEnvelope.source()).isEqualTo("commerce-service");
+        assertThat(capturedEnvelope.eventId()).isNotNull();
+        assertThat(capturedEnvelope.timestamp()).isNotNull();
+
+        ReturnRejectedEvent payload = (ReturnRejectedEvent) capturedEnvelope.payload();
+        assertThat(payload.orderId()).isEqualTo(10L);
+        assertThat(payload.buyerId()).isEqualTo(50L);
     }
 }
