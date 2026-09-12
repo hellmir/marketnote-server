@@ -489,6 +489,107 @@ class SendBatchNotificationUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("SSE unreadCount 갱신 이벤트 발행")
+    class SseEventPublishing {
+
+        @Test
+        @DisplayName("대량 발송 후 각 userId에 대해 SSE unreadCount 갱신 이벤트를 발행한다")
+        void shouldPublishSseEventForEachUserAfterBatchSend() {
+            // given
+            List<Long> userIds = List.of(1L, 2L, 3L);
+            SendBatchNotificationCommand command = createCommand(userIds);
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateFound(template);
+            setupSaveAllReturnsWithIds();
+            setupDeviceTokensForUsers(userIds, 1);
+            setupBatchPushSuccess(3);
+            when(findNotificationPort.countUnreadByUserId(1L)).thenReturn(5L);
+            when(findNotificationPort.countUnreadByUserId(2L)).thenReturn(3L);
+            when(findNotificationPort.countUnreadByUserId(3L)).thenReturn(1L);
+
+            // when
+            sendBatchNotificationService.sendBatchNotification(command);
+
+            // then
+            verify(publishSseEventPort).publish(1L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":5}");
+            verify(publishSseEventPort).publish(2L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":3}");
+            verify(publishSseEventPort).publish(3L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":1}");
+            verify(findNotificationPort).countUnreadByUserId(1L);
+            verify(findNotificationPort).countUnreadByUserId(2L);
+            verify(findNotificationPort).countUnreadByUserId(3L);
+        }
+
+        @Test
+        @DisplayName("IN_APP_ONLY 채널에서도 SSE unreadCount 갱신 이벤트를 발행한다")
+        void shouldPublishSseEventForInAppOnly() {
+            // given
+            List<Long> userIds = List.of(1L, 2L);
+            SendBatchNotificationCommand command = new SendBatchNotificationCommand(
+                    userIds, TEMPLATE_CODE, Map.of(), "IN_APP_ONLY", null);
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateFound(template);
+            setupSaveAllReturnsWithIds();
+            when(findNotificationPort.countUnreadByUserId(1L)).thenReturn(2L);
+            when(findNotificationPort.countUnreadByUserId(2L)).thenReturn(4L);
+
+            // when
+            sendBatchNotificationService.sendBatchNotification(command);
+
+            // then
+            verify(publishSseEventPort).publish(1L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":2}");
+            verify(publishSseEventPort).publish(2L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":4}");
+        }
+
+        @Test
+        @DisplayName("수신 거부(SKIPPED) 사용자에게도 SSE unreadCount 갱신 이벤트를 발행한다")
+        void shouldPublishSseEventForSkippedUsers() {
+            // given
+            List<Long> userIds = List.of(1L, 2L, 3L);
+            SendBatchNotificationCommand command = createCommand(userIds);
+            NotificationTemplate template = createTemplate(NotificationCategory.PROMOTIONAL);
+            setupTemplateFound(template);
+
+            List<NotificationPreference> enabledPrefs = List.of(
+                    createPreference(1L, true)
+            );
+            when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
+                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED))
+                    .thenReturn(enabledPrefs);
+
+            setupSaveAllReturnsWithIds();
+            setupDeviceTokensForUsers(List.of(1L), 1);
+            setupBatchPushSuccess(1);
+            when(findNotificationPort.countUnreadByUserId(1L)).thenReturn(1L);
+            when(findNotificationPort.countUnreadByUserId(2L)).thenReturn(0L);
+            when(findNotificationPort.countUnreadByUserId(3L)).thenReturn(0L);
+
+            // when
+            sendBatchNotificationService.sendBatchNotification(command);
+
+            // then
+            verify(publishSseEventPort).publish(1L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":1}");
+            verify(publishSseEventPort).publish(2L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":0}");
+            verify(publishSseEventPort).publish(3L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":0}");
+        }
+
+        @Test
+        @DisplayName("빈 userId 목록이면 SSE 이벤트를 발행하지 않는다")
+        void shouldNotPublishSseEventWhenUserIdsEmpty() {
+            // given
+            SendBatchNotificationCommand command = createCommand(List.of());
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateFound(template);
+
+            // when
+            sendBatchNotificationService.sendBatchNotification(command);
+
+            // then
+            verifyNoInteractions(publishSseEventPort);
+            verifyNoInteractions(findNotificationPort);
+        }
+    }
+
     // --- Helper Methods ---
 
     private SendBatchNotificationCommand createCommand(List<Long> userIds) {

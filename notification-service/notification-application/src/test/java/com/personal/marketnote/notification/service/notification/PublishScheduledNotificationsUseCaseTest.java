@@ -233,6 +233,107 @@ class PublishScheduledNotificationsUseCaseTest {
         }
     }
 
+    @Nested
+    @DisplayName("SSE unreadCount 갱신 이벤트 발행")
+    class SseEventPublishing {
+
+        @Test
+        @DisplayName("PUSH 예약 알림 발송 후 SSE unreadCount 갱신 이벤트를 발행한다")
+        void shouldPublishSseEventAfterScheduledPushSent() {
+            // given
+            Notification notification = createScheduledNotification(1L, 100L, DeliveryChannel.PUSH_ONLY);
+            when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
+                    .thenReturn(List.of(notification));
+
+            List<DeviceToken> tokens = List.of(createDeviceToken(10L, 100L, "token-1"));
+            when(findDeviceTokenPort.findActiveByUserId(100L)).thenReturn(tokens);
+            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
+                    .thenReturn(SendPushNotificationResult.success("msg-1"));
+            when(findNotificationPort.countUnreadByUserId(100L)).thenReturn(3L);
+
+            // when
+            publishScheduledNotificationsService.publishScheduledNotifications();
+
+            // then
+            verify(publishSseEventPort).publish(100L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":3}");
+        }
+
+        @Test
+        @DisplayName("IN_APP_ONLY 예약 알림 처리 후에도 SSE unreadCount 갱신 이벤트를 발행한다")
+        void shouldPublishSseEventForInAppOnlyScheduledNotification() {
+            // given
+            Notification notification = createScheduledNotification(2L, 200L, DeliveryChannel.IN_APP_ONLY);
+            when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
+                    .thenReturn(List.of(notification));
+            when(findNotificationPort.countUnreadByUserId(200L)).thenReturn(1L);
+
+            // when
+            publishScheduledNotificationsService.publishScheduledNotifications();
+
+            // then
+            verify(publishSseEventPort).publish(200L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":1}");
+        }
+
+        @Test
+        @DisplayName("여러 예약 알림 처리 시 각각의 userId에 대해 SSE 이벤트를 발행한다")
+        void shouldPublishSseEventForEachScheduledNotification() {
+            // given
+            Notification n1 = createScheduledNotification(1L, 100L, DeliveryChannel.PUSH_ONLY);
+            Notification n2 = createScheduledNotification(2L, 200L, DeliveryChannel.IN_APP_ONLY);
+            when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
+                    .thenReturn(List.of(n1, n2));
+
+            when(findDeviceTokenPort.findActiveByUserId(100L))
+                    .thenReturn(List.of(createDeviceToken(10L, 100L, "token-1")));
+            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
+                    .thenReturn(SendPushNotificationResult.success("msg-id"));
+            when(findNotificationPort.countUnreadByUserId(100L)).thenReturn(5L);
+            when(findNotificationPort.countUnreadByUserId(200L)).thenReturn(2L);
+
+            // when
+            publishScheduledNotificationsService.publishScheduledNotifications();
+
+            // then
+            verify(publishSseEventPort).publish(100L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":5}");
+            verify(publishSseEventPort).publish(200L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":2}");
+        }
+
+        @Test
+        @DisplayName("예약 알림이 없으면 SSE 이벤트를 발행하지 않는다")
+        void shouldNotPublishSseEventWhenNoScheduledNotifications() {
+            // given
+            when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
+                    .thenReturn(List.of());
+
+            // when
+            publishScheduledNotificationsService.publishScheduledNotifications();
+
+            // then
+            verifyNoInteractions(publishSseEventPort);
+        }
+
+        @Test
+        @DisplayName("FCM 발송 실패해도 SSE unreadCount 갱신 이벤트를 발행한다")
+        void shouldPublishSseEventEvenWhenPushFails() {
+            // given
+            Notification notification = createScheduledNotification(4L, 400L, DeliveryChannel.PUSH_ONLY);
+            when(findNotificationPort.findScheduledNotificationsDue(any(LocalDateTime.class)))
+                    .thenReturn(List.of(notification));
+
+            List<DeviceToken> tokens = List.of(createDeviceToken(40L, 400L, "token-4"));
+            when(findDeviceTokenPort.findActiveByUserId(400L)).thenReturn(tokens);
+            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
+                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
+            when(findNotificationPort.countUnreadByUserId(400L)).thenReturn(7L);
+
+            // when
+            publishScheduledNotificationsService.publishScheduledNotifications();
+
+            // then
+            verify(publishSseEventPort).publish(400L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":7}");
+        }
+    }
+
     // --- Helper Methods ---
 
     private Notification createScheduledNotification(Long id, Long userId, DeliveryChannel channel) {
