@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.domain.attendance;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,6 +17,7 @@ public class UserAttendanceHistory {
     private long rewardQuantity;
     private short continuousPeriod;
     private Boolean rewardYn;
+    private LocalDate attendedDate;
     private LocalDateTime attendedAt;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -28,6 +30,7 @@ public class UserAttendanceHistory {
                 .rewardQuantity(state.getRewardQuantity())
                 .continuousPeriod(state.getContinuousPeriod())
                 .rewardYn(state.getRewardYn())
+                .attendedDate(state.getAttendedDate())
                 .attendedAt(state.getAttendedAt())
                 .build();
     }
@@ -41,6 +44,7 @@ public class UserAttendanceHistory {
                 .rewardQuantity(state.getRewardQuantity())
                 .continuousPeriod(state.getContinuousPeriod())
                 .rewardYn(state.getRewardYn())
+                .attendedDate(state.getAttendedDate())
                 .attendedAt(state.getAttendedAt())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
