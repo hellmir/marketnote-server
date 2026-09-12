@@ -67,6 +67,10 @@ public class RegisterPostService implements RegisterPostUseCase {
             publishInquiryAnsweredEvent(command.parentId(), command.board().name());
         }
 
+        if (command.board().isProductInquery() && command.isReply()) {
+            publishInquiryAnsweredEvent(command.parentId(), command.board().name());
+        }
+
         return RegisterPostResult.from(savedPost);
     }
 
