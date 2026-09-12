@@ -140,4 +140,25 @@ class ProductInquiryAnsweredNotificationConsumerTest {
         // then
         verify(acknowledgment).acknowledge();
     }
+
+    @Test
+    @DisplayName("상품 문의 답변 시 PUSH_AND_IN_APP 채널로 발송하여 인앱 알림이 포함된다")
+    void shouldSendWithPushAndInAppDeliveryChannel() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(30L, 400L, "배송 문의", "PRODUCT_INQUERY");
+
+        // when
+        consumer.handleInquiryAnsweredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendNotificationCommand> captor = ArgumentCaptor.forClass(SendNotificationCommand.class);
+        verify(sendNotificationUseCase).sendNotification(captor.capture());
+
+        SendNotificationCommand command = captor.getValue();
+        assertThat(command.deliveryChannel()).isEqualTo("PUSH_AND_IN_APP");
+        assertThat(command.userId()).isEqualTo(30L);
+        assertThat(command.variables()).containsEntry("post_id", "400");
+
+        verify(acknowledgment).acknowledge();
+    }
 }
