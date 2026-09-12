@@ -89,6 +89,24 @@ class ChangeOrderStatusReturnTransitionUseCaseTest {
 
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
+
+        @Test
+        @DisplayName("RETURN_REQUESTED에서 RETURN_REJECTED로 전이하면 정상 처리된다")
+        void returnRequested_to_returnRejected_succeeds() {
+            Long orderId = 1L;
+            Order order = createOrder(orderId, OrderStatus.RETURN_REQUESTED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
+                    .id(orderId)
+                    .orderStatus(OrderStatus.RETURN_REJECTED)
+                    .build();
+
+            assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
+                    .doesNotThrowAnyException();
+
+            verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
+        }
     }
 
     // ==================================================================================
