@@ -78,7 +78,7 @@ public class ProductInquiryAnsweredNotificationConsumer {
                             "post_id", String.valueOf(payload.postId()),
                             "inquiry_title", payload.title()
                     ),
-                    "PUSH_ONLY",
+                    "PUSH_AND_IN_APP",
                     null
             );
             sendNotificationUseCase.sendNotification(command);
