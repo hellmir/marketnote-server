@@ -135,6 +135,7 @@ public class RewardCommandToStateMapper {
                 .rewardQuantity(attendancePolicy.getRewardQuantity())
                 .continuousPeriod(continuousPeriod)
                 .rewardYn(Boolean.TRUE)
+                .attendedDate(command.attendedAt().toLocalDate())
                 .attendedAt(command.attendedAt())
                 .build();
     }

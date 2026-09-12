@@ -8,10 +8,17 @@ import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySna
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_attendance_history")
+@Table(
+        name = "user_attendance_history",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_user_attendance_history_attendance_date",
+                columnNames = {"user_attendance_id", "attended_date"}
+        )
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
@@ -40,6 +47,9 @@ public class UserAttendanceHistoryJpaEntity extends BaseEntity {
     @Column(name = "reward_yn", nullable = false)
     private Boolean rewardYn;
 
+    @Column(name = "attended_date", nullable = false)
+    private LocalDate attendedDate;
+
     @Column(name = "attended_at", nullable = false)
     private LocalDateTime attendedAt;
 
@@ -56,6 +66,7 @@ public class UserAttendanceHistoryJpaEntity extends BaseEntity {
                 .rewardQuantity(history.getRewardQuantity())
                 .continuousPeriod(history.getContinuousPeriod())
                 .rewardYn(history.getRewardYn())
+                .attendedDate(history.getAttendedDate())
                 .attendedAt(history.getAttendedAt())
                 .build();
     }
@@ -70,6 +81,7 @@ public class UserAttendanceHistoryJpaEntity extends BaseEntity {
                         .rewardQuantity(rewardQuantity)
                         .continuousPeriod(continuousPeriod)
                         .rewardYn(rewardYn)
+                        .attendedDate(attendedDate)
                         .attendedAt(attendedAt)
                         .createdAt(getCreatedAt())
                         .modifiedAt(getModifiedAt())
