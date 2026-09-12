@@ -82,7 +82,7 @@ public class NoticeRegisteredNotificationConsumer {
                         batchUserIds,
                         "NOTICE_REGISTERED",
                         variables,
-                        "PUSH_ONLY",
+                        "PUSH_AND_IN_APP",
                         null
                 );
                 sendBatchNotificationUseCase.sendBatchNotification(command);
