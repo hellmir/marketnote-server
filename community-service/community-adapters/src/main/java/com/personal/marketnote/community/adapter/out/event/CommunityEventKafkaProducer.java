@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.NoticeRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,7 @@ import java.time.Clock;
 @Slf4j
 @ServiceAdapter
 @RequiredArgsConstructor
-public class CommunityEventKafkaProducer implements PublishReviewEventPort {
+public class CommunityEventKafkaProducer implements PublishReviewEventPort, PublishPostEventPort {
     private static final String SOURCE = "community-service";
 
     private final SaveOutboxEventPort saveOutboxEventPort;
@@ -50,6 +52,15 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort {
         EventEnvelope<ReviewDeletedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
         saveOutboxEvent(topic, productId.toString(), envelope);
+    }
+
+    @Override
+    public void publishNoticeRegisteredEvent(Long postId, String title) {
+        NoticeRegisteredEvent payload = new NoticeRegisteredEvent(postId, title);
+        String topic = KafkaTopicConstants.NOTICE_REGISTERED;
+        EventEnvelope<NoticeRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
+
+        saveOutboxEvent(topic, postId.toString(), envelope);
     }
 
     private <T> void saveOutboxEvent(String topic, String partitionKey, EventEnvelope<T> envelope) {

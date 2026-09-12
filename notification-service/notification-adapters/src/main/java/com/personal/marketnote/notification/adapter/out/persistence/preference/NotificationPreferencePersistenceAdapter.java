@@ -62,6 +62,11 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
     }
 
     @Override
+    public List<Long> findAllDistinctUserIds() {
+        return notificationPreferenceJpaRepository.findAllDistinctUserIds();
+    }
+
+    @Override
     public void update(NotificationPreference preference) {
         notificationPreferenceJpaRepository.findById(preference.getId())
                 .ifPresent(entity -> entity.updateFrom(preference));
