@@ -61,7 +61,7 @@ class ProductInquiryAnsweredNotificationConsumerTest {
         SendNotificationCommand command = captor.getValue();
         assertThat(command.userId()).isEqualTo(10L);
         assertThat(command.templateCode()).isEqualTo("PRODUCT_INQUIRY_REPLY");
-        assertThat(command.deliveryChannel()).isEqualTo("PUSH_ONLY");
+        assertThat(command.deliveryChannel()).isEqualTo("PUSH_AND_IN_APP");
         assertThat(command.variables()).containsEntry("post_id", "200");
         assertThat(command.variables()).containsEntry("inquiry_title", "상품 사이즈 문의");
 
