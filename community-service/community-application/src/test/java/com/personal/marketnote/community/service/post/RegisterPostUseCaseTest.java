@@ -7,6 +7,8 @@ import com.personal.marketnote.community.exception.InvalidPostContentContainsPro
 import com.personal.marketnote.community.exception.NotProductSellerException;
 import com.personal.marketnote.community.port.in.command.post.RegisterPostCommand;
 import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
+import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
+import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
@@ -33,9 +35,13 @@ class RegisterPostUseCaseTest {
     @Mock
     private SavePostPort savePostPort;
     @Mock
+    private FindPostPort findPostPort;
+    @Mock
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock
     private FindProfanityWordPort findProfanityWordPort;
+    @Mock
+    private PublishPostEventPort publishPostEventPort;
 
     @InjectMocks
     private RegisterPostService registerPostService;
