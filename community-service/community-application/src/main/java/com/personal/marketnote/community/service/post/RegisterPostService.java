@@ -11,6 +11,7 @@ import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
 import com.personal.marketnote.community.port.in.usecase.post.RegisterPostUseCase;
 import com.personal.marketnote.community.domain.post.NoticePostCategory;
 import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
+import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
@@ -27,6 +28,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @Transactional(isolation = READ_COMMITTED)
 public class RegisterPostService implements RegisterPostUseCase {
     private final SavePostPort savePostPort;
+    private final FindPostPort findPostPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final FindProfanityWordPort findProfanityWordPort;
     private final PublishPostEventPort publishPostEventPort;
@@ -61,7 +63,19 @@ public class RegisterPostService implements RegisterPostUseCase {
             publishPostEventPort.publishEventRegisteredEvent(savedPost.getId(), command.title());
         }
 
+        if (command.board().isOneOnOneInquery() && command.isReply()) {
+            publishInquiryAnsweredEvent(command.parentId(), command.board().name());
+        }
+
         return RegisterPostResult.from(savedPost);
+    }
+
+    private void publishInquiryAnsweredEvent(Long parentPostId, String board) {
+        findPostPort.findById(parentPostId).ifPresent(parentPost ->
+                publishPostEventPort.publishInquiryAnsweredEvent(
+                        parentPost.getUserId(), parentPost.getId(), parentPost.getTitle(), board
+                )
+        );
     }
 
     private boolean isProductSeller(Long userId, ProductInfoResult productInfoResult) {
