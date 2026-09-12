@@ -1,11 +1,11 @@
 package com.personal.marketnote.reward.port.in.result.attendance;
 
-import lombok.Builder;
-import lombok.Getter;
+import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
 
-@Getter
-@Builder
-public class RegisterAttendanceResult {
-    private final Long id;
+public record RegisterAttendanceResult(
+        Long id,
+        AttendanceRewardType rewardType,
+        long rewardQuantity,
+        short continuousPeriod
+) {
 }
-

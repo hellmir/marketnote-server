@@ -113,7 +113,10 @@ class RegisterAttendanceUseCaseTest {
             RegisterAttendanceResult result = registerAttendanceService.register(command);
 
             // then
-            assertThat(result.getId()).isEqualTo(100L);
+            assertThat(result.id()).isEqualTo(100L);
+            assertThat(result.rewardType()).isEqualTo(AttendanceRewardType.POINT);
+            assertThat(result.rewardQuantity()).isEqualTo(50L);
+            assertThat(result.continuousPeriod()).isEqualTo((short) 1);
             verify(saveUserAttendanceHistoryPort).save(any(UserAttendanceHistory.class));
             verify(saveUserAttendancePort).save(any(UserAttendance.class));
         }
