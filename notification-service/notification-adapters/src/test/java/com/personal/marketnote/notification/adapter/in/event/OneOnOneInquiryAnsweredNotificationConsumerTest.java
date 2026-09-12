@@ -176,4 +176,26 @@ class OneOnOneInquiryAnsweredNotificationConsumerTest {
         // then
         verify(acknowledgment).acknowledge();
     }
+
+    @Test
+    @DisplayName("1:1 문의 답변 시 PUSH_AND_IN_APP 채널로 발송하여 인앱 알림이 포함된다")
+    void shouldSendWithPushAndInAppDeliveryChannel() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(20L, 300L, "결제 관련 문의", "ONE_ON_ONE_INQUERY");
+
+        // when
+        consumer.handleInquiryAnsweredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendNotificationCommand> captor = ArgumentCaptor.forClass(SendNotificationCommand.class);
+        verify(sendNotificationUseCase).sendNotification(captor.capture());
+
+        SendNotificationCommand command = captor.getValue();
+        assertThat(command.deliveryChannel()).isEqualTo("PUSH_AND_IN_APP");
+        assertThat(command.userId()).isEqualTo(20L);
+        assertThat(command.variables()).containsEntry("post_id", "300");
+        assertThat(command.variables()).containsEntry("inquiry_title", "결제 관련 문의");
+
+        verify(acknowledgment).acknowledge();
+    }
 }
