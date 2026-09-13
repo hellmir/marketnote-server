@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.domain.remotearea;
 
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,4 +14,5 @@ public class RemoteAreaCreateState {
     private final String district;
     private final String village;
     private final String subarea;
+    private final ShippingAddressRegionType regionType;
 }

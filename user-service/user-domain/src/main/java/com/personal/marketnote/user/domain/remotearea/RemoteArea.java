@@ -3,6 +3,7 @@ package com.personal.marketnote.user.domain.remotearea;
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.remotearea.exception.*;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -21,6 +22,7 @@ public class RemoteArea extends BaseDomain {
     private String district;
     private String village;
     private String subarea;
+    private ShippingAddressRegionType regionType;
 
     public static RemoteArea from(RemoteAreaCreateState state) {
         validateProvince(state.getProvince());
@@ -33,11 +35,14 @@ public class RemoteArea extends BaseDomain {
         validateVillageLength(village);
         validateSubareaLength(subarea);
 
+        ShippingAddressRegionType regionType = resolveRegionType(state.getRegionType());
+
         return RemoteArea.builder()
                 .province(state.getProvince())
                 .district(district)
                 .village(village)
                 .subarea(subarea)
+                .regionType(regionType)
                 .build();
     }
 
@@ -48,12 +53,24 @@ public class RemoteArea extends BaseDomain {
                 .district(state.getDistrict())
                 .village(state.getVillage())
                 .subarea(state.getSubarea())
+                .regionType(state.getRegionType())
                 .build();
+    }
+
+    public boolean isDeliveryImpossible() {
+        return regionType.isDeliveryImpossible();
     }
 
     @Override
     public void deactivate() {
         super.deactivate();
+    }
+
+    private static ShippingAddressRegionType resolveRegionType(ShippingAddressRegionType regionType) {
+        if (FormatValidator.hasNoValue(regionType)) {
+            return ShippingAddressRegionType.ISLAND;
+        }
+        return regionType;
     }
 
     private static String normalizeOptionalField(String value) {

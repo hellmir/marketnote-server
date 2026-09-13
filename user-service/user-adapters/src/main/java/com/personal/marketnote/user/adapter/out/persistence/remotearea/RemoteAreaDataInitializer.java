@@ -4,6 +4,7 @@ import com.personal.marketnote.user.adapter.out.persistence.remotearea.entity.Re
 import com.personal.marketnote.user.adapter.out.persistence.remotearea.repository.RemoteAreaJpaRepository;
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
 import com.personal.marketnote.user.domain.remotearea.RemoteAreaCreateState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -83,6 +84,9 @@ public class RemoteAreaDataInitializer implements ApplicationRunner {
         String district = columns.length > 1 ? columns[1].trim() : "";
         String village = columns.length > 2 ? columns[2].trim() : "";
         String subarea = columns.length > 3 ? normalizeSubarea(columns[3].trim()) : "";
+        ShippingAddressRegionType regionType = columns.length > 4
+                ? ShippingAddressRegionType.valueOf(columns[4].trim())
+                : ShippingAddressRegionType.ISLAND;
 
         RemoteArea remoteArea = RemoteArea.from(
                 RemoteAreaCreateState.builder()
@@ -90,6 +94,7 @@ public class RemoteAreaDataInitializer implements ApplicationRunner {
                         .district(district)
                         .village(village)
                         .subarea(subarea)
+                        .regionType(regionType)
                         .build()
         );
 

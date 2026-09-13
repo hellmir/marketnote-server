@@ -14,6 +14,7 @@ public class RemoteAreaJpaEntityToDomainMapper {
                         .district(entity.getDistrict())
                         .village(entity.getVillage())
                         .subarea(entity.getSubarea())
+                        .regionType(entity.getRegionType())
                         .build()
         );
     }

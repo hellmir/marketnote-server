@@ -1,0 +1,1 @@
+ALTER TABLE remote_areas ADD COLUMN region_type VARCHAR(25) NOT NULL DEFAULT 'ISLAND';

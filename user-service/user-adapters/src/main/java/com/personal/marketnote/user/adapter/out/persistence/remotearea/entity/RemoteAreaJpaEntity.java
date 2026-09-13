@@ -2,10 +2,8 @@ package com.personal.marketnote.user.adapter.out.persistence.remotearea.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -31,6 +29,10 @@ public class RemoteAreaJpaEntity extends BaseGeneralEntity {
     @Column(name = "subarea", nullable = false, length = 50)
     private String subarea;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "region_type", nullable = false, length = 25)
+    private ShippingAddressRegionType regionType;
+
     public void markInactive() {
         super.deactivate();
     }
@@ -41,6 +43,7 @@ public class RemoteAreaJpaEntity extends BaseGeneralEntity {
                 .district(remoteArea.getDistrict())
                 .village(remoteArea.getVillage())
                 .subarea(remoteArea.getSubarea())
+                .regionType(remoteArea.getRegionType())
                 .build();
     }
 }
