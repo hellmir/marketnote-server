@@ -7,6 +7,7 @@ import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressCreateState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
+import com.personal.marketnote.user.exception.DeliveryImpossibleAreaException;
 import com.personal.marketnote.user.exception.TooManyOtherAddressesException;
 import com.personal.marketnote.user.mapper.ShippingAddressCommandToStateMapper;
 import com.personal.marketnote.user.port.in.command.shippingaddress.RegisterShippingAddressCommand;
@@ -55,6 +56,9 @@ public class RegisterShippingAddressService implements RegisterShippingAddressUs
         }
 
         ShippingAddressRegionType regionType = classifyShippingAddressRegionPort.classify(command.address());
+        if (regionType.isDeliveryImpossible()) {
+            throw new DeliveryImpossibleAreaException(command.address());
+        }
         ShippingAddressCreateState createState = ShippingAddressCommandToStateMapper.mapToCreateState(command, isDefault, regionType);
         ShippingAddress shippingAddress = ShippingAddress.from(createState);
 
