@@ -91,6 +91,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 command.shippingAddressId(), command.buyerId()
         );
         ShippingRegionType regionType = ShippingRegionType.from(addressInfo.regionType());
+        if (regionType.isDeliveryImpossible()) {
+            throw new DeliveryImpossibleAreaException();
+        }
 
         validateShippingFee(command, shippingPolicies, regionType);
 
