@@ -2,6 +2,7 @@ package com.personal.marketnote.user.adapter.out.persistence.remotearea;
 
 import com.personal.marketnote.user.adapter.out.persistence.remotearea.entity.RemoteAreaJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.remotearea.repository.RemoteAreaJpaRepository;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -142,7 +143,67 @@ class RemoteAreaDataInitializerTest {
         verify(remoteAreaJpaRepository).saveAll(batchCaptor.capture());
         List<RemoteAreaJpaEntity> savedEntities = batchCaptor.getValue();
 
-        // 114줄 - 1 헤더 - 1 마지막 빈 줄 = 113건 (단, (전체)→"" 정규화로 행 수 변화 없음)
+        // 114줄 - 1 헤더 = 113건 (단, (전체)→"" 정규화로 행 수 변화 없음)
         assertThat(savedEntities).hasSize(113);
+    }
+
+    @Test
+    @DisplayName("CSV의 지역유형 컬럼을 파싱하여 ISLAND로 저장한다")
+    void shouldParseRegionTypeAsIsland() throws Exception {
+        // given
+        when(remoteAreaJpaRepository.count()).thenReturn(0L);
+
+        // when
+        remoteAreaDataInitializer.run(null);
+
+        // then
+        verify(remoteAreaJpaRepository).saveAll(batchCaptor.capture());
+        List<RemoteAreaJpaEntity> savedEntities = batchCaptor.getValue();
+
+        // 인천,중구,무의,,ISLAND
+        RemoteAreaJpaEntity first = savedEntities.get(0);
+        assertThat(first.getRegionType()).isEqualTo(ShippingAddressRegionType.ISLAND);
+    }
+
+    @Test
+    @DisplayName("CSV의 지역유형 컬럼을 파싱하여 DELIVERY_IMPOSSIBLE로 저장한다")
+    void shouldParseRegionTypeAsDeliveryImpossible() throws Exception {
+        // given
+        when(remoteAreaJpaRepository.count()).thenReturn(0L);
+
+        // when
+        remoteAreaDataInitializer.run(null);
+
+        // then
+        verify(remoteAreaJpaRepository).saveAll(batchCaptor.capture());
+        List<RemoteAreaJpaEntity> savedEntities = batchCaptor.getValue();
+
+        // 충남,보령시,오천면,외연도리,DELIVERY_IMPOSSIBLE
+        RemoteAreaJpaEntity oeyeondo = savedEntities.stream()
+                .filter(entity -> "보령시".equals(entity.getDistrict()) && "외연도리".equals(entity.getSubarea()))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(oeyeondo.getRegionType()).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+    }
+
+    @Test
+    @DisplayName("CSV에서 배송불가 지역은 5건이다")
+    void shouldHaveFiveDeliveryImpossibleAreas() throws Exception {
+        // given
+        when(remoteAreaJpaRepository.count()).thenReturn(0L);
+
+        // when
+        remoteAreaDataInitializer.run(null);
+
+        // then
+        verify(remoteAreaJpaRepository).saveAll(batchCaptor.capture());
+        List<RemoteAreaJpaEntity> savedEntities = batchCaptor.getValue();
+
+        long deliveryImpossibleCount = savedEntities.stream()
+                .filter(entity -> ShippingAddressRegionType.DELIVERY_IMPOSSIBLE.equals(entity.getRegionType()))
+                .count();
+
+        assertThat(deliveryImpossibleCount).isEqualTo(5);
     }
 }
