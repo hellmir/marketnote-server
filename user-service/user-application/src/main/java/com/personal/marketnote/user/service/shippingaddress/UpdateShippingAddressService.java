@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
+import com.personal.marketnote.user.exception.DeliveryImpossibleAreaException;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippingAddressCommand;
 import com.personal.marketnote.user.port.in.usecase.shippingaddress.UpdateShippingAddressUseCase;
@@ -42,6 +43,9 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
         );
 
         ShippingAddressRegionType regionType = classifyShippingAddressRegionPort.classify(command.address());
+        if (regionType.isDeliveryImpossible()) {
+            throw new DeliveryImpossibleAreaException(command.address());
+        }
         shippingAddress.assignRegionType(regionType);
 
         updateShippingAddressPort.update(shippingAddress);
