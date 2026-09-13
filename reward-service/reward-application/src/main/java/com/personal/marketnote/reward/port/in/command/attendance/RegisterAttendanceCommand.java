@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @Builder
 public record RegisterAttendanceCommand(
         Long userId,
-        Short attendancePolicyId,
         LocalDateTime attendedAt
 ) {
 }
