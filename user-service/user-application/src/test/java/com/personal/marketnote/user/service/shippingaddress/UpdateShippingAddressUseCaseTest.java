@@ -6,6 +6,7 @@ import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
+import com.personal.marketnote.user.exception.DeliveryImpossibleAreaException;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateShippingAddressCommand;
 import com.personal.marketnote.user.port.out.event.PublishShippingAddressEventPort;
@@ -413,5 +414,47 @@ class UpdateShippingAddressUseCaseTest {
 
         verify(classifyShippingAddressRegionPort).classify(normalAddress);
         verify(updateShippingAddressPort).update(shippingAddress);
+    }
+
+    @Test
+    @DisplayName("배송 불가 지역으로 주소 수정 시 DeliveryImpossibleAreaException이 발생한다")
+    void updateShippingAddress_deliveryImpossibleArea_throwsDeliveryImpossibleAreaException() {
+        // given
+        Long shippingAddressId = 1L;
+        Long userId = 100L;
+
+        ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressSnapshotState.builder()
+                .id(shippingAddressId)
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address("서울시 강남구 테헤란로 123")
+                .addressDetail("101동 201호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.NONE)
+                .isDefault(true)
+                .regionType(ShippingAddressRegionType.NORMAL)
+                .build());
+
+        String impossibleAddress = "충청남도 보령시 오천면 외연도리 123";
+        UpdateShippingAddressCommand command = UpdateShippingAddressCommand.builder()
+                .address(impossibleAddress)
+                .addressDetail("101호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.NONE)
+                .build();
+
+        when(findShippingAddressPort.findByIdAndUserId(shippingAddressId, userId))
+                .thenReturn(Optional.of(shippingAddress));
+        when(classifyShippingAddressRegionPort.classify(impossibleAddress))
+                .thenReturn(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+
+        // when & then
+        assertThatThrownBy(() -> updateShippingAddressService.updateShippingAddress(shippingAddressId, userId, command))
+                .isInstanceOf(DeliveryImpossibleAreaException.class);
+
+        verify(classifyShippingAddressRegionPort).classify(impossibleAddress);
+        verifyNoInteractions(updateShippingAddressPort, publishShippingAddressEventPort);
     }
 }
