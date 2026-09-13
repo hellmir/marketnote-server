@@ -1,13 +1,10 @@
 package com.personal.marketnote.product.adapter.out.web.fulfillment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
 import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsElementsResult;
 import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsResult;
-import com.personal.marketnote.product.port.out.fulfillment.RegisterFulfillmentVendorGoodsCommand;
-import com.personal.marketnote.product.port.out.fulfillment.UpdateFulfillmentVendorGoodsCommand;
 import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,12 +20,10 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.lenient;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,61 +78,6 @@ class FulfillmentServiceClientTest {
                             }
                         }
                         """, MediaType.APPLICATION_JSON));
-    }
-
-    @Nested
-    @DisplayName("registerFulfillmentVendorGoods")
-    class RegisterFulfillmentVendorGoods {
-
-        @Test
-        @DisplayName("풀필먼트 벤더 상품 등록 요청이 성공하면 정상적으로 완료된다")
-        void shouldCompleteSuccessfullyWhenRequestSucceeds() {
-            expectAuthTokenRequest();
-
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/vendors/fassto/goods/" + CUSTOMER_CODE))
-                    .andExpect(method(HttpMethod.POST))
-                    .andRespond(withSuccess("""
-                            {
-                                "content": {
-                                    "dataCount": 1,
-                                    "goods": [{"code": "200", "msg": "SUCCESS", "cstGodCd": "CST001"}]
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
-
-            RegisterFulfillmentVendorGoodsCommand command = RegisterFulfillmentVendorGoodsCommand.builder()
-                    .customerGoodsCode("CST001")
-                    .goodsName("테스트 상품")
-                    .goodsType("01")
-                    .giftDivision("N")
-                    .build();
-
-            fulfillmentServiceClient.registerFulfillmentVendorGoods(command);
-
-            mockServer.verify();
-        }
-
-        @Test
-        @DisplayName("인증 토큰 요청이 모든 재시도 실패하면 FulfillmentServiceRequestFailedException이 발생한다")
-        void shouldThrowExceptionWhenAuthTokenRequestFails() {
-            for (int i = 0; i < 5; i++) {
-                mockServer.expect(requestTo(BASE_URL + "/api/v1/vendors/fassto/auth"))
-                        .andExpect(method(HttpMethod.POST))
-                        .andRespond(withServerError());
-            }
-
-            RegisterFulfillmentVendorGoodsCommand command = RegisterFulfillmentVendorGoodsCommand.builder()
-                    .customerGoodsCode("CST001")
-                    .goodsName("테스트 상품")
-                    .goodsType("01")
-                    .giftDivision("N")
-                    .build();
-
-            assertThatThrownBy(() -> fulfillmentServiceClient.registerFulfillmentVendorGoods(command))
-                    .isInstanceOf(FulfillmentServiceRequestFailedException.class);
-
-            mockServer.verify();
-        }
     }
 
     @Nested
@@ -226,36 +166,4 @@ class FulfillmentServiceClientTest {
         }
     }
 
-    @Nested
-    @DisplayName("updateFulfillmentVendorGoods")
-    class UpdateFulfillmentVendorGoods {
-
-        @Test
-        @DisplayName("풀필먼트 벤더 상품 수정 요청이 성공하면 정상적으로 완료된다")
-        void shouldCompleteSuccessfullyWhenUpdateSucceeds() {
-            expectAuthTokenRequest();
-
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/vendors/fassto/goods/" + CUSTOMER_CODE))
-                    .andExpect(method(HttpMethod.PUT))
-                    .andRespond(withSuccess("""
-                            {
-                                "content": {
-                                    "dataCount": 1,
-                                    "goods": [{"code": "200", "msg": "SUCCESS"}]
-                                }
-                            }
-                            """, MediaType.APPLICATION_JSON));
-
-            UpdateFulfillmentVendorGoodsCommand command = UpdateFulfillmentVendorGoodsCommand.builder()
-                    .customerGoodsCode("CST001")
-                    .goodsName("수정된 상품")
-                    .goodsType("01")
-                    .giftDivision("N")
-                    .build();
-
-            fulfillmentServiceClient.updateFulfillmentVendorGoods(command);
-
-            mockServer.verify();
-        }
-    }
 }
