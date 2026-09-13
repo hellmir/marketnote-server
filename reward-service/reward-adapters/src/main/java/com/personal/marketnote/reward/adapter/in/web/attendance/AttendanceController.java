@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.web.attendance;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.reward.adapter.in.web.attendance.apidocs.GetAttendanceRelayStatusApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.attendance.apidocs.GetMonthlyAttendanceApiDocs;
@@ -49,6 +50,7 @@ public class AttendanceController {
      */
     @PostMapping
     @RegisterAttendanceApiDocs
+    @RateLimited(key = "attendance", maxRequests = 5, windowSeconds = 60)
     public ResponseEntity<BaseResponse<RegisterAttendanceResponse>> registerAttendance(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @Valid @RequestBody RegisterAttendanceRequest request

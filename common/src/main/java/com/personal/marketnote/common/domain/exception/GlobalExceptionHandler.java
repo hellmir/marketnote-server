@@ -235,6 +235,13 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(httpStatus, httpStatus.name(), message);
     }
 
+    @ExceptionHandler(RateLimitExceededException.class)
+    ResponseEntity<ErrorResponse> handleRateLimitExceededException(RateLimitExceededException e) {
+        HttpStatus httpStatus = HttpStatus.TOO_MANY_REQUESTS;
+        log.warn(LOG_WARN_MESSAGE, e.getMessage());
+        return buildErrorResponse(httpStatus, httpStatus.name(), "요청 횟수가 초과되었습니다. 잠시 후 다시 시도해주세요.");
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
             DataIntegrityViolationException e) {
