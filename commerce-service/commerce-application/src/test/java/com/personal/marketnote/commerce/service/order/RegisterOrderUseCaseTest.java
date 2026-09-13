@@ -2973,6 +2973,41 @@ class RegisterOrderUseCaseTest {
         return captor.getValue();
     }
 
+    @Nested
+    @DisplayName("배송 불가 지역 방어 검증")
+    class DeliveryImpossibleValidationTest {
+
+        @Test
+        @DisplayName("배송 불가 지역 배송지로 주문 시 DeliveryImpossibleAreaException이 발생한다")
+        void registerOrder_deliveryImpossibleRegion_throwsDeliveryImpossibleAreaException() {
+            // given
+            Long buyerId = 1L;
+            Long pricePolicyId = 100L;
+            RegisterOrderCommand command = RegisterOrderCommand.builder()
+                    .buyerId(buyerId)
+                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(0L).build())
+                    .orderProducts(List.of(
+                            OrderProductItemCommand.builder()
+                                    .productId(100L)
+                                    .sellerId(10L)
+                                    .pricePolicyId(pricePolicyId)
+                                    .quantity(2)
+                                    .unitAmount(25000L)
+                                    .build()
+                    ))
+                    .build();
+
+            mockProductPrice(pricePolicyId, 25000L);
+            mockShippingAddressWithRegionType("DELIVERY_IMPOSSIBLE");
+
+            // when & then
+            assertThatThrownBy(() -> registerOrderService.registerOrder(command))
+                    .isInstanceOf(DeliveryImpossibleAreaException.class);
+
+            verifyNoInteractions(saveOrderPort, savePaymentPort, savePaymentAllocationPort);
+        }
+    }
+
     private RegisterOrderCommand createCommandWithShippingFee(
             Long buyerId, Long sellerId, Long pricePolicyId, Long unitAmount, Integer quantity,
             Long couponAmount, Long pointAmount, Long shippingFee
