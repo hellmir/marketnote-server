@@ -45,7 +45,8 @@ public class RemoteAreaAdminController {
                 request.getProvince(),
                 request.getDistrict(),
                 request.getVillage(),
-                request.getSubarea()
+                request.getSubarea(),
+                request.getRegionType()
         );
 
         registerRemoteAreaUseCase.registerRemoteArea(command);

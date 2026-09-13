@@ -33,7 +33,7 @@ class RegisterRemoteAreaUseCaseTest {
     @DisplayName("광역시도만 지정하여 도서산간 지역을 등록한다")
     void shouldRegisterRemoteAreaWithProvinceOnly() {
         // given
-        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("인천", null, null, null);
+        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("인천", null, null, null, null);
         when(findRemoteAreaPort.existsByAddress("인천", "", "", "")).thenReturn(false);
 
         // when
@@ -54,7 +54,7 @@ class RegisterRemoteAreaUseCaseTest {
     @DisplayName("광역시도, 시군구, 읍면동을 지정하여 도서산간 지역을 등록한다")
     void shouldRegisterRemoteAreaWithProvinceDistrictVillage() {
         // given
-        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("경남", "통영시", "사량면", null);
+        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("경남", "통영시", "사량면", null, null);
         when(findRemoteAreaPort.existsByAddress("경남", "통영시", "사량면", "")).thenReturn(false);
 
         // when
@@ -75,7 +75,7 @@ class RegisterRemoteAreaUseCaseTest {
     @DisplayName("모든 필드를 지정하여 도서산간 지역을 등록한다")
     void shouldRegisterRemoteAreaWithAllFields() {
         // given
-        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("충남", "보령시", "오천면", "녹도리");
+        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("충남", "보령시", "오천면", "녹도리", null);
         when(findRemoteAreaPort.existsByAddress("충남", "보령시", "오천면", "녹도리")).thenReturn(false);
 
         // when
@@ -96,7 +96,7 @@ class RegisterRemoteAreaUseCaseTest {
     @DisplayName("이미 등록된 도서산간 지역이면 RemoteAreaAlreadyExistsException이 발생한다")
     void shouldThrowWhenRemoteAreaAlreadyExists() {
         // given
-        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("인천", "옹진군", "덕적", null);
+        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("인천", "옹진군", "덕적", null, null);
         when(findRemoteAreaPort.existsByAddress("인천", "옹진군", "덕적", "")).thenReturn(true);
 
         // when & then
@@ -110,7 +110,7 @@ class RegisterRemoteAreaUseCaseTest {
     @DisplayName("중복 검증 시 FindRemoteAreaPort.existsByAddress가 호출된다")
     void shouldCallExistsByAddress() {
         // given
-        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("충남", "보령시", "오천면", "외연도");
+        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("충남", "보령시", "오천면", "외연도", null);
         when(findRemoteAreaPort.existsByAddress("충남", "보령시", "오천면", "외연도")).thenReturn(false);
 
         // when

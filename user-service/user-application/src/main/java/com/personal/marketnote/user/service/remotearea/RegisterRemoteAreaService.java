@@ -1,8 +1,10 @@
 package com.personal.marketnote.user.service.remotearea;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
 import com.personal.marketnote.user.domain.remotearea.RemoteAreaCreateState;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.exception.RemoteAreaAlreadyExistsException;
 import com.personal.marketnote.user.port.in.command.remotearea.RegisterRemoteAreaCommand;
 import com.personal.marketnote.user.port.in.usecase.remotearea.RegisterRemoteAreaUseCase;
@@ -23,18 +25,28 @@ public class RegisterRemoteAreaService implements RegisterRemoteAreaUseCase {
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void registerRemoteArea(RegisterRemoteAreaCommand command) {
+        ShippingAddressRegionType regionType = resolveRegionType(command.regionType());
+
         RemoteArea remoteArea = RemoteArea.from(
                 RemoteAreaCreateState.builder()
                         .province(command.province())
                         .district(command.district())
                         .village(command.village())
                         .subarea(command.subarea())
+                        .regionType(regionType)
                         .build()
         );
 
         validateNotDuplicate(remoteArea);
 
         saveRemoteAreaPort.save(remoteArea);
+    }
+
+    private ShippingAddressRegionType resolveRegionType(String regionType) {
+        if (FormatValidator.hasNoValue(regionType)) {
+            return ShippingAddressRegionType.ISLAND;
+        }
+        return ShippingAddressRegionType.valueOf(regionType);
     }
 
     private void validateNotDuplicate(RemoteArea remoteArea) {

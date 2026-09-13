@@ -4,6 +4,7 @@ public record RegisterRemoteAreaCommand(
         String province,
         String district,
         String village,
-        String subarea
+        String subarea,
+        String regionType
 ) {
 }
