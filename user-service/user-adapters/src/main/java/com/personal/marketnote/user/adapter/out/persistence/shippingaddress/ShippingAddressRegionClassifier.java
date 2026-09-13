@@ -3,11 +3,13 @@ package com.personal.marketnote.user.adapter.out.persistence.shippingaddress;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.user.adapter.out.persistence.remotearea.entity.RemoteAreaJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.remotearea.repository.RemoteAreaJpaRepository;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.port.out.shippingaddress.ClassifyShippingAddressRegionPort;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 
 @PersistenceAdapter
@@ -48,27 +50,73 @@ public class ShippingAddressRegionClassifier implements ClassifyShippingAddressR
             return ShippingAddressRegionType.JEJU;
         }
 
-        if (isRemoteAreaAddress(address)) {
-            return ShippingAddressRegionType.ISLAND;
-        }
-
-        return ShippingAddressRegionType.NORMAL;
+        return classifyByRemoteArea(address);
     }
 
     private boolean isJejuAddress(String address) {
         return address.startsWith("제주");
     }
 
-    private boolean isRemoteAreaAddress(String address) {
+    private ShippingAddressRegionType classifyByRemoteArea(String address) {
         String[] tokens = address.split(" ");
         if (tokens.length < 2) {
-            return false;
+            return ShippingAddressRegionType.NORMAL;
         }
 
         String province = normalizeProvince(tokens[0]);
         String district = tokens[1];
+        String village = tokens.length >= 3 ? tokens[2] : "";
+        String subarea = tokens.length >= 4 ? tokens[3] : "";
 
-        return remoteAreaJpaRepository.existsByProvinceAndDistrictAndStatus(province, district, EntityStatus.ACTIVE);
+        List<RemoteAreaJpaEntity> remoteAreas = remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus(
+                province, district, EntityStatus.ACTIVE
+        );
+
+        if (remoteAreas.isEmpty()) {
+            return ShippingAddressRegionType.NORMAL;
+        }
+
+        return resolveHighestPriority(remoteAreas, village, subarea);
+    }
+
+    private ShippingAddressRegionType resolveHighestPriority(List<RemoteAreaJpaEntity> remoteAreas,
+                                                              String village, String subarea) {
+        ShippingAddressRegionType result = null;
+
+        for (RemoteAreaJpaEntity remoteArea : remoteAreas) {
+            if (!isMatchingRecord(remoteArea, village, subarea)) {
+                continue;
+            }
+
+            ShippingAddressRegionType regionType = remoteArea.getRegionType();
+            if (regionType.isDeliveryImpossible()) {
+                return ShippingAddressRegionType.DELIVERY_IMPOSSIBLE;
+            }
+
+            if (FormatValidator.hasNoValue(result)) {
+                result = regionType;
+            }
+        }
+
+        if (FormatValidator.hasNoValue(result)) {
+            return ShippingAddressRegionType.NORMAL;
+        }
+        return result;
+    }
+
+    private boolean isMatchingRecord(RemoteAreaJpaEntity remoteArea, String village, String subarea) {
+        String recordVillage = remoteArea.getVillage();
+        String recordSubarea = remoteArea.getSubarea();
+
+        if (FormatValidator.hasValue(recordVillage) && !recordVillage.equals(village)) {
+            return false;
+        }
+
+        if (FormatValidator.hasValue(recordSubarea) && !recordSubarea.equals(subarea)) {
+            return false;
+        }
+
+        return true;
     }
 
     private String normalizeProvince(String rawProvince) {
