@@ -13,6 +13,8 @@ public interface RemoteAreaJpaRepository extends JpaRepository<RemoteAreaJpaEnti
 
     boolean existsByProvinceAndDistrictAndStatus(String province, String district, EntityStatus status);
 
+    List<RemoteAreaJpaEntity> findAllByProvinceAndDistrictAndStatus(String province, String district, EntityStatus status);
+
     List<RemoteAreaJpaEntity> findAllByStatus(EntityStatus status);
 
     Optional<RemoteAreaJpaEntity> findByIdAndStatus(Long id, EntityStatus status);
