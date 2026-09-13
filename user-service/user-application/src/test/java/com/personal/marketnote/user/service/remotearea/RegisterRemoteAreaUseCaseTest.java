@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.remotearea;
 
 import com.personal.marketnote.user.domain.remotearea.RemoteArea;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.exception.RemoteAreaAlreadyExistsException;
 import com.personal.marketnote.user.port.in.command.remotearea.RegisterRemoteAreaCommand;
 import com.personal.marketnote.user.port.out.remotearea.FindRemoteAreaPort;
@@ -118,5 +119,41 @@ class RegisterRemoteAreaUseCaseTest {
 
         // then
         verify(findRemoteAreaPort).existsByAddress("충남", "보령시", "오천면", "외연도");
+    }
+
+    @Test
+    @DisplayName("regionType을 DELIVERY_IMPOSSIBLE로 지정하여 도서산간 지역을 등록한다")
+    void shouldRegisterRemoteAreaWithDeliveryImpossibleRegionType() {
+        // given
+        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("충남", "보령시", "오천면", "외연도리", "DELIVERY_IMPOSSIBLE");
+        when(findRemoteAreaPort.existsByAddress("충남", "보령시", "오천면", "외연도리")).thenReturn(false);
+
+        // when
+        registerRemoteAreaService.registerRemoteArea(command);
+
+        // then
+        ArgumentCaptor<RemoteArea> captor = ArgumentCaptor.forClass(RemoteArea.class);
+        verify(saveRemoteAreaPort).save(captor.capture());
+
+        RemoteArea savedRemoteArea = captor.getValue();
+        assertThat(savedRemoteArea.getRegionType()).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+    }
+
+    @Test
+    @DisplayName("regionType을 지정하지 않으면 ISLAND로 기본 설정된다")
+    void shouldDefaultRegionTypeToIslandWhenNotSpecified() {
+        // given
+        RegisterRemoteAreaCommand command = new RegisterRemoteAreaCommand("인천", "옹진군", "덕적", null, null);
+        when(findRemoteAreaPort.existsByAddress("인천", "옹진군", "덕적", "")).thenReturn(false);
+
+        // when
+        registerRemoteAreaService.registerRemoteArea(command);
+
+        // then
+        ArgumentCaptor<RemoteArea> captor = ArgumentCaptor.forClass(RemoteArea.class);
+        verify(saveRemoteAreaPort).save(captor.capture());
+
+        RemoteArea savedRemoteArea = captor.getValue();
+        assertThat(savedRemoteArea.getRegionType()).isEqualTo(ShippingAddressRegionType.ISLAND);
     }
 }

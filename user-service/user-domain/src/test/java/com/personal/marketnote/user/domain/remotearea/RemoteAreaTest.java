@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.domain.remotearea;
 
 import com.personal.marketnote.user.domain.remotearea.exception.*;
+import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -72,6 +73,59 @@ class RemoteAreaTest {
             assertThat(remoteArea.getDistrict()).isEqualTo("보령시");
             assertThat(remoteArea.getVillage()).isEqualTo("오천면");
             assertThat(remoteArea.getSubarea()).isEqualTo("녹도리");
+        }
+
+        @Test
+        @DisplayName("regionType을 지정하지 않으면 ISLAND로 기본 설정된다")
+        void shouldDefaultRegionTypeToIslandWhenNotSpecified() {
+            // given
+            RemoteAreaCreateState state = RemoteAreaCreateState.builder()
+                    .province("인천")
+                    .district("옹진군")
+                    .build();
+
+            // when
+            RemoteArea remoteArea = RemoteArea.from(state);
+
+            // then
+            assertThat(remoteArea.getRegionType()).isEqualTo(ShippingAddressRegionType.ISLAND);
+        }
+
+        @Test
+        @DisplayName("regionType을 DELIVERY_IMPOSSIBLE로 지정하여 RemoteArea를 생성한다")
+        void shouldCreateRemoteAreaWithDeliveryImpossibleRegionType() {
+            // given
+            RemoteAreaCreateState state = RemoteAreaCreateState.builder()
+                    .province("충남")
+                    .district("보령시")
+                    .village("오천면")
+                    .subarea("외연도리")
+                    .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
+                    .build();
+
+            // when
+            RemoteArea remoteArea = RemoteArea.from(state);
+
+            // then
+            assertThat(remoteArea.getRegionType()).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+            assertThat(remoteArea.isDeliveryImpossible()).isTrue();
+        }
+
+        @Test
+        @DisplayName("regionType이 ISLAND이면 isDeliveryImpossible은 false를 반환한다")
+        void shouldReturnFalseForIsDeliveryImpossibleWhenIsland() {
+            // given
+            RemoteAreaCreateState state = RemoteAreaCreateState.builder()
+                    .province("인천")
+                    .district("옹진군")
+                    .regionType(ShippingAddressRegionType.ISLAND)
+                    .build();
+
+            // when
+            RemoteArea remoteArea = RemoteArea.from(state);
+
+            // then
+            assertThat(remoteArea.isDeliveryImpossible()).isFalse();
         }
 
         @Test
@@ -205,6 +259,7 @@ class RemoteAreaTest {
                     .district("보령시")
                     .village("오천면")
                     .subarea("녹도리")
+                    .regionType(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE)
                     .build();
 
             // when
@@ -216,6 +271,7 @@ class RemoteAreaTest {
             assertThat(remoteArea.getDistrict()).isEqualTo("보령시");
             assertThat(remoteArea.getVillage()).isEqualTo("오천면");
             assertThat(remoteArea.getSubarea()).isEqualTo("녹도리");
+            assertThat(remoteArea.getRegionType()).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
         }
     }
 }
