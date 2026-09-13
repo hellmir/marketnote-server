@@ -5,7 +5,8 @@ import com.personal.marketnote.common.utility.FormatValidator;
 public enum ShippingRegionType {
     NORMAL,
     JEJU,
-    ISLAND;
+    ISLAND,
+    DELIVERY_IMPOSSIBLE;
 
     public boolean isNormal() {
         return this == NORMAL;
@@ -17,6 +18,10 @@ public enum ShippingRegionType {
 
     public boolean isIsland() {
         return this == ISLAND;
+    }
+
+    public boolean isDeliveryImpossible() {
+        return this == DELIVERY_IMPOSSIBLE;
     }
 
     public static ShippingRegionType from(String regionType) {
