@@ -3,6 +3,7 @@ package com.personal.marketnote.user.service.shippingaddress;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.exception.DomainAlreadyExistsException;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
+import com.personal.marketnote.user.exception.DeliveryImpossibleAreaException;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
@@ -596,6 +597,38 @@ class RegisterShippingAddressUseCaseTest {
         verify(saveShippingAddressPort).save(argThat(sa ->
                 sa.getRegionType() == ShippingAddressRegionType.NORMAL
         ));
+    }
+
+    @Test
+    @DisplayName("배송 불가 지역 주소 등록 시 DeliveryImpossibleAreaException이 발생한다")
+    void registerShippingAddress_deliveryImpossibleArea_throwsDeliveryImpossibleAreaException() {
+        // given
+        Long userId = 1L;
+        String impossibleAddress = "충청남도 보령시 오천면 외연도리 123";
+        RegisterShippingAddressCommand command = RegisterShippingAddressCommand.builder()
+                .userId(userId)
+                .addressType(ShippingAddressType.HOME)
+                .address(impossibleAddress)
+                .addressDetail("101호")
+                .recipientName("홍길동")
+                .recipientPhoneNumber("010-1234-5678")
+                .deliveryRequestType(DeliveryRequestType.NONE)
+                .isDefault(false)
+                .build();
+
+        when(findShippingAddressPort.existsByUserIdAndAddressType(userId, ShippingAddressType.HOME))
+                .thenReturn(false);
+        when(findShippingAddressPort.existsByUserId(userId))
+                .thenReturn(false);
+        when(classifyShippingAddressRegionPort.classify(impossibleAddress))
+                .thenReturn(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+
+        // when & then
+        assertThatThrownBy(() -> registerShippingAddressService.registerShippingAddress(command))
+                .isInstanceOf(DeliveryImpossibleAreaException.class);
+
+        verify(classifyShippingAddressRegionPort).classify(impossibleAddress);
+        verifyNoInteractions(saveShippingAddressPort, publishShippingAddressEventPort);
     }
 
     private ShippingAddress createShippingAddress(
