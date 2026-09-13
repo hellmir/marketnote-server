@@ -6,8 +6,6 @@ import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.product.adapter.out.web.fulfillment.request.RegisterFasstoGoodsItemRequest;
-import com.personal.marketnote.product.adapter.out.web.fulfillment.request.UpdateFasstoGoodsItemRequest;
 import com.personal.marketnote.product.adapter.out.web.fulfillment.response.*;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationSenderType;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationTargetType;
@@ -20,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -35,10 +32,8 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
 @ServiceAdapter
 @Slf4j
 public class FulfillmentServiceClient implements
-        RegisterFulfillmentVendorGoodsPort,
         GetFulfillmentVendorGoodsPort,
-        GetFulfillmentVendorGoodsElementsPort,
-        UpdateFulfillmentVendorGoodsPort {
+        GetFulfillmentVendorGoodsElementsPort {
     private static final ProductServiceCommunicationSenderType REQUEST_SENDER =
             ProductServiceCommunicationSenderType.PRODUCT;
     private static final ProductServiceCommunicationSenderType RESPONSE_SENDER =
@@ -65,23 +60,6 @@ public class FulfillmentServiceClient implements
         this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
         this.serviceCommunicationRecorder = serviceCommunicationRecorder;
         this.serviceCommunicationPayloadGenerator = serviceCommunicationPayloadGenerator;
-    }
-
-    @Override
-    public void registerFulfillmentVendorGoods(RegisterFulfillmentVendorGoodsCommand command) {
-        String fulfillmentVendorAccessToken = requestFulfillmentVendorAccessToken();
-        if (FormatValidator.hasNoValue(fulfillmentVendorCustomerCode) || FormatValidator.hasNoValue(fulfillmentVendorAccessToken)) {
-            throw new FulfillmentServiceRequestFailedException(new IOException());
-        }
-
-        URI uri = UriComponentsBuilder
-                .fromUriString(fulfillmentServiceBaseUrl)
-                .path("/api/v1/vendors/fassto/goods/{customerCode}")
-                .buildAndExpand(fulfillmentVendorCustomerCode)
-                .toUri();
-
-        List<RegisterFasstoGoodsItemRequest> payload = List.of(RegisterFasstoGoodsItemRequest.from(command));
-        sendRegisterRequest(uri, payload, fulfillmentVendorAccessToken, command);
     }
 
     @Override
@@ -127,23 +105,6 @@ public class FulfillmentServiceClient implements
         }
 
         return result;
-    }
-
-    @Override
-    public void updateFulfillmentVendorGoods(UpdateFulfillmentVendorGoodsCommand command) {
-        String fulfillmentVendorAccessToken = requestFulfillmentVendorAccessToken();
-        if (FormatValidator.hasNoValue(fulfillmentVendorCustomerCode) || FormatValidator.hasNoValue(fulfillmentVendorAccessToken)) {
-            throw new FulfillmentServiceRequestFailedException(new IOException());
-        }
-
-        URI uri = UriComponentsBuilder
-                .fromUriString(fulfillmentServiceBaseUrl)
-                .path("/api/v1/vendors/fassto/goods/{customerCode}")
-                .buildAndExpand(fulfillmentVendorCustomerCode)
-                .toUri();
-
-        List<UpdateFasstoGoodsItemRequest> payload = List.of(UpdateFasstoGoodsItemRequest.from(command));
-        sendUpdateRequest(uri, payload, fulfillmentVendorAccessToken, command);
     }
 
     private String requestFulfillmentVendorAccessToken() {
@@ -234,192 +195,6 @@ public class FulfillmentServiceClient implements
         }
 
         log.error("Failed to request fassto access token with error: {}", error.getMessage(), error);
-        throw new FulfillmentServiceRequestFailedException(new IOException());
-    }
-
-    private void sendRegisterRequest(
-            URI uri,
-            List<RegisterFasstoGoodsItemRequest> requestBody,
-            String accessToken,
-            RegisterFulfillmentVendorGoodsCommand command
-    ) {
-        long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
-        Exception error = new Exception();
-
-        for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
-            int attempt = i + 1;
-            try {
-                ResponseEntity<BaseResponse<RegisterFasstoGoodsResponse>> responseEntity =
-                        restClient.post()
-                                .uri(uri)
-                                .headers(headers -> {
-                                    hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath());
-                                    headers.add("accessToken", accessToken);
-                                })
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(requestBody)
-                                .retrieve()
-                                .toEntity(new ParameterizedTypeReference<>() {
-                                });
-
-                if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-                    throw new FulfillmentServiceRequestFailedException(new IOException());
-                }
-
-                BaseResponse<RegisterFasstoGoodsResponse> response = responseEntity.getBody();
-                if (FormatValidator.hasNoValue(response) || FormatValidator.hasNoValue(response.getContent())) {
-                    throw new FulfillmentServiceRequestFailedException(new IOException());
-                }
-
-                RegisterFasstoGoodsResponse content = response.getContent();
-                if (!content.isSuccess()) {
-                    throw new FulfillmentServiceRequestFailedException(new IOException());
-                }
-
-                return;
-            } catch (Exception e) {
-                String exception = e.getClass().getSimpleName();
-                JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                        HttpMethod.POST,
-                        uri,
-                        requestBody,
-                        attempt
-                );
-                String requestPayload = requestPayloadJson.toString();
-                JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                        exception,
-                        e.getMessage(),
-                        attempt
-                );
-                String responsePayload = responsePayloadJson.toString();
-                recordCommunication(
-                        ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.customerGoodsCode(),
-                        ProductServiceCommunicationType.REQUEST,
-                        requestPayload,
-                        requestPayloadJson,
-                        exception
-                );
-                recordCommunication(
-                        ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.customerGoodsCode(),
-                        ProductServiceCommunicationType.RESPONSE,
-                        responsePayload,
-                        responsePayloadJson,
-                        exception
-                );
-                log.warn(e.getMessage(), e);
-                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
-                    error = e;
-                }
-
-                try {
-                    long jitteredSleepMillis = ThreadLocalRandom.current()
-                            .nextLong(Math.max(1L, sleepMillis) + 1);
-                    Thread.sleep(jitteredSleepMillis);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-
-                sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
-            }
-        }
-
-        log.error("Failed to register fassto goods: {} with error: {}", command.customerGoodsCode(), error.getMessage(), error);
-        throw new FulfillmentServiceRequestFailedException(new IOException());
-    }
-
-    private void sendUpdateRequest(
-            URI uri,
-            List<UpdateFasstoGoodsItemRequest> requestBody,
-            String accessToken,
-            UpdateFulfillmentVendorGoodsCommand command
-    ) {
-        long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
-        Exception error = new Exception();
-
-        for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
-            int attempt = i + 1;
-            try {
-                ResponseEntity<BaseResponse<UpdateFasstoGoodsResponse>> responseEntity =
-                        restClient.put()
-                                .uri(uri)
-                                .headers(headers -> {
-                                    hmacServiceAuthHeaderBuilder.applyHeaders(headers, "PUT", uri.getPath());
-                                    headers.add("accessToken", accessToken);
-                                })
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .body(requestBody)
-                                .retrieve()
-                                .toEntity(new ParameterizedTypeReference<>() {
-                                });
-
-                if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-                    throw new FulfillmentServiceRequestFailedException(new IOException());
-                }
-
-                BaseResponse<UpdateFasstoGoodsResponse> response = responseEntity.getBody();
-                if (FormatValidator.hasNoValue(response) || FormatValidator.hasNoValue(response.getContent())) {
-                    throw new FulfillmentServiceRequestFailedException(new IOException());
-                }
-
-                UpdateFasstoGoodsResponse content = response.getContent();
-                if (!content.isSuccess()) {
-                    throw new FulfillmentServiceRequestFailedException(new IOException());
-                }
-
-                return;
-            } catch (Exception e) {
-                String exception = e.getClass().getSimpleName();
-                JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                        HttpMethod.PUT,
-                        uri,
-                        requestBody,
-                        attempt
-                );
-                String requestPayload = requestPayloadJson.toString();
-                JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                        exception,
-                        e.getMessage(),
-                        attempt
-                );
-                String responsePayload = responsePayloadJson.toString();
-                recordCommunication(
-                        ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.customerGoodsCode(),
-                        ProductServiceCommunicationType.REQUEST,
-                        requestPayload,
-                        requestPayloadJson,
-                        exception
-                );
-                recordCommunication(
-                        ProductServiceCommunicationTargetType.FULFILLMENT_GOODS,
-                        command.customerGoodsCode(),
-                        ProductServiceCommunicationType.RESPONSE,
-                        responsePayload,
-                        responsePayloadJson,
-                        exception
-                );
-                log.warn(e.getMessage(), e);
-                if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
-                    error = e;
-                }
-
-                try {
-                    long jitteredSleepMillis = ThreadLocalRandom.current()
-                            .nextLong(Math.max(1L, sleepMillis) + 1);
-                    Thread.sleep(jitteredSleepMillis);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-
-                sleepMillis = sleepMillis * INTER_SERVER_DEFAULT_EXPONENTIAL_BACKOFF_VALUE;
-            }
-        }
-
-        log.error("Failed to update fassto goods: {} with error: {}", command.customerGoodsCode(), error.getMessage(), error);
         throw new FulfillmentServiceRequestFailedException(new IOException());
     }
 
