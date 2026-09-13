@@ -1,11 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.web.inventory.controller;
 
-import com.personal.marketnote.commerce.adapter.in.web.inventory.request.SyncFulfillmentVendorInventoryItemRequest;
-import com.personal.marketnote.commerce.adapter.in.web.inventory.request.SyncFulfillmentVendorInventoryRequest;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RegisterInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.SyncFulfillmentVendorInventoryUseCase;
 import com.personal.marketnote.common.adapter.in.request.RegisterInventoryRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -36,9 +33,6 @@ class InternalInventoryControllerTest {
 
     @Mock
     private GetInventoryUseCase getInventoryUseCase;
-
-    @Mock
-    private SyncFulfillmentVendorInventoryUseCase syncFulfillmentVendorInventoryUseCase;
 
     @Nested
     @DisplayName("registerInventory")
@@ -78,7 +72,7 @@ class InternalInventoryControllerTest {
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getInventoryUseCase).getInventories(pricePolicyIds);
-            verifyNoInteractions(registerInventoryUseCase, syncFulfillmentVendorInventoryUseCase);
+            verifyNoInteractions(registerInventoryUseCase);
         }
 
         @Test
@@ -101,28 +95,6 @@ class InternalInventoryControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getInventoryUseCase).getOrCreateInventories(Map.of(1L, 10L, 2L, 20L));
             verifyNoMoreInteractions(getInventoryUseCase);
-        }
-    }
-
-    @Nested
-    @DisplayName("syncFulfillmentVendorInventories")
-    class SyncFulfillmentVendorInventories {
-        @Test
-        @DisplayName("풀필먼트 벤더 재고 동기화 요청이 성공하면 200 OK를 반환한다")
-        void shouldReturnOkWhenSyncSucceeds() {
-            // given
-            SyncFulfillmentVendorInventoryRequest request = mock(SyncFulfillmentVendorInventoryRequest.class);
-            SyncFulfillmentVendorInventoryItemRequest item = mock(SyncFulfillmentVendorInventoryItemRequest.class);
-            when(item.getProductId()).thenReturn(1L);
-            when(item.getStock()).thenReturn(100);
-            when(request.getInventories()).thenReturn(List.of(item));
-
-            // when
-            ResponseEntity<?> response = internalInventoryController.syncFulfillmentVendorInventories(request);
-
-            // then
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
         }
     }
 }

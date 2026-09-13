@@ -11,9 +11,8 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFulfillmen
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentStockInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.*;
-import com.personal.marketnote.fulfillment.port.out.commerce.UpdateCommerceInventoryCommand;
-import com.personal.marketnote.fulfillment.port.out.commerce.UpdateCommerceInventoryItemCommand;
-import com.personal.marketnote.fulfillment.port.out.commerce.UpdateCommerceInventoryPort;
+import com.personal.marketnote.common.kafka.event.FulfillmentInventorySyncedEvent;
+import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentInventorySyncedEventPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +32,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
     private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
     private final GetFulfillmentStockDetailUseCase getFulfillmentStockDetailUseCase;
     private final GetFulfillmentStocksUseCase getFulfillmentStocksUseCase;
-    private final UpdateCommerceInventoryPort updateCommerceInventoryPort;
+    private final PublishFulfillmentInventorySyncedEventPort publishFulfillmentInventorySyncedEventPort;
 
     @Override
     public void sync(SyncFulfillmentStockCommand command) {
@@ -60,7 +59,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
             throw new FulfillmentQueryParameterNoValueException("Fulfillment access token", "stock sync");
         }
 
-        List<UpdateCommerceInventoryItemCommand> inventories = new ArrayList<>();
+        List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = new ArrayList<>();
         for (Long productId : productIds) {
             GetFulfillmentStocksResult stockDetail = getFulfillmentStockDetailUseCase.getStockDetail(
                     GetFulfillmentStockDetailCommand.of(
@@ -71,10 +70,10 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                     )
             );
             int stockQuantity = resolveStockQuantity(stockDetail);
-            inventories.add(UpdateCommerceInventoryItemCommand.of(productId, stockQuantity));
+            inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(productId, stockQuantity));
         }
 
-        updateCommerceInventoryPort.updateInventories(UpdateCommerceInventoryCommand.of(inventories));
+        publishFulfillmentInventorySyncedEventPort.publish(new FulfillmentInventorySyncedEvent(inventories));
     }
 
     @Override
@@ -99,12 +98,12 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                         command.warehouseCode()
                 )
         );
-        List<UpdateCommerceInventoryItemCommand> inventories = resolveInventories(stocksResult);
+        List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = resolveInventories(stocksResult);
         if (FormatValidator.hasNoValue(inventories)) {
             return;
         }
 
-        updateCommerceInventoryPort.updateInventories(UpdateCommerceInventoryCommand.of(inventories));
+        publishFulfillmentInventorySyncedEventPort.publish(new FulfillmentInventorySyncedEvent(inventories));
     }
 
     private int resolveStockQuantity(GetFulfillmentStocksResult result) {
@@ -139,7 +138,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         return stockInfo.stockQuantity();
     }
 
-    private List<UpdateCommerceInventoryItemCommand> resolveInventories(GetFulfillmentStocksResult result) {
+    private List<FulfillmentInventorySyncedEvent.InventoryItem> resolveInventories(GetFulfillmentStocksResult result) {
         if (FormatValidator.hasNoValue(result) || FormatValidator.hasNoValue(result.stocks())) {
             return List.of();
         }
@@ -150,9 +149,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                 continue;
             }
 
-            // QA 서버 스케줄러 작동 테스트 위해 임시로 변경
-            Long productId = 1L;
-            // Long productId = resolveProductId(stockInfo.customerProductCode());
+            Long productId = resolveProductId(stockInfo.customerProductCode());
             if (FormatValidator.hasNoValue(productId)) {
                 continue;
             }
@@ -171,7 +168,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         }
 
         return stockByProductId.entrySet().stream()
-                .map(entry -> UpdateCommerceInventoryItemCommand.of(entry.getKey(), entry.getValue()))
+                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(entry.getKey(), entry.getValue()))
                 .toList();
     }
 

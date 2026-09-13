@@ -62,6 +62,7 @@ public final class KafkaTopicConstants {
 
     // Fulfillment 이벤트
     public static final String SHIPPING_STATUS_CHANGED = "fulfillment.shipping.status-changed";
+    public static final String FULFILLMENT_INVENTORY_SYNCED = "fulfillment.inventory.synced";
 
     // Notification 이벤트
     public static final String NOTIFICATION_PUSH_SENT = "notification.push.sent";
