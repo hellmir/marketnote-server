@@ -206,6 +206,121 @@ class ShippingAddressRegionClassifierTest {
         verify(remoteAreaJpaRepository).findAllByProvinceAndDistrictAndStatus("전남", "신안군", EntityStatus.ACTIVE);
     }
 
+    @Test
+    @DisplayName("읍면동까지 일치하는 도서산간 레코드가 있으면 ISLAND로 분류된다")
+    void classify_villageMatchRemoteArea_returnsIsland() {
+        // given
+        String address = "경상남도 통영시 한산면 추봉리 123";
+        RemoteAreaJpaEntity entity = createRemoteAreaEntity("경남", "통영시", "한산면", "", ShippingAddressRegionType.ISLAND);
+        when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경남", "통영시", EntityStatus.ACTIVE))
+                .thenReturn(List.of(entity));
+
+        // when
+        ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
+
+        // then
+        assertThat(result).isEqualTo(ShippingAddressRegionType.ISLAND);
+    }
+
+    @Test
+    @DisplayName("읍면동이 불일치하면 NORMAL로 분류된다")
+    void classify_villageMismatch_returnsNormal() {
+        // given
+        String address = "경상남도 통영시 광도면 죽림리 123";
+        RemoteAreaJpaEntity entity = createRemoteAreaEntity("경남", "통영시", "한산면", "", ShippingAddressRegionType.ISLAND);
+        when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경남", "통영시", EntityStatus.ACTIVE))
+                .thenReturn(List.of(entity));
+
+        // when
+        ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
+
+        // then
+        assertThat(result).isEqualTo(ShippingAddressRegionType.NORMAL);
+    }
+
+    @Test
+    @DisplayName("세부지역까지 일치하는 레코드가 있으면 해당 regionType으로 분류된다")
+    void classify_subareaMatch_returnsMatchedRegionType() {
+        // given
+        String address = "충청남도 보령시 오천면 외연도리 123";
+        RemoteAreaJpaEntity entity = createRemoteAreaEntity("충남", "보령시", "오천면", "외연도리", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+        when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
+                .thenReturn(List.of(entity));
+
+        // when
+        ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
+
+        // then
+        assertThat(result).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+    }
+
+    @Test
+    @DisplayName("세부지역이 불일치하면 NORMAL로 분류된다")
+    void classify_subareaMismatch_returnsNormal() {
+        // given
+        String address = "충청남도 보령시 오천면 삽시도리 123";
+        RemoteAreaJpaEntity entity = createRemoteAreaEntity("충남", "보령시", "오천면", "외연도리", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+        when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
+                .thenReturn(List.of(entity));
+
+        // when
+        ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
+
+        // then
+        assertThat(result).isEqualTo(ShippingAddressRegionType.NORMAL);
+    }
+
+    @Test
+    @DisplayName("DELIVERY_IMPOSSIBLE 레코드가 있으면 ISLAND보다 우선 적용된다")
+    void classify_deliveryImpossiblePriority_overIsland() {
+        // given
+        String address = "충청남도 보령시 오천면 외연도리 123";
+        RemoteAreaJpaEntity islandEntity = createRemoteAreaEntity("충남", "보령시", "", "", ShippingAddressRegionType.ISLAND);
+        RemoteAreaJpaEntity impossibleEntity = createRemoteAreaEntity("충남", "보령시", "오천면", "외연도리", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+        when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
+                .thenReturn(List.of(islandEntity, impossibleEntity));
+
+        // when
+        ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
+
+        // then
+        assertThat(result).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+    }
+
+    @Test
+    @DisplayName("여러 ISLAND 레코드 중 일치하는 것이 있으면 ISLAND로 분류된다")
+    void classify_multipleIslandRecords_returnsIsland() {
+        // given
+        String address = "경상남도 통영시 한산면 추봉리 123";
+        RemoteAreaJpaEntity entity1 = createRemoteAreaEntity("경남", "통영시", "사량면", "", ShippingAddressRegionType.ISLAND);
+        RemoteAreaJpaEntity entity2 = createRemoteAreaEntity("경남", "통영시", "한산면", "", ShippingAddressRegionType.ISLAND);
+        when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("경남", "통영시", EntityStatus.ACTIVE))
+                .thenReturn(List.of(entity1, entity2));
+
+        // when
+        ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
+
+        // then
+        assertThat(result).isEqualTo(ShippingAddressRegionType.ISLAND);
+    }
+
+    @Test
+    @DisplayName("district 레벨 매칭과 village 레벨 DELIVERY_IMPOSSIBLE이 공존하면 DELIVERY_IMPOSSIBLE이 우선한다")
+    void classify_districtIslandAndVillageImpossible_returnsImpossible() {
+        // given
+        String address = "충청남도 보령시 오천면 삽시도리 123";
+        RemoteAreaJpaEntity districtLevel = createRemoteAreaEntity("충남", "보령시", "", "", ShippingAddressRegionType.ISLAND);
+        RemoteAreaJpaEntity villageLevel = createRemoteAreaEntity("충남", "보령시", "오천면", "", ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+        when(remoteAreaJpaRepository.findAllByProvinceAndDistrictAndStatus("충남", "보령시", EntityStatus.ACTIVE))
+                .thenReturn(List.of(districtLevel, villageLevel));
+
+        // when
+        ShippingAddressRegionType result = shippingAddressRegionClassifier.classify(address);
+
+        // then
+        assertThat(result).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
+    }
+
     private RemoteAreaJpaEntity createRemoteAreaEntity(String province, String district,
                                                         String village, String subarea,
                                                         ShippingAddressRegionType regionType) {
