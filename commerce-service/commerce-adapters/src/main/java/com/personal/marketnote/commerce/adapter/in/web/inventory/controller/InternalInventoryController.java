@@ -1,13 +1,11 @@
 package com.personal.marketnote.commerce.adapter.in.web.inventory.controller;
 
 import com.personal.marketnote.commerce.adapter.in.web.inventory.mapper.InventoryRequestToCommandMapper;
-import com.personal.marketnote.commerce.adapter.in.web.inventory.request.SyncFulfillmentVendorInventoryRequest;
 import com.personal.marketnote.commerce.adapter.in.web.inventory.response.GetInventoriesResponse;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.port.in.result.inventory.GetInventoriesResult;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.GetInventoryUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RegisterInventoryUseCase;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.SyncFulfillmentVendorInventoryUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.request.RegisterInventoryRequest;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -42,7 +40,6 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 public class InternalInventoryController {
     private final RegisterInventoryUseCase registerInventoryUseCase;
     private final GetInventoryUseCase getInventoryUseCase;
-    private final SyncFulfillmentVendorInventoryUseCase syncFulfillmentVendorInventoryUseCase;
 
     /**
      * 재고 도메인 등록 (서비스 간 통신용)
@@ -88,30 +85,6 @@ public class InternalInventoryController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "상품 재고 목록 조회 성공"
-                ),
-                HttpStatus.OK
-        );
-    }
-
-    /**
-     * (서비스 간 통신용) 풀필먼트 벤더 재고 동기화
-     *
-     * @param request 풀필먼트 벤더 재고 동기화 요청
-     */
-    @PostMapping("/fulfillment/vendors/stocks/sync")
-    public ResponseEntity<BaseResponse<Void>> syncFulfillmentVendorInventories(
-            @Valid @RequestBody SyncFulfillmentVendorInventoryRequest request
-    ) {
-        syncFulfillmentVendorInventoryUseCase.syncInventories(
-                InventoryRequestToCommandMapper.mapToCommand(request)
-        );
-
-        return new ResponseEntity<>(
-                BaseResponse.of(
-                        null,
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "풀필먼트 벤더 재고 동기화 성공"
                 ),
                 HttpStatus.OK
         );

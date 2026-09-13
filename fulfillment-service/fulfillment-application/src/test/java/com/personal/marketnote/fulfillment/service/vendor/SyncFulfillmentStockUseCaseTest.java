@@ -11,7 +11,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentS
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentStockDetailUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentStocksUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
-import com.personal.marketnote.fulfillment.port.out.commerce.UpdateCommerceInventoryPort;
+import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentInventorySyncedEventPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ class SyncFulfillmentStockUseCaseTest {
     @Mock
     private GetFulfillmentStocksUseCase getFulfillmentStocksUseCase;
     @Mock
-    private UpdateCommerceInventoryPort updateCommerceInventoryPort;
+    private PublishFulfillmentInventorySyncedEventPort publishFulfillmentInventorySyncedEventPort;
 
     @Nested
     @DisplayName("sync 성공")
@@ -59,7 +59,7 @@ class SyncFulfillmentStockUseCaseTest {
             service.sync(command);
 
             // then
-            verify(updateCommerceInventoryPort).updateInventories(any());
+            verify(publishFulfillmentInventorySyncedEventPort).publish(any());
         }
     }
 
@@ -112,7 +112,7 @@ class SyncFulfillmentStockUseCaseTest {
             service.syncAll(command);
 
             // then
-            verify(updateCommerceInventoryPort).updateInventories(any());
+            verify(publishFulfillmentInventorySyncedEventPort).publish(any());
         }
     }
 
