@@ -226,6 +226,93 @@ class PollShippingStatusUseCaseTest {
     }
 
     @Test
+    @DisplayName("배송불가 상태 감지 시 Slack 알림을 발송한다")
+    void sendSlackAlertWhenDeliveryFailed() {
+        // given
+        ShippingTracker tracker = createShippingTrackerWithId(1L, 100L);
+        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
+        when(requestFulfillmentAuthUseCase.requestAccessToken())
+                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
+                .thenReturn(createDeliveryStatusResult("100", "배송불가", "INV001", "CJ"));
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then
+        LocalDateTime expectedOccurredAt = LocalDateTime.now(clock);
+        verify(sendDeliveryFailureSlackAlertPort).sendDeliveryFailureAlert(
+                100L, "INV001", "CJ", expectedOccurredAt
+        );
+    }
+
+    @Test
+    @DisplayName("배송불가가 아닌 상태 전이에서는 Slack 알림을 발송하지 않는다")
+    void noSlackAlertWhenNotDeliveryFailed() {
+        // given
+        ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
+        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
+        when(requestFulfillmentAuthUseCase.requestAccessToken())
+                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
+                .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then
+        verifyNoInteractions(sendDeliveryFailureSlackAlertPort);
+    }
+
+    @Test
+    @DisplayName("Slack 알림 발송 실패 시 다른 건 처리에 영향을 주지 않는다")
+    void slackAlertFailureDoesNotBlockOtherTrackers() {
+        // given
+        ShippingTracker tracker1 = createShippingTrackerWithId(1L, 100L);
+        ShippingTracker tracker2 = createPreparingTrackerWithId(2L, 200L);
+        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker1, tracker2));
+        when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker1));
+        when(findShippingTrackerPort.findByOrderId(200L)).thenReturn(Optional.of(tracker2));
+        when(requestFulfillmentAuthUseCase.requestAccessToken())
+                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+
+        GetFulfillmentDeliveryStatusesResult result = GetFulfillmentDeliveryStatusesResult.of(2, List.of(
+                createDeliveryStatusInfo("100", "배송불가", "INV001", "CJ"),
+                createDeliveryStatusInfo("200", "집하완료", "INV002", "HANJIN")
+        ));
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any())).thenReturn(result);
+
+        LocalDateTime expectedOccurredAt = LocalDateTime.now(clock);
+        doThrow(new RuntimeException("Slack webhook failed"))
+                .when(sendDeliveryFailureSlackAlertPort)
+                .sendDeliveryFailureAlert(100L, "INV001", "CJ", expectedOccurredAt);
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then
+        verify(sendDeliveryFailureSlackAlertPort).sendDeliveryFailureAlert(
+                100L, "INV001", "CJ", expectedOccurredAt
+        );
+
+        ArgumentCaptor<ShippingTracker> captor = ArgumentCaptor.forClass(ShippingTracker.class);
+        verify(updateShippingTrackerPort).update(captor.capture());
+
+        ShippingTracker updatedTracker2 = captor.getValue();
+        assertThat(updatedTracker2.getOrderId()).isEqualTo(200L);
+        assertThat(updatedTracker2.isShipping()).isTrue();
+        assertThat(updatedTracker2.getTrackingNumber()).isEqualTo("INV002");
+    }
+
+    @Test
     @DisplayName("상태가 동일하면 lastPolledAt만 갱신하고 상태는 변경하지 않는다")
     void noTransitionWhenSameStatus() {
         // given
