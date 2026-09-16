@@ -5,6 +5,7 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfil
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsItemCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentGoodsItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentGoodsResult;
+import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentGoodsSyncedEventPort;
 import com.personal.marketnote.fulfillment.port.out.goods.SaveFulfillmentGoodsRegistrationPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentGoodsPort;
 import org.junit.jupiter.api.DisplayName;
@@ -33,6 +34,9 @@ class RegisterFulfillmentGoodsUseCaseTest {
 
     @Mock
     private SaveFulfillmentGoodsRegistrationPort saveFulfillmentGoodsRegistrationPort;
+
+    @Mock
+    private PublishFulfillmentGoodsSyncedEventPort publishFulfillmentGoodsSyncedEventPort;
 
     private RegisterFulfillmentGoodsCommand buildCommand(String productId) {
         RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
