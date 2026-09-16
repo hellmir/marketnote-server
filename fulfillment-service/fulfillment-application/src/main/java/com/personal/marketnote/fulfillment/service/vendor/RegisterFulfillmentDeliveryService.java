@@ -1,12 +1,15 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.FulfillmentDeliveryWorkStatusChangedEvent;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
+import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentWorkStatus;
 import com.personal.marketnote.fulfillment.mapper.FulfillmentCommandToStateMapper;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentDeliveryUseCase;
 import com.personal.marketnote.fulfillment.port.out.delivery.SaveFulfillmentDeliveryRegistrationPort;
+import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentDeliveryWorkStatusChangedEventPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentDeliveryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class RegisterFulfillmentDeliveryService implements RegisterFulfillmentDeliveryUseCase {
     private final RegisterFulfillmentDeliveryPort registerFulfillmentDeliveryPort;
     private final SaveFulfillmentDeliveryRegistrationPort saveFulfillmentDeliveryRegistrationPort;
+    private final PublishFulfillmentDeliveryWorkStatusChangedEventPort publishFulfillmentDeliveryWorkStatusChangedEventPort;
 
     @Override
     public RegisterFulfillmentDeliveryResult registerDelivery(RegisterFulfillmentDeliveryCommand command) {
@@ -33,6 +37,16 @@ public class RegisterFulfillmentDeliveryService implements RegisterFulfillmentDe
         );
         saveFulfillmentDeliveryRegistrationPort.save(registration);
 
-        return registerFulfillmentDeliveryPort.registerDelivery(command);
+        RegisterFulfillmentDeliveryResult result = registerFulfillmentDeliveryPort.registerDelivery(command);
+
+        Long orderId = Long.parseLong(command.deliveryRequests().getFirst().orderNumber());
+        publishFulfillmentDeliveryWorkStatusChangedEventPort.publish(
+                new FulfillmentDeliveryWorkStatusChangedEvent(
+                        orderId,
+                        FulfillmentWorkStatus.REGISTERED.name()
+                )
+        );
+
+        return result;
     }
 }

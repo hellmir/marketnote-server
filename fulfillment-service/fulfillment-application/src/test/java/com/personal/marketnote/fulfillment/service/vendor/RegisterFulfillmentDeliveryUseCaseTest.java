@@ -8,6 +8,7 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfil
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.out.delivery.SaveFulfillmentDeliveryRegistrationPort;
+import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentDeliveryWorkStatusChangedEventPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentDeliveryPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +36,9 @@ class RegisterFulfillmentDeliveryUseCaseTest {
 
     @Mock
     private SaveFulfillmentDeliveryRegistrationPort saveFulfillmentDeliveryRegistrationPort;
+
+    @Mock
+    private PublishFulfillmentDeliveryWorkStatusChangedEventPort publishFulfillmentDeliveryWorkStatusChangedEventPort;
 
     private RegisterFulfillmentDeliveryCommand buildCommand(String orderNumber) {
         RegisterFulfillmentDeliveryGoodsCommand goodsCommand = RegisterFulfillmentDeliveryGoodsCommand.of(
