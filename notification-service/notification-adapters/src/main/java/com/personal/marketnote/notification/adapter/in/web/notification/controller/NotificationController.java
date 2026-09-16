@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.in.web.notification.control
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetNotificationHistoryApiDocs;
+import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.MarkNotificationAsReadApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
 import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
 import com.personal.marketnote.notification.port.in.command.MarkNotificationAsReadCommand;
@@ -82,6 +83,7 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
+    @MarkNotificationAsReadApiDocs
     public ResponseEntity<BaseResponse<Void>> markNotificationAsRead(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @PathVariable("id") Long id
