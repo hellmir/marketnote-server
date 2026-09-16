@@ -13,6 +13,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentD
 import com.personal.marketnote.fulfillment.port.in.usecase.PollShippingStatusUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.event.PublishShippingStatusChangedEventPort;
+import com.personal.marketnote.fulfillment.port.out.notification.SendDeliveryFailureSlackAlertPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentDeliveryStatusesPort;
@@ -42,6 +43,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
     private final GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort;
     private final PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort;
+    private final SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort;
     private final Clock clock;
     private final TransactionTemplate transactionTemplate;
 
@@ -51,6 +53,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
             RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase,
             GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort,
             PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort,
+            SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort,
             Clock clock,
             PlatformTransactionManager transactionManager
     ) {
@@ -59,6 +62,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
         this.requestFulfillmentAuthUseCase = requestFulfillmentAuthUseCase;
         this.getDeliveryStatusesPort = getDeliveryStatusesPort;
         this.publishShippingStatusChangedEventPort = publishShippingStatusChangedEventPort;
+        this.sendDeliveryFailureSlackAlertPort = sendDeliveryFailureSlackAlertPort;
         this.clock = clock;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.transactionTemplate.setIsolationLevel(Isolation.READ_COMMITTED.value());
@@ -170,6 +174,12 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
         if (newStatus.isDeliveryFailed()) {
             tracker.markDeliveryFailed();
             publishStatusChanged(tracker);
+            sendDeliveryFailureSlackAlertPort.sendDeliveryFailureAlert(
+                    tracker.getOrderId(),
+                    tracker.getTrackingNumber(),
+                    tracker.getCarrierCode(),
+                    LocalDateTime.now(clock)
+            );
         }
     }
 

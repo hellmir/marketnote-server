@@ -107,6 +107,8 @@ fulfillment:
   delivery-polling:
     enabled: ${FULFILLMENT_DELIVERY_POLLING_ENABLED:false}
     interval-ms: ${FULFILLMENT_DELIVERY_POLLING_INTERVAL_MS:1800000}
+  slack:
+    webhook-url: ${FULFILLMENT_SLACK_WEBHOOK_URL:}
 
 outbox:
   enabled: ${OUTBOX_ENABLED:true}

@@ -11,6 +11,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeli
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.event.PublishShippingStatusChangedEventPort;
+import com.personal.marketnote.fulfillment.port.out.notification.SendDeliveryFailureSlackAlertPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentDeliveryStatusesPort;
@@ -60,6 +61,9 @@ class PollShippingStatusUseCaseTest {
     @Mock
     private PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort;
 
+    @Mock
+    private SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort;
+
     private final Clock clock = Clock.fixed(
             Instant.parse("2026-06-03T10:00:00Z"),
             ZoneId.of("Asia/Seoul")
@@ -74,6 +78,7 @@ class PollShippingStatusUseCaseTest {
                 requestFulfillmentAuthUseCase,
                 getDeliveryStatusesPort,
                 publishShippingStatusChangedEventPort,
+                sendDeliveryFailureSlackAlertPort,
                 clock,
                 transactionManager
         );
