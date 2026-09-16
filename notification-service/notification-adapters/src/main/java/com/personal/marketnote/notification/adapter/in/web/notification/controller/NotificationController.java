@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.in.web.notification.control
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetNotificationHistoryApiDocs;
+import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetUnreadNotificationCountApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.MarkNotificationAsReadApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
 import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
@@ -106,6 +107,7 @@ public class NotificationController {
     }
 
     @GetMapping("/unread-count")
+    @GetUnreadNotificationCountApiDocs
     public ResponseEntity<BaseResponse<GetUnreadNotificationCountResult>> getUnreadNotificationCount(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
