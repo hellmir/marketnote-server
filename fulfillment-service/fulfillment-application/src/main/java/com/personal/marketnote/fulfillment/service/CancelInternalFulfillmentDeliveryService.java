@@ -3,7 +3,6 @@ package com.personal.marketnote.fulfillment.service;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryRegistrationNotFoundException;
 import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfillmentDeliveryCommand;

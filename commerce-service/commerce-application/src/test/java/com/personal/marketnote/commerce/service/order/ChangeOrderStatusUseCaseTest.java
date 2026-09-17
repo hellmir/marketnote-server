@@ -27,9 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -624,7 +622,7 @@ class ChangeOrderStatusUseCaseTest {
     }
 
     private Order createOrderWithProductStatus(Long orderId, Long buyerId, OrderStatus orderStatus,
-                                                Long pricePolicyId, OrderStatus productStatus) {
+                                               Long pricePolicyId, OrderStatus productStatus) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -651,7 +649,7 @@ class ChangeOrderStatusUseCaseTest {
     }
 
     private Order createOrderWithSharer(Long orderId, Long buyerId, OrderStatus status,
-                                         Long pricePolicyId, UUID sharerKey) {
+                                        Long pricePolicyId, UUID sharerKey) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -679,7 +677,7 @@ class ChangeOrderStatusUseCaseTest {
     }
 
     private Order createOrderWithMultipleProducts(Long orderId, Long buyerId, OrderStatus status,
-                                                   Long pricePolicyId1, Long pricePolicyId2) {
+                                                  Long pricePolicyId1, Long pricePolicyId2) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -714,8 +712,8 @@ class ChangeOrderStatusUseCaseTest {
     }
 
     private Order createOrderWithSnapshotPoints(Long orderId, Long buyerId,
-                                                 Long pricePolicyId1, Long point1,
-                                                 Long pricePolicyId2, Long point2) {
+                                                Long pricePolicyId1, Long point1,
+                                                Long pricePolicyId2, Long point2) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)

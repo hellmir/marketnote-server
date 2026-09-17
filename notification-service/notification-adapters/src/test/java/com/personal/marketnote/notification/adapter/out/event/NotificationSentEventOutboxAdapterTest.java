@@ -105,7 +105,8 @@ class NotificationSentEventOutboxAdapterTest {
                 1, 0, LocalDateTime.of(2026, 4, 10, 16, 0)
         );
         when(objectMapper.writeValueAsString(event))
-                .thenThrow(new JsonProcessingException("test failure") {});
+                .thenThrow(new JsonProcessingException("test failure") {
+                });
 
         // when & then
         assertThatThrownBy(() -> adapter.publish(event))

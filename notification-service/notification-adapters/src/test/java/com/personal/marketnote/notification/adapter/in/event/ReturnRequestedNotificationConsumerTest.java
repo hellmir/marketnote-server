@@ -19,7 +19,8 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class ReturnRequestedNotificationConsumerTest {

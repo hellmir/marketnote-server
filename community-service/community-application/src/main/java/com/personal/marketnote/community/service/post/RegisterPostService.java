@@ -2,6 +2,7 @@ package com.personal.marketnote.community.service.post;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.community.domain.post.NoticePostCategory;
 import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.exception.InvalidPostContentContainsProfanityException;
 import com.personal.marketnote.community.exception.NotProductSellerException;
@@ -9,7 +10,6 @@ import com.personal.marketnote.community.mapper.PostCommandToStateMapper;
 import com.personal.marketnote.community.port.in.command.post.RegisterPostCommand;
 import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
 import com.personal.marketnote.community.port.in.usecase.post.RegisterPostUseCase;
-import com.personal.marketnote.community.domain.post.NoticePostCategory;
 import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
 import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;

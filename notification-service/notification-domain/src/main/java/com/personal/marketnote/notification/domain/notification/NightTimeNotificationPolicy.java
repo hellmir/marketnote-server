@@ -25,8 +25,8 @@ public class NightTimeNotificationPolicy {
     }
 
     public static LocalDateTime resolveScheduledAt(NotificationCategory category,
-                                                    LocalDateTime now,
-                                                    LocalDateTime requestedScheduledAt) {
+                                                   LocalDateTime now,
+                                                   LocalDateTime requestedScheduledAt) {
         if (!category.hasNightRestriction()) {
             return requestedScheduledAt;
         }

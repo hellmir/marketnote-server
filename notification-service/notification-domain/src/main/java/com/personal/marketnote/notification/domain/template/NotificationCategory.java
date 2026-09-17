@@ -11,7 +11,7 @@ public enum NotificationCategory {
     private final boolean adLabelRequired;
 
     NotificationCategory(String description, boolean consentRequired,
-                          boolean nightRestricted, boolean adLabelRequired) {
+                         boolean nightRestricted, boolean adLabelRequired) {
         this.description = description;
         this.consentRequired = consentRequired;
         this.nightRestricted = nightRestricted;

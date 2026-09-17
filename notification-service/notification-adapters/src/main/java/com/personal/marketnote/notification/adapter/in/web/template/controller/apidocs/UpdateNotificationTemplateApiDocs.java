@@ -19,33 +19,33 @@ import java.lang.annotation.*;
         summary = "(관리자) 알림 템플릿 수정",
         description = """
                 작성일자: 2026-06-03
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 알림 템플릿의 제목, 본문 템플릿, URL 템플릿을 수정합니다.
-
+                
                 - 템플릿 코드와 알림 유형은 변경할 수 없습니다.
-
+                
                 - 관리자만 가능합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | title | string | 제목 | Y | "수정된 알림 제목" |
                 | bodyTemplate | string | 본문 템플릿 | Y | "수정된 본문 {productName}" |
                 | urlTemplate | string | URL 템플릿 | N | "/order/{orderId}" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 찾을 수 없음 / 500: 그 외 |
@@ -53,9 +53,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-06-03T10:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "알림 템플릿 수정 성공" |
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 템플릿 ID | 1 |

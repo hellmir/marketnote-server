@@ -2,7 +2,6 @@ package com.personal.marketnote.notification.adapter.in.web.notification.control
 
 import com.personal.marketnote.common.adapter.in.api.schema.StringResponseSchema;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,32 +17,32 @@ import java.lang.annotation.*;
         summary = "알림 이력 조회",
         description = """
                 작성일자: 2026-06-03
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 인증된 사용자의 알림 발송 이력을 커서 기반 페이징으로 조회합니다.
-
+                
                 - 최신순(id DESC)으로 정렬되며, 기본 페이지 크기는 20건입니다.
-
+                
                 - 첫 페이지 요청 시 totalElements를 포함하여 반환합니다.
-
+                
                 ---
-
+                
                 ## Request Parameters
-
+                
                 | **파라미터** | **타입** | **필수** | **기본값** | **설명** |
                 | --- | --- | --- | --- | --- |
                 | cursor | number | N | - | 이전 페이지 마지막 항목의 ID |
                 | page-size | number | N | 20 | 페이지 크기 (1~100) |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200 |
@@ -51,18 +50,18 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-06-03T10:00:00.000" |
                 | content | object | 알림 이력 응답 | { notifications: { ... } } |
                 | message | string | 처리 결과 | "알림 이력 조회 성공" |
-
+                
                 ### Response > content > notifications
-
+                
                 | **키** | **타입** | **설명** |
                 | --- | --- | --- |
                 | totalElements | number | 전체 건수 (첫 페이지만) |
                 | hasNext | boolean | 다음 페이지 존재 여부 |
                 | nextCursor | number | 다음 페이지 커서 |
                 | items[] | array | 알림 항목 목록 |
-
+                
                 ### Response > content > notifications > items[]
-
+                
                 | **키** | **타입** | **설명** |
                 | --- | --- | --- |
                 | id | number | 알림 ID |

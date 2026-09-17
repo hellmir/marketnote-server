@@ -1,6 +1,8 @@
 package com.personal.marketnote.notification.service.notification;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.device.DeviceToken;
 import com.personal.marketnote.notification.domain.notification.*;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
@@ -14,21 +16,17 @@ import com.personal.marketnote.notification.port.in.usecase.notification.SendBat
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
 import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
+import com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
-import com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort;
 import com.personal.marketnote.notification.port.out.result.SendBatchPushNotificationResult;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
-import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.notification.domain.notification.InvalidNotificationException;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -131,8 +129,8 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     }
 
     private Set<Long> resolveConsentedUserIds(NotificationCategory category,
-                                               List<Long> userIds,
-                                               NotificationTemplate template) {
+                                              List<Long> userIds,
+                                              NotificationTemplate template) {
         if (!category.requiresConsent()) {
             return new HashSet<>(userIds);
         }
@@ -145,10 +143,10 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     }
 
     private List<Notification> createNotifications(List<Long> userIds,
-                                                    NotificationTemplate template,
-                                                    String title, String body, String landingUrl,
-                                                    DeliveryChannel deliveryChannel,
-                                                    LocalDateTime scheduledAt) {
+                                                   NotificationTemplate template,
+                                                   String title, String body, String landingUrl,
+                                                   DeliveryChannel deliveryChannel,
+                                                   LocalDateTime scheduledAt) {
         return userIds.stream()
                 .map(userId -> {
                     NotificationCreateState state = NotificationCreateState.builder()
@@ -166,8 +164,8 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     }
 
     private List<Notification> createSkippedNotifications(List<Long> userIds,
-                                                            NotificationTemplate template,
-                                                            DeliveryChannel deliveryChannel) {
+                                                          NotificationTemplate template,
+                                                          DeliveryChannel deliveryChannel) {
         return userIds.stream()
                 .map(userId -> {
                     NotificationCreateState state = NotificationCreateState.builder()
@@ -263,7 +261,7 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     }
 
     private Set<Long> processFailedTokens(List<SendBatchPushNotificationResult.FailedToken> failedTokens,
-                                            Map<String, DeviceToken> tokenMap) {
+                                          Map<String, DeviceToken> tokenMap) {
         Set<Long> failedTokenIds = new HashSet<>();
         for (SendBatchPushNotificationResult.FailedToken failed : failedTokens) {
             DeviceToken deviceToken = tokenMap.get(failed.deviceToken());
@@ -279,15 +277,15 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
     }
 
     private SendBatchNotificationResult buildResult(int totalUserCount, int sentUserCount,
-                                                      int skippedCount, int failedUserCount,
-                                                      int sentDeviceCount, int failedDeviceCount) {
+                                                    int skippedCount, int failedUserCount,
+                                                    int sentDeviceCount, int failedDeviceCount) {
         return new SendBatchNotificationResult(
                 totalUserCount, sentUserCount, skippedCount,
                 failedUserCount, sentDeviceCount, failedDeviceCount);
     }
 
     private void publishSentEvents(Collection<Notification> notifications,
-                                     int sentDeviceCount, int failedDeviceCount) {
+                                   int sentDeviceCount, int failedDeviceCount) {
         LocalDateTime now = LocalDateTime.now(clock);
         for (Notification notification : notifications) {
             if (!notification.getSendStatus().isSent()) {

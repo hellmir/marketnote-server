@@ -2,13 +2,12 @@ package com.personal.marketnote.notification.adapter.out.persistence.notificatio
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.entity.NotificationJpaEntity;
+import com.personal.marketnote.notification.domain.notification.SendStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import com.personal.marketnote.notification.domain.notification.SendStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

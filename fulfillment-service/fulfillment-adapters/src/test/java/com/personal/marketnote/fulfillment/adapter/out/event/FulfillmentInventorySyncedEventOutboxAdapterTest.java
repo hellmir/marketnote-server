@@ -87,7 +87,8 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
             // given
             FulfillmentInventorySyncedEvent event = new FulfillmentInventorySyncedEvent(List.of());
             when(objectMapper.writeValueAsString(event))
-                    .thenThrow(new JsonProcessingException("직렬화 실패") {});
+                    .thenThrow(new JsonProcessingException("직렬화 실패") {
+                    });
 
             // when & then
             assertThatThrownBy(() -> adapter.publish(event))

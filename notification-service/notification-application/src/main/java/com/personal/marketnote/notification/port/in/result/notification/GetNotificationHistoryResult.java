@@ -11,9 +11,9 @@ public record GetNotificationHistoryResult(
         List<NotificationItemResult> notifications
 ) {
     public static GetNotificationHistoryResult from(Long totalElements,
-                                                     boolean hasNext,
-                                                     Long nextCursor,
-                                                     List<Notification> notifications) {
+                                                    boolean hasNext,
+                                                    Long nextCursor,
+                                                    List<Notification> notifications) {
         List<NotificationItemResult> items = notifications.stream()
                 .map(NotificationItemResult::from)
                 .toList();

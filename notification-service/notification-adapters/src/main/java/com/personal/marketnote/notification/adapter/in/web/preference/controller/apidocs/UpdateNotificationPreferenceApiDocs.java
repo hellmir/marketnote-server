@@ -19,32 +19,32 @@ import java.lang.annotation.*;
         summary = "알림 수신 설정 변경",
         description = """
                 작성일자: 2026-06-03
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 인증된 사용자의 특정 알림 타입의 수신 설정을 변경합니다.
-
+                
                 - enabled=true로 변경 시 consentedAt(수신 동의 시점)이 현재 시점으로 기록됩니다.
-
+                
                 - 광고성 알림(EVENT 등)의 수신 동의 시점 기록은 정보통신망법 준수를 위한 것입니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | notificationType | string | 알림 타입 | Y | "EVENT" |
                 | enabled | boolean | 수신 여부 | Y | true |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 404: 설정 없음 / 500: 그 외 |

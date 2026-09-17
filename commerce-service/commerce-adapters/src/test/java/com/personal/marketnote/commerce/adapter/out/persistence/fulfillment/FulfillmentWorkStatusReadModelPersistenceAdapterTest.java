@@ -5,7 +5,6 @@ import com.personal.marketnote.commerce.adapter.out.persistence.fulfillment.repo
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.BeforeEach;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -19,25 +19,25 @@ import java.lang.annotation.*;
         summary = "(관리자) 알림 템플릿 등록",
         description = """
                 작성일자: 2026-06-03
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 알림 템플릿을 등록합니다.
-
+                
                 - 템플릿 코드는 고유해야 합니다.
-
+                
                 - 본문 템플릿에는 {변수명} 형식으로 치환 변수를 포함할 수 있습니다.
-
+                
                 - 관리자만 가능합니다.
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | templateCode | string | 템플릿 코드 | Y | "ORDER_PAYMENT_COMPLETED" |
@@ -46,11 +46,11 @@ import java.lang.annotation.*;
                 | title | string | 제목 | Y | "주문이 완료되었습니다" |
                 | bodyTemplate | string | 본문 템플릿 | Y | "{productName} 외 {count}건이 결제되었습니다." |
                 | urlTemplate | string | URL 템플릿 | N | "/order/{orderId}" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 / 500: 그 외 |
@@ -58,9 +58,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-06-03T10:00:00.000" |
                 | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "알림 템플릿 등록 성공" |
-
+                
                 ### Response > content
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 생성된 템플릿 ID | 1 |

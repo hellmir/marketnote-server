@@ -1,10 +1,10 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.fulfillment;
 
-import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.commerce.adapter.out.persistence.fulfillment.entity.FulfillmentWorkStatusReadModelJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.fulfillment.repository.FulfillmentWorkStatusReadModelJpaRepository;
 import com.personal.marketnote.commerce.port.out.fulfillment.GetFulfillmentWorkStatusPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.SaveFulfillmentWorkStatusReadModelPort;
+import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;

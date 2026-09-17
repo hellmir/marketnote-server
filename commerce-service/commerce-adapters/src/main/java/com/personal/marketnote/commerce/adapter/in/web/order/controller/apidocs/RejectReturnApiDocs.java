@@ -20,50 +20,50 @@ import java.lang.annotation.*;
         summary = "반품 불가 판정 (관리자/판매자 전용)",
         description = """
                 작성일자: 2026-09-03
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 관리자/판매자가 반품 요청된 주문을 반품 불가로 판정합니다.
-
+                
                 - 주문 상태를 RETURN_REJECTED(반품 불가)로 변경합니다.
-
+                
                 - 반품 요청(RETURN_REQUESTED) 상태에서만 반품 불가 판정이 가능합니다.
-
+                
                 - 반품 불가 판정 시 ReturnRejectedEvent를 Kafka로 발행합니다.
-
+                
                 - 반품 불가 사유 카테고리 목록
-
+                
                     - "SIMPLE_CHANGE_OF_MIND": 단순 변심
-
+                
                     - "PRODUCT_DAMAGE": 상품 파손/변질
-
+                
                     - "PRODUCT_MISMATCH": 상품이 설명과 다름
-
+                
                     - "WRONG_DELIVERY": 다른 상품이 배송됨
-
+                
                     - "MISSING_COMPONENTS": 상품/구성품 누락
-
+                
                     - "MISTAKE": 주문 실수
-
+                
                     - "ETC": 직접 입력
-
+                
                 ---
-
+                
                 ## Request
-
+                
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | reasonCategory | string | 반품 불가 사유 카테고리 | N | "ETC" |
                 | reason | string | 반품 불가 사유 | N | "검수 결과 상품 하자 없음" |
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 / 500: 그 외 |

@@ -17,23 +17,23 @@ import java.lang.annotation.*;
         summary = "알림 수신 설정 조회",
         description = """
                 작성일자: 2026-06-03
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 인증된 사용자의 알림 수신 설정 전체 목록을 조회합니다.
-
+                
                 - NotificationType별 수신 여부(enabled)와 수신 동의 시점(consentedAt)을 반환합니다.
-
+                
                 - 회원 가입 시 모든 알림 타입이 enabled=true로 초기화됩니다.
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 401: 인증 실패 / 500: 그 외 |
@@ -41,9 +41,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-06-03T10:00:00.000" |
                 | content | array | 알림 수신 설정 목록 | [ ... ] |
                 | message | string | 처리 결과 | "알림 수신 설정 조회 성공" |
-
+                
                 ### Response > content[]
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | notificationType | string | 알림 타입 | "ORDER_PAYMENT_COMPLETED" |
