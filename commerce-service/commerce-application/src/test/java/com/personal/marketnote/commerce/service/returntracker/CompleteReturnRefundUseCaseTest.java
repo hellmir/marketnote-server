@@ -34,8 +34,8 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CompleteReturnRefundService 테스트")
-class CompleteReturnRefundServiceTest {
+@DisplayName("CompleteReturnRefundUseCase 테스트")
+class CompleteReturnRefundUseCaseTest {
 
     @InjectMocks
     private CompleteReturnRefundService service;

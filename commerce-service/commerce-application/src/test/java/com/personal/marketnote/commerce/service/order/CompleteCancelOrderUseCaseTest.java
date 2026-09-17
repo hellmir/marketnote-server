@@ -28,8 +28,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CompleteCancelOrderService 테스트")
-class CompleteCancelOrderServiceTest {
+@DisplayName("CompleteCancelOrderUseCase 테스트")
+class CompleteCancelOrderUseCaseTest {
 
     @InjectMocks
     private CompleteCancelOrderService service;
