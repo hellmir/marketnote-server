@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.service.notification;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import com.personal.marketnote.notification.domain.device.DeviceToken;
 import com.personal.marketnote.notification.domain.notification.*;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
@@ -11,7 +12,6 @@ import com.personal.marketnote.notification.domain.template.TemplateRenderer;
 import com.personal.marketnote.notification.port.in.command.SendNotificationCommand;
 import com.personal.marketnote.notification.port.in.result.notification.SendNotificationResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.SendNotificationUseCase;
-import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
 import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
@@ -102,7 +102,7 @@ public class SendNotificationService implements SendNotificationUseCase {
     }
 
     private boolean shouldSkipByConsent(NotificationCategory category, Long userId,
-                                         NotificationTemplate template) {
+                                        NotificationTemplate template) {
         if (!category.requiresConsent()) {
             return false;
         }
@@ -113,7 +113,7 @@ public class SendNotificationService implements SendNotificationUseCase {
     }
 
     private SendNotificationResult saveSkippedNotification(SendNotificationCommand command,
-                                                            NotificationTemplate template) {
+                                                           NotificationTemplate template) {
         DeliveryChannel deliveryChannel = DeliveryChannel.valueOf(command.deliveryChannel());
         NotificationCreateState state = NotificationCreateState.builder()
                 .userId(command.userId())
@@ -131,10 +131,10 @@ public class SendNotificationService implements SendNotificationUseCase {
     }
 
     private Notification createAndSaveNotification(SendNotificationCommand command,
-                                                    NotificationTemplate template,
-                                                    String title, String body, String landingUrl,
-                                                    DeliveryChannel deliveryChannel,
-                                                    LocalDateTime scheduledAt) {
+                                                   NotificationTemplate template,
+                                                   String title, String body, String landingUrl,
+                                                   DeliveryChannel deliveryChannel,
+                                                   LocalDateTime scheduledAt) {
         NotificationCreateState state = NotificationCreateState.builder()
                 .userId(command.userId())
                 .notificationType(template.getNotificationType())
@@ -150,8 +150,8 @@ public class SendNotificationService implements SendNotificationUseCase {
     }
 
     private SendNotificationResult sendPushNotifications(Notification notification,
-                                                          String title, String body, String landingUrl,
-                                                          Long userId) {
+                                                         String title, String body, String landingUrl,
+                                                         Long userId) {
         List<DeviceToken> deviceTokens = findDeviceTokenPort.findActiveByUserId(userId);
 
         if (deviceTokens.isEmpty()) {

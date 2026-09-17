@@ -4,7 +4,10 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.domain.device.DeviceToken;
 import com.personal.marketnote.notification.domain.device.DeviceTokenSnapshotState;
 import com.personal.marketnote.notification.domain.device.Platform;
-import com.personal.marketnote.notification.domain.notification.*;
+import com.personal.marketnote.notification.domain.notification.InvalidNotificationException;
+import com.personal.marketnote.notification.domain.notification.Notification;
+import com.personal.marketnote.notification.domain.notification.NotificationSnapshotState;
+import com.personal.marketnote.notification.domain.notification.SendStatus;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
 import com.personal.marketnote.notification.domain.preference.NotificationPreferenceSnapshotState;
 import com.personal.marketnote.notification.domain.template.*;
@@ -25,14 +28,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,8 +44,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
-
-import com.personal.marketnote.notification.domain.notification.InvalidNotificationException;
 
 @ExtendWith(MockitoExtension.class)
 class SendBatchNotificationUseCaseTest {

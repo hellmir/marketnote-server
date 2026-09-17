@@ -13,10 +13,9 @@ import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.SaveDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.device.UpdateDeviceTokenPort;
 import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDateTime;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

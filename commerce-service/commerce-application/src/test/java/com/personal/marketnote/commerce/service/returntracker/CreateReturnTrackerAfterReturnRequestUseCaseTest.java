@@ -5,8 +5,6 @@ import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillment
 import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryResult;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
 import org.junit.jupiter.api.DisplayName;
-
-import java.io.IOException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatCode;

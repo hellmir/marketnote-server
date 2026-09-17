@@ -4,7 +4,6 @@ import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
-import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerCreateState;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
 import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;

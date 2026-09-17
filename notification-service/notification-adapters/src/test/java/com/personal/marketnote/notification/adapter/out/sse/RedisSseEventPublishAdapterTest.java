@@ -50,7 +50,8 @@ class RedisSseEventPublishAdapterTest {
     void shouldNotPublishWhenSerializationFails() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(any(SseEventMessage.class)))
-                .thenThrow(new JsonProcessingException("serialization error") {});
+                .thenThrow(new JsonProcessingException("serialization error") {
+                });
 
         // when
         redisSseEventPublishAdapter.publish(1L, "UNREAD_COUNT_CHANGED", "{}");

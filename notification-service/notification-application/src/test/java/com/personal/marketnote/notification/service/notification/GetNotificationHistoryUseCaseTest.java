@@ -1,7 +1,10 @@
 package com.personal.marketnote.notification.service.notification;
 
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.notification.domain.notification.*;
+import com.personal.marketnote.notification.domain.notification.DeliveryChannel;
+import com.personal.marketnote.notification.domain.notification.Notification;
+import com.personal.marketnote.notification.domain.notification.NotificationSnapshotState;
+import com.personal.marketnote.notification.domain.notification.SendStatus;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;

@@ -322,8 +322,8 @@ class ShippingAddressRegionClassifierTest {
     }
 
     private RemoteAreaJpaEntity createRemoteAreaEntity(String province, String district,
-                                                        String village, String subarea,
-                                                        ShippingAddressRegionType regionType) {
+                                                       String village, String subarea,
+                                                       ShippingAddressRegionType regionType) {
         RemoteArea remoteArea = RemoteArea.from(RemoteAreaSnapshotState.builder()
                 .id(1L)
                 .province(province)

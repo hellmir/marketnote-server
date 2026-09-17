@@ -1,7 +1,5 @@
 package com.personal.marketnote.commerce.service.returntracker;
 
-import com.personal.marketnote.commerce.domain.returntracker.ReturnInspectionStatus;
-import com.personal.marketnote.commerce.domain.returntracker.ReturnRefundStatus;
 import com.personal.marketnote.commerce.domain.returntracker.ReturnTracker;
 import com.personal.marketnote.commerce.port.out.returntracker.SaveReturnTrackerPort;
 import org.junit.jupiter.api.DisplayName;

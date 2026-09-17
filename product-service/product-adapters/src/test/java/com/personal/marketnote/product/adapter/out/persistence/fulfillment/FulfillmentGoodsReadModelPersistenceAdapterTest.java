@@ -68,15 +68,15 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
                 null, null, null, null, null,
                 null, "Y", null, null, "Y",
                 null, List.of(
-                        new FulfillmentGoodsSyncedEvent.GoodsElementItem(
-                                "ELEM001", customerGoodsCode, "8801111111111",
-                                "구성품A", "SINGLE", "단품", 2
-                        ),
-                        new FulfillmentGoodsSyncedEvent.GoodsElementItem(
-                                "ELEM002", customerGoodsCode, "8802222222222",
-                                "구성품B", "SINGLE", "단품", 1
-                        )
+                new FulfillmentGoodsSyncedEvent.GoodsElementItem(
+                        "ELEM001", customerGoodsCode, "8801111111111",
+                        "구성품A", "SINGLE", "단품", 2
+                ),
+                new FulfillmentGoodsSyncedEvent.GoodsElementItem(
+                        "ELEM002", customerGoodsCode, "8802222222222",
+                        "구성품B", "SINGLE", "단품", 1
                 )
+        )
         );
     }
 

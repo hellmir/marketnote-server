@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.FulfillmentInventorySyncedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
@@ -11,7 +12,6 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFulfillmen
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentStockInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.*;
-import com.personal.marketnote.common.kafka.event.FulfillmentInventorySyncedEvent;
 import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentInventorySyncedEventPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;

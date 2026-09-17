@@ -80,7 +80,7 @@ public class ShippingAddressRegionClassifier implements ClassifyShippingAddressR
     }
 
     private ShippingAddressRegionType resolveHighestPriority(List<RemoteAreaJpaEntity> remoteAreas,
-                                                              String village, String subarea) {
+                                                             String village, String subarea) {
         ShippingAddressRegionType result = null;
 
         for (RemoteAreaJpaEntity remoteArea : remoteAreas) {

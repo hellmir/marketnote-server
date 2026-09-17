@@ -17,23 +17,23 @@ import java.lang.annotation.*;
         summary = "(관리자) 알림 템플릿 전체 조회",
         description = """
                 작성일자: 2026-06-03
-
+                
                 작성자: 성효빈
-
+                
                 ---
-
+                
                 ## Description
-
+                
                 - 활성화된 알림 템플릿 전체를 조회합니다.
-
+                
                 - 최신순으로 정렬됩니다.
-
+                
                 - 관리자만 가능합니다.
-
+                
                 ---
-
+                
                 ## Response
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | 상태 코드 | 200: 성공 / 401: 인증 실패 / 403: 인가 실패 / 500: 그 외 |
@@ -41,9 +41,9 @@ import java.lang.annotation.*;
                 | timestamp | string(datetime) | 응답 일시 | "2026-06-03T10:00:00.000" |
                 | content | array | 템플릿 목록 | [ ... ] |
                 | message | string | 처리 결과 | "알림 템플릿 전체 조회 성공" |
-
+                
                 ### Response > content[]
-
+                
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 템플릿 ID | 1 |

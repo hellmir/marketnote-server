@@ -118,7 +118,8 @@ class ShippingStatusEventOutboxAdapterTest {
                 LocalDateTime.of(2026, 4, 9, 14, 0)
         );
         when(objectMapper.writeValueAsString(event))
-                .thenThrow(new JsonProcessingException("test failure") {});
+                .thenThrow(new JsonProcessingException("test failure") {
+                });
 
         // when & then
         assertThatThrownBy(() -> adapter.publish(event))

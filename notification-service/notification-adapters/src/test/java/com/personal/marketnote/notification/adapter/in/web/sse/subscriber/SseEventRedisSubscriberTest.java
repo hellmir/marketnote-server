@@ -55,7 +55,8 @@ class SseEventRedisSubscriberTest {
         Message message = new DefaultMessage("sse:notification-events".getBytes(), invalidMessage.getBytes());
 
         when(objectMapper.readValue(invalidMessage, SseEventMessage.class))
-                .thenThrow(new JsonProcessingException("parse error") {});
+                .thenThrow(new JsonProcessingException("parse error") {
+                });
 
         // when
         sseEventRedisSubscriber.onMessage(message, null);
