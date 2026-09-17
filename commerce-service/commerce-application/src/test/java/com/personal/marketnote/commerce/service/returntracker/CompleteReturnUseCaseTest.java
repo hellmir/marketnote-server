@@ -29,8 +29,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CompleteReturnService 테스트")
-class CompleteReturnServiceTest {
+@DisplayName("CompleteReturnUseCase 테스트")
+class CompleteReturnUseCaseTest {
 
     @InjectMocks
     private CompleteReturnService service;

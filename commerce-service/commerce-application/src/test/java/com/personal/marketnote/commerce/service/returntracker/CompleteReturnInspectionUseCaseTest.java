@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CompleteReturnInspectionService 테스트")
-class CompleteReturnInspectionServiceTest {
+@DisplayName("CompleteReturnInspectionUseCase 테스트")
+class CompleteReturnInspectionUseCaseTest {
 
     @InjectMocks
     private CompleteReturnInspectionService service;
