@@ -44,6 +44,7 @@ public class UserPoint {
     public static UserPoint from(UserPointSnapshotState state) {
         return UserPoint.builder()
                 .userId(state.getUserId())
+                .userKey(state.getUserKey())
                 .amount(PointAmount.of(String.valueOf(state.getAmount())))
                 .addExpectedAmount(state.getAddExpectedAmount())
                 .expireExpectedAmount(state.getExpireExpectedAmount())
