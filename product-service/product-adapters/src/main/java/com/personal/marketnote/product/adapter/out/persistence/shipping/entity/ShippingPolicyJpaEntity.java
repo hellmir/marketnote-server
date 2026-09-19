@@ -42,18 +42,18 @@ public class ShippingPolicyJpaEntity extends BaseGeneralEntity {
         return ShippingPolicyJpaEntity.builder()
                 .sellerId(policy.getSellerId())
                 .deliveryCompany(policy.getDeliveryCompany())
-                .shippingFee(policy.getShippingFee())
-                .freeShippingThreshold(policy.getFreeShippingThreshold())
-                .jejuSurcharge(policy.getJejuSurcharge())
-                .islandSurcharge(policy.getIslandSurcharge())
+                .shippingFee(policy.getShippingFee().getValue())
+                .freeShippingThreshold(policy.getFreeShippingThreshold().getValue())
+                .jejuSurcharge(policy.getJejuSurcharge().getValue())
+                .islandSurcharge(policy.getIslandSurcharge().getValue())
                 .build();
     }
 
     public void updateFrom(ShippingPolicy policy) {
         this.deliveryCompany = policy.getDeliveryCompany();
-        this.shippingFee = policy.getShippingFee();
-        this.freeShippingThreshold = policy.getFreeShippingThreshold();
-        this.jejuSurcharge = policy.getJejuSurcharge();
-        this.islandSurcharge = policy.getIslandSurcharge();
+        this.shippingFee = policy.getShippingFee().getValue();
+        this.freeShippingThreshold = policy.getFreeShippingThreshold().getValue();
+        this.jejuSurcharge = policy.getJejuSurcharge().getValue();
+        this.islandSurcharge = policy.getIslandSurcharge().getValue();
     }
 }

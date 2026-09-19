@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.domain.shipping;
 
 import com.personal.marketnote.common.domain.BaseDomain;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -14,10 +15,10 @@ public class ShippingPolicy extends BaseDomain {
     private Long id;
     private Long sellerId;
     private String deliveryCompany;
-    private Long shippingFee;
-    private Long freeShippingThreshold;
-    private Long jejuSurcharge;
-    private Long islandSurcharge;
+    private Money shippingFee;
+    private Money freeShippingThreshold;
+    private Money jejuSurcharge;
+    private Money islandSurcharge;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -33,10 +34,10 @@ public class ShippingPolicy extends BaseDomain {
         ShippingPolicy policy = ShippingPolicy.builder()
                 .sellerId(state.getSellerId())
                 .deliveryCompany(state.getDeliveryCompany())
-                .shippingFee(state.getShippingFee())
-                .freeShippingThreshold(state.getFreeShippingThreshold())
-                .jejuSurcharge(resolvedJejuSurcharge)
-                .islandSurcharge(resolvedIslandSurcharge)
+                .shippingFee(Money.of(state.getShippingFee()))
+                .freeShippingThreshold(Money.of(state.getFreeShippingThreshold()))
+                .jejuSurcharge(Money.of(resolvedJejuSurcharge))
+                .islandSurcharge(Money.of(resolvedIslandSurcharge))
                 .build();
         policy.activate();
         return policy;
@@ -47,10 +48,10 @@ public class ShippingPolicy extends BaseDomain {
                 .id(state.getId())
                 .sellerId(state.getSellerId())
                 .deliveryCompany(state.getDeliveryCompany())
-                .shippingFee(state.getShippingFee())
-                .freeShippingThreshold(state.getFreeShippingThreshold())
-                .jejuSurcharge(state.getJejuSurcharge())
-                .islandSurcharge(state.getIslandSurcharge())
+                .shippingFee(Money.of(state.getShippingFee()))
+                .freeShippingThreshold(Money.of(state.getFreeShippingThreshold()))
+                .jejuSurcharge(resolveDefaultMoneyFromSnapshot(state.getJejuSurcharge()))
+                .islandSurcharge(resolveDefaultMoneyFromSnapshot(state.getIslandSurcharge()))
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -69,10 +70,10 @@ public class ShippingPolicy extends BaseDomain {
         validateIslandSurcharge(resolvedIslandSurcharge);
 
         this.deliveryCompany = deliveryCompany;
-        this.shippingFee = shippingFee;
-        this.freeShippingThreshold = freeShippingThreshold;
-        this.jejuSurcharge = resolvedJejuSurcharge;
-        this.islandSurcharge = resolvedIslandSurcharge;
+        this.shippingFee = Money.of(shippingFee);
+        this.freeShippingThreshold = Money.of(freeShippingThreshold);
+        this.jejuSurcharge = Money.of(resolvedJejuSurcharge);
+        this.islandSurcharge = Money.of(resolvedIslandSurcharge);
     }
 
     @Override
@@ -80,13 +81,13 @@ public class ShippingPolicy extends BaseDomain {
         super.deactivate();
     }
 
-    public boolean isFreeShipping(long orderAmount) {
-        return orderAmount >= freeShippingThreshold;
+    public boolean isFreeShipping(Money orderAmount) {
+        return orderAmount.isGreaterThanOrEqual(freeShippingThreshold);
     }
 
-    public long calculateShippingFee(long orderAmount) {
+    public Money calculateShippingFee(Money orderAmount) {
         if (isFreeShipping(orderAmount)) {
-            return 0L;
+            return Money.zero();
         }
         return shippingFee;
     }
@@ -120,5 +121,12 @@ public class ShippingPolicy extends BaseDomain {
             return 0L;
         }
         return surcharge;
+    }
+
+    private static Money resolveDefaultMoneyFromSnapshot(Long surcharge) {
+        if (FormatValidator.hasNoValue(surcharge)) {
+            return Money.zero();
+        }
+        return Money.of(surcharge);
     }
 }

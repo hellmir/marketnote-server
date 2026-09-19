@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.domain.pricepolicy;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionSnapshotState;
 import com.personal.marketnote.product.domain.product.Product;
@@ -34,8 +35,8 @@ class PricePolicyTest {
         PricePolicy pricePolicy = PricePolicy.from(state);
 
         assertThat(pricePolicy.getProductId()).isEqualTo(1L);
-        assertThat(pricePolicy.getPrice()).isEqualTo(10000L);
-        assertThat(pricePolicy.getDiscountPrice()).isEqualTo(8000L);
+        assertThat(pricePolicy.getPrice()).isEqualTo(Money.of(10000L));
+        assertThat(pricePolicy.getDiscountPrice()).isEqualTo(Money.of(8000L));
     }
 
     @Test
@@ -72,7 +73,7 @@ class PricePolicyTest {
 
         assertThat(pricePolicy.getId()).isEqualTo(10L);
         assertThat(pricePolicy.getProductId()).isEqualTo(1L);
-        assertThat(pricePolicy.getPrice()).isEqualTo(15000L);
+        assertThat(pricePolicy.getPrice()).isEqualTo(Money.of(15000L));
         assertThat(pricePolicy.getStatus()).isEqualTo(EntityStatus.ACTIVE);
         assertThat(pricePolicy.getOptionIds()).containsExactly(1L, 2L);
     }

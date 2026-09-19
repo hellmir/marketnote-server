@@ -45,16 +45,16 @@ class GetPricePoliciesUseCaseTest {
         GetProductPricePolicyWithOptionsResult item2 = result.policies().getLast();
 
         assertThat(item1.id()).isEqualTo(policy1.getId());
-        assertThat(item1.price()).isEqualTo(policy1.getPrice());
-        assertThat(item1.discountPrice()).isEqualTo(policy1.getDiscountPrice());
-        assertThat(item1.accumulatedPoint()).isEqualTo(policy1.getAccumulatedPoint());
+        assertThat(item1.price()).isEqualTo(policy1.getPrice().getValue());
+        assertThat(item1.discountPrice()).isEqualTo(policy1.getDiscountPrice().getValue());
+        assertThat(item1.accumulatedPoint()).isEqualTo(policy1.getAccumulatedPoint().getValue());
         assertThat(item1.discountRate()).isEqualTo(policy1.getDiscountRate());
         assertThat(item1.optionIds()).containsExactlyElementsOf(policy1.getOptionIds());
 
         assertThat(item2.id()).isEqualTo(policy2.getId());
-        assertThat(item2.price()).isEqualTo(policy2.getPrice());
-        assertThat(item2.discountPrice()).isEqualTo(policy2.getDiscountPrice());
-        assertThat(item2.accumulatedPoint()).isEqualTo(policy2.getAccumulatedPoint());
+        assertThat(item2.price()).isEqualTo(policy2.getPrice().getValue());
+        assertThat(item2.discountPrice()).isEqualTo(policy2.getDiscountPrice().getValue());
+        assertThat(item2.accumulatedPoint()).isEqualTo(policy2.getAccumulatedPoint().getValue());
         assertThat(item2.discountRate()).isEqualTo(policy2.getDiscountRate());
         assertThat(item2.optionIds()).containsExactlyElementsOf(policy2.getOptionIds());
     }

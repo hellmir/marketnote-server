@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.domain.shipping;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,8 +34,8 @@ class ShippingPolicyTest {
             // then
             assertThat(policy.getSellerId()).isEqualTo(1L);
             assertThat(policy.getDeliveryCompany()).isEqualTo("한진택배");
-            assertThat(policy.getShippingFee()).isEqualTo(3000L);
-            assertThat(policy.getFreeShippingThreshold()).isEqualTo(20000L);
+            assertThat(policy.getShippingFee()).isEqualTo(Money.of(3000L));
+            assertThat(policy.getFreeShippingThreshold()).isEqualTo(Money.of(20000L));
             assertThat(policy.isActive()).isTrue();
         }
 
@@ -85,8 +86,8 @@ class ShippingPolicyTest {
             ShippingPolicy policy = ShippingPolicy.from(state);
 
             // then
-            assertThat(policy.getShippingFee()).isZero();
-            assertThat(policy.getFreeShippingThreshold()).isZero();
+            assertThat(policy.getShippingFee()).isEqualTo(Money.zero());
+            assertThat(policy.getFreeShippingThreshold()).isEqualTo(Money.zero());
         }
 
         @Test
@@ -106,8 +107,8 @@ class ShippingPolicyTest {
             ShippingPolicy policy = ShippingPolicy.from(state);
 
             // then
-            assertThat(policy.getJejuSurcharge()).isEqualTo(3000L);
-            assertThat(policy.getIslandSurcharge()).isEqualTo(5000L);
+            assertThat(policy.getJejuSurcharge()).isEqualTo(Money.of(3000L));
+            assertThat(policy.getIslandSurcharge()).isEqualTo(Money.of(5000L));
         }
 
         @Test
@@ -127,8 +128,8 @@ class ShippingPolicyTest {
             ShippingPolicy policy = ShippingPolicy.from(state);
 
             // then
-            assertThat(policy.getJejuSurcharge()).isZero();
-            assertThat(policy.getIslandSurcharge()).isZero();
+            assertThat(policy.getJejuSurcharge()).isEqualTo(Money.zero());
+            assertThat(policy.getIslandSurcharge()).isEqualTo(Money.zero());
         }
 
         @Test
@@ -197,18 +198,18 @@ class ShippingPolicyTest {
             assertThat(policy.getId()).isEqualTo(10L);
             assertThat(policy.getSellerId()).isEqualTo(1L);
             assertThat(policy.getDeliveryCompany()).isEqualTo("CJ대한통운");
-            assertThat(policy.getShippingFee()).isEqualTo(2500L);
-            assertThat(policy.getFreeShippingThreshold()).isEqualTo(30000L);
-            assertThat(policy.getJejuSurcharge()).isEqualTo(3000L);
-            assertThat(policy.getIslandSurcharge()).isEqualTo(5000L);
+            assertThat(policy.getShippingFee()).isEqualTo(Money.of(2500L));
+            assertThat(policy.getFreeShippingThreshold()).isEqualTo(Money.of(30000L));
+            assertThat(policy.getJejuSurcharge()).isEqualTo(Money.of(3000L));
+            assertThat(policy.getIslandSurcharge()).isEqualTo(Money.of(5000L));
             assertThat(policy.isInactive()).isTrue();
             assertThat(policy.getCreatedAt()).isEqualTo(now);
             assertThat(policy.getModifiedAt()).isEqualTo(now);
         }
 
         @Test
-        @DisplayName("DB 스냅샷에 추가 배송비가 null이면 null로 복원한다")
-        void shouldRestoreNullSurchargesFromSnapshot() {
+        @DisplayName("DB 스냅샷에 추가 배송비가 null이면 0원으로 복원한다")
+        void shouldRestoreNullSurchargesAsZeroFromSnapshot() {
             // given
             LocalDateTime now = LocalDateTime.of(2026, 3, 10, 12, 0);
             ShippingPolicySnapshotState state = ShippingPolicySnapshotState.builder()
@@ -228,8 +229,8 @@ class ShippingPolicyTest {
             ShippingPolicy policy = ShippingPolicy.from(state);
 
             // then
-            assertThat(policy.getJejuSurcharge()).isNull();
-            assertThat(policy.getIslandSurcharge()).isNull();
+            assertThat(policy.getJejuSurcharge()).isEqualTo(Money.zero());
+            assertThat(policy.getIslandSurcharge()).isEqualTo(Money.zero());
         }
     }
 
@@ -248,10 +249,10 @@ class ShippingPolicyTest {
 
             // then
             assertThat(policy.getDeliveryCompany()).isEqualTo("CJ대한통운");
-            assertThat(policy.getShippingFee()).isEqualTo(2500L);
-            assertThat(policy.getFreeShippingThreshold()).isEqualTo(30000L);
-            assertThat(policy.getJejuSurcharge()).isEqualTo(4000L);
-            assertThat(policy.getIslandSurcharge()).isEqualTo(6000L);
+            assertThat(policy.getShippingFee()).isEqualTo(Money.of(2500L));
+            assertThat(policy.getFreeShippingThreshold()).isEqualTo(Money.of(30000L));
+            assertThat(policy.getJejuSurcharge()).isEqualTo(Money.of(4000L));
+            assertThat(policy.getIslandSurcharge()).isEqualTo(Money.of(6000L));
         }
 
         @Test
@@ -308,8 +309,8 @@ class ShippingPolicyTest {
             policy.update("CJ대한통운", 2500L, 30000L, null, null);
 
             // then
-            assertThat(policy.getJejuSurcharge()).isZero();
-            assertThat(policy.getIslandSurcharge()).isZero();
+            assertThat(policy.getJejuSurcharge()).isEqualTo(Money.zero());
+            assertThat(policy.getIslandSurcharge()).isEqualTo(Money.zero());
         }
     }
 
@@ -324,10 +325,10 @@ class ShippingPolicyTest {
             ShippingPolicy policy = createDefaultPolicy(); // shippingFee=3000, threshold=20000
 
             // when & then
-            assertThat(policy.isFreeShipping(20000L)).isTrue();
-            assertThat(policy.isFreeShipping(50000L)).isTrue();
-            assertThat(policy.calculateShippingFee(20000L)).isZero();
-            assertThat(policy.calculateShippingFee(50000L)).isZero();
+            assertThat(policy.isFreeShipping(Money.of(20000L))).isTrue();
+            assertThat(policy.isFreeShipping(Money.of(50000L))).isTrue();
+            assertThat(policy.calculateShippingFee(Money.of(20000L))).isEqualTo(Money.zero());
+            assertThat(policy.calculateShippingFee(Money.of(50000L))).isEqualTo(Money.zero());
         }
 
         @Test
@@ -337,10 +338,10 @@ class ShippingPolicyTest {
             ShippingPolicy policy = createDefaultPolicy(); // shippingFee=3000, threshold=20000
 
             // when & then
-            assertThat(policy.isFreeShipping(19999L)).isFalse();
-            assertThat(policy.isFreeShipping(0L)).isFalse();
-            assertThat(policy.calculateShippingFee(19999L)).isEqualTo(3000L);
-            assertThat(policy.calculateShippingFee(0L)).isEqualTo(3000L);
+            assertThat(policy.isFreeShipping(Money.of(19999L))).isFalse();
+            assertThat(policy.isFreeShipping(Money.of(0L))).isFalse();
+            assertThat(policy.calculateShippingFee(Money.of(19999L))).isEqualTo(Money.of(3000L));
+            assertThat(policy.calculateShippingFee(Money.of(0L))).isEqualTo(Money.of(3000L));
         }
 
         @Test
@@ -356,8 +357,8 @@ class ShippingPolicyTest {
             ShippingPolicy policy = ShippingPolicy.from(state);
 
             // when & then
-            assertThat(policy.isFreeShipping(0L)).isTrue();
-            assertThat(policy.calculateShippingFee(0L)).isZero();
+            assertThat(policy.isFreeShipping(Money.of(0L))).isTrue();
+            assertThat(policy.calculateShippingFee(Money.of(0L))).isEqualTo(Money.zero());
         }
     }
 

@@ -21,20 +21,20 @@ public record GetProductPricePolicyResult(
     public static GetProductPricePolicyResult from(PricePolicy pricePolicy) {
         return GetProductPricePolicyResult.builder()
                 .id(pricePolicy.getId())
-                .price(pricePolicy.getPrice())
-                .discountPrice(pricePolicy.getDiscountPrice())
+                .price(pricePolicy.getPrice().getValue())
+                .discountPrice(pricePolicy.getDiscountPrice().getValue())
                 .discountRate(pricePolicy.getDiscountRate())
-                .accumulatedPoint(pricePolicy.getAccumulatedPoint())
+                .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
                 .build();
     }
 
     public static GetProductPricePolicyResult fromCart(PricePolicy pricePolicy) {
         return GetProductPricePolicyResult.builder()
                 .id(pricePolicy.getId())
-                .price(pricePolicy.getPrice())
-                .discountPrice(pricePolicy.getDiscountPrice())
+                .price(pricePolicy.getPrice().getValue())
+                .discountPrice(pricePolicy.getDiscountPrice().getValue())
                 .discountRate(pricePolicy.getDiscountRate())
-                .accumulatedPoint(pricePolicy.getAccumulatedPoint())
+                .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
                 .options(
                         FormatValidator.hasValue(pricePolicy.getProductOptions())
                                 ? pricePolicy.getProductOptions()

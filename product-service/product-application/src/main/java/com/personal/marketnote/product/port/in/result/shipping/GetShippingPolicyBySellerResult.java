@@ -13,10 +13,10 @@ public record GetShippingPolicyBySellerResult(
     public static GetShippingPolicyBySellerResult from(ShippingPolicy shippingPolicy) {
         return new GetShippingPolicyBySellerResult(
                 shippingPolicy.getSellerId(),
-                shippingPolicy.getShippingFee(),
-                shippingPolicy.getFreeShippingThreshold(),
-                shippingPolicy.getJejuSurcharge(),
-                shippingPolicy.getIslandSurcharge()
+                shippingPolicy.getShippingFee().getValue(),
+                shippingPolicy.getFreeShippingThreshold().getValue(),
+                shippingPolicy.getJejuSurcharge().getValue(),
+                shippingPolicy.getIslandSurcharge().getValue()
         );
     }
 }
