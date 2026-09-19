@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.ValueMasker;
 import lombok.*;
@@ -45,7 +46,7 @@ public class Review {
     private LocalDateTime modifiedAt;
 
     private Long orderNum;
-    private Long unitAmount;
+    private Money unitAmount;
 
     public static Review from(ReviewCreateState state) {
         return Review.builder()
@@ -61,9 +62,16 @@ public class Review {
                 .rating(round(state.getRating()))
                 .content(state.getContent())
                 .isPhoto(state.getIsPhoto())
-                .unitAmount(state.getUnitAmount())
+                .unitAmount(toNullableMoney(state.getUnitAmount()))
                 .status(EntityStatus.ACTIVE)
                 .build();
+    }
+
+    private static Money toNullableMoney(Long value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return Money.of(value);
     }
 
     private static Float round(Float value) {
@@ -93,7 +101,7 @@ public class Review {
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .orderNum(state.getOrderNum())
-                .unitAmount(state.getUnitAmount())
+                .unitAmount(toNullableMoney(state.getUnitAmount()))
                 .build();
     }
 

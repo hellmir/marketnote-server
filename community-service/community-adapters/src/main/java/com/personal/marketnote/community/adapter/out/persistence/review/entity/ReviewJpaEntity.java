@@ -88,7 +88,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
                 .rating(review.getRating())
                 .content(review.getContent())
                 .isPhoto(review.getIsPhoto())
-                .unitAmount(review.getUnitAmount())
+                .unitAmount(review.hasUnitAmount() ? review.getUnitAmount().getValue() : null)
                 .build();
     }
 

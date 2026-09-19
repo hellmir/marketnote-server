@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.domain.review;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.ValueMasker;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -112,7 +113,7 @@ class ReviewTest {
         assertThat(review.getCreatedAt()).isEqualTo(createdAt);
         assertThat(review.getModifiedAt()).isEqualTo(modifiedAt);
         assertThat(review.getOrderNum()).isEqualTo(1L);
-        assertThat(review.getUnitAmount()).isEqualTo(15000L);
+        assertThat(review.getUnitAmount()).isEqualTo(Money.of(15000L));
     }
 
     @Test
