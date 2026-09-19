@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -60,14 +61,14 @@ public record GetOrderResult(
                 .pointAmount(order.getAmount().getPointAmount().getValue())
                 .shippingFee(order.getAmount().getShippingFee().getValue())
                 .recipientName(order.getShippingAddress().getRecipientName())
-                .recipientPhoneNumber(order.getShippingAddress().getRecipientPhoneNumber())
+                .recipientPhoneNumber(toPhoneNumberValue(order.getShippingAddress().getRecipientPhoneNumber()))
                 .zipCode(order.getShippingAddress().getZipCode())
                 .address(order.getShippingAddress().getAddress())
                 .addressDetail(order.getShippingAddress().getAddressDetail())
                 .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
                 .deliveryRequestMessage(order.getShippingAddress().getDeliveryRequestMessage())
                 .pickupRecipientName(resolvePickupField(order, ShippingAddress::getRecipientName))
-                .pickupRecipientPhoneNumber(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber))
+                .pickupRecipientPhoneNumber(toPhoneNumberValue(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)))
                 .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
                 .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
                 .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
@@ -89,5 +90,12 @@ public record GetOrderResult(
             return null;
         }
         return extractor.apply(order.getPickupAddress());
+    }
+
+    private static String toPhoneNumberValue(PhoneNumber phoneNumber) {
+        if (FormatValidator.hasNoValue(phoneNumber)) {
+            return null;
+        }
+        return phoneNumber.getValue();
     }
 }

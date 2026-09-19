@@ -306,7 +306,7 @@ class GetReturnRefundInfoUseCaseTest {
                 .orderNumber("ORD-" + ORDER_ID)
                 .orderStatus(status)
                 .amount(OrderAmount.of(totalProductAmount, null, couponAmount, pointAmount, null))
-                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(ORDER_ID)
@@ -335,7 +335,7 @@ class GetReturnRefundInfoUseCaseTest {
                 .orderNumber("ORD-" + ORDER_ID)
                 .orderStatus(status)
                 .amount(OrderAmount.of(totalAmount, null, couponAmount, pointAmount, null))
-                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(ORDER_ID)

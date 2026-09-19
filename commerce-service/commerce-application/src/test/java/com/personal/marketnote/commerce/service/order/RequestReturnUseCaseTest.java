@@ -181,7 +181,7 @@ class RequestReturnUseCaseTest {
                     .reason("상품 불량")
                     .buyerId(buyerId)
                     .pickupRecipientName("회수 수령인")
-                    .pickupRecipientPhoneNumber("01099998888")
+                    .pickupRecipientPhoneNumber("010-9999-8888")
                     .pickupZipCode("54321")
                     .pickupAddress("회수지 주소")
                     .pickupAddressDetail("회수지 상세주소")
@@ -191,7 +191,7 @@ class RequestReturnUseCaseTest {
             requestReturnService.requestReturn(command);
 
             assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("회수 수령인");
-            assertThat(order.getPickupAddress().getRecipientPhoneNumber()).isEqualTo("01099998888");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-9999-8888");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
@@ -215,7 +215,7 @@ class RequestReturnUseCaseTest {
             requestReturnService.requestReturn(command);
 
             assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("수령인");
-            assertThat(order.getPickupAddress().getRecipientPhoneNumber()).isEqualTo("01012345678");
+            assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("상세주소");
@@ -475,7 +475,7 @@ class RequestReturnUseCaseTest {
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(status)
                 .amount(OrderAmount.of(50000L, null, 0L, 0L, null))
-                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())

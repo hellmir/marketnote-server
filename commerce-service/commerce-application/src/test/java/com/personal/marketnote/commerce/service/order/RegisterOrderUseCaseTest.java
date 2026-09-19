@@ -70,7 +70,7 @@ class RegisterOrderUseCaseTest {
         lenient().when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
                 .thenReturn(Map.of());
         lenient().when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
-                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", "NORMAL"));
+                .thenReturn(new ShippingAddressInfoResult("홍길동", "010-1234-5678", "서울시 강남구", "101호", "NORMAL"));
     }
 
     // ==================================================================================
@@ -3041,7 +3041,7 @@ class RegisterOrderUseCaseTest {
 
     private void mockShippingAddressWithRegionType(String regionType) {
         when(findUserShippingAddressPort.findByIdAndUserId(any(), any()))
-                .thenReturn(new ShippingAddressInfoResult("홍길동", "01012345678", "서울시 강남구", "101호", regionType));
+                .thenReturn(new ShippingAddressInfoResult("홍길동", "010-1234-5678", "서울시 강남구", "101호", regionType));
     }
 
     private void mockShippingPolicies(Map<Long, ShippingPolicyInfoResult> policies) {

@@ -283,7 +283,7 @@ class ChangeOrderStatusAdminOnlyUseCaseTest {
                 .orderNumber("ORD-" + orderId)
                 .orderStatus(status)
                 .amount(OrderAmount.of(50000L, null, 0L, 0L, null))
-                .shippingAddress(ShippingAddress.of("수령인", "01012345678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())

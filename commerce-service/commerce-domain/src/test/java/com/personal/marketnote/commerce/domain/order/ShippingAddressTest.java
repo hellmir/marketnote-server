@@ -19,7 +19,7 @@ class ShippingAddressTest {
             // given & when
             ShippingAddress shippingAddress = ShippingAddress.of(
                     "홍길동",
-                    "01012345678",
+                    "010-1234-5678",
                     "12345",
                     "서울시 강남구",
                     "테헤란로 123",
@@ -29,7 +29,7 @@ class ShippingAddressTest {
 
             // then
             assertThat(shippingAddress.getRecipientName()).isEqualTo("홍길동");
-            assertThat(shippingAddress.getRecipientPhoneNumber()).isEqualTo("01012345678");
+            assertThat(shippingAddress.getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
             assertThat(shippingAddress.getZipCode()).isEqualTo("12345");
             assertThat(shippingAddress.getAddress()).isEqualTo("서울시 강남구");
             assertThat(shippingAddress.getAddressDetail()).isEqualTo("테헤란로 123");
@@ -43,7 +43,7 @@ class ShippingAddressTest {
             // given & when
             ShippingAddress shippingAddress = ShippingAddress.of(
                     "홍길동",
-                    "01012345678",
+                    "010-1234-5678",
                     "12345",
                     "서울시 강남구",
                     "테헤란로 123",
@@ -67,7 +67,7 @@ class ShippingAddressTest {
         void shouldReturnTrueWhenRecipientNameExists() {
             // given
             ShippingAddress shippingAddress = ShippingAddress.of(
-                    "홍길동", "01012345678", "12345", "주소", "상세주소", null, null
+                    "홍길동", "010-1234-5678", "12345", "주소", "상세주소", null, null
             );
 
             // when & then
@@ -97,7 +97,7 @@ class ShippingAddressTest {
             // given
             ShippingAddress original = ShippingAddress.of(
                     "홍길동",
-                    "01012345678",
+                    "010-1234-5678",
                     "12345",
                     "서울시 강남구",
                     "테헤란로 123",
@@ -110,7 +110,7 @@ class ShippingAddressTest {
 
             // then
             assertThat(copied.getRecipientName()).isEqualTo("홍길동");
-            assertThat(copied.getRecipientPhoneNumber()).isEqualTo("01012345678");
+            assertThat(copied.getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
             assertThat(copied.getZipCode()).isEqualTo("12345");
             assertThat(copied.getAddress()).isEqualTo("서울시 강남구");
             assertThat(copied.getAddressDetail()).isEqualTo("테헤란로 123");
@@ -123,7 +123,7 @@ class ShippingAddressTest {
         void shouldNotModifyOriginalDeliveryRequest() {
             // given
             ShippingAddress original = ShippingAddress.of(
-                    "홍길동", "01012345678", "12345", "주소", "상세주소",
+                    "홍길동", "010-1234-5678", "12345", "주소", "상세주소",
                     DeliveryRequestType.CUSTOM, "요청사항"
             );
 
