@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.ledger;
 
+import com.personal.marketnote.common.domain.money.Money;
 import lombok.*;
 
 /**
@@ -21,8 +22,8 @@ public class AccountBalance {
     private Long accountId;
     private String accountName;
     private AccountType accountType;
-    private Long debitTotal;
-    private Long creditTotal;
+    private Money debitTotal;
+    private Money creditTotal;
     private Long balance;
 
     public static AccountBalance of(Account account, Long debitTotal, Long creditTotal) {
@@ -32,8 +33,8 @@ public class AccountBalance {
                 .accountId(account.getId())
                 .accountName(account.getName())
                 .accountType(account.getAccountType())
-                .debitTotal(debitTotal)
-                .creditTotal(creditTotal)
+                .debitTotal(Money.of(debitTotal))
+                .creditTotal(Money.of(creditTotal))
                 .balance(calculatedBalance)
                 .build();
     }

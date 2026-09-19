@@ -7,7 +7,7 @@ public record InternalOrderProductResponse(
 ) {
     public static InternalOrderProductResponse from(OrderProduct orderProduct) {
         return new InternalOrderProductResponse(
-                orderProduct.getUnitAmount()
+                orderProduct.getUnitAmount().getValue()
         );
     }
 }

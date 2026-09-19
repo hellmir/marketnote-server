@@ -60,8 +60,6 @@ class ChangeOrderStatusUseCaseTest {
             Long orderId = 1L;
             Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(10L)))
-                    .thenReturn(Map.of(10L, createProductInfoResult(0L)));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -284,10 +282,8 @@ class ChangeOrderStatusUseCaseTest {
         void shouldExecutePaidSubsequentProcessesWhenSkipIsNull() {
             // given
             Long orderId = 1L;
-            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L);
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(10L)))
-                    .thenReturn(Map.of(10L, createProductInfoResult(500L)));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -408,10 +404,8 @@ class ChangeOrderStatusUseCaseTest {
             // given
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING, 10L);
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING, 10L, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(10L)))
-                    .thenReturn(Map.of(10L, createProductInfoResult(500L)));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -431,10 +425,8 @@ class ChangeOrderStatusUseCaseTest {
         void shouldNotPropagateExceptionWhenPublishPaymentCompletedEventFails() {
             // given
             Long orderId = 1L;
-            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L);
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(10L)))
-                    .thenReturn(Map.of(10L, createProductInfoResult(500L)));
             doThrow(new RuntimeException("Outbox 저장 실패"))
                     .when(publishOrderEventPort).publishOrderPaymentCompletedEvent(
                             anyLong(), anyLong(), anyLong(), anyLong(), anyList(), anyLong());
@@ -478,20 +470,15 @@ class ChangeOrderStatusUseCaseTest {
         }
 
         @Test
-        @DisplayName("일부 OrderProduct의 accumulatedPoint가 null이면 상품 서비스를 조회한다")
-        void shouldCallProductServiceWhenSomeProductsMissSnapshotPoint() {
+        @DisplayName("일부 OrderProduct의 accumulatedPoint가 0이면 0으로 합산에 포함된다")
+        void shouldIncludeZeroAccumulatedPointInSum() {
             // given
             Long orderId = 1L;
             Long buyerId = 100L;
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
-            Order order = createOrderWithSnapshotPoints(orderId, buyerId, pricePolicyId1, 500L, pricePolicyId2, null);
+            Order order = createOrderWithSnapshotPoints(orderId, buyerId, pricePolicyId1, 500L, pricePolicyId2, 0L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId1, pricePolicyId2)))
-                    .thenReturn(Map.of(
-                            pricePolicyId1, createProductInfoResult(500L),
-                            pricePolicyId2, createProductInfoResult(300L)
-                    ));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -502,7 +489,8 @@ class ChangeOrderStatusUseCaseTest {
             changeOrderStatusService.changeOrderStatus(command);
 
             // then
-            verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(pricePolicyId1, pricePolicyId2));
+            verify(findProductByPricePolicyPort, never()).findByPricePolicyIds(anyList());
+            verify(modifyUserPointPort).addPendingProductAccumulationPoints(buyerId, 500L, orderId);
         }
     }
 
@@ -596,6 +584,10 @@ class ChangeOrderStatusUseCaseTest {
     // ==================================================================================
 
     private Order createOrder(Long orderId, Long buyerId, OrderStatus status, Long pricePolicyId) {
+        return createOrder(orderId, buyerId, status, pricePolicyId, 0L);
+    }
+
+    private Order createOrder(Long orderId, Long buyerId, OrderStatus status, Long pricePolicyId, Long accumulatedPoint) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -604,6 +596,7 @@ class ChangeOrderStatusUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(status)
+                        .accumulatedPoint(accumulatedPoint)
                         .build()
         );
 
@@ -631,6 +624,7 @@ class ChangeOrderStatusUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(productStatus)
+                        .accumulatedPoint(0L)
                         .build()
         );
 
@@ -659,6 +653,7 @@ class ChangeOrderStatusUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(status)
+                        .accumulatedPoint(0L)
                         .build()
         );
 
@@ -686,6 +681,7 @@ class ChangeOrderStatusUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(status)
+                        .accumulatedPoint(0L)
                         .build(),
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -694,6 +690,7 @@ class ChangeOrderStatusUseCaseTest {
                         .quantity(1)
                         .unitAmount(30000L)
                         .orderStatus(status)
+                        .accumulatedPoint(0L)
                         .build()
         );
 

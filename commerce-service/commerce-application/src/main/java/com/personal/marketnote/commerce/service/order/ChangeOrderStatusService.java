@@ -137,7 +137,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
-            total = Math.addExact(total, Math.multiplyExact(orderProduct.getAccumulatedPoint(), orderProduct.getQuantity()));
+            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity()).getValue());
         }
         return total;
     }
@@ -183,8 +183,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             publishOrderEventPort.publishOrderPaymentCompletedEvent(
                     order.getId(),
                     order.getBuyerId(),
-                    order.getAmount().getTotalAmount(),
-                    order.getAmount().getPointAmount(),
+                    order.getAmount().getTotalAmount().getValue(),
+                    order.getAmount().getPointAmount().getValue(),
                     order.getOrderProducts(),
                     totalAccumulatedPoint
             );

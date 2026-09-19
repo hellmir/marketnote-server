@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.settlement;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -14,11 +15,11 @@ public class Settlement {
     private Long sellerId;
     private Integer year;
     private Integer month;
-    private Long totalAllocatedAmount;
-    private Long shippingFee;
-    private Long pgFeeAmount;
-    private Long platformFeeAmount;
-    private Long sellerPayoutAmount;
+    private Money totalAllocatedAmount;
+    private Money shippingFee;
+    private Money pgFeeAmount;
+    private Money platformFeeAmount;
+    private Money sellerPayoutAmount;
     private SettlementStatus status;
     private Long version;
     private LocalDateTime createdAt;
@@ -64,11 +65,11 @@ public class Settlement {
                 .sellerId(state.getSellerId())
                 .year(state.getYear())
                 .month(state.getMonth())
-                .totalAllocatedAmount(state.getTotalAllocatedAmount())
-                .shippingFee(shippingFee)
-                .pgFeeAmount(pgFee)
-                .platformFeeAmount(platformFee)
-                .sellerPayoutAmount(state.getSellerPayoutAmount())
+                .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
+                .shippingFee(Money.of(shippingFee))
+                .pgFeeAmount(Money.of(pgFee))
+                .platformFeeAmount(Money.of(platformFee))
+                .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
                 .status(SettlementStatus.PENDING)
                 .build();
     }
@@ -79,11 +80,11 @@ public class Settlement {
                 .sellerId(state.getSellerId())
                 .year(state.getYear())
                 .month(state.getMonth())
-                .totalAllocatedAmount(state.getTotalAllocatedAmount())
-                .shippingFee(state.getShippingFee())
-                .pgFeeAmount(state.getPgFeeAmount())
-                .platformFeeAmount(state.getPlatformFeeAmount())
-                .sellerPayoutAmount(state.getSellerPayoutAmount())
+                .totalAllocatedAmount(Money.of(state.getTotalAllocatedAmount()))
+                .shippingFee(Money.of(state.getShippingFee()))
+                .pgFeeAmount(Money.of(state.getPgFeeAmount()))
+                .platformFeeAmount(Money.of(state.getPlatformFeeAmount()))
+                .sellerPayoutAmount(Money.of(state.getSellerPayoutAmount()))
                 .status(state.getStatus())
                 .version(state.getVersion())
                 .createdAt(state.getCreatedAt())

@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.domain.inventory;
 
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -12,7 +14,7 @@ public class InventoryAdditionHistory {
     private Long pricePolicyId;
     private Stock stock;
     private String reason;
-    private Long unitPrice;
+    private Money unitPrice;
     private String supplier;
 
     public static InventoryAdditionHistory from(InventoryAdditionHistoryCreateState state) {
@@ -23,7 +25,7 @@ public class InventoryAdditionHistory {
                         String.valueOf(state.getStock())
                 ))
                 .reason(state.getReason())
-                .unitPrice(state.getUnitPrice())
+                .unitPrice(resolveMoneyOrZero(state.getUnitPrice()))
                 .supplier(state.getSupplier())
                 .build();
     }
@@ -37,8 +39,15 @@ public class InventoryAdditionHistory {
                         String.valueOf(state.getStock())
                 ))
                 .reason(state.getReason())
-                .unitPrice(state.getUnitPrice())
+                .unitPrice(resolveMoneyOrZero(state.getUnitPrice()))
                 .supplier(state.getSupplier())
                 .build();
+    }
+
+    private static Money resolveMoneyOrZero(Long value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return Money.zero();
+        }
+        return Money.of(value);
     }
 }

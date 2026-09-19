@@ -73,7 +73,7 @@ public class CancelOrderService implements CancelOrderUseCase {
         List<OrderProductItem> orderProductItems = order.getOrderProducts().stream()
                 .map(op -> new OrderProductItem(
                         op.getPricePolicyId(), op.getSharerKey(),
-                        op.getQuantity(), op.getUnitAmount()))
+                        op.getQuantity(), op.getUnitAmount().getValue()))
                 .toList();
 
         OrderCancelSagaContext context = new OrderCancelSagaContext(
@@ -82,8 +82,8 @@ public class CancelOrderService implements CancelOrderUseCase {
                 order.getBuyerId(),
                 amount.getPaidAmount(),
                 amount.getPaidAmount(),
-                amount.getPointAmount(),
-                amount.getShippingFee(),
+                amount.getPointAmount().getValue(),
+                amount.getShippingFee().getValue(),
                 true,
                 0L,
                 originalStatus.name(),
@@ -161,8 +161,8 @@ public class CancelOrderService implements CancelOrderUseCase {
                 order.getBuyerId(),
                 amount.getPaidAmount(),
                 amount.getPaidAmount(),
-                amount.getPointAmount(),
-                amount.getShippingFee(),
+                amount.getPointAmount().getValue(),
+                amount.getShippingFee().getValue(),
                 true,
                 0L,
                 order.getOrderProducts(),

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.inventory.InsufficientAvailableStockException;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 import com.personal.marketnote.commerce.domain.order.Order;
@@ -205,7 +206,7 @@ class RegisterOrderUseCaseTest {
             verify(saveOrderPort).save(captor.capture());
             Order capturedOrder = captor.getValue();
 
-            assertThat(capturedOrder.getAmount().getCouponAmount()).isEqualTo(couponAmount);
+            assertThat(capturedOrder.getAmount().getCouponAmount()).isEqualTo(Money.of(couponAmount));
         }
 
         @Test
@@ -244,7 +245,7 @@ class RegisterOrderUseCaseTest {
             verify(saveOrderPort).save(captor.capture());
             Order capturedOrder = captor.getValue();
 
-            assertThat(capturedOrder.getAmount().getPointAmount()).isEqualTo(pointAmount);
+            assertThat(capturedOrder.getAmount().getPointAmount()).isEqualTo(Money.of(pointAmount));
         }
 
         @Test
@@ -284,8 +285,8 @@ class RegisterOrderUseCaseTest {
             verify(saveOrderPort).save(captor.capture());
             Order capturedOrder = captor.getValue();
 
-            assertThat(capturedOrder.getAmount().getCouponAmount()).isEqualTo(couponAmount);
-            assertThat(capturedOrder.getAmount().getPointAmount()).isEqualTo(pointAmount);
+            assertThat(capturedOrder.getAmount().getCouponAmount()).isEqualTo(Money.of(couponAmount));
+            assertThat(capturedOrder.getAmount().getPointAmount()).isEqualTo(Money.of(pointAmount));
         }
 
         @Test
@@ -402,7 +403,7 @@ class RegisterOrderUseCaseTest {
             verify(saveOrderPort).save(captor.capture());
             Order capturedOrder = captor.getValue();
 
-            assertThat(capturedOrder.getAmount().getCouponAmount()).isNull();
+            assertThat(capturedOrder.getAmount().getCouponAmount()).isEqualTo(Money.zero());
         }
 
         @Test
@@ -439,7 +440,7 @@ class RegisterOrderUseCaseTest {
             verify(saveOrderPort).save(captor.capture());
             Order capturedOrder = captor.getValue();
 
-            assertThat(capturedOrder.getAmount().getPointAmount()).isNull();
+            assertThat(capturedOrder.getAmount().getPointAmount()).isEqualTo(Money.zero());
         }
     }
 
@@ -490,12 +491,12 @@ class RegisterOrderUseCaseTest {
             Order capturedOrder = captor.getValue();
 
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
-            assertThat(capturedOrder.getOrderProducts().get(0).getAccumulatedPoint()).isEqualTo(500L);
+            assertThat(capturedOrder.getOrderProducts().get(0).getAccumulatedPoint()).isEqualTo(Money.of(500L));
         }
 
         @Test
-        @DisplayName("상품 서비스 응답에 accumulatedPoint가 null이면 OrderProduct에 null로 저장된다")
-        void registerOrder_nullAccumulatedPoint_savesNull() {
+        @DisplayName("상품 서비스 응답에 accumulatedPoint가 null이면 OrderProduct에 Money.zero()로 저장된다")
+        void registerOrder_nullAccumulatedPoint_savesZero() {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
@@ -527,7 +528,7 @@ class RegisterOrderUseCaseTest {
             verify(saveOrderPort).save(captor.capture());
             Order capturedOrder = captor.getValue();
 
-            assertThat(capturedOrder.getOrderProducts().get(0).getAccumulatedPoint()).isNull();
+            assertThat(capturedOrder.getOrderProducts().get(0).getAccumulatedPoint()).isEqualTo(Money.zero());
         }
     }
 
@@ -569,7 +570,7 @@ class RegisterOrderUseCaseTest {
             registerOrderService.registerOrder(command);
 
             Order capturedOrder = captureOrder();
-            assertThat(capturedOrder.getAmount().getTotalAmount()).isEqualTo(totalAmount);
+            assertThat(capturedOrder.getAmount().getTotalAmount()).isEqualTo(Money.of(totalAmount));
         }
 
         @Test
@@ -710,7 +711,7 @@ class RegisterOrderUseCaseTest {
 
             Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
-            assertThat(capturedOrder.getOrderProducts().get(0).getUnitAmount()).isEqualTo(unitAmount);
+            assertThat(capturedOrder.getOrderProducts().get(0).getUnitAmount()).isEqualTo(Money.of(unitAmount));
         }
 
         @Test
@@ -2024,7 +2025,7 @@ class RegisterOrderUseCaseTest {
             assertThat(result).isNotNull();
 
             Order capturedOrder = captureOrder();
-            assertThat(capturedOrder.getAmount().getTotalAmount()).isEqualTo(0L);
+            assertThat(capturedOrder.getAmount().getTotalAmount()).isEqualTo(Money.of(0L));
         }
 
         @Test
@@ -2060,7 +2061,7 @@ class RegisterOrderUseCaseTest {
             assertThat(result).isNotNull();
 
             Order capturedOrder = captureOrder();
-            assertThat(capturedOrder.getAmount().getTotalAmount()).isEqualTo(largeTotalAmount);
+            assertThat(capturedOrder.getAmount().getTotalAmount()).isEqualTo(Money.of(largeTotalAmount));
         }
 
         @Test
@@ -2217,8 +2218,8 @@ class RegisterOrderUseCaseTest {
                     .filter(a -> a.getSellerId().equals(10L)).findFirst().orElseThrow();
             PaymentAllocation allocationB = allocations.stream()
                     .filter(a -> a.getSellerId().equals(20L)).findFirst().orElseThrow();
-            assertThat(allocationA.getShippingFee()).isEqualTo(shippingFeeA);
-            assertThat(allocationB.getShippingFee()).isEqualTo(shippingFeeB);
+            assertThat(allocationA.getShippingFee()).isEqualTo(Money.of(shippingFeeA));
+            assertThat(allocationB.getShippingFee()).isEqualTo(Money.of(shippingFeeB));
         }
 
         @Test
@@ -2264,7 +2265,7 @@ class RegisterOrderUseCaseTest {
             List<PaymentAllocation> allocations = captor.getValue();
             assertThat(allocations).hasSize(1);
             assertThat(allocations.get(0).getSellerId()).isEqualTo(sameSellerId);
-            assertThat(allocations.get(0).getAllocatedAmount()).isEqualTo(150000L);
+            assertThat(allocations.get(0).getAllocatedAmount()).isEqualTo(Money.of(150000L));
         }
 
         @Test
@@ -2848,7 +2849,7 @@ class RegisterOrderUseCaseTest {
             ArgumentCaptor<Payment> paymentCaptor = ArgumentCaptor.forClass(Payment.class);
             verify(savePaymentPort).save(paymentCaptor.capture());
             Payment savedPayment = paymentCaptor.getValue();
-            assertThat(savedPayment.getPaymentAmount()).isEqualTo(unitAmount + shippingFee - couponAmount);
+            assertThat(savedPayment.getPaymentAmount()).isEqualTo(Money.of(unitAmount + shippingFee - couponAmount));
         }
 
         @Test

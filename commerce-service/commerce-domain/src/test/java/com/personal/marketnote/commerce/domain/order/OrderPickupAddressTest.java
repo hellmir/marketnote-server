@@ -147,6 +147,7 @@ class OrderPickupAddressTest {
                                 .pricePolicyId(100L)
                                 .quantity(1)
                                 .unitAmount(50000L)
+                                .accumulatedPoint(0L)
                                 .orderStatus(OrderStatus.DELIVERED)
                                 .build()
                 ))

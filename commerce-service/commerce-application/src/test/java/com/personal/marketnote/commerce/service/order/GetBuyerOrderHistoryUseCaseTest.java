@@ -1033,6 +1033,7 @@ class GetBuyerOrderHistoryUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(OrderStatus.PAID)
+                        .accumulatedPoint(0L)
                         .build())
                 .toList();
 
@@ -1059,6 +1060,7 @@ class GetBuyerOrderHistoryUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(OrderStatus.PAID)
+                        .accumulatedPoint(0L)
                         .build())
                 .toList();
 
@@ -1087,6 +1089,7 @@ class GetBuyerOrderHistoryUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(OrderStatus.PAID)
+                        .accumulatedPoint(0L)
                         .build())
                 .toList();
 
@@ -1098,6 +1101,7 @@ class GetBuyerOrderHistoryUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(OrderStatus.PAID)
+                        .accumulatedPoint(0L)
                         .build())
                 .toList();
 

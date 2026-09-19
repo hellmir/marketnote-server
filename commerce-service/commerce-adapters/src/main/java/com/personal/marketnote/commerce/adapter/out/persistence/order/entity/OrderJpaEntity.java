@@ -120,11 +120,11 @@ public class OrderJpaEntity extends BaseEntity {
                 .orderKey(order.getOrderKey())
                 .orderNumber(order.getOrderNumber())
                 .orderStatus(order.getOrderStatus())
-                .totalAmount(order.getAmount().getTotalAmount())
+                .totalAmount(order.getAmount().getTotalAmount().getValue())
                 .paidAmount(order.getAmount().getPaidAmount())
-                .couponAmount(order.getAmount().getCouponAmount())
-                .pointAmount(order.getAmount().getPointAmount())
-                .shippingFee(order.getAmount().getShippingFee())
+                .couponAmount(order.getAmount().getCouponAmount().getValue())
+                .pointAmount(order.getAmount().getPointAmount().getValue())
+                .shippingFee(order.getAmount().getShippingFee().getValue())
                 .recipientName(order.getShippingAddress().getRecipientName())
                 .recipientPhoneNumber(order.getShippingAddress().getRecipientPhoneNumber())
                 .zipCode(order.getShippingAddress().getZipCode())
@@ -148,11 +148,11 @@ public class OrderJpaEntity extends BaseEntity {
 
     public void updateFrom(Order order) {
         orderStatus = order.getOrderStatus();
-        totalAmount = order.getAmount().getTotalAmount();
+        totalAmount = order.getAmount().getTotalAmount().getValue();
         paidAmount = order.getAmount().getPaidAmount();
-        couponAmount = order.getAmount().getCouponAmount();
-        pointAmount = order.getAmount().getPointAmount();
-        shippingFee = order.getAmount().getShippingFee();
+        couponAmount = order.getAmount().getCouponAmount().getValue();
+        pointAmount = order.getAmount().getPointAmount().getValue();
+        shippingFee = order.getAmount().getShippingFee().getValue();
         pickupRecipientName = resolvePickupField(order, ShippingAddress::getRecipientName);
         pickupRecipientPhoneNumber = resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber);
         pickupZipCode = resolvePickupField(order, ShippingAddress::getZipCode);

@@ -37,7 +37,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                         op.getPricePolicyId(),
                         op.getSharerKey(),
                         op.getQuantity(),
-                        op.getUnitAmount()
+                        op.getUnitAmount().getValue()
                 ))
                 .toList();
 
@@ -73,7 +73,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                         op.getPricePolicyId(),
                         op.getSharerKey(),
                         op.getQuantity(),
-                        op.getUnitAmount()
+                        op.getUnitAmount().getValue()
                 ))
                 .toList();
 
@@ -82,7 +82,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                         op.getPricePolicyId(),
                         op.getSharerKey(),
                         op.getQuantity(),
-                        op.getUnitAmount()
+                        op.getUnitAmount().getValue()
                 ))
                 .toList();
 
@@ -109,7 +109,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                         op.getPricePolicyId(),
                         op.getSharerKey(),
                         op.getQuantity(),
-                        op.getUnitAmount()
+                        op.getUnitAmount().getValue()
                 ))
                 .toList();
 

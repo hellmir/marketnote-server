@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -37,10 +39,10 @@ class SettlementTest {
             assertThat(settlement.getSellerId()).isEqualTo(10L);
             assertThat(settlement.getYear()).isEqualTo(2026);
             assertThat(settlement.getMonth()).isEqualTo(2);
-            assertThat(settlement.getTotalAllocatedAmount()).isEqualTo(100000L);
-            assertThat(settlement.getPgFeeAmount()).isEqualTo(3000L);
-            assertThat(settlement.getPlatformFeeAmount()).isEqualTo(5000L);
-            assertThat(settlement.getSellerPayoutAmount()).isEqualTo(92000L);
+            assertThat(settlement.getTotalAllocatedAmount()).isEqualTo(Money.of(100000L));
+            assertThat(settlement.getPgFeeAmount()).isEqualTo(Money.of(3000L));
+            assertThat(settlement.getPlatformFeeAmount()).isEqualTo(Money.of(5000L));
+            assertThat(settlement.getSellerPayoutAmount()).isEqualTo(Money.of(92000L));
             assertThat(settlement.isPending()).isTrue();
             assertThat(settlement.isCompleted()).isFalse();
         }
@@ -142,6 +144,7 @@ class SettlementTest {
                     .year(2026)
                     .month(2)
                     .totalAllocatedAmount(100000L)
+                    .shippingFee(0L)
                     .pgFeeAmount(3000L)
                     .platformFeeAmount(5000L)
                     .sellerPayoutAmount(92000L)

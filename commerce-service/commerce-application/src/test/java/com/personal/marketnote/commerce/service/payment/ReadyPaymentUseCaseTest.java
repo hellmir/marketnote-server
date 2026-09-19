@@ -494,6 +494,7 @@ class ReadyPaymentUseCaseTest {
                 .orderId(1L)
                 .orderKey(ORDER_KEY_STR)
                 .poStatus(status)
+                .amount(50000L)
                 .build();
         return PspPaymentEvent.from(state);
     }

@@ -26,7 +26,7 @@ public record GetSettlementPolicyResult(
                 .pgFeeRate(policy.getPgFeeRate())
                 .platformFeeRate(policy.getPlatformFeeRate())
                 .settlementCycle(policy.getSettlementCycle())
-                .minPayoutAmount(policy.getMinPayoutAmount())
+                .minPayoutAmount(policy.getMinPayoutAmount().getValue())
                 .status(policy.getStatus())
                 .createdAt(policy.getCreatedAt())
                 .modifiedAt(policy.getModifiedAt())

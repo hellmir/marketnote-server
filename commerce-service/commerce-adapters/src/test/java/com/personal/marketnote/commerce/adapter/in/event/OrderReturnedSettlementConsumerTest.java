@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationSnapshotState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
@@ -94,8 +95,8 @@ class OrderReturnedSettlementConsumerTest {
         PaymentAllocation returnAllocation = returnAllocations.get(0);
         assertThat(returnAllocation.getOrderId()).isEqualTo(orderId);
         assertThat(returnAllocation.getSellerId()).isEqualTo(10L);
-        assertThat(returnAllocation.getAllocatedAmount()).isEqualTo(50000L);
-        assertThat(returnAllocation.getShippingFee()).isEqualTo(3000L);
+        assertThat(returnAllocation.getAllocatedAmount()).isEqualTo(Money.of(50000L));
+        assertThat(returnAllocation.getShippingFee()).isEqualTo(Money.of(3000L));
         assertThat(returnAllocation.getTransactionType()).isEqualTo(PaymentAllocationTransactionType.RETURN_REFUND);
         assertThat(returnAllocation.getIdempotencyKey()).isEqualTo("ORDER_RETURN_ALLOCATION:100:10");
 

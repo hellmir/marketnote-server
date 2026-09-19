@@ -10,6 +10,7 @@ import com.personal.marketnote.commerce.domain.refund.RefundCreateState;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.shipping.ShippingFeeCalculator;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.shipping.ShippingFeeContext;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
@@ -82,8 +83,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 ? PSP_FULL_CANCEL_TYPE_CODE
                 : PSP_PARTIAL_CANCEL_TYPE_CODE;
 
-        Long alreadyRefunded = FormatValidator.hasValue(payment.getRefundAmount()) ? payment.getRefundAmount() : 0L;
-        Long refundableAmount = Math.subtractExact(payment.getPaymentAmount(), alreadyRefunded);
+        Long alreadyRefunded = payment.getRefundAmount().getValue();
+        Long refundableAmount = Math.subtractExact(payment.getPaymentAmount().getValue(), alreadyRefunded);
 
         Long cancelAmount = computeCancelAmount(isFullCancel, command.cancelAmount(), refundableAmount);
 
@@ -119,17 +120,17 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             saveRefundRecordWithoutPg(payment, cancelAmount, shippingFeeDeduction, adjustedCancelReason);
             restorePartialCancelInventory(order, command);
             Long pgSkipDeduction = resolveDeductionPoint(
-                    order.getOrderProducts(), command, payment.getPaymentAmount(), cancelAmount);
+                    order.getOrderProducts(), command, payment.getPaymentAmount().getValue(), cancelAmount);
             Long pgSkipBuyerId = order.getBuyerId();
             Long pgSkipOrderId = order.getId();
             runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(
                     pgSkipBuyerId, pgSkipOrderId, pgSkipDeduction));
             runAfterCommit(() -> reducePartialPendingSharedPurchasePoints(
-                    order, payment.getPaymentAmount(), cancelAmount));
+                    order, payment.getPaymentAmount().getValue(), cancelAmount));
             List<OrderProduct> pgSkipCancelProducts = resolveCancelProducts(isFullCancel, command);
             publishPaymentCancelledEvent(
                     order.getId(), command.orderKey(), order.getBuyerId(), 0L,
-                    payment.getPaymentAmount(), order.getAmount().getPointAmount(), isFullCancel, alreadyRefunded,
+                    payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(), isFullCancel, alreadyRefunded,
                     UUID.randomUUID().toString(), order.getOrderProducts(), pgSkipCancelProducts, pgSkipDeduction);
             return;
         }
@@ -157,14 +158,14 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         } else {
             restorePartialCancelInventory(order, command);
             partialProductPendingDeduction = resolveDeductionPoint(
-                    order.getOrderProducts(), command, payment.getPaymentAmount(), cancelAmount);
+                    order.getOrderProducts(), command, payment.getPaymentAmount().getValue(), cancelAmount);
             Long buyerId = order.getBuyerId();
             Long orderId = order.getId();
             Long precomputedDeduction = partialProductPendingDeduction;
             runAfterCommit(() -> reducePartialPendingProductAccumulationPoints(
                     buyerId, orderId, precomputedDeduction));
             runAfterCommit(() -> reducePartialPendingSharedPurchasePoints(
-                    order, payment.getPaymentAmount(), cancelAmount));
+                    order, payment.getPaymentAmount().getValue(), cancelAmount));
         }
 
         // [#929][#1034] 결제 취소 역분개는 Kafka Consumer(PaymentCancelledLedgerConsumer)로 전환 완료
@@ -175,7 +176,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         // Outbox 이벤트 저장 (트랜잭션 내)
         publishPaymentCancelledEvent(
                 order.getId(), command.orderKey(), order.getBuyerId(), cancelAmount,
-                payment.getPaymentAmount(), order.getAmount().getPointAmount(), isFullCancel, alreadyRefunded,
+                payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(), isFullCancel, alreadyRefunded,
                 cancelId, order.getOrderProducts(), cancelTargetProducts,
                 partialProductPendingDeduction);
     }
@@ -223,7 +224,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             return;
         }
 
-        payment.markAsPartiallyRefunded(cancelAmount);
+        payment.markAsPartiallyRefunded(Money.of(cancelAmount));
         String rawResponse = FormatValidator.hasValue(vendorResult) ? vendorResult.rawResponse() : null;
         event.partialRefund(rawResponse);
     }
@@ -262,14 +263,14 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             Map<Long, Long> initialShippingFeeBySellerIdMap = allocations.stream()
                     .collect(Collectors.toMap(
                             PaymentAllocation::getSellerId,
-                            PaymentAllocation::getShippingFee,
+                            allocation -> allocation.getShippingFee().getValue(),
                             (existing, replacement) -> existing
                     ));
 
             Map<Long, Long> sellerTotalAmounts = order.getOrderProducts().stream()
                     .collect(Collectors.groupingBy(
                             OrderProduct::getSellerId,
-                            Collectors.summingLong(op -> Math.multiplyExact(op.getUnitAmount(), op.getQuantity().longValue()))
+                            Collectors.summingLong(op -> op.getUnitAmount().multiply(op.getQuantity().longValue()).getValue())
                     ));
 
             Map<Long, Long> sellerCancelAmounts = command.cancelProducts().stream()
@@ -277,7 +278,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                             item -> resolveSellerIdForCancelProduct(order, item.pricePolicyId()),
                             Collectors.summingLong(item -> {
                                 OrderProduct orderProduct = findOrderProductByPricePolicyId(order, item.pricePolicyId());
-                                return Math.multiplyExact(orderProduct.getUnitAmount(), item.quantity().longValue());
+                                return orderProduct.getUnitAmount().multiply(item.quantity().longValue()).getValue();
                             })
                     ));
 
@@ -306,9 +307,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 long remainingAmount = Math.subtractExact(sellerTotal, sellerCancel);
 
                 ShippingFeeContext context = ShippingFeeContext.of(
-                        remainingAmount, policy.shippingFee(), policy.freeShippingThreshold()
+                        Money.of(remainingAmount), Money.of(policy.shippingFee()), Money.of(policy.freeShippingThreshold())
                 );
-                long baseFee = ShippingFeeCalculator.calculateBaseFee(context);
+                long baseFee = ShippingFeeCalculator.calculateBaseFee(context).getValue();
                 totalDeduction = Math.addExact(totalDeduction, baseFee);
             }
             return totalDeduction;
@@ -387,7 +388,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                             OrderProductSnapshotState.builder()
                                     .pricePolicyId(item.pricePolicyId())
                                     .quantity(item.quantity())
-                                    .build()
+                                    .unitAmount(0L)
+                        .accumulatedPoint(0L)
+                        .build()
                     ))
                     .toList();
             restoreProductInventoryUseCase.restore(cancelTargetProducts, order.getId(), "주문 부분 취소에 의한 재고 복구");
@@ -471,7 +474,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         if (allHaveSnapshot) {
             long total = 0L;
             for (OrderProduct orderProduct : orderProducts) {
-                total = Math.addExact(total, Math.multiplyExact(orderProduct.getAccumulatedPoint(), orderProduct.getQuantity()));
+                total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity()).getValue());
             }
             return total;
         }
@@ -531,7 +534,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                         OrderProductSnapshotState.builder()
                                 .pricePolicyId(item.pricePolicyId())
                                 .quantity(item.quantity())
-                                .build()
+                                .unitAmount(0L)
+                        .accumulatedPoint(0L)
+                        .build()
                 ))
                 .toList();
     }
@@ -570,7 +575,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                     || FormatValidator.hasNoValue(orderProduct.getAccumulatedPoint())) {
                 return null;
             }
-            total = Math.addExact(total, Math.multiplyExact(orderProduct.getAccumulatedPoint(), cancelItem.quantity()));
+            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(cancelItem.quantity()).getValue());
         }
 
         return total;
@@ -611,7 +616,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private void refundPoints(Order order) {
-        Long pointAmount = order.getAmount().getPointAmount();
+        Long pointAmount = order.getAmount().getPointAmount().getValue();
         if (FormatValidator.hasNoValue(pointAmount) || pointAmount <= 0) {
             return;
         }

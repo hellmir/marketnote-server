@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,10 +31,10 @@ class PaymentTest {
 
             assertThat(payment.getOrderId()).isEqualTo(1L);
             assertThat(payment.getOrderKey()).isEqualTo(orderKey);
-            assertThat(payment.getPaymentAmount()).isEqualTo(50000L);
+            assertThat(payment.getPaymentAmount()).isEqualTo(Money.of(50000L));
             assertThat(payment.getSuccessYn()).isNull();
             assertThat(payment.getRefundedYn()).isFalse();
-            assertThat(payment.getRefundAmount()).isEqualTo(0L);
+            assertThat(payment.getRefundAmount()).isEqualTo(Money.zero());
             assertThat(payment.getPgPaymentKey()).isNull();
         }
     }
@@ -62,10 +64,10 @@ class PaymentTest {
             assertThat(payment.getOrderId()).isEqualTo(1L);
             assertThat(payment.getOrderKey()).isEqualTo(orderKey);
             assertThat(payment.getPgPaymentKey()).isEqualTo("T0000_tno_123");
-            assertThat(payment.getPaymentAmount()).isEqualTo(50000L);
+            assertThat(payment.getPaymentAmount()).isEqualTo(Money.of(50000L));
             assertThat(payment.getSuccessYn()).isTrue();
             assertThat(payment.getRefundedYn()).isFalse();
-            assertThat(payment.getRefundAmount()).isEqualTo(0L);
+            assertThat(payment.getRefundAmount()).isEqualTo(Money.zero());
         }
     }
 
@@ -113,7 +115,7 @@ class PaymentTest {
             payment.markAsRefunded();
 
             assertThat(payment.getRefundedYn()).isTrue();
-            assertThat(payment.getRefundAmount()).isEqualTo(50000L);
+            assertThat(payment.getRefundAmount()).isEqualTo(Money.of(50000L));
         }
     }
 
@@ -126,10 +128,10 @@ class PaymentTest {
         void shouldAccumulateRefundAmount() {
             Payment payment = createSuccessfulPayment(50000L);
 
-            payment.markAsPartiallyRefunded(20000L);
+            payment.markAsPartiallyRefunded(Money.of(20000L));
 
             assertThat(payment.getRefundedYn()).isFalse();
-            assertThat(payment.getRefundAmount()).isEqualTo(20000L);
+            assertThat(payment.getRefundAmount()).isEqualTo(Money.of(20000L));
         }
 
         @Test
@@ -137,11 +139,11 @@ class PaymentTest {
         void shouldMarkAsRefundedWhenFullAmountReached() {
             Payment payment = createSuccessfulPayment(50000L);
 
-            payment.markAsPartiallyRefunded(30000L);
-            payment.markAsPartiallyRefunded(20000L);
+            payment.markAsPartiallyRefunded(Money.of(30000L));
+            payment.markAsPartiallyRefunded(Money.of(20000L));
 
             assertThat(payment.getRefundedYn()).isTrue();
-            assertThat(payment.getRefundAmount()).isEqualTo(50000L);
+            assertThat(payment.getRefundAmount()).isEqualTo(Money.of(50000L));
         }
 
         @Test
@@ -149,9 +151,9 @@ class PaymentTest {
         void shouldInitializeRefundAmountFromNull() {
             Payment payment = createSuccessfulPayment(50000L);
 
-            payment.markAsPartiallyRefunded(10000L);
+            payment.markAsPartiallyRefunded(Money.of(10000L));
 
-            assertThat(payment.getRefundAmount()).isEqualTo(10000L);
+            assertThat(payment.getRefundAmount()).isEqualTo(Money.of(10000L));
         }
     }
 

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -18,9 +19,9 @@ public class OrderProduct {
     private Long pricePolicyId;
     private UUID sharerKey;
     private Integer quantity;
-    private Long unitAmount;
+    private Money unitAmount;
     private String imageUrl;
-    private Long accumulatedPoint;
+    private Money accumulatedPoint;
     private OrderStatus orderStatus;
     private Boolean isReviewed;
     private LocalDateTime confirmedAt;
@@ -32,9 +33,9 @@ public class OrderProduct {
                 .pricePolicyId(state.getPricePolicyId())
                 .sharerKey(state.getSharerKey())
                 .quantity(state.getQuantity())
-                .unitAmount(state.getUnitAmount())
+                .unitAmount(Money.of(state.getUnitAmount()))
                 .imageUrl(state.getImageUrl())
-                .accumulatedPoint(state.getAccumulatedPoint())
+                .accumulatedPoint(Money.of(state.getAccumulatedPoint()))
                 .orderStatus(OrderStatus.PAYMENT_PENDING)
                 .build();
     }
@@ -46,9 +47,9 @@ public class OrderProduct {
                 .pricePolicyId(state.getPricePolicyId())
                 .sharerKey(state.getSharerKey())
                 .quantity(state.getQuantity())
-                .unitAmount(state.getUnitAmount())
+                .unitAmount(Money.of(state.getUnitAmount()))
                 .imageUrl(state.getImageUrl())
-                .accumulatedPoint(state.getAccumulatedPoint())
+                .accumulatedPoint(Money.of(state.getAccumulatedPoint()))
                 .orderStatus(state.getOrderStatus())
                 .isReviewed(state.getIsReviewed())
                 .confirmedAt(state.getConfirmedAt())

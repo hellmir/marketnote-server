@@ -175,7 +175,7 @@ public class PaymentApprovalTransactionHelper {
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
                 .pgPaymentKey(vendorResult.transactionId())
-                .amount(payment.getPaymentAmount())
+                .amount(payment.getPaymentAmount().getValue())
                 .resultCode(vendorResult.resultCode())
                 .resultMessage(vendorResult.resultMessage())
                 .payMethod(vendorResult.payMethod())
@@ -234,22 +234,18 @@ public class PaymentApprovalTransactionHelper {
     }
 
     private void verifyPaymentAmount(Order order, Payment payment) {
-        Long couponAmount = FormatValidator.hasValue(order.getAmount().getCouponAmount())
-                ? order.getAmount().getCouponAmount()
-                : 0L;
-        Long pointAmount = FormatValidator.hasValue(order.getAmount().getPointAmount())
-                ? order.getAmount().getPointAmount()
-                : 0L;
+        Long couponAmount = order.getAmount().getCouponAmount().getValue();
+        Long pointAmount = order.getAmount().getPointAmount().getValue();
         Long expectedAmount = Math.subtractExact(
-                Math.subtractExact(order.getAmount().getTotalAmount(), couponAmount),
+                Math.subtractExact(order.getAmount().getTotalAmount().getValue(), couponAmount),
                 pointAmount
         );
 
-        if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount())) {
+        if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount().getValue())) {
             log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
-                    order.getId(), order.getAmount().getTotalAmount(), couponAmount, pointAmount,
-                    expectedAmount, payment.getPaymentAmount());
-            throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount());
+                    order.getId(), order.getAmount().getTotalAmount().getValue(), couponAmount, pointAmount,
+                    expectedAmount, payment.getPaymentAmount().getValue());
+            throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount().getValue());
         }
     }
 
@@ -273,19 +269,17 @@ public class PaymentApprovalTransactionHelper {
 
         List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
                 .map(op -> new OrderPaymentSagaContext.OrderProductItem(
-                        op.getPricePolicyId(), op.getSharerKey(), op.getQuantity(), op.getUnitAmount()))
+                        op.getPricePolicyId(), op.getSharerKey(), op.getQuantity(), op.getUnitAmount().getValue()))
                 .toList();
 
-        Long pointAmount = FormatValidator.hasValue(order.getAmount().getPointAmount())
-                ? order.getAmount().getPointAmount()
-                : 0L;
+        Long pointAmount = order.getAmount().getPointAmount().getValue();
 
         OrderPaymentSagaContext sagaContext = new OrderPaymentSagaContext(
                 order.getId(),
                 order.getOrderKey().toString(),
                 order.getBuyerId(),
-                payment.getPaymentAmount(),
-                order.getAmount().getTotalAmount(),
+                payment.getPaymentAmount().getValue(),
+                order.getAmount().getTotalAmount().getValue(),
                 pointAmount,
                 totalAccumulatedPoint,
                 sagaOrderProducts
@@ -328,7 +322,7 @@ public class PaymentApprovalTransactionHelper {
 
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
-            total = Math.addExact(total, Math.multiplyExact(orderProduct.getAccumulatedPoint(), orderProduct.getQuantity()));
+            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity()).getValue());
         }
         return total;
     }
@@ -338,7 +332,7 @@ public class PaymentApprovalTransactionHelper {
             publishPaymentEventPort.publishPaymentApprovedEvent(
                     payment.getOrderId(),
                     payment.getOrderKey().toString(),
-                    payment.getPaymentAmount()
+                    payment.getPaymentAmount().getValue()
             );
         } catch (Exception e) {
             log.error("결제 승인 이벤트 발행 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);

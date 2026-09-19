@@ -1,14 +1,16 @@
 package com.personal.marketnote.commerce.domain.shipping;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 public class ShippingFeeCalculator {
 
     private ShippingFeeCalculator() {
     }
 
-    public static long calculateBaseFee(ShippingFeeContext context) {
+    public static Money calculateBaseFee(ShippingFeeContext context) {
         if (context.isBelowFreeShippingThreshold()) {
             return context.getShippingFee();
         }
-        return 0L;
+        return Money.zero();
     }
 }

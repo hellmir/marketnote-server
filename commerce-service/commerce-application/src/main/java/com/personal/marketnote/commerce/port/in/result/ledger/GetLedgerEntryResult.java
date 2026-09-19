@@ -20,7 +20,7 @@ public record GetLedgerEntryResult(
                 .id(entry.getId())
                 .accountId(entry.getAccountId())
                 .transactionId(entry.getTransactionId())
-                .amount(entry.getAmount())
+                .amount(entry.getAmount().getValue())
                 .transactionType(entry.getTransactionType())
                 .createdAt(entry.getCreatedAt())
                 .build();

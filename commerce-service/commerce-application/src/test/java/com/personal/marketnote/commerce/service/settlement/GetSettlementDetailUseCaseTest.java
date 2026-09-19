@@ -47,7 +47,8 @@ class GetSettlementDetailUseCaseTest {
                 .version(0L)
                 .createdAt(LocalDateTime.of(2026, 2, 16, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 16, 10, 0))
-                .build());
+                .shippingFee(0L)
+                        .build());
     }
 
     private PaymentAllocation createAllocation(Long id, Long orderId, Long sellerId,

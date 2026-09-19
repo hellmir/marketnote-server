@@ -56,10 +56,10 @@ public class PaymentJpaEntity extends BaseEntity {
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey())
                 .pgPaymentKey(payment.getPgPaymentKey())
-                .paymentAmount(payment.getPaymentAmount())
+                .paymentAmount(payment.getPaymentAmount().getValue())
                 .successYn(payment.getSuccessYn())
                 .refundedYn(payment.getRefundedYn())
-                .refundAmount(payment.getRefundAmount())
+                .refundAmount(payment.getRefundAmount().getValue())
                 .build();
     }
 
@@ -67,7 +67,7 @@ public class PaymentJpaEntity extends BaseEntity {
         this.pgPaymentKey = payment.getPgPaymentKey();
         this.successYn = payment.getSuccessYn();
         this.refundedYn = payment.getRefundedYn();
-        this.refundAmount = payment.getRefundAmount();
+        this.refundAmount = payment.getRefundAmount().getValue();
     }
 
     @PostLoad

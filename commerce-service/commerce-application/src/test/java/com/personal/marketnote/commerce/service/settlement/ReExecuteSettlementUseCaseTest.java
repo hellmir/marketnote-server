@@ -90,7 +90,8 @@ class ReExecuteSettlementUseCaseTest {
                 .version(2L)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .shippingFee(0L)
+                        .build());
     }
 
     @Nested
@@ -179,7 +180,8 @@ class ReExecuteSettlementUseCaseTest {
                     .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
                     .status(SettlementStatus.PENDING).version(0L)
                     .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
-                    .build());
+                    .shippingFee(0L)
+                        .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(pendingSettlement));
 
             // when & then
@@ -200,7 +202,8 @@ class ReExecuteSettlementUseCaseTest {
                     .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
                     .status(SettlementStatus.COMPLETED).version(1L)
                     .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
-                    .build());
+                    .shippingFee(0L)
+                        .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(completedSettlement));
 
             // when & then
@@ -221,7 +224,8 @@ class ReExecuteSettlementUseCaseTest {
                     .platformFeeAmount(5000L).sellerPayoutAmount(92000L)
                     .status(SettlementStatus.FAILED).version(0L)
                     .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
-                    .build());
+                    .shippingFee(0L)
+                        .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(failedSettlement));
 
             // when & then

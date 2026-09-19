@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -36,8 +38,8 @@ class PaymentAllocationTest {
             // then
             assertThat(allocation.getOrderId()).isEqualTo(100L);
             assertThat(allocation.getSellerId()).isEqualTo(10L);
-            assertThat(allocation.getAllocatedAmount()).isEqualTo(50000L);
-            assertThat(allocation.getShippingFee()).isEqualTo(3000L);
+            assertThat(allocation.getAllocatedAmount()).isEqualTo(Money.of(50000L));
+            assertThat(allocation.getShippingFee()).isEqualTo(Money.of(3000L));
             assertThat(allocation.getTransactionType()).isEqualTo(PaymentAllocationTransactionType.ORDER_REGISTRATION);
             assertThat(allocation.getTargetType()).isEqualTo(PaymentAllocationTargetType.ORDER);
             assertThat(allocation.getIdempotencyKey()).isEqualTo("ORDER_ALLOCATION:100:10");
@@ -67,7 +69,7 @@ class PaymentAllocationTest {
             PaymentAllocation allocation = PaymentAllocation.from(state);
 
             // then
-            assertThat(allocation.getShippingFee()).isEqualTo(0L);
+            assertThat(allocation.getShippingFee()).isEqualTo(Money.zero());
         }
 
         @Test
@@ -88,7 +90,7 @@ class PaymentAllocationTest {
             PaymentAllocation allocation = PaymentAllocation.from(state);
 
             // then
-            assertThat(allocation.getShippingFee()).isEqualTo(0L);
+            assertThat(allocation.getShippingFee()).isEqualTo(Money.zero());
         }
 
         @Test
@@ -203,8 +205,8 @@ class PaymentAllocationTest {
             assertThat(allocation.getId()).isEqualTo(1L);
             assertThat(allocation.getOrderId()).isEqualTo(100L);
             assertThat(allocation.getSellerId()).isEqualTo(10L);
-            assertThat(allocation.getAllocatedAmount()).isEqualTo(50000L);
-            assertThat(allocation.getShippingFee()).isEqualTo(3000L);
+            assertThat(allocation.getAllocatedAmount()).isEqualTo(Money.of(50000L));
+            assertThat(allocation.getShippingFee()).isEqualTo(Money.of(3000L));
             assertThat(allocation.getSettlementId()).isEqualTo(5L);
             assertThat(allocation.getCreatedAt()).isEqualTo(createdAt);
         }

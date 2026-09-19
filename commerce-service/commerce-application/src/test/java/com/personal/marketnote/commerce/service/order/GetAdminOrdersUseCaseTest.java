@@ -52,6 +52,7 @@ class GetAdminOrdersUseCaseTest {
                                 .pricePolicyId(pricePolicyId)
                                 .quantity(1)
                                 .unitAmount(50000L)
+                                .accumulatedPoint(0L)
                                 .imageUrl("https://example.com/image.jpg")
                                 .orderStatus(status)
                                 .isReviewed(false)

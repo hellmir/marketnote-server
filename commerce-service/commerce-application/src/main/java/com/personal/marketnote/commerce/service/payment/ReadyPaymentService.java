@@ -48,7 +48,7 @@ public class ReadyPaymentService implements ReadyPaymentUseCase {
 
         TradeRegisterVendorCommand vendorCommand = TradeRegisterVendorCommand.builder()
                 .orderKey(payment.getOrderKey().toString())
-                .orderAmount(String.valueOf(payment.getPaymentAmount()))
+                .orderAmount(String.valueOf(payment.getPaymentAmount().getValue()))
                 .payMethod(command.payMethod())
                 .goodName(command.goodName())
                 .build();

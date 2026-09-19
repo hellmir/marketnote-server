@@ -436,6 +436,7 @@ class CancelOrderUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(status)
+                        .accumulatedPoint(0L)
                         .build()
         );
 

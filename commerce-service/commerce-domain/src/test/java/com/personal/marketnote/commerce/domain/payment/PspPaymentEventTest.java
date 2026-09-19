@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -29,7 +31,7 @@ class PspPaymentEventTest {
             assertThat(event.getPgShopKey()).isEqualTo("T0000");
             assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.READY);
             assertThat(event.getMethod()).isEqualTo("PACA");
-            assertThat(event.getAmount()).isEqualTo(50000L);
+            assertThat(event.getAmount()).isEqualTo(Money.of(50000L));
         }
     }
 

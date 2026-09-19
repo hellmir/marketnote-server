@@ -91,7 +91,7 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
     private long calculateTotalProductAmount(List<OrderProduct> orderProducts, Set<Long> targetPricePolicyIds) {
         return orderProducts.stream()
                 .filter(product -> targetPricePolicyIds.contains(product.getPricePolicyId()))
-                .mapToLong(product -> Math.multiplyExact(product.getUnitAmount(), product.getQuantity().longValue()))
+                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().longValue()).getValue())
                 .reduce(0L, Math::addExact);
     }
 
@@ -129,8 +129,8 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
     }
 
     private long calculateEstimatedRefundCash(Order order, long totalProductAmount, boolean isFullReturn) {
-        Long pointAmount = order.getAmount().getPointAmount();
-        if (FormatValidator.hasNoValue(pointAmount) || pointAmount <= 0) {
+        long pointAmount = order.getAmount().getPointAmount().getValue();
+        if (pointAmount <= 0) {
             return 0L;
         }
 
@@ -138,8 +138,8 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
             return pointAmount;
         }
 
-        Long totalAmount = order.getAmount().getTotalAmount();
-        if (FormatValidator.hasNoValue(totalAmount) || totalAmount <= 0) {
+        long totalAmount = order.getAmount().getTotalAmount().getValue();
+        if (totalAmount <= 0) {
             return 0L;
         }
 

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.returnshipping;
 
+import com.personal.marketnote.common.domain.money.Money;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -10,17 +11,17 @@ public class ReturnShippingFeeContext {
     private FaultType faultType;
     private InitialShippingType initialShippingType;
     private ReturnType returnType;
-    private long remainingAmount;
-    private long freeShippingThreshold;
-    private long shippingFee;
+    private Money remainingAmount;
+    private Money freeShippingThreshold;
+    private Money shippingFee;
 
     public static ReturnShippingFeeContext of(
             FaultType faultType,
             InitialShippingType initialShippingType,
             ReturnType returnType,
-            long remainingAmount,
-            long freeShippingThreshold,
-            long shippingFee
+            Money remainingAmount,
+            Money freeShippingThreshold,
+            Money shippingFee
     ) {
         return ReturnShippingFeeContext.builder()
                 .faultType(faultType)
@@ -45,6 +46,6 @@ public class ReturnShippingFeeContext {
     }
 
     public boolean isBelowFreeShippingThreshold() {
-        return remainingAmount < freeShippingThreshold;
+        return remainingAmount.isLessThan(freeShippingThreshold);
     }
 }

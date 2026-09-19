@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.returnshipping;
 
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,9 +10,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("ReturnShippingFeeCalculator 테스트")
 class ReturnShippingFeeCalculatorTest {
 
-    private static final long ONE_WAY_SHIPPING_FEE = 3000L;
-    private static final long ROUND_TRIP_SHIPPING_FEE = 6000L;
-    private static final long FREE_SHIPPING_THRESHOLD = 30000L;
+    private static final Money ONE_WAY_SHIPPING_FEE = Money.of(3000L);
+    private static final Money ROUND_TRIP_SHIPPING_FEE = Money.of(6000L);
+    private static final Money FREE_SHIPPING_THRESHOLD = Money.of(30000L);
 
     @Nested
     @DisplayName("판매자 귀책")
@@ -24,14 +25,14 @@ class ReturnShippingFeeCalculatorTest {
                     FaultType.SELLER,
                     InitialShippingType.FREE_SHIPPING,
                     ReturnType.FULL_RETURN,
-                    0L,
+                    Money.zero(),
                     FREE_SHIPPING_THRESHOLD,
                     ONE_WAY_SHIPPING_FEE
             );
 
-            long result = ReturnShippingFeeCalculator.calculate(context);
+            Money result = ReturnShippingFeeCalculator.calculate(context);
 
-            assertThat(result).isZero();
+            assertThat(result).isEqualTo(Money.zero());
         }
     }
 
@@ -46,12 +47,12 @@ class ReturnShippingFeeCalculatorTest {
                     FaultType.BUYER,
                     InitialShippingType.PAID_SHIPPING,
                     ReturnType.FULL_RETURN,
-                    0L,
+                    Money.zero(),
                     FREE_SHIPPING_THRESHOLD,
                     ONE_WAY_SHIPPING_FEE
             );
 
-            long result = ReturnShippingFeeCalculator.calculate(context);
+            Money result = ReturnShippingFeeCalculator.calculate(context);
 
             assertThat(result).isEqualTo(ONE_WAY_SHIPPING_FEE);
         }
@@ -68,12 +69,12 @@ class ReturnShippingFeeCalculatorTest {
                     FaultType.BUYER,
                     InitialShippingType.FREE_SHIPPING,
                     ReturnType.FULL_RETURN,
-                    0L,
+                    Money.zero(),
                     FREE_SHIPPING_THRESHOLD,
                     ONE_WAY_SHIPPING_FEE
             );
 
-            long result = ReturnShippingFeeCalculator.calculate(context);
+            Money result = ReturnShippingFeeCalculator.calculate(context);
 
             assertThat(result).isEqualTo(ROUND_TRIP_SHIPPING_FEE);
         }
@@ -90,12 +91,12 @@ class ReturnShippingFeeCalculatorTest {
                     FaultType.BUYER,
                     InitialShippingType.FREE_SHIPPING,
                     ReturnType.PARTIAL_RETURN,
-                    29999L,
+                    Money.of(29999L),
                     FREE_SHIPPING_THRESHOLD,
                     ONE_WAY_SHIPPING_FEE
             );
 
-            long result = ReturnShippingFeeCalculator.calculate(context);
+            Money result = ReturnShippingFeeCalculator.calculate(context);
 
             assertThat(result).isEqualTo(ROUND_TRIP_SHIPPING_FEE);
         }
@@ -107,12 +108,12 @@ class ReturnShippingFeeCalculatorTest {
                     FaultType.BUYER,
                     InitialShippingType.FREE_SHIPPING,
                     ReturnType.PARTIAL_RETURN,
-                    35000L,
+                    Money.of(35000L),
                     FREE_SHIPPING_THRESHOLD,
                     ONE_WAY_SHIPPING_FEE
             );
 
-            long result = ReturnShippingFeeCalculator.calculate(context);
+            Money result = ReturnShippingFeeCalculator.calculate(context);
 
             assertThat(result).isEqualTo(ONE_WAY_SHIPPING_FEE);
         }
@@ -129,7 +130,7 @@ class ReturnShippingFeeCalculatorTest {
                     ONE_WAY_SHIPPING_FEE
             );
 
-            long result = ReturnShippingFeeCalculator.calculate(context);
+            Money result = ReturnShippingFeeCalculator.calculate(context);
 
             assertThat(result).isEqualTo(ONE_WAY_SHIPPING_FEE);
         }

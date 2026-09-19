@@ -223,6 +223,7 @@ class OrderTest {
                                 .pricePolicyId(1L)
                                 .quantity(1)
                                 .unitAmount(10000L)
+                                .accumulatedPoint(0L)
                                 .build()
                 ))
                 .build();
@@ -253,10 +254,10 @@ class OrderTest {
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(1L).sellerId(10L).pricePolicyId(1L)
-                                .quantity(1).unitAmount(10000L).orderStatus(status).build(),
+                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L).orderStatus(status).build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(1L).sellerId(10L).pricePolicyId(2L)
-                                .quantity(2).unitAmount(20000L).orderStatus(status).build()
+                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L).orderStatus(status).build()
                 ))
                 .build());
     }
@@ -273,10 +274,10 @@ class OrderTest {
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(1L).sellerId(10L).pricePolicyId(1L)
-                                .quantity(1).unitAmount(10000L).orderStatus(OrderStatus.DELIVERED).build(),
+                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L).orderStatus(OrderStatus.DELIVERED).build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(1L).sellerId(10L).pricePolicyId(2L)
-                                .quantity(2).unitAmount(20000L).orderStatus(OrderStatus.DELIVERED).build()
+                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L).orderStatus(OrderStatus.DELIVERED).build()
                 ))
                 .build());
     }
@@ -293,10 +294,10 @@ class OrderTest {
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(1L).sellerId(10L).pricePolicyId(1L)
-                                .quantity(1).unitAmount(10000L).orderStatus(OrderStatus.RETURN_IN_PROGRESS).build(),
+                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L).orderStatus(OrderStatus.RETURN_IN_PROGRESS).build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(1L).sellerId(10L).pricePolicyId(2L)
-                                .quantity(2).unitAmount(20000L).orderStatus(OrderStatus.RETURN_IN_PROGRESS).build()
+                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L).orderStatus(OrderStatus.RETURN_IN_PROGRESS).build()
                 ))
                 .build());
     }

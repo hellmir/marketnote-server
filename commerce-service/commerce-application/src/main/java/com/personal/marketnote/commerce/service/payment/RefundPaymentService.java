@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundCreateState;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.exception.PaymentAlreadyRefundedException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
@@ -197,7 +198,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
             return;
         }
 
-        payment.markAsPartiallyRefunded(cancelAmount);
+        payment.markAsPartiallyRefunded(Money.of(cancelAmount));
         event.partialRefund(rawResponse);
     }
 

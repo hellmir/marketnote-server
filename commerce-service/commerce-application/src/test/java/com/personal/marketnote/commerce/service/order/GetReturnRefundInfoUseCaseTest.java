@@ -315,7 +315,8 @@ class GetReturnRefundInfoUseCaseTest {
                                 .unitAmount(totalProductAmount)
                                 .quantity(1)
                                 .orderStatus(status)
-                                .build()
+                                .accumulatedPoint(0L)
+                        .build()
                 ))
                 .build());
     }
@@ -343,7 +344,8 @@ class GetReturnRefundInfoUseCaseTest {
                                 .unitAmount(unitAmount1)
                                 .quantity(quantity1)
                                 .orderStatus(status)
-                                .build(),
+                                .accumulatedPoint(0L)
+                        .build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(ORDER_ID)
                                 .sellerId(SELLER_ID)
@@ -351,7 +353,8 @@ class GetReturnRefundInfoUseCaseTest {
                                 .unitAmount(unitAmount2)
                                 .quantity(quantity2)
                                 .orderStatus(status)
-                                .build()
+                                .accumulatedPoint(0L)
+                        .build()
                 ))
                 .build());
     }

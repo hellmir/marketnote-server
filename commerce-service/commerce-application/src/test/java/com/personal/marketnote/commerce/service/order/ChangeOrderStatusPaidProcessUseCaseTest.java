@@ -60,10 +60,8 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId = 10L;
             Long accumulatedPoint = 500L;
 
-            Order order = createOrderWithoutSharer(orderId, buyerId, pricePolicyId);
+            Order order = createOrderWithoutSharer(orderId, buyerId, pricePolicyId, accumulatedPoint);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, createProductInfoResultWithPoint(accumulatedPoint)));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -75,6 +73,7 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
 
             // then
             verify(modifyUserPointPort).addPendingProductAccumulationPoints(buyerId, accumulatedPoint, orderId);
+            verifyNoInteractions(findProductByPricePolicyPort);
         }
 
         @Test
@@ -86,13 +85,8 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
 
-            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 2, pricePolicyId2, 3);
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 2, 500L, pricePolicyId2, 3, 300L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId1, pricePolicyId2)))
-                    .thenReturn(Map.of(
-                            pricePolicyId1, createProductInfoResultWithPoint(500L),
-                            pricePolicyId2, createProductInfoResultWithPoint(300L)
-                    ));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -105,21 +99,20 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             // then
             Long expectedTotal = 500L * 2 + 300L * 3;
             verify(modifyUserPointPort).addPendingProductAccumulationPoints(buyerId, expectedTotal, orderId);
+            verifyNoInteractions(findProductByPricePolicyPort);
         }
 
         @Test
-        @DisplayName("상품 정보 조회 결과에 해당 상품이 없으면 해당 상품의 적립 포인트를 건너뛴다")
-        void shouldSkipWhenProductInfoNotFound() {
+        @DisplayName("일부 상품의 적립 포인트가 0이면 0은 합산에 포함되지만 결과에 영향을 주지 않는다")
+        void shouldIncludeZeroPointProductsInSum() {
             // given
             Long orderId = 1L;
             Long buyerId = 100L;
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
 
-            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 1, pricePolicyId2, 1);
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId1, pricePolicyId2)))
-                    .thenReturn(Map.of(pricePolicyId1, createProductInfoResultWithPoint(500L)));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -131,24 +124,20 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
 
             // then
             verify(modifyUserPointPort).addPendingProductAccumulationPoints(buyerId, 500L, orderId);
+            verifyNoInteractions(findProductByPricePolicyPort);
         }
 
         @Test
-        @DisplayName("상품의 적립 포인트가 null이면 해당 상품의 적립 포인트를 건너뛴다")
-        void shouldSkipWhenAccumulatedPointIsNull() {
+        @DisplayName("한 상품의 적립 포인트가 0이면 해당 상품은 합산에 0으로 포함된다")
+        void shouldSumWithZeroWhenAccumulatedPointIsZero() {
             // given
             Long orderId = 1L;
             Long buyerId = 100L;
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
 
-            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 1, pricePolicyId2, 1);
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId1, pricePolicyId2)))
-                    .thenReturn(Map.of(
-                            pricePolicyId1, createProductInfoResultWithPoint(500L),
-                            pricePolicyId2, createProductInfoResultWithPoint(null)
-                    ));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -160,6 +149,7 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
 
             // then
             verify(modifyUserPointPort).addPendingProductAccumulationPoints(buyerId, 500L, orderId);
+            verifyNoInteractions(findProductByPricePolicyPort);
         }
 
         @Test
@@ -172,8 +162,6 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
 
             Order order = createOrderWithoutSharer(orderId, buyerId, pricePolicyId);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, createProductInfoResultWithPoint(0L)));
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)
@@ -185,6 +173,7 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
 
             // then
             verify(modifyUserPointPort, never()).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
+            verifyNoInteractions(findProductByPricePolicyPort);
         }
 
         @Test
@@ -195,10 +184,8 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long buyerId = 100L;
             Long pricePolicyId = 10L;
 
-            Order order = createOrderWithoutSharer(orderId, buyerId, pricePolicyId);
+            Order order = createOrderWithoutSharer(orderId, buyerId, pricePolicyId, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
-                    .thenReturn(Map.of(pricePolicyId, createProductInfoResultWithPoint(500L)));
             doThrow(new RuntimeException("리워드 서비스 요청 실패"))
                     .when(modifyUserPointPort).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
 
@@ -235,6 +222,7 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
                         .quantity(1)
                         .unitAmount(totalAmount)
                         .orderStatus(OrderStatus.PAYMENT_PENDING)
+                        .accumulatedPoint(0L)
                         .build()
         );
 
@@ -253,6 +241,10 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
     }
 
     private Order createOrderWithoutSharer(Long orderId, Long buyerId, Long pricePolicyId) {
+        return createOrderWithoutSharer(orderId, buyerId, pricePolicyId, 0L);
+    }
+
+    private Order createOrderWithoutSharer(Long orderId, Long buyerId, Long pricePolicyId, Long accumulatedPoint) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -261,6 +253,7 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(OrderStatus.PAYMENT_PENDING)
+                        .accumulatedPoint(accumulatedPoint)
                         .build()
         );
 
@@ -283,6 +276,14 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId1, int quantity1,
             Long pricePolicyId2, int quantity2
     ) {
+        return createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, quantity1, 0L, pricePolicyId2, quantity2, 0L);
+    }
+
+    private Order createOrderWithMultipleProducts(
+            Long orderId, Long buyerId,
+            Long pricePolicyId1, int quantity1, Long accPoint1,
+            Long pricePolicyId2, int quantity2, Long accPoint2
+    ) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -291,6 +292,7 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
                         .quantity(quantity1)
                         .unitAmount(50000L)
                         .orderStatus(OrderStatus.PAYMENT_PENDING)
+                        .accumulatedPoint(accPoint1)
                         .build(),
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -299,6 +301,7 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
                         .quantity(quantity2)
                         .unitAmount(30000L)
                         .orderStatus(OrderStatus.PAYMENT_PENDING)
+                        .accumulatedPoint(accPoint2)
                         .build()
         );
 

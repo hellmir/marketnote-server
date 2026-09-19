@@ -68,9 +68,9 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .sellerId(orderProduct.getSellerId())
                 .sharerKey(orderProduct.getSharerKey())
                 .quantity(orderProduct.getQuantity())
-                .unitAmount(orderProduct.getUnitAmount())
+                .unitAmount(orderProduct.getUnitAmount().getValue())
                 .imageUrl(orderProduct.getImageUrl())
-                .accumulatedPoint(orderProduct.getAccumulatedPoint())
+                .accumulatedPoint(orderProduct.getAccumulatedPoint().getValue())
                 .orderStatus(orderProduct.getOrderStatus())
                 .confirmedAt(orderProduct.getConfirmedAt())
                 .deliveredAt(orderProduct.getDeliveredAt())
@@ -79,9 +79,9 @@ public class OrderProductJpaEntity extends BaseEntity {
 
     public void updateFrom(OrderProduct orderProduct) {
         quantity = orderProduct.getQuantity();
-        unitAmount = orderProduct.getUnitAmount();
+        unitAmount = orderProduct.getUnitAmount().getValue();
         imageUrl = orderProduct.getImageUrl();
-        accumulatedPoint = orderProduct.getAccumulatedPoint();
+        accumulatedPoint = orderProduct.getAccumulatedPoint().getValue();
         orderStatus = orderProduct.getOrderStatus();
         isReviewed = orderProduct.getIsReviewed();
         confirmedAt = orderProduct.getConfirmedAt();

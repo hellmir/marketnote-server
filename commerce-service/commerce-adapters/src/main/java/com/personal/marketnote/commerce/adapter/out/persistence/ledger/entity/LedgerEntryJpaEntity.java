@@ -45,7 +45,7 @@ public class LedgerEntryJpaEntity {
         return LedgerEntryJpaEntity.builder()
                 .accountId(entry.getAccountId())
                 .transactionId(entry.getTransactionId())
-                .amount(entry.getAmount())
+                .amount(entry.getAmount().getValue())
                 .transactionType(entry.getTransactionType())
                 .build();
     }
