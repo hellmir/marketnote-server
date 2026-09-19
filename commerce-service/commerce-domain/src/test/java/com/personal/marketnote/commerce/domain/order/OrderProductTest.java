@@ -54,6 +54,7 @@ class OrderProductTest {
                     .pricePolicyId(100L)
                     .quantity(1)
                     .unitAmount(50000L)
+                    .accumulatedPoint(0L)
                     .orderStatus(OrderStatus.DELIVERED)
                     .deliveredAt(deliveredTime)
                     .build();
@@ -73,6 +74,7 @@ class OrderProductTest {
                 .pricePolicyId(100L)
                 .quantity(1)
                 .unitAmount(50000L)
+                .accumulatedPoint(0L)
                 .orderStatus(status)
                 .build());
     }
@@ -84,6 +86,7 @@ class OrderProductTest {
                 .pricePolicyId(100L)
                 .quantity(1)
                 .unitAmount(50000L)
+                .accumulatedPoint(0L)
                 .orderStatus(OrderStatus.DELIVERED)
                 .deliveredAt(deliveredAt)
                 .build());

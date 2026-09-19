@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
@@ -221,7 +222,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getAmount().getTotalAmount()).isEqualTo(totalAmount);
+            assertThat(result.getAmount().getTotalAmount()).isEqualTo(Money.of(totalAmount));
         }
 
         @Test
@@ -249,7 +250,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getAmount().getCouponAmount()).isEqualTo(couponAmount);
+            assertThat(result.getAmount().getCouponAmount()).isEqualTo(Money.of(couponAmount));
         }
 
         @Test
@@ -263,7 +264,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getAmount().getPointAmount()).isEqualTo(pointAmount);
+            assertThat(result.getAmount().getPointAmount()).isEqualTo(Money.of(pointAmount));
         }
 
         @Test
@@ -653,7 +654,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getAmount().getTotalAmount()).isEqualTo(0L);
+            assertThat(result.getAmount().getTotalAmount()).isEqualTo(Money.of(0L));
         }
 
         @Test
@@ -666,7 +667,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getAmount().getTotalAmount()).isNull();
+            assertThat(result.getAmount().getTotalAmount()).isEqualTo(Money.zero());
         }
 
         @Test
@@ -680,7 +681,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getAmount().getTotalAmount()).isEqualTo(largeTotalAmount);
+            assertThat(result.getAmount().getTotalAmount()).isEqualTo(Money.of(largeTotalAmount));
         }
 
         @Test
@@ -848,6 +849,7 @@ class GetOrderUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(OrderStatus.PAID)
+                        .accumulatedPoint(0L)
                         .build())
                 .toList();
 

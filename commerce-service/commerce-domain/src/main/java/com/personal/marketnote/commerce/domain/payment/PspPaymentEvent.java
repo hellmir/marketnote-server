@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.payment;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -22,7 +23,7 @@ public class PspPaymentEvent {
     private String shopTransactionId;
     private PaymentEventStatus poStatus;
     private String method;
-    private Long amount;
+    private Money amount;
     private Long vatAmount;
     private Long natAmount;
     private String cardNumber;
@@ -70,7 +71,7 @@ public class PspPaymentEvent {
                 .shopTransactionId(state.getShopTransactionId())
                 .poStatus(state.getPoStatus())
                 .method(state.getMethod())
-                .amount(state.getAmount())
+                .amount(Money.of(state.getAmount()))
                 .vatAmount(state.getVatAmount())
                 .natAmount(state.getNatAmount())
                 .cardNumber(state.getCardNumber())

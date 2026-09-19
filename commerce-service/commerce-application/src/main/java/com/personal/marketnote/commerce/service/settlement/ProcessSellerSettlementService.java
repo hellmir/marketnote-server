@@ -67,10 +67,10 @@ public class ProcessSellerSettlementService {
             throw new SettlementAlreadyExistsException(sellerId, year, month);
         }
 
-        long totalAllocatedAmount = calculateNetAmount(sellerAllocations, PaymentAllocation::getAllocatedAmount);
+        long totalAllocatedAmount = calculateNetAmount(sellerAllocations, allocation -> allocation.getAllocatedAmount().getValue());
 
         long totalShippingFee = calculateNetAmount(sellerAllocations,
-                allocation -> allocation.getShippingFee() != null ? allocation.getShippingFee() : 0L);
+                allocation -> allocation.getShippingFee() != null ? allocation.getShippingFee().getValue() : 0L);
 
         long feeBase = Math.addExact(totalAllocatedAmount, totalShippingFee);
         long pgFeeAmount = Math.multiplyExact(feeBase, pgFeeRate) / BASIS_POINT_DENOMINATOR;

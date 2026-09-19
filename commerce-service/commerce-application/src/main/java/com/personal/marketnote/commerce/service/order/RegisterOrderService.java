@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.shipping.ShippingFeeCalculator;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.shipping.ShippingFeeContext;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.mapper.OrderCommandToStateMapper;
@@ -199,8 +200,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 continue;
             }
 
-            ShippingFeeContext context = ShippingFeeContext.of(sellerAmount, policy.shippingFee(), policy.freeShippingThreshold());
-            long baseFee = ShippingFeeCalculator.calculateBaseFee(context);
+            ShippingFeeContext context = ShippingFeeContext.of(Money.of(sellerAmount), Money.of(policy.shippingFee()), Money.of(policy.freeShippingThreshold()));
+            long baseFee = ShippingFeeCalculator.calculateBaseFee(context).getValue();
             long surcharge = resolveSurcharge(policy, regionType);
             sellerShippingFees.put(sellerId, Math.addExact(baseFee, surcharge));
         }

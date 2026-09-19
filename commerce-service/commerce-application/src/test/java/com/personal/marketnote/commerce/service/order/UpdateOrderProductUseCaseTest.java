@@ -164,6 +164,7 @@ class UpdateOrderProductUseCaseTest {
                         .pricePolicyId(pricePolicyId)
                         .quantity(1)
                         .unitAmount(10000L)
+                        .accumulatedPoint(0L)
                         .orderStatus(OrderStatus.DELIVERED)
                         .isReviewed(isReviewed)
                         .build()

@@ -50,13 +50,14 @@ public class OrderCommandToStateMapper {
 
     private static Long resolveAccumulatedPoint(Long pricePolicyId, Map<Long, ProductInfoResult> productInfoMap) {
         if (FormatValidator.hasNoValue(productInfoMap)) {
-            return null;
+            return 0L;
         }
         ProductInfoResult productInfo = productInfoMap.get(pricePolicyId);
         if (FormatValidator.hasNoValue(productInfo)) {
-            return null;
+            return 0L;
         }
-        return productInfo.accumulatedPoint();
+        Long accumulatedPoint = productInfo.accumulatedPoint();
+        return FormatValidator.hasValue(accumulatedPoint) ? accumulatedPoint : 0L;
     }
 
     public static OrderAmountCreateState mapToOrderAmountState(OrderAmountCommand amountCommand) {

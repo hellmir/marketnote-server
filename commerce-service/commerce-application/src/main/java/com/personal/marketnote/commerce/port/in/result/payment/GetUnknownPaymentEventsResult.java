@@ -21,7 +21,7 @@ public record GetUnknownPaymentEventsResult(
                 .id(event.getId())
                 .orderId(event.getOrderId())
                 .orderKey(event.getOrderKey())
-                .amount(event.getAmount())
+                .amount(event.getAmount().getValue())
                 .method(event.getMethod())
                 .resultCode(event.getResultCode())
                 .resultMessage(event.getResultMessage())

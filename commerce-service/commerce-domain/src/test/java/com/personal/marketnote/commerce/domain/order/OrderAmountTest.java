@@ -4,6 +4,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OrderAmountTest {
@@ -19,11 +21,11 @@ class OrderAmountTest {
             OrderAmount orderAmount = OrderAmount.of(50000L, 45000L, 3000L, 2000L, 3000L);
 
             // then
-            assertThat(orderAmount.getTotalAmount()).isEqualTo(50000L);
+            assertThat(orderAmount.getTotalAmount()).isEqualTo(Money.of(50000L));
             assertThat(orderAmount.getPaidAmount()).isEqualTo(45000L);
-            assertThat(orderAmount.getCouponAmount()).isEqualTo(3000L);
-            assertThat(orderAmount.getPointAmount()).isEqualTo(2000L);
-            assertThat(orderAmount.getShippingFee()).isEqualTo(3000L);
+            assertThat(orderAmount.getCouponAmount()).isEqualTo(Money.of(3000L));
+            assertThat(orderAmount.getPointAmount()).isEqualTo(Money.of(2000L));
+            assertThat(orderAmount.getShippingFee()).isEqualTo(Money.of(3000L));
         }
 
         @Test
@@ -33,11 +35,11 @@ class OrderAmountTest {
             OrderAmount orderAmount = OrderAmount.of(50000L, null, null, null, null);
 
             // then
-            assertThat(orderAmount.getTotalAmount()).isEqualTo(50000L);
+            assertThat(orderAmount.getTotalAmount()).isEqualTo(Money.of(50000L));
             assertThat(orderAmount.getPaidAmount()).isNull();
-            assertThat(orderAmount.getCouponAmount()).isNull();
-            assertThat(orderAmount.getPointAmount()).isNull();
-            assertThat(orderAmount.getShippingFee()).isNull();
+            assertThat(orderAmount.getCouponAmount()).isEqualTo(Money.zero());
+            assertThat(orderAmount.getPointAmount()).isEqualTo(Money.zero());
+            assertThat(orderAmount.getShippingFee()).isEqualTo(Money.zero());
         }
     }
 }

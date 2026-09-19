@@ -1373,6 +1373,7 @@ class GetBuyerOrderProductsUseCaseTest {
                         .orderStatus(input.orderStatus())
                         .isReviewed(input.isReviewed())
                         .confirmedAt(input.confirmedAt())
+                        .accumulatedPoint(0L)
                         .build())
                 .toList();
 
@@ -1402,6 +1403,7 @@ class GetBuyerOrderProductsUseCaseTest {
                         .unitAmount(50000L)
                         .orderStatus(input.orderStatus())
                         .isReviewed(input.isReviewed())
+                        .accumulatedPoint(0L)
                         .build())
                 .toList();
 
@@ -1432,6 +1434,7 @@ class GetBuyerOrderProductsUseCaseTest {
                         .unitAmount(50000L)
                         .orderStatus(productStatus)
                         .isReviewed(null)
+                        .accumulatedPoint(0L)
                         .build()
         );
 

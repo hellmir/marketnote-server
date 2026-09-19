@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.ledger;
 
+import com.personal.marketnote.common.domain.money.Money;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -41,28 +42,28 @@ public class LedgerTransaction {
     }
 
     public void validateEntries(List<LedgerEntry> entries) {
-        boolean hasNegativeOrZeroAmount = entries.stream()
-                .anyMatch(entry -> entry.getAmount() <= 0);
-        if (hasNegativeOrZeroAmount) {
+        boolean hasNonPositiveAmount = entries.stream()
+                .anyMatch(entry -> !entry.getAmount().isPositive());
+        if (hasNonPositiveAmount) {
             throw new InvalidLedgerEntryAmountException();
         }
 
-        long debitTotal = 0L;
+        Money debitTotal = Money.zero();
         for (LedgerEntry entry : entries) {
             if (entry.getTransactionType().isDebit()) {
-                debitTotal = Math.addExact(debitTotal, entry.getAmount());
+                debitTotal = debitTotal.add(entry.getAmount());
             }
         }
 
-        long creditTotal = 0L;
+        Money creditTotal = Money.zero();
         for (LedgerEntry entry : entries) {
             if (entry.getTransactionType().isCredit()) {
-                creditTotal = Math.addExact(creditTotal, entry.getAmount());
+                creditTotal = creditTotal.add(entry.getAmount());
             }
         }
 
-        if (debitTotal != creditTotal) {
-            throw new LedgerEntryImbalanceException(debitTotal, creditTotal);
+        if (!debitTotal.equals(creditTotal)) {
+            throw new LedgerEntryImbalanceException(debitTotal.getValue(), creditTotal.getValue());
         }
     }
 }

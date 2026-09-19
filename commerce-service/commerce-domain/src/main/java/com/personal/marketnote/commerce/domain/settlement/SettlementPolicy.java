@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.domain.settlement;
 
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -30,7 +31,7 @@ public class SettlementPolicy extends BaseDomain {
     private Integer pgFeeRate;
     private Integer platformFeeRate;
     private SettlementCycle settlementCycle;
-    private Long minPayoutAmount;
+    private Money minPayoutAmount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -49,7 +50,7 @@ public class SettlementPolicy extends BaseDomain {
                 .pgFeeRate(state.getPgFeeRate())
                 .platformFeeRate(state.getPlatformFeeRate())
                 .settlementCycle(state.getSettlementCycle())
-                .minPayoutAmount(state.getMinPayoutAmount())
+                .minPayoutAmount(Money.of(state.getMinPayoutAmount()))
                 .build();
         policy.status = EntityStatus.ACTIVE;
         return policy;
@@ -66,7 +67,7 @@ public class SettlementPolicy extends BaseDomain {
                 .pgFeeRate(state.getPgFeeRate())
                 .platformFeeRate(state.getPlatformFeeRate())
                 .settlementCycle(state.getSettlementCycle())
-                .minPayoutAmount(state.getMinPayoutAmount())
+                .minPayoutAmount(Money.of(state.getMinPayoutAmount()))
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -88,7 +89,7 @@ public class SettlementPolicy extends BaseDomain {
         this.pgFeeRate = pgFeeRate;
         this.platformFeeRate = platformFeeRate;
         this.settlementCycle = settlementCycle;
-        this.minPayoutAmount = minPayoutAmount;
+        this.minPayoutAmount = Money.of(minPayoutAmount);
     }
 
     /**

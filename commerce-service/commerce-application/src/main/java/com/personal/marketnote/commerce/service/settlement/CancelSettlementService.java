@@ -56,8 +56,8 @@ public class CancelSettlementService implements CancelSettlementUseCase {
 
         settlement.cancel();
 
-        recordPgSettlementCancellation(settlementId, settlement.getTotalAllocatedAmount(), settlement.getPgFeeAmount());
-        recordSellerSettlementCancellation(settlementId, settlement.getSellerPayoutAmount(), settlement.getPlatformFeeAmount());
+        recordPgSettlementCancellation(settlementId, settlement.getTotalAllocatedAmount().getValue(), settlement.getPgFeeAmount().getValue());
+        recordSellerSettlementCancellation(settlementId, settlement.getSellerPayoutAmount().getValue(), settlement.getPlatformFeeAmount().getValue());
 
         updateSettlementPort.update(settlement);
 

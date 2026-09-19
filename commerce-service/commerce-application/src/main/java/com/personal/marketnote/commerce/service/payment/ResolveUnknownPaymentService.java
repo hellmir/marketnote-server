@@ -119,7 +119,7 @@ public class ResolveUnknownPaymentService implements ResolveUnknownPaymentUseCas
     private void recordLedgerEntry(Payment payment) {
         try {
             recordLedgerEntryUseCase.recordPaymentApproval(
-                    payment.getOrderId(), payment.getPaymentAmount()
+                    payment.getOrderId(), payment.getPaymentAmount().getValue()
             );
         } catch (Exception e) {
             log.error("UNKNOWN 해소 분개 기록 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);

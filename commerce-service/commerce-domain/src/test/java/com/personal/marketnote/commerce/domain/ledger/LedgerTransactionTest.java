@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidMoneyAmountException;
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -117,34 +120,9 @@ class LedgerTransactionTest {
         @Test
         @DisplayName("음수 금액이 포함되면 예외를 던진다")
         void shouldThrowWhenNegativeAmount() {
-            // given
-            LedgerTransaction transaction = LedgerTransaction.from(
-                    LedgerTransactionCreateState.builder()
-                            .transactionType(LedgerTransactionType.PAYMENT_APPROVAL)
-                            .targetType("ORDER")
-                            .targetId(1L)
-                            .description("결제 승인")
-                            .idempotencyKey("PAYMENT_APPROVAL:1")
-                            .build()
-            );
-
-            List<LedgerEntry> entries = List.of(
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(1L)
-                            .amount(-5000L)
-                            .transactionType(TransactionType.DEBIT)
-                            .build()),
-                    LedgerEntry.from(LedgerEntryCreateState.builder()
-                            .accountId(2L)
-                            .amount(-5000L)
-                            .transactionType(TransactionType.CREDIT)
-                            .build())
-            );
-
-            // when & then
-            assertThatThrownBy(() -> transaction.validateEntries(entries))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+            // Money VO가 생성 시점에 음수를 거부하므로 Money.of(-5000L) 자체가 예외를 던진다
+            assertThatThrownBy(() -> Money.of(-5000L))
+                    .isInstanceOf(InvalidMoneyAmountException.class);
         }
 
         @Test

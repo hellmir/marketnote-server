@@ -115,7 +115,8 @@ public class OrderReturnedInventoryConsumer {
                                 .quantity(item.quantity())
                                 .unitAmount(item.unitAmount())
                                 .sharerKey(item.sharerKey())
-                                .build()
+                                .accumulatedPoint(0L)
+                        .build()
                 ))
                 .toList();
     }

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -38,7 +40,7 @@ class RefundTest {
             assertThat(refund.getPaymentId()).isEqualTo(1L);
             assertThat(refund.getOrderId()).isEqualTo(10L);
             assertThat(refund.getRefundType()).isEqualTo(RefundType.FULL_REFUND);
-            assertThat(refund.getRefundAmount()).isEqualTo(50000L);
+            assertThat(refund.getRefundAmount()).isEqualTo(Money.of(50000L));
             assertThat(refund.getCancelReason()).isEqualTo("고객 요청");
             assertThat(refund.getProcessedBy()).isEqualTo("SYSTEM");
             assertThat(refund.getPgRefundKey()).isEqualTo("tno_123");
@@ -63,7 +65,7 @@ class RefundTest {
 
             // then
             assertThat(refund.getRefundType()).isEqualTo(RefundType.PARTIAL_REFUND);
-            assertThat(refund.getRefundAmount()).isEqualTo(20000L);
+            assertThat(refund.getRefundAmount()).isEqualTo(Money.of(20000L));
         }
     }
 

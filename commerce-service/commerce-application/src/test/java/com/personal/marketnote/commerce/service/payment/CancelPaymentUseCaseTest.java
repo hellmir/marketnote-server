@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.payment;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.domain.refund.Refund;
@@ -113,7 +114,7 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(updatePaymentPort).update(argThat(p ->
-                    Boolean.TRUE.equals(p.getRefundedYn()) && p.getRefundAmount().equals(50000L)
+                    Boolean.TRUE.equals(p.getRefundedYn()) && p.getRefundAmount().equals(Money.of(50000L))
             ));
         }
 
@@ -144,7 +145,7 @@ class CancelPaymentUseCaseTest {
         @DisplayName("이미 부분환불된 결제의 전체 취소 시 잔여액만 취소된다")
         void shouldCancelOnlyRemainingAmountWhenPartiallyRefunded() {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            payment.markAsPartiallyRefunded(10000L);
+            payment.markAsPartiallyRefunded(Money.of(10000L));
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
@@ -182,7 +183,7 @@ class CancelPaymentUseCaseTest {
             cancelPaymentService.cancel(command);
 
             verify(updatePaymentPort).update(argThat(p ->
-                    p.getRefundAmount().equals(20000L) && Boolean.FALSE.equals(p.getRefundedYn())
+                    p.getRefundAmount().equals(Money.of(20000L)) && Boolean.FALSE.equals(p.getRefundedYn())
             ));
         }
 
@@ -295,7 +296,7 @@ class CancelPaymentUseCaseTest {
         @DisplayName("이미 부분환불된 상태에서 잔여액을 초과하는 부분 취소는 실패한다")
         void shouldThrowWhenCancelAmountExceedsRemainingAfterPartialRefund() {
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            payment.markAsPartiallyRefunded(30000L);
+            payment.markAsPartiallyRefunded(Money.of(30000L));
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 25000L);
 
@@ -793,7 +794,7 @@ class CancelPaymentUseCaseTest {
 
             verify(saveRefundPort).save(argThat(refund ->
                     refund.getRefundType() == RefundType.FULL_REFUND
-                            && refund.getRefundAmount().equals(50000L)
+                            && refund.getRefundAmount().equals(Money.of(50000L))
                             && "SYSTEM".equals(refund.getProcessedBy())
             ));
         }
@@ -815,7 +816,7 @@ class CancelPaymentUseCaseTest {
 
             verify(saveRefundPort).save(argThat(refund ->
                     refund.getRefundType() == RefundType.PARTIAL_REFUND
-                            && refund.getRefundAmount().equals(20000L)
+                            && refund.getRefundAmount().equals(Money.of(20000L))
             ));
         }
 
@@ -869,19 +870,17 @@ class CancelPaymentUseCaseTest {
         @Test
         @DisplayName("부분 취소 시 취소 금액에 비례하여 적립 예정 포인트가 차감된다")
         void shouldReducePendingPointsProportionally() {
-            // 결제금액 50000, 부분취소 20000 (40%), 적립포인트 1000 → 비례 400
+            // 결제금액 50000, 부분취소 20000 (40%), 적립포인트 500*2=1000 → 비례 400
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L);
+            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L, 500L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, createProductInfoWithPoint(500L)));
 
             cancelPaymentService.cancel(command);
 
@@ -901,8 +900,6 @@ class CancelPaymentUseCaseTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, createProductInfoWithPoint(0L)));
 
             cancelPaymentService.cancel(command);
 
@@ -921,8 +918,6 @@ class CancelPaymentUseCaseTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenThrow(new RuntimeException("상품 서비스 장애"));
 
             cancelPaymentService.cancel(command);
 
@@ -937,14 +932,12 @@ class CancelPaymentUseCaseTest {
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L);
+            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L, 500L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, createProductInfoWithPoint(500L)));
             doThrow(new RuntimeException("포인트 차감 실패")).when(modifyUserPointPort)
                     .reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
 
@@ -952,26 +945,6 @@ class CancelPaymentUseCaseTest {
 
             verify(updatePaymentPort).update(any());
             verify(updatePspPaymentEventPort).update(any());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 상품 정보에 적립 포인트가 null이면 차감이 호출되지 않는다")
-        void shouldNotReduceWhenAccumulatedPointIsNull() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, createProductInfoWithPoint(null)));
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
         }
 
         @Test
@@ -986,9 +959,11 @@ class CancelPaymentUseCaseTest {
 
             List<OrderProductSnapshotState> productStates = List.of(
                     OrderProductSnapshotState.builder()
-                            .pricePolicyId(100L).quantity(1).sellerId(10L).unitAmount(30000L).build(),
+                            .pricePolicyId(100L).quantity(1).sellerId(10L).unitAmount(30000L).accumulatedPoint(300L)
+                        .build(),
                     OrderProductSnapshotState.builder()
-                            .pricePolicyId(200L).quantity(2).sellerId(10L).unitAmount(20000L).build()
+                            .pricePolicyId(200L).quantity(2).sellerId(10L).unitAmount(20000L).accumulatedPoint(200L)
+                        .build()
             );
             OrderSnapshotState orderState = OrderSnapshotState.builder()
                     .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
@@ -1001,11 +976,6 @@ class CancelPaymentUseCaseTest {
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L, 200L)))
-                    .thenReturn(Map.of(
-                            100L, createProductInfoWithPoint(300L),
-                            200L, createProductInfoWithPoint(200L)
-                    ));
 
             cancelPaymentService.cancel(command);
 
@@ -1093,10 +1063,9 @@ class CancelPaymentUseCaseTest {
         }
 
         @Test
-        @DisplayName("기존 주문 데이터(accumulatedPoint=null)는 기존 비례 계산으로 폴백된다")
-        void shouldFallbackToProportionalWhenSnapshotIsNull() {
-            // accumulatedPoint가 null인 기존 주문 → 비례 계산 폴백
-            // 결제 50000, 부분취소 20000(40%), 상품 적립포인트 1000 → 비례 400
+        @DisplayName("cancelProducts 지정 시 스냅샷 accumulatedPoint 기반으로 차감된다")
+        void shouldDeductBySnapshotAccumulatedPoint() {
+            // accumulatedPoint=500인 상품 2개 반품 → 스냅샷 기반 차감 = 500*2=1000
             Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
 
@@ -1106,21 +1075,18 @@ class CancelPaymentUseCaseTest {
             CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
-            // accumulatedPoint = null (기존 데이터)
-            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 25000L);
+            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 25000L, 500L);
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(100L)))
-                    .thenReturn(Map.of(100L, createProductInfoWithPoint(500L)));
 
             cancelPaymentService.cancel(command);
 
-            // 폴백: 총 적립 500*2=1000, 비례 = round(20000/50000 * 1000) = 400
-            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 400L, 1L);
-            verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(100L));
+            // 스냅샷 기반: 500 * 2 = 1000
+            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 1000L, 1L);
+            verifyNoInteractions(findProductByPricePolicyPort);
         }
 
         @Test
@@ -1492,6 +1458,7 @@ class CancelPaymentUseCaseTest {
                         .quantity(quantities.get(i))
                         .sellerId(sellerIds.get(i))
                         .unitAmount(unitAmounts.get(i))
+                        .accumulatedPoint(0L)
                         .build());
             }
             OrderSnapshotState state = OrderSnapshotState.builder()
@@ -1524,12 +1491,18 @@ class CancelPaymentUseCaseTest {
 
     private Order createOrderWithAccumulatedPoint(Long orderId, Long buyerId, Long totalAmount,
                                                   Long pricePolicyId, int quantity, Long unitAmount) {
+        return createOrderWithAccumulatedPoint(orderId, buyerId, totalAmount, pricePolicyId, quantity, unitAmount, 0L);
+    }
+
+    private Order createOrderWithAccumulatedPoint(Long orderId, Long buyerId, Long totalAmount,
+                                                  Long pricePolicyId, int quantity, Long unitAmount, Long accumulatedPoint) {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
                 .pricePolicyId(pricePolicyId)
                 .quantity(quantity)
                 .sellerId(10L)
                 .unitAmount(unitAmount)
-                .build();
+                .accumulatedPoint(accumulatedPoint)
+                        .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
                 .buyerId(buyerId)
@@ -1584,7 +1557,8 @@ class CancelPaymentUseCaseTest {
                 .quantity(2)
                 .sellerId(10L)
                 .unitAmount(25000L)
-                .build();
+                .accumulatedPoint(0L)
+                        .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
                 .buyerId(buyerId)
@@ -1606,7 +1580,8 @@ class CancelPaymentUseCaseTest {
                     .sellerId(10L)
                     .unitAmount(25000L)
                     .sharerKey(sharerKeys.get(i))
-                    .build());
+                    .accumulatedPoint(0L)
+                        .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)
@@ -1661,7 +1636,8 @@ class CancelPaymentUseCaseTest {
                     .quantity(quantities.get(i))
                     .sellerId(10L)
                     .unitAmount(25000L)
-                    .build());
+                    .accumulatedPoint(0L)
+                        .build());
         }
         OrderSnapshotState state = OrderSnapshotState.builder()
                 .id(orderId)

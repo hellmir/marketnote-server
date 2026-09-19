@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.settlement.*;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
@@ -88,7 +89,8 @@ class ProcessSellerSettlementUseCaseTest {
                 .version(0L)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .shippingFee(0L)
+                        .build());
     }
 
     @Nested
@@ -108,8 +110,8 @@ class ProcessSellerSettlementUseCaseTest {
                     .thenAnswer(invocation -> {
                         Settlement s = invocation.getArgument(0);
                         return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
+                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
                     });
             when(updateSettlementPort.update(any(Settlement.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
@@ -124,10 +126,10 @@ class ProcessSellerSettlementUseCaseTest {
             verify(saveSettlementPort).save(settlementCaptor.capture());
             Settlement savedSettlement = settlementCaptor.getValue();
             assertThat(savedSettlement.getSellerId()).isEqualTo(10L);
-            assertThat(savedSettlement.getTotalAllocatedAmount()).isEqualTo(8000L);
-            assertThat(savedSettlement.getPgFeeAmount()).isEqualTo(240L);
-            assertThat(savedSettlement.getPlatformFeeAmount()).isEqualTo(400L);
-            assertThat(savedSettlement.getSellerPayoutAmount()).isEqualTo(7360L);
+            assertThat(savedSettlement.getTotalAllocatedAmount()).isEqualTo(Money.of(8000L));
+            assertThat(savedSettlement.getPgFeeAmount()).isEqualTo(Money.of(240L));
+            assertThat(savedSettlement.getPlatformFeeAmount()).isEqualTo(Money.of(400L));
+            assertThat(savedSettlement.getSellerPayoutAmount()).isEqualTo(Money.of(7360L));
 
             verify(updatePaymentAllocationPort).assignSettlement(allocationIdsCaptor.capture(), eq(1L));
             assertThat(allocationIdsCaptor.getValue()).containsExactlyInAnyOrder(1L, 2L);
@@ -148,8 +150,8 @@ class ProcessSellerSettlementUseCaseTest {
                     .thenAnswer(invocation -> {
                         Settlement s = invocation.getArgument(0);
                         return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
+                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
                     });
             when(updateSettlementPort.update(any(Settlement.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
@@ -163,8 +165,8 @@ class ProcessSellerSettlementUseCaseTest {
             // then
             verify(saveSettlementPort).save(settlementCaptor.capture());
             Settlement saved = settlementCaptor.getValue();
-            assertThat(saved.getPgFeeAmount()).isEqualTo(0L);
-            assertThat(saved.getSellerPayoutAmount()).isEqualTo(9500L);
+            assertThat(saved.getPgFeeAmount()).isEqualTo(Money.zero());
+            assertThat(saved.getSellerPayoutAmount()).isEqualTo(Money.of(9500L));
         }
 
         @Test
@@ -180,8 +182,8 @@ class ProcessSellerSettlementUseCaseTest {
                     .thenAnswer(invocation -> {
                         Settlement s = invocation.getArgument(0);
                         return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
+                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
                     });
             when(updateSettlementPort.update(any(Settlement.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
@@ -200,11 +202,11 @@ class ProcessSellerSettlementUseCaseTest {
             // then
             verify(saveSettlementPort).save(settlementCaptor.capture());
             Settlement saved = settlementCaptor.getValue();
-            assertThat(saved.getTotalAllocatedAmount()).isEqualTo(5000L);
-            assertThat(saved.getShippingFee()).isEqualTo(3000L);
-            assertThat(saved.getPgFeeAmount()).isEqualTo(240L);
-            assertThat(saved.getPlatformFeeAmount()).isEqualTo(400L);
-            assertThat(saved.getSellerPayoutAmount()).isEqualTo(7360L);
+            assertThat(saved.getTotalAllocatedAmount()).isEqualTo(Money.of(5000L));
+            assertThat(saved.getShippingFee()).isEqualTo(Money.of(3000L));
+            assertThat(saved.getPgFeeAmount()).isEqualTo(Money.of(240L));
+            assertThat(saved.getPlatformFeeAmount()).isEqualTo(Money.of(400L));
+            assertThat(saved.getSellerPayoutAmount()).isEqualTo(Money.of(7360L));
         }
 
         @Test
@@ -233,8 +235,8 @@ class ProcessSellerSettlementUseCaseTest {
                     .thenAnswer(invocation -> {
                         Settlement s = invocation.getArgument(0);
                         return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
+                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
                     });
             when(updateSettlementPort.update(any(Settlement.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
@@ -253,11 +255,11 @@ class ProcessSellerSettlementUseCaseTest {
             // then
             verify(saveSettlementPort).save(settlementCaptor.capture());
             Settlement saved = settlementCaptor.getValue();
-            assertThat(saved.getTotalAllocatedAmount()).isEqualTo(7000L);
-            assertThat(saved.getShippingFee()).isEqualTo(2000L);
-            assertThat(saved.getPgFeeAmount()).isEqualTo(270L);
-            assertThat(saved.getPlatformFeeAmount()).isEqualTo(450L);
-            assertThat(saved.getSellerPayoutAmount()).isEqualTo(8280L);
+            assertThat(saved.getTotalAllocatedAmount()).isEqualTo(Money.of(7000L));
+            assertThat(saved.getShippingFee()).isEqualTo(Money.of(2000L));
+            assertThat(saved.getPgFeeAmount()).isEqualTo(Money.of(270L));
+            assertThat(saved.getPlatformFeeAmount()).isEqualTo(Money.of(450L));
+            assertThat(saved.getSellerPayoutAmount()).isEqualTo(Money.of(8280L));
         }
 
         @Test
@@ -272,8 +274,8 @@ class ProcessSellerSettlementUseCaseTest {
                     .thenAnswer(invocation -> {
                         Settlement s = invocation.getArgument(0);
                         return createSavedSettlement(1L, s.getSellerId(), s.getYear(), s.getMonth(),
-                                s.getTotalAllocatedAmount(), s.getPgFeeAmount(),
-                                s.getPlatformFeeAmount(), s.getSellerPayoutAmount());
+                                s.getTotalAllocatedAmount().getValue(), s.getPgFeeAmount().getValue(),
+                                s.getPlatformFeeAmount().getValue(), s.getSellerPayoutAmount().getValue());
                     });
             when(updateSettlementPort.update(any(Settlement.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
@@ -288,10 +290,10 @@ class ProcessSellerSettlementUseCaseTest {
             verify(saveSettlementPort).save(settlementCaptor.capture());
             Settlement saved = settlementCaptor.getValue();
 
-            long pgFee = saved.getPgFeeAmount();
-            long platformFee = saved.getPlatformFeeAmount();
-            long sellerPayout = saved.getSellerPayoutAmount();
-            long total = saved.getTotalAllocatedAmount();
+            long pgFee = saved.getPgFeeAmount().getValue();
+            long platformFee = saved.getPlatformFeeAmount().getValue();
+            long sellerPayout = saved.getSellerPayoutAmount().getValue();
+            long total = saved.getTotalAllocatedAmount().getValue();
 
             assertThat(pgFee + platformFee + sellerPayout).isEqualTo(total);
         }

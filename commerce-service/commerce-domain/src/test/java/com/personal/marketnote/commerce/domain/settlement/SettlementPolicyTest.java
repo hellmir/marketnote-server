@@ -4,6 +4,8 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -19,7 +21,7 @@ class SettlementPolicyTest {
         assertThat(policy.getPgFeeRate()).isEqualTo(350);
         assertThat(policy.getPlatformFeeRate()).isEqualTo(500);
         assertThat(policy.getSettlementCycle()).isEqualTo(SettlementCycle.MONTHLY);
-        assertThat(policy.getMinPayoutAmount()).isEqualTo(10000L);
+        assertThat(policy.getMinPayoutAmount()).isEqualTo(Money.of(10000L));
     }
 
     @Test
@@ -112,7 +114,7 @@ class SettlementPolicyTest {
         assertThat(policy.getPgFeeRate()).isEqualTo(400);
         assertThat(policy.getPlatformFeeRate()).isEqualTo(600);
         assertThat(policy.getSettlementCycle()).isEqualTo(SettlementCycle.BIWEEKLY);
-        assertThat(policy.getMinPayoutAmount()).isEqualTo(20000L);
+        assertThat(policy.getMinPayoutAmount()).isEqualTo(Money.of(20000L));
     }
 
     @Test

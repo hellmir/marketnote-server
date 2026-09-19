@@ -133,7 +133,7 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
                 .shopTransactionId(event.getShopTransactionId())
                 .poStatus(event.getPoStatus())
                 .method(event.getMethod())
-                .amount(event.getAmount())
+                .amount(event.getAmount().getValue())
                 .vatAmount(event.getVatAmount())
                 .natAmount(event.getNatAmount())
                 .cardNumber(event.getCardNumber())

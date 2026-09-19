@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.payment;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -15,10 +16,10 @@ public class Payment {
     private Long orderId;
     private UUID orderKey;
     private String pgPaymentKey;
-    private Long paymentAmount;
+    private Money paymentAmount;
     private Boolean successYn;
     private Boolean refundedYn;
-    private Long refundAmount;
+    private Money refundAmount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -26,10 +27,10 @@ public class Payment {
         return Payment.builder()
                 .orderId(state.getOrderId())
                 .orderKey(state.getOrderKey())
-                .paymentAmount(state.getPaymentAmount())
+                .paymentAmount(Money.of(state.getPaymentAmount()))
                 .successYn(null)
                 .refundedYn(false)
-                .refundAmount(0L)
+                .refundAmount(Money.zero())
                 .build();
     }
 
@@ -39,10 +40,10 @@ public class Payment {
                 .orderId(state.getOrderId())
                 .orderKey(state.getOrderKey())
                 .pgPaymentKey(state.getPgPaymentKey())
-                .paymentAmount(state.getPaymentAmount())
+                .paymentAmount(Money.of(state.getPaymentAmount()))
                 .successYn(state.getSuccessYn())
                 .refundedYn(state.getRefundedYn())
-                .refundAmount(FormatValidator.hasValue(state.getRefundAmount()) ? state.getRefundAmount() : 0L)
+                .refundAmount(FormatValidator.hasValue(state.getRefundAmount()) ? Money.of(state.getRefundAmount()) : Money.zero())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -66,15 +67,15 @@ public class Payment {
         return refundedYn;
     }
 
-    public void markAsPartiallyRefunded(Long amount) {
-        long newRefundAmount = refundAmount + amount;
-        if (newRefundAmount > paymentAmount) {
+    public void markAsPartiallyRefunded(Money amount) {
+        Money newRefundAmount = refundAmount.add(amount);
+        if (newRefundAmount.isGreaterThan(paymentAmount)) {
             throw new InvalidRefundAmountException(
-                    "누적 환불 금액이 결제 금액을 초과합니다. paymentAmount=" + paymentAmount
-                            + ", 현재 환불액=" + refundAmount + ", 요청 환불액=" + amount);
+                    "누적 환불 금액이 결제 금액을 초과합니다. paymentAmount=" + paymentAmount.getValue()
+                            + ", 현재 환불액=" + refundAmount.getValue() + ", 요청 환불액=" + amount.getValue());
         }
         refundAmount = newRefundAmount;
-        if (FormatValidator.equals(refundAmount, paymentAmount)) {
+        if (refundAmount.equals(paymentAmount)) {
             refundedYn = true;
         }
     }

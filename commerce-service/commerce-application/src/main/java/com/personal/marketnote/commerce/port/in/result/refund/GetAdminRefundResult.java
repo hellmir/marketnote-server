@@ -37,7 +37,7 @@ public record GetAdminRefundResult(
                 .paymentId(refund.getPaymentId())
                 .orderId(refund.getOrderId())
                 .refundType(refund.getRefundType())
-                .refundAmount(refund.getRefundAmount())
+                .refundAmount(refund.getRefundAmount().getValue())
                 .cancelReason(refund.getCancelReason())
                 .processedBy(refund.getProcessedBy())
                 .pgRefundKey(refund.getPgRefundKey())

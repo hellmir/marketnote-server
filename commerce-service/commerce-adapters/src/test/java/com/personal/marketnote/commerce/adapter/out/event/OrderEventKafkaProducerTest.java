@@ -60,7 +60,8 @@ class OrderEventKafkaProducerTest {
                 .quantity(2)
                 .unitAmount(30000L)
                 .orderStatus(OrderStatus.PAID)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
         OrderProduct product2 = OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
                 .sellerId(10L)
@@ -68,7 +69,8 @@ class OrderEventKafkaProducerTest {
                 .quantity(1)
                 .unitAmount(20000L)
                 .orderStatus(OrderStatus.PAID)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
         return List.of(product1, product2);
     }
 
@@ -153,7 +155,8 @@ class OrderEventKafkaProducerTest {
                 .quantity(2)
                 .unitAmount(30000L)
                 .orderStatus(OrderStatus.CANCELLED)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
         return List.of(cancelProduct);
     }
 

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.product;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.adapter.out.persistence.product.entity.ProductReadModelJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.product.repository.ProductReadModelJpaRepository;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;

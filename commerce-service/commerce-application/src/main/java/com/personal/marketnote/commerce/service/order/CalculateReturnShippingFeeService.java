@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.order;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.returnshipping.*;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.ReasonCategoryNoValueException;
@@ -103,7 +104,7 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
         return allocations.stream()
                 .collect(Collectors.toMap(
                         PaymentAllocation::getSellerId,
-                        PaymentAllocation::getShippingFee,
+                        allocation -> allocation.getShippingFee().getValue(),
                         (existing, replacement) -> existing
                 ));
     }
@@ -145,10 +146,10 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
 
             ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
                     faultType, initialShippingType, sellerReturnType,
-                    remainingAmount, freeShippingThreshold, oneWayFee
+                    Money.of(remainingAmount), Money.of(freeShippingThreshold), Money.of(oneWayFee)
             );
 
-            totalFee = Math.addExact(totalFee, ReturnShippingFeeCalculator.calculate(context));
+            totalFee = Math.addExact(totalFee, ReturnShippingFeeCalculator.calculate(context).getValue());
         }
         return totalFee;
     }
@@ -173,7 +174,7 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
     private long calculateRemainingAmount(List<OrderProduct> sellerProducts, Set<Long> returnPricePolicyIdSet) {
         return sellerProducts.stream()
                 .filter(product -> !returnPricePolicyIdSet.contains(product.getPricePolicyId()))
-                .mapToLong(product -> Math.multiplyExact(product.getUnitAmount(), product.getQuantity().longValue()))
+                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().longValue()).getValue())
                 .reduce(0L, Math::addExact);
     }
 }

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.refund;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class Refund {
     private Long paymentId;
     private Long orderId;
     private RefundType refundType;
-    private Long refundAmount;
+    private Money refundAmount;
     private String cancelReason;
     private String processedBy;
     private String pgRefundKey;
@@ -47,7 +48,7 @@ public class Refund {
                 .paymentId(state.getPaymentId())
                 .orderId(state.getOrderId())
                 .refundType(state.getRefundType())
-                .refundAmount(state.getRefundAmount())
+                .refundAmount(Money.of(state.getRefundAmount()))
                 .cancelReason(state.getCancelReason())
                 .processedBy(state.getProcessedBy())
                 .pgRefundKey(state.getPgRefundKey())
@@ -67,7 +68,7 @@ public class Refund {
                 .paymentId(state.getPaymentId())
                 .orderId(state.getOrderId())
                 .refundType(state.getRefundType())
-                .refundAmount(state.getRefundAmount())
+                .refundAmount(Money.of(state.getRefundAmount()))
                 .cancelReason(state.getCancelReason())
                 .processedBy(state.getProcessedBy())
                 .pgRefundKey(state.getPgRefundKey())

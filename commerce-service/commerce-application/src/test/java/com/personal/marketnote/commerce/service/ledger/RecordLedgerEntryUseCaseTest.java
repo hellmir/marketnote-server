@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.service.ledger;
 
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidMoneyAmountException;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.ledger.*;
 import com.personal.marketnote.commerce.exception.AccountNotFoundException;
 import com.personal.marketnote.commerce.exception.DuplicateLedgerTransactionException;
@@ -128,14 +130,14 @@ class RecordLedgerEntryUseCaseTest {
                     .filter(e -> e.getTransactionType().isDebit())
                     .findFirst().orElseThrow();
             assertThat(debitEntry.getAccountId()).isEqualTo(pgReceivableAccountId);
-            assertThat(debitEntry.getAmount()).isEqualTo(10000L);
+            assertThat(debitEntry.getAmount()).isEqualTo(Money.of(10000L));
             assertThat(debitEntry.getTransactionId()).isEqualTo(100L);
 
             LedgerEntry creditEntry = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isCredit())
                     .findFirst().orElseThrow();
             assertThat(creditEntry.getAccountId()).isEqualTo(sellerPayableAccountId);
-            assertThat(creditEntry.getAmount()).isEqualTo(10000L);
+            assertThat(creditEntry.getAmount()).isEqualTo(Money.of(10000L));
             assertThat(creditEntry.getTransactionId()).isEqualTo(100L);
         }
 
@@ -190,11 +192,11 @@ class RecordLedgerEntryUseCaseTest {
 
             Long debitTotal = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isDebit())
-                    .mapToLong(LedgerEntry::getAmount)
+                    .mapToLong(e -> e.getAmount().getValue())
                     .sum();
             Long creditTotal = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isCredit())
-                    .mapToLong(LedgerEntry::getAmount)
+                    .mapToLong(e -> e.getAmount().getValue())
                     .sum();
             assertThat(debitTotal).isEqualTo(creditTotal);
         }
@@ -369,7 +371,7 @@ class RecordLedgerEntryUseCaseTest {
         }
 
         @Test
-        @DisplayName("음수 금액으로 분개 시 IllegalStateException을 던진다")
+        @DisplayName("음수 금액으로 분개 시 InvalidMoneyAmountException을 던진다")
         void shouldThrowWhenNegativeAmount() {
             // given
             Account account1 = createActiveAccount(1L, "매출채권_PG", AccountType.ASSET);
@@ -395,8 +397,8 @@ class RecordLedgerEntryUseCaseTest {
 
             // when & then
             assertThatThrownBy(() -> recordLedgerEntryService.record(command))
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
+                    .isInstanceOf(InvalidMoneyAmountException.class)
+                    .hasMessageContaining("0 이상이어야 합니다");
 
             verify(saveLedgerTransactionPort, never()).save(any());
             verify(saveLedgerEntryPort, never()).saveAll(any());
@@ -453,13 +455,13 @@ class RecordLedgerEntryUseCaseTest {
                     .filter(e -> e.getTransactionType().isDebit())
                     .findFirst().orElseThrow();
             assertThat(debitEntry.getAccountId()).isEqualTo(1L);
-            assertThat(debitEntry.getAmount()).isEqualTo(50000L);
+            assertThat(debitEntry.getAmount()).isEqualTo(Money.of(50000L));
 
             LedgerEntry creditEntry = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isCredit())
                     .findFirst().orElseThrow();
             assertThat(creditEntry.getAccountId()).isEqualTo(3L);
-            assertThat(creditEntry.getAmount()).isEqualTo(50000L);
+            assertThat(creditEntry.getAmount()).isEqualTo(Money.of(50000L));
         }
 
         @Test
@@ -539,13 +541,13 @@ class RecordLedgerEntryUseCaseTest {
                     .filter(e -> e.getTransactionType().isDebit())
                     .findFirst().orElseThrow();
             assertThat(debitEntry.getAccountId()).isEqualTo(3L);
-            assertThat(debitEntry.getAmount()).isEqualTo(50000L);
+            assertThat(debitEntry.getAmount()).isEqualTo(Money.of(50000L));
 
             LedgerEntry creditEntry = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isCredit())
                     .findFirst().orElseThrow();
             assertThat(creditEntry.getAccountId()).isEqualTo(1L);
-            assertThat(creditEntry.getAmount()).isEqualTo(50000L);
+            assertThat(creditEntry.getAmount()).isEqualTo(Money.of(50000L));
         }
 
         @Test
@@ -586,7 +588,7 @@ class RecordLedgerEntryUseCaseTest {
 
             List<LedgerEntry> savedEntries = entriesCaptor.getValue();
             assertThat(savedEntries).hasSize(2);
-            savedEntries.forEach(entry -> assertThat(entry.getAmount()).isEqualTo(20000L));
+            savedEntries.forEach(entry -> assertThat(entry.getAmount()).isEqualTo(Money.of(20000L)));
         }
 
         @Test
@@ -669,20 +671,20 @@ class RecordLedgerEntryUseCaseTest {
             LedgerEntry cashDebit = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(2L))
                     .findFirst().orElseThrow();
-            assertThat(cashDebit.getAmount()).isEqualTo(9700L);
+            assertThat(cashDebit.getAmount()).isEqualTo(Money.of(9700L));
 
             // DEBIT PG수수료비용 = 300
             LedgerEntry pgFeeDebit = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isDebit() && e.getAccountId().equals(5L))
                     .findFirst().orElseThrow();
-            assertThat(pgFeeDebit.getAmount()).isEqualTo(300L);
+            assertThat(pgFeeDebit.getAmount()).isEqualTo(Money.of(300L));
 
             // CREDIT 매출채권_PG = 10000
             LedgerEntry pgReceivableCredit = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isCredit())
                     .findFirst().orElseThrow();
             assertThat(pgReceivableCredit.getAccountId()).isEqualTo(1L);
-            assertThat(pgReceivableCredit.getAmount()).isEqualTo(10000L);
+            assertThat(pgReceivableCredit.getAmount()).isEqualTo(Money.of(10000L));
         }
 
         @Test
@@ -725,7 +727,7 @@ class RecordLedgerEntryUseCaseTest {
                     .filter(e -> e.getTransactionType().isDebit())
                     .findFirst().orElseThrow();
             assertThat(cashDebit.getAccountId()).isEqualTo(2L);
-            assertThat(cashDebit.getAmount()).isEqualTo(10000L);
+            assertThat(cashDebit.getAmount()).isEqualTo(Money.of(10000L));
         }
 
         @Test
@@ -794,7 +796,7 @@ class RecordLedgerEntryUseCaseTest {
                     .filter(e -> e.getTransactionType().isDebit())
                     .findFirst().orElseThrow();
             assertThat(sellerDebit.getAccountId()).isEqualTo(3L);
-            assertThat(sellerDebit.getAmount()).isEqualTo(9700L); // sellerPayout + platformFee
+            assertThat(sellerDebit.getAmount()).isEqualTo(Money.of(9700L)); // sellerPayout + platformFee
 
             List<LedgerEntry> credits = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isCredit())
@@ -804,12 +806,12 @@ class RecordLedgerEntryUseCaseTest {
             LedgerEntry cashCredit = credits.stream()
                     .filter(e -> e.getAccountId().equals(2L))
                     .findFirst().orElseThrow();
-            assertThat(cashCredit.getAmount()).isEqualTo(9200L);
+            assertThat(cashCredit.getAmount()).isEqualTo(Money.of(9200L));
 
             LedgerEntry platformFeeCredit = credits.stream()
                     .filter(e -> e.getAccountId().equals(4L))
                     .findFirst().orElseThrow();
-            assertThat(platformFeeCredit.getAmount()).isEqualTo(500L);
+            assertThat(platformFeeCredit.getAmount()).isEqualTo(Money.of(500L));
         }
 
         @Test
@@ -852,13 +854,13 @@ class RecordLedgerEntryUseCaseTest {
                     .filter(e -> e.getTransactionType().isDebit())
                     .findFirst().orElseThrow();
             assertThat(sellerDebit.getAccountId()).isEqualTo(3L);
-            assertThat(sellerDebit.getAmount()).isEqualTo(9500L);
+            assertThat(sellerDebit.getAmount()).isEqualTo(Money.of(9500L));
 
             LedgerEntry cashCredit = savedEntries.stream()
                     .filter(e -> e.getTransactionType().isCredit())
                     .findFirst().orElseThrow();
             assertThat(cashCredit.getAccountId()).isEqualTo(2L);
-            assertThat(cashCredit.getAmount()).isEqualTo(9500L);
+            assertThat(cashCredit.getAmount()).isEqualTo(Money.of(9500L));
         }
 
         @Test

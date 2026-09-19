@@ -27,10 +27,10 @@ public record GetPaymentResult(
         GetPaymentResultBuilder builder = GetPaymentResult.builder()
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
-                .paymentAmount(payment.getPaymentAmount())
+                .paymentAmount(payment.getPaymentAmount().getValue())
                 .successYn(payment.getSuccessYn())
                 .refundedYn(payment.getRefundedYn())
-                .refundAmount(payment.getRefundAmount())
+                .refundAmount(payment.getRefundAmount().getValue())
                 .pgPaymentKey(payment.getPgPaymentKey());
 
         if (FormatValidator.hasValue(event)) {

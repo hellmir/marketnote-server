@@ -57,10 +57,10 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
         settlement.resetCancelledToPending();
 
         try {
-            Long totalAllocatedAmount = settlement.getTotalAllocatedAmount();
-            Long pgFeeAmount = settlement.getPgFeeAmount();
-            Long platformFeeAmount = settlement.getPlatformFeeAmount();
-            Long sellerPayoutAmount = settlement.getSellerPayoutAmount();
+            Long totalAllocatedAmount = settlement.getTotalAllocatedAmount().getValue();
+            Long pgFeeAmount = settlement.getPgFeeAmount().getValue();
+            Long platformFeeAmount = settlement.getPlatformFeeAmount().getValue();
+            Long sellerPayoutAmount = settlement.getSellerPayoutAmount().getValue();
 
             recordPgSettlementReExecution(settlementId, totalAllocatedAmount, pgFeeAmount);
 

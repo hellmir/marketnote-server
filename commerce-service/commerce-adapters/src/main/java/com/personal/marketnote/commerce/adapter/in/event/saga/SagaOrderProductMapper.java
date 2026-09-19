@@ -19,7 +19,8 @@ public final class SagaOrderProductMapper {
                                 .quantity(item.quantity())
                                 .unitAmount(item.unitAmount())
                                 .sharerKey(item.sharerKey())
-                                .build()
+                                .accumulatedPoint(0L)
+                        .build()
                 ))
                 .toList();
     }

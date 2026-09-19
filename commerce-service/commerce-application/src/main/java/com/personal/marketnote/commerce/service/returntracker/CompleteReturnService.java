@@ -107,7 +107,7 @@ public class CompleteReturnService implements CompleteReturnUseCase {
     private void publishReturnedEvent(Order order, long returnShippingFee, boolean isFullReturn) {
         OrderAmount amount = order.getAmount();
         long returnAmount = order.getOrderProducts().stream()
-                .mapToLong(product -> Math.multiplyExact(product.getUnitAmount(), product.getQuantity().longValue()))
+                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().longValue()).getValue())
                 .reduce(0L, Math::addExact);
 
         publishOrderEventPort.publishOrderReturnedEvent(
@@ -116,8 +116,8 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 order.getBuyerId(),
                 returnAmount,
                 amount.getPaidAmount(),
-                amount.getPointAmount(),
-                amount.getShippingFee(),
+                amount.getPointAmount().getValue(),
+                amount.getShippingFee().getValue(),
                 isFullReturn,
                 returnShippingFee,
                 order.getOrderProducts()

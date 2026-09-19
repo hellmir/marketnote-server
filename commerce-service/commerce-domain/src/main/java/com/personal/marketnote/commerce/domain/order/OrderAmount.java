@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -7,11 +9,11 @@ import lombok.*;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class OrderAmount {
-    private Long totalAmount;
+    private Money totalAmount;
     private Long paidAmount;
-    private Long couponAmount;
-    private Long pointAmount;
-    private Long shippingFee;
+    private Money couponAmount;
+    private Money pointAmount;
+    private Money shippingFee;
 
     @Deprecated
     public static OrderAmount of(
@@ -22,30 +24,37 @@ public class OrderAmount {
             Long shippingFee
     ) {
         return OrderAmount.builder()
-                .totalAmount(totalAmount)
+                .totalAmount(resolveMoneyOrZero(totalAmount))
                 .paidAmount(paidAmount)
-                .couponAmount(couponAmount)
-                .pointAmount(pointAmount)
-                .shippingFee(shippingFee)
+                .couponAmount(resolveMoneyOrZero(couponAmount))
+                .pointAmount(resolveMoneyOrZero(pointAmount))
+                .shippingFee(resolveMoneyOrZero(shippingFee))
                 .build();
     }
 
     public static OrderAmount from(OrderAmountCreateState state) {
         return OrderAmount.builder()
-                .totalAmount(state.getTotalAmount())
-                .couponAmount(state.getCouponAmount())
-                .pointAmount(state.getPointAmount())
-                .shippingFee(state.getShippingFee())
+                .totalAmount(Money.of(state.getTotalAmount()))
+                .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
+                .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
+                .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
                 .build();
     }
 
     public static OrderAmount from(OrderAmountSnapshotState state) {
         return OrderAmount.builder()
-                .totalAmount(state.getTotalAmount())
+                .totalAmount(resolveMoneyOrZero(state.getTotalAmount()))
                 .paidAmount(state.getPaidAmount())
-                .couponAmount(state.getCouponAmount())
-                .pointAmount(state.getPointAmount())
-                .shippingFee(state.getShippingFee())
+                .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
+                .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
+                .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
                 .build();
+    }
+
+    private static Money resolveMoneyOrZero(Long value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return Money.zero();
+        }
+        return Money.of(value);
     }
 }

@@ -29,7 +29,7 @@ public record PaymentApprovalContext(
                 event,
                 payment.getOrderId(),
                 payment.getOrderKey().toString(),
-                payment.getPaymentAmount(),
+                payment.getPaymentAmount().getValue(),
                 event.getPgShopKey(),
                 event.getMethod()
         );

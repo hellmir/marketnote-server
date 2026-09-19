@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.shipping;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.entity.ShippingPolicyReadModelJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.shipping.repository.ShippingPolicyReadModelJpaRepository;
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;

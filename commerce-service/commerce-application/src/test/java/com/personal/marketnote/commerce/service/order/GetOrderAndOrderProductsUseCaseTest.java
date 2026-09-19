@@ -393,10 +393,10 @@ class GetOrderAndOrderProductsUseCaseTest {
 
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
-            assertThat(result.totalAmount()).isNull();
+            assertThat(result.totalAmount()).isEqualTo(0L);
             assertThat(result.paidAmount()).isNull();
-            assertThat(result.couponAmount()).isNull();
-            assertThat(result.pointAmount()).isNull();
+            assertThat(result.couponAmount()).isEqualTo(0L);
+            assertThat(result.pointAmount()).isEqualTo(0L);
         }
     }
 
@@ -1135,7 +1135,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .quantity(1)
                                 .unitAmount(50000L)
                                 .orderStatus(productStatus)
-                                .build()
+                                .accumulatedPoint(0L)
+                        .build()
                 ))
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -1159,7 +1160,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .quantity(1)
                                 .unitAmount(100000L)
                                 .orderStatus(OrderStatus.CONFIRMED)
-                                .build(),
+                                .accumulatedPoint(0L)
+                        .build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(orderId)
                                 .sellerId(20L)
@@ -1167,7 +1169,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .quantity(1)
                                 .unitAmount(100000L)
                                 .orderStatus(OrderStatus.RETURNED)
-                                .build(),
+                                .accumulatedPoint(0L)
+                        .build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(orderId)
                                 .sellerId(30L)
@@ -1175,7 +1178,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                                 .quantity(1)
                                 .unitAmount(100000L)
                                 .orderStatus(OrderStatus.SHIPPING)
-                                .build()
+                                .accumulatedPoint(0L)
+                        .build()
                 ))
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -1190,7 +1194,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .quantity(quantity)
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.PAID)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
     }
 
     private OrderProduct createOrderProductWithSellerId(Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount) {
@@ -1201,7 +1206,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .quantity(quantity)
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.PAID)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
     }
 
     private OrderProduct createOrderProductWithSharerKey(Long pricePolicyId, Long sellerId, UUID sharerKey, Integer quantity, Long unitAmount) {
@@ -1213,7 +1219,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .quantity(quantity)
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.PAID)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
     }
 
     private OrderProduct createOrderProductWithImageUrl(Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, String imageUrl) {
@@ -1225,7 +1232,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .unitAmount(unitAmount)
                 .imageUrl(imageUrl)
                 .orderStatus(OrderStatus.PAID)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
     }
 
     private OrderProduct createOrderProductWithReviewStatus(Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, Boolean isReviewed) {
@@ -1237,7 +1245,8 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .unitAmount(unitAmount)
                 .orderStatus(OrderStatus.CONFIRMED)
                 .isReviewed(isReviewed)
-                .build());
+                .accumulatedPoint(0L)
+                        .build());
     }
 
     private OrderProductSnapshotState toSnapshotState(OrderProduct orderProduct) {
@@ -1247,10 +1256,11 @@ class GetOrderAndOrderProductsUseCaseTest {
                 .pricePolicyId(orderProduct.getPricePolicyId())
                 .sharerKey(orderProduct.getSharerKey())
                 .quantity(orderProduct.getQuantity())
-                .unitAmount(orderProduct.getUnitAmount())
+                .unitAmount(orderProduct.getUnitAmount().getValue())
                 .imageUrl(orderProduct.getImageUrl())
                 .orderStatus(orderProduct.getOrderStatus())
                 .isReviewed(orderProduct.getIsReviewed())
-                .build();
+                .accumulatedPoint(0L)
+                        .build();
     }
 }

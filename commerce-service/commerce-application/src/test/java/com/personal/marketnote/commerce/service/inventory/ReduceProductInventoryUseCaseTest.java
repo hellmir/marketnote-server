@@ -1049,6 +1049,8 @@ class ReduceProductInventoryUseCaseTest {
                 OrderProductSnapshotState.builder()
                         .pricePolicyId(pricePolicyId)
                         .quantity(quantity)
+                        .unitAmount(0L)
+                        .accumulatedPoint(0L)
                         .build()
         );
     }

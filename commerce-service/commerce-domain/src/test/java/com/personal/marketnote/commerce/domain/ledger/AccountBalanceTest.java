@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("AccountBalance 도메인 테스트")
@@ -122,8 +124,8 @@ class AccountBalanceTest {
             assertThat(balance.getAccountId()).isEqualTo(42L);
             assertThat(balance.getAccountName()).isEqualTo("매출채권");
             assertThat(balance.getAccountType()).isEqualTo(AccountType.ASSET);
-            assertThat(balance.getDebitTotal()).isEqualTo(200000L);
-            assertThat(balance.getCreditTotal()).isEqualTo(50000L);
+            assertThat(balance.getDebitTotal()).isEqualTo(Money.of(200000L));
+            assertThat(balance.getCreditTotal()).isEqualTo(Money.of(50000L));
             assertThat(balance.getBalance()).isEqualTo(150000L);
         }
     }

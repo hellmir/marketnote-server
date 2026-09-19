@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationException;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
@@ -114,7 +115,7 @@ class OrderReturnedInventoryConsumerTest {
         assertThat(capturedProducts.get(0).getPricePolicyId()).isEqualTo(100L);
         assertThat(capturedProducts.get(0).getSharerKey()).isEqualTo(SHARER_KEY);
         assertThat(capturedProducts.get(0).getQuantity()).isEqualTo(2);
-        assertThat(capturedProducts.get(0).getUnitAmount()).isEqualTo(30000L);
+        assertThat(capturedProducts.get(0).getUnitAmount()).isEqualTo(Money.of(30000L));
 
         verify(acknowledgment).acknowledge();
     }

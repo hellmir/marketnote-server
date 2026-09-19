@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.shipping;
 
+import com.personal.marketnote.common.domain.money.Money;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -7,11 +8,11 @@ import lombok.*;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class ShippingFeeContext {
-    private long sellerAmount;
-    private long shippingFee;
-    private long freeShippingThreshold;
+    private Money sellerAmount;
+    private Money shippingFee;
+    private Money freeShippingThreshold;
 
-    public static ShippingFeeContext of(long sellerAmount, long shippingFee, long freeShippingThreshold) {
+    public static ShippingFeeContext of(Money sellerAmount, Money shippingFee, Money freeShippingThreshold) {
         return ShippingFeeContext.builder()
                 .sellerAmount(sellerAmount)
                 .shippingFee(shippingFee)
@@ -20,6 +21,6 @@ public class ShippingFeeContext {
     }
 
     public boolean isBelowFreeShippingThreshold() {
-        return sellerAmount < freeShippingThreshold;
+        return sellerAmount.isLessThan(freeShippingThreshold);
     }
 }

@@ -1,13 +1,15 @@
 package com.personal.marketnote.commerce.domain.returnshipping;
 
+import com.personal.marketnote.common.domain.money.Money;
+
 public class ReturnShippingFeeCalculator {
 
     private ReturnShippingFeeCalculator() {
     }
 
-    public static long calculate(ReturnShippingFeeContext context) {
+    public static Money calculate(ReturnShippingFeeContext context) {
         if (context.isSellerFault()) {
-            return 0L;
+            return Money.zero();
         }
 
         if (context.wasPaidShipping()) {
@@ -15,11 +17,11 @@ public class ReturnShippingFeeCalculator {
         }
 
         if (context.isFullReturn()) {
-            return Math.multiplyExact(context.getShippingFee(), 2L);
+            return context.getShippingFee().multiply(2L);
         }
 
         if (context.isBelowFreeShippingThreshold()) {
-            return Math.multiplyExact(context.getShippingFee(), 2L);
+            return context.getShippingFee().multiply(2L);
         }
 
         return context.getShippingFee();

@@ -52,6 +52,7 @@ class ChangeOrderStatusConfirmProcessUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .orderStatus(status)
+                        .accumulatedPoint(0L)
                         .build()
         );
 
@@ -78,6 +79,7 @@ class ChangeOrderStatusConfirmProcessUseCaseTest {
                         .quantity(1)
                         .unitAmount(30000L)
                         .orderStatus(OrderStatus.DELIVERED)
+                        .accumulatedPoint(0L)
                         .build(),
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -86,6 +88,7 @@ class ChangeOrderStatusConfirmProcessUseCaseTest {
                         .quantity(1)
                         .unitAmount(20000L)
                         .orderStatus(OrderStatus.DELIVERED)
+                        .accumulatedPoint(0L)
                         .build()
         );
 

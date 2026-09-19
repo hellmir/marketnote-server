@@ -18,8 +18,8 @@ public record GetAccountBalanceResult(
                 .accountId(accountBalance.getAccountId())
                 .accountName(accountBalance.getAccountName())
                 .accountType(accountBalance.getAccountType())
-                .debitTotal(accountBalance.getDebitTotal())
-                .creditTotal(accountBalance.getCreditTotal())
+                .debitTotal(accountBalance.getDebitTotal().getValue())
+                .creditTotal(accountBalance.getCreditTotal().getValue())
                 .balance(accountBalance.getBalance())
                 .build();
     }

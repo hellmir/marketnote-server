@@ -41,10 +41,10 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
         settlement.resetToPending();
 
         try {
-            Long totalAllocatedAmount = settlement.getTotalAllocatedAmount();
-            Long pgFeeAmount = settlement.getPgFeeAmount();
-            Long platformFeeAmount = settlement.getPlatformFeeAmount();
-            Long sellerPayoutAmount = settlement.getSellerPayoutAmount();
+            Long totalAllocatedAmount = settlement.getTotalAllocatedAmount().getValue();
+            Long pgFeeAmount = settlement.getPgFeeAmount().getValue();
+            Long platformFeeAmount = settlement.getPlatformFeeAmount().getValue();
+            Long sellerPayoutAmount = settlement.getSellerPayoutAmount().getValue();
 
             recordLedgerEntryUseCase.recordPgSettlement(settlementId, totalAllocatedAmount, pgFeeAmount);
 
