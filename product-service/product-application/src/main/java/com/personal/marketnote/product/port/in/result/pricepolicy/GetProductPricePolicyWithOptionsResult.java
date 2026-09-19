@@ -19,9 +19,9 @@ public record GetProductPricePolicyWithOptionsResult(
     public static GetProductPricePolicyWithOptionsResult from(PricePolicy pricePolicy) {
         return GetProductPricePolicyWithOptionsResult.builder()
                 .id(pricePolicy.getId())
-                .price(pricePolicy.getPrice())
-                .discountPrice(pricePolicy.getDiscountPrice())
-                .accumulatedPoint(pricePolicy.getAccumulatedPoint())
+                .price(pricePolicy.getPrice().getValue())
+                .discountPrice(pricePolicy.getDiscountPrice().getValue())
+                .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
                 .discountRate(pricePolicy.getDiscountRate())
                 .optionIds(pricePolicy.getOptionIds())
                 .build();

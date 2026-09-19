@@ -1,14 +1,15 @@
 package com.personal.marketnote.product.domain.product;
 
+import com.personal.marketnote.common.domain.money.Money;
 import lombok.Getter;
 
 @Getter
 public class OptedProductAmount {
-    private long totalOptionPrice;
-    private long totalOptionPoint;
+    private Money totalOptionPrice = Money.zero();
+    private Money totalOptionPoint = Money.zero();
 
-    public void addAmount(long price, long point) {
-        totalOptionPrice += price;
-        totalOptionPoint += point;
+    public void addAmount(Money price, Money point) {
+        totalOptionPrice = totalOptionPrice.add(price);
+        totalOptionPoint = totalOptionPoint.add(point);
     }
 }

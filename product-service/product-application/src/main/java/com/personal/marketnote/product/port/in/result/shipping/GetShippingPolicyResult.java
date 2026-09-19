@@ -15,10 +15,10 @@ public record GetShippingPolicyResult(
         return new GetShippingPolicyResult(
                 shippingPolicy.getId(),
                 shippingPolicy.getDeliveryCompany(),
-                shippingPolicy.getShippingFee(),
-                shippingPolicy.getFreeShippingThreshold(),
-                shippingPolicy.getJejuSurcharge(),
-                shippingPolicy.getIslandSurcharge()
+                shippingPolicy.getShippingFee().getValue(),
+                shippingPolicy.getFreeShippingThreshold().getValue(),
+                shippingPolicy.getJejuSurcharge().getValue(),
+                shippingPolicy.getIslandSurcharge().getValue()
         );
     }
 }

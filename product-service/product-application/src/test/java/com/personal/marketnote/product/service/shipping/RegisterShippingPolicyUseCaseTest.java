@@ -81,10 +81,10 @@ class RegisterShippingPolicyUseCaseTest {
         ShippingPolicy savedPolicy = captor.getValue();
         assertThat(savedPolicy.getSellerId()).isEqualTo(sellerId);
         assertThat(savedPolicy.getDeliveryCompany()).isEqualTo("한진택배");
-        assertThat(savedPolicy.getShippingFee()).isEqualTo(3000L);
-        assertThat(savedPolicy.getFreeShippingThreshold()).isEqualTo(20000L);
-        assertThat(savedPolicy.getJejuSurcharge()).isEqualTo(3000L);
-        assertThat(savedPolicy.getIslandSurcharge()).isEqualTo(5000L);
+        assertThat(savedPolicy.getShippingFee().getValue()).isEqualTo(3000L);
+        assertThat(savedPolicy.getFreeShippingThreshold().getValue()).isEqualTo(20000L);
+        assertThat(savedPolicy.getJejuSurcharge().getValue()).isEqualTo(3000L);
+        assertThat(savedPolicy.getIslandSurcharge().getValue()).isEqualTo(5000L);
         assertThat(savedPolicy.isActive()).isTrue();
     }
 

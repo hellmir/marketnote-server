@@ -92,9 +92,9 @@ class RegisterPricePolicyUseCaseTest {
         PricePolicy saved = captor.getValue();
 
         assertThat(saved.getProduct()).isSameAs(product);
-        assertThat(saved.getPrice()).isEqualTo(command.price());
-        assertThat(saved.getDiscountPrice()).isEqualTo(command.discountPrice());
-        assertThat(saved.getAccumulatedPoint()).isEqualTo(command.accumulatedPoint());
+        assertThat(saved.getPrice().getValue()).isEqualTo(command.price());
+        assertThat(saved.getDiscountPrice().getValue()).isEqualTo(command.discountPrice());
+        assertThat(saved.getAccumulatedPoint().getValue()).isEqualTo(command.accumulatedPoint());
         assertThat(saved.getOptionIds()).containsExactlyElementsOf(optionIds);
         assertThat(saved.getDiscountRate())
                 .isEqualByComparingTo(calculateDiscountRate(command.price(), command.discountPrice()));

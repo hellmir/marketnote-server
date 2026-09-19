@@ -1,5 +1,6 @@
 package com.personal.marketnote.product.domain.product;
 
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,14 +15,14 @@ class OptedProductAmountTest {
     class InitialState {
 
         @Test
-        @DisplayName("초기 상태에서 totalOptionPrice와 totalOptionPoint는 0이다")
+        @DisplayName("초기 상태에서 totalOptionPrice와 totalOptionPoint는 0원이다")
         void shouldHaveZeroTotalOptionPriceAndPointInitially() {
             // given
             OptedProductAmount amount = new OptedProductAmount();
 
             // when & then
-            assertThat(amount.getTotalOptionPrice()).isZero();
-            assertThat(amount.getTotalOptionPoint()).isZero();
+            assertThat(amount.getTotalOptionPrice()).isEqualTo(Money.zero());
+            assertThat(amount.getTotalOptionPoint()).isEqualTo(Money.zero());
         }
     }
 
@@ -36,11 +37,11 @@ class OptedProductAmountTest {
             OptedProductAmount amount = new OptedProductAmount();
 
             // when
-            amount.addAmount(5000L, 100L);
+            amount.addAmount(Money.of(5000L), Money.of(100L));
 
             // then
-            assertThat(amount.getTotalOptionPrice()).isEqualTo(5000L);
-            assertThat(amount.getTotalOptionPoint()).isEqualTo(100L);
+            assertThat(amount.getTotalOptionPrice()).isEqualTo(Money.of(5000L));
+            assertThat(amount.getTotalOptionPoint()).isEqualTo(Money.of(100L));
         }
 
         @Test
@@ -50,13 +51,13 @@ class OptedProductAmountTest {
             OptedProductAmount amount = new OptedProductAmount();
 
             // when
-            amount.addAmount(3000L, 50L);
-            amount.addAmount(2000L, 30L);
-            amount.addAmount(1000L, 20L);
+            amount.addAmount(Money.of(3000L), Money.of(50L));
+            amount.addAmount(Money.of(2000L), Money.of(30L));
+            amount.addAmount(Money.of(1000L), Money.of(20L));
 
             // then
-            assertThat(amount.getTotalOptionPrice()).isEqualTo(6000L);
-            assertThat(amount.getTotalOptionPoint()).isEqualTo(100L);
+            assertThat(amount.getTotalOptionPrice()).isEqualTo(Money.of(6000L));
+            assertThat(amount.getTotalOptionPoint()).isEqualTo(Money.of(100L));
         }
     }
 }

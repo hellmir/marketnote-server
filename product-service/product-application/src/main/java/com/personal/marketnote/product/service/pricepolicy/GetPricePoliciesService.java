@@ -26,9 +26,9 @@ public class GetPricePoliciesService implements GetPricePoliciesUseCase {
                 .map(
                         pricePolicy -> new GetProductPricePolicyWithOptionsResult(
                                 pricePolicy.getId(),
-                                pricePolicy.getPrice(),
-                                pricePolicy.getDiscountPrice(),
-                                pricePolicy.getAccumulatedPoint(),
+                                pricePolicy.getPrice().getValue(),
+                                pricePolicy.getDiscountPrice().getValue(),
+                                pricePolicy.getAccumulatedPoint().getValue(),
                                 pricePolicy.getDiscountRate(),
                                 pricePolicy.getOptionIds()
                         )

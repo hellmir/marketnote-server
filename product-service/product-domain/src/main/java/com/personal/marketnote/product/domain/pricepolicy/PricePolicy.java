@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.product.Product;
@@ -26,10 +27,10 @@ public class PricePolicy extends BaseDomain {
     @JsonIgnore
     private Product product;
 
-    private Long price;
-    private Long discountPrice;
+    private Money price;
+    private Money discountPrice;
     private BigDecimal discountRate;
-    private Long accumulatedPoint;
+    private Money accumulatedPoint;
     private BigDecimal accumulationRate;
     private Long popularity;
     private Long orderNum;
@@ -74,10 +75,10 @@ public class PricePolicy extends BaseDomain {
         return PricePolicy.builder()
                 .productId(productId)
                 .product(product)
-                .price(state.getPrice())
-                .discountPrice(state.getDiscountPrice())
+                .price(Money.of(state.getPrice()))
+                .discountPrice(resolveMoneyOrZero(state.getDiscountPrice()))
                 .discountRate(state.getDiscountRate())
-                .accumulatedPoint(state.getAccumulatedPoint())
+                .accumulatedPoint(resolveMoneyOrZero(state.getAccumulatedPoint()))
                 .accumulationRate(state.getAccumulationRate())
                 .popularity(state.getPopularity())
                 .orderNum(state.getOrderNum())
@@ -96,10 +97,10 @@ public class PricePolicy extends BaseDomain {
                 .id(state.getId())
                 .productId(productId)
                 .product(product)
-                .price(state.getPrice())
-                .discountPrice(state.getDiscountPrice())
+                .price(resolveMoneyOrZero(state.getPrice()))
+                .discountPrice(resolveMoneyOrZero(state.getDiscountPrice()))
                 .discountRate(state.getDiscountRate())
-                .accumulatedPoint(state.getAccumulatedPoint())
+                .accumulatedPoint(resolveMoneyOrZero(state.getAccumulatedPoint()))
                 .accumulationRate(state.getAccumulationRate())
                 .popularity(state.getPopularity())
                 .orderNum(state.getOrderNum())
@@ -130,5 +131,12 @@ public class PricePolicy extends BaseDomain {
         optionIds = productOptions.stream()
                 .map(ProductOption::getId)
                 .toList();
+    }
+
+    private static Money resolveMoneyOrZero(Long value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return Money.zero();
+        }
+        return Money.of(value);
     }
 }

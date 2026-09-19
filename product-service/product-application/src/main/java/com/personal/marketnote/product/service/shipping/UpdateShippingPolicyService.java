@@ -39,8 +39,8 @@ public class UpdateShippingPolicyService implements UpdateShippingPolicyUseCase 
         updateShippingPolicyPort.update(shippingPolicy);
 
         publishShippingPolicyEventPort.publishShippingPolicyChangedEvent(
-                sellerId, shippingPolicy.getShippingFee(), shippingPolicy.getFreeShippingThreshold(),
-                shippingPolicy.getJejuSurcharge(), shippingPolicy.getIslandSurcharge(), ShippingPolicyChangeAction.UPDATED
+                sellerId, shippingPolicy.getShippingFee().getValue(), shippingPolicy.getFreeShippingThreshold().getValue(),
+                shippingPolicy.getJejuSurcharge().getValue(), shippingPolicy.getIslandSurcharge().getValue(), ShippingPolicyChangeAction.UPDATED
         );
 
         return UpdateShippingPolicyResult.from(shippingPolicy);
