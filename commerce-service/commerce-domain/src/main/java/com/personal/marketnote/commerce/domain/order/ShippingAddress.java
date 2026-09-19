@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.domain.order;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.delivery.PickupRequestType;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import lombok.*;
 @Getter
 public class ShippingAddress {
     private String recipientName;
-    private String recipientPhoneNumber;
+    private PhoneNumber recipientPhoneNumber;
     private String zipCode;
     private String address;
     private String addressDetail;
@@ -30,7 +31,7 @@ public class ShippingAddress {
     ) {
         return ShippingAddress.builder()
                 .recipientName(recipientName)
-                .recipientPhoneNumber(recipientPhoneNumber)
+                .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
                 .zipCode(zipCode)
                 .address(address)
                 .addressDetail(addressDetail)
@@ -50,13 +51,20 @@ public class ShippingAddress {
     ) {
         return ShippingAddress.builder()
                 .recipientName(recipientName)
-                .recipientPhoneNumber(recipientPhoneNumber)
+                .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
                 .zipCode(zipCode)
                 .address(address)
                 .addressDetail(addressDetail)
                 .pickupRequestType(pickupRequestType)
                 .deliveryRequestMessage(pickupRequestMessage)
                 .build();
+    }
+
+    private static PhoneNumber toNullablePhoneNumber(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return PhoneNumber.of(value);
     }
 
     public boolean hasRecipientName() {

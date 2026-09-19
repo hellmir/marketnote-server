@@ -39,7 +39,6 @@ public class RequestReturnRequest {
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     @Size(max = 20, message = "회수지 연락처는 20자 이내여야 합니다.")
-    @Pattern(regexp = RegularExpressionConstant.PHONE_NUMBER_PATTERN, message = "회수지 연락처 형식이 올바르지 않습니다.")
     private String pickupRecipientPhoneNumber;
 
     @Schema(
