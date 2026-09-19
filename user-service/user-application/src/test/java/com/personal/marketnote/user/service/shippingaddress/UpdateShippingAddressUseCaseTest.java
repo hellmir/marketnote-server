@@ -89,7 +89,7 @@ class UpdateShippingAddressUseCaseTest {
         assertThat(shippingAddress.getAddress()).isEqualTo("서울시 서초구 서초대로 456");
         assertThat(shippingAddress.getAddressDetail()).isEqualTo("202동 303호");
         assertThat(shippingAddress.getRecipientName()).isEqualTo("김철수");
-        assertThat(shippingAddress.getRecipientPhoneNumber()).isEqualTo("010-9876-5432");
+        assertThat(shippingAddress.getRecipientPhoneNumber().getValue()).isEqualTo("010-9876-5432");
         assertThat(shippingAddress.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
         assertThat(shippingAddress.getRegionType()).isEqualTo(ShippingAddressRegionType.NORMAL);
 

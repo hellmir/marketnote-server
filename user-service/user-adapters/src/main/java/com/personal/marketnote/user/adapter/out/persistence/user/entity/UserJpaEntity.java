@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseOrderedGeneralEntity;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.out.persistence.authentication.entity.RoleJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.TermsJpaRepository;
 import com.personal.marketnote.user.domain.user.User;
@@ -92,7 +94,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .fullName(user.getFullName())
-                .phoneNumber(user.getPhoneNumber())
+                .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
                 .referenceCode(user.getReferenceCode())
                 .referredUserCode(user.getReferredUserCode())
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
@@ -126,7 +128,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .fullName(user.getFullName())
-                .phoneNumber(user.getPhoneNumber())
+                .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
                 .referenceCode(user.getReferenceCode())
                 .referredUserCode(user.getReferredUserCode())
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
@@ -147,7 +149,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         nickname = user.getNickname();
         email = user.getEmail();
         password = user.getPassword();
-        phoneNumber = user.getPhoneNumber();
+        phoneNumber = toPhoneNumberValue(user.getPhoneNumber());
         referredUserCode = user.getReferredUserCode();
         roleJpaEntity = RoleJpaEntity.from(user.getRole());
         signedUpAt = user.getSignedUpAt();
@@ -186,5 +188,12 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
 
     public void updateLoginTime() {
         lastLoggedInAt = LocalDateTime.now();
+    }
+
+    private static String toPhoneNumberValue(PhoneNumber phoneNumber) {
+        if (FormatValidator.hasNoValue(phoneNumber)) {
+            return null;
+        }
+        return phoneNumber.getValue();
     }
 }

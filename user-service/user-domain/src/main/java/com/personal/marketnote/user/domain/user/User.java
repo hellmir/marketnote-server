@@ -3,6 +3,7 @@ package com.personal.marketnote.user.domain.user;
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.exception.illegalstate.SameUpdateTargetException;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.user.domain.authentication.Role;
@@ -34,7 +35,7 @@ public class User extends BaseDomain {
     private String email;
     private String password;
     private String fullName;
-    private String phoneNumber;
+    private PhoneNumber phoneNumber;
     private String referenceCode;
     private String referredUserCode;
     private Role role;
@@ -76,7 +77,7 @@ public class User extends BaseDomain {
                 .nickname(state.getNickname())
                 .email(state.getEmail())
                 .fullName(state.getFullName())
-                .phoneNumber(state.getPhoneNumber())
+                .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
                 .referenceCode(state.getReferenceCode())
                 .role(Role.getBuyer())
                 .lastLoggedInAt(LocalDateTime.now())
@@ -108,7 +109,7 @@ public class User extends BaseDomain {
                 .email(state.getEmail())
                 .password(state.getPassword())
                 .fullName(state.getFullName())
-                .phoneNumber(state.getPhoneNumber())
+                .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
                 .referenceCode(state.getReferenceCode())
                 .referredUserCode(state.getReferredUserCode())
                 .role(state.getRole())
@@ -152,6 +153,13 @@ public class User extends BaseDomain {
                 .build();
     }
 
+    private static PhoneNumber toNullablePhoneNumber(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return PhoneNumber.of(value);
+    }
+
     public boolean isGuest() {
         return role.isGuest();
     }
@@ -174,7 +182,7 @@ public class User extends BaseDomain {
         this.nickname = nickname;
     }
 
-    public void updatePhoneNumber(String phoneNumber) {
+    public void updatePhoneNumber(PhoneNumber phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
@@ -230,9 +238,9 @@ public class User extends BaseDomain {
         }
     }
 
-    public void validateDifferentPhoneNumber(String phoneNumber) {
+    public void validateDifferentPhoneNumber(PhoneNumber phoneNumber) {
         if (FormatValidator.equals(this.phoneNumber, phoneNumber)) {
-            throw new SameUpdateTargetException(THIRD_ERROR_CODE, phoneNumber);
+            throw new SameUpdateTargetException(THIRD_ERROR_CODE, "***");
         }
     }
 

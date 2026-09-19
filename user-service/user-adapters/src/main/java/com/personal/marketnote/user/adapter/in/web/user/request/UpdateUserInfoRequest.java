@@ -38,7 +38,6 @@ public class UpdateUserInfoRequest {
             description = "전화번호",
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
-    @Pattern(regexp = PHONE_NUMBER_PATTERN, message = "전화번호 형식이 올바르지 않습니다.")
     private String phoneNumber;
 
     @Schema(

@@ -31,7 +31,7 @@ public record GetMyShippingAddressResult(
                 .companyName(shippingAddress.getCompanyName())
                 .addressAlias(shippingAddress.getAddressAlias())
                 .recipientName(shippingAddress.getRecipientName())
-                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber())
+                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
                 .deliveryRequestType(shippingAddress.getDeliveryRequestType())
                 .deliveryRequestMessage(shippingAddress.getDeliveryRequestMessage())
                 .isDefault(shippingAddress.isDefault())
