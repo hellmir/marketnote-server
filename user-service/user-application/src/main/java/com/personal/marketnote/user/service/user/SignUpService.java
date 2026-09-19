@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.PasswordNoValueException;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.Terms;
@@ -112,11 +113,13 @@ public class SignUpService implements SignUpUseCase {
             );
         }
 
-        String phoneNumber = signUpCommand.phoneNumber();
-        if (signUpCommand.hasPhoneNumber() && findUserPort.existsByPhoneNumber(phoneNumber)) {
-            throw new UserExistsException(
-                    String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE, phoneNumber)
-            );
+        if (signUpCommand.hasPhoneNumber()) {
+            PhoneNumber phoneNumber = PhoneNumber.of(signUpCommand.phoneNumber());
+            if (findUserPort.existsByPhoneNumber(phoneNumber.getValue())) {
+                throw new UserExistsException(
+                        String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE)
+                );
+            }
         }
 
         // 이메일 인증 코드 검증

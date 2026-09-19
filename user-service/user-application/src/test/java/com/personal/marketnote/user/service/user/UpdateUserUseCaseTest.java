@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
@@ -21,7 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.*;
 import static com.personal.marketnote.user.exception.ExceptionMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -290,9 +291,9 @@ class UpdateUserUseCaseTest {
 
         // then
         verify(getUserUseCase).getUser(id);
-        verify(user).validateDifferentPhoneNumber(phoneNumber);
+        verify(user).validateDifferentPhoneNumber(PhoneNumber.of(phoneNumber));
         verify(findUserPort).existsByPhoneNumber(phoneNumber);
-        verify(user).updatePhoneNumber(phoneNumber);
+        verify(user).updatePhoneNumber(PhoneNumber.of(phoneNumber));
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
         verifyNoMoreInteractions(findUserPort);
@@ -319,9 +320,9 @@ class UpdateUserUseCaseTest {
                 .hasMessage(String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, SIXTH_ERROR_CODE, phoneNumber));
 
         verify(getUserUseCase).getUser(id);
-        verify(user).validateDifferentPhoneNumber(phoneNumber);
+        verify(user).validateDifferentPhoneNumber(PhoneNumber.of(phoneNumber));
         verify(findUserPort).existsByPhoneNumber(phoneNumber);
-        verify(user, never()).updatePhoneNumber(anyString());
+        verify(user, never()).updatePhoneNumber(any(PhoneNumber.class));
         verifyNoInteractions(updateUserPort, findProfanityWordPort);
         verifyNoMoreInteractions(getUserUseCase, user, findUserPort);
     }

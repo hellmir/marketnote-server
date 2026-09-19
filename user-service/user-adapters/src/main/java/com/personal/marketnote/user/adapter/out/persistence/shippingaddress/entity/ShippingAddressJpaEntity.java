@@ -64,7 +64,7 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
         this.companyName = shippingAddress.getCompanyName();
         this.addressAlias = shippingAddress.getAddressAlias();
         this.recipientName = shippingAddress.getRecipientName();
-        this.recipientPhoneNumber = shippingAddress.getRecipientPhoneNumber();
+        this.recipientPhoneNumber = shippingAddress.getRecipientPhoneNumber().getValue();
         this.deliveryRequestType = shippingAddress.getDeliveryRequestType();
         this.deliveryRequestMessage = shippingAddress.getDeliveryRequestMessage();
         this.isDefault = shippingAddress.isDefault();
@@ -80,7 +80,7 @@ public class ShippingAddressJpaEntity extends BaseGeneralEntity {
                 .companyName(shippingAddress.getCompanyName())
                 .addressAlias(shippingAddress.getAddressAlias())
                 .recipientName(shippingAddress.getRecipientName())
-                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber())
+                .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
                 .deliveryRequestType(shippingAddress.getDeliveryRequestType())
                 .deliveryRequestMessage(shippingAddress.getDeliveryRequestMessage())
                 .isDefault(shippingAddress.isDefault())

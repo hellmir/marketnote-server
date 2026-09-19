@@ -61,7 +61,7 @@ import java.lang.annotation.*;
                 | companyName | string | 회사명 (COMPANY 타입만) | "올버스(주)" |
                 | addressAlias | string | 주소 별명 (OTHER 타입만) | "친구집" |
                 | recipientName | string | 받는 분 | "박구글" |
-                | recipientPhoneNumber | string | 휴대폰 번호 | "01000000000" |
+                | recipientPhoneNumber | string | 휴대폰 번호 | "010-0000-0000" |
                 | deliveryRequestType | string(enum) | 배송 요청사항 타입 | "LEAVE_AT_DOOR" |
                 | deliveryRequestMessage | string | 직접입력 메시지 (CUSTOM 시) | "공동현관 비밀번호 *1234" |
                 | isDefault | boolean | 기본 배송지 여부 | true |
@@ -89,7 +89,7 @@ import java.lang.annotation.*;
                                             "companyName": null,
                                             "addressAlias": null,
                                             "recipientName": "박구글",
-                                            "recipientPhoneNumber": "01000000000",
+                                            "recipientPhoneNumber": "010-0000-0000",
                                             "deliveryRequestType": "LEAVE_AT_DOOR",
                                             "deliveryRequestMessage": null,
                                             "isDefault": true,

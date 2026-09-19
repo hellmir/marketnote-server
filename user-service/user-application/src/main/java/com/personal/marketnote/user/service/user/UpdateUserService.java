@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.exception.UserExistsException;
@@ -70,9 +71,9 @@ public class UpdateUserService implements UpdateUserUseCase {
         }
 
         if (updateUserInfoCommand.hasPhoneNumber()) {
-            String newPhoneNumber = updateUserInfoCommand.phoneNumber();
+            PhoneNumber newPhoneNumber = PhoneNumber.of(updateUserInfoCommand.phoneNumber());
             user.validateDifferentPhoneNumber(newPhoneNumber);
-            validateDuplicatePhoneNumber(newPhoneNumber);
+            validateDuplicatePhoneNumber(newPhoneNumber.getValue());
             user.updatePhoneNumber(newPhoneNumber);
 
             return;
@@ -106,7 +107,7 @@ public class UpdateUserService implements UpdateUserUseCase {
     private void validateDuplicatePhoneNumber(String phoneNumber) {
         if (findUserPort.existsByPhoneNumber(phoneNumber)) {
             throw new UserExistsException(
-                    String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, SIXTH_ERROR_CODE, phoneNumber)
+                    String.format(PHONE_NUMBER_ALREADY_EXISTS_EXCEPTION_MESSAGE, SIXTH_ERROR_CODE)
             );
         }
     }

@@ -2,6 +2,7 @@ package com.personal.marketnote.user.domain.shippingaddress;
 
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.exception.DeliveryRequestMessageNoValueException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidDeliveryRequestMessageLengthException;
@@ -24,7 +25,7 @@ public class ShippingAddress extends BaseDomain {
     private String companyName;
     private String addressAlias;
     private String recipientName;
-    private String recipientPhoneNumber;
+    private PhoneNumber recipientPhoneNumber;
     private DeliveryRequestType deliveryRequestType;
     private String deliveryRequestMessage;
     private boolean isDefault;
@@ -39,7 +40,7 @@ public class ShippingAddress extends BaseDomain {
                 .companyName(state.getCompanyName())
                 .addressAlias(state.getAddressAlias())
                 .recipientName(state.getRecipientName())
-                .recipientPhoneNumber(state.getRecipientPhoneNumber())
+                .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
                 .deliveryRequestType(state.getDeliveryRequestType())
                 .deliveryRequestMessage(state.getDeliveryRequestMessage())
                 .isDefault(state.isDefault())
@@ -60,7 +61,7 @@ public class ShippingAddress extends BaseDomain {
                 .companyName(state.getCompanyName())
                 .addressAlias(state.getAddressAlias())
                 .recipientName(state.getRecipientName())
-                .recipientPhoneNumber(state.getRecipientPhoneNumber())
+                .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
                 .deliveryRequestType(state.getDeliveryRequestType())
                 .deliveryRequestMessage(state.getDeliveryRequestMessage())
                 .isDefault(state.isDefault())
@@ -106,7 +107,7 @@ public class ShippingAddress extends BaseDomain {
             String companyName,
             String addressAlias,
             String recipientName,
-            String recipientPhoneNumber,
+            PhoneNumber recipientPhoneNumber,
             DeliveryRequestType deliveryRequestType,
             String deliveryRequestMessage
     ) {

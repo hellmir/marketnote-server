@@ -2,6 +2,7 @@ package com.personal.marketnote.user.domain.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.exception.illegalstate.SameUpdateTargetException;
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
 import org.junit.jupiter.api.DisplayName;
@@ -192,9 +193,9 @@ class UserTest {
         @Test
         @DisplayName("동일 전화번호이면 SameUpdateTargetException이 발생한다")
         void shouldThrowWhenSamePhoneNumber() {
-            User user = createUserWithPhoneNumber("01012345678");
+            User user = createUserWithPhoneNumber("010-1234-5678");
 
-            assertThatThrownBy(() -> user.validateDifferentPhoneNumber("01012345678"))
+            assertThatThrownBy(() -> user.validateDifferentPhoneNumber(PhoneNumber.of("010-1234-5678")))
                     .isInstanceOf(SameUpdateTargetException.class);
         }
     }
@@ -262,7 +263,7 @@ class UserTest {
                 .userKey(UUID.randomUUID())
                 .nickname("테스트유저")
                 .email("test@example.com")
-                .phoneNumber("01012345678")
+                .phoneNumber("010-1234-5678")
                 .role(Role.getBuyer())
                 .userAuthProviders(new ArrayList<>())
                 .userTerms(List.of())

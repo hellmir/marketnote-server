@@ -1,5 +1,7 @@
 package com.personal.marketnote.user.port.in.result;
 
+import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,7 +31,7 @@ public record GetUserResult(
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
-                .phoneNumber(user.getPhoneNumber())
+                .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
                 .referenceCode(user.getReferenceCode())
                 .roleId(user.getRole().getId())
                 .signedUpAt(user.getSignedUpAt())
@@ -38,5 +40,12 @@ public record GetUserResult(
                 .isWithdrawn(user.isWithdrawn())
                 .orderNum(user.getOrderNum())
                 .build();
+    }
+
+    private static String toPhoneNumberValue(PhoneNumber phoneNumber) {
+        if (FormatValidator.hasNoValue(phoneNumber)) {
+            return null;
+        }
+        return phoneNumber.getValue();
     }
 }
