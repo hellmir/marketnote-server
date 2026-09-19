@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.domain.point;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
 import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +39,7 @@ class UserPointPendingAmountTest {
             userPoint.addPendingAmount(500L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(500L);
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(500L));
         }
 
         @Test
@@ -51,7 +52,7 @@ class UserPointPendingAmountTest {
             userPoint.addPendingAmount(200L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(500L);
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(500L));
         }
 
         @Test
@@ -83,7 +84,7 @@ class UserPointPendingAmountTest {
             userPoint.deductPendingAmount(300L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(200L);
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(200L));
         }
 
         @Test
@@ -96,7 +97,7 @@ class UserPointPendingAmountTest {
             userPoint.deductPendingAmount(500L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(0L);
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
         }
 
         @Test

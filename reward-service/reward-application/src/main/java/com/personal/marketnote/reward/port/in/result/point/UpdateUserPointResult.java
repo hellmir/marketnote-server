@@ -16,8 +16,8 @@ public record UpdateUserPointResult(
         return new UpdateUserPointResult(
                 userPoint.getUserId(),
                 userPoint.getAmountValue(),
-                userPoint.getAddExpectedAmount(),
-                userPoint.getExpireExpectedAmount(),
+                userPoint.getAddExpectedAmount().getValue(),
+                userPoint.getExpireExpectedAmount().getValue(),
                 userPoint.getCreatedAt(),
                 userPoint.getModifiedAt()
         );

@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.adapter.in.web.point;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.adapter.in.web.point.request.CancelPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ConfirmPendingPointRequest;
 import com.personal.marketnote.reward.adapter.in.web.point.request.ModifyPendingPointRequest;
@@ -62,8 +63,8 @@ class InternalPointControllerTest {
             UserPoint userPoint = mock(UserPoint.class);
             when(userPoint.getUserId()).thenReturn(USER_ID);
             when(userPoint.getAmountValue()).thenReturn(5000L);
-            when(userPoint.getAddExpectedAmount()).thenReturn(1000L);
-            when(userPoint.getExpireExpectedAmount()).thenReturn(0L);
+            when(userPoint.getAddExpectedAmount()).thenReturn(Money.of(1000L));
+            when(userPoint.getExpireExpectedAmount()).thenReturn(Money.zero());
             when(userPoint.getCreatedAt()).thenReturn(NOW);
             when(userPoint.getModifiedAt()).thenReturn(NOW);
             when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);

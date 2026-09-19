@@ -74,9 +74,9 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
                 .brandName(domain.getBrandName())
                 .brandImageUrl(domain.getBrandImageUrl())
                 .categoryCode(domain.getCategoryCode())
-                .realPrice(domain.getRealPrice())
-                .salePrice(domain.getSalePrice())
-                .cashPrice(domain.getCashPrice())
+                .realPrice(domain.getRealPrice().getValue())
+                .salePrice(domain.getSalePrice().getValue())
+                .cashPrice(domain.getCashPrice().getValue())
                 .imageUrl(domain.getImageUrl())
                 .description(domain.getDescription())
                 .validDays(domain.getValidDays())
@@ -119,9 +119,9 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
         this.brandName = domain.getBrandName();
         this.brandImageUrl = domain.getBrandImageUrl();
         this.categoryCode = domain.getCategoryCode();
-        this.realPrice = domain.getRealPrice();
-        this.salePrice = domain.getSalePrice();
-        this.cashPrice = domain.getCashPrice();
+        this.realPrice = domain.getRealPrice().getValue();
+        this.salePrice = domain.getSalePrice().getValue();
+        this.cashPrice = domain.getCashPrice().getValue();
         this.imageUrl = domain.getImageUrl();
         this.description = domain.getDescription();
         this.validDays = domain.getValidDays();

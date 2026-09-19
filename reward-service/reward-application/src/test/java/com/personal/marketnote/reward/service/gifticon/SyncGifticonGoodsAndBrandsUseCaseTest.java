@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.gifticon;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.gifticon.*;
 import com.personal.marketnote.reward.port.out.gifticon.*;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonBrandPort.FetchGifticonBrandResult;
@@ -239,8 +240,8 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         GifticonGoods savedGoods = goodsCaptor.getValue();
         assertThat(savedGoods.getGoodsCode()).isEqualTo("GD001");
         assertThat(savedGoods.getGoodsName()).isEqualTo("아메리카노");
-        assertThat(savedGoods.getCashPrice()).isEqualTo(4500L);
-        assertThat(savedGoods.getSalePrice()).isEqualTo(4500L);
+        assertThat(savedGoods.getCashPrice()).isEqualTo(Money.of(4500L));
+        assertThat(savedGoods.getSalePrice()).isEqualTo(Money.of(4500L));
         assertThat(savedGoods.isExposed()).isFalse();
         assertThat(savedGoods.getOrderNum()).isNull();
         assertThat(savedGoods.getGoodsStatus()).isEqualTo("SALE");
@@ -269,8 +270,8 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         // then
         verify(updateGifticonGoodsPort).update(existingGoods);
         assertThat(existingGoods.getGoodsName()).isEqualTo("아메리카노");
-        assertThat(existingGoods.getSalePrice()).isEqualTo(4800L);
-        assertThat(existingGoods.getCashPrice()).isEqualTo(3500L);
+        assertThat(existingGoods.getSalePrice()).isEqualTo(Money.of(4800L));
+        assertThat(existingGoods.getCashPrice()).isEqualTo(Money.of(3500L));
         verify(saveGifticonGoodsPort, never()).save(any());
     }
 

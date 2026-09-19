@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
 import com.personal.marketnote.reward.domain.exception.PendingPointReflectionMismatchException;
 import com.personal.marketnote.reward.domain.point.*;
@@ -112,7 +113,7 @@ class CancelPendingPointUseCaseTest {
         ArgumentCaptor<UserPoint> captor = ArgumentCaptor.forClass(UserPoint.class);
         verify(updateUserPointPort).update(captor.capture());
         UserPoint capturedPoint = captor.getValue();
-        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(0L);
+        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
         assertThat(capturedPoint.getAmountValue()).isEqualTo(1000L);
 
         verify(updateUserPointHistoryPort).markAsReflected(
@@ -149,7 +150,7 @@ class CancelPendingPointUseCaseTest {
         ArgumentCaptor<UserPoint> captor = ArgumentCaptor.forClass(UserPoint.class);
         verify(updateUserPointPort).update(captor.capture());
         UserPoint capturedPoint = captor.getValue();
-        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(0L);
+        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
         assertThat(capturedPoint.getAmountValue()).isEqualTo(1000L);
 
         verify(updateUserPointHistoryPort).markAsReflected(

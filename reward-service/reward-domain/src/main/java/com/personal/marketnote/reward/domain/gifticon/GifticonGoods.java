@@ -1,5 +1,7 @@
 package com.personal.marketnote.reward.domain.gifticon;
 
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,9 +18,9 @@ public class GifticonGoods {
     private String brandName;
     private String brandImageUrl;
     private String categoryCode;
-    private Long realPrice;
-    private Long salePrice;
-    private Long cashPrice;
+    private Money realPrice;
+    private Money salePrice;
+    private Money cashPrice;
     private String imageUrl;
     private String description;
     private Integer validDays;
@@ -37,9 +39,9 @@ public class GifticonGoods {
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
                 .categoryCode(state.getCategoryCode())
-                .realPrice(state.getRealPrice())
-                .salePrice(state.getSalePrice())
-                .cashPrice(state.getCashPrice())
+                .realPrice(resolveMoneyOrZero(state.getRealPrice()))
+                .salePrice(resolveMoneyOrZero(state.getSalePrice()))
+                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
                 .imageUrl(state.getImageUrl())
                 .description(state.getDescription())
                 .validDays(state.getValidDays())
@@ -59,9 +61,9 @@ public class GifticonGoods {
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
                 .categoryCode(state.getCategoryCode())
-                .realPrice(state.getRealPrice())
-                .salePrice(state.getSalePrice())
-                .cashPrice(state.getCashPrice())
+                .realPrice(resolveMoneyOrZero(state.getRealPrice()))
+                .salePrice(resolveMoneyOrZero(state.getSalePrice()))
+                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
                 .imageUrl(state.getImageUrl())
                 .description(state.getDescription())
                 .validDays(state.getValidDays())
@@ -80,12 +82,19 @@ public class GifticonGoods {
         this.brandName = state.getBrandName();
         this.brandImageUrl = state.getBrandImageUrl();
         this.categoryCode = state.getCategoryCode();
-        this.realPrice = state.getRealPrice();
-        this.salePrice = state.getSalePrice();
+        this.realPrice = resolveMoneyOrZero(state.getRealPrice());
+        this.salePrice = resolveMoneyOrZero(state.getSalePrice());
         this.imageUrl = state.getImageUrl();
         this.description = state.getDescription();
         this.validDays = state.getValidDays();
         this.goodsStatus = state.getGoodsStatus();
+    }
+
+    private static Money resolveMoneyOrZero(Long value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return Money.zero();
+        }
+        return Money.of(value);
     }
 
     public void expose() {

@@ -1,5 +1,7 @@
 package com.personal.marketnote.reward.domain.point;
 
+import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
 import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
 import lombok.*;
@@ -14,8 +16,8 @@ public class UserPoint {
     private Long userId;
     private String userKey;
     private PointAmount amount;
-    private Long addExpectedAmount;
-    private Long expireExpectedAmount;
+    private Money addExpectedAmount;
+    private Money expireExpectedAmount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -36,8 +38,8 @@ public class UserPoint {
                 .userId(state.getUserId())
                 .userKey(state.getUserKey())
                 .amount(PointAmount.of(String.valueOf(state.getAmount())))
-                .addExpectedAmount(state.getAddExpectedAmount())
-                .expireExpectedAmount(state.getExpireExpectedAmount())
+                .addExpectedAmount(resolveMoneyOrZero(state.getAddExpectedAmount()))
+                .expireExpectedAmount(resolveMoneyOrZero(state.getExpireExpectedAmount()))
                 .build();
     }
 
@@ -46,8 +48,8 @@ public class UserPoint {
                 .userId(state.getUserId())
                 .userKey(state.getUserKey())
                 .amount(PointAmount.of(String.valueOf(state.getAmount())))
-                .addExpectedAmount(state.getAddExpectedAmount())
-                .expireExpectedAmount(state.getExpireExpectedAmount())
+                .addExpectedAmount(resolveMoneyOrZero(state.getAddExpectedAmount()))
+                .expireExpectedAmount(resolveMoneyOrZero(state.getExpireExpectedAmount()))
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -59,19 +61,19 @@ public class UserPoint {
 
     public void addPendingAmount(Long amount) {
         validatePendingAmount(amount);
-        this.addExpectedAmount = Math.addExact(this.addExpectedAmount, amount);
+        this.addExpectedAmount = this.addExpectedAmount.add(Money.of(amount));
     }
 
     public void deductPendingAmount(Long amount) {
         validatePendingAmount(amount);
         if (!hasSufficientPendingAmount(amount)) {
-            throw new InsufficientPendingPointAmountException(this.addExpectedAmount, amount);
+            throw new InsufficientPendingPointAmountException(this.addExpectedAmount.getValue(), amount);
         }
-        this.addExpectedAmount = Math.subtractExact(this.addExpectedAmount, amount);
+        this.addExpectedAmount = this.addExpectedAmount.subtract(Money.of(amount));
     }
 
     public boolean hasSufficientPendingAmount(Long amount) {
-        return this.addExpectedAmount >= amount;
+        return this.addExpectedAmount.getValue() >= amount;
     }
 
     private void validatePendingAmount(Long amount) {
@@ -89,5 +91,12 @@ public class UserPoint {
 
     public Long getAmountValue() {
         return amount.getValue();
+    }
+
+    private static Money resolveMoneyOrZero(Long value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return Money.zero();
+        }
+        return Money.of(value);
     }
 }
