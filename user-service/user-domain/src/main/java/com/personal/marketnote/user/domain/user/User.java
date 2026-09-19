@@ -2,6 +2,7 @@ package com.personal.marketnote.user.domain.user;
 
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalstate.SameUpdateTargetException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -32,7 +33,7 @@ public class User extends BaseDomain {
     private Long id;
     private UUID userKey;
     private String nickname;
-    private String email;
+    private Email email;
     private String password;
     private String fullName;
     private PhoneNumber phoneNumber;
@@ -75,7 +76,7 @@ public class User extends BaseDomain {
                 .userKey(RandomCodeGenerator.generateUserKey())
                 .userAuthProviders(userAuthProviders)
                 .nickname(state.getNickname())
-                .email(state.getEmail())
+                .email(toNullableEmail(state.getEmail()))
                 .fullName(state.getFullName())
                 .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
                 .referenceCode(state.getReferenceCode())
@@ -106,7 +107,7 @@ public class User extends BaseDomain {
                 .id(state.getId())
                 .userKey(state.getUserKey())
                 .nickname(state.getNickname())
-                .email(state.getEmail())
+                .email(toNullableEmail(state.getEmail()))
                 .password(state.getPassword())
                 .fullName(state.getFullName())
                 .phoneNumber(toNullablePhoneNumber(state.getPhoneNumber()))
@@ -160,6 +161,13 @@ public class User extends BaseDomain {
         return PhoneNumber.of(value);
     }
 
+    private static Email toNullableEmail(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return Email.of(value);
+    }
+
     public boolean isGuest() {
         return role.isGuest();
     }
@@ -174,7 +182,7 @@ public class User extends BaseDomain {
         return passwordEncoder.matches(targetPassword, password);
     }
 
-    public void updateEmail(String email) {
+    public void updateEmail(Email email) {
         this.email = email;
     }
 
@@ -212,7 +220,7 @@ public class User extends BaseDomain {
         referredUserCode = null;
     }
 
-    public void registerEmail(String email) {
+    public void registerEmail(Email email) {
         this.email = email;
     }
 
@@ -226,9 +234,9 @@ public class User extends BaseDomain {
         }
     }
 
-    public void validateDifferentEmail(String email) {
+    public void validateDifferentEmail(Email email) {
         if (FormatValidator.equals(this.email, email)) {
-            throw new SameUpdateTargetException(FIRST_ERROR_CODE, email);
+            throw new SameUpdateTargetException(FIRST_ERROR_CODE, "***");
         }
     }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseOrderedGeneralEntity;
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.out.persistence.authentication.entity.RoleJpaEntity;
@@ -91,7 +92,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
                 .userKey(user.getUserKey())
                 .nickname(user.getNickname())
-                .email(user.getEmail())
+                .email(toEmailValue(user.getEmail()))
                 .password(user.getPassword())
                 .fullName(user.getFullName())
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
@@ -125,7 +126,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
                 .userKey(user.getUserKey())
                 .nickname(user.getNickname())
-                .email(user.getEmail())
+                .email(toEmailValue(user.getEmail()))
                 .password(user.getPassword())
                 .fullName(user.getFullName())
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
@@ -147,7 +148,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
     public void updateFrom(User user) {
         updateActivation(user);
         nickname = user.getNickname();
-        email = user.getEmail();
+        email = toEmailValue(user.getEmail());
         password = user.getPassword();
         phoneNumber = toPhoneNumberValue(user.getPhoneNumber());
         referredUserCode = user.getReferredUserCode();
@@ -195,5 +196,12 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
             return null;
         }
         return phoneNumber.getValue();
+    }
+
+    private static String toEmailValue(Email email) {
+        if (FormatValidator.hasNoValue(email)) {
+            return null;
+        }
+        return email.getValue();
     }
 }

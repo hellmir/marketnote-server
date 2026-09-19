@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.port.in.result;
 
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.User;
@@ -29,7 +30,7 @@ public record GetUserResult(
                 .id(user.getId())
                 .accountInfo(AccountInfoResult.from(user.getUserAuthProviders()))
                 .nickname(user.getNickname())
-                .email(user.getEmail())
+                .email(toEmailValue(user.getEmail()))
                 .fullName(user.getFullName())
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
                 .referenceCode(user.getReferenceCode())
@@ -47,5 +48,12 @@ public record GetUserResult(
             return null;
         }
         return phoneNumber.getValue();
+    }
+
+    private static String toEmailValue(Email email) {
+        if (FormatValidator.hasNoValue(email)) {
+            return null;
+        }
+        return email.getValue();
     }
 }

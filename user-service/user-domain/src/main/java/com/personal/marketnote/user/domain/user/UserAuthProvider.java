@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.domain.user;
 
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.AccessLevel;
@@ -41,8 +42,15 @@ public class UserAuthProvider {
 
     void update(AuthVendor authVendor, String oidcId) {
         if (isMe(authVendor)) {
-            addOidcId(authVendor, oidcId, user.getEmail());
+            addOidcId(authVendor, oidcId, toEmailValue(user.getEmail()));
         }
+    }
+
+    private static String toEmailValue(Email email) {
+        if (FormatValidator.hasNoValue(email)) {
+            return null;
+        }
+        return email.getValue();
     }
 
     private boolean isMe(AuthVendor authVendor) {
