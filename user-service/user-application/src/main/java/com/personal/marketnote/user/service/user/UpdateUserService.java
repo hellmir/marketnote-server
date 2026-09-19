@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.user.domain.user.User;
@@ -62,9 +63,9 @@ public class UpdateUserService implements UpdateUserUseCase {
         }
 
         if (updateUserInfoCommand.hasEmail()) {
-            String newEmail = updateUserInfoCommand.email();
+            Email newEmail = Email.of(updateUserInfoCommand.email());
             user.validateDifferentEmail(newEmail);
-            validateDuplicateEmail(newEmail);
+            validateDuplicateEmail(newEmail.getValue());
             user.updateEmail(newEmail);
 
             return;

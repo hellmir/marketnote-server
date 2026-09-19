@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.domain.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalstate.SameUpdateTargetException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.user.domain.authentication.Role;
@@ -177,7 +178,7 @@ class UserTest {
         void shouldThrowWhenSameEmail() {
             User user = createUserWithEmail("test@example.com");
 
-            assertThatThrownBy(() -> user.validateDifferentEmail("test@example.com"))
+            assertThatThrownBy(() -> user.validateDifferentEmail(Email.of("test@example.com")))
                     .isInstanceOf(SameUpdateTargetException.class);
         }
 

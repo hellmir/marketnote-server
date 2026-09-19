@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.PasswordNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
@@ -122,8 +123,11 @@ public class SignUpService implements SignUpUseCase {
             }
         }
 
-        // 이메일 인증 코드 검증
+        // 이메일 형식 검증 (VO) — Request DTO @Pattern 제거 대체
         String email = signUpCommand.email();
+        Email.of(email);
+
+        // 이메일 인증 코드 검증
         if (!verifyCodePort.verify(email, signUpCommand.verificationCode())) {
             throw new InvalidVerificationCodeException(FIFTH_ERROR_CODE, email);
         }

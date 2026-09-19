@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.service.user;
 
+import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.exception.UserNotFoundException;
@@ -152,8 +153,8 @@ class UpdateUserUseCaseTest {
         // then
         verify(getUserUseCase).getUser(id);
         verify(user).updatePassword(password, passwordEncoder);
-        verify(user, never()).validateDifferentEmail(anyString());
-        verify(user, never()).updateEmail(anyString());
+        verify(user, never()).validateDifferentEmail(any(Email.class));
+        verify(user, never()).updateEmail(any(Email.class));
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
         verifyNoInteractions(findUserPort, findProfanityWordPort);
@@ -177,10 +178,11 @@ class UpdateUserUseCaseTest {
         updateUserService.updateUserInfo(false, id, command);
 
         // then
+        Email emailVo = Email.of(email);
         verify(getUserUseCase).getUser(id);
-        verify(user).validateDifferentEmail(email);
+        verify(user).validateDifferentEmail(emailVo);
         verify(findUserPort).existsByEmail(email);
-        verify(user).updateEmail(email);
+        verify(user).updateEmail(emailVo);
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort);
         verifyNoMoreInteractions(findUserPort);
@@ -206,10 +208,11 @@ class UpdateUserUseCaseTest {
                 .isInstanceOf(UserExistsException.class)
                 .hasMessage(String.format(EMAIL_ALREADY_EXISTS_EXCEPTION_MESSAGE, FOURTH_ERROR_CODE, email));
 
+        Email emailVo = Email.of(email);
         verify(getUserUseCase).getUser(id);
-        verify(user).validateDifferentEmail(email);
+        verify(user).validateDifferentEmail(emailVo);
         verify(findUserPort).existsByEmail(email);
-        verify(user, never()).updateEmail(anyString());
+        verify(user, never()).updateEmail(any(Email.class));
         verifyNoInteractions(updateUserPort, findProfanityWordPort);
         verifyNoMoreInteractions(getUserUseCase, user, findUserPort);
     }
