@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class UserPointHistory {
     private Long id;
     private Long userId;
+    // 적립(+)/차감(-) 부호를 amount의 부호로 표현하므로 Money(>=0) 대신 Long을 유지한다.
     private Long amount;
     private Boolean isReflected;
     private UserPointSourceType sourceType;

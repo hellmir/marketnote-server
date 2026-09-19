@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.domain.gifticon;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.exception.InvalidGifticonOrderStatusTransitionException;
 import lombok.*;
@@ -23,7 +24,7 @@ public class GifticonOrder {
     private String productImageUrl;
     private String trId;
     private String orderNo;
-    private Long cashPrice;
+    private Money cashPrice;
     private GifticonOrderStatus orderStatus;
     private String couponImageUrl;
     private String pinNo;
@@ -39,7 +40,7 @@ public class GifticonOrder {
                 .brandName(state.getBrandName())
                 .productImageUrl(state.getProductImageUrl())
                 .trId(state.getTrId())
-                .cashPrice(state.getCashPrice())
+                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
                 .orderStatus(GifticonOrderStatus.PENDING)
                 .build();
     }
@@ -54,7 +55,7 @@ public class GifticonOrder {
                 .productImageUrl(state.getProductImageUrl())
                 .trId(state.getTrId())
                 .orderNo(state.getOrderNo())
-                .cashPrice(state.getCashPrice())
+                .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
                 .orderStatus(state.getOrderStatus())
                 .couponImageUrl(state.getCouponImageUrl())
                 .pinNo(state.getPinNo())
@@ -62,6 +63,13 @@ public class GifticonOrder {
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
+    }
+
+    private static Money resolveMoneyOrZero(Long value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return Money.zero();
+        }
+        return Money.of(value);
     }
 
     public void issue(String couponImageUrl, String pinNo, String orderNo, LocalDate validEndDate) {

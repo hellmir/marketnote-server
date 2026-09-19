@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.domain.gifticon;
 
+import com.personal.marketnote.common.domain.money.Money;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,9 +38,9 @@ class GifticonGoodsTest {
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 아메리카노");
             assertThat(goods.getBrandCode()).isEqualTo("B001");
             assertThat(goods.getBrandName()).isEqualTo("스타벅스");
-            assertThat(goods.getRealPrice()).isEqualTo(5000L);
-            assertThat(goods.getSalePrice()).isEqualTo(4500L);
-            assertThat(goods.getCashPrice()).isEqualTo(4500L);
+            assertThat(goods.getRealPrice()).isEqualTo(Money.of(5000L));
+            assertThat(goods.getSalePrice()).isEqualTo(Money.of(4500L));
+            assertThat(goods.getCashPrice()).isEqualTo(Money.of(4500L));
             assertThat(goods.getGoodsStatus()).isEqualTo("SALE");
             assertThat(goods.isExposed()).isFalse();
             assertThat(goods.getOrderNum()).isNull();
@@ -77,7 +78,7 @@ class GifticonGoodsTest {
             assertThat(goods.getId()).isEqualTo(1L);
             assertThat(goods.isExposed()).isTrue();
             assertThat(goods.getOrderNum()).isEqualTo(1);
-            assertThat(goods.getCashPrice()).isEqualTo(4000L);
+            assertThat(goods.getCashPrice()).isEqualTo(Money.of(4000L));
         }
     }
 
@@ -181,9 +182,9 @@ class GifticonGoodsTest {
                     .build());
 
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 카페라떼");
-            assertThat(goods.getRealPrice()).isEqualTo(5500L);
-            assertThat(goods.getSalePrice()).isEqualTo(5000L);
-            assertThat(goods.getCashPrice()).isEqualTo(4000L);
+            assertThat(goods.getRealPrice()).isEqualTo(Money.of(5500L));
+            assertThat(goods.getSalePrice()).isEqualTo(Money.of(5000L));
+            assertThat(goods.getCashPrice()).isEqualTo(Money.of(4000L));
             assertThat(goods.isExposed()).isTrue();
             assertThat(goods.getOrderNum()).isEqualTo(1);
         }

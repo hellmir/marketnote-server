@@ -77,7 +77,7 @@ public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
                 order.getGoodsName(),
                 order.getBrandName(),
                 order.getProductImageUrl(),
-                order.getCashPrice(),
+                order.getCashPrice().getValue(),
                 order.formatExpiryDate(),
                 order.calculateDaysRemaining(now),
                 order.resolveStatusLabel(),

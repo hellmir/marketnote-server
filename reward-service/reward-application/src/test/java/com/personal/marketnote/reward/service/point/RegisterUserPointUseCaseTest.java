@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
@@ -101,8 +102,8 @@ class RegisterUserPointUseCaseTest {
 
         assertThat(capturedPoint.getUserId()).isEqualTo(USER_ID);
         assertThat(capturedPoint.getAmountValue()).isZero();
-        assertThat(capturedPoint.getAddExpectedAmount()).isZero();
-        assertThat(capturedPoint.getExpireExpectedAmount()).isZero();
+        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
+        assertThat(capturedPoint.getExpireExpectedAmount()).isEqualTo(Money.zero());
     }
 
     @Test

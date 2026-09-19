@@ -61,8 +61,8 @@ public class GetGifticonGoodsService implements GetGifticonGoodsUseCase {
                 goods.getBrandCode(),
                 goods.getBrandName(),
                 goods.getBrandImageUrl(),
-                goods.getSalePrice(),
-                goods.getCashPrice(),
+                goods.getSalePrice().getValue(),
+                goods.getCashPrice().getValue(),
                 goods.getImageUrl(),
                 goods.getOrderNum()
         );

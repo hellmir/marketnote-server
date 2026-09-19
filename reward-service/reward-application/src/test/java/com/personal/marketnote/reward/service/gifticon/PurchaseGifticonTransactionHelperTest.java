@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.gifticon;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.GifticonInsufficientCashException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderSnapshotState;
@@ -90,7 +91,7 @@ class PurchaseGifticonTransactionHelperTest {
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())
                     .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice())
+                    .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
                     .build());
         });
@@ -106,7 +107,7 @@ class PurchaseGifticonTransactionHelperTest {
         GifticonOrder savedOrder = orderCaptor.getValue();
         assertThat(savedOrder.getOrderStatus()).isEqualTo(GifticonOrderStatus.PENDING);
         assertThat(savedOrder.getGoodsCode()).isEqualTo(GOODS_CODE);
-        assertThat(savedOrder.getCashPrice()).isEqualTo(CASH_PRICE);
+        assertThat(savedOrder.getCashPrice()).isEqualTo(Money.of(CASH_PRICE));
     }
 
     @Test
@@ -146,7 +147,7 @@ class PurchaseGifticonTransactionHelperTest {
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())
                     .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice())
+                    .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
                     .build());
         });
@@ -177,7 +178,7 @@ class PurchaseGifticonTransactionHelperTest {
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())
                     .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice())
+                    .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
                     .build());
         });
@@ -211,7 +212,7 @@ class PurchaseGifticonTransactionHelperTest {
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())
                     .trId(order.getTrId())
-                    .cashPrice(order.getCashPrice())
+                    .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
                     .build());
         });

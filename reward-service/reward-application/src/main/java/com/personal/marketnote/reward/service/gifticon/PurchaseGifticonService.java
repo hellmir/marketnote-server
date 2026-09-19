@@ -35,7 +35,7 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
                 goods.getGoodsName(),
                 goods.getBrandName(),
                 goods.getImageUrl(),
-                goods.getCashPrice()
+                goods.getCashPrice().getValue()
         );
 
         SendCouponResult sendResult = sendGifticonCouponPort.sendCoupon(

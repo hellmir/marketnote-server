@@ -67,7 +67,7 @@ public class GifticonOrderJpaEntity extends BaseEntity {
                 .productImageUrl(domain.getProductImageUrl())
                 .trId(domain.getTrId())
                 .orderNo(domain.getOrderNo())
-                .cashPrice(domain.getCashPrice())
+                .cashPrice(domain.getCashPrice().getValue())
                 .orderStatus(domain.getOrderStatus())
                 .couponImageUrl(domain.getCouponImageUrl())
                 .pinNo(domain.getPinNo())

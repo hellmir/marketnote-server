@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.domain.gifticon;
 
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.InvalidGifticonOrderStatusTransitionException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -68,7 +69,7 @@ class GifticonOrderTest {
             assertThat(order.getGoodsName()).isEqualTo("스타벅스 아메리카노");
             assertThat(order.getBrandName()).isEqualTo("스타벅스");
             assertThat(order.getTrId()).isEqualTo("NTCASH_100_20260403120000");
-            assertThat(order.getCashPrice()).isEqualTo(4500L);
+            assertThat(order.getCashPrice()).isEqualTo(Money.of(4500L));
             assertThat(order.getOrderStatus()).isEqualTo(GifticonOrderStatus.PENDING);
         }
     }

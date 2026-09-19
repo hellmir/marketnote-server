@@ -99,7 +99,7 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
                 brandImageUrl,
                 order.getProductImageUrl(),
                 description,
-                order.getCashPrice(),
+                order.getCashPrice().getValue(),
                 order.getCouponImageUrl(),
                 decryptedPin,
                 order.formatExpiryDate(),
