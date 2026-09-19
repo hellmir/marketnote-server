@@ -60,6 +60,6 @@ public record ReviewProductInfoResult(
         if (!review.hasUnitAmount()) {
             return productInfo;
         }
-        return productInfo.withUnitAmount(review.getUnitAmount());
+        return productInfo.withUnitAmount(review.getUnitAmount().getValue());
     }
 }
