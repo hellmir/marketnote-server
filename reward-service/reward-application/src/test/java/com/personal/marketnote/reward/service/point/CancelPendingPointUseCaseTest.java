@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
+import com.personal.marketnote.reward.domain.exception.InvalidCancelPendingAmountException;
 import com.personal.marketnote.reward.domain.exception.PendingPointReflectionMismatchException;
 import com.personal.marketnote.reward.domain.point.*;
 import com.personal.marketnote.reward.exception.UserPointNotFoundException;
@@ -250,6 +251,75 @@ class CancelPendingPointUseCaseTest {
         // expect
         assertThatThrownBy(() -> cancelPendingPointService.cancelPending(command))
                 .isInstanceOf(PendingPointReflectionMismatchException.class);
+    }
+
+    @Test
+    @DisplayName("ACCRUAL과 DEDUCTION 이력이 혼재하면 signedAmount 합산으로 net 금액을 차감한다")
+    void shouldSumMixedSignedAmountsWhenAccrualAndDeductionCoexist() {
+        // given
+        UserPoint userPoint = createUserPoint(1000L, 600L);
+        UserPointHistory accrualHistory = createPendingHistory(500L, UserPointChangeType.ACCRUAL);
+        UserPointHistory accrualHistory2 = createPendingHistory(300L, UserPointChangeType.ACCRUAL);
+        UserPointHistory deductionHistory = createPendingHistory(200L, UserPointChangeType.DEDUCTION);
+
+        when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(List.of(accrualHistory, accrualHistory2, deductionHistory));
+        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+        when(updateUserPointPort.update(any(UserPoint.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(updateUserPointHistoryPort.markAsReflected(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(3);
+
+        CancelPendingPointCommand command = createCommand();
+
+        // when
+        cancelPendingPointService.cancelPending(command);
+
+        // then: net = +500 +300 -200 = 600
+        ArgumentCaptor<UserPoint> captor = ArgumentCaptor.forClass(UserPoint.class);
+        verify(updateUserPointPort).update(captor.capture());
+        assertThat(captor.getValue().getAddExpectedAmount()).isEqualTo(Money.zero());
+    }
+
+    @Test
+    @DisplayName("pending histories의 signedAmount 합계가 0이면 InvalidCancelPendingAmountException이 발생한다")
+    void shouldThrowWhenTotalSignedAmountIsZero() {
+        // given: ACCRUAL 500 + DEDUCTION 500 = 0
+        UserPointHistory accrualHistory = createPendingHistory(500L, UserPointChangeType.ACCRUAL);
+        UserPointHistory deductionHistory = createPendingHistory(500L, UserPointChangeType.DEDUCTION);
+
+        when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(List.of(accrualHistory, deductionHistory));
+
+        CancelPendingPointCommand command = createCommand();
+
+        // expect
+        assertThatThrownBy(() -> cancelPendingPointService.cancelPending(command))
+                .isInstanceOf(InvalidCancelPendingAmountException.class);
+
+        verify(updateUserPointPort, never()).update(any());
+    }
+
+    @Test
+    @DisplayName("pending histories의 signedAmount 합계가 음수이면 InvalidCancelPendingAmountException이 발생한다")
+    void shouldThrowWhenTotalSignedAmountIsNegative() {
+        // given: ACCRUAL 300 + DEDUCTION 500 = -200
+        UserPointHistory accrualHistory = createPendingHistory(300L, UserPointChangeType.ACCRUAL);
+        UserPointHistory deductionHistory = createPendingHistory(500L, UserPointChangeType.DEDUCTION);
+
+        when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(List.of(accrualHistory, deductionHistory));
+
+        CancelPendingPointCommand command = createCommand();
+
+        // expect
+        assertThatThrownBy(() -> cancelPendingPointService.cancelPending(command))
+                .isInstanceOf(InvalidCancelPendingAmountException.class);
+
+        verify(updateUserPointPort, never()).update(any());
     }
 
     @Test
