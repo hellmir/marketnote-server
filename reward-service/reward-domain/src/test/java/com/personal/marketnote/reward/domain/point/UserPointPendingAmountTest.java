@@ -147,4 +147,50 @@ class UserPointPendingAmountTest {
             assertThat(userPoint.hasSufficientPendingAmount(500L)).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("PointAmount 타입 연산")
+    class PointAmountTypeOperations {
+
+        @Test
+        @DisplayName("addPendingAmount 후 addExpectedAmount는 PointAmount 타입으로 누적된다")
+        void shouldAccumulateAsPointAmountAfterAddPending() {
+            // given
+            UserPoint userPoint = createUserPoint(200L);
+
+            // when
+            userPoint.addPendingAmount(300L);
+
+            // then
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(500L));
+            assertThat(userPoint.getAddExpectedAmountValue()).isEqualTo(500L);
+        }
+
+        @Test
+        @DisplayName("deductPendingAmount 후 addExpectedAmount는 PointAmount 타입으로 감소한다")
+        void shouldDecreaseAsPointAmountAfterDeductPending() {
+            // given
+            UserPoint userPoint = createUserPoint(800L);
+
+            // when
+            userPoint.deductPendingAmount(300L);
+
+            // then
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(500L));
+        }
+
+        @Test
+        @DisplayName("deductPendingAmount가 현재 addExpectedAmount와 같으면 PointAmount.zero()가 된다")
+        void shouldReturnZeroWhenDeductAllPending() {
+            // given
+            UserPoint userPoint = createUserPoint(500L);
+
+            // when
+            userPoint.deductPendingAmount(500L);
+
+            // then
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.zero());
+            assertThat(userPoint.getAddExpectedAmount().isZero()).isTrue();
+        }
+    }
 }
