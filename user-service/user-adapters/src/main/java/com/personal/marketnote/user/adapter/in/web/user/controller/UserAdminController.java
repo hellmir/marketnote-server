@@ -7,21 +7,27 @@ import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetLo
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserInfoApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUsersApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserInfoApiDocs;
+import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserPenaltyCountApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.ApplyUserPenaltyRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
+import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserPenaltyCountRequest;
 import com.personal.marketnote.user.adapter.in.web.user.response.ApplyUserPenaltyResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetLoginHistoriesResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUsersResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.UpdateUserPenaltyCountResponse;
 import com.personal.marketnote.user.domain.user.LoginHistorySortProperty;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.command.ApplyUserPenaltyCommand;
+import com.personal.marketnote.user.port.in.command.UpdateUserPenaltyCountCommand;
 import com.personal.marketnote.user.port.in.result.ApplyUserPenaltyResult;
+import com.personal.marketnote.user.port.in.result.UpdateUserPenaltyCountResult;
 import com.personal.marketnote.user.port.in.usecase.user.ApplyUserPenaltyUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetLoginHistoryUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.in.usecase.user.UpdateUserPenaltyCountUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.UpdateUserUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -62,6 +68,7 @@ public class UserAdminController {
     private final UpdateUserUseCase updateUserUseCase;
     private final GetLoginHistoryUseCase getLoginHistoryUseCase;
     private final ApplyUserPenaltyUseCase applyUserPenaltyUseCase;
+    private final UpdateUserPenaltyCountUseCase updateUserPenaltyCountUseCase;
 
     /**
      * (관리자) 회원 목록 조회
@@ -242,6 +249,41 @@ public class UserAdminController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "회원 패널티 부과 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 회원 패널티 횟수 수정
+     *
+     * @param userId    회원 ID
+     * @param request   패널티 횟수 수정 요청
+     * @param principal 인증된 관리자
+     * @return 회원 패널티 횟수 수정 응답 {@link UpdateUserPenaltyCountResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 특정 회원의 패널티 횟수를 지정된 값으로 수정합니다. 관리자만 가능합니다.
+     */
+    @PatchMapping("/{userId}/penalties")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @UpdateUserPenaltyCountApiDocs
+    public ResponseEntity<BaseResponse<UpdateUserPenaltyCountResponse>> updateUserPenaltyCount(
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateUserPenaltyCountRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long adminId = ElementExtractor.extractUserId(principal);
+        UpdateUserPenaltyCountResult result = updateUserPenaltyCountUseCase.updatePenaltyCount(
+                new UpdateUserPenaltyCountCommand(userId, adminId, request.penaltyCount(), request.reason())
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        UpdateUserPenaltyCountResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 패널티 횟수 수정 성공"
                 ),
                 HttpStatus.OK
         );
