@@ -60,6 +60,7 @@ public class RewardCommandToStateMapper {
     ) {
         return UserPointHistoryCreateState.builder()
                 .userId(command.userId())
+                .changeType(UserPointChangeType.ACCRUAL)
                 .amount(0L)
                 .isReflected(Boolean.TRUE)
                 .sourceType(UserPointSourceType.USER)
@@ -76,9 +77,8 @@ public class RewardCommandToStateMapper {
     ) {
         return UserPointHistoryCreateState.builder()
                 .userId(userId)
-                .amount(command.changeType().equals(UserPointChangeType.DEDUCTION)
-                        ? -Math.abs(command.amount())
-                        : Math.abs(command.amount()))
+                .changeType(command.changeType())
+                .amount(command.amount())
                 .isReflected(Boolean.TRUE)
                 .sourceType(command.sourceType())
                 .sourceId(command.sourceId())
@@ -94,9 +94,8 @@ public class RewardCommandToStateMapper {
     ) {
         return UserPointHistoryCreateState.builder()
                 .userId(userId)
-                .amount(command.changeType().equals(UserPointChangeType.DEDUCTION)
-                        ? -Math.abs(command.amount())
-                        : Math.abs(command.amount()))
+                .changeType(command.changeType())
+                .amount(command.amount())
                 .isReflected(Boolean.FALSE)
                 .sourceType(command.sourceType())
                 .sourceId(command.sourceId())
@@ -113,7 +112,8 @@ public class RewardCommandToStateMapper {
     ) {
         return UserPointHistoryCreateState.builder()
                 .userId(userId)
-                .amount(Math.abs(totalAmount))
+                .changeType(UserPointChangeType.ACCRUAL)
+                .amount(totalAmount)
                 .isReflected(Boolean.TRUE)
                 .sourceType(command.sourceType())
                 .sourceId(command.sourceId())

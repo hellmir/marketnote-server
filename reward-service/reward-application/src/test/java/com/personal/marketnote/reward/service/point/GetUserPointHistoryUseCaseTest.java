@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
+import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
@@ -43,9 +44,14 @@ class GetUserPointHistoryUseCaseTest {
     private static final LocalDate DEFAULT_END_DATE = GetUserPointHistoryService.DEFAULT_END_DATE;
 
     private UserPointHistory createHistory(Long id, Long amount, UserPointSourceType sourceType, LocalDateTime accumulatedAt) {
+        return createHistory(id, amount, UserPointChangeType.ACCRUAL, sourceType, accumulatedAt);
+    }
+
+    private UserPointHistory createHistory(Long id, Long amount, UserPointChangeType changeType, UserPointSourceType sourceType, LocalDateTime accumulatedAt) {
         return UserPointHistory.from(UserPointHistorySnapshotState.builder()
                 .id(id)
                 .userId(USER_ID)
+                .changeType(changeType)
                 .amount(amount)
                 .isReflected(Boolean.TRUE)
                 .sourceType(sourceType)
@@ -93,7 +99,7 @@ class GetUserPointHistoryUseCaseTest {
             // given
             List<UserPointHistory> histories = List.of(
                     createHistory(1L, 500L, UserPointSourceType.ORDER, NOW),
-                    createHistory(2L, -200L, UserPointSourceType.ORDER, NOW)
+                    createHistory(2L, 200L, UserPointChangeType.DEDUCTION, UserPointSourceType.ORDER, NOW)
             );
 
             when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.ALL, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))
@@ -139,7 +145,7 @@ class GetUserPointHistoryUseCaseTest {
         void shouldReturnHistoriesWithDeductionFilter() {
             // given
             List<UserPointHistory> histories = List.of(
-                    createHistory(1L, -300L, UserPointSourceType.ORDER, NOW)
+                    createHistory(1L, 300L, UserPointChangeType.DEDUCTION, UserPointSourceType.ORDER, NOW)
             );
 
             when(findUserPointHistoryPort.findByUserId(USER_ID, UserPointHistoryFilter.DEDUCTION, DEFAULT_START_DATE, DEFAULT_END_DATE, null, DEFAULT_FETCH_SIZE))

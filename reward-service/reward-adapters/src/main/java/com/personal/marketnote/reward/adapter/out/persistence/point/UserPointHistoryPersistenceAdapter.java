@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,14 +45,15 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
     public List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter,
                                                LocalDate startDate, LocalDate endDate,
                                                Long cursor, int pageSize) {
-        List<UserPointHistoryJpaEntity> histories = repository.findByUserIdAndDateRangeAndFilter(
-                userId,
-                startDate.atStartOfDay(),
-                endDate.plusDays(1).atStartOfDay(),
-                filter.getAmountFilterValue(),
-                cursor,
-                PageRequest.of(0, pageSize)
-        );
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+        PageRequest pageable = PageRequest.of(0, pageSize);
+
+        List<UserPointHistoryJpaEntity> histories = filter.isAll()
+                ? repository.findByUserIdAndDateRange(userId, startDateTime, endDateTime, cursor, pageable)
+                : repository.findByUserIdAndDateRangeAndChangeType(
+                        userId, startDateTime, endDateTime, filter.toChangeType(), cursor, pageable
+                );
 
         return histories.stream()
                 .map(UserPointHistoryJpaEntity::toDomain)
@@ -60,11 +62,14 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
 
     @Override
     public long countByUserId(Long userId, UserPointHistoryFilter filter, LocalDate startDate, LocalDate endDate) {
-        return repository.countByUserIdAndDateRangeAndFilter(
-                userId,
-                startDate.atStartOfDay(),
-                endDate.plusDays(1).atStartOfDay(),
-                filter.getAmountFilterValue()
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
+        if (filter.isAll()) {
+            return repository.countByUserIdAndDateRange(userId, startDateTime, endDateTime);
+        }
+        return repository.countByUserIdAndDateRangeAndChangeType(
+                userId, startDateTime, endDateTime, filter.toChangeType()
         );
     }
 

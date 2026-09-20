@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public class UserPointHistoryCreateState {
     private final Long userId;
+    private final UserPointChangeType changeType;
     private final Long amount;
     private final Boolean isReflected;
     private final UserPointSourceType sourceType;
