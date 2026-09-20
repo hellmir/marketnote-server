@@ -3,6 +3,7 @@ package com.personal.marketnote.product.service.pricepolicy;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.port.in.result.pricepolicy.GetPricePoliciesResult;
 import com.personal.marketnote.product.port.in.result.pricepolicy.GetProductPricePolicyWithOptionsResult;
 import com.personal.marketnote.product.port.out.pricepolicy.FindPricePoliciesPort;
@@ -48,14 +49,14 @@ class GetPricePoliciesUseCaseTest {
         assertThat(item1.price()).isEqualTo(policy1.getPrice().getValue());
         assertThat(item1.discountPrice()).isEqualTo(policy1.getDiscountPrice().getValue());
         assertThat(item1.accumulatedPoint()).isEqualTo(policy1.getAccumulatedPoint().getValue());
-        assertThat(item1.discountRate()).isEqualTo(policy1.getDiscountRate());
+        assertThat(item1.discountRate()).isEqualTo(policy1.getDiscountRate().getValue());
         assertThat(item1.optionIds()).containsExactlyElementsOf(policy1.getOptionIds());
 
         assertThat(item2.id()).isEqualTo(policy2.getId());
         assertThat(item2.price()).isEqualTo(policy2.getPrice().getValue());
         assertThat(item2.discountPrice()).isEqualTo(policy2.getDiscountPrice().getValue());
         assertThat(item2.accumulatedPoint()).isEqualTo(policy2.getAccumulatedPoint().getValue());
-        assertThat(item2.discountRate()).isEqualTo(policy2.getDiscountRate());
+        assertThat(item2.discountRate()).isEqualTo(policy2.getDiscountRate().getValue());
         assertThat(item2.optionIds()).containsExactlyElementsOf(policy2.getOptionIds());
     }
 
@@ -139,8 +140,9 @@ class GetPricePoliciesUseCaseTest {
                         .id(id)
                         .price(price)
                         .discountPrice(discountPrice)
-                        .discountRate(discountRate)
+                        .discountRate(Rate.of(discountRate))
                         .accumulatedPoint(accumulatedPoint)
+                        .accumulationRate(Rate.of(BigDecimal.ZERO))
                         .status(EntityStatus.ACTIVE)
                         .optionIds(optionIds)
                         .build()

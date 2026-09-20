@@ -5,6 +5,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productoption.ent
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,9 +20,9 @@ public class PricePolicyJpaEntityToDomainMapper {
                                             .id(pricePolicyJpaEntity.getId())
                                             .price(pricePolicyJpaEntity.getPrice())
                                             .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
-                                            .discountRate(pricePolicyJpaEntity.getDiscountRate())
+                                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
                                             .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
-                                            .accumulationRate(pricePolicyJpaEntity.getAccumulationRate())
+                                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
                                             .popularity(pricePolicyJpaEntity.getPopularity())
                                             .status(pricePolicyJpaEntity.getStatus())
                                             .orderNum(pricePolicyJpaEntity.getOrderNum())
@@ -46,9 +47,9 @@ public class PricePolicyJpaEntityToDomainMapper {
                                             .id(pricePolicyJpaEntity.getId())
                                             .price(pricePolicyJpaEntity.getPrice())
                                             .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
-                                            .discountRate(pricePolicyJpaEntity.getDiscountRate())
+                                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
                                             .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
-                                            .accumulationRate(pricePolicyJpaEntity.getAccumulationRate())
+                                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
                                             .popularity(pricePolicyJpaEntity.getPopularity())
                                             .status(pricePolicyJpaEntity.getStatus())
                                             .orderNum(pricePolicyJpaEntity.getOrderNum())
@@ -86,9 +87,9 @@ public class PricePolicyJpaEntityToDomainMapper {
                                             .id(pricePolicyJpaEntity.getId())
                                             .price(pricePolicyJpaEntity.getPrice())
                                             .discountPrice(pricePolicyJpaEntity.getDiscountPrice())
-                                            .discountRate(pricePolicyJpaEntity.getDiscountRate())
+                                            .discountRate(Rate.of(pricePolicyJpaEntity.getDiscountRate()))
                                             .accumulatedPoint(pricePolicyJpaEntity.getAccumulatedPoint())
-                                            .accumulationRate(pricePolicyJpaEntity.getAccumulationRate())
+                                            .accumulationRate(Rate.of(pricePolicyJpaEntity.getAccumulationRate()))
                                             .popularity(pricePolicyJpaEntity.getPopularity())
                                             .status(pricePolicyJpaEntity.getStatus())
                                             .orderNum(pricePolicyJpaEntity.getOrderNum())

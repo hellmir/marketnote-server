@@ -2,6 +2,7 @@ package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
@@ -340,9 +341,9 @@ class GetAdminProductsUseCaseTest {
                         .productId(productId)
                         .price(10000L)
                         .discountPrice(8000L)
-                        .discountRate(BigDecimal.valueOf(20))
+                        .discountRate(Rate.of(BigDecimal.valueOf(20)))
                         .accumulatedPoint(100L)
-                        .accumulationRate(BigDecimal.valueOf(1))
+                        .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
                         .popularity(0L)
                         .status(EntityStatus.ACTIVE)
                         .orderNum(id)

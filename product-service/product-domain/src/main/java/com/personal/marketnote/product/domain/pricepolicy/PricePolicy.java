@@ -29,9 +29,9 @@ public class PricePolicy extends BaseDomain {
 
     private Money price;
     private Money discountPrice;
-    private BigDecimal discountRate;
+    private Rate discountRate;
     private Money accumulatedPoint;
-    private BigDecimal accumulationRate;
+    private Rate accumulationRate;
     private Long popularity;
     private Long orderNum;
     private List<Long> optionIds;
@@ -57,9 +57,9 @@ public class PricePolicy extends BaseDomain {
                         .productId(productId)
                         .price(price)
                         .discountPrice(discountPrice)
-                        .discountRate(discountRate)
+                        .discountRate(Rate.of(discountRate))
                         .accumulatedPoint(accumulatedPoint)
-                        .accumulationRate(accumulationRate)
+                        .accumulationRate(Rate.of(accumulationRate))
                         .popularity(popularity)
                         .status(status)
                         .orderNum(orderNum)

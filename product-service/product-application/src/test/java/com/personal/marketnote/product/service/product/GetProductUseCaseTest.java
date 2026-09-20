@@ -9,6 +9,7 @@ import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategorySnapshotState;
 import com.personal.marketnote.product.domain.option.ProductOptionSnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
@@ -1018,9 +1019,9 @@ class GetProductUseCaseTest {
                         .product(product)
                         .price(10000L)
                         .discountPrice(9000L)
-                        .discountRate(BigDecimal.valueOf(10))
+                        .discountRate(Rate.of(BigDecimal.valueOf(10)))
                         .accumulatedPoint(100L)
-                        .accumulationRate(BigDecimal.valueOf(1))
+                        .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
                         .status(EntityStatus.ACTIVE)
                         .optionIds(optionIds)
                         .productOptions(productOptions)
@@ -1036,9 +1037,9 @@ class GetProductUseCaseTest {
                         .product(null)
                         .price(10000L)
                         .discountPrice(9000L)
-                        .discountRate(BigDecimal.valueOf(10))
+                        .discountRate(Rate.of(BigDecimal.valueOf(10)))
                         .accumulatedPoint(100L)
-                        .accumulationRate(BigDecimal.valueOf(1))
+                        .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
                         .status(EntityStatus.ACTIVE)
                         .build()
         );

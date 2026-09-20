@@ -2,6 +2,7 @@ package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -210,9 +211,9 @@ class GetMyOrderingProductsUseCaseTest {
                         .product(product)
                         .price(10000L)
                         .discountPrice(9000L)
-                        .discountRate(BigDecimal.valueOf(10))
+                        .discountRate(Rate.of(BigDecimal.valueOf(10)))
                         .accumulatedPoint(100L)
-                        .accumulationRate(BigDecimal.valueOf(1))
+                        .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
                         .status(EntityStatus.ACTIVE)
                         .build()
         );

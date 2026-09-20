@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -20,9 +19,9 @@ public class PricePolicySnapshotState {
     private final Product product;
     private final Long price;
     private final Long discountPrice;
-    private final BigDecimal discountRate;
+    private final Rate discountRate;
     private final Long accumulatedPoint;
-    private final BigDecimal accumulationRate;
+    private final Rate accumulationRate;
     private final Long popularity;
     private final EntityStatus status;
     private final Long orderNum;

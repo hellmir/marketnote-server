@@ -2,6 +2,7 @@ package com.personal.marketnote.product.port.in.result.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -98,9 +99,9 @@ class ProductItemResultTest {
                         .id(1L)
                         .price(10000L)
                         .discountPrice(9000L)
-                        .discountRate(BigDecimal.TEN)
+                        .discountRate(Rate.of(BigDecimal.TEN))
                         .accumulatedPoint(100L)
-                        .accumulationRate(BigDecimal.ONE)
+                        .accumulationRate(Rate.of(BigDecimal.ONE))
                         .orderNum(1L)
                         .status(EntityStatus.ACTIVE)
                         .build()

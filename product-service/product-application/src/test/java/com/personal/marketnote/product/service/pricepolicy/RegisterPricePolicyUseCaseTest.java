@@ -96,9 +96,9 @@ class RegisterPricePolicyUseCaseTest {
         assertThat(saved.getDiscountPrice().getValue()).isEqualTo(command.discountPrice());
         assertThat(saved.getAccumulatedPoint().getValue()).isEqualTo(command.accumulatedPoint());
         assertThat(saved.getOptionIds()).containsExactlyElementsOf(optionIds);
-        assertThat(saved.getDiscountRate())
+        assertThat(saved.getDiscountRate().getValue())
                 .isEqualByComparingTo(calculateDiscountRate(command.price(), command.discountPrice()));
-        assertThat(saved.getAccumulationRate())
+        assertThat(saved.getAccumulationRate().getValue())
                 .isEqualByComparingTo(calculateAccumulationRate(command.accumulatedPoint(), command.discountPrice()));
 
         verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 100L, optionIds);
@@ -218,7 +218,7 @@ class RegisterPricePolicyUseCaseTest {
         verify(savePricePolicyPort).save(captor.capture());
         PricePolicy saved = captor.getValue();
 
-        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -239,7 +239,7 @@ class RegisterPricePolicyUseCaseTest {
         verify(savePricePolicyPort).save(captor.capture());
         PricePolicy saved = captor.getValue();
 
-        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -260,8 +260,8 @@ class RegisterPricePolicyUseCaseTest {
         verify(savePricePolicyPort).save(captor.capture());
         PricePolicy saved = captor.getValue();
 
-        assertThat(saved.getDiscountRate()).isEqualByComparingTo(BigDecimal.ZERO);
-        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saved.getDiscountRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -282,7 +282,7 @@ class RegisterPricePolicyUseCaseTest {
         verify(savePricePolicyPort).save(captor.capture());
         PricePolicy saved = captor.getValue();
 
-        assertThat(saved.getAccumulationRate()).isEqualByComparingTo(new BigDecimal("100.0"));
+        assertThat(saved.getAccumulationRate().getValue()).isEqualByComparingTo(new BigDecimal("100.0"));
     }
 
     @Test

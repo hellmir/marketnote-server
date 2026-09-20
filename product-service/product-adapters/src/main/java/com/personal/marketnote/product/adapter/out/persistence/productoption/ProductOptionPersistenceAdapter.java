@@ -15,6 +15,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productoption.rep
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionPricePolicyJpaRepository;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.exception.ProductNoPricePolicyException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
@@ -175,9 +176,9 @@ public class ProductOptionPersistenceAdapter implements SaveProductOptionsPort, 
                 PricePolicyCreateState.builder()
                         .price(defaultPricePolicy.getPrice())
                         .discountPrice(defaultPricePolicy.getDiscountPrice())
-                        .discountRate(defaultPricePolicy.getDiscountRate())
+                        .discountRate(Rate.of(defaultPricePolicy.getDiscountRate()))
                         .accumulatedPoint(defaultPricePolicy.getAccumulatedPoint())
-                        .accumulationRate(defaultPricePolicy.getAccumulationRate())
+                        .accumulationRate(Rate.of(defaultPricePolicy.getAccumulationRate()))
                         .build()
         );
 

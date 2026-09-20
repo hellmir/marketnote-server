@@ -29,7 +29,7 @@ public class GetPricePoliciesService implements GetPricePoliciesUseCase {
                                 pricePolicy.getPrice().getValue(),
                                 pricePolicy.getDiscountPrice().getValue(),
                                 pricePolicy.getAccumulatedPoint().getValue(),
-                                pricePolicy.getDiscountRate(),
+                                pricePolicy.getDiscountRate().getValue(),
                                 pricePolicy.getOptionIds()
                         )
                 )

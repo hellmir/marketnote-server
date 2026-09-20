@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.option.ProductOptionCategoryCreateState;
 import com.personal.marketnote.product.domain.option.ProductOptionCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductCreateState;
 import com.personal.marketnote.product.domain.product.ProductTagCreateState;
@@ -73,9 +74,9 @@ public class ProductCommandToStateMapper {
                         .product(product)
                         .price(command.price())
                         .discountPrice(command.discountPrice())
-                        .discountRate(discountRate)
+                        .discountRate(Rate.of(discountRate))
                         .accumulatedPoint(command.accumulatedPoint())
-                        .accumulationRate(accumulationRate)
+                        .accumulationRate(Rate.of(accumulationRate))
                         .status(EntityStatus.ACTIVE)
                         .optionIds(command.optionIds())
                         .build();

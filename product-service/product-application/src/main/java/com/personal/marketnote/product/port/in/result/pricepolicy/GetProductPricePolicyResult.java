@@ -23,7 +23,7 @@ public record GetProductPricePolicyResult(
                 .id(pricePolicy.getId())
                 .price(pricePolicy.getPrice().getValue())
                 .discountPrice(pricePolicy.getDiscountPrice().getValue())
-                .discountRate(pricePolicy.getDiscountRate())
+                .discountRate(pricePolicy.getDiscountRate().getValue())
                 .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
                 .build();
     }
@@ -33,7 +33,7 @@ public record GetProductPricePolicyResult(
                 .id(pricePolicy.getId())
                 .price(pricePolicy.getPrice().getValue())
                 .discountPrice(pricePolicy.getDiscountPrice().getValue())
-                .discountRate(pricePolicy.getDiscountRate())
+                .discountRate(pricePolicy.getDiscountRate().getValue())
                 .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
                 .options(
                         FormatValidator.hasValue(pricePolicy.getProductOptions())

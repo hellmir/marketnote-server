@@ -9,6 +9,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productcategory.e
 import com.personal.marketnote.product.adapter.out.persistence.productcategory.repository.ProductCategoryJpaRepository;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import org.junit.jupiter.api.BeforeEach;
@@ -635,9 +636,9 @@ class PricePolicySearchQueryTest {
                 PricePolicyCreateState.builder()
                         .price(10000L)
                         .discountPrice(9000L)
-                        .discountRate(BigDecimal.valueOf(10.0))
+                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
                         .accumulatedPoint(accumulatedPoint)
-                        .accumulationRate(BigDecimal.valueOf(1.0))
+                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
                         .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
@@ -651,9 +652,9 @@ class PricePolicySearchQueryTest {
                 PricePolicyCreateState.builder()
                         .price(10000L)
                         .discountPrice(9000L)
-                        .discountRate(BigDecimal.valueOf(10.0))
+                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
                         .accumulatedPoint(100L)
-                        .accumulationRate(accumulationRate)
+                        .accumulationRate(Rate.of(accumulationRate))
                         .build()
         );
         PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);

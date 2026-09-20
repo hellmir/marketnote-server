@@ -13,6 +13,7 @@ import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategoryCreateState;
 import com.personal.marketnote.product.domain.option.ProductOptionCreateState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -179,9 +180,9 @@ class ProductOptionPersistenceAdapterTest {
                 PricePolicyCreateState.builder()
                         .price(100L)
                         .discountPrice(80L)
-                        .discountRate(BigDecimal.valueOf(20.0))
+                        .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
                         .accumulatedPoint(10L)
-                        .accumulationRate(BigDecimal.valueOf(1.0))
+                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
                         .build()
         );
 

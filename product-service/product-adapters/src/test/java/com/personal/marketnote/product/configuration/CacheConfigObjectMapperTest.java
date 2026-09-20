@@ -12,6 +12,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -67,9 +68,9 @@ class CacheConfigObjectMapperTest {
                         .id(1L)
                         .price(10000L)
                         .discountPrice(8000L)
-                        .discountRate(BigDecimal.valueOf(20.0))
+                        .discountRate(Rate.of(BigDecimal.valueOf(20.0)))
                         .accumulatedPoint(100L)
-                        .accumulationRate(BigDecimal.valueOf(1.3))
+                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.3)))
                         .popularity(5L)
                         .status(EntityStatus.ACTIVE)
                         .orderNum(1L)
