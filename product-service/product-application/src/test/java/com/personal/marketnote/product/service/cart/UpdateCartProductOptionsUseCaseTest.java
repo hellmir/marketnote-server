@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.cart.CartProduct;
 import com.personal.marketnote.product.domain.cart.CartProductSnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.exception.CartProductAlreadyExistsException;
 import com.personal.marketnote.product.exception.CartProductNotFoundException;
@@ -168,9 +169,9 @@ class UpdateCartProductOptionsUseCaseTest {
                         .id(id)
                         .price(10000L)
                         .discountPrice(8000L)
-                        .discountRate(new BigDecimal("20.0"))
+                        .discountRate(Rate.of(new BigDecimal("20.0")))
                         .accumulatedPoint(200L)
-                        .accumulationRate(new BigDecimal("2.5"))
+                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
                         .status(EntityStatus.ACTIVE)
                         .build()
         );

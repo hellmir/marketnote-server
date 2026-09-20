@@ -2,6 +2,7 @@ package com.personal.marketnote.product.service.pricepolicy;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
 import com.personal.marketnote.product.exception.PricePolicyNotFoundException;
 import com.personal.marketnote.product.port.out.pricepolicy.FindPricePolicyPort;
@@ -115,9 +116,9 @@ class GetPricePolicyUseCaseTest {
                         .id(id)
                         .price(10000L)
                         .discountPrice(8000L)
-                        .discountRate(new BigDecimal("20.0"))
+                        .discountRate(Rate.of(new BigDecimal("20.0")))
                         .accumulatedPoint(200L)
-                        .accumulationRate(new BigDecimal("2.5"))
+                        .accumulationRate(Rate.of(new BigDecimal("2.5")))
                         .status(EntityStatus.ACTIVE)
                         .optionIds(optionIds)
                         .build()

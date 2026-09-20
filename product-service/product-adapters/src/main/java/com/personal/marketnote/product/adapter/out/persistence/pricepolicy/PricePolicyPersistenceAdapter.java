@@ -10,6 +10,7 @@ import com.personal.marketnote.product.adapter.out.persistence.product.repositor
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionPricePolicyJpaRepository;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -112,9 +113,9 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
                         .product(product)
                         .price(entity.getPrice())
                         .discountPrice(entity.getDiscountPrice())
-                        .discountRate(entity.getDiscountRate())
+                        .discountRate(Rate.of(entity.getDiscountRate()))
                         .accumulatedPoint(entity.getAccumulatedPoint())
-                        .accumulationRate(entity.getAccumulationRate())
+                        .accumulationRate(Rate.of(entity.getAccumulationRate()))
                         .popularity(entity.getPopularity())
                         .status(entity.getStatus())
                         .orderNum(entity.getOrderNum())

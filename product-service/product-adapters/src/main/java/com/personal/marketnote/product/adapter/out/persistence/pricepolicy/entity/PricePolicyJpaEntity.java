@@ -54,9 +54,9 @@ public class PricePolicyJpaEntity extends BaseOrderedGeneralEntity {
                 .productJpaEntity(productRef)
                 .price(pricePolicy.getPrice().getValue())
                 .discountPrice(pricePolicy.getDiscountPrice().getValue())
-                .discountRate(pricePolicy.getDiscountRate())
+                .discountRate(pricePolicy.getDiscountRate().getValue())
                 .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
-                .accumulationRate(pricePolicy.getAccumulationRate())
+                .accumulationRate(pricePolicy.getAccumulationRate().getValue())
                 .build();
     }
 
