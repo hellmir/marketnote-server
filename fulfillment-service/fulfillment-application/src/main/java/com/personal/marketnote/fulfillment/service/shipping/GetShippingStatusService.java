@@ -29,7 +29,7 @@ public class GetShippingStatusService implements GetShippingStatusUseCase {
                 tracker.getShippingStatus().name(),
                 tracker.isPreparing(),
                 tracker.getTrackingNumberValue(),
-                tracker.getCarrierCode(),
+                tracker.getCarrierCodeValue(),
                 tracker.getLastPolledAt()
         );
     }

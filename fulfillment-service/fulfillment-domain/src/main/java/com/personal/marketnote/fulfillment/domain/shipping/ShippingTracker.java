@@ -16,7 +16,7 @@ public class ShippingTracker {
     private Long orderId;
     private Long buyerId;
     private TrackingNumber trackingNumber;
-    private String carrierCode;
+    private CarrierCode carrierCode;
     private ShippingStatus shippingStatus;
     private boolean pollingActive;
     private LocalDateTime lastPolledAt;
@@ -53,10 +53,7 @@ public class ShippingTracker {
                 .build();
     }
 
-    public void startShipping(TrackingNumber trackingNumber, String carrierCode) {
-        if (FormatValidator.hasNoValue(carrierCode)) {
-            throw new FulfillmentQueryParameterNoValueException("carrierCode", "startShipping");
-        }
+    public void startShipping(TrackingNumber trackingNumber, CarrierCode carrierCode) {
         validateTransition(ShippingStatus.SHIPPING);
         this.shippingStatus = ShippingStatus.SHIPPING;
         this.trackingNumber = trackingNumber;
@@ -98,12 +95,9 @@ public class ShippingTracker {
         this.shippingStatus = ShippingStatus.SHIPPING;
     }
 
-    public void updateTrackingInfo(TrackingNumber trackingNumber, String carrierCode) {
+    public void updateTrackingInfo(TrackingNumber trackingNumber, CarrierCode carrierCode) {
         if (!isShipping()) {
             throw new InvalidShippingStatusTransitionException(this.shippingStatus, ShippingStatus.SHIPPING);
-        }
-        if (FormatValidator.hasNoValue(carrierCode)) {
-            throw new FulfillmentQueryParameterNoValueException("carrierCode", "updateTrackingInfo");
         }
         this.trackingNumber = trackingNumber;
         this.carrierCode = carrierCode;
@@ -154,6 +148,10 @@ public class ShippingTracker {
 
     public String getTrackingNumberValue() {
         return FormatValidator.hasValue(trackingNumber) ? trackingNumber.getValue() : null;
+    }
+
+    public String getCarrierCodeValue() {
+        return FormatValidator.hasValue(carrierCode) ? carrierCode.getValue() : null;
     }
 
     private void validateTransition(ShippingStatus target) {

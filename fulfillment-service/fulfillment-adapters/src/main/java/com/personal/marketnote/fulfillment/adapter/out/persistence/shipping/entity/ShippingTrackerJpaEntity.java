@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.adapter.out.persistence.shipping.entity;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
@@ -62,7 +63,7 @@ public class ShippingTrackerJpaEntity {
                 .orderId(shippingTracker.getOrderId())
                 .buyerId(shippingTracker.getBuyerId())
                 .trackingNumber(shippingTracker.getTrackingNumberValue())
-                .carrierCode(shippingTracker.getCarrierCode())
+                .carrierCode(shippingTracker.getCarrierCodeValue())
                 .shippingStatus(shippingTracker.getShippingStatus())
                 .pollingActive(shippingTracker.isPollingActive())
                 .lastPolledAt(shippingTracker.getLastPolledAt())
@@ -78,7 +79,7 @@ public class ShippingTrackerJpaEntity {
                         .orderId(orderId)
                         .buyerId(buyerId)
                         .trackingNumber(toTrackingNumber(trackingNumber))
-                        .carrierCode(carrierCode)
+                        .carrierCode(toCarrierCode(carrierCode))
                         .shippingStatus(shippingStatus)
                         .pollingActive(pollingActive)
                         .lastPolledAt(lastPolledAt)
@@ -93,5 +94,12 @@ public class ShippingTrackerJpaEntity {
             return null;
         }
         return TrackingNumber.of(value);
+    }
+
+    private static CarrierCode toCarrierCode(String value) {
+        if (FormatValidator.hasNoValue(value) || value.isBlank()) {
+            return null;
+        }
+        return CarrierCode.of(value);
     }
 }
