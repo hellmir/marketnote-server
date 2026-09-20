@@ -116,6 +116,45 @@ class UserPointHistoryTest {
             assertThat(history.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
             assertThat(history.getAmountValue()).isEqualTo(700L);
         }
+
+        @Test
+        @DisplayName("SnapshotState에서 PointAmount 타입으로 amount를 복원한다")
+        void shouldRestorePointAmountFromSnapshotState() {
+            UserPointHistory history = UserPointHistory.from(snapshotState(UserPointChangeType.ACCRUAL, 1500L));
+
+            assertThat(history.getAmount()).isEqualTo(PointAmount.of(1500L));
+        }
+    }
+
+    @Nested
+    @DisplayName("PointAmount 타입 적용")
+    class PointAmountTypeApplication {
+
+        @Test
+        @DisplayName("CreateState에 PointAmount를 직접 전달하면 동일 값으로 생성된다")
+        void shouldCreateUserPointHistoryWithPointAmountDirectly() {
+            UserPointHistoryCreateState state = createStateWithPointAmount(
+                    UserPointChangeType.ACCRUAL, PointAmount.of(2500L)
+            );
+
+            UserPointHistory history = UserPointHistory.from(state);
+
+            assertThat(history.getAmount()).isEqualTo(PointAmount.of(2500L));
+            assertThat(history.getAmountValue()).isEqualTo(2500L);
+        }
+
+        @Test
+        @DisplayName("CreateState에 PointAmount.zero()를 전달하면 amount는 zero로 생성된다")
+        void shouldCreateUserPointHistoryWithPointAmountZero() {
+            UserPointHistoryCreateState state = createStateWithPointAmount(
+                    UserPointChangeType.ACCRUAL, PointAmount.zero()
+            );
+
+            UserPointHistory history = UserPointHistory.from(state);
+
+            assertThat(history.getAmount()).isEqualTo(PointAmount.zero());
+            assertThat(history.getAmountValue()).isEqualTo(0L);
+        }
     }
 
     @Nested

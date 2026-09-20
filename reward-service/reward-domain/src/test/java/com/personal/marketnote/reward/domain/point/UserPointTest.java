@@ -201,4 +201,89 @@ class UserPointTest {
             assertThat(original.getAmountValue()).isEqualTo(1000L);
         }
     }
+
+    @Nested
+    @DisplayName("PointAmount 타입 적용")
+    class PointAmountTypeApplication {
+
+        @Test
+        @DisplayName("CreateState에 PointAmount를 직접 전달하면 UserPoint가 동일 PointAmount로 생성된다")
+        void shouldCreateUserPointWithPointAmountDirectly() {
+            // given
+            UserPointCreateState state = UserPointCreateState.builder()
+                    .userId(USER_ID)
+                    .userKey(USER_KEY)
+                    .amount(PointAmount.of(3000L))
+                    .addExpectedAmount(PointAmount.of(1500L))
+                    .expireExpectedAmount(PointAmount.of(200L))
+                    .build();
+
+            // when
+            UserPoint userPoint = UserPoint.from(state);
+
+            // then
+            assertThat(userPoint.getAmountValue()).isEqualTo(3000L);
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(1500L));
+            assertThat(userPoint.getExpireExpectedAmount()).isEqualTo(PointAmount.of(200L));
+        }
+
+        @Test
+        @DisplayName("CreateState의 amount가 null이면 PointAmount.zero()로 초기화된다")
+        void shouldInitializeAmountToZeroWhenNull() {
+            // given
+            UserPointCreateState state = UserPointCreateState.builder()
+                    .userId(USER_ID)
+                    .userKey(USER_KEY)
+                    .amount(null)
+                    .addExpectedAmount(PointAmount.of(100L))
+                    .expireExpectedAmount(PointAmount.of(100L))
+                    .build();
+
+            // when
+            UserPoint userPoint = UserPoint.from(state);
+
+            // then
+            assertThat(userPoint.getAmountValue()).isEqualTo(0L);
+        }
+
+        @Test
+        @DisplayName("CreateState의 addExpectedAmount가 null이면 PointAmount.zero()로 초기화된다")
+        void shouldInitializeAddExpectedAmountToZeroWhenNull() {
+            // given
+            UserPointCreateState state = UserPointCreateState.builder()
+                    .userId(USER_ID)
+                    .userKey(USER_KEY)
+                    .amount(PointAmount.of(1000L))
+                    .addExpectedAmount(null)
+                    .expireExpectedAmount(PointAmount.of(100L))
+                    .build();
+
+            // when
+            UserPoint userPoint = UserPoint.from(state);
+
+            // then
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.zero());
+            assertThat(userPoint.getAddExpectedAmountValue()).isEqualTo(0L);
+        }
+
+        @Test
+        @DisplayName("CreateState의 expireExpectedAmount가 null이면 PointAmount.zero()로 초기화된다")
+        void shouldInitializeExpireExpectedAmountToZeroWhenNull() {
+            // given
+            UserPointCreateState state = UserPointCreateState.builder()
+                    .userId(USER_ID)
+                    .userKey(USER_KEY)
+                    .amount(PointAmount.of(1000L))
+                    .addExpectedAmount(PointAmount.of(100L))
+                    .expireExpectedAmount(null)
+                    .build();
+
+            // when
+            UserPoint userPoint = UserPoint.from(state);
+
+            // then
+            assertThat(userPoint.getExpireExpectedAmount()).isEqualTo(PointAmount.zero());
+            assertThat(userPoint.getExpireExpectedAmountValue()).isEqualTo(0L);
+        }
+    }
 }
