@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.ValueMasker;
 import lombok.*;
@@ -26,7 +27,7 @@ public class Review {
     private Long pricePolicyId;
     private String productImageUrl;
     private String selectedOptions;
-    private Integer quantity;
+    private Quantity quantity;
     private String reviewerName;
     private String maskedReviewerName;
     private Float rating;
@@ -56,7 +57,7 @@ public class Review {
                 .pricePolicyId(state.getPricePolicyId())
                 .productImageUrl(state.getProductImageUrl())
                 .selectedOptions(state.getSelectedOptions())
-                .quantity(state.getQuantity())
+                .quantity(toNullableQuantity(state.getQuantity()))
                 .reviewerName(state.getReviewerName())
                 .maskedReviewerName(ValueMasker.mask(state.getReviewerName()))
                 .rating(round(state.getRating()))
@@ -74,6 +75,13 @@ public class Review {
         return Money.of(value);
     }
 
+    private static Quantity toNullableQuantity(Integer value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return Quantity.of(value);
+    }
+
     private static Float round(Float value) {
         return BigDecimal.valueOf(value)
                 .setScale(0, RoundingMode.HALF_UP)
@@ -89,7 +97,7 @@ public class Review {
                 .pricePolicyId(state.getPricePolicyId())
                 .productImageUrl(state.getProductImageUrl())
                 .selectedOptions(state.getSelectedOptions())
-                .quantity(state.getQuantity())
+                .quantity(toNullableQuantity(state.getQuantity()))
                 .reviewerName(state.getReviewerName())
                 .maskedReviewerName(state.getMaskedReviewerName())
                 .rating(state.getRating())

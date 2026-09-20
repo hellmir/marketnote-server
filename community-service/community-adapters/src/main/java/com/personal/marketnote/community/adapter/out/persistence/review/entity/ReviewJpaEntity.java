@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.adapter.out.persistence.review.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseOrderedGeneralEntity;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.review.Review;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -82,7 +83,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
                 .pricePolicyId(review.getPricePolicyId())
                 .productImageUrl(review.getProductImageUrl())
                 .selectedOptions(review.getSelectedOptions())
-                .quantity(review.getQuantity())
+                .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
                 .reviewerName(review.getReviewerName())
                 .maskedReviewerName(review.getMaskedReviewerName())
                 .rating(review.getRating())
