@@ -71,7 +71,7 @@ class AddCartProductUseCaseTest {
         assertThat(saved.getPricePolicy()).isSameAs(pricePolicy);
         assertThat(saved.getPricePolicyId()).isEqualTo(100L);
         assertThat(saved.getImageUrl()).isEqualTo("https://example.com/image.png");
-        assertThat(saved.getQuantity()).isEqualTo((short) 3);
+        assertThat(saved.getQuantity().getValue()).isEqualTo(3);
         assertThat(saved.isActive()).isTrue();
         verifyNoInteractions(updateCartProductPort);
     }
@@ -140,7 +140,7 @@ class AddCartProductUseCaseTest {
         addCartProductService.addCartProduct(command);
 
         verify(updateCartProductPort).update(existingCartProduct, 100L);
-        assertThat(existingCartProduct.getQuantity()).isEqualTo((short) 5);
+        assertThat(existingCartProduct.getQuantity().getValue()).isEqualTo(5);
         verifyNoInteractions(saveCartProductPort);
     }
 

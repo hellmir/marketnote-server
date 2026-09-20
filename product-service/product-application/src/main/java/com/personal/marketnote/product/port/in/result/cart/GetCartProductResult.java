@@ -21,7 +21,7 @@ public record GetCartProductResult(
                 .pricePolicy(GetProductPricePolicyResult.fromCart(cartProduct.getPricePolicy()))
                 .product(CartProductItemResult.from(cartProduct.getPricePolicy().getProduct(), cartProduct.getImageUrl()))
                 .stock(stock)
-                .quantity(cartProduct.getQuantity())
+                .quantity((short) cartProduct.getQuantity().getValue())
                 .sharerKey(cartProduct.getSharerKey())
                 .build();
     }

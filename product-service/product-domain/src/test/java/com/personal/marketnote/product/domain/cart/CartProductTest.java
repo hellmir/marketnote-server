@@ -45,7 +45,7 @@ class CartProductTest {
 
             // then
             assertThat(cartProduct.getUserId()).isEqualTo(1L);
-            assertThat(cartProduct.getQuantity()).isEqualTo((short) 2);
+            assertThat(cartProduct.getQuantity().getValue()).isEqualTo(2);
             assertThat(cartProduct.isActive()).isTrue();
         }
     }
@@ -75,7 +75,7 @@ class CartProductTest {
             // then
             assertThat(cartProduct.getUserId()).isEqualTo(1L);
             assertThat(cartProduct.getSharerKey()).isEqualTo(sharerKey);
-            assertThat(cartProduct.getQuantity()).isEqualTo((short) 3);
+            assertThat(cartProduct.getQuantity().getValue()).isEqualTo(3);
             assertThat(cartProduct.isInactive()).isTrue();
         }
     }
@@ -100,11 +100,11 @@ class CartProductTest {
             cartProduct.addQuantity((short) 3);
 
             // then
-            assertThat(cartProduct.getQuantity()).isEqualTo((short) 8);
+            assertThat(cartProduct.getQuantity().getValue()).isEqualTo(8);
         }
 
         @Test
-        @DisplayName("0 이하의 수량을 추가하면 InvalidCartProductQuantityException이 발생한다")
+        @DisplayName("0 이하의 수량을 추가하면 InvalidQuantityException이 발생한다")
         void shouldThrowExceptionWhenAdditionalQuantityIsZeroOrNegative() {
             // given
             CartProduct cartProduct = CartProduct.from(CartProductCreateState.builder()
@@ -117,7 +117,7 @@ class CartProductTest {
 
             // when & then
             assertThatThrownBy(() -> cartProduct.addQuantity((short) 0))
-                    .isInstanceOf(InvalidCartProductQuantityException.class);
+                    .isInstanceOf(com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidQuantityException.class);
         }
 
         @Test
