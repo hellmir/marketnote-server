@@ -166,7 +166,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getOrderNumber()).isEqualTo(orderNumber);
+            assertThat(result.getOrderNumber().getValue()).isEqualTo(orderNumber);
         }
 
         @Test
@@ -738,7 +738,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
@@ -753,7 +753,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(buyerId)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
@@ -768,7 +768,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(orderKey)
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
@@ -783,7 +783,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber(orderNumber)
+                .orderNumber(OrderNumber.of(orderNumber))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
@@ -798,7 +798,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(status)
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
@@ -813,7 +813,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.CANCELLED)
                 .statusChangeReasonCategory(reasonCategory)
                 .statusChangeReason(reason)
@@ -830,7 +830,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(totalAmount, paidAmount, couponAmount, pointAmount, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
@@ -857,7 +857,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
@@ -872,7 +872,7 @@ class GetOrderUseCaseTest {
                 .id(orderId)
                 .buyerId(1L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))

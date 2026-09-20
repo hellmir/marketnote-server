@@ -32,7 +32,7 @@ class OrderTest {
 
         assertThat(order.getOrderKey()).isNotNull();
         assertThat(order.getOrderNumber()).isNotNull();
-        assertThat(order.getOrderNumber()).isNotBlank();
+        assertThat(order.getOrderNumber().getValue()).isNotBlank();
     }
 
     @Test
@@ -60,7 +60,7 @@ class OrderTest {
                 .id(1L)
                 .buyerId(100L)
                 .orderKey(orderKey)
-                .orderNumber("ORD-20260101-001")
+                .orderNumber(OrderNumber.of("ORD-20260101-001"))
                 .orderStatus(OrderStatus.PAID)
                 .statusChangeReasonCategory(null)
                 .statusChangeReason(null)
@@ -77,7 +77,7 @@ class OrderTest {
         assertThat(order.getId()).isEqualTo(1L);
         assertThat(order.getBuyerId()).isEqualTo(100L);
         assertThat(order.getOrderKey()).isEqualTo(orderKey);
-        assertThat(order.getOrderNumber()).isEqualTo("ORD-20260101-001");
+        assertThat(order.getOrderNumber().getValue()).isEqualTo("ORD-20260101-001");
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAID);
         assertThat(order.getCreatedAt()).isEqualTo(createdAt);
         assertThat(order.getModifiedAt()).isEqualTo(modifiedAt);
@@ -234,7 +234,7 @@ class OrderTest {
                 .id(1L)
                 .buyerId(100L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-20260101-001")
+                .orderNumber(OrderNumber.of("ORD-20260101-001"))
                 .orderStatus(status)
                 .amount(createOrderAmount())
                 .shippingAddress(createShippingAddress())
@@ -247,7 +247,7 @@ class OrderTest {
                 .id(1L)
                 .buyerId(100L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-20260101-001")
+                .orderNumber(OrderNumber.of("ORD-20260101-001"))
                 .orderStatus(status)
                 .amount(createOrderAmount())
                 .shippingAddress(createShippingAddress())
@@ -267,7 +267,7 @@ class OrderTest {
                 .id(1L)
                 .buyerId(100L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-20260101-001")
+                .orderNumber(OrderNumber.of("ORD-20260101-001"))
                 .orderStatus(OrderStatus.DELIVERED)
                 .amount(createOrderAmount())
                 .shippingAddress(createShippingAddress())
@@ -287,7 +287,7 @@ class OrderTest {
                 .id(1L)
                 .buyerId(100L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-20260101-001")
+                .orderNumber(OrderNumber.of("ORD-20260101-001"))
                 .orderStatus(OrderStatus.RETURN_IN_PROGRESS)
                 .amount(createOrderAmount())
                 .shippingAddress(createShippingAddress())

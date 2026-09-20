@@ -51,7 +51,7 @@ public record GetOrderResult(
         return GetOrderResult.builder()
                 .id(order.getId())
                 .buyerId(order.getBuyerId())
-                .orderNumber(order.getOrderNumber())
+                .orderNumber(order.getOrderNumber().getValue())
                 .orderStatus(order.getOrderStatus())
                 .statusChangeReasonCategory(order.getStatusChangeReasonCategory())
                 .statusChangeReason(order.getStatusChangeReason())

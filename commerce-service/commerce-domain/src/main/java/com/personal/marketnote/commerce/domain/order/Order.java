@@ -16,7 +16,7 @@ public class Order {
     private Long id;
     private Long buyerId;
     private UUID orderKey;
-    private String orderNumber;
+    private OrderNumber orderNumber;
     private OrderStatus orderStatus;
     private OrderStatusReasonCategory statusChangeReasonCategory;
     private String statusChangeReason;
@@ -37,7 +37,7 @@ public class Order {
         return Order.builder()
                 .buyerId(state.getBuyerId())
                 .orderKey(RandomCodeGenerator.generateOrderKey())
-                .orderNumber(RandomCodeGenerator.generateOrderNumber())
+                .orderNumber(OrderNumber.generate())
                 .orderStatus(OrderStatus.PAYMENT_PENDING)
                 .amount(state.getAmount())
                 .shippingAddress(state.getShippingAddress())

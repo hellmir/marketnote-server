@@ -16,7 +16,7 @@ public class OrderSnapshotState {
     private final Long id;
     private final Long buyerId;
     private final UUID orderKey;
-    private final String orderNumber;
+    private final OrderNumber orderNumber;
     private final OrderStatus orderStatus;
     private final OrderStatusReasonCategory statusChangeReasonCategory;
     private final String statusChangeReason;

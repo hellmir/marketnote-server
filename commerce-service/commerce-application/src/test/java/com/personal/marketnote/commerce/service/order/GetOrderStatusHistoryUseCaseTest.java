@@ -40,7 +40,7 @@ class GetOrderStatusHistoryUseCaseTest {
                 .id(id)
                 .buyerId(100L)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD" + id)
+                .orderNumber(OrderNumber.of("ORD" + id))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.of(100000L, 95000L, 3000L, 2000L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))

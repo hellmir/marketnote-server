@@ -119,7 +119,7 @@ public class OrderJpaEntity extends BaseEntity {
         return OrderJpaEntity.builder()
                 .buyerId(order.getBuyerId())
                 .orderKey(order.getOrderKey())
-                .orderNumber(order.getOrderNumber())
+                .orderNumber(order.getOrderNumber().getValue())
                 .orderStatus(order.getOrderStatus())
                 .totalAmount(order.getAmount().getTotalAmount().getValue())
                 .paidAmount(order.getAmount().getPaidAmount())
