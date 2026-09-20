@@ -4,6 +4,7 @@ import com.personal.marketnote.fulfillment.domain.exception.ShippingTrackerNotFo
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
+import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
 import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
 import com.personal.marketnote.fulfillment.port.in.command.GetShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.result.GetShippingStatusResult;
@@ -114,7 +115,7 @@ class GetShippingStatusUseCaseTest {
                 .id(1L)
                 .orderId(orderId)
                 .trackingNumber(trackingNumber != null ? TrackingNumber.of(trackingNumber) : null)
-                .carrierCode(carrierCode)
+                .carrierCode(carrierCode != null ? CarrierCode.of(carrierCode) : null)
                 .shippingStatus(status)
                 .pollingActive(!status.isTerminal())
                 .lastPolledAt(lastPolledAt)

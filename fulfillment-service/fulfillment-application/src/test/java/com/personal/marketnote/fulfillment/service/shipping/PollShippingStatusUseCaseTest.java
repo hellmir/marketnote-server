@@ -5,6 +5,7 @@ import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
+import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
 import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
 import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;
@@ -124,7 +125,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isShipping()).isTrue();
         assertThat(updated.getTrackingNumberValue()).isEqualTo("INV001");
-        assertThat(updated.getCarrierCode()).isEqualTo("CJ");
+        assertThat(updated.getCarrierCodeValue()).isEqualTo("CJ");
         assertThat(updated.getLastPolledAt()).isNotNull();
 
         ArgumentCaptor<ShippingStatusChangedEvent> eventCaptor = ArgumentCaptor.forClass(ShippingStatusChangedEvent.class);
@@ -427,7 +428,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isShipping()).isTrue();
         assertThat(updated.getTrackingNumberValue()).isEqualTo("INV001");
-        assertThat(updated.getCarrierCode()).isEqualTo("CJ");
+        assertThat(updated.getCarrierCodeValue()).isEqualTo("CJ");
 
         verifyNoInteractions(publishShippingStatusChangedEventPort);
     }
@@ -452,7 +453,7 @@ class PollShippingStatusUseCaseTest {
                 .orderId(orderId)
                 .buyerId(1L)
                 .trackingNumber(TrackingNumber.of("INV001"))
-                .carrierCode("CJ")
+                .carrierCode(CarrierCode.of("CJ"))
                 .shippingStatus(ShippingStatus.SHIPPING)
                 .pollingActive(true)
                 .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))

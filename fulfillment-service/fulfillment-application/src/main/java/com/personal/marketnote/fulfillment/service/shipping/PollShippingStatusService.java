@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
@@ -178,7 +179,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
             sendDeliveryFailureSlackAlertPort.sendDeliveryFailureAlert(
                     tracker.getOrderId(),
                     tracker.getTrackingNumberValue(),
-                    tracker.getCarrierCode(),
+                    tracker.getCarrierCodeValue(),
                     LocalDateTime.now(clock)
             );
         }
@@ -190,14 +191,17 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
                 tracker.getBuyerId(),
                 tracker.getShippingStatus().name(),
                 tracker.getTrackingNumberValue(),
-                tracker.getCarrierCode(),
+                tracker.getCarrierCodeValue(),
                 LocalDateTime.now(clock)
         ));
     }
 
     private void applyShippingTransition(ShippingTracker tracker, FulfillmentDeliveryStatusInfoResult deliveryStatus) {
         if (FormatValidator.hasValue(deliveryStatus.invoiceNumber())) {
-            tracker.startShipping(TrackingNumber.of(deliveryStatus.invoiceNumber()), deliveryStatus.courierCode());
+            tracker.startShipping(
+                    TrackingNumber.of(deliveryStatus.invoiceNumber()),
+                    CarrierCode.of(deliveryStatus.courierCode())
+            );
             return;
         }
         tracker.advanceToShipping();
@@ -205,7 +209,10 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
 
     private void applyTrackingInfoUpdate(ShippingTracker tracker, FulfillmentDeliveryStatusInfoResult deliveryStatus) {
         if (tracker.hasNoTrackingNumber() && FormatValidator.hasValue(deliveryStatus.invoiceNumber())) {
-            tracker.updateTrackingInfo(TrackingNumber.of(deliveryStatus.invoiceNumber()), deliveryStatus.courierCode());
+            tracker.updateTrackingInfo(
+                    TrackingNumber.of(deliveryStatus.invoiceNumber()),
+                    CarrierCode.of(deliveryStatus.courierCode())
+            );
         }
     }
 
