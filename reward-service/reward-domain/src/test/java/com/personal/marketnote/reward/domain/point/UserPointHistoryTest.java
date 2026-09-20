@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.domain.point;
 
-import com.personal.marketnote.reward.domain.exception.InvalidUserPointHistoryAmountException;
+import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
+import com.personal.marketnote.reward.domain.exception.UserPointHistoryAmountNoValueException;
 import com.personal.marketnote.reward.domain.exception.UserPointHistoryChangeTypeNoValueException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +21,10 @@ class UserPointHistoryTest {
     private static final LocalDateTime CREATED_AT = LocalDateTime.of(2026, 4, 13, 10, 0);
 
     private UserPointHistoryCreateState createState(UserPointChangeType changeType, Long amount) {
+        return createStateWithPointAmount(changeType, amount == null ? null : PointAmount.of(amount));
+    }
+
+    private UserPointHistoryCreateState createStateWithPointAmount(UserPointChangeType changeType, PointAmount amount) {
         return UserPointHistoryCreateState.builder()
                 .userId(USER_ID)
                 .changeType(changeType)
@@ -37,7 +42,7 @@ class UserPointHistoryTest {
                 .id(1L)
                 .userId(USER_ID)
                 .changeType(changeType)
-                .amount(amount)
+                .amount(PointAmount.of(amount))
                 .isReflected(false)
                 .sourceType(UserPointSourceType.ORDER)
                 .sourceId(SOURCE_ID)
@@ -57,7 +62,7 @@ class UserPointHistoryTest {
             UserPointHistory history = UserPointHistory.from(createState(UserPointChangeType.DEDUCTION, 500L));
 
             assertThat(history.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
-            assertThat(history.getAmount()).isEqualTo(500L);
+            assertThat(history.getAmountValue()).isEqualTo(500L);
         }
 
         @Test
@@ -66,7 +71,7 @@ class UserPointHistoryTest {
             UserPointHistory history = UserPointHistory.from(createState(UserPointChangeType.ACCRUAL, 1000L));
 
             assertThat(history.getChangeType()).isEqualTo(UserPointChangeType.ACCRUAL);
-            assertThat(history.getAmount()).isEqualTo(1000L);
+            assertThat(history.getAmountValue()).isEqualTo(1000L);
         }
 
         @Test
@@ -77,17 +82,17 @@ class UserPointHistoryTest {
         }
 
         @Test
-        @DisplayName("CreateState의 amount가 null이면 InvalidUserPointHistoryAmountException이 발생한다")
+        @DisplayName("CreateState의 amount가 null이면 UserPointHistoryAmountNoValueException이 발생한다")
         void shouldThrowWhenAmountIsNull() {
-            assertThatThrownBy(() -> UserPointHistory.from(createState(UserPointChangeType.ACCRUAL, null)))
-                    .isInstanceOf(InvalidUserPointHistoryAmountException.class);
+            assertThatThrownBy(() -> UserPointHistory.from(createStateWithPointAmount(UserPointChangeType.ACCRUAL, null)))
+                    .isInstanceOf(UserPointHistoryAmountNoValueException.class);
         }
 
         @Test
-        @DisplayName("CreateState의 amount가 음수이면 InvalidUserPointHistoryAmountException이 발생한다")
+        @DisplayName("CreateState의 amount에 음수를 전달하면 PointAmount 생성 시점에 InvalidPointAmountException이 발생한다")
         void shouldThrowWhenAmountIsNegative() {
-            assertThatThrownBy(() -> UserPointHistory.from(createState(UserPointChangeType.DEDUCTION, -100L)))
-                    .isInstanceOf(InvalidUserPointHistoryAmountException.class);
+            assertThatThrownBy(() -> createState(UserPointChangeType.DEDUCTION, -100L))
+                    .isInstanceOf(InvalidPointAmountException.class);
         }
 
         @Test
@@ -95,7 +100,7 @@ class UserPointHistoryTest {
         void shouldAllowZeroAmount() {
             UserPointHistory history = UserPointHistory.from(createState(UserPointChangeType.ACCRUAL, 0L));
 
-            assertThat(history.getAmount()).isEqualTo(0L);
+            assertThat(history.getAmountValue()).isEqualTo(0L);
         }
     }
 
@@ -109,7 +114,7 @@ class UserPointHistoryTest {
             UserPointHistory history = UserPointHistory.from(snapshotState(UserPointChangeType.DEDUCTION, 700L));
 
             assertThat(history.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
-            assertThat(history.getAmount()).isEqualTo(700L);
+            assertThat(history.getAmountValue()).isEqualTo(700L);
         }
     }
 

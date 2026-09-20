@@ -1,6 +1,5 @@
 package com.personal.marketnote.reward.service.point;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
 import com.personal.marketnote.reward.domain.exception.InvalidCancelPendingAmountException;
 import com.personal.marketnote.reward.domain.exception.PendingPointReflectionMismatchException;
@@ -55,9 +54,9 @@ class CancelPendingPointUseCaseTest {
     private UserPoint createUserPoint(Long amount, Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(USER_ID)
-                .amount(amount)
-                .addExpectedAmount(addExpectedAmount)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.of(addExpectedAmount))
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
                 .build());
@@ -81,7 +80,7 @@ class CancelPendingPointUseCaseTest {
                 .id(1L)
                 .userId(USER_ID)
                 .changeType(changeType)
-                .amount(amount)
+                .amount(PointAmount.of(amount))
                 .isReflected(Boolean.FALSE)
                 .sourceType(UserPointSourceType.ORDER)
                 .sourceId(ORDER_ID)
@@ -119,7 +118,7 @@ class CancelPendingPointUseCaseTest {
         ArgumentCaptor<UserPoint> captor = ArgumentCaptor.forClass(UserPoint.class);
         verify(updateUserPointPort).update(captor.capture());
         UserPoint capturedPoint = captor.getValue();
-        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
+        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(PointAmount.zero());
         assertThat(capturedPoint.getAmountValue()).isEqualTo(1000L);
 
         verify(updateUserPointHistoryPort).markAsReflected(
@@ -156,7 +155,7 @@ class CancelPendingPointUseCaseTest {
         ArgumentCaptor<UserPoint> captor = ArgumentCaptor.forClass(UserPoint.class);
         verify(updateUserPointPort).update(captor.capture());
         UserPoint capturedPoint = captor.getValue();
-        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
+        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(PointAmount.zero());
         assertThat(capturedPoint.getAmountValue()).isEqualTo(1000L);
 
         verify(updateUserPointHistoryPort).markAsReflected(
@@ -279,7 +278,7 @@ class CancelPendingPointUseCaseTest {
         // then: net = +500 +300 -200 = 600
         ArgumentCaptor<UserPoint> captor = ArgumentCaptor.forClass(UserPoint.class);
         verify(updateUserPointPort).update(captor.capture());
-        assertThat(captor.getValue().getAddExpectedAmount()).isEqualTo(Money.zero());
+        assertThat(captor.getValue().getAddExpectedAmount()).isEqualTo(PointAmount.zero());
     }
 
     @Test

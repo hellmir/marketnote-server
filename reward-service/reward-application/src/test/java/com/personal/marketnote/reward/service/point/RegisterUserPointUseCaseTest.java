@@ -1,6 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
-import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
@@ -51,9 +51,9 @@ class RegisterUserPointUseCaseTest {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(USER_ID)
                 .userKey(USER_KEY)
-                .amount(0L)
-                .addExpectedAmount(0L)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.zero())
+                .addExpectedAmount(PointAmount.zero())
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
                 .build());
@@ -102,8 +102,8 @@ class RegisterUserPointUseCaseTest {
 
         assertThat(capturedPoint.getUserId()).isEqualTo(USER_ID);
         assertThat(capturedPoint.getAmountValue()).isZero();
-        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
-        assertThat(capturedPoint.getExpireExpectedAmount()).isEqualTo(Money.zero());
+        assertThat(capturedPoint.getAddExpectedAmount()).isEqualTo(PointAmount.zero());
+        assertThat(capturedPoint.getExpireExpectedAmount()).isEqualTo(PointAmount.zero());
     }
 
     @Test
@@ -127,7 +127,7 @@ class RegisterUserPointUseCaseTest {
         UserPointHistory capturedHistory = historyCaptor.getValue();
 
         assertThat(capturedHistory.getUserId()).isEqualTo(USER_ID);
-        assertThat(capturedHistory.getAmount()).isZero();
+        assertThat(capturedHistory.getAmountValue()).isZero();
         assertThat(capturedHistory.getIsReflected()).isTrue();
     }
 

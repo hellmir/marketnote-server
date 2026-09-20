@@ -11,7 +11,7 @@ public class UserPointHistorySnapshotState {
     private final Long id;
     private final Long userId;
     private final UserPointChangeType changeType;
-    private final Long amount;
+    private final PointAmount amount;
     private final Boolean isReflected;
     private final UserPointSourceType sourceType;
     private final Long sourceId;

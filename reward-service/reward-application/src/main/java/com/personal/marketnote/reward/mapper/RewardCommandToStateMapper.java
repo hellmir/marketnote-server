@@ -7,6 +7,7 @@ import com.personal.marketnote.reward.domain.attendance.AttendancePolicyCreateSt
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceCreateState;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistoryCreateState;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapperCreateState;
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointCreateState;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryCreateState;
@@ -48,9 +49,9 @@ public class RewardCommandToStateMapper {
         return UserPointCreateState.builder()
                 .userId(command.userId())
                 .userKey(command.userKey())
-                .amount(0L)
-                .addExpectedAmount(0L)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.zero())
+                .addExpectedAmount(PointAmount.zero())
+                .expireExpectedAmount(PointAmount.zero())
                 .build();
     }
 
@@ -61,7 +62,7 @@ public class RewardCommandToStateMapper {
         return UserPointHistoryCreateState.builder()
                 .userId(command.userId())
                 .changeType(UserPointChangeType.ACCRUAL)
-                .amount(0L)
+                .amount(PointAmount.zero())
                 .isReflected(Boolean.TRUE)
                 .sourceType(UserPointSourceType.USER)
                 .sourceId(command.userId())
@@ -78,7 +79,7 @@ public class RewardCommandToStateMapper {
         return UserPointHistoryCreateState.builder()
                 .userId(userId)
                 .changeType(command.changeType())
-                .amount(command.amount())
+                .amount(PointAmount.of(command.amount()))
                 .isReflected(Boolean.TRUE)
                 .sourceType(command.sourceType())
                 .sourceId(command.sourceId())
@@ -95,7 +96,7 @@ public class RewardCommandToStateMapper {
         return UserPointHistoryCreateState.builder()
                 .userId(userId)
                 .changeType(command.changeType())
-                .amount(command.amount())
+                .amount(PointAmount.of(command.amount()))
                 .isReflected(Boolean.FALSE)
                 .sourceType(command.sourceType())
                 .sourceId(command.sourceId())
@@ -113,7 +114,7 @@ public class RewardCommandToStateMapper {
         return UserPointHistoryCreateState.builder()
                 .userId(userId)
                 .changeType(UserPointChangeType.ACCRUAL)
-                .amount(totalAmount)
+                .amount(PointAmount.of(totalAmount))
                 .isReflected(Boolean.TRUE)
                 .sourceType(command.sourceType())
                 .sourceId(command.sourceId())

@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 public class UserPointSnapshotState {
     private final Long userId;
     private final String userKey;
-    private final Long amount;
-    private final Long addExpectedAmount;
-    private final Long expireExpectedAmount;
+    private final PointAmount amount;
+    private final PointAmount addExpectedAmount;
+    private final PointAmount expireExpectedAmount;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 }

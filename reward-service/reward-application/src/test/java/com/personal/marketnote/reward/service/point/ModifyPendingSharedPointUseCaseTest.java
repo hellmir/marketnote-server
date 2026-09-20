@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
@@ -45,9 +46,9 @@ class ModifyPendingSharedPointUseCaseTest {
     private UserPoint createUserPoint() {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(RESOLVED_USER_ID)
-                .amount(1000L)
-                .addExpectedAmount(0L)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(1000L))
+                .addExpectedAmount(PointAmount.zero())
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .build());

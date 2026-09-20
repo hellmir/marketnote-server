@@ -19,8 +19,8 @@ public record GetUserPointResult(
         return GetUserPointResult.builder()
                 .userId(userPoint.getUserId())
                 .amount(userPoint.getAmountValue())
-                .addExpectedAmount(userPoint.getAddExpectedAmount().getValue())
-                .expireExpectedAmount(userPoint.getExpireExpectedAmount().getValue())
+                .addExpectedAmount(userPoint.getAddExpectedAmountValue())
+                .expireExpectedAmount(userPoint.getExpireExpectedAmountValue())
                 .createdAt(userPoint.getCreatedAt())
                 .modifiedAt(userPoint.getModifiedAt())
                 .build();

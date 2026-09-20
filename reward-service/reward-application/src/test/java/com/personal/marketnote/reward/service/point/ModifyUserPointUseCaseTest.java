@@ -53,9 +53,9 @@ class ModifyUserPointUseCaseTest {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(USER_ID)
                 .userKey(USER_KEY)
-                .amount(amount)
-                .addExpectedAmount(0L)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.zero())
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
                 .build());
@@ -257,7 +257,7 @@ class ModifyUserPointUseCaseTest {
             verify(saveUserPointHistoryPort).save(captor.capture());
             UserPointHistory capturedHistory = captor.getValue();
 
-            assertThat(capturedHistory.getAmount()).isEqualTo(500L);
+            assertThat(capturedHistory.getAmountValue()).isEqualTo(500L);
             assertThat(capturedHistory.getIsReflected()).isTrue();
             assertThat(capturedHistory.getSourceType()).isEqualTo(UserPointSourceType.ORDER);
         }
@@ -283,7 +283,7 @@ class ModifyUserPointUseCaseTest {
             verify(saveUserPointHistoryPort).save(captor.capture());
             UserPointHistory capturedHistory = captor.getValue();
 
-            assertThat(capturedHistory.getAmount()).isEqualTo(300L);
+            assertThat(capturedHistory.getAmountValue()).isEqualTo(300L);
             assertThat(capturedHistory.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
         }
     }

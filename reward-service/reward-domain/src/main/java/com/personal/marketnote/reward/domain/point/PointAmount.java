@@ -53,30 +53,6 @@ public final class PointAmount {
         }
     }
 
-    public static PointAmount generateChangedAmount(boolean isAccrual, PointAmount currentAmount, Long requestedAmount) {
-        PointAmount addedAmount = PointAmount.of(
-                String.valueOf(requestedAmount)
-        );
-
-        if (isAccrual) {
-            return accumulate(currentAmount, addedAmount);
-        }
-
-        return reduce(currentAmount, addedAmount);
-    }
-
-    private static PointAmount accumulate(PointAmount currentAmount, PointAmount addedAmount) {
-        return PointAmount.of(
-                String.valueOf(currentAmount.getValue() + addedAmount.getValue())
-        );
-    }
-
-    private static PointAmount reduce(PointAmount currentAmount, PointAmount reducedAmount) {
-        return PointAmount.of(
-                String.valueOf(currentAmount.getValue() - reducedAmount.getValue())
-        );
-    }
-
     public PointAmount add(PointAmount other) {
         return new PointAmount(Math.addExact(amount, other.amount));
     }

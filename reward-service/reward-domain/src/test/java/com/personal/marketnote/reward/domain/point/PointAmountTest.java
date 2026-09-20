@@ -62,35 +62,6 @@ class PointAmountTest {
     }
 
     @Test
-    @DisplayName("적립 시 현재 포인트에 요청 금액을 더한다")
-    void shouldAccumulateWhenIsAccrual() {
-        PointAmount current = PointAmount.of("100");
-
-        PointAmount result = PointAmount.generateChangedAmount(true, current, 50L);
-
-        assertThat(result.getValue()).isEqualTo(150L);
-    }
-
-    @Test
-    @DisplayName("차감 시 현재 포인트에서 요청 금액을 뺀다")
-    void shouldReduceWhenIsNotAccrual() {
-        PointAmount current = PointAmount.of("100");
-
-        PointAmount result = PointAmount.generateChangedAmount(false, current, 30L);
-
-        assertThat(result.getValue()).isEqualTo(70L);
-    }
-
-    @Test
-    @DisplayName("차감 결과가 음수이면 InvalidPointAmountException을 던진다")
-    void shouldThrowExceptionWhenReduceResultIsNegative() {
-        PointAmount current = PointAmount.of("30");
-
-        assertThatThrownBy(() -> PointAmount.generateChangedAmount(false, current, 50L))
-                .isInstanceOf(InvalidPointAmountException.class);
-    }
-
-    @Test
     @DisplayName("of(long)이 of(String)과 같은 값으로 인스턴스를 생성한다")
     void shouldCreatePointAmountWithLongEqualToStringFactory() {
         PointAmount fromLong = PointAmount.of(100L);

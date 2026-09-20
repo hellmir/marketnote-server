@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.exception.UserNotFoundException;
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
@@ -35,9 +36,9 @@ class GetUserPointByUserKeyUseCaseTest {
     private UserPoint createUserPoint() {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(USER_ID)
-                .amount(1000L)
-                .addExpectedAmount(0L)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(1000L))
+                .addExpectedAmount(PointAmount.zero())
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
                 .build());

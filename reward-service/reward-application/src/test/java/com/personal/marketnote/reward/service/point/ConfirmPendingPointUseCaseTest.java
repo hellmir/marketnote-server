@@ -58,9 +58,9 @@ class ConfirmPendingPointUseCaseTest {
     private UserPoint createUserPoint(Long amount, Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(USER_ID)
-                .amount(amount)
-                .addExpectedAmount(addExpectedAmount)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.of(addExpectedAmount))
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
                 .build());
@@ -84,7 +84,7 @@ class ConfirmPendingPointUseCaseTest {
                 .id(1L)
                 .userId(USER_ID)
                 .changeType(changeType)
-                .amount(amount)
+                .amount(PointAmount.of(amount))
                 .isReflected(Boolean.FALSE)
                 .sourceType(UserPointSourceType.ORDER)
                 .sourceId(ORDER_ID)
@@ -128,7 +128,7 @@ class ConfirmPendingPointUseCaseTest {
         verify(saveUserPointHistoryPort).save(historyCaptor.capture());
         UserPointHistory savedHistory = historyCaptor.getValue();
         assertThat(savedHistory.getIsReflected()).isTrue();
-        assertThat(savedHistory.getAmount()).isEqualTo(500L);
+        assertThat(savedHistory.getAmountValue()).isEqualTo(500L);
         assertThat(savedHistory.getSourceType()).isEqualTo(UserPointSourceType.ORDER);
         assertThat(savedHistory.getSourceId()).isEqualTo(ORDER_ID);
     }
@@ -161,7 +161,7 @@ class ConfirmPendingPointUseCaseTest {
 
         ArgumentCaptor<UserPointHistory> historyCaptor = ArgumentCaptor.forClass(UserPointHistory.class);
         verify(saveUserPointHistoryPort).save(historyCaptor.capture());
-        assertThat(historyCaptor.getValue().getAmount()).isEqualTo(800L);
+        assertThat(historyCaptor.getValue().getAmountValue()).isEqualTo(800L);
     }
 
     @Test
@@ -284,7 +284,7 @@ class ConfirmPendingPointUseCaseTest {
         // then: saved confirmed history의 amount가 net 600
         ArgumentCaptor<UserPointHistory> historyCaptor = ArgumentCaptor.forClass(UserPointHistory.class);
         verify(saveUserPointHistoryPort).save(historyCaptor.capture());
-        assertThat(historyCaptor.getValue().getAmount()).isEqualTo(600L);
+        assertThat(historyCaptor.getValue().getAmountValue()).isEqualTo(600L);
         assertThat(historyCaptor.getValue().getChangeType()).isEqualTo(UserPointChangeType.ACCRUAL);
     }
 

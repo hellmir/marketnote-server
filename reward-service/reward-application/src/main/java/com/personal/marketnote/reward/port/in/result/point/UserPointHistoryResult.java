@@ -24,7 +24,7 @@ public record UserPointHistoryResult(
         return UserPointHistoryResult.builder()
                 .id(history.getId())
                 .changeType(history.getChangeType())
-                .amount(history.getAmount())
+                .amount(history.getAmountValue())
                 .isReflected(history.getIsReflected())
                 .sourceType(history.getSourceType())
                 .sourceId(history.getSourceId())

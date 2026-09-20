@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.point.entity;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
@@ -67,7 +68,7 @@ public class UserPointHistoryJpaEntity {
                 .id(history.getId())
                 .userId(history.getUserId())
                 .changeType(history.getChangeType())
-                .amount(history.getAmount())
+                .amount(history.getAmountValue())
                 .isReflected(history.getIsReflected())
                 .sourceType(history.getSourceType())
                 .sourceId(history.getSourceId())
@@ -83,7 +84,7 @@ public class UserPointHistoryJpaEntity {
                         .id(id)
                         .userId(userId)
                         .changeType(changeType)
-                        .amount(amount)
+                        .amount(PointAmount.of(amount))
                         .isReflected(isReflected)
                         .sourceType(sourceType)
                         .sourceId(sourceId)

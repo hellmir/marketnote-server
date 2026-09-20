@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.point;
 
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
@@ -52,7 +53,7 @@ class GetUserPointHistoryUseCaseTest {
                 .id(id)
                 .userId(USER_ID)
                 .changeType(changeType)
-                .amount(amount)
+                .amount(PointAmount.of(amount))
                 .isReflected(Boolean.TRUE)
                 .sourceType(sourceType)
                 .sourceId(100L)

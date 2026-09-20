@@ -1,6 +1,5 @@
 package com.personal.marketnote.reward.domain.point;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
 import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
@@ -16,8 +15,8 @@ public class UserPoint {
     private Long userId;
     private String userKey;
     private PointAmount amount;
-    private Money addExpectedAmount;
-    private Money expireExpectedAmount;
+    private PointAmount addExpectedAmount;
+    private PointAmount expireExpectedAmount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -25,7 +24,7 @@ public class UserPoint {
         return UserPoint.builder()
                 .userId(userId)
                 .userKey(userKey)
-                .amount(PointAmount.of(String.valueOf(amount)))
+                .amount(PointAmount.of(amount))
                 .addExpectedAmount(addExpectedAmount)
                 .expireExpectedAmount(expireExpectedAmount)
                 .createdAt(createdAt)
@@ -37,9 +36,9 @@ public class UserPoint {
         return UserPoint.builder()
                 .userId(state.getUserId())
                 .userKey(state.getUserKey())
-                .amount(PointAmount.of(String.valueOf(state.getAmount())))
-                .addExpectedAmount(resolveMoneyOrZero(state.getAddExpectedAmount()))
-                .expireExpectedAmount(resolveMoneyOrZero(state.getExpireExpectedAmount()))
+                .amount(resolvePointAmountOrZero(state.getAmount()))
+                .addExpectedAmount(resolvePointAmountOrZero(state.getAddExpectedAmount()))
+                .expireExpectedAmount(resolvePointAmountOrZero(state.getExpireExpectedAmount()))
                 .build();
     }
 
@@ -47,21 +46,26 @@ public class UserPoint {
         return UserPoint.builder()
                 .userId(state.getUserId())
                 .userKey(state.getUserKey())
-                .amount(PointAmount.of(String.valueOf(state.getAmount())))
-                .addExpectedAmount(resolveMoneyOrZero(state.getAddExpectedAmount()))
-                .expireExpectedAmount(resolveMoneyOrZero(state.getExpireExpectedAmount()))
+                .amount(resolvePointAmountOrZero(state.getAmount()))
+                .addExpectedAmount(resolvePointAmountOrZero(state.getAddExpectedAmount()))
+                .expireExpectedAmount(resolvePointAmountOrZero(state.getExpireExpectedAmount()))
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
     }
 
     public void changeAmount(boolean isAccrual, Long amount) {
-        this.amount = PointAmount.generateChangedAmount(isAccrual, this.amount, amount);
+        PointAmount delta = PointAmount.of(amount);
+        if (isAccrual) {
+            this.amount = this.amount.add(delta);
+            return;
+        }
+        this.amount = this.amount.subtract(delta);
     }
 
     public void addPendingAmount(Long amount) {
         validatePendingAmount(amount);
-        this.addExpectedAmount = this.addExpectedAmount.add(Money.of(amount));
+        this.addExpectedAmount = this.addExpectedAmount.add(PointAmount.of(amount));
     }
 
     public void deductPendingAmount(Long amount) {
@@ -69,11 +73,11 @@ public class UserPoint {
         if (!hasSufficientPendingAmount(amount)) {
             throw new InsufficientPendingPointAmountException(this.addExpectedAmount.getValue(), amount);
         }
-        this.addExpectedAmount = this.addExpectedAmount.subtract(Money.of(amount));
+        this.addExpectedAmount = this.addExpectedAmount.subtract(PointAmount.of(amount));
     }
 
     public boolean hasSufficientPendingAmount(Long amount) {
-        return this.addExpectedAmount.getValue() >= amount;
+        return this.addExpectedAmount.isGreaterThanOrEqual(PointAmount.of(amount));
     }
 
     private void validatePendingAmount(Long amount) {
@@ -93,10 +97,18 @@ public class UserPoint {
         return amount.getValue();
     }
 
-    private static Money resolveMoneyOrZero(Long value) {
+    public Long getAddExpectedAmountValue() {
+        return addExpectedAmount.getValue();
+    }
+
+    public Long getExpireExpectedAmountValue() {
+        return expireExpectedAmount.getValue();
+    }
+
+    private static PointAmount resolvePointAmountOrZero(PointAmount value) {
         if (FormatValidator.hasNoValue(value)) {
-            return Money.zero();
+            return PointAmount.zero();
         }
-        return Money.of(value);
+        return value;
     }
 }
