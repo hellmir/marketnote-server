@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
+import com.personal.marketnote.reward.domain.exception.InvalidConfirmPendingAmountException;
 import com.personal.marketnote.reward.domain.exception.PendingPointReflectionMismatchException;
 import com.personal.marketnote.reward.domain.point.*;
 import com.personal.marketnote.reward.exception.UserPointNotFoundException;
@@ -254,6 +255,78 @@ class ConfirmPendingPointUseCaseTest {
         assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
                 .isInstanceOf(PendingPointReflectionMismatchException.class);
 
+        verify(saveUserPointHistoryPort, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("ACCRUAL과 DEDUCTION 이력이 혼재하면 signedAmount 합산으로 net 금액을 확정한다")
+    void shouldSumMixedSignedAmountsWhenAccrualAndDeductionCoexist() {
+        // given: ACCRUAL 500 + ACCRUAL 300 + DEDUCTION 200 = net 600
+        UserPoint userPoint = createUserPoint(1000L, 800L);
+        UserPointHistory accrualHistory = createPendingHistory(500L, UserPointChangeType.ACCRUAL);
+        UserPointHistory accrualHistory2 = createPendingHistory(300L, UserPointChangeType.ACCRUAL);
+        UserPointHistory deductionHistory = createPendingHistory(200L, UserPointChangeType.DEDUCTION);
+
+        when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(List.of(accrualHistory, accrualHistory2, deductionHistory));
+        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(userPoint);
+        when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
+        when(updateUserPointHistoryPort.markAsReflected(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(3);
+
+        ConfirmPendingPointCommand command = createCommand();
+
+        // when
+        confirmPendingPointService.confirmPending(command);
+
+        // then: saved confirmed history의 amount가 net 600
+        ArgumentCaptor<UserPointHistory> historyCaptor = ArgumentCaptor.forClass(UserPointHistory.class);
+        verify(saveUserPointHistoryPort).save(historyCaptor.capture());
+        assertThat(historyCaptor.getValue().getAmount()).isEqualTo(600L);
+        assertThat(historyCaptor.getValue().getChangeType()).isEqualTo(UserPointChangeType.ACCRUAL);
+    }
+
+    @Test
+    @DisplayName("pending histories의 signedAmount 합계가 0이면 InvalidConfirmPendingAmountException이 발생한다")
+    void shouldThrowWhenTotalSignedAmountIsZero() {
+        // given: ACCRUAL 500 + DEDUCTION 500 = 0
+        UserPointHistory accrualHistory = createPendingHistory(500L, UserPointChangeType.ACCRUAL);
+        UserPointHistory deductionHistory = createPendingHistory(500L, UserPointChangeType.DEDUCTION);
+
+        when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(List.of(accrualHistory, deductionHistory));
+
+        ConfirmPendingPointCommand command = createCommand();
+
+        // expect
+        assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
+                .isInstanceOf(InvalidConfirmPendingAmountException.class);
+
+        verify(updateUserPointPort, never()).update(any());
+        verify(saveUserPointHistoryPort, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("pending histories의 signedAmount 합계가 음수이면 InvalidConfirmPendingAmountException이 발생한다")
+    void shouldThrowWhenTotalSignedAmountIsNegative() {
+        // given: ACCRUAL 300 + DEDUCTION 500 = -200
+        UserPointHistory accrualHistory = createPendingHistory(300L, UserPointChangeType.ACCRUAL);
+        UserPointHistory deductionHistory = createPendingHistory(500L, UserPointChangeType.DEDUCTION);
+
+        when(findUserPointHistoryPort.findUnreflectedByUserIdAndSource(
+                USER_ID, UserPointSourceType.ORDER, ORDER_ID
+        )).thenReturn(List.of(accrualHistory, deductionHistory));
+
+        ConfirmPendingPointCommand command = createCommand();
+
+        // expect
+        assertThatThrownBy(() -> confirmPendingPointService.confirmPending(command))
+                .isInstanceOf(InvalidConfirmPendingAmountException.class);
+
+        verify(updateUserPointPort, never()).update(any());
         verify(saveUserPointHistoryPort, never()).save(any());
     }
 
