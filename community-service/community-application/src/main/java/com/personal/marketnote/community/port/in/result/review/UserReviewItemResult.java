@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.port.in.result.review;
 
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.review.Review;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -53,7 +54,7 @@ public record UserReviewItemResult(
                 .pricePolicyId(review.getPricePolicyId())
                 .productImageUrl(review.getProductImageUrl())
                 .selectedOptions(review.getSelectedOptions())
-                .quantity(review.getQuantity())
+                .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
                 .reviewerName(review.getReviewerName())
                 .rating(review.getRating())
                 .content(review.getContent())

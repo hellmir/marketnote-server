@@ -101,7 +101,7 @@ class ReviewTest {
         assertThat(review.getPricePolicyId()).isEqualTo(400L);
         assertThat(review.getProductImageUrl()).isEqualTo("https://example.com/image.jpg");
         assertThat(review.getSelectedOptions()).isEqualTo("옵션A / 옵션B");
-        assertThat(review.getQuantity()).isEqualTo(2);
+        assertThat(review.getQuantity().getValue()).isEqualTo(2);
         assertThat(review.getReviewerName()).isEqualTo("홍길동");
         assertThat(review.getMaskedReviewerName()).isEqualTo("홍**");
         assertThat(review.getRating()).isEqualTo(5.0f);
