@@ -250,7 +250,7 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
                 .targetType(command.targetType())
                 .targetId(command.targetId())
                 .description(command.description())
-                .idempotencyKey(command.idempotencyKey())
+                .idempotencyKey(IdempotencyKey.of(command.idempotencyKey()))
                 .build());
     }
 }

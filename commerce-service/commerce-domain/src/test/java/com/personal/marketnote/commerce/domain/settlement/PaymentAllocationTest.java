@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.settlement;
 
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ class PaymentAllocationTest {
                     .shippingFee(3000L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .build();
 
             // when
@@ -42,7 +43,7 @@ class PaymentAllocationTest {
             assertThat(allocation.getShippingFee()).isEqualTo(Money.of(3000L));
             assertThat(allocation.getTransactionType()).isEqualTo(PaymentAllocationTransactionType.ORDER_REGISTRATION);
             assertThat(allocation.getTargetType()).isEqualTo(PaymentAllocationTargetType.ORDER);
-            assertThat(allocation.getIdempotencyKey()).isEqualTo("ORDER_ALLOCATION:100:10");
+            assertThat(allocation.getIdempotencyKey().getValue()).isEqualTo("ORDER_ALLOCATION:100:10");
             assertThat(allocation.getSettlementId()).isNull();
         }
     }
@@ -62,7 +63,7 @@ class PaymentAllocationTest {
                     .shippingFee(null)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .build();
 
             // when
@@ -83,7 +84,7 @@ class PaymentAllocationTest {
                     .shippingFee(0L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .build();
 
             // when
@@ -104,7 +105,7 @@ class PaymentAllocationTest {
                     .shippingFee(-1000L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .build();
 
             // when & then
@@ -128,7 +129,7 @@ class PaymentAllocationTest {
                     .allocatedAmount(0L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .build();
 
             // when & then
@@ -147,7 +148,7 @@ class PaymentAllocationTest {
                     .allocatedAmount(-1000L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .build();
 
             // when & then
@@ -166,7 +167,7 @@ class PaymentAllocationTest {
                     .allocatedAmount(null)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .build();
 
             // when & then
@@ -194,7 +195,7 @@ class PaymentAllocationTest {
                     .settlementId(5L)
                     .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("ORDER_ALLOCATION:100:10")
+                    .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                     .createdAt(createdAt)
                     .build();
 
@@ -227,7 +228,7 @@ class PaymentAllocationTest {
                             .allocatedAmount(50000L)
                             .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                             .targetType(PaymentAllocationTargetType.ORDER)
-                            .idempotencyKey("ORDER_ALLOCATION:100:10")
+                            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                             .build()
             );
 
@@ -248,7 +249,7 @@ class PaymentAllocationTest {
                             .settlementId(5L)
                             .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                             .targetType(PaymentAllocationTargetType.ORDER)
-                            .idempotencyKey("ORDER_ALLOCATION:100:10")
+                            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                             .createdAt(LocalDateTime.now())
                             .build()
             );
@@ -273,7 +274,7 @@ class PaymentAllocationTest {
                             .allocatedAmount(50000L)
                             .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                             .targetType(PaymentAllocationTargetType.ORDER)
-                            .idempotencyKey("ORDER_ALLOCATION:100:10")
+                            .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:100:10"))
                             .build()
             );
 

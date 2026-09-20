@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
@@ -86,7 +87,7 @@ public class OrderReturnedSettlementConsumer {
                                 .shippingFee(allocation.getShippingFee().getValue())
                                 .transactionType(PaymentAllocationTransactionType.RETURN_REFUND)
                                 .targetType(PaymentAllocationTargetType.ORDER)
-                                .idempotencyKey(IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId())
+                                .idempotencyKey(IdempotencyKey.of(IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()))
                                 .build()
                 ))
                 .toList();

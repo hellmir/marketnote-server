@@ -29,7 +29,7 @@ public class LedgerPersistenceAdapter implements SaveLedgerTransactionPort, Save
             LedgerTransactionJpaEntity savedEntity = ledgerTransactionJpaRepository.saveAndFlush(entity);
             return LedgerTransactionEntityToDomainMapper.toDomain(savedEntity);
         } catch (DataIntegrityViolationException e) {
-            throw new DuplicateLedgerTransactionException(transaction.getIdempotencyKey());
+            throw new DuplicateLedgerTransactionException(transaction.getIdempotencyKey().getValue());
         }
     }
 

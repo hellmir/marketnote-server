@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.settlement;
 
 import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.settlement.*;
 import com.personal.marketnote.commerce.exception.SettlementAlreadyExistsException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
@@ -68,7 +69,7 @@ class ProcessSellerSettlementUseCaseTest {
                 .shippingFee(shippingFee)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey("TEST:" + id)
+                .idempotencyKey(IdempotencyKey.of("TEST:" + id))
                 .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
                 .build());
     }
@@ -225,7 +226,7 @@ class ProcessSellerSettlementUseCaseTest {
                     .shippingFee(0L)
                     .transactionType(PaymentAllocationTransactionType.CANCELLATION)
                     .targetType(PaymentAllocationTargetType.ORDER)
-                    .idempotencyKey("CANCEL:2")
+                    .idempotencyKey(IdempotencyKey.of("CANCEL:2"))
                     .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
                     .build());
 

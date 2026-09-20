@@ -29,7 +29,7 @@ class LedgerTransactionTest {
                             .targetType("ORDER")
                             .targetId(1L)
                             .description("결제 승인")
-                            .idempotencyKey("PAYMENT_APPROVAL:1")
+                            .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
                             .build()
             );
 
@@ -60,7 +60,7 @@ class LedgerTransactionTest {
                             .targetType("ORDER")
                             .targetId(1L)
                             .description("결제 승인")
-                            .idempotencyKey("PAYMENT_APPROVAL:1")
+                            .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
                             .build()
             );
 
@@ -94,7 +94,7 @@ class LedgerTransactionTest {
                             .targetType("ORDER")
                             .targetId(1L)
                             .description("결제 승인")
-                            .idempotencyKey("PAYMENT_APPROVAL:1")
+                            .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:1"))
                             .build()
             );
 
@@ -135,7 +135,7 @@ class LedgerTransactionTest {
                             .targetType("ORDER")
                             .targetId(1L)
                             .description("PG 정산")
-                            .idempotencyKey("PG_SETTLEMENT:1")
+                            .idempotencyKey(IdempotencyKey.of("PG_SETTLEMENT:1"))
                             .build()
             );
 
@@ -175,7 +175,7 @@ class LedgerTransactionTest {
                     .targetType("ORDER")
                     .targetId(100L)
                     .description("주문 100 결제 승인")
-                    .idempotencyKey("PAYMENT_APPROVAL:100")
+                    .idempotencyKey(IdempotencyKey.of("PAYMENT_APPROVAL:100"))
                     .build();
 
             // when
@@ -186,7 +186,7 @@ class LedgerTransactionTest {
             assertThat(transaction.getTargetType()).isEqualTo("ORDER");
             assertThat(transaction.getTargetId()).isEqualTo(100L);
             assertThat(transaction.getDescription()).isEqualTo("주문 100 결제 승인");
-            assertThat(transaction.getIdempotencyKey()).isEqualTo("PAYMENT_APPROVAL:100");
+            assertThat(transaction.getIdempotencyKey().getValue()).isEqualTo("PAYMENT_APPROVAL:100");
         }
     }
 }

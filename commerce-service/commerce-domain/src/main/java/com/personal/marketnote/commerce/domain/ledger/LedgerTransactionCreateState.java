@@ -11,5 +11,5 @@ public class LedgerTransactionCreateState {
     private String targetType;
     private Long targetId;
     private String description;
-    private String idempotencyKey;
+    private IdempotencyKey idempotencyKey;
 }

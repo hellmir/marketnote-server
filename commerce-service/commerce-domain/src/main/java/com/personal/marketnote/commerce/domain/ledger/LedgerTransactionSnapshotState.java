@@ -14,6 +14,6 @@ public class LedgerTransactionSnapshotState {
     private String targetType;
     private Long targetId;
     private String description;
-    private String idempotencyKey;
+    private IdempotencyKey idempotencyKey;
     private LocalDateTime createdAt;
 }

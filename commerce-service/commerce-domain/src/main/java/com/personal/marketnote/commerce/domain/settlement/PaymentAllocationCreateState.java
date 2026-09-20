@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.settlement;
 
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import lombok.*;
 
 @Getter
@@ -13,5 +14,5 @@ public class PaymentAllocationCreateState {
     private Long shippingFee;
     private PaymentAllocationTransactionType transactionType;
     private PaymentAllocationTargetType targetType;
-    private String idempotencyKey;
+    private IdempotencyKey idempotencyKey;
 }

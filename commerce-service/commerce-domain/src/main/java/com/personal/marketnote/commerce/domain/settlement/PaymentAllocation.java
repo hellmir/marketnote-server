@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.settlement;
 
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
@@ -19,7 +20,7 @@ public class PaymentAllocation {
     private Long settlementId;
     private PaymentAllocationTransactionType transactionType;
     private PaymentAllocationTargetType targetType;
-    private String idempotencyKey;
+    private IdempotencyKey idempotencyKey;
     private LocalDateTime createdAt;
 
     public static PaymentAllocation from(PaymentAllocationCreateState state) {

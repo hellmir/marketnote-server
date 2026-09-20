@@ -51,7 +51,7 @@ public class LedgerTransactionJpaEntity {
                 .targetType(transaction.getTargetType())
                 .targetId(transaction.getTargetId())
                 .description(transaction.getDescription())
-                .idempotencyKey(transaction.getIdempotencyKey())
+                .idempotencyKey(transaction.getIdempotencyKey().getValue())
                 .build();
     }
 }

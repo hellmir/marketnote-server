@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.settlement.*;
 import com.personal.marketnote.commerce.exception.SettlementNotFoundException;
 import com.personal.marketnote.commerce.port.in.result.settlement.GetSettlementDetailResult;
@@ -64,7 +65,7 @@ class GetSettlementDetailUseCaseTest {
                 .settlementId(settlementId)
                 .transactionType(transactionType)
                 .targetType(targetType)
-                .idempotencyKey("key-" + id)
+                .idempotencyKey(IdempotencyKey.of("key-" + id))
                 .createdAt(LocalDateTime.of(2026, 2, 15, 14, 30))
                 .build());
     }

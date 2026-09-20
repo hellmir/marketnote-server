@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.mapper;
 
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreateState;
@@ -100,7 +101,7 @@ public class OrderCommandToStateMapper {
                 .shippingFee(shippingFee)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey("ORDER_ALLOCATION:" + orderId + ":" + sellerId)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
                 .build();
     }
 }

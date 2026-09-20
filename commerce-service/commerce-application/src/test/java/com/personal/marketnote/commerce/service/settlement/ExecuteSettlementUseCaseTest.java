@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.settlement.*;
 import com.personal.marketnote.commerce.exception.NoUnsettledAllocationException;
 import com.personal.marketnote.commerce.port.in.command.settlement.ExecuteSettlementCommand;
@@ -52,7 +53,7 @@ class ExecuteSettlementUseCaseTest {
                 .shippingFee(0L)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey("TEST:" + id)
+                .idempotencyKey(IdempotencyKey.of("TEST:" + id))
                 .createdAt(LocalDateTime.of(2026, 2, 15, 10, 0))
                 .build());
     }

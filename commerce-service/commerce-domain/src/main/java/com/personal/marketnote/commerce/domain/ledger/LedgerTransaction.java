@@ -16,7 +16,7 @@ public class LedgerTransaction {
     private String targetType;
     private Long targetId;
     private String description;
-    private String idempotencyKey;
+    private IdempotencyKey idempotencyKey;
     private LocalDateTime createdAt;
 
     public static LedgerTransaction from(LedgerTransactionCreateState state) {

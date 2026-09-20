@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationSnapshotState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
@@ -67,7 +68,7 @@ class OrderCancelledSettlementConsumerTest {
                 .shippingFee(shippingFee)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey("ORDER_ALLOCATION:" + orderId + ":" + sellerId)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
                 .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
                 .build());
     }
@@ -98,7 +99,7 @@ class OrderCancelledSettlementConsumerTest {
         assertThat(cancellation.getAllocatedAmount()).isEqualTo(Money.of(50000L));
         assertThat(cancellation.getShippingFee()).isEqualTo(Money.of(3000L));
         assertThat(cancellation.getTransactionType()).isEqualTo(PaymentAllocationTransactionType.CANCELLATION);
-        assertThat(cancellation.getIdempotencyKey()).isEqualTo("ORDER_CANCELLATION_ALLOCATION:100:10");
+        assertThat(cancellation.getIdempotencyKey().getValue()).isEqualTo("ORDER_CANCELLATION_ALLOCATION:100:10");
 
         verify(acknowledgment).acknowledge();
     }

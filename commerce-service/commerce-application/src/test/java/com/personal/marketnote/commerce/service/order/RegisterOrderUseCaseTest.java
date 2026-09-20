@@ -2300,7 +2300,7 @@ class RegisterOrderUseCaseTest {
             verify(savePaymentAllocationPort).saveAll(captor.capture());
             List<PaymentAllocation> allocations = captor.getValue();
             assertThat(allocations).hasSize(1);
-            assertThat(allocations.get(0).getIdempotencyKey()).startsWith("ORDER_ALLOCATION:1:");
+            assertThat(allocations.get(0).getIdempotencyKey().getValue()).startsWith("ORDER_ALLOCATION:1:");
         }
 
         @Test

@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.settlement;
 
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,6 @@ public class PaymentAllocationSnapshotState {
     private Long settlementId;
     private PaymentAllocationTransactionType transactionType;
     private PaymentAllocationTargetType targetType;
-    private String idempotencyKey;
+    private IdempotencyKey idempotencyKey;
     private LocalDateTime createdAt;
 }
