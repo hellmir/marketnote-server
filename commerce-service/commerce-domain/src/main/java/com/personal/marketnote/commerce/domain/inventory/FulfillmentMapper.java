@@ -10,7 +10,7 @@ public class FulfillmentMapper {
     private Long productId;
     private String wmsKey;
     private String wmsProductKey;
-    private Integer stock;
+    private Stock stock;
 
     public static FulfillmentMapper from(FulfillmentMapperCreateState state) {
         return FulfillmentMapper.builder()
