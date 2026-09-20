@@ -258,6 +258,64 @@ class UserTest {
         }
     }
 
+    @Nested
+    @DisplayName("addPenalty")
+    class AddPenalty {
+
+        @Test
+        @DisplayName("addPenalty 호출 시 penaltyCount가 1 증가한다")
+        void shouldIncreasePenaltyCountByOne() {
+            User user = createUserWithPenaltyCount(0);
+
+            user.addPenalty();
+
+            assertThat(user.getPenaltyCount()).isEqualTo(1);
+        }
+
+        @Test
+        @DisplayName("addPenalty를 여러 번 호출하면 penaltyCount가 누적된다")
+        void shouldAccumulatePenaltyCountOnMultipleCalls() {
+            User user = createUserWithPenaltyCount(0);
+
+            user.addPenalty();
+            user.addPenalty();
+            user.addPenalty();
+
+            assertThat(user.getPenaltyCount()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("기존 패널티 횟수가 있는 회원에 addPenalty 호출 시 누적된다")
+        void shouldAccumulateOnExistingPenaltyCount() {
+            User user = createUserWithPenaltyCount(5);
+
+            user.addPenalty();
+
+            assertThat(user.getPenaltyCount()).isEqualTo(6);
+        }
+
+        @Test
+        @DisplayName("UserSnapshotState로 복원된 User의 penaltyCount는 주입된 값과 일치한다")
+        void shouldRestorePenaltyCountFromSnapshot() {
+            User user = createUserWithPenaltyCount(7);
+
+            assertThat(user.getPenaltyCount()).isEqualTo(7);
+        }
+    }
+
+    private User createUserWithPenaltyCount(int penaltyCount) {
+        return User.from(UserSnapshotState.builder()
+                .id(1L)
+                .userKey(UUID.randomUUID())
+                .role(Role.getBuyer())
+                .userAuthProviders(new ArrayList<>())
+                .userTerms(List.of())
+                .status(EntityStatus.ACTIVE)
+                .withdrawalYn(false)
+                .penaltyCount(penaltyCount)
+                .build());
+    }
+
     private User createActiveUser() {
         return User.from(UserSnapshotState.builder()
                 .id(1L)
