@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.point.entity;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointHistorySnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
@@ -29,6 +30,10 @@ public class UserPointHistoryJpaEntity {
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "change_type", nullable = false, length = 15)
+    private UserPointChangeType changeType;
 
     @Column(name = "amount", nullable = false)
     private Long amount;
@@ -61,6 +66,7 @@ public class UserPointHistoryJpaEntity {
         return UserPointHistoryJpaEntity.builder()
                 .id(history.getId())
                 .userId(history.getUserId())
+                .changeType(history.getChangeType())
                 .amount(history.getAmount())
                 .isReflected(history.getIsReflected())
                 .sourceType(history.getSourceType())
@@ -76,6 +82,7 @@ public class UserPointHistoryJpaEntity {
                 UserPointHistorySnapshotState.builder()
                         .id(id)
                         .userId(userId)
+                        .changeType(changeType)
                         .amount(amount)
                         .isReflected(isReflected)
                         .sourceType(sourceType)

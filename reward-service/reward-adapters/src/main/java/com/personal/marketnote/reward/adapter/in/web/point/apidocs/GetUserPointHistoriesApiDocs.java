@@ -81,7 +81,8 @@ import java.lang.annotation.*;
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 포인트 내역 ID | 1 |
-                | amount | number | 적립/사용 금액 (양수=적립, 음수=사용) | 1000 |
+                | changeType | string | 변경 유형 (ACCRUAL=적립, DEDUCTION=사용) | "ACCRUAL" |
+                | amount | number | 적립/사용 금액 (항상 양수) | 1000 |
                 | isReflected | boolean | 반영 여부 | true |
                 | sourceType | string | 적립/사용 출처 타입 | "USER" |
                 | sourceId | number | 적립/사용 출처 ID | 1 |
@@ -122,6 +123,7 @@ import java.lang.annotation.*;
                                                   "histories": [
                                                     {
                                                       "id": 25,
+                                                      "changeType": "ACCRUAL",
                                                       "amount": 1000,
                                                       "isReflected": true,
                                                       "sourceType": "OFFERWALL",
@@ -138,6 +140,7 @@ import java.lang.annotation.*;
                                                   "histories": [
                                                     {
                                                       "id": 23,
+                                                      "changeType": "ACCRUAL",
                                                       "amount": 5000,
                                                       "isReflected": true,
                                                       "sourceType": "USER",
@@ -154,6 +157,7 @@ import java.lang.annotation.*;
                                                   "histories": [
                                                     {
                                                       "id": 14,
+                                                      "changeType": "ACCRUAL",
                                                       "amount": 2000,
                                                       "isReflected": true,
                                                       "sourceType": "USER",
@@ -164,7 +168,8 @@ import java.lang.annotation.*;
                                                     },
                                                     {
                                                       "id": 13,
-                                                      "amount": -500,
+                                                      "changeType": "DEDUCTION",
+                                                      "amount": 500,
                                                       "isReflected": true,
                                                       "sourceType": "PRODUCT",
                                                       "sourceId": 40,
@@ -174,6 +179,7 @@ import java.lang.annotation.*;
                                                     },
                                                     {
                                                       "id": 11,
+                                                      "changeType": "ACCRUAL",
                                                       "amount": 0,
                                                       "isReflected": true,
                                                       "sourceType": "USER",

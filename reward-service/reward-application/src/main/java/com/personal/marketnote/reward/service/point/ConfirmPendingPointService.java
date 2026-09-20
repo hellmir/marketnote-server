@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.service.point;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.reward.domain.exception.InvalidConfirmPendingAmountException;
 import com.personal.marketnote.reward.domain.exception.PendingPointReflectionMismatchException;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
@@ -46,6 +47,9 @@ public class ConfirmPendingPointService implements ConfirmPendingPointUseCase {
         }
 
         Long totalAmount = calculateTotalPendingAmount(pendingHistories);
+        if (totalAmount <= 0) {
+            throw new InvalidConfirmPendingAmountException(totalAmount);
+        }
 
         UserPoint userPoint = getUserPointUseCase.getUserPoint(command.userId());
         userPoint.confirmPendingAmount(totalAmount);
@@ -64,7 +68,7 @@ public class ConfirmPendingPointService implements ConfirmPendingPointUseCase {
     private Long calculateTotalPendingAmount(List<UserPointHistory> pendingHistories) {
         long total = 0L;
         for (UserPointHistory history : pendingHistories) {
-            total = Math.addExact(total, history.getAmount());
+            total = Math.addExact(total, history.signedAmount());
         }
         return total;
     }

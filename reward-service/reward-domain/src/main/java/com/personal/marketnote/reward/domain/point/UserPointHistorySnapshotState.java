@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class UserPointHistorySnapshotState {
     private final Long id;
     private final Long userId;
+    private final UserPointChangeType changeType;
     private final Long amount;
     private final Boolean isReflected;
     private final UserPointSourceType sourceType;

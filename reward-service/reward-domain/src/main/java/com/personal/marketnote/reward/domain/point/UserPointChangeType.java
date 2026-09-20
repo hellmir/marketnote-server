@@ -12,4 +12,8 @@ public enum UserPointChangeType {
     public boolean isAccrual() {
         return this == ACCRUAL;
     }
+
+    public boolean isDeduction() {
+        return this == DEDUCTION;
+    }
 }

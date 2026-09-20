@@ -263,8 +263,8 @@ class ModifyUserPointUseCaseTest {
         }
 
         @Test
-        @DisplayName("차감 시 이력의 금액은 음수로 저장된다")
-        void shouldSaveDeductionHistoryWithNegativeAmount() {
+        @DisplayName("차감 시 이력의 금액은 양수로 저장되고 changeType은 DEDUCTION이다")
+        void shouldSaveDeductionHistoryWithPositiveAmountAndDeductionChangeType() {
             // given
             UserPoint userPoint = createUserPoint(1000L);
             ModifyUserPointCommand command = createDeductionCommandWithUserId(300L);
@@ -283,7 +283,8 @@ class ModifyUserPointUseCaseTest {
             verify(saveUserPointHistoryPort).save(captor.capture());
             UserPointHistory capturedHistory = captor.getValue();
 
-            assertThat(capturedHistory.getAmount()).isEqualTo(-300L);
+            assertThat(capturedHistory.getAmount()).isEqualTo(300L);
+            assertThat(capturedHistory.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
         }
     }
 

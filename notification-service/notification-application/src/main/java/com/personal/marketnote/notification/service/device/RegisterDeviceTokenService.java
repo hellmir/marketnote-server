@@ -49,11 +49,13 @@ public class RegisterDeviceTokenService implements RegisterDeviceTokenUseCase {
 
         existingToken.updateToken(command.token(), platform, now);
         Long updatedId = updateDeviceTokenPort.update(existingToken);
+
         return RegisterDeviceTokenResult.ofUpdated(updatedId);
     }
 
     private RegisterDeviceTokenResult createNewDeviceToken(
-            RegisterDeviceTokenCommand command, Platform platform, LocalDateTime now) {
+            RegisterDeviceTokenCommand command, Platform platform, LocalDateTime now
+    ) {
         DeviceToken deviceToken = DeviceToken.from(DeviceTokenCreateState.builder()
                 .userId(command.userId())
                 .token(command.token())
@@ -62,6 +64,7 @@ public class RegisterDeviceTokenService implements RegisterDeviceTokenUseCase {
                 .lastUsedAt(now)
                 .build());
         Long id = saveDeviceTokenPort.save(deviceToken);
+
         return RegisterDeviceTokenResult.ofCreated(id);
     }
 }

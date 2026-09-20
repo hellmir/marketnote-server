@@ -72,9 +72,14 @@ class CancelPendingPointUseCaseTest {
     }
 
     private UserPointHistory createPendingHistory(Long amount) {
+        return createPendingHistory(amount, UserPointChangeType.ACCRUAL);
+    }
+
+    private UserPointHistory createPendingHistory(Long amount, UserPointChangeType changeType) {
         return UserPointHistory.from(UserPointHistorySnapshotState.builder()
                 .id(1L)
                 .userId(USER_ID)
+                .changeType(changeType)
                 .amount(amount)
                 .isReflected(Boolean.FALSE)
                 .sourceType(UserPointSourceType.ORDER)

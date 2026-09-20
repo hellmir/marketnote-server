@@ -1,5 +1,8 @@
 package com.personal.marketnote.reward.domain.point;
 
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.exception.InvalidUserPointHistoryAmountException;
+import com.personal.marketnote.reward.domain.exception.UserPointHistoryChangeTypeNoValueException;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,7 +14,7 @@ import java.time.LocalDateTime;
 public class UserPointHistory {
     private Long id;
     private Long userId;
-    // 적립(+)/차감(-) 부호를 amount의 부호로 표현하므로 Money(>=0) 대신 Long을 유지한다.
+    private UserPointChangeType changeType;
     private Long amount;
     private Boolean isReflected;
     private UserPointSourceType sourceType;
@@ -21,8 +24,10 @@ public class UserPointHistory {
     private LocalDateTime createdAt;
 
     public static UserPointHistory from(UserPointHistoryCreateState state) {
+        validate(state.getChangeType(), state.getAmount());
         return UserPointHistory.builder()
                 .userId(state.getUserId())
+                .changeType(state.getChangeType())
                 .amount(state.getAmount())
                 .isReflected(state.getIsReflected())
                 .sourceType(state.getSourceType())
@@ -36,6 +41,7 @@ public class UserPointHistory {
         return UserPointHistory.builder()
                 .id(state.getId())
                 .userId(state.getUserId())
+                .changeType(state.getChangeType())
                 .amount(state.getAmount())
                 .isReflected(state.getIsReflected())
                 .sourceType(state.getSourceType())
@@ -44,5 +50,29 @@ public class UserPointHistory {
                 .accumulatedAt(state.getAccumulatedAt())
                 .createdAt(state.getCreatedAt())
                 .build();
+    }
+
+    public boolean isAccrual() {
+        return changeType.isAccrual();
+    }
+
+    public boolean isDeduction() {
+        return changeType.isDeduction();
+    }
+
+    public Long signedAmount() {
+        if (isDeduction()) {
+            return Math.negateExact(amount);
+        }
+        return amount;
+    }
+
+    private static void validate(UserPointChangeType changeType, Long amount) {
+        if (FormatValidator.hasNoValue(changeType)) {
+            throw new UserPointHistoryChangeTypeNoValueException();
+        }
+        if (FormatValidator.hasNoValue(amount) || amount < 0) {
+            throw new InvalidUserPointHistoryAmountException(amount);
+        }
     }
 }
