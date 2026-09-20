@@ -91,7 +91,7 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
     private long calculateTotalProductAmount(List<OrderProduct> orderProducts, Set<Long> targetPricePolicyIds) {
         return orderProducts.stream()
                 .filter(product -> targetPricePolicyIds.contains(product.getPricePolicyId()))
-                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().longValue()).getValue())
+                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
                 .reduce(0L, Math::addExact);
     }
 

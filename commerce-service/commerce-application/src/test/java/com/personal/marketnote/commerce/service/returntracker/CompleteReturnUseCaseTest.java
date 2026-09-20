@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.returntracker;
 
 import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.port.in.command.order.CalculateReturnShippingFeeCommand;
@@ -175,7 +176,7 @@ class CompleteReturnUseCaseTest {
 
         OrderProduct product = mock(OrderProduct.class);
         when(product.getPricePolicyId()).thenReturn(10L);
-        when(product.getQuantity()).thenReturn(3);
+        when(product.getQuantity()).thenReturn(Quantity.of(3));
         when(product.getUnitAmount()).thenReturn(Money.of(10000L));
         when(product.getOrderStatus()).thenReturn(OrderStatus.RETURNED);
         when(order.getOrderProducts()).thenReturn(List.of(product));

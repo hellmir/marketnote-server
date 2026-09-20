@@ -79,7 +79,7 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
             Map<Long, Integer> quantityByPricePolicyId = currentReservations.stream()
                     .collect(Collectors.toMap(
                             InventoryReservation::getPricePolicyId,
-                            InventoryReservation::getQuantity
+                            r -> r.getQuantity().getValue()
                     ));
 
             Set<Long> currentPricePolicyIds = quantityByPricePolicyId.keySet();

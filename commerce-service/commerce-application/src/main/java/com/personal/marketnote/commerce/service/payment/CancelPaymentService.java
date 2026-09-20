@@ -270,7 +270,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             Map<Long, Long> sellerTotalAmounts = order.getOrderProducts().stream()
                     .collect(Collectors.groupingBy(
                             OrderProduct::getSellerId,
-                            Collectors.summingLong(op -> op.getUnitAmount().multiply(op.getQuantity().longValue()).getValue())
+                            Collectors.summingLong(op -> op.getUnitAmount().multiply(op.getQuantity().getValue()).getValue())
                     ));
 
             Map<Long, Long> sellerCancelAmounts = command.cancelProducts().stream()
@@ -410,7 +410,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
 
         Map<Long, Integer> orderQuantityByPricePolicyId = order.getOrderProducts().stream()
-                .collect(Collectors.toMap(OrderProduct::getPricePolicyId, OrderProduct::getQuantity, Integer::sum));
+                .collect(Collectors.toMap(OrderProduct::getPricePolicyId, op -> op.getQuantity().getValue(), Integer::sum));
 
         for (CancelPaymentCommand.CancelProductItem item : cancelProducts) {
             if (FormatValidator.hasNoValue(item.quantity()) || item.quantity() <= 0) {
@@ -474,7 +474,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         if (allHaveSnapshot) {
             long total = 0L;
             for (OrderProduct orderProduct : orderProducts) {
-                total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity()).getValue());
+                total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue());
             }
             return total;
         }
@@ -494,7 +494,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
                 continue;
             }
-            total = Math.addExact(total, Math.multiplyExact(productInfo.accumulatedPoint(), orderProduct.getQuantity()));
+            total = Math.addExact(total, Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue()));
         }
         return total;
     }

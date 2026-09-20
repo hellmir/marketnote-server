@@ -295,7 +295,7 @@ class CalculateReturnShippingFeeUseCaseTest {
                 .sellerId(product.getSellerId())
                 .pricePolicyId(product.getPricePolicyId())
                 .unitAmount(product.getUnitAmount().getValue())
-                .quantity(product.getQuantity())
+                .quantity(product.getQuantity().getValue())
                 .orderStatus(product.getOrderStatus())
                 .accumulatedPoint(0L)
                         .build();

@@ -59,7 +59,7 @@ public class InventoryReservationJpaEntity extends BaseEntity {
         return new InventoryReservationJpaEntity(
                 inventoryReservation.getOrderId(),
                 inventoryReservation.getPricePolicyId(),
-                inventoryReservation.getQuantity(),
+                inventoryReservation.getQuantity().getValue(),
                 inventoryReservation.getReservedAt()
         );
     }

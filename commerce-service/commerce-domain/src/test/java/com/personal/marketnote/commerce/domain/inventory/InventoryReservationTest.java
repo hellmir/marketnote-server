@@ -36,7 +36,7 @@ class InventoryReservationTest {
             // then
             assertThat(reservation.getOrderId()).isEqualTo(1L);
             assertThat(reservation.getPricePolicyId()).isEqualTo(100L);
-            assertThat(reservation.getQuantity()).isEqualTo(3);
+            assertThat(reservation.getQuantity().getValue()).isEqualTo(3);
             assertThat(reservation.getReservedAt()).isEqualTo(now);
         }
 
@@ -113,7 +113,7 @@ class InventoryReservationTest {
             assertThat(reservation.getId()).isEqualTo(1L);
             assertThat(reservation.getOrderId()).isEqualTo(2L);
             assertThat(reservation.getPricePolicyId()).isEqualTo(200L);
-            assertThat(reservation.getQuantity()).isEqualTo(5);
+            assertThat(reservation.getQuantity().getValue()).isEqualTo(5);
             assertThat(reservation.getReservedAt()).isEqualTo(now);
         }
     }

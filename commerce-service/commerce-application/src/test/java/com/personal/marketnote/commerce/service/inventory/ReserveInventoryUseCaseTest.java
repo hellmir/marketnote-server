@@ -301,7 +301,7 @@ class ReserveInventoryUseCaseTest {
             InventoryReservation reservation = reservations.get(0);
             assertThat(reservation.getOrderId()).isEqualTo(99L);
             assertThat(reservation.getPricePolicyId()).isEqualTo(100L);
-            assertThat(reservation.getQuantity()).isEqualTo(3);
+            assertThat(reservation.getQuantity().getValue()).isEqualTo(3);
             assertThat(reservation.getReservedAt()).isNotNull();
         }
 
@@ -324,7 +324,7 @@ class ReserveInventoryUseCaseTest {
             List<InventoryReservation> reservations = captor.getValue();
 
             assertThat(reservations).hasSize(1);
-            assertThat(reservations.get(0).getQuantity()).isEqualTo(5);
+            assertThat(reservations.get(0).getQuantity().getValue()).isEqualTo(5);
         }
     }
 

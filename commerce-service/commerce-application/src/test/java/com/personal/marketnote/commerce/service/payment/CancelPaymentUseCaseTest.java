@@ -434,7 +434,7 @@ class CancelPaymentUseCaseTest {
             verify(restoreProductInventoryUseCase).restore(argThat(products ->
                     products.size() == 1
                             && products.get(0).getPricePolicyId().equals(100L)
-                            && products.get(0).getQuantity().equals(1)
+                            && products.get(0).getQuantity().getValue() == 1
             ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
         }
 
@@ -461,9 +461,9 @@ class CancelPaymentUseCaseTest {
             verify(restoreProductInventoryUseCase).restore(argThat(products ->
                     products.size() == 2
                             && products.get(0).getPricePolicyId().equals(100L)
-                            && products.get(0).getQuantity().equals(1)
+                            && products.get(0).getQuantity().getValue() == 1
                             && products.get(1).getPricePolicyId().equals(200L)
-                            && products.get(1).getQuantity().equals(2)
+                            && products.get(1).getQuantity().getValue() == 2
             ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
         }
 

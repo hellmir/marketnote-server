@@ -38,7 +38,7 @@ public class ReleaseInventoryReservationService implements ReleaseInventoryReser
     public void release(List<OrderProduct> orderProducts, Long orderId, String reason) {
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
                 .collect(Collectors.groupingBy(
-                        OrderProduct::getPricePolicyId, Collectors.summingInt(OrderProduct::getQuantity)
+                        OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
                 ));
 
         inventoryLockPort.executeWithLock(stocksByPricePolicyId.keySet(), () -> {
@@ -56,7 +56,7 @@ public class ReleaseInventoryReservationService implements ReleaseInventoryReser
                 int quantity = stocksByPricePolicyId.get(inventory.getPricePolicyId());
                 InventoryReservation reservation = reservationByPricePolicyId.get(inventory.getPricePolicyId());
                 if (FormatValidator.hasValue(reservation)) {
-                    inventory.releaseReservation(reservation.getQuantity());
+                    inventory.releaseReservation(reservation.getQuantity().getValue());
                     return;
                 }
                 inventory.restore(quantity);
