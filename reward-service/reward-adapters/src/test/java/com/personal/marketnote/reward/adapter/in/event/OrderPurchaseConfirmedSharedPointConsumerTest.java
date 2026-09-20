@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.in.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPurchaseConfirmedEvent;
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
@@ -68,11 +69,11 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerKeys);
 
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(0L)
-                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
         UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(0L)
-                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+                .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
 
@@ -213,8 +214,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
         List<UUID> sharerKeys = List.of(SHARER_KEY_1, SHARER_KEY_2);
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerKeys);
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
-                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(0L)
-                .addExpectedAmount(0L).expireExpectedAmount(0L).build());
+                .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         doThrow(new RuntimeException("DB 연결 실패"))
                 .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));

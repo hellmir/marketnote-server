@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.service.gifticon;
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsDetailCommand;
@@ -134,9 +135,9 @@ class GetGifticonGoodsDetailUseCaseTest {
     private UserPoint createUserPoint(Long userId, Long amount) {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(userId)
-                .amount(amount)
-                .addExpectedAmount(0L)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.zero())
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .build());

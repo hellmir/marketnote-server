@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.point.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import jakarta.persistence.Column;
@@ -37,8 +38,8 @@ public class UserPointJpaEntity extends BaseEntity {
                 .userId(userPoint.getUserId())
                 .userKey(userPoint.getUserKey())
                 .amount(userPoint.getAmountValue())
-                .addExpectedAmount(userPoint.getAddExpectedAmount().getValue())
-                .expireExpectedAmount(userPoint.getExpireExpectedAmount().getValue())
+                .addExpectedAmount(userPoint.getAddExpectedAmountValue())
+                .expireExpectedAmount(userPoint.getExpireExpectedAmountValue())
                 .build();
     }
 
@@ -47,9 +48,9 @@ public class UserPointJpaEntity extends BaseEntity {
                 UserPointSnapshotState.builder()
                         .userId(userId)
                         .userKey(userKey)
-                        .amount(amount)
-                        .addExpectedAmount(addExpectedAmount)
-                        .expireExpectedAmount(expireExpectedAmount)
+                        .amount(PointAmount.of(amount))
+                        .addExpectedAmount(PointAmount.of(addExpectedAmount))
+                        .expireExpectedAmount(PointAmount.of(expireExpectedAmount))
                         .createdAt(getCreatedAt())
                         .modifiedAt(getModifiedAt())
                         .build()
@@ -58,7 +59,7 @@ public class UserPointJpaEntity extends BaseEntity {
 
     public void updateFrom(UserPoint userPoint) {
         this.amount = userPoint.getAmountValue();
-        this.addExpectedAmount = userPoint.getAddExpectedAmount().getValue();
-        this.expireExpectedAmount = userPoint.getExpireExpectedAmount().getValue();
+        this.addExpectedAmount = userPoint.getAddExpectedAmountValue();
+        this.expireExpectedAmount = userPoint.getExpireExpectedAmountValue();
     }
 }

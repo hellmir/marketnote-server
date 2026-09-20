@@ -1,6 +1,5 @@
 package com.personal.marketnote.reward.domain.point;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
 import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
 import org.junit.jupiter.api.DisplayName;
@@ -23,9 +22,9 @@ class UserPointTest {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(USER_ID)
                 .userKey(USER_KEY)
-                .amount(amount)
-                .addExpectedAmount(addExpectedAmount)
-                .expireExpectedAmount(100L)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.of(addExpectedAmount))
+                .expireExpectedAmount(PointAmount.of(100L))
                 .createdAt(CREATED_AT)
                 .modifiedAt(MODIFIED_AT)
                 .build());
@@ -42,9 +41,9 @@ class UserPointTest {
             UserPointCreateState state = UserPointCreateState.builder()
                     .userId(USER_ID)
                     .userKey(USER_KEY)
-                    .amount(1000L)
-                    .addExpectedAmount(500L)
-                    .expireExpectedAmount(200L)
+                    .amount(PointAmount.of(1000L))
+                    .addExpectedAmount(PointAmount.of(500L))
+                    .expireExpectedAmount(PointAmount.of(200L))
                     .build();
 
             // when
@@ -54,8 +53,8 @@ class UserPointTest {
             assertThat(userPoint.getUserId()).isEqualTo(USER_ID);
             assertThat(userPoint.getUserKey()).isEqualTo(USER_KEY);
             assertThat(userPoint.getAmountValue()).isEqualTo(1000L);
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(500L));
-            assertThat(userPoint.getExpireExpectedAmount()).isEqualTo(Money.of(200L));
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(500L));
+            assertThat(userPoint.getExpireExpectedAmount()).isEqualTo(PointAmount.of(200L));
             assertThat(userPoint.getCreatedAt()).isNull();
             assertThat(userPoint.getModifiedAt()).isNull();
         }
@@ -72,9 +71,9 @@ class UserPointTest {
             UserPointSnapshotState state = UserPointSnapshotState.builder()
                     .userId(USER_ID)
                     .userKey(USER_KEY)
-                    .amount(2000L)
-                    .addExpectedAmount(300L)
-                    .expireExpectedAmount(100L)
+                    .amount(PointAmount.of(2000L))
+                    .addExpectedAmount(PointAmount.of(300L))
+                    .expireExpectedAmount(PointAmount.of(100L))
                     .createdAt(CREATED_AT)
                     .modifiedAt(MODIFIED_AT)
                     .build();
@@ -86,8 +85,8 @@ class UserPointTest {
             assertThat(userPoint.getUserId()).isEqualTo(USER_ID);
             assertThat(userPoint.getUserKey()).isEqualTo(USER_KEY);
             assertThat(userPoint.getAmountValue()).isEqualTo(2000L);
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(300L));
-            assertThat(userPoint.getExpireExpectedAmount()).isEqualTo(Money.of(100L));
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(300L));
+            assertThat(userPoint.getExpireExpectedAmount()).isEqualTo(PointAmount.of(100L));
             assertThat(userPoint.getCreatedAt()).isEqualTo(CREATED_AT);
             assertThat(userPoint.getModifiedAt()).isEqualTo(MODIFIED_AT);
         }
@@ -149,7 +148,7 @@ class UserPointTest {
             userPoint.confirmPendingAmount(300L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(200L));
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(200L));
             assertThat(userPoint.getAmountValue()).isEqualTo(1300L);
         }
 
@@ -163,7 +162,7 @@ class UserPointTest {
             userPoint.confirmPendingAmount(500L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.zero());
             assertThat(userPoint.getAmountValue()).isEqualTo(1500L);
         }
 
@@ -197,7 +196,7 @@ class UserPointTest {
             assertThat(changed.getAmountValue()).isEqualTo(2000L);
             assertThat(changed.getUserId()).isEqualTo(original.getUserId());
             assertThat(changed.getUserKey()).isEqualTo(original.getUserKey());
-            assertThat(changed.getAddExpectedAmount()).isEqualTo(Money.of(500L));
+            assertThat(changed.getAddExpectedAmount()).isEqualTo(PointAmount.of(500L));
             assertThat(changed.getExpireExpectedAmount()).isEqualTo(original.getExpireExpectedAmount());
             assertThat(original.getAmountValue()).isEqualTo(1000L);
         }

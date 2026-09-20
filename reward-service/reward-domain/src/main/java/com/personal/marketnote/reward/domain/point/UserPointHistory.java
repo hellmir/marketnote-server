@@ -1,7 +1,7 @@
 package com.personal.marketnote.reward.domain.point;
 
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.reward.domain.exception.InvalidUserPointHistoryAmountException;
+import com.personal.marketnote.reward.domain.exception.UserPointHistoryAmountNoValueException;
 import com.personal.marketnote.reward.domain.exception.UserPointHistoryChangeTypeNoValueException;
 import lombok.*;
 
@@ -15,7 +15,7 @@ public class UserPointHistory {
     private Long id;
     private Long userId;
     private UserPointChangeType changeType;
-    private Long amount;
+    private PointAmount amount;
     private Boolean isReflected;
     private UserPointSourceType sourceType;
     private Long sourceId;
@@ -62,17 +62,21 @@ public class UserPointHistory {
 
     public Long signedAmount() {
         if (isDeduction()) {
-            return Math.negateExact(amount);
+            return Math.negateExact(amount.getValue());
         }
-        return amount;
+        return amount.getValue();
     }
 
-    private static void validate(UserPointChangeType changeType, Long amount) {
+    public Long getAmountValue() {
+        return amount.getValue();
+    }
+
+    private static void validate(UserPointChangeType changeType, PointAmount amount) {
         if (FormatValidator.hasNoValue(changeType)) {
             throw new UserPointHistoryChangeTypeNoValueException();
         }
-        if (FormatValidator.hasNoValue(amount) || amount < 0) {
-            throw new InvalidUserPointHistoryAmountException(amount);
+        if (FormatValidator.hasNoValue(amount)) {
+            throw new UserPointHistoryAmountNoValueException();
         }
     }
 }

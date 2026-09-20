@@ -342,9 +342,9 @@ class PurchaseGifticonTransactionHelperTest {
         return UserPoint.from(
                 com.personal.marketnote.reward.domain.point.UserPointSnapshotState.builder()
                         .userId(USER_ID)
-                        .amount(amount)
-                        .addExpectedAmount(0L)
-                        .expireExpectedAmount(0L)
+                        .amount(com.personal.marketnote.reward.domain.point.PointAmount.of(amount))
+                        .addExpectedAmount(com.personal.marketnote.reward.domain.point.PointAmount.zero())
+                        .expireExpectedAmount(com.personal.marketnote.reward.domain.point.PointAmount.zero())
                         .build()
         );
     }

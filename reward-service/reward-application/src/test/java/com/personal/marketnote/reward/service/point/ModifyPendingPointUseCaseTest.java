@@ -41,9 +41,9 @@ class ModifyPendingPointUseCaseTest {
     private UserPoint createUserPoint(Long amount, Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(1L)
-                .amount(amount)
-                .addExpectedAmount(addExpectedAmount)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(amount))
+                .addExpectedAmount(PointAmount.of(addExpectedAmount))
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(LocalDateTime.of(2026, 3, 4, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 3, 4, 10, 0))
                 .build());
@@ -69,7 +69,7 @@ class ModifyPendingPointUseCaseTest {
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
                 .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
-                        .userId(1L).changeType(UserPointChangeType.ACCRUAL).amount(500L).isReflected(false)
+                        .userId(1L).changeType(UserPointChangeType.ACCRUAL).amount(PointAmount.of(500L)).isReflected(false)
                         .sourceType(UserPointSourceType.ORDER).sourceId(100L)
                         .reason("주문 결제 적립 예정").accumulatedAt(LocalDateTime.now())
                         .build()));
@@ -88,7 +88,7 @@ class ModifyPendingPointUseCaseTest {
         verify(saveUserPointHistoryPort).save(historyCaptor.capture());
         UserPointHistory savedHistory = historyCaptor.getValue();
         assertThat(savedHistory.getIsReflected()).isFalse();
-        assertThat(savedHistory.getAmount()).isEqualTo(500L);
+        assertThat(savedHistory.getAmountValue()).isEqualTo(500L);
         assertThat(savedHistory.getSourceType()).isEqualTo(UserPointSourceType.ORDER);
     }
 
@@ -101,7 +101,7 @@ class ModifyPendingPointUseCaseTest {
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
                 .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
-                        .userId(1L).changeType(UserPointChangeType.DEDUCTION).amount(300L).isReflected(false)
+                        .userId(1L).changeType(UserPointChangeType.DEDUCTION).amount(PointAmount.of(300L)).isReflected(false)
                         .sourceType(UserPointSourceType.ORDER).sourceId(100L)
                         .reason("주문 취소 적립 예정 차감").accumulatedAt(LocalDateTime.now())
                         .build()));
@@ -118,7 +118,7 @@ class ModifyPendingPointUseCaseTest {
         verify(saveUserPointHistoryPort).save(historyCaptor.capture());
         UserPointHistory savedHistory = historyCaptor.getValue();
         assertThat(savedHistory.getIsReflected()).isFalse();
-        assertThat(savedHistory.getAmount()).isEqualTo(300L);
+        assertThat(savedHistory.getAmountValue()).isEqualTo(300L);
         assertThat(savedHistory.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
     }
 

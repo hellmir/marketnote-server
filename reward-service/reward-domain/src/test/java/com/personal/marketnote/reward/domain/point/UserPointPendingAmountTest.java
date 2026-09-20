@@ -1,6 +1,5 @@
 package com.personal.marketnote.reward.domain.point;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.reward.domain.exception.InsufficientPendingPointAmountException;
 import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
 import org.junit.jupiter.api.DisplayName;
@@ -17,9 +16,9 @@ class UserPointPendingAmountTest {
     private UserPoint createUserPoint(Long addExpectedAmount) {
         return UserPoint.from(UserPointSnapshotState.builder()
                 .userId(1L)
-                .amount(1000L)
-                .addExpectedAmount(addExpectedAmount)
-                .expireExpectedAmount(0L)
+                .amount(PointAmount.of(1000L))
+                .addExpectedAmount(PointAmount.of(addExpectedAmount))
+                .expireExpectedAmount(PointAmount.zero())
                 .createdAt(LocalDateTime.of(2026, 3, 4, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 3, 4, 10, 0))
                 .build());
@@ -39,7 +38,7 @@ class UserPointPendingAmountTest {
             userPoint.addPendingAmount(500L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(500L));
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(500L));
         }
 
         @Test
@@ -52,7 +51,7 @@ class UserPointPendingAmountTest {
             userPoint.addPendingAmount(200L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(500L));
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(500L));
         }
 
         @Test
@@ -84,7 +83,7 @@ class UserPointPendingAmountTest {
             userPoint.deductPendingAmount(300L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.of(200L));
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.of(200L));
         }
 
         @Test
@@ -97,7 +96,7 @@ class UserPointPendingAmountTest {
             userPoint.deductPendingAmount(500L);
 
             // then
-            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(Money.zero());
+            assertThat(userPoint.getAddExpectedAmount()).isEqualTo(PointAmount.zero());
         }
 
         @Test

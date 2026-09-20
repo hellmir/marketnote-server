@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.mapper;
 
+import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryCreateState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
@@ -42,7 +43,7 @@ class RewardCommandToStateMapperTest {
                     command, USER_ID, ACCUMULATED_AT
             );
 
-            assertThat(state.getAmount()).isEqualTo(500L);
+            assertThat(state.getAmount()).isEqualTo(PointAmount.of(500L));
             assertThat(state.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
             assertThat(state.getIsReflected()).isTrue();
         }
@@ -64,7 +65,7 @@ class RewardCommandToStateMapperTest {
                     command, USER_ID, ACCUMULATED_AT
             );
 
-            assertThat(state.getAmount()).isEqualTo(1000L);
+            assertThat(state.getAmount()).isEqualTo(PointAmount.of(1000L));
             assertThat(state.getChangeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         }
     }
@@ -89,7 +90,7 @@ class RewardCommandToStateMapperTest {
                     command, USER_ID, ACCUMULATED_AT
             );
 
-            assertThat(state.getAmount()).isEqualTo(300L);
+            assertThat(state.getAmount()).isEqualTo(PointAmount.of(300L));
             assertThat(state.getChangeType()).isEqualTo(UserPointChangeType.DEDUCTION);
             assertThat(state.getIsReflected()).isFalse();
         }
@@ -110,7 +111,7 @@ class RewardCommandToStateMapperTest {
                     command, USER_ID, ACCUMULATED_AT
             );
 
-            assertThat(state.getAmount()).isEqualTo(700L);
+            assertThat(state.getAmount()).isEqualTo(PointAmount.of(700L));
             assertThat(state.getChangeType()).isEqualTo(UserPointChangeType.ACCRUAL);
         }
     }
@@ -133,7 +134,7 @@ class RewardCommandToStateMapperTest {
                     command, 500L, USER_ID, ACCUMULATED_AT
             );
 
-            assertThat(state.getAmount()).isEqualTo(500L);
+            assertThat(state.getAmount()).isEqualTo(PointAmount.of(500L));
             assertThat(state.getChangeType()).isEqualTo(UserPointChangeType.ACCRUAL);
             assertThat(state.getIsReflected()).isTrue();
         }
@@ -152,7 +153,7 @@ class RewardCommandToStateMapperTest {
                     command, ACCUMULATED_AT
             );
 
-            assertThat(state.getAmount()).isEqualTo(0L);
+            assertThat(state.getAmount()).isEqualTo(PointAmount.zero());
             assertThat(state.getChangeType()).isEqualTo(UserPointChangeType.ACCRUAL);
             assertThat(state.getIsReflected()).isTrue();
         }
