@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
+import com.personal.marketnote.commerce.domain.settlement.FeeRate;
 import com.personal.marketnote.commerce.domain.settlement.SettlementCycle;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicy;
 import com.personal.marketnote.commerce.exception.SettlementPolicyNotFoundException;
@@ -35,8 +36,8 @@ public class UpdateSettlementPolicyService implements UpdateSettlementPolicyUseC
                 .orElseThrow(() -> new SettlementPolicyNotFoundException(command.id()));
 
         policy.update(
-                command.pgFeeRate(),
-                command.platformFeeRate(),
+                FeeRate.of(command.pgFeeRate()),
+                FeeRate.of(command.platformFeeRate()),
                 SettlementCycle.valueOf(command.settlementCycle()),
                 command.minPayoutAmount()
         );

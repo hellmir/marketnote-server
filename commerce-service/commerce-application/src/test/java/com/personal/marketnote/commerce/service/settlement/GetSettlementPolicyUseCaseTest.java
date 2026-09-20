@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
+import com.personal.marketnote.commerce.domain.settlement.FeeRate;
 import com.personal.marketnote.commerce.domain.settlement.SettlementCycle;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicy;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicySnapshotState;
@@ -36,8 +37,8 @@ class GetSettlementPolicyUseCaseTest {
         return SettlementPolicy.from(SettlementPolicySnapshotState.builder()
                 .id(id)
                 .sellerId(sellerId)
-                .pgFeeRate(300)
-                .platformFeeRate(500)
+                .pgFeeRate(FeeRate.of(300))
+                .platformFeeRate(FeeRate.of(500))
                 .settlementCycle(SettlementCycle.MONTHLY)
                 .minPayoutAmount(10000L)
                 .status(EntityStatus.ACTIVE)

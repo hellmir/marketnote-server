@@ -69,8 +69,8 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
             List<PaymentAllocation> sellerAllocations = entry.getValue();
 
             SettlementPolicy policy = policyMap.get(sellerId);
-            Integer pgFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPgFeeRate() : defaultPgFeeRate;
-            Integer platformFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPlatformFeeRate() : defaultPlatformFeeRate;
+            Integer pgFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPgFeeRate().getValue() : defaultPgFeeRate;
+            Integer platformFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPlatformFeeRate().getValue() : defaultPlatformFeeRate;
 
             try {
                 processSellerSettlementService.process(
