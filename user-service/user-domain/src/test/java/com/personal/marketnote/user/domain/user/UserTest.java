@@ -303,6 +303,53 @@ class UserTest {
         }
     }
 
+    @Nested
+    @DisplayName("updatePenaltyCount")
+    class UpdatePenaltyCount {
+
+        @Test
+        @DisplayName("updatePenaltyCount 호출 시 penaltyCount가 요청값으로 설정된다")
+        void shouldSetPenaltyCountToRequestedValue() {
+            User user = createUserWithPenaltyCount(3);
+
+            user.updatePenaltyCount(10);
+
+            assertThat(user.getPenaltyCount()).isEqualTo(10);
+        }
+
+        @Test
+        @DisplayName("updatePenaltyCount로 0을 설정하면 penaltyCount가 0이 된다")
+        void shouldResetPenaltyCountToZero() {
+            User user = createUserWithPenaltyCount(5);
+
+            user.updatePenaltyCount(0);
+
+            assertThat(user.getPenaltyCount()).isEqualTo(0);
+        }
+    }
+
+    @Nested
+    @DisplayName("validateDifferentPenaltyCount")
+    class ValidateDifferentPenaltyCount {
+
+        @Test
+        @DisplayName("다른 penaltyCount면 예외가 발생하지 않는다")
+        void shouldNotThrowWhenDifferent() {
+            User user = createUserWithPenaltyCount(3);
+
+            user.validateDifferentPenaltyCount(5);
+        }
+
+        @Test
+        @DisplayName("동일한 penaltyCount면 SameUpdateTargetException이 발생한다")
+        void shouldThrowWhenSame() {
+            User user = createUserWithPenaltyCount(3);
+
+            assertThatThrownBy(() -> user.validateDifferentPenaltyCount(3))
+                    .isInstanceOf(SameUpdateTargetException.class);
+        }
+    }
+
     private User createUserWithPenaltyCount(int penaltyCount) {
         return User.from(UserSnapshotState.builder()
                 .id(1L)
