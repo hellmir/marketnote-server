@@ -31,7 +31,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 public class UserPersistenceAdapter
         implements SaveUserPort, FindUserPort, FindTermsPort, UpdateUserPort, SaveLoginHistoryPort, FindLoginHistoryPort,
-        SaveUserPenaltyHistoryPort {
+        SaveUserPenaltyHistoryPort, FindUserPenaltyHistoryPort {
     private final UserJpaRepository userJpaRepository;
     private final TermsJpaRepository termsJpaRepository;
     private final LoginHistoryJpaRepository loginHistoryJpaRepository;
@@ -204,5 +204,15 @@ public class UserPersistenceAdapter
                 UserPenaltyHistoryJpaEntity.from(history)
         );
         return saved.toDomain();
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
+    public Page<UserPenaltyHistory> findUserPenaltyHistoriesByUserId(Pageable pageable, Long userId) {
+        Page<UserPenaltyHistoryJpaEntity> page = userPenaltyHistoryJpaRepository.findUserPenaltyHistoriesByUserId(pageable, userId);
+        List<UserPenaltyHistory> histories = page.stream()
+                .map(UserPenaltyHistoryJpaEntity::toDomain)
+                .collect(Collectors.toList());
+        return new PageImpl<>(histories, pageable, page.getTotalElements());
     }
 }

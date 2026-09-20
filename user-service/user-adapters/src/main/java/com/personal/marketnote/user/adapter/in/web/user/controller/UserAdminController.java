@@ -5,6 +5,7 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.ApplyUserPenaltyApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetLoginHistoriesApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserInfoApiDocs;
+import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserPenaltyHistoriesApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUsersApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserInfoApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserPenaltyCountApiDocs;
@@ -15,9 +16,11 @@ import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserPenalt
 import com.personal.marketnote.user.adapter.in.web.user.response.ApplyUserPenaltyResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetLoginHistoriesResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.GetUserPenaltyHistoriesResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUsersResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.UpdateUserPenaltyCountResponse;
 import com.personal.marketnote.user.domain.user.LoginHistorySortProperty;
+import com.personal.marketnote.user.domain.user.UserPenaltyHistorySortProperty;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.command.ApplyUserPenaltyCommand;
@@ -26,6 +29,7 @@ import com.personal.marketnote.user.port.in.result.ApplyUserPenaltyResult;
 import com.personal.marketnote.user.port.in.result.UpdateUserPenaltyCountResult;
 import com.personal.marketnote.user.port.in.usecase.user.ApplyUserPenaltyUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetLoginHistoryUseCase;
+import com.personal.marketnote.user.port.in.usecase.user.GetUserPenaltyHistoryUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.UpdateUserPenaltyCountUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.UpdateUserUseCase;
@@ -63,12 +67,14 @@ import static com.personal.marketnote.common.utility.ApiConstant.DEFAULT_PAGE_NU
 public class UserAdminController {
     private static final String GET_USERS_DEFAULT_PAGE_SIZE = "10";
     private static final String GET_LOGIN_HISTORIES_DEFAULT_PAGE_SIZE = "20";
+    private static final String GET_USER_PENALTY_HISTORIES_DEFAULT_PAGE_SIZE = "20";
 
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final GetLoginHistoryUseCase getLoginHistoryUseCase;
     private final ApplyUserPenaltyUseCase applyUserPenaltyUseCase;
     private final UpdateUserPenaltyCountUseCase updateUserPenaltyCountUseCase;
+    private final GetUserPenaltyHistoryUseCase getUserPenaltyHistoryUseCase;
 
     /**
      * (관리자) 회원 목록 조회
@@ -284,6 +290,50 @@ public class UserAdminController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "회원 패널티 횟수 수정 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 회원 패널티 부과 내역 목록 조회
+     *
+     * @param userId        회원 ID
+     * @param pageSize      페이지 크기
+     * @param pageNumber    페이지 번호
+     * @param sortDirection 정렬 방향
+     * @param sortProperty  정렬 속성
+     * @return 회원 패널티 내역 목록 응답 {@link GetUserPenaltyHistoriesResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 특정 회원의 패널티 부과 내역을 조회합니다. 관리자만 가능합니다.
+     */
+    @GetMapping("/{userId}/penalties")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetUserPenaltyHistoriesApiDocs
+    public ResponseEntity<BaseResponse<GetUserPenaltyHistoriesResponse>> getUserPenaltyHistories(
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = GET_USER_PENALTY_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
+            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+            @RequestParam(required = false, defaultValue = "ID") UserPenaltyHistorySortProperty sortProperty
+    ) {
+        GetUserPenaltyHistoriesResponse response = GetUserPenaltyHistoriesResponse.from(
+                getUserPenaltyHistoryUseCase.getUserPenaltyHistories(
+                        userId,
+                        pageSize,
+                        pageNumber - 1,
+                        sortDirection,
+                        sortProperty
+                )
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        response,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 패널티 내역 조회 성공"
                 ),
                 HttpStatus.OK
         );
