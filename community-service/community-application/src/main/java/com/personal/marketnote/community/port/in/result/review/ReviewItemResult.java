@@ -56,7 +56,7 @@ public record ReviewItemResult(
                 .selectedOptions(review.getSelectedOptions())
                 .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
                 .maskedReviewerName(review.getMaskedReviewerName())
-                .rating(review.getRating())
+                .rating((float) review.getRating().getValue())
                 .content(review.getContent())
                 .isPhoto(review.getIsPhoto())
                 .images(images)

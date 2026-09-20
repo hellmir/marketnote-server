@@ -3,6 +3,7 @@ package com.personal.marketnote.community.service.review;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregateSnapshotState;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
@@ -81,7 +82,7 @@ class DeleteReviewUseCaseTest {
                         .quantity(1)
                         .reviewerName("작성자")
                         .maskedReviewerName("작*자")
-                        .rating(rating)
+                        .rating(Rating.of(rating))
                         .content("리뷰 내용")
                         .isPhoto(false)
                         .isEdited(false)

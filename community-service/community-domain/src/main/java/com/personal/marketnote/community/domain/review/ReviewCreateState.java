@@ -17,7 +17,7 @@ public class ReviewCreateState {
     private final String selectedOptions;
     private final Integer quantity;
     private final String reviewerName;
-    private final Float rating;
+    private final Rating rating;
     private final String content;
     private final Boolean isPhoto;
     private final Long unitAmount;

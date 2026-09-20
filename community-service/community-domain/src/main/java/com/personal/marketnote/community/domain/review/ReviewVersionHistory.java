@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class ReviewVersionHistory {
     private Long id;
     private Long reviewId;
-    private Float rating;
+    private Rating rating;
     private String content;
     private Boolean isPhoto;
     private LocalDateTime createdAt;

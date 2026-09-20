@@ -2,6 +2,7 @@ package com.personal.marketnote.community.adapter.out.mapper;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.adapter.out.persistence.review.entity.ReviewJpaEntity;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 
@@ -26,7 +27,7 @@ public class ReviewJpaEntityToDomainMapper {
                                 .quantity(entity.getQuantity())
                                 .reviewerName(entity.getReviewerName())
                                 .maskedReviewerName(entity.getMaskedReviewerName())
-                                .rating(entity.getRating())
+                                .rating(Rating.of(entity.getRating()))
                                 .content(entity.getContent())
                                 .isPhoto(entity.getIsPhoto())
                                 .isEdited(entity.getIsEdited())

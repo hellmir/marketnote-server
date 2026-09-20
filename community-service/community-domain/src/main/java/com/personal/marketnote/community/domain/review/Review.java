@@ -11,8 +11,6 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.ValueMasker;
 import lombok.*;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,7 +28,7 @@ public class Review {
     private Quantity quantity;
     private String reviewerName;
     private String maskedReviewerName;
-    private Float rating;
+    private Rating rating;
     private String content;
     private Boolean isPhoto;
     private Boolean isEdited;
@@ -60,7 +58,7 @@ public class Review {
                 .quantity(toNullableQuantity(state.getQuantity()))
                 .reviewerName(state.getReviewerName())
                 .maskedReviewerName(ValueMasker.mask(state.getReviewerName()))
-                .rating(round(state.getRating()))
+                .rating(state.getRating())
                 .content(state.getContent())
                 .isPhoto(state.getIsPhoto())
                 .unitAmount(toNullableMoney(state.getUnitAmount()))
@@ -80,12 +78,6 @@ public class Review {
             return null;
         }
         return Quantity.of(value);
-    }
-
-    private static Float round(Float value) {
-        return BigDecimal.valueOf(value)
-                .setScale(0, RoundingMode.HALF_UP)
-                .floatValue();
     }
 
     public static Review from(ReviewSnapshotState state) {
@@ -121,7 +113,7 @@ public class Review {
         this.isUserLiked = isUserLiked;
     }
 
-    public void update(Float rating, String content, Boolean isPhoto) {
+    public void update(Rating rating, String content, Boolean isPhoto) {
         this.rating = rating;
         this.content = content;
         this.isPhoto = isPhoto;

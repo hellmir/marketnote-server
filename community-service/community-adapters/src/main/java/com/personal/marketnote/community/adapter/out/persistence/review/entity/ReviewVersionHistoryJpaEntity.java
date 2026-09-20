@@ -36,7 +36,7 @@ public class ReviewVersionHistoryJpaEntity extends BaseEntity {
     public static ReviewVersionHistoryJpaEntity from(ReviewVersionHistory versionHistory) {
         return ReviewVersionHistoryJpaEntity.builder()
                 .reviewId(versionHistory.getReviewId())
-                .rating(versionHistory.getRating())
+                .rating((float) versionHistory.getRating().getValue())
                 .content(versionHistory.getContent())
                 .isPhoto(versionHistory.getIsPhoto())
                 .build();

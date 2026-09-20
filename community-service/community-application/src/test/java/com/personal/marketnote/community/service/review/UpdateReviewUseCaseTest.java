@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.service.review;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
@@ -101,7 +102,7 @@ class UpdateReviewUseCaseTest {
                         .quantity(2)
                         .reviewerName("테스트유저")
                         .maskedReviewerName("테스트***")
-                        .rating(rating)
+                        .rating(Rating.of(rating))
                         .content("기존 리뷰 내용")
                         .isPhoto(false)
                         .isEdited(false)

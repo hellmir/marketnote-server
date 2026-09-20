@@ -10,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReviewVersionHistoryCreateState {
     private final Long reviewId;
-    private final Float rating;
+    private final Rating rating;
     private final String content;
     private final Boolean isPhoto;
 }

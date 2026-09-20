@@ -3,6 +3,7 @@ package com.personal.marketnote.community.service.review;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistory;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistoryCreateState;
@@ -36,8 +37,8 @@ public class UpdateReviewService implements UpdateReviewUseCase {
         Long id = command.id();
         getReviewUseCase.validateAuthor(id, command.reviewerId());
         Review review = getReviewUseCase.getReview(id);
-        Float previousRating = review.getRating();
-        Float newRating = command.rating();
+        Rating previousRating = review.getRating();
+        Rating newRating = Rating.of(command.rating());
         review.update(newRating, command.content(), command.isPhoto());
         updateReviewPort.update(review);
 
@@ -50,9 +51,9 @@ public class UpdateReviewService implements UpdateReviewUseCase {
 
         // 상품 평점 재집계 + 이벤트 발행
         ProductReviewAggregate productReviewAggregate = getReviewUseCase.getProductReviewAggregate(review.getProductId());
-        if (FormatValidator.notEquals(previousRating, newRating)) {
+        if (!previousRating.equals(newRating)) {
             productReviewAggregate.changePoint(previousRating, newRating);
-            productReviewAggregate.computeRating(newRating - previousRating);
+            productReviewAggregate.computeRating(newRating.getValue() - previousRating.getValue());
             updateReviewPort.update(productReviewAggregate);
         }
 

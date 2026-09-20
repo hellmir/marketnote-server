@@ -42,16 +42,16 @@ public class ProductReviewAggregate {
         ProductReviewAggregate productReviewAggregate = ProductReviewAggregate.builder()
                 .productId(review.getProductId())
                 .build();
-        Float totalRating = review.getRating();
-        productReviewAggregate.addPoint(totalRating.intValue());
-        productReviewAggregate.computeRating(totalRating);
+        Rating totalRating = review.getRating();
+        productReviewAggregate.addPoint(totalRating.getValue());
+        productReviewAggregate.computeRating(totalRating.getValue());
 
         return productReviewAggregate;
     }
 
-    public void changePoint(Float previousRating, Float newRating) {
-        reducePoint(previousRating.intValue());
-        addPoint(newRating.intValue());
+    public void changePoint(Rating previousRating, Rating newRating) {
+        reducePoint(previousRating.getValue());
+        addPoint(newRating.getValue());
     }
 
     public void reducePoint(int point) {
@@ -116,7 +116,7 @@ public class ProductReviewAggregate {
         throw new InvalidRatingPointException(point);
     }
 
-    public void computeRating(Float point) {
+    public void computeRating(int point) {
         totalRating += point;
         averageRating = totalRating / totalCount;
     }

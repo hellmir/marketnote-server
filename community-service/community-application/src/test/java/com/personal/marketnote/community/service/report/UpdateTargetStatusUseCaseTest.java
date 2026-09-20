@@ -5,6 +5,7 @@ import com.personal.marketnote.community.domain.post.Board;
 import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.domain.post.PostSnapshotState;
 import com.personal.marketnote.community.domain.report.ReportTargetType;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.exception.PostNotFoundException;
@@ -147,7 +148,7 @@ class UpdateTargetStatusUseCaseTest {
                 .orderId(200L)
                 .productId(300L)
                 .pricePolicyId(400L)
-                .rating(5.0f)
+                .rating(Rating.of(5.0f))
                 .content("테스트 리뷰")
                 .isPhoto(false)
                 .isEdited(false)

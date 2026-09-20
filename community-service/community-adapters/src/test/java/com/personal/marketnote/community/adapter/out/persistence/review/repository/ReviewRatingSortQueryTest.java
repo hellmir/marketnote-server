@@ -3,6 +3,7 @@ package com.personal.marketnote.community.adapter.out.persistence.review.reposit
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.review.entity.ReviewJpaEntity;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewCreateState;
 import jakarta.persistence.EntityManager;
@@ -344,7 +345,7 @@ class ReviewRatingSortQueryTest {
                 .selectedOptions("옵션")
                 .quantity(1)
                 .reviewerName("테스트사용자")
-                .rating(rating)
+                .rating(Rating.of(rating))
                 .content("테스트 리뷰 내용입니다")
                 .isPhoto(isPhoto)
                 .build());
