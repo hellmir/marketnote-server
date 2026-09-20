@@ -15,7 +15,7 @@ public class ShippingTracker {
     private Long id;
     private Long orderId;
     private Long buyerId;
-    private String trackingNumber;
+    private TrackingNumber trackingNumber;
     private String carrierCode;
     private ShippingStatus shippingStatus;
     private boolean pollingActive;
@@ -53,10 +53,7 @@ public class ShippingTracker {
                 .build();
     }
 
-    public void startShipping(String trackingNumber, String carrierCode) {
-        if (FormatValidator.hasNoValue(trackingNumber)) {
-            throw new FulfillmentQueryParameterNoValueException("trackingNumber", "startShipping");
-        }
+    public void startShipping(TrackingNumber trackingNumber, String carrierCode) {
         if (FormatValidator.hasNoValue(carrierCode)) {
             throw new FulfillmentQueryParameterNoValueException("carrierCode", "startShipping");
         }
@@ -101,12 +98,9 @@ public class ShippingTracker {
         this.shippingStatus = ShippingStatus.SHIPPING;
     }
 
-    public void updateTrackingInfo(String trackingNumber, String carrierCode) {
+    public void updateTrackingInfo(TrackingNumber trackingNumber, String carrierCode) {
         if (!isShipping()) {
             throw new InvalidShippingStatusTransitionException(this.shippingStatus, ShippingStatus.SHIPPING);
-        }
-        if (FormatValidator.hasNoValue(trackingNumber)) {
-            throw new FulfillmentQueryParameterNoValueException("trackingNumber", "updateTrackingInfo");
         }
         if (FormatValidator.hasNoValue(carrierCode)) {
             throw new FulfillmentQueryParameterNoValueException("carrierCode", "updateTrackingInfo");
@@ -156,6 +150,10 @@ public class ShippingTracker {
 
     public boolean hasNoTrackingNumber() {
         return FormatValidator.hasNoValue(trackingNumber);
+    }
+
+    public String getTrackingNumberValue() {
+        return FormatValidator.hasValue(trackingNumber) ? trackingNumber.getValue() : null;
     }
 
     private void validateTransition(ShippingStatus target) {

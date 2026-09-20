@@ -1,8 +1,10 @@
 package com.personal.marketnote.fulfillment.adapter.out.persistence.shipping.entity;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
+import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -59,7 +61,7 @@ public class ShippingTrackerJpaEntity {
                 .id(shippingTracker.getId())
                 .orderId(shippingTracker.getOrderId())
                 .buyerId(shippingTracker.getBuyerId())
-                .trackingNumber(shippingTracker.getTrackingNumber())
+                .trackingNumber(shippingTracker.getTrackingNumberValue())
                 .carrierCode(shippingTracker.getCarrierCode())
                 .shippingStatus(shippingTracker.getShippingStatus())
                 .pollingActive(shippingTracker.isPollingActive())
@@ -75,7 +77,7 @@ public class ShippingTrackerJpaEntity {
                         .id(id)
                         .orderId(orderId)
                         .buyerId(buyerId)
-                        .trackingNumber(trackingNumber)
+                        .trackingNumber(toTrackingNumber(trackingNumber))
                         .carrierCode(carrierCode)
                         .shippingStatus(shippingStatus)
                         .pollingActive(pollingActive)
@@ -84,5 +86,12 @@ public class ShippingTrackerJpaEntity {
                         .modifiedAt(modifiedAt)
                         .build()
         );
+    }
+
+    private static TrackingNumber toTrackingNumber(String value) {
+        if (FormatValidator.hasNoValue(value) || value.isBlank()) {
+            return null;
+        }
+        return TrackingNumber.of(value);
     }
 }

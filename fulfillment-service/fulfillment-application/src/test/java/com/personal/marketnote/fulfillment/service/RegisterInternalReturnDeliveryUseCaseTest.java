@@ -4,6 +4,7 @@ import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
+import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
 import com.personal.marketnote.fulfillment.port.in.command.RegisterInternalReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.RegisterInternalReturnDeliveryProductCommand;
 import com.personal.marketnote.fulfillment.port.in.result.RegisterInternalReturnDeliveryResult;
@@ -176,7 +177,7 @@ class RegisterInternalReturnDeliveryUseCaseTest {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
                 .id(1L)
                 .orderId(orderId)
-                .trackingNumber("INV001")
+                .trackingNumber(TrackingNumber.of("INV001"))
                 .carrierCode("CJ")
                 .shippingStatus(status)
                 .pollingActive(!status.isTerminal())
