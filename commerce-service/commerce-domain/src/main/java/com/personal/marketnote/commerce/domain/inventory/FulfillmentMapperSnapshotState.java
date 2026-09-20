@@ -12,5 +12,5 @@ public class FulfillmentMapperSnapshotState {
     private final Long productId;
     private final String wmsKey;
     private final String wmsProductKey;
-    private final Integer stock;
+    private final Stock stock;
 }
