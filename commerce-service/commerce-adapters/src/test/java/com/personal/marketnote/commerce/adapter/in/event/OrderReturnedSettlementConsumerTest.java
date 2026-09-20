@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationSnapshotState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
@@ -67,7 +68,7 @@ class OrderReturnedSettlementConsumerTest {
                 .shippingFee(shippingFee)
                 .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
                 .targetType(PaymentAllocationTargetType.ORDER)
-                .idempotencyKey("ORDER_ALLOCATION:" + orderId + ":" + sellerId)
+                .idempotencyKey(IdempotencyKey.of("ORDER_ALLOCATION:" + orderId + ":" + sellerId))
                 .createdAt(LocalDateTime.of(2026, 4, 7, 10, 0))
                 .build());
     }
@@ -98,7 +99,7 @@ class OrderReturnedSettlementConsumerTest {
         assertThat(returnAllocation.getAllocatedAmount()).isEqualTo(Money.of(50000L));
         assertThat(returnAllocation.getShippingFee()).isEqualTo(Money.of(3000L));
         assertThat(returnAllocation.getTransactionType()).isEqualTo(PaymentAllocationTransactionType.RETURN_REFUND);
-        assertThat(returnAllocation.getIdempotencyKey()).isEqualTo("ORDER_RETURN_ALLOCATION:100:10");
+        assertThat(returnAllocation.getIdempotencyKey().getValue()).isEqualTo("ORDER_RETURN_ALLOCATION:100:10");
 
         verify(acknowledgment).acknowledge();
     }
@@ -125,9 +126,9 @@ class OrderReturnedSettlementConsumerTest {
 
         assertThat(returnAllocations).hasSize(2);
         assertThat(returnAllocations.get(0).getSellerId()).isEqualTo(10L);
-        assertThat(returnAllocations.get(0).getIdempotencyKey()).isEqualTo("ORDER_RETURN_ALLOCATION:200:10");
+        assertThat(returnAllocations.get(0).getIdempotencyKey().getValue()).isEqualTo("ORDER_RETURN_ALLOCATION:200:10");
         assertThat(returnAllocations.get(1).getSellerId()).isEqualTo(20L);
-        assertThat(returnAllocations.get(1).getIdempotencyKey()).isEqualTo("ORDER_RETURN_ALLOCATION:200:20");
+        assertThat(returnAllocations.get(1).getIdempotencyKey().getValue()).isEqualTo("ORDER_RETURN_ALLOCATION:200:20");
 
         verify(acknowledgment).acknowledge();
     }

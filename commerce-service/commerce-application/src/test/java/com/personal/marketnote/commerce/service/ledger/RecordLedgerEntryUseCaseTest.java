@@ -120,7 +120,7 @@ class RecordLedgerEntryUseCaseTest {
             assertThat(savedTransaction.getTransactionType()).isEqualTo(LedgerTransactionType.PAYMENT_APPROVAL);
             assertThat(savedTransaction.getTargetType()).isEqualTo("ORDER");
             assertThat(savedTransaction.getTargetId()).isEqualTo(1L);
-            assertThat(savedTransaction.getIdempotencyKey()).isEqualTo("PAYMENT_APPROVAL:1");
+            assertThat(savedTransaction.getIdempotencyKey().getValue()).isEqualTo("PAYMENT_APPROVAL:1");
 
             verify(saveLedgerEntryPort).saveAll(entriesCaptor.capture());
             List<LedgerEntry> savedEntries = entriesCaptor.getValue();
@@ -441,7 +441,7 @@ class RecordLedgerEntryUseCaseTest {
             verify(findAccountPort).findByName("미지급금_판매자");
             verify(saveLedgerTransactionPort).save(argThat(tx ->
                     tx.getTransactionType() == LedgerTransactionType.PAYMENT_APPROVAL
-                            && "PAYMENT_APPROVAL:1".equals(tx.getIdempotencyKey())
+                            && "PAYMENT_APPROVAL:1".equals(tx.getIdempotencyKey().getValue())
                             && "PAYMENT".equals(tx.getTargetType())
             ));
 
@@ -527,7 +527,7 @@ class RecordLedgerEntryUseCaseTest {
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
                     tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
-                            && "PAYMENT_CANCELLATION:1".equals(tx.getIdempotencyKey())
+                            && "PAYMENT_CANCELLATION:1".equals(tx.getIdempotencyKey().getValue())
                             && "PAYMENT".equals(tx.getTargetType())
             ));
 
@@ -580,7 +580,7 @@ class RecordLedgerEntryUseCaseTest {
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
                     tx.getTransactionType() == LedgerTransactionType.PAYMENT_CANCELLATION
-                            && "PAYMENT_PARTIAL_REFUND:1:20000:0".equals(tx.getIdempotencyKey())
+                            && "PAYMENT_PARTIAL_REFUND:1:20000:0".equals(tx.getIdempotencyKey().getValue())
             ));
 
             ArgumentCaptor<List<LedgerEntry>> entriesCaptor = ArgumentCaptor.forClass(List.class);
@@ -657,7 +657,7 @@ class RecordLedgerEntryUseCaseTest {
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
                     tx.getTransactionType() == LedgerTransactionType.PG_SETTLEMENT
-                            && "PG_SETTLEMENT:1".equals(tx.getIdempotencyKey())
+                            && "PG_SETTLEMENT:1".equals(tx.getIdempotencyKey().getValue())
                             && "SETTLEMENT".equals(tx.getTargetType())
             ));
 
@@ -781,7 +781,7 @@ class RecordLedgerEntryUseCaseTest {
             // then
             verify(saveLedgerTransactionPort).save(argThat(tx ->
                     tx.getTransactionType() == LedgerTransactionType.SELLER_SETTLEMENT
-                            && "SELLER_SETTLEMENT:1".equals(tx.getIdempotencyKey())
+                            && "SELLER_SETTLEMENT:1".equals(tx.getIdempotencyKey().getValue())
                             && "SETTLEMENT".equals(tx.getTargetType())
             ));
 

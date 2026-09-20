@@ -66,7 +66,7 @@ public class PaymentAllocationJpaEntity {
                 .settlementId(allocation.getSettlementId())
                 .transactionType(allocation.getTransactionType())
                 .targetType(allocation.getTargetType())
-                .idempotencyKey(allocation.getIdempotencyKey())
+                .idempotencyKey(allocation.getIdempotencyKey().getValue())
                 .build();
     }
 }

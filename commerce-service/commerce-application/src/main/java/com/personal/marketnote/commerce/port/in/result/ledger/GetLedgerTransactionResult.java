@@ -25,7 +25,7 @@ public record GetLedgerTransactionResult(
                 .targetType(transaction.getTargetType())
                 .targetId(transaction.getTargetId())
                 .description(transaction.getDescription())
-                .idempotencyKey(transaction.getIdempotencyKey())
+                .idempotencyKey(transaction.getIdempotencyKey().getValue())
                 .createdAt(transaction.getCreatedAt())
                 .entries(entries)
                 .build();

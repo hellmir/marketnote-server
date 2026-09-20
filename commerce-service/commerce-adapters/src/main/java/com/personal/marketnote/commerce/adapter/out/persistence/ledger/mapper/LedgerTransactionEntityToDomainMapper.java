@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.ledger.mapper;
 
 import com.personal.marketnote.commerce.adapter.out.persistence.ledger.entity.LedgerTransactionJpaEntity;
+import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.ledger.LedgerTransaction;
 import com.personal.marketnote.commerce.domain.ledger.LedgerTransactionSnapshotState;
 
@@ -16,7 +17,7 @@ public class LedgerTransactionEntityToDomainMapper {
                 .targetType(entity.getTargetType())
                 .targetId(entity.getTargetId())
                 .description(entity.getDescription())
-                .idempotencyKey(entity.getIdempotencyKey())
+                .idempotencyKey(IdempotencyKey.of(entity.getIdempotencyKey()))
                 .createdAt(entity.getCreatedAt())
                 .build());
     }

@@ -38,7 +38,7 @@ class GetLedgerTransactionsUseCaseTest {
                 .targetType("SETTLEMENT")
                 .targetId(100L)
                 .description("테스트 거래")
-                .idempotencyKey("TEST:" + id)
+                .idempotencyKey(IdempotencyKey.of("TEST:" + id))
                 .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
                 .build());
     }
