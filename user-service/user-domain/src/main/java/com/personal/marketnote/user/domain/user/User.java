@@ -255,6 +255,12 @@ public class User extends BaseDomain {
         }
     }
 
+    public void validateDifferentPenaltyCount(int penaltyCount) {
+        if (this.penaltyCount == penaltyCount) {
+            throw new SameUpdateTargetException(FOURTH_ERROR_CODE, String.valueOf(penaltyCount));
+        }
+    }
+
     public boolean isRequiredTermsAgreed() {
         return userTerms.stream()
                 .allMatch(UserTerms::isRequiredTermsAgreed);
@@ -309,5 +315,9 @@ public class User extends BaseDomain {
 
     public void addPenalty() {
         penaltyCount++;
+    }
+
+    public void updatePenaltyCount(int penaltyCount) {
+        this.penaltyCount = penaltyCount;
     }
 }
