@@ -49,7 +49,7 @@ public record GetBuyerOrderProductResult(
 
         return GetBuyerOrderProductResult.builder()
                 .orderId(order.getId())
-                .orderNumber(order.getOrderNumber())
+                .orderNumber(order.getOrderNumber().getValue())
                 .orderDate(resolvedOrderDate)
                 .orderStatus(orderProductResult.orderStatus())
                 .sellerId(orderProductResult.sellerId())

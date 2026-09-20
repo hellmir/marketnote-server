@@ -619,7 +619,7 @@ class RegisterOrderUseCaseTest {
 
             Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderNumber()).isNotNull();
-            assertThat(capturedOrder.getOrderNumber()).isNotEmpty();
+            assertThat(capturedOrder.getOrderNumber().getValue()).isNotEmpty();
         }
     }
 

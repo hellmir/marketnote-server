@@ -472,7 +472,7 @@ class RequestReturnUseCaseTest {
                 .id(orderId)
                 .buyerId(buyerId)
                 .orderKey(UUID.randomUUID())
-                .orderNumber("ORD-" + orderId)
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(status)
                 .amount(OrderAmount.of(50000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
