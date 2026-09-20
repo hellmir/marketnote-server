@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 public class SettlementPolicySnapshotState {
     private Long id;
     private Long sellerId;
-    private Integer pgFeeRate;
-    private Integer platformFeeRate;
+    private FeeRate pgFeeRate;
+    private FeeRate platformFeeRate;
     private SettlementCycle settlementCycle;
     private Long minPayoutAmount;
     private EntityStatus status;

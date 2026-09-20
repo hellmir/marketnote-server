@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.settlement.mapper;
 
 import com.personal.marketnote.commerce.adapter.out.persistence.settlement.entity.SettlementPolicyJpaEntity;
+import com.personal.marketnote.commerce.domain.settlement.FeeRate;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicy;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicySnapshotState;
 
@@ -13,8 +14,8 @@ public class SettlementPolicyEntityToDomainMapper {
                 SettlementPolicySnapshotState.builder()
                         .id(entity.getId())
                         .sellerId(entity.getSellerId())
-                        .pgFeeRate(entity.getPgFeeRate())
-                        .platformFeeRate(entity.getPlatformFeeRate())
+                        .pgFeeRate(FeeRate.of(entity.getPgFeeRate()))
+                        .platformFeeRate(FeeRate.of(entity.getPlatformFeeRate()))
                         .settlementCycle(entity.getSettlementCycle())
                         .minPayoutAmount(entity.getMinPayoutAmount())
                         .status(entity.getStatus())

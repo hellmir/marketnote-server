@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.settlement;
 
+import com.personal.marketnote.commerce.domain.settlement.FeeRate;
 import com.personal.marketnote.commerce.domain.settlement.SettlementCycle;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicy;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicyCreateState;
@@ -39,8 +40,8 @@ public class RegisterSettlementPolicyService implements RegisterSettlementPolicy
 
         SettlementPolicy policy = SettlementPolicy.from(SettlementPolicyCreateState.builder()
                 .sellerId(command.sellerId())
-                .pgFeeRate(command.pgFeeRate())
-                .platformFeeRate(command.platformFeeRate())
+                .pgFeeRate(FeeRate.of(command.pgFeeRate()))
+                .platformFeeRate(FeeRate.of(command.platformFeeRate()))
                 .settlementCycle(SettlementCycle.valueOf(command.settlementCycle()))
                 .minPayoutAmount(command.minPayoutAmount())
                 .build());

@@ -8,8 +8,8 @@ import lombok.*;
 @Getter
 public class SettlementPolicyCreateState {
     private Long sellerId;
-    private Integer pgFeeRate;
-    private Integer platformFeeRate;
+    private FeeRate pgFeeRate;
+    private FeeRate platformFeeRate;
     private SettlementCycle settlementCycle;
     private Long minPayoutAmount;
 }

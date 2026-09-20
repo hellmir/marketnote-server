@@ -24,12 +24,10 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class SettlementPolicy extends BaseDomain {
-    private static final int BASIS_POINT_DENOMINATOR = 10000;
-
     private Long id;
     private Long sellerId;
-    private Integer pgFeeRate;
-    private Integer platformFeeRate;
+    private FeeRate pgFeeRate;
+    private FeeRate platformFeeRate;
     private SettlementCycle settlementCycle;
     private Money minPayoutAmount;
     private LocalDateTime createdAt;
@@ -37,11 +35,10 @@ public class SettlementPolicy extends BaseDomain {
 
     /**
      * 새 정산 정책 생성 시 사용하는 팩토리 메서드.
-     * 비즈니스 규칙(수수료율 범위, 합계 100% 이하, 최소 지급 금액 양수)을 검증한다.
+     * 수수료율 합계 100% 이하, 최소 지급 금액 양수 조건을 검증한다.
+     * 개별 수수료율 범위 검증은 FeeRate VO에서 수행된다.
      */
     public static SettlementPolicy from(SettlementPolicyCreateState state) {
-        validateFeeRate("PG 수수료율", state.getPgFeeRate());
-        validateFeeRate("플랫폼 수수료율", state.getPlatformFeeRate());
         validateFeeRateSum(state.getPgFeeRate(), state.getPlatformFeeRate());
         validateMinPayoutAmount(state.getMinPayoutAmount());
 
@@ -79,10 +76,8 @@ public class SettlementPolicy extends BaseDomain {
      * 정산 정책을 업데이트한다.
      * 비즈니스 규칙을 재검증한 후 필드를 변경한다.
      */
-    public void update(Integer pgFeeRate, Integer platformFeeRate,
+    public void update(FeeRate pgFeeRate, FeeRate platformFeeRate,
                        SettlementCycle settlementCycle, Long minPayoutAmount) {
-        validateFeeRate("PG 수수료율", pgFeeRate);
-        validateFeeRate("플랫폼 수수료율", platformFeeRate);
         validateFeeRateSum(pgFeeRate, platformFeeRate);
         validateMinPayoutAmount(minPayoutAmount);
 
@@ -100,22 +95,11 @@ public class SettlementPolicy extends BaseDomain {
         super.deactivate();
     }
 
-    private static void validateFeeRate(String name, Integer feeRate) {
-        if (FormatValidator.hasNoValue(feeRate) || feeRate < 0) {
+    private static void validateFeeRateSum(FeeRate pgFeeRate, FeeRate platformFeeRate) {
+        if (pgFeeRate.getValue() + platformFeeRate.getValue() > FeeRate.BASIS_POINT_DENOMINATOR) {
             throw new InvalidSettlementPolicyException(
-                    name + "은(는) 0 이상이어야 합니다. " + name + "=" + feeRate);
-        }
-        if (feeRate > BASIS_POINT_DENOMINATOR) {
-            throw new InvalidSettlementPolicyException(
-                    name + "은(는) " + BASIS_POINT_DENOMINATOR + "(100%) 이하여야 합니다. " + name + "=" + feeRate);
-        }
-    }
-
-    private static void validateFeeRateSum(Integer pgFeeRate, Integer platformFeeRate) {
-        if (pgFeeRate + platformFeeRate > BASIS_POINT_DENOMINATOR) {
-            throw new InvalidSettlementPolicyException(
-                    "수수료율 합계가 100%를 초과합니다. pgFeeRate=" + pgFeeRate
-                            + ", platformFeeRate=" + platformFeeRate);
+                    "수수료율 합계가 100%를 초과합니다. pgFeeRate=" + pgFeeRate.getValue()
+                            + ", platformFeeRate=" + platformFeeRate.getValue());
         }
     }
 

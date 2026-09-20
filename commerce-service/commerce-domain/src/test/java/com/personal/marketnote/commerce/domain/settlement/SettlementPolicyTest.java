@@ -18,40 +18,10 @@ class SettlementPolicyTest {
 
         assertThat(policy.isActive()).isTrue();
         assertThat(policy.getSellerId()).isEqualTo(1L);
-        assertThat(policy.getPgFeeRate()).isEqualTo(350);
-        assertThat(policy.getPlatformFeeRate()).isEqualTo(500);
+        assertThat(policy.getPgFeeRate().getValue()).isEqualTo(350);
+        assertThat(policy.getPlatformFeeRate().getValue()).isEqualTo(500);
         assertThat(policy.getSettlementCycle()).isEqualTo(SettlementCycle.MONTHLY);
         assertThat(policy.getMinPayoutAmount()).isEqualTo(Money.of(10000L));
-    }
-
-    @Test
-    @DisplayName("PG 수수료율이 음수이면 InvalidSettlementPolicyException이 발생한다")
-    void shouldThrowWhenPgFeeRateIsNegative() {
-        SettlementPolicyCreateState state = SettlementPolicyCreateState.builder()
-                .sellerId(1L)
-                .pgFeeRate(-1)
-                .platformFeeRate(500)
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .build();
-
-        assertThatThrownBy(() -> SettlementPolicy.from(state))
-                .isInstanceOf(InvalidSettlementPolicyException.class);
-    }
-
-    @Test
-    @DisplayName("플랫폼 수수료율이 10000을 초과하면 InvalidSettlementPolicyException이 발생한다")
-    void shouldThrowWhenPlatformFeeRateExceedsBasisPoint() {
-        SettlementPolicyCreateState state = SettlementPolicyCreateState.builder()
-                .sellerId(1L)
-                .pgFeeRate(350)
-                .platformFeeRate(10001)
-                .settlementCycle(SettlementCycle.MONTHLY)
-                .minPayoutAmount(10000L)
-                .build();
-
-        assertThatThrownBy(() -> SettlementPolicy.from(state))
-                .isInstanceOf(InvalidSettlementPolicyException.class);
     }
 
     @Test
@@ -59,8 +29,8 @@ class SettlementPolicyTest {
     void shouldThrowWhenFeeRateSumExceedsBasisPoint() {
         SettlementPolicyCreateState state = SettlementPolicyCreateState.builder()
                 .sellerId(1L)
-                .pgFeeRate(6000)
-                .platformFeeRate(5000)
+                .pgFeeRate(FeeRate.of(6000))
+                .platformFeeRate(FeeRate.of(5000))
                 .settlementCycle(SettlementCycle.MONTHLY)
                 .minPayoutAmount(10000L)
                 .build();
@@ -74,8 +44,8 @@ class SettlementPolicyTest {
     void shouldThrowWhenMinPayoutAmountIsNegative() {
         SettlementPolicyCreateState state = SettlementPolicyCreateState.builder()
                 .sellerId(1L)
-                .pgFeeRate(350)
-                .platformFeeRate(500)
+                .pgFeeRate(FeeRate.of(350))
+                .platformFeeRate(FeeRate.of(500))
                 .settlementCycle(SettlementCycle.MONTHLY)
                 .minPayoutAmount(-1L)
                 .build();
@@ -90,8 +60,8 @@ class SettlementPolicyTest {
         SettlementPolicySnapshotState state = SettlementPolicySnapshotState.builder()
                 .id(10L)
                 .sellerId(1L)
-                .pgFeeRate(350)
-                .platformFeeRate(500)
+                .pgFeeRate(FeeRate.of(350))
+                .platformFeeRate(FeeRate.of(500))
                 .settlementCycle(SettlementCycle.WEEKLY)
                 .minPayoutAmount(5000L)
                 .status(EntityStatus.INACTIVE)
@@ -109,10 +79,10 @@ class SettlementPolicyTest {
     void shouldUpdateFieldsWithValidValues() {
         SettlementPolicy policy = SettlementPolicy.from(createValidState());
 
-        policy.update(400, 600, SettlementCycle.BIWEEKLY, 20000L);
+        policy.update(FeeRate.of(400), FeeRate.of(600), SettlementCycle.BIWEEKLY, 20000L);
 
-        assertThat(policy.getPgFeeRate()).isEqualTo(400);
-        assertThat(policy.getPlatformFeeRate()).isEqualTo(600);
+        assertThat(policy.getPgFeeRate().getValue()).isEqualTo(400);
+        assertThat(policy.getPlatformFeeRate().getValue()).isEqualTo(600);
         assertThat(policy.getSettlementCycle()).isEqualTo(SettlementCycle.BIWEEKLY);
         assertThat(policy.getMinPayoutAmount()).isEqualTo(Money.of(20000L));
     }
@@ -122,7 +92,7 @@ class SettlementPolicyTest {
     void shouldThrowWhenUpdateFeeRateSumExceedsBasisPoint() {
         SettlementPolicy policy = SettlementPolicy.from(createValidState());
 
-        assertThatThrownBy(() -> policy.update(6000, 5000, SettlementCycle.MONTHLY, 10000L))
+        assertThatThrownBy(() -> policy.update(FeeRate.of(6000), FeeRate.of(5000), SettlementCycle.MONTHLY, 10000L))
                 .isInstanceOf(InvalidSettlementPolicyException.class);
     }
 
@@ -139,8 +109,8 @@ class SettlementPolicyTest {
     private SettlementPolicyCreateState createValidState() {
         return SettlementPolicyCreateState.builder()
                 .sellerId(1L)
-                .pgFeeRate(350)
-                .platformFeeRate(500)
+                .pgFeeRate(FeeRate.of(350))
+                .platformFeeRate(FeeRate.of(500))
                 .settlementCycle(SettlementCycle.MONTHLY)
                 .minPayoutAmount(10000L)
                 .build();
