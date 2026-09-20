@@ -122,7 +122,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                 continue;
             }
             totalAccumulatedPoint = Math.addExact(totalAccumulatedPoint,
-                    Math.multiplyExact(productInfo.accumulatedPoint(), orderProduct.getQuantity()));
+                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue()));
         }
 
         return totalAccumulatedPoint;
@@ -137,7 +137,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
-            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity()).getValue());
+            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue());
         }
         return total;
     }

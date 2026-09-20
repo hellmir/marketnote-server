@@ -36,7 +36,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 .map(op -> new OrderProductItem(
                         op.getPricePolicyId(),
                         op.getSharerKey(),
-                        op.getQuantity(),
+                        op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()
                 ))
                 .toList();
@@ -72,7 +72,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 .map(op -> new OrderCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
                         op.getSharerKey(),
-                        op.getQuantity(),
+                        op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()
                 ))
                 .toList();
@@ -81,7 +81,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 .map(op -> new OrderCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
                         op.getSharerKey(),
-                        op.getQuantity(),
+                        op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()
                 ))
                 .toList();
@@ -108,7 +108,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 .map(op -> new OrderReturnedEvent.OrderProductItem(
                         op.getPricePolicyId(),
                         op.getSharerKey(),
-                        op.getQuantity(),
+                        op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()
                 ))
                 .toList();

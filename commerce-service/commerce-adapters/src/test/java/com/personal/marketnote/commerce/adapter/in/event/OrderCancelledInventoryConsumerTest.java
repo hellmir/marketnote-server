@@ -88,9 +88,9 @@ class OrderCancelledInventoryConsumerTest {
         List<OrderProduct> capturedProducts = productsCaptor.getValue();
         assertThat(capturedProducts).hasSize(2);
         assertThat(capturedProducts.get(0).getPricePolicyId()).isEqualTo(100L);
-        assertThat(capturedProducts.get(0).getQuantity()).isEqualTo(2);
+        assertThat(capturedProducts.get(0).getQuantity().getValue()).isEqualTo(2);
         assertThat(capturedProducts.get(1).getPricePolicyId()).isEqualTo(101L);
-        assertThat(capturedProducts.get(1).getQuantity()).isEqualTo(1);
+        assertThat(capturedProducts.get(1).getQuantity().getValue()).isEqualTo(1);
 
         verify(acknowledgment).acknowledge();
     }
@@ -114,7 +114,7 @@ class OrderCancelledInventoryConsumerTest {
         assertThat(capturedProducts).hasSize(1);
         assertThat(capturedProducts.get(0).getPricePolicyId()).isEqualTo(100L);
         assertThat(capturedProducts.get(0).getSharerKey()).isEqualTo(SHARER_KEY);
-        assertThat(capturedProducts.get(0).getQuantity()).isEqualTo(2);
+        assertThat(capturedProducts.get(0).getQuantity().getValue()).isEqualTo(2);
         assertThat(capturedProducts.get(0).getUnitAmount()).isEqualTo(Money.of(30000L));
 
         verify(acknowledgment).acknowledge();

@@ -39,7 +39,7 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
                 .collect(
                         Collectors.groupingBy(
-                                OrderProduct::getPricePolicyId, Collectors.summingInt(OrderProduct::getQuantity)
+                                OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
                         )
                 );
 
@@ -59,7 +59,7 @@ public class ReduceProductInventoryService implements ReduceProductInventoryUseC
                 int quantity = stocksByPricePolicyId.get(inventory.getPricePolicyId());
                 InventoryReservation reservation = reservationByPricePolicyId.get(inventory.getPricePolicyId());
                 if (FormatValidator.hasValue(reservation)) {
-                    inventory.confirmReservation(reservation.getQuantity());
+                    inventory.confirmReservation(reservation.getQuantity().getValue());
                     return;
                 }
                 inventory.reduce(quantity);

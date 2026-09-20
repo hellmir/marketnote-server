@@ -79,9 +79,9 @@ class PaymentCancelledInventoryConsumerTest {
         verify(restoreProductInventoryUseCase).restore(argThat(products ->
                 products.size() == 2
                         && products.get(0).getPricePolicyId().equals(100L)
-                        && products.get(0).getQuantity() == 2
+                        && products.get(0).getQuantity().getValue() == 2
                         && products.get(1).getPricePolicyId().equals(101L)
-                        && products.get(1).getQuantity() == 1
+                        && products.get(1).getQuantity().getValue() == 1
         ), eq(1L), eq("Kafka 전액 취소 재고 복구"));
         verify(acknowledgment).acknowledge();
     }
@@ -101,7 +101,7 @@ class PaymentCancelledInventoryConsumerTest {
         verify(restoreProductInventoryUseCase).restore(argThat(products ->
                 products.size() == 1
                         && products.get(0).getPricePolicyId().equals(100L)
-                        && products.get(0).getQuantity() == 1
+                        && products.get(0).getQuantity().getValue() == 1
         ), eq(1L), eq("Kafka 부분 취소 재고 복구"));
         verify(acknowledgment).acknowledge();
     }

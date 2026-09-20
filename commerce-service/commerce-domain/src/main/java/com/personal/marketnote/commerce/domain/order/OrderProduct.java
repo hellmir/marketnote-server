@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.domain.order;
 
 import com.personal.marketnote.common.domain.money.Money;
+import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -18,7 +19,7 @@ public class OrderProduct {
     private Long sellerId;
     private Long pricePolicyId;
     private UUID sharerKey;
-    private Integer quantity;
+    private Quantity quantity;
     private Money unitAmount;
     private String imageUrl;
     private Money accumulatedPoint;
@@ -32,7 +33,7 @@ public class OrderProduct {
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
                 .sharerKey(state.getSharerKey())
-                .quantity(state.getQuantity())
+                .quantity(Quantity.of(state.getQuantity()))
                 .unitAmount(Money.of(state.getUnitAmount()))
                 .imageUrl(state.getImageUrl())
                 .accumulatedPoint(Money.of(state.getAccumulatedPoint()))
@@ -46,7 +47,7 @@ public class OrderProduct {
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
                 .sharerKey(state.getSharerKey())
-                .quantity(state.getQuantity())
+                .quantity(Quantity.of(state.getQuantity()))
                 .unitAmount(Money.of(state.getUnitAmount()))
                 .imageUrl(state.getImageUrl())
                 .accumulatedPoint(Money.of(state.getAccumulatedPoint()))

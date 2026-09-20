@@ -221,7 +221,7 @@ public class PaymentApprovalTransactionHelper {
         List<ReserveInventoryCommand.OrderProductItem> orderProductItems = order.getOrderProducts().stream()
                 .map(op -> ReserveInventoryCommand.OrderProductItem.builder()
                         .pricePolicyId(op.getPricePolicyId())
-                        .quantity(op.getQuantity())
+                        .quantity(op.getQuantity().getValue())
                         .build())
                 .toList();
 
@@ -269,7 +269,7 @@ public class PaymentApprovalTransactionHelper {
 
         List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
                 .map(op -> new OrderPaymentSagaContext.OrderProductItem(
-                        op.getPricePolicyId(), op.getSharerKey(), op.getQuantity(), op.getUnitAmount().getValue()))
+                        op.getPricePolicyId(), op.getSharerKey(), op.getQuantity().getValue(), op.getUnitAmount().getValue()))
                 .toList();
 
         Long pointAmount = order.getAmount().getPointAmount().getValue();
@@ -307,7 +307,7 @@ public class PaymentApprovalTransactionHelper {
                 continue;
             }
             totalAccumulatedPoint = Math.addExact(totalAccumulatedPoint,
-                    Math.multiplyExact(productInfo.accumulatedPoint(), orderProduct.getQuantity()));
+                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue()));
         }
 
         return totalAccumulatedPoint;
@@ -322,7 +322,7 @@ public class PaymentApprovalTransactionHelper {
 
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
-            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity()).getValue());
+            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue());
         }
         return total;
     }

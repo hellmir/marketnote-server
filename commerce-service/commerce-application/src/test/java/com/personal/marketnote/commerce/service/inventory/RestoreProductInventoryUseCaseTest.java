@@ -9,7 +9,6 @@ import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationE
 import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
-import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidQuantityException;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -361,19 +360,6 @@ class RestoreProductInventoryUseCaseTest {
 
             assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
                     .isSameAs(exception);
-        }
-
-        @Test
-        @DisplayName("복구 수량이 0 이하일 때 InvalidQuantityException이 발생한다")
-        void restore_zeroQuantity_throwsInvalidQuantityException() {
-            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 0));
-            Inventory inventory = buildInventory(1L, 100L, 7);
-
-            stubLockToExecuteTask();
-            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
-
-            assertThatThrownBy(() -> restoreProductInventoryService.restore(orderProducts, 1L, "주문 취소"))
-                    .isInstanceOf(InvalidQuantityException.class);
         }
 
         @Test

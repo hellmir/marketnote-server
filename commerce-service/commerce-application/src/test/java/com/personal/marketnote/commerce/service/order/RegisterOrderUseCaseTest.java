@@ -693,7 +693,7 @@ class RegisterOrderUseCaseTest {
 
             Order capturedOrder = captureOrder();
             assertThat(capturedOrder.getOrderProducts()).hasSize(1);
-            assertThat(capturedOrder.getOrderProducts().get(0).getQuantity()).isEqualTo(quantity);
+            assertThat(capturedOrder.getOrderProducts().get(0).getQuantity().getValue()).isEqualTo(quantity);
         }
 
         @Test

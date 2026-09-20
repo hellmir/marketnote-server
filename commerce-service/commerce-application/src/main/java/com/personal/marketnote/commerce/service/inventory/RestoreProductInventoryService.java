@@ -35,7 +35,7 @@ public class RestoreProductInventoryService implements RestoreProductInventoryUs
         Map<Long, Integer> stocksByPricePolicyId = orderProducts.stream()
                 .collect(
                         Collectors.groupingBy(
-                                OrderProduct::getPricePolicyId, Collectors.summingInt(OrderProduct::getQuantity)
+                                OrderProduct::getPricePolicyId, Collectors.summingInt(op -> op.getQuantity().getValue())
                         )
                 );
 

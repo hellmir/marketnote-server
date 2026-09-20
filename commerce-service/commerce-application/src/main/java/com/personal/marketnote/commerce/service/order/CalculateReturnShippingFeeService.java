@@ -174,7 +174,7 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
     private long calculateRemainingAmount(List<OrderProduct> sellerProducts, Set<Long> returnPricePolicyIdSet) {
         return sellerProducts.stream()
                 .filter(product -> !returnPricePolicyIdSet.contains(product.getPricePolicyId()))
-                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().longValue()).getValue())
+                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
                 .reduce(0L, Math::addExact);
     }
 }

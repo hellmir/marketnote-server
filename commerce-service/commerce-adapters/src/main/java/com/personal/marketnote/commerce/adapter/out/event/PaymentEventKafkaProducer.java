@@ -62,7 +62,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                 .map(op -> new PaymentCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
                         op.getSharerKey(),
-                        op.getQuantity(),
+                        op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()
                 ))
                 .toList();
@@ -72,7 +72,7 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                 .map(op -> new PaymentCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
                         op.getSharerKey(),
-                        op.getQuantity(),
+                        op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()
                 ))
                 .toList()

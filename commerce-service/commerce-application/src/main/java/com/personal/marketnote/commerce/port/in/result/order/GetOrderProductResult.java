@@ -44,7 +44,7 @@ public record GetOrderProductResult(
                 )
                 .pricePolicyId(orderProduct.getPricePolicyId())
                 .sharerKey(orderProduct.getSharerKey())
-                .quantity(orderProduct.getQuantity())
+                .quantity(orderProduct.getQuantity().getValue())
                 .unitAmount(orderProduct.getUnitAmount().getValue())
                 .imageUrl(orderProduct.getImageUrl())
                 .orderStatus(resolvedStatus)

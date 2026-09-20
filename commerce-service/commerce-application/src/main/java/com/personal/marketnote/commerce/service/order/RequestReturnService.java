@@ -125,7 +125,7 @@ public class RequestReturnService implements RequestReturnUseCase {
         List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> products = order.getOrderProducts().stream()
                 .map(op -> RegisterFulfillmentReturnDeliveryCommand.ProductItem.of(
                         String.valueOf(op.getPricePolicyId()),
-                        op.getQuantity()
+                        op.getQuantity().getValue()
                 ))
                 .toList();
 

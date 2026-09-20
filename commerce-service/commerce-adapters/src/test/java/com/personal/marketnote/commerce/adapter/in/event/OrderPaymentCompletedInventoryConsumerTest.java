@@ -97,9 +97,9 @@ class OrderPaymentCompletedInventoryConsumerTest {
         List<OrderProduct> orderProducts = captor.getValue();
         assertThat(orderProducts).hasSize(2);
         assertThat(orderProducts.get(0).getPricePolicyId()).isEqualTo(100L);
-        assertThat(orderProducts.get(0).getQuantity()).isEqualTo(2);
+        assertThat(orderProducts.get(0).getQuantity().getValue()).isEqualTo(2);
         assertThat(orderProducts.get(1).getPricePolicyId()).isEqualTo(101L);
-        assertThat(orderProducts.get(1).getQuantity()).isEqualTo(1);
+        assertThat(orderProducts.get(1).getQuantity().getValue()).isEqualTo(1);
     }
 
     @Test
