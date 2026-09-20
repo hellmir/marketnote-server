@@ -166,7 +166,7 @@ class ProductReviewAggregateTest {
     void shouldReducePreviousAndAddNewPoint() {
         ProductReviewAggregate aggregate = createAggregateWithAllPoints();
 
-        aggregate.changePoint(5.0f, 1.0f);
+        aggregate.changePoint(Rating.of(5.0f), Rating.of(1.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(5);
         assertThat(aggregate.getFivePointCount()).isEqualTo(0);
@@ -180,9 +180,9 @@ class ProductReviewAggregateTest {
     void shouldAccumulateTotalRatingAndComputeAverage() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
         aggregate.addPoint(5);
-        aggregate.computeRating(5.0f);
+        aggregate.computeRating(5);
         aggregate.addPoint(3);
-        aggregate.computeRating(3.0f);
+        aggregate.computeRating(3);
 
         assertThat(aggregate.getTotalRating()).isEqualTo(8.0f);
         assertThat(aggregate.getAverageRating()).isEqualTo(4.0f);
@@ -194,11 +194,11 @@ class ProductReviewAggregateTest {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
         aggregate.addPoint(5);
-        aggregate.computeRating(5.0f);
+        aggregate.computeRating(5);
         aggregate.addPoint(4);
-        aggregate.computeRating(4.0f);
+        aggregate.computeRating(4);
         aggregate.addPoint(3);
-        aggregate.computeRating(3.0f);
+        aggregate.computeRating(3);
 
         assertThat(aggregate.getTotalCount()).isEqualTo(3);
         assertThat(aggregate.getTotalRating()).isEqualTo(12.0f);
@@ -244,7 +244,7 @@ class ProductReviewAggregateTest {
                 .productId(productId)
                 .reviewerName("홍길동")
                 .maskedReviewerName("홍**")
-                .rating(rating)
+                .rating(Rating.of(rating))
                 .content("테스트 리뷰")
                 .isPhoto(false)
                 .isEdited(false)

@@ -2,6 +2,7 @@ package com.personal.marketnote.community.service.review;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.ValueMasker;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
@@ -201,7 +202,7 @@ class RegisterReviewUseCaseTest {
                         .quantity(command.quantity())
                         .reviewerName(command.reviewerName())
                         .maskedReviewerName(ValueMasker.mask(command.reviewerName()))
-                        .rating(command.rating())
+                        .rating(Rating.of(command.rating()))
                         .content(command.content())
                         .isPhoto(command.isPhoto())
                         .isEdited(false)

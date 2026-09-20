@@ -5,6 +5,7 @@ import com.personal.marketnote.common.application.file.port.in.result.GetFilesRe
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.community.domain.like.LikeTargetType;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.domain.review.ReviewSortProperty;
@@ -664,7 +665,7 @@ class GetReviewUseCaseTest {
                         .quantity(1)
                         .reviewerName("사용자-" + id)
                         .maskedReviewerName("사*자-" + id)
-                        .rating(5.0f)
+                        .rating(Rating.of(5.0f))
                         .content("리뷰-" + id)
                         .isPhoto(isPhoto)
                         .isEdited(false)
@@ -737,7 +738,7 @@ class GetReviewUseCaseTest {
                         .quantity(1)
                         .reviewerName("사용자-" + id)
                         .maskedReviewerName("사*자-" + id)
-                        .rating(5.0f)
+                        .rating(Rating.of(5.0f))
                         .content("리뷰-" + id)
                         .isPhoto(isPhoto)
                         .isEdited(false)

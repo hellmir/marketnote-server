@@ -22,7 +22,7 @@ public class ReviewSnapshotState {
     private final Integer quantity;
     private final String reviewerName;
     private final String maskedReviewerName;
-    private final Float rating;
+    private final Rating rating;
     private final String content;
     private final Boolean isPhoto;
     private final Boolean isEdited;

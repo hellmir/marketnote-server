@@ -1,5 +1,6 @@
 package com.personal.marketnote.community.mapper;
 
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.ReviewCreateState;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistoryCreateState;
 import com.personal.marketnote.community.port.in.command.review.RegisterReviewCommand;
@@ -16,7 +17,7 @@ public class ReviewCommandToStateMapper {
                 .selectedOptions(command.selectedOptions())
                 .quantity(command.quantity())
                 .reviewerName(command.reviewerName())
-                .rating(command.rating())
+                .rating(Rating.of(command.rating()))
                 .content(command.content())
                 .isPhoto(command.isPhoto())
                 .unitAmount(command.unitAmount())
@@ -26,7 +27,7 @@ public class ReviewCommandToStateMapper {
     public static ReviewVersionHistoryCreateState mapToVersionHistoryState(Long reviewId, RegisterReviewCommand command) {
         return ReviewVersionHistoryCreateState.builder()
                 .reviewId(reviewId)
-                .rating(command.rating())
+                .rating(Rating.of(command.rating()))
                 .content(command.content())
                 .isPhoto(command.isPhoto())
                 .build();
@@ -35,7 +36,7 @@ public class ReviewCommandToStateMapper {
     public static ReviewVersionHistoryCreateState mapToVersionHistoryState(Long reviewId, UpdateReviewCommand command) {
         return ReviewVersionHistoryCreateState.builder()
                 .reviewId(reviewId)
-                .rating(command.rating())
+                .rating(Rating.of(command.rating()))
                 .content(command.content())
                 .isPhoto(command.isPhoto())
                 .build();

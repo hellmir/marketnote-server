@@ -86,7 +86,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
                 .quantity(FormatValidator.hasValue(review.getQuantity()) ? review.getQuantity().getValue() : null)
                 .reviewerName(review.getReviewerName())
                 .maskedReviewerName(review.getMaskedReviewerName())
-                .rating(review.getRating())
+                .rating((float) review.getRating().getValue())
                 .content(review.getContent())
                 .isPhoto(review.getIsPhoto())
                 .unitAmount(review.hasUnitAmount() ? review.getUnitAmount().getValue() : null)
@@ -95,7 +95,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
 
     public void updateFrom(Review review) {
         updateActivation(review);
-        rating = review.getRating();
+        rating = (float) review.getRating().getValue();
         content = review.getContent();
         isPhoto = review.getIsPhoto();
         isEdited = true;

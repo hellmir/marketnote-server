@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ReviewVersionHistorySnapshotState {
     private final Long id;
     private final Long reviewId;
-    private final Float rating;
+    private final Rating rating;
     private final String content;
     private final Boolean isPhoto;
     private final LocalDateTime createdAt;

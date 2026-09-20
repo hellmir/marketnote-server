@@ -3,6 +3,7 @@ package com.personal.marketnote.community.service.review;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.domain.review.ReviewSortProperty;
@@ -347,7 +348,7 @@ class GetUserReviewsUseCaseTest {
                 .reviewerId(reviewerId)
                 .orderId(100L)
                 .productId(50L)
-                .rating(5.0f)
+                .rating(Rating.of(5.0f))
                 .content("좋은 상품입니다")
                 .isPhoto(false)
                 .isEdited(false)
@@ -365,7 +366,7 @@ class GetUserReviewsUseCaseTest {
                 .reviewerId(reviewerId)
                 .orderId(100L)
                 .productId(50L)
-                .rating(5.0f)
+                .rating(Rating.of(5.0f))
                 .content("사진 리뷰입니다")
                 .isPhoto(true)
                 .isEdited(false)
@@ -385,7 +386,7 @@ class GetUserReviewsUseCaseTest {
                 .productId(50L)
                 .reviewerName(reviewerName)
                 .maskedReviewerName("리*자")
-                .rating(5.0f)
+                .rating(Rating.of(5.0f))
                 .content("리뷰 내용입니다")
                 .isPhoto(false)
                 .isEdited(false)
@@ -404,7 +405,7 @@ class GetUserReviewsUseCaseTest {
                 .orderId(100L)
                 .productId(50L)
                 .pricePolicyId(pricePolicyId)
-                .rating(5.0f)
+                .rating(Rating.of(5.0f))
                 .content("상품 정보 있는 리뷰")
                 .isPhoto(false)
                 .isEdited(false)

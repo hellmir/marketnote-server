@@ -3,6 +3,7 @@ package com.personal.marketnote.community.service.review;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.review.ProductReviewAggregate;
+import com.personal.marketnote.community.domain.review.Rating;
 import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistory;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistoryCreateState;
@@ -57,9 +58,9 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         ProductReviewAggregate productReviewAggregate;
         try {
             productReviewAggregate = getReviewUseCase.getProductReviewAggregate(productId);
-            Float point = command.rating();
-            productReviewAggregate.addPoint(point.intValue());
-            productReviewAggregate.computeRating(point);
+            Rating point = savedReview.getRating();
+            productReviewAggregate.addPoint(point.getValue());
+            productReviewAggregate.computeRating(point.getValue());
             updateReviewPort.update(productReviewAggregate);
         } catch (ProductReviewAggregateNotFoundException pranfe) {
             productReviewAggregate = ProductReviewAggregate.from(savedReview);
