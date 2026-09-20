@@ -1,7 +1,7 @@
 package com.personal.marketnote.product.domain.cart;
 
 import com.personal.marketnote.common.domain.BaseDomain;
-import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import lombok.*;
 
@@ -16,7 +16,7 @@ public class CartProduct extends BaseDomain {
     private UUID sharerKey;
     private PricePolicy pricePolicy;
     private String imageUrl;
-    private Short quantity;
+    private Quantity quantity;
 
     public static CartProduct from(CartProductCreateState state) {
         CartProduct cartProduct = CartProduct.builder()
@@ -24,7 +24,7 @@ public class CartProduct extends BaseDomain {
                 .sharerKey(state.getSharerKey())
                 .pricePolicy(state.getPricePolicy())
                 .imageUrl(state.getImageUrl())
-                .quantity(state.getQuantity())
+                .quantity(Quantity.of((int) state.getQuantity()))
                 .build();
         cartProduct.activate();
 
@@ -37,7 +37,7 @@ public class CartProduct extends BaseDomain {
                 .sharerKey(state.getSharerKey())
                 .pricePolicy(state.getPricePolicy())
                 .imageUrl(state.getImageUrl())
-                .quantity(state.getQuantity())
+                .quantity(Quantity.of((int) state.getQuantity()))
                 .build();
         cartProduct.status = state.getStatus();
 
@@ -49,18 +49,16 @@ public class CartProduct extends BaseDomain {
     }
 
     public void addQuantity(Short additionalQuantity) {
-        if (FormatValidator.hasNoValue(additionalQuantity) || additionalQuantity <= 0) {
-            throw new InvalidCartProductQuantityException("추가 수량은 1 이상이어야 합니다.");
-        }
-        int sum = this.quantity + additionalQuantity;
-        if (sum > Short.MAX_VALUE) {
+        Quantity additional = Quantity.of((int) additionalQuantity);
+        Quantity sum = this.quantity.add(additional);
+        if (sum.getValue() > Short.MAX_VALUE) {
             throw new InvalidCartProductQuantityException("수량 한도를 초과했습니다.");
         }
-        this.quantity = (short) sum;
+        this.quantity = sum;
     }
 
     public void updateQuantity(Short newQuantity) {
-        quantity = newQuantity;
+        this.quantity = Quantity.of((int) newQuantity);
     }
 
     public void updatePricePolicy(PricePolicy pricePolicy) {

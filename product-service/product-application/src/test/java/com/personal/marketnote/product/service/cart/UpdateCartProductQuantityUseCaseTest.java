@@ -52,12 +52,12 @@ class UpdateCartProductQuantityUseCaseTest {
         updateCartProductQuantityService.updateCartProductQuantity(command);
 
         // then
-        assertThat(cartProduct.getQuantity()).isEqualTo(newQuantity);
+        assertThat(cartProduct.getQuantity().getValue()).isEqualTo((int) newQuantity);
 
         ArgumentCaptor<CartProduct> captor = ArgumentCaptor.forClass(CartProduct.class);
         verify(updateCartProductPort).update(captor.capture(), eq(pricePolicyId));
         CartProduct saved = captor.getValue();
-        assertThat(saved.getQuantity()).isEqualTo(newQuantity);
+        assertThat(saved.getQuantity().getValue()).isEqualTo((int) newQuantity);
         assertThat(saved.getUserId()).isEqualTo(userId);
         assertThat(saved.getPricePolicyId()).isEqualTo(pricePolicyId);
     }

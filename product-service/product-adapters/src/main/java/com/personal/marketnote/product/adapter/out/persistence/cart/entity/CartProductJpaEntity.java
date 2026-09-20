@@ -43,13 +43,13 @@ public class CartProductJpaEntity extends BaseEntity {
                 .pricePolicyJpaEntity(pricePolicyJpaEntity)
                 .sharerKey(cartProduct.getSharerKey())
                 .imageUrl(cartProduct.getImageUrl())
-                .quantity(cartProduct.getQuantity())
+                .quantity((short) cartProduct.getQuantity().getValue())
                 .status(cartProduct.getStatus())
                 .build();
     }
 
     public void updateFrom(CartProduct cartProduct) {
-        quantity = cartProduct.getQuantity();
+        quantity = (short) cartProduct.getQuantity().getValue();
         status = cartProduct.getStatus();
     }
 }
