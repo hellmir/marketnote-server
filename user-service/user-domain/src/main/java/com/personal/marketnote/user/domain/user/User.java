@@ -47,6 +47,7 @@ public class User extends BaseDomain {
     private boolean withdrawalYn;
     private LocalDateTime withdrawnAt;
     private Long orderNum;
+    private int penaltyCount;
 
     public static User from(UserCreateState state) {
         if (state.isGuest()) {
@@ -82,6 +83,7 @@ public class User extends BaseDomain {
                 .referenceCode(state.getReferenceCode())
                 .role(Role.getBuyer())
                 .lastLoggedInAt(LocalDateTime.now())
+                .penaltyCount(0)
                 .build();
 
         // 일반 회원 가입인 경우 비밀번호 설정
@@ -121,6 +123,7 @@ public class User extends BaseDomain {
                 .withdrawalYn(Boolean.TRUE.equals(state.getWithdrawalYn()))
                 .withdrawnAt(state.getWithdrawnAt())
                 .orderNum(state.getOrderNum())
+                .penaltyCount(state.getPenaltyCount())
                 .build();
 
         EntityStatus status = state.getStatus();
@@ -302,5 +305,9 @@ public class User extends BaseDomain {
         userAuthProviders.stream()
                 .filter(v -> v.isVendor(vendor))
                 .forEach(UserAuthProvider::removeOidcId);
+    }
+
+    public void addPenalty() {
+        penaltyCount++;
     }
 }

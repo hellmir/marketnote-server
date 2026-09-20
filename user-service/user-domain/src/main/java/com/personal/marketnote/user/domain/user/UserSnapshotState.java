@@ -33,5 +33,5 @@ public class UserSnapshotState {
     private final Boolean withdrawalYn;
     private final LocalDateTime withdrawnAt;
     private final Long orderNum;
+    private final int penaltyCount;
 }
-

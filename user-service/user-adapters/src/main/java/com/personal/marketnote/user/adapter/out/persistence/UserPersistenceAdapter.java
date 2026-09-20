@@ -5,9 +5,11 @@ import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.adapter.out.mapper.UserJpaEntityToDomainMapper;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.LoginHistoryJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserJpaEntity;
+import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserPenaltyHistoryJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.LoginHistoryJpaRepository;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.TermsJpaRepository;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.UserJpaRepository;
+import com.personal.marketnote.user.adapter.out.persistence.user.repository.UserPenaltyHistoryJpaRepository;
 import com.personal.marketnote.user.domain.user.*;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -28,10 +30,12 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class UserPersistenceAdapter
-        implements SaveUserPort, FindUserPort, FindTermsPort, UpdateUserPort, SaveLoginHistoryPort, FindLoginHistoryPort {
+        implements SaveUserPort, FindUserPort, FindTermsPort, UpdateUserPort, SaveLoginHistoryPort, FindLoginHistoryPort,
+        SaveUserPenaltyHistoryPort {
     private final UserJpaRepository userJpaRepository;
     private final TermsJpaRepository termsJpaRepository;
     private final LoginHistoryJpaRepository loginHistoryJpaRepository;
+    private final UserPenaltyHistoryJpaRepository userPenaltyHistoryJpaRepository;
 
     @Override
     public User save(User user) {
@@ -192,5 +196,13 @@ public class UserPersistenceAdapter
         return userJpaRepository.findAllStatusUserById(id).orElseThrow(
                 () -> new UserNotFoundException(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id))
         );
+    }
+
+    @Override
+    public UserPenaltyHistory save(UserPenaltyHistory history) {
+        UserPenaltyHistoryJpaEntity saved = userPenaltyHistoryJpaRepository.save(
+                UserPenaltyHistoryJpaEntity.from(history)
+        );
+        return saved.toDomain();
     }
 }

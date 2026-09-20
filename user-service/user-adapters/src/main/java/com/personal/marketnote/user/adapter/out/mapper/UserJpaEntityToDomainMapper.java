@@ -41,6 +41,7 @@ public class UserJpaEntityToDomainMapper {
                                     .withdrawalYn(entity.getWithdrawalYn())
                                     .withdrawnAt(entity.getWithdrawnAt())
                                     .orderNum(entity.getOrderNum())
+                                    .penaltyCount(entity.getPenaltyCount())
                                     .build()
                     );
 
