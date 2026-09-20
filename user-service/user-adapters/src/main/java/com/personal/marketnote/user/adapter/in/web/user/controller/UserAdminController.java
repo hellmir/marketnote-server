@@ -1,18 +1,25 @@
 package com.personal.marketnote.user.adapter.in.web.user.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.ApplyUserPenaltyApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetLoginHistoriesApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserInfoApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUsersApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserInfoApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
+import com.personal.marketnote.user.adapter.in.web.user.request.ApplyUserPenaltyRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
+import com.personal.marketnote.user.adapter.in.web.user.response.ApplyUserPenaltyResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetLoginHistoriesResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUsersResponse;
 import com.personal.marketnote.user.domain.user.LoginHistorySortProperty;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
+import com.personal.marketnote.user.port.in.command.ApplyUserPenaltyCommand;
+import com.personal.marketnote.user.port.in.result.ApplyUserPenaltyResult;
+import com.personal.marketnote.user.port.in.usecase.user.ApplyUserPenaltyUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetLoginHistoryUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.UpdateUserUseCase;
@@ -24,6 +31,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
@@ -52,6 +61,7 @@ public class UserAdminController {
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final GetLoginHistoryUseCase getLoginHistoryUseCase;
+    private final ApplyUserPenaltyUseCase applyUserPenaltyUseCase;
 
     /**
      * (관리자) 회원 목록 조회
@@ -197,6 +207,41 @@ public class UserAdminController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "회원 로그인 내역 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 회원 패널티 부과
+     *
+     * @param userId    회원 ID
+     * @param request   패널티 부과 요청
+     * @param principal 인증된 관리자
+     * @return 회원 패널티 부과 응답 {@link ApplyUserPenaltyResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 특정 회원에게 패널티를 부과합니다. 관리자만 가능합니다.
+     */
+    @PostMapping("/{userId}/penalties")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ApplyUserPenaltyApiDocs
+    public ResponseEntity<BaseResponse<ApplyUserPenaltyResponse>> applyUserPenalty(
+            @PathVariable Long userId,
+            @Valid @RequestBody ApplyUserPenaltyRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long adminId = ElementExtractor.extractUserId(principal);
+        ApplyUserPenaltyResult result = applyUserPenaltyUseCase.applyPenalty(
+                new ApplyUserPenaltyCommand(userId, adminId, request.reason())
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        ApplyUserPenaltyResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 패널티 부과 성공"
                 ),
                 HttpStatus.OK
         );
