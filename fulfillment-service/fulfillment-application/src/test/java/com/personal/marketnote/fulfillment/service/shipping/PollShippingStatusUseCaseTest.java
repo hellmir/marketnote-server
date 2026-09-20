@@ -5,6 +5,7 @@ import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
+import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
 import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
@@ -122,7 +123,7 @@ class PollShippingStatusUseCaseTest {
 
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isShipping()).isTrue();
-        assertThat(updated.getTrackingNumber()).isEqualTo("INV001");
+        assertThat(updated.getTrackingNumberValue()).isEqualTo("INV001");
         assertThat(updated.getCarrierCode()).isEqualTo("CJ");
         assertThat(updated.getLastPolledAt()).isNotNull();
 
@@ -308,7 +309,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker updatedTracker2 = captor.getValue();
         assertThat(updatedTracker2.getOrderId()).isEqualTo(200L);
         assertThat(updatedTracker2.isShipping()).isTrue();
-        assertThat(updatedTracker2.getTrackingNumber()).isEqualTo("INV002");
+        assertThat(updatedTracker2.getTrackingNumberValue()).isEqualTo("INV002");
     }
 
     @Test
@@ -425,7 +426,7 @@ class PollShippingStatusUseCaseTest {
 
         ShippingTracker updated = captor.getValue();
         assertThat(updated.isShipping()).isTrue();
-        assertThat(updated.getTrackingNumber()).isEqualTo("INV001");
+        assertThat(updated.getTrackingNumberValue()).isEqualTo("INV001");
         assertThat(updated.getCarrierCode()).isEqualTo("CJ");
 
         verifyNoInteractions(publishShippingStatusChangedEventPort);
@@ -450,7 +451,7 @@ class PollShippingStatusUseCaseTest {
                 .id(id)
                 .orderId(orderId)
                 .buyerId(1L)
-                .trackingNumber("INV001")
+                .trackingNumber(TrackingNumber.of("INV001"))
                 .carrierCode("CJ")
                 .shippingStatus(ShippingStatus.SHIPPING)
                 .pollingActive(true)

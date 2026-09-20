@@ -72,7 +72,7 @@ class ShippingTrackerTest {
                     .id(1L)
                     .orderId(100L)
                     .buyerId(1L)
-                    .trackingNumber("1234567890")
+                    .trackingNumber(TrackingNumber.of("1234567890"))
                     .carrierCode("CJ")
                     .shippingStatus(ShippingStatus.SHIPPING)
                     .pollingActive(true)
@@ -85,7 +85,7 @@ class ShippingTrackerTest {
 
             assertThat(tracker.getId()).isEqualTo(1L);
             assertThat(tracker.getOrderId()).isEqualTo(100L);
-            assertThat(tracker.getTrackingNumber()).isEqualTo("1234567890");
+            assertThat(tracker.getTrackingNumberValue()).isEqualTo("1234567890");
             assertThat(tracker.getCarrierCode()).isEqualTo("CJ");
             assertThat(tracker.isShipping()).isTrue();
             assertThat(tracker.isPollingActive()).isTrue();
@@ -102,10 +102,10 @@ class ShippingTrackerTest {
         void startShippingFromPreparing() {
             ShippingTracker tracker = createPreparingTracker();
 
-            tracker.startShipping("1234567890", "CJ");
+            tracker.startShipping(TrackingNumber.of("1234567890"), "CJ");
 
             assertThat(tracker.isShipping()).isTrue();
-            assertThat(tracker.getTrackingNumber()).isEqualTo("1234567890");
+            assertThat(tracker.getTrackingNumberValue()).isEqualTo("1234567890");
             assertThat(tracker.getCarrierCode()).isEqualTo("CJ");
         }
 
@@ -114,17 +114,8 @@ class ShippingTrackerTest {
         void startShippingFromShipping() {
             ShippingTracker tracker = createShippingTracker();
 
-            assertThatThrownBy(() -> tracker.startShipping("9999999999", "HANJIN"))
+            assertThatThrownBy(() -> tracker.startShipping(TrackingNumber.of("9999999999"), "HANJIN"))
                     .isInstanceOf(InvalidShippingStatusTransitionException.class);
-        }
-
-        @Test
-        @DisplayName("송장번호가 null이면 예외가 발생한다")
-        void startShippingWithNullTrackingNumber() {
-            ShippingTracker tracker = createPreparingTracker();
-
-            assertThatThrownBy(() -> tracker.startShipping(null, "CJ"))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
@@ -132,7 +123,7 @@ class ShippingTrackerTest {
         void startShippingWithNullCarrierCode() {
             ShippingTracker tracker = createPreparingTracker();
 
-            assertThatThrownBy(() -> tracker.startShipping("1234567890", null))
+            assertThatThrownBy(() -> tracker.startShipping(TrackingNumber.of("1234567890"), null))
                     .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
     }
@@ -334,9 +325,9 @@ class ShippingTrackerTest {
             ShippingTracker tracker = createPreparingTracker();
             tracker.advanceToShipping();
 
-            tracker.updateTrackingInfo("9876543210", "HANJIN");
+            tracker.updateTrackingInfo(TrackingNumber.of("9876543210"), "HANJIN");
 
-            assertThat(tracker.getTrackingNumber()).isEqualTo("9876543210");
+            assertThat(tracker.getTrackingNumberValue()).isEqualTo("9876543210");
             assertThat(tracker.getCarrierCode()).isEqualTo("HANJIN");
         }
 
@@ -345,19 +336,10 @@ class ShippingTrackerTest {
         void updateTrackingInfoInPreparing() {
             ShippingTracker tracker = createPreparingTracker();
 
-            assertThatThrownBy(() -> tracker.updateTrackingInfo("1234567890", "CJ"))
+            assertThatThrownBy(() -> tracker.updateTrackingInfo(TrackingNumber.of("1234567890"), "CJ"))
                     .isInstanceOf(InvalidShippingStatusTransitionException.class);
         }
 
-        @Test
-        @DisplayName("송장번호가 null이면 예외가 발생한다")
-        void updateTrackingInfoWithNullTrackingNumber() {
-            ShippingTracker tracker = createPreparingTracker();
-            tracker.advanceToShipping();
-
-            assertThatThrownBy(() -> tracker.updateTrackingInfo(null, "CJ"))
-                    .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
-        }
     }
 
     // --- 테스트 헬퍼 ---
@@ -371,7 +353,7 @@ class ShippingTrackerTest {
 
     private ShippingTracker createShippingTracker() {
         ShippingTracker tracker = createPreparingTracker();
-        tracker.startShipping("1234567890", "CJ");
+        tracker.startShipping(TrackingNumber.of("1234567890"), "CJ");
         return tracker;
     }
 
