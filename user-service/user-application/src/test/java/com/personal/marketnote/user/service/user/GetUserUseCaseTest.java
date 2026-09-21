@@ -553,6 +553,7 @@ class GetUserUseCaseTest {
         assertThat(first.status()).isEqualTo(EntityStatus.ACTIVE.name());
         assertThat(first.isWithdrawn()).isFalse();
         assertThat(first.orderNum()).isEqualTo(1L);
+        assertThat(first.penaltyCount()).isEqualTo(0);
         assertThat(first.accountInfo().accounts()).containsExactly(
                 new AccountResult(AuthVendor.KAKAO, "kakao-1")
         );
@@ -570,6 +571,7 @@ class GetUserUseCaseTest {
         assertThat(second.status()).isEqualTo(EntityStatus.INACTIVE.name());
         assertThat(second.isWithdrawn()).isTrue();
         assertThat(second.orderNum()).isEqualTo(2L);
+        assertThat(second.penaltyCount()).isEqualTo(0);
         assertThat(second.accountInfo().accounts()).containsExactly(
                 new AccountResult(AuthVendor.GOOGLE, "google-2")
         );
