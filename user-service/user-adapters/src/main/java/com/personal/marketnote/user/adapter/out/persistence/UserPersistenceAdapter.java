@@ -6,12 +6,22 @@ import com.personal.marketnote.user.adapter.out.mapper.UserJpaEntityToDomainMapp
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.LoginHistoryJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserPenaltyHistoryJpaEntity;
+import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserStatusHistoryJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.LoginHistoryJpaRepository;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.TermsJpaRepository;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.UserJpaRepository;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.UserPenaltyHistoryJpaRepository;
+import com.personal.marketnote.user.adapter.out.persistence.user.repository.UserStatusHistoryJpaRepository;
 import com.personal.marketnote.user.domain.user.*;
-import com.personal.marketnote.user.port.out.user.*;
+import com.personal.marketnote.user.port.out.user.FindLoginHistoryPort;
+import com.personal.marketnote.user.port.out.user.FindTermsPort;
+import com.personal.marketnote.user.port.out.user.FindUserPenaltyHistoryPort;
+import com.personal.marketnote.user.port.out.user.FindUserPort;
+import com.personal.marketnote.user.port.out.user.SaveLoginHistoryPort;
+import com.personal.marketnote.user.port.out.user.SaveUserPenaltyHistoryPort;
+import com.personal.marketnote.user.port.out.user.SaveUserPort;
+import com.personal.marketnote.user.port.out.user.SaveUserStatusHistoryPort;
+import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,11 +41,13 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 public class UserPersistenceAdapter
         implements SaveUserPort, FindUserPort, FindTermsPort, UpdateUserPort, SaveLoginHistoryPort, FindLoginHistoryPort,
-        SaveUserPenaltyHistoryPort, FindUserPenaltyHistoryPort {
+        SaveUserPenaltyHistoryPort, FindUserPenaltyHistoryPort,
+        SaveUserStatusHistoryPort {
     private final UserJpaRepository userJpaRepository;
     private final TermsJpaRepository termsJpaRepository;
     private final LoginHistoryJpaRepository loginHistoryJpaRepository;
     private final UserPenaltyHistoryJpaRepository userPenaltyHistoryJpaRepository;
+    private final UserStatusHistoryJpaRepository userStatusHistoryJpaRepository;
 
     @Override
     public User save(User user) {
@@ -196,6 +208,14 @@ public class UserPersistenceAdapter
         return userJpaRepository.findAllStatusUserById(id).orElseThrow(
                 () -> new UserNotFoundException(String.format(USER_ID_NOT_FOUND_EXCEPTION_MESSAGE, id))
         );
+    }
+
+    @Override
+    public UserStatusHistory save(UserStatusHistory history) {
+        UserStatusHistoryJpaEntity saved = userStatusHistoryJpaRepository.save(
+                UserStatusHistoryJpaEntity.from(history)
+        );
+        return saved.toDomain();
     }
 
     @Override
