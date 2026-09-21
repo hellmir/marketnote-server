@@ -1,8 +1,10 @@
 package com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
+import com.personal.marketnote.reward.adapter.out.persistence.gifticon.converter.GoodsStatusConverter;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,8 +55,9 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
     @Column(name = "valid_days")
     private Integer validDays;
 
+    @Convert(converter = GoodsStatusConverter.class)
     @Column(name = "goods_status", nullable = false)
-    private String goodsStatus;
+    private GoodsStatus goodsStatus;
 
     @Column(name = "exposed", nullable = false)
     private boolean exposed;

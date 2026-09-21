@@ -24,7 +24,7 @@ public class GifticonGoods {
     private String imageUrl;
     private String description;
     private Integer validDays;
-    private String goodsStatus;
+    private GoodsStatus goodsStatus;
     private boolean exposed;
     private boolean popular;
     private Integer orderNum;
@@ -120,13 +120,13 @@ public class GifticonGoods {
     }
 
     public boolean isSale() {
-        return "SALE".equals(this.goodsStatus);
+        return FormatValidator.hasValue(goodsStatus) && goodsStatus.isSale();
     }
 
     public void suspend() {
         if (!isSale()) {
             return;
         }
-        this.goodsStatus = "SUS";
+        this.goodsStatus = GoodsStatus.SUSPENDED;
     }
 }

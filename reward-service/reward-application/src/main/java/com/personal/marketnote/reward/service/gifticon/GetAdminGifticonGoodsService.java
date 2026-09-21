@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetAdminGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonGoodsResult;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetAdminGifticonGoodsUseCase;
@@ -21,7 +22,7 @@ public class GetAdminGifticonGoodsService implements GetAdminGifticonGoodsUseCas
 
     @Override
     public GetAdminGifticonGoodsResult getAdminGifticonGoods(GetAdminGifticonGoodsCommand command) {
-        String goodsStatus = FormatValidator.hasValue(command.goodsStatus()) ? command.goodsStatus() : "";
+        GoodsStatus goodsStatus = resolveGoodsStatus(command.goodsStatus());
         String keyword = FormatValidator.hasValue(command.keyword()) ? command.keyword() : "";
 
         FindAllForAdminResult portResult = findGifticonGoodsPort.findAllForAdmin(
@@ -33,5 +34,12 @@ public class GetAdminGifticonGoodsService implements GetAdminGifticonGoodsUseCas
         );
 
         return GetAdminGifticonGoodsResult.from(command.page(), command.pageSize(), portResult);
+    }
+
+    private GoodsStatus resolveGoodsStatus(String input) {
+        if (FormatValidator.hasNoValue(input)) {
+            return null;
+        }
+        return GoodsStatus.from(input);
     }
 }

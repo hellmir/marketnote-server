@@ -31,7 +31,7 @@ class GifticonGoodsTest {
                     .imageUrl("https://example.com/image.jpg")
                     .description("상품 설명")
                     .validDays(90)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .build());
 
             assertThat(goods.getGoodsCode()).isEqualTo("G001");
@@ -41,7 +41,7 @@ class GifticonGoodsTest {
             assertThat(goods.getRealPrice()).isEqualTo(Money.of(5000L));
             assertThat(goods.getSalePrice()).isEqualTo(Money.of(4500L));
             assertThat(goods.getCashPrice()).isEqualTo(Money.of(4500L));
-            assertThat(goods.getGoodsStatus()).isEqualTo("SALE");
+            assertThat(goods.getGoodsStatus()).isEqualTo(GoodsStatus.SALE);
             assertThat(goods.isExposed()).isFalse();
             assertThat(goods.getOrderNum()).isNull();
         }
@@ -68,7 +68,7 @@ class GifticonGoodsTest {
                     .imageUrl("https://example.com/image.jpg")
                     .description("상품 설명")
                     .validDays(90)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .exposed(true)
                     .orderNum(1)
                     .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
@@ -97,7 +97,7 @@ class GifticonGoodsTest {
                     .realPrice(5000L)
                     .salePrice(4500L)
                     .cashPrice(4500L)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .build());
 
             goods.expose();
@@ -117,7 +117,7 @@ class GifticonGoodsTest {
                     .realPrice(5000L)
                     .salePrice(4500L)
                     .cashPrice(4500L)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .exposed(true)
                     .orderNum(1)
                     .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
@@ -140,7 +140,7 @@ class GifticonGoodsTest {
                     .realPrice(5000L)
                     .salePrice(4500L)
                     .cashPrice(4500L)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .build());
 
             goods.changeOrderNum(5);
@@ -160,7 +160,7 @@ class GifticonGoodsTest {
                     .realPrice(5000L)
                     .salePrice(4500L)
                     .cashPrice(4000L)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .exposed(true)
                     .orderNum(1)
                     .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
@@ -178,7 +178,7 @@ class GifticonGoodsTest {
                     .imageUrl("https://example.com/image2.jpg")
                     .description("새 설명")
                     .validDays(90)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .build());
 
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 카페라떼");
@@ -200,7 +200,7 @@ class GifticonGoodsTest {
                     .realPrice(5000L)
                     .salePrice(4500L)
                     .cashPrice(4500L)
-                    .goodsStatus("SALE")
+                    .goodsStatus(GoodsStatus.SALE)
                     .build());
 
             assertThat(goods.isSale()).isTrue();
@@ -217,7 +217,7 @@ class GifticonGoodsTest {
                     .realPrice(5000L)
                     .salePrice(4500L)
                     .cashPrice(4500L)
-                    .goodsStatus("SUS")
+                    .goodsStatus(GoodsStatus.SUSPENDED)
                     .build());
 
             assertThat(goods.isSale()).isFalse();

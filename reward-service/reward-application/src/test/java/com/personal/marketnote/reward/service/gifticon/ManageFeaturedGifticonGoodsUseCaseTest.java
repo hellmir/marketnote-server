@@ -4,6 +4,7 @@ import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotExposedEx
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageFeaturedGifticonGoodsCommand.FeaturedGoodsItem;
 import com.personal.marketnote.reward.port.out.gifticon.EvictGifticonGoodsCachePort;
@@ -132,7 +133,7 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
                 .salePrice(9000L)
                 .cashPrice(9000L)
                 .imageUrl("https://example.com/img.jpg")
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(false)
                 .build());
@@ -151,7 +152,7 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
                 .salePrice(9000L)
                 .cashPrice(9000L)
                 .imageUrl("https://example.com/img.jpg")
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(true)
                 .orderNum(1)
@@ -171,7 +172,7 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
                 .salePrice(9000L)
                 .cashPrice(9000L)
                 .imageUrl("https://example.com/img.jpg")
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(false)
                 .popular(false)
                 .build());

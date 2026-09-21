@@ -94,7 +94,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(Optional.empty());
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
                 .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of());
         when(findGifticonCategoryMappingPort.findCategoryIdByGiftishowCategorySeq("1"))
                 .thenReturn(Optional.empty());
@@ -130,7 +130,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(Optional.of(existingBrand));
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
                 .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of());
         when(findGifticonCategoryMappingPort.findCategoryIdByGiftishowCategorySeq("1"))
                 .thenReturn(Optional.of(1L));
@@ -167,7 +167,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(savedCategory);
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
                 .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of());
 
         // when
@@ -202,7 +202,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(Optional.of(existingCategory));
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
                 .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of());
 
         // when
@@ -228,7 +228,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001"))
                 .thenReturn(Optional.empty());
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of());
 
         // when
@@ -244,7 +244,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         assertThat(savedGoods.getSalePrice()).isEqualTo(Money.of(4500L));
         assertThat(savedGoods.isExposed()).isFalse();
         assertThat(savedGoods.getOrderNum()).isNull();
-        assertThat(savedGoods.getGoodsStatus()).isEqualTo("SALE");
+        assertThat(savedGoods.getGoodsStatus()).isEqualTo(GoodsStatus.SALE);
     }
 
     @Test
@@ -261,7 +261,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001"))
                 .thenReturn(Optional.of(existingGoods));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of(existingGoods));
 
         // when
@@ -283,7 +283,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         GifticonGoods missingGoods = createGoods(2L, "GD002", "빙수", 4500L, 4500L, "SALE");
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
                 .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of(missingGoods));
 
         // when
@@ -291,7 +291,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
 
         // then
         verify(updateGifticonGoodsPort).update(missingGoods);
-        assertThat(missingGoods.getGoodsStatus()).isEqualTo("SUS");
+        assertThat(missingGoods.getGoodsStatus()).isEqualTo(GoodsStatus.SUSPENDED);
     }
 
     @Test
@@ -308,14 +308,14 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(new FetchGifticonGoodsResult(1, List.of(goodsItem)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001"))
                 .thenReturn(Optional.of(existingGoods));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of(existingGoods));
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
 
         // then
-        assertThat(existingGoods.getGoodsStatus()).isEqualTo("SALE");
+        assertThat(existingGoods.getGoodsStatus()).isEqualTo(GoodsStatus.SALE);
     }
 
     @Test
@@ -337,7 +337,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .thenReturn(new FetchGifticonGoodsResult(2, List.of(item2)));
         when(findGifticonGoodsPort.findByGoodsCode("GD001")).thenReturn(Optional.empty());
         when(findGifticonGoodsPort.findByGoodsCode("GD002")).thenReturn(Optional.empty());
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE")).thenReturn(List.of());
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
@@ -356,14 +356,14 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         GifticonGoods susGoods = createGoods(3L, "GD003", "만료상품", 3000L, 3000L, "SUS");
         when(fetchGifticonGoodsPort.fetchProductList(1, 20))
                 .thenReturn(new FetchGifticonGoodsResult(0, List.of()));
-        when(findGifticonGoodsPort.findAllByGoodsStatus("SALE"))
+        when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE))
                 .thenReturn(List.of());
 
         // when
         syncGifticonGoodsAndBrandsService.syncAll();
 
         // then
-        assertThat(susGoods.getGoodsStatus()).isEqualTo("SUS");
+        assertThat(susGoods.getGoodsStatus()).isEqualTo(GoodsStatus.SUSPENDED);
         verify(updateGifticonGoodsPort, never()).update(susGoods);
     }
 
@@ -412,11 +412,18 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .imageUrl("https://img.com/goods.png")
                 .description("설명")
                 .validDays(30)
-                .goodsStatus(goodsStatus)
+                .goodsStatus(GoodsStatus.from(mapDbGoodsStatusToEnumName(goodsStatus)))
                 .exposed(false)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .build());
+    }
+
+    private static String mapDbGoodsStatusToEnumName(String dbValue) {
+        if ("SUS".equals(dbValue)) {
+            return "SUSPENDED";
+        }
+        return dbValue;
     }
 
     private FetchedGifticonGoodsItem createGoodsItem(String goodsCode, String goodsName,

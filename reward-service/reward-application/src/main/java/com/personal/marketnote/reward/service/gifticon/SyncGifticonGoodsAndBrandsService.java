@@ -161,7 +161,7 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
                     .imageUrl(item.goodsImgB())
                     .description(item.content())
                     .validDays(item.limitDay())
-                    .goodsStatus(item.goodsStatus())
+                    .goodsStatus(GoodsStatus.from(item.goodsStatus()))
                     .build());
             updateGifticonGoodsPort.update(goods);
             return;
@@ -180,13 +180,13 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
                 .imageUrl(item.goodsImgB())
                 .description(item.content())
                 .validDays(item.limitDay())
-                .goodsStatus(item.goodsStatus())
+                .goodsStatus(GoodsStatus.from(item.goodsStatus()))
                 .build());
         saveGifticonGoodsPort.save(goods);
     }
 
     private void suspendMissingGoods(Set<String> syncedGoodsCodes) {
-        List<GifticonGoods> saleGoods = findGifticonGoodsPort.findAllByGoodsStatus("SALE");
+        List<GifticonGoods> saleGoods = findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE);
 
         for (GifticonGoods goods : saleGoods) {
             if (syncedGoodsCodes.contains(goods.getGoodsCode())) {

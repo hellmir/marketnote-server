@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetAdminGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetAdminGifticonGoodsResult;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
@@ -37,7 +38,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         GifticonGoods goods = createGoods(1L, "G00001", "아메리카노", "BR001", "스타벅스", "SALE", true, 1);
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
-        when(findGifticonGoodsPort.findAllForAdmin(1, 20, "", null, ""))
+        when(findGifticonGoodsPort.findAllForAdmin(1, 20, (GoodsStatus) null, null, ""))
                 .thenReturn(portResult);
 
         // when
@@ -51,7 +52,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().get(0).goodsCode()).isEqualTo("G00001");
         assertThat(result.items().get(0).goodsName()).isEqualTo("아메리카노");
-        verify(findGifticonGoodsPort).findAllForAdmin(1, 20, "", null, "");
+        verify(findGifticonGoodsPort).findAllForAdmin(1, 20, (GoodsStatus) null, null, "");
     }
 
     @Test
@@ -62,7 +63,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         GifticonGoods goods = createGoods(1L, "G00001", "아메리카노", "BR001", "스타벅스", "SALE", false, null);
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
-        when(findGifticonGoodsPort.findAllForAdmin(1, 10, "SALE", null, ""))
+        when(findGifticonGoodsPort.findAllForAdmin(1, 10, GoodsStatus.SALE, null, ""))
                 .thenReturn(portResult);
 
         // when
@@ -71,7 +72,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         // then
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().get(0).goodsStatus()).isEqualTo("SALE");
-        verify(findGifticonGoodsPort).findAllForAdmin(1, 10, "SALE", null, "");
+        verify(findGifticonGoodsPort).findAllForAdmin(1, 10, GoodsStatus.SALE, null, "");
     }
 
     @Test
@@ -82,7 +83,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         GifticonGoods goods = createGoods(1L, "G00001", "아메리카노", "BR001", "스타벅스", "SALE", true, 1);
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
-        when(findGifticonGoodsPort.findAllForAdmin(1, 10, "", true, ""))
+        when(findGifticonGoodsPort.findAllForAdmin(1, 10, (GoodsStatus) null, true, ""))
                 .thenReturn(portResult);
 
         // when
@@ -91,7 +92,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         // then
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().get(0).exposed()).isTrue();
-        verify(findGifticonGoodsPort).findAllForAdmin(1, 10, "", true, "");
+        verify(findGifticonGoodsPort).findAllForAdmin(1, 10, (GoodsStatus) null, true, "");
     }
 
     @Test
@@ -102,7 +103,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         GifticonGoods goods = createGoods(1L, "G00001", "아메리카노", "BR001", "스타벅스", "SALE", false, null);
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
-        when(findGifticonGoodsPort.findAllForAdmin(1, 10, "", null, "아메리카노"))
+        when(findGifticonGoodsPort.findAllForAdmin(1, 10, (GoodsStatus) null, null, "아메리카노"))
                 .thenReturn(portResult);
 
         // when
@@ -111,7 +112,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         // then
         assertThat(result.items()).hasSize(1);
         assertThat(result.items().get(0).goodsName()).isEqualTo("아메리카노");
-        verify(findGifticonGoodsPort).findAllForAdmin(1, 10, "", null, "아메리카노");
+        verify(findGifticonGoodsPort).findAllForAdmin(1, 10, (GoodsStatus) null, null, "아메리카노");
     }
 
     @Test
@@ -121,7 +122,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         GetAdminGifticonGoodsCommand command = new GetAdminGifticonGoodsCommand(1, 20, null, null, null);
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(), 0L);
 
-        when(findGifticonGoodsPort.findAllForAdmin(1, 20, "", null, ""))
+        when(findGifticonGoodsPort.findAllForAdmin(1, 20, (GoodsStatus) null, null, ""))
                 .thenReturn(portResult);
 
         // when
@@ -143,7 +144,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         GifticonGoods goods = createGoods(1L, "G00001", "아메리카노", "BR001", "스타벅스", "SALE", false, null);
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 25L);
 
-        when(findGifticonGoodsPort.findAllForAdmin(1, 10, "", null, ""))
+        when(findGifticonGoodsPort.findAllForAdmin(1, 10, (GoodsStatus) null, null, ""))
                 .thenReturn(portResult);
 
         // when
@@ -162,7 +163,7 @@ class GetAdminGifticonGoodsUseCaseTest {
         GifticonGoods goods = createGoods(1L, "G00001", "아메리카노", "BR001", "스타벅스", "SALE", true, 3);
         FindAllForAdminResult portResult = new FindAllForAdminResult(List.of(goods), 1L);
 
-        when(findGifticonGoodsPort.findAllForAdmin(1, 20, "", null, ""))
+        when(findGifticonGoodsPort.findAllForAdmin(1, 20, (GoodsStatus) null, null, ""))
                 .thenReturn(portResult);
 
         // when
@@ -202,11 +203,18 @@ class GetAdminGifticonGoodsUseCaseTest {
                 .imageUrl("https://img.com/goods.png")
                 .description("설명")
                 .validDays(30)
-                .goodsStatus(goodsStatus)
+                .goodsStatus(mapGoodsStatus(goodsStatus))
                 .exposed(exposed)
                 .orderNum(orderNum)
                 .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .build());
+    }
+
+    private static GoodsStatus mapGoodsStatus(String dbValue) {
+        if ("SUS".equals(dbValue)) {
+            return GoodsStatus.SUSPENDED;
+        }
+        return GoodsStatus.SALE;
     }
 }

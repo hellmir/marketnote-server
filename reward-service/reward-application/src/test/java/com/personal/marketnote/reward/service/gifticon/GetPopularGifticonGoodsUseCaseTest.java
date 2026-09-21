@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetPopularGifticonGoodsResult;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
 import org.junit.jupiter.api.DisplayName;
@@ -79,7 +80,7 @@ class GetPopularGifticonGoodsUseCaseTest {
                 .imageUrl("https://img.com/goods.png")
                 .description("설명")
                 .validDays(30)
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(true)
                 .orderNum(1)
