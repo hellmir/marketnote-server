@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsResult;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
@@ -107,7 +108,7 @@ class GetGifticonGoodsUseCaseTest {
                 .imageUrl("https://img.com/goods.png")
                 .description("설명")
                 .validDays(30)
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .orderNum(orderNum)
                 .createdAt(LocalDateTime.now())

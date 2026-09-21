@@ -4,6 +4,7 @@ import com.personal.marketnote.reward.domain.exception.GifticonCouponSendFailedE
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.command.gifticon.PurchaseGifticonCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.PurchaseGifticonResult;
 import com.personal.marketnote.reward.port.out.gifticon.CancelGifticonSendFailPort;
@@ -211,7 +212,7 @@ class PurchaseGifticonUseCaseTest {
                 .imageUrl("https://example.com/goods.jpg")
                 .description("테스트 상품입니다")
                 .validDays(30)
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(false)
                 .build());
@@ -229,7 +230,7 @@ class PurchaseGifticonUseCaseTest {
                 .realPrice(6000L)
                 .salePrice(5500L)
                 .cashPrice(5000L)
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(false)
                 .popular(false)
                 .build());
@@ -246,7 +247,7 @@ class PurchaseGifticonUseCaseTest {
                 .realPrice(6000L)
                 .salePrice(5500L)
                 .cashPrice(5000L)
-                .goodsStatus("SUS")
+                .goodsStatus(GoodsStatus.SUSPENDED)
                 .exposed(true)
                 .popular(false)
                 .build());

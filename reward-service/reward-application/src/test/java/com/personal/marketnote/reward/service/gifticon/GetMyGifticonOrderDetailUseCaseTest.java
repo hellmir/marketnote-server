@@ -352,7 +352,7 @@ class GetMyGifticonOrderDetailUseCaseTest {
                 .imageUrl("https://example.com/goods.jpg")
                 .description("테스트 상품입니다")
                 .validDays(30)
-                .goodsStatus("SALE")
+                .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(false)
                 .build());

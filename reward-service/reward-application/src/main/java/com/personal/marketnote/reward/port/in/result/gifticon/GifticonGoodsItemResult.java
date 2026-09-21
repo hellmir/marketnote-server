@@ -1,6 +1,8 @@
 package com.personal.marketnote.reward.port.in.result.gifticon;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 
 import java.time.LocalDateTime;
 
@@ -30,12 +32,19 @@ public record GifticonGoodsItemResult(
                 goods.getRealPrice().getValue(),
                 goods.getSalePrice().getValue(),
                 goods.getCashPrice().getValue(),
-                goods.getGoodsStatus(),
+                resolveGoodsStatusDbValue(goods.getGoodsStatus()),
                 goods.isExposed(),
                 goods.getOrderNum(),
                 goods.getImageUrl(),
                 goods.getCreatedAt(),
                 goods.getModifiedAt()
         );
+    }
+
+    private static String resolveGoodsStatusDbValue(GoodsStatus goodsStatus) {
+        if (FormatValidator.hasNoValue(goodsStatus)) {
+            return null;
+        }
+        return goodsStatus.getDbValue();
     }
 }

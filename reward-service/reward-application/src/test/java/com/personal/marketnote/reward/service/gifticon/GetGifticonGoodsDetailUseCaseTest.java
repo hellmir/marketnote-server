@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.service.gifticon;
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
@@ -124,7 +125,7 @@ class GetGifticonGoodsDetailUseCaseTest {
                 .imageUrl("https://img.com/goods.png")
                 .description("맛있는 커피")
                 .validDays(30)
-                .goodsStatus(goodsStatus)
+                .goodsStatus("SUS".equals(goodsStatus) ? GoodsStatus.SUSPENDED : GoodsStatus.SALE)
                 .exposed(exposed)
                 .orderNum(1)
                 .createdAt(LocalDateTime.now())

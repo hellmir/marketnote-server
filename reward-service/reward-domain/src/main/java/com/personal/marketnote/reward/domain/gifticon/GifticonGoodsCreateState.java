@@ -18,5 +18,5 @@ public class GifticonGoodsCreateState {
     private final String imageUrl;
     private final String description;
     private final Integer validDays;
-    private final String goodsStatus;
+    private final GoodsStatus goodsStatus;
 }
