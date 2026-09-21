@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.attendance;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
+import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
@@ -46,7 +47,7 @@ class DeleteAttendancePolicyUseCaseTest {
         AttendancePolicy policy = AttendancePolicy.from(
                 AttendancePolicySnapshotState.builder()
                         .id(policyId)
-                        .continuousPeriod((short) 3)
+                        .continuousPeriod(ContinuousPeriod.of((short) 3))
                         .rewardType(AttendanceRewardType.POINT)
                         .rewardQuantity(RewardQuantity.of(100L))
                         .status(EntityStatus.ACTIVE)

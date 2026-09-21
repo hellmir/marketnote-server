@@ -77,10 +77,10 @@ public class GetAttendanceRelayStatusService implements GetAttendanceRelayStatus
             LocalDate today
     ) {
         if (todayChecked && latestHistory.isPresent()) {
-            return latestHistory.get().getContinuousPeriod();
+            return latestHistory.get().getContinuousPeriodValue();
         }
         if (isYesterdayAttendance(latestHistory, today)) {
-            return (short) ((latestHistory.get().getContinuousPeriod() % RELAY_CYCLE_SIZE) + 1);
+            return (short) ((latestHistory.get().getContinuousPeriodValue() % RELAY_CYCLE_SIZE) + 1);
         }
         return 1;
     }

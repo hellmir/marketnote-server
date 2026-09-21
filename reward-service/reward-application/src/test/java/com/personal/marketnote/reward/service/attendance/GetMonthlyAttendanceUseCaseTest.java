@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.service.attendance;
 
 import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
+import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
 import com.personal.marketnote.reward.domain.attendance.UserAttendance;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
@@ -103,7 +104,7 @@ class GetMonthlyAttendanceUseCaseTest {
                         .id(1L)
                         .userAttendanceId(1L)
                         .attendancePolicyId((short) 1)
-                        .continuousPeriod((short) 1)
+                        .continuousPeriod(ContinuousPeriod.of((short) 1))
                         .rewardQuantity(RewardQuantity.of(100L))
                         .attendedAt(attendedAt)
                         .build()

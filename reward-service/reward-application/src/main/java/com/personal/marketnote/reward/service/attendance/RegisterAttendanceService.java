@@ -98,7 +98,7 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
 
         return findUserAttendanceHistoryPort.findLatestByUserAttendanceId(userAttendanceId)
                 .filter(last -> last.getAttendedAt().toLocalDate().equals(attendedDate.minusDays(1)))
-                .map(last -> (short) ((last.getContinuousPeriod() % RELAY_CYCLE_SIZE) + 1))
+                .map(last -> (short) ((last.getContinuousPeriodValue() % RELAY_CYCLE_SIZE) + 1))
                 .orElse((short) 1);
     }
 

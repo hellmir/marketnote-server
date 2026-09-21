@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AttendancePolicySnapshotState {
     private final Short id;
-    private final short continuousPeriod;
+    private final ContinuousPeriod continuousPeriod;
     private final AttendanceRewardType rewardType;
     private final RewardQuantity rewardQuantity;
     private final LocalDate attendenceDate;

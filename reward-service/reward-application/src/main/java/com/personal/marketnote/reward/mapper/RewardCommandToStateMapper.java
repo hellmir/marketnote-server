@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicyCreateState;
+import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceCreateState;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistoryCreateState;
@@ -134,8 +135,8 @@ public class RewardCommandToStateMapper {
                 .userAttendanceId(userAttendanceId)
                 .attendancePolicyId(attendancePolicy.getId())
                 .rewardType(attendancePolicy.getRewardType())
-                .rewardQuantity(attendancePolicy.getRewardQuantity())  // PolicyJpaEntity 변환과 일관, 이미 RewardQuantity
-                .continuousPeriod(continuousPeriod)
+                .rewardQuantity(attendancePolicy.getRewardQuantity())
+                .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
                 .rewardYn(Boolean.TRUE)
                 .attendedDate(command.attendedAt().toLocalDate())
                 .attendedAt(command.attendedAt())
@@ -159,7 +160,7 @@ public class RewardCommandToStateMapper {
             RegisterAttendancePolicyCommand command
     ) {
         return AttendancePolicyCreateState.builder()
-                .continuousPeriod(command.continuousPeriod())
+                .continuousPeriod(ContinuousPeriod.of(command.continuousPeriod()))
                 .rewardType(command.rewardType())
                 .rewardQuantity(RewardQuantity.of(command.rewardQuantity()))
                 .attendenceDate(command.attendenceDate())

@@ -5,6 +5,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
+import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -47,7 +48,7 @@ public class AttendancePolicyJpaEntity extends BaseEntity {
 
     public static AttendancePolicyJpaEntity from(AttendancePolicy policy) {
         return AttendancePolicyJpaEntity.builder()
-                .continuousPeriod(policy.getContinuousPeriod())
+                .continuousPeriod(policy.getContinuousPeriodValue())
                 .rewardType(policy.getRewardType())
                 .rewardQuantity(policy.getRewardQuantityValue())
                 .attendenceDate(policy.getAttendenceDate())
@@ -59,7 +60,7 @@ public class AttendancePolicyJpaEntity extends BaseEntity {
         return AttendancePolicy.from(
                 AttendancePolicySnapshotState.builder()
                         .id(id)
-                        .continuousPeriod(continuousPeriod)
+                        .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
                         .rewardType(rewardType)
                         .rewardQuantity(RewardQuantity.of(rewardQuantity))
                         .attendenceDate(attendenceDate)
@@ -72,7 +73,7 @@ public class AttendancePolicyJpaEntity extends BaseEntity {
 
     public void updateFrom(AttendancePolicy policy) {
         updateActivation(policy);
-        continuousPeriod = policy.getContinuousPeriod();
+        continuousPeriod = policy.getContinuousPeriodValue();
         rewardType = policy.getRewardType();
         rewardQuantity = policy.getRewardQuantityValue();
         attendenceDate = policy.getAttendenceDate();

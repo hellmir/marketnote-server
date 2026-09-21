@@ -12,13 +12,17 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 public class AttendancePolicy {
     private Short id;
-    private short continuousPeriod;
+    private ContinuousPeriod continuousPeriod;
     private AttendanceRewardType rewardType;
     private RewardQuantity rewardQuantity;
     private LocalDate attendenceDate;
     private EntityStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
+    public short getContinuousPeriodValue() {
+        return continuousPeriod.getValue();
+    }
 
     public long getRewardQuantityValue() {
         return rewardQuantity.getValue();
