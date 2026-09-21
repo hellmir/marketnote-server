@@ -95,6 +95,7 @@ class GetUserUseCaseTest {
         assertThat(result.status()).isEqualTo(status.name());
         assertThat(result.isWithdrawn()).isFalse();
         assertThat(result.orderNum()).isEqualTo(orderNum);
+        assertThat(result.penaltyCount()).isEqualTo(0);
         assertThat(result.accountInfo().accounts()).containsExactly(
                 new AccountResult(AuthVendor.KAKAO, "kakao-oidc"),
                 new AccountResult(AuthVendor.GOOGLE, "google-oidc")
@@ -174,6 +175,7 @@ class GetUserUseCaseTest {
         assertThat(result.status()).isEqualTo(status.name());
         assertThat(result.isWithdrawn()).isTrue();
         assertThat(result.orderNum()).isEqualTo(orderNum);
+        assertThat(result.penaltyCount()).isEqualTo(0);
         assertThat(result.accountInfo().accounts()).containsExactly(
                 new AccountResult(AuthVendor.KAKAO, "kakao-oidc-2")
         );
