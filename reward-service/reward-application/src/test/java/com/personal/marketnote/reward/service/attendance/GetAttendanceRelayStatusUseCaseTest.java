@@ -219,7 +219,7 @@ class GetAttendanceRelayStatusUseCaseTest {
                             .id(99L)
                             .userAttendanceId(ATTENDANCE_ID)
                             .attendancePolicyId(continuousPeriod)
-                            .continuousPeriod(continuousPeriod)
+                            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
                             .rewardQuantity(RewardQuantity.of(50L))
                             .attendedAt(attendedAt)
                             .build()
@@ -241,7 +241,7 @@ class GetAttendanceRelayStatusUseCaseTest {
             return AttendancePolicy.from(
                     AttendancePolicySnapshotState.builder()
                             .id(continuousPeriod)
-                            .continuousPeriod(continuousPeriod)
+                            .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
                             .rewardType(rewardType)
                             .rewardQuantity(RewardQuantity.of(rewardQuantity))
                             .status(EntityStatus.ACTIVE)

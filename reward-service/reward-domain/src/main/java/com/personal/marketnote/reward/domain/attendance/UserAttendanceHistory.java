@@ -15,10 +15,14 @@ public class UserAttendanceHistory {
     private Short attendancePolicyId;
     private AttendanceRewardType rewardType;
     private RewardQuantity rewardQuantity;
-    private short continuousPeriod;
+    private ContinuousPeriod continuousPeriod;
 
     public long getRewardQuantityValue() {
         return rewardQuantity.getValue();
+    }
+
+    public short getContinuousPeriodValue() {
+        return continuousPeriod.getValue();
     }
     private Boolean rewardYn;
     private LocalDate attendedDate;

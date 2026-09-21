@@ -21,7 +21,7 @@ public class AttendancePolicyResponse {
     public static AttendancePolicyResponse from(AttendancePolicy policy) {
         return AttendancePolicyResponse.builder()
                 .id(policy.getId())
-                .continuousPeriod(policy.getContinuousPeriod())
+                .continuousPeriod(policy.getContinuousPeriodValue())
                 .rewardType(policy.getRewardType())
                 .rewardQuantity(policy.getRewardQuantityValue())
                 .attendenceDate(policy.getAttendenceDate())

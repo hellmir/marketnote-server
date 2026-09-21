@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Getter
 @Builder
 public class AttendancePolicyCreateState {
-    private final short continuousPeriod;
+    private final ContinuousPeriod continuousPeriod;
     private final AttendanceRewardType rewardType;
     private final RewardQuantity rewardQuantity;
     private final LocalDate attendenceDate;

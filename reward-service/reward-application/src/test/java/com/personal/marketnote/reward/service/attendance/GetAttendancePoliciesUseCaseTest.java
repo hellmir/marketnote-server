@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.service.attendance;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
@@ -42,7 +43,7 @@ class GetAttendancePoliciesUseCaseTest {
         AttendancePolicy policy1 = AttendancePolicy.from(
                 AttendancePolicySnapshotState.builder()
                         .id((short) 1)
-                        .continuousPeriod((short) 1)
+                        .continuousPeriod(ContinuousPeriod.of((short) 1))
                         .rewardType(AttendanceRewardType.POINT)
                         .rewardQuantity(RewardQuantity.of(50L))
                         .status(EntityStatus.ACTIVE)
@@ -51,7 +52,7 @@ class GetAttendancePoliciesUseCaseTest {
         AttendancePolicy policy2 = AttendancePolicy.from(
                 AttendancePolicySnapshotState.builder()
                         .id((short) 2)
-                        .continuousPeriod((short) 7)
+                        .continuousPeriod(ContinuousPeriod.of((short) 7))
                         .rewardType(AttendanceRewardType.POINT)
                         .rewardQuantity(RewardQuantity.of(200L))
                         .status(EntityStatus.ACTIVE)

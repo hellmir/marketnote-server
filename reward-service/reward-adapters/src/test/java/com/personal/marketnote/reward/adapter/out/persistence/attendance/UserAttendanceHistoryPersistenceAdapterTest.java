@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.adapter.out.persistence.attendance;
 
+import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.entity.UserAttendanceHistoryJpaEntity;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.repository.UserAttendanceHistoryJpaRepository;
@@ -50,7 +51,7 @@ class UserAttendanceHistoryPersistenceAdapterTest {
                         .attendancePolicyId((short) 1)
                         .rewardType(AttendanceRewardType.POINT)
                         .rewardQuantity(RewardQuantity.of(50L))
-                        .continuousPeriod((short) 1)
+                        .continuousPeriod(ContinuousPeriod.of((short) 1))
                         .rewardYn(Boolean.TRUE)
                         .attendedDate(today)
                         .attendedAt(now)
@@ -80,7 +81,7 @@ class UserAttendanceHistoryPersistenceAdapterTest {
                         .attendancePolicyId((short) 1)
                         .rewardType(AttendanceRewardType.POINT)
                         .rewardQuantity(RewardQuantity.of(50L))
-                        .continuousPeriod((short) 1)
+                        .continuousPeriod(ContinuousPeriod.of((short) 1))
                         .rewardYn(Boolean.TRUE)
                         .attendedDate(today)
                         .attendedAt(now)

@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.out.persistence.attendance.entity
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
+import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySnapshotState;
@@ -65,7 +66,7 @@ public class UserAttendanceHistoryJpaEntity extends BaseEntity {
                 .attendancePolicyId(history.getAttendancePolicyId())
                 .rewardType(history.getRewardType())
                 .rewardQuantity(history.getRewardQuantityValue())
-                .continuousPeriod(history.getContinuousPeriod())
+                .continuousPeriod(history.getContinuousPeriodValue())
                 .rewardYn(history.getRewardYn())
                 .attendedDate(history.getAttendedDate())
                 .attendedAt(history.getAttendedAt())
@@ -80,7 +81,7 @@ public class UserAttendanceHistoryJpaEntity extends BaseEntity {
                         .attendancePolicyId(attendancePolicyId)
                         .rewardType(rewardType)
                         .rewardQuantity(RewardQuantity.of(rewardQuantity))
-                        .continuousPeriod(continuousPeriod)
+                        .continuousPeriod(ContinuousPeriod.of(continuousPeriod))
                         .rewardYn(rewardYn)
                         .attendedDate(attendedDate)
                         .attendedAt(attendedAt)
