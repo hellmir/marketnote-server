@@ -17,6 +17,7 @@ import com.personal.marketnote.user.port.out.user.FindLoginHistoryPort;
 import com.personal.marketnote.user.port.out.user.FindTermsPort;
 import com.personal.marketnote.user.port.out.user.FindUserPenaltyHistoryPort;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
+import com.personal.marketnote.user.port.out.user.FindUserStatusHistoryPort;
 import com.personal.marketnote.user.port.out.user.SaveLoginHistoryPort;
 import com.personal.marketnote.user.port.out.user.SaveUserPenaltyHistoryPort;
 import com.personal.marketnote.user.port.out.user.SaveUserPort;
@@ -42,7 +43,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class UserPersistenceAdapter
         implements SaveUserPort, FindUserPort, FindTermsPort, UpdateUserPort, SaveLoginHistoryPort, FindLoginHistoryPort,
         SaveUserPenaltyHistoryPort, FindUserPenaltyHistoryPort,
-        SaveUserStatusHistoryPort {
+        SaveUserStatusHistoryPort, FindUserStatusHistoryPort {
     private final UserJpaRepository userJpaRepository;
     private final TermsJpaRepository termsJpaRepository;
     private final LoginHistoryJpaRepository loginHistoryJpaRepository;
@@ -232,6 +233,16 @@ public class UserPersistenceAdapter
         Page<UserPenaltyHistoryJpaEntity> page = userPenaltyHistoryJpaRepository.findUserPenaltyHistoriesByUserId(pageable, userId);
         List<UserPenaltyHistory> histories = page.stream()
                 .map(UserPenaltyHistoryJpaEntity::toDomain)
+                .collect(Collectors.toList());
+        return new PageImpl<>(histories, pageable, page.getTotalElements());
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
+    public Page<UserStatusHistory> findUserStatusHistoriesByUserId(Pageable pageable, Long userId) {
+        Page<UserStatusHistoryJpaEntity> page = userStatusHistoryJpaRepository.findUserStatusHistoriesByUserId(pageable, userId);
+        List<UserStatusHistory> histories = page.stream()
+                .map(UserStatusHistoryJpaEntity::toDomain)
                 .collect(Collectors.toList());
         return new PageImpl<>(histories, pageable, page.getTotalElements());
     }
