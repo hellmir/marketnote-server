@@ -1,11 +1,17 @@
 package com.personal.marketnote.reward.adapter.out.persistence.attendance;
 
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.entity.UserAttendanceHistoryJpaEntity;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.repository.UserAttendanceHistoryJpaRepository;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistorySnapshotState;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.exception.DuplicateAttendanceException;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +49,7 @@ class UserAttendanceHistoryPersistenceAdapterTest {
                         .userAttendanceId(10L)
                         .attendancePolicyId((short) 1)
                         .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(50L)
+                        .rewardQuantity(RewardQuantity.of(50L))
                         .continuousPeriod((short) 1)
                         .rewardYn(Boolean.TRUE)
                         .attendedDate(today)
@@ -73,7 +79,7 @@ class UserAttendanceHistoryPersistenceAdapterTest {
                         .userAttendanceId(10L)
                         .attendancePolicyId((short) 1)
                         .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(50L)
+                        .rewardQuantity(RewardQuantity.of(50L))
                         .continuousPeriod((short) 1)
                         .rewardYn(Boolean.TRUE)
                         .attendedDate(today)

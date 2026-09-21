@@ -1,13 +1,21 @@
 package com.personal.marketnote.reward.service.offerwall;
 
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapper;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapperSnapshotState;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallType;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.offerwall.UserDeviceType;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.command.offerwall.RegisterOfferwallRewardCommand;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.usecase.offerwall.GetOfferwallMapperUseCase;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.usecase.offerwall.RegisterOfferwallRewardUseCase;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.offerwall.SaveOfferwallMapperPort;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

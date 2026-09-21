@@ -2,10 +2,15 @@ package com.personal.marketnote.reward.service.attendance;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.result.attendance.GetAttendancePoliciesResult;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.attendance.FindAttendancePolicyPort;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +44,7 @@ class GetAttendancePoliciesUseCaseTest {
                         .id((short) 1)
                         .continuousPeriod((short) 1)
                         .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(50L)
+                        .rewardQuantity(RewardQuantity.of(50L))
                         .status(EntityStatus.ACTIVE)
                         .build()
         );
@@ -48,7 +53,7 @@ class GetAttendancePoliciesUseCaseTest {
                         .id((short) 2)
                         .continuousPeriod((short) 7)
                         .rewardType(AttendanceRewardType.POINT)
-                        .rewardQuantity(200L)
+                        .rewardQuantity(RewardQuantity.of(200L))
                         .status(EntityStatus.ACTIVE)
                         .build()
         );

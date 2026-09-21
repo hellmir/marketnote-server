@@ -11,7 +11,7 @@ public class UserAttendanceCreateState {
     private final Long userId;
     private final Year year;
     private final Month month;
-    private final long totalRewardQuantity;
+    private final RewardQuantity totalRewardQuantity;
     private final java.util.List<UserAttendanceHistory> histories;
 }
 

@@ -14,11 +14,15 @@ public class AttendancePolicy {
     private Short id;
     private short continuousPeriod;
     private AttendanceRewardType rewardType;
-    private long rewardQuantity;
+    private RewardQuantity rewardQuantity;
     private LocalDate attendenceDate;
     private EntityStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+
+    public long getRewardQuantityValue() {
+        return rewardQuantity.getValue();
+    }
 
     public AttendancePolicy withStatus(EntityStatus status) {
         return AttendancePolicy.builder()

@@ -14,8 +14,12 @@ public class UserAttendanceHistory {
     private Long userAttendanceId;
     private Short attendancePolicyId;
     private AttendanceRewardType rewardType;
-    private long rewardQuantity;
+    private RewardQuantity rewardQuantity;
     private short continuousPeriod;
+
+    public long getRewardQuantityValue() {
+        return rewardQuantity.getValue();
+    }
     private Boolean rewardYn;
     private LocalDate attendedDate;
     private LocalDateTime attendedAt;

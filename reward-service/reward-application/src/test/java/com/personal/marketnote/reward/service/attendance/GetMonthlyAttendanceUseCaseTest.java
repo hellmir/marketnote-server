@@ -3,11 +3,17 @@ package com.personal.marketnote.reward.service.attendance;
 import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.reward.domain.attendance.UserAttendance;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceSnapshotState;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.command.attendance.GetMonthlyAttendanceQuery;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.result.attendance.GetMonthlyAttendanceResult;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.attendance.FindUserAttendancePort;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +54,7 @@ class GetMonthlyAttendanceUseCaseTest {
                         .userId(userId)
                         .year(year)
                         .month(month)
-                        .totalRewardQuantity(300L)
+                        .totalRewardQuantity(RewardQuantity.of(300L))
                         .histories(List.of(
                                 createHistory(LocalDateTime.of(2026, 4, 1, 9, 0)),
                                 createHistory(LocalDateTime.of(2026, 4, 2, 9, 0))
@@ -98,7 +104,7 @@ class GetMonthlyAttendanceUseCaseTest {
                         .userAttendanceId(1L)
                         .attendancePolicyId((short) 1)
                         .continuousPeriod((short) 1)
-                        .rewardQuantity(100L)
+                        .rewardQuantity(RewardQuantity.of(100L))
                         .attendedAt(attendedAt)
                         .build()
         );

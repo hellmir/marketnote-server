@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.domain.offerwall;
 
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ public class OfferwallMapperCreateState {
     private final String campaignKey;
     private final Integer campaignType;
     private final String campaignName;
-    private final Long quantity;
+    private final RewardQuantity quantity;
     private final String signedValue;
     private final Integer appKey;
     private final String appName;

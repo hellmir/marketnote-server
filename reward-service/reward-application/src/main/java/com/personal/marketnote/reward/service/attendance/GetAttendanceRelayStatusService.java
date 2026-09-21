@@ -99,7 +99,7 @@ public class GetAttendanceRelayStatusService implements GetAttendanceRelayStatus
             AttendancePolicy policy = findPolicyForPeriod(day);
             boolean completed = resolveSlotCompleted(day, currentRelayDay, todayChecked);
             slots.add(new GetAttendanceRelayStatusResult.RelaySlot(
-                    day, policy.getRewardType(), policy.getRewardQuantity(), completed
+                    day, policy.getRewardType(), policy.getRewardQuantityValue(), completed
             ));
         }
         return slots;

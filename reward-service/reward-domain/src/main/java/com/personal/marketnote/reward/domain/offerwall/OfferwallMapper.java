@@ -1,5 +1,7 @@
 package com.personal.marketnote.reward.domain.offerwall;
 
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ public class OfferwallMapper {
     private String campaignKey;
     private Integer campaignType;
     private String campaignName;
-    private Long quantity;
+    private RewardQuantity quantity;
     private String signedValue;
     private Integer appKey;
     private String appName;
@@ -94,5 +96,12 @@ public class OfferwallMapper {
 
     public void addFailureCount() {
 
+    }
+
+    public Long getQuantityValue() {
+        if (FormatValidator.hasNoValue(quantity)) {
+            return null;
+        }
+        return quantity.getValue();
     }
 }

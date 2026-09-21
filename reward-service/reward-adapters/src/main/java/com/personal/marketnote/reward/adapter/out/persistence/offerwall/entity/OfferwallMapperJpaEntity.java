@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapper;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallMapperSnapshotState;
 import com.personal.marketnote.reward.domain.offerwall.OfferwallType;
@@ -101,7 +102,7 @@ public class OfferwallMapperJpaEntity {
                 .campaignKey(offerwallMapper.getCampaignKey())
                 .campaignType(offerwallMapper.getCampaignType())
                 .campaignName(offerwallMapper.getCampaignName())
-                .quantity(offerwallMapper.getQuantity())
+                .quantity(offerwallMapper.getQuantityValue())
                 .signedValue(offerwallMapper.getSignedValue())
                 .appKey(offerwallMapper.getAppKey())
                 .appName(offerwallMapper.getAppName())
@@ -125,7 +126,7 @@ public class OfferwallMapperJpaEntity {
                         .campaignKey(campaignKey)
                         .campaignType(campaignType)
                         .campaignName(campaignName)
-                        .quantity(quantity)
+                        .quantity(quantity == null ? null : RewardQuantity.of(quantity))
                         .signedValue(signedValue)
                         .appKey(appKey)
                         .appName(appName)

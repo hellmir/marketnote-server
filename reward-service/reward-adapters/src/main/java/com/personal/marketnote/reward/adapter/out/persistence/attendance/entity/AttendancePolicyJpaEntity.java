@@ -5,6 +5,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicySnapshotState;
 import com.personal.marketnote.reward.domain.attendance.AttendanceRewardType;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -48,7 +49,7 @@ public class AttendancePolicyJpaEntity extends BaseEntity {
         return AttendancePolicyJpaEntity.builder()
                 .continuousPeriod(policy.getContinuousPeriod())
                 .rewardType(policy.getRewardType())
-                .rewardQuantity(policy.getRewardQuantity())
+                .rewardQuantity(policy.getRewardQuantityValue())
                 .attendenceDate(policy.getAttendenceDate())
                 .status(EntityStatus.ACTIVE)
                 .build();
@@ -60,7 +61,7 @@ public class AttendancePolicyJpaEntity extends BaseEntity {
                         .id(id)
                         .continuousPeriod(continuousPeriod)
                         .rewardType(rewardType)
-                        .rewardQuantity(rewardQuantity)
+                        .rewardQuantity(RewardQuantity.of(rewardQuantity))
                         .attendenceDate(attendenceDate)
                         .status(status)
                         .createdAt(getCreatedAt())
@@ -73,7 +74,7 @@ public class AttendancePolicyJpaEntity extends BaseEntity {
         updateActivation(policy);
         continuousPeriod = policy.getContinuousPeriod();
         rewardType = policy.getRewardType();
-        rewardQuantity = policy.getRewardQuantity();
+        rewardQuantity = policy.getRewardQuantityValue();
         attendenceDate = policy.getAttendenceDate();
     }
 

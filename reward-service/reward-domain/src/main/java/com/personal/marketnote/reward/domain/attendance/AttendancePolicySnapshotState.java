@@ -13,7 +13,7 @@ public class AttendancePolicySnapshotState {
     private final Short id;
     private final short continuousPeriod;
     private final AttendanceRewardType rewardType;
-    private final long rewardQuantity;
+    private final RewardQuantity rewardQuantity;
     private final LocalDate attendenceDate;
     private final EntityStatus status;
     private final LocalDateTime createdAt;

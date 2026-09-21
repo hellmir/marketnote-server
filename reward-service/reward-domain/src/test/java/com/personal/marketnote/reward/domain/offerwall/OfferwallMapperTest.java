@@ -1,5 +1,7 @@
 package com.personal.marketnote.reward.domain.offerwall;
 
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,7 +22,7 @@ class OfferwallMapperTest {
                 .campaignKey("campaign-key-1")
                 .campaignType(1)
                 .campaignName("테스트 캠페인")
-                .quantity(100L)
+                .quantity(RewardQuantity.of(100L))
                 .signedValue("signed-value-1")
                 .appKey(1)
                 .appName("테스트 앱")
@@ -77,7 +79,7 @@ class OfferwallMapperTest {
             assertThat(mapper.getRewardKey()).isEqualTo("reward-key-1");
             assertThat(mapper.getUserKey()).isEqualTo("user-key-1");
             assertThat(mapper.getCampaignKey()).isEqualTo("campaign-key-1");
-            assertThat(mapper.getQuantity()).isEqualTo(100L);
+            assertThat(mapper.getQuantityValue()).isEqualTo(100L);
         }
     }
 }
