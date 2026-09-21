@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class AttendancePolicyCreateState {
     private final short continuousPeriod;
     private final AttendanceRewardType rewardType;
-    private final long rewardQuantity;
+    private final RewardQuantity rewardQuantity;
     private final LocalDate attendenceDate;
 }
 

@@ -21,7 +21,7 @@ class AttendancePolicyTest {
         AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
                 .continuousPeriod((short) 7)
                 .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(100L)
+                .rewardQuantity(RewardQuantity.of(100L))
                 .attendenceDate(ATTENDANCE_DATE)
                 .build();
 
@@ -31,7 +31,7 @@ class AttendancePolicyTest {
         // then
         assertThat(policy.getContinuousPeriod()).isEqualTo((short) 7);
         assertThat(policy.getRewardType()).isEqualTo(AttendanceRewardType.POINT);
-        assertThat(policy.getRewardQuantity()).isEqualTo(100L);
+        assertThat(policy.getRewardQuantityValue()).isEqualTo(100L);
         assertThat(policy.getAttendenceDate()).isEqualTo(ATTENDANCE_DATE);
     }
 
@@ -67,7 +67,7 @@ class AttendancePolicyTest {
                 .id((short) 1)
                 .continuousPeriod((short) 7)
                 .rewardType(AttendanceRewardType.POINT)
-                .rewardQuantity(100L)
+                .rewardQuantity(RewardQuantity.of(100L))
                 .attendenceDate(ATTENDANCE_DATE)
                 .status(EntityStatus.ACTIVE)
                 .createdAt(NOW)

@@ -15,7 +15,7 @@ public class UserAttendanceSnapshotState {
     private final Year year;
     private final Month month;
     private final LocalDateTime createdAt;
-    private final long totalRewardQuantity;
+    private final RewardQuantity totalRewardQuantity;
     private final java.util.List<UserAttendanceHistory> histories;
 }
 

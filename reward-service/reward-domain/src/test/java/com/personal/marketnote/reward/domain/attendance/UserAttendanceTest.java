@@ -19,7 +19,7 @@ class UserAttendanceTest {
                 .userId(1L)
                 .year(Year.Y2026)
                 .month(Month.APRIL)
-                .totalRewardQuantity(100L)
+                .totalRewardQuantity(RewardQuantity.of(100L))
                 .histories(List.of())
                 .build();
 
@@ -28,7 +28,7 @@ class UserAttendanceTest {
         assertThat(attendance.getUserId()).isEqualTo(1L);
         assertThat(attendance.getYear()).isEqualTo(Year.Y2026);
         assertThat(attendance.getMonth()).isEqualTo(Month.APRIL);
-        assertThat(attendance.getTotalRewardQuantity()).isEqualTo(100L);
+        assertThat(attendance.getTotalRewardQuantityValue()).isEqualTo(100L);
         assertThat(attendance.getHistories()).isEmpty();
     }
 
@@ -42,7 +42,7 @@ class UserAttendanceTest {
                 .year(Year.Y2026)
                 .month(Month.APRIL)
                 .createdAt(createdAt)
-                .totalRewardQuantity(500L)
+                .totalRewardQuantity(RewardQuantity.of(500L))
                 .histories(List.of())
                 .build();
 
@@ -53,7 +53,7 @@ class UserAttendanceTest {
         assertThat(attendance.getYear()).isEqualTo(Year.Y2026);
         assertThat(attendance.getMonth()).isEqualTo(Month.APRIL);
         assertThat(attendance.getCreatedAt()).isEqualTo(createdAt);
-        assertThat(attendance.getTotalRewardQuantity()).isEqualTo(500L);
+        assertThat(attendance.getTotalRewardQuantityValue()).isEqualTo(500L);
     }
 
     @Test
@@ -63,8 +63,8 @@ class UserAttendanceTest {
 
         UserAttendance updated = original.withAddedReward(50L);
 
-        assertThat(updated.getTotalRewardQuantity()).isEqualTo(150L);
-        assertThat(original.getTotalRewardQuantity()).isEqualTo(100L);
+        assertThat(updated.getTotalRewardQuantityValue()).isEqualTo(150L);
+        assertThat(original.getTotalRewardQuantityValue()).isEqualTo(100L);
     }
 
     @Test
@@ -78,7 +78,7 @@ class UserAttendanceTest {
                 .year(Year.Y2026)
                 .month(Month.APRIL)
                 .createdAt(createdAt)
-                .totalRewardQuantity(100L)
+                .totalRewardQuantity(RewardQuantity.of(100L))
                 .histories(histories)
                 .build());
 
@@ -97,7 +97,7 @@ class UserAttendanceTest {
                 .userId(1L)
                 .year(Year.Y2026)
                 .month(Month.APRIL)
-                .totalRewardQuantity(totalRewardQuantity)
+                .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
                 .histories(List.of())
                 .build());
     }

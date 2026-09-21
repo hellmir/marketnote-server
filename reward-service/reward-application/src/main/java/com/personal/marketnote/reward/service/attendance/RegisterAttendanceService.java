@@ -59,13 +59,13 @@ public class RegisterAttendanceService implements RegisterAttendanceUseCase {
         );
 
         saveUserAttendancePort.save(
-                userAttendance.withAddedReward(attendancePolicy.getRewardQuantity())
+                userAttendance.withAddedReward(attendancePolicy.getRewardQuantityValue())
         );
 
         return new RegisterAttendanceResult(
                 savedHistory.getId(),
                 attendancePolicy.getRewardType(),
-                attendancePolicy.getRewardQuantity(),
+                attendancePolicy.getRewardQuantityValue(),
                 continuousPeriod
         );
     }

@@ -13,7 +13,7 @@ public class UserAttendanceHistorySnapshotState {
     private final Long userAttendanceId;
     private final Short attendancePolicyId;
     private final AttendanceRewardType rewardType;
-    private final long rewardQuantity;
+    private final RewardQuantity rewardQuantity;
     private final short continuousPeriod;
     private final Boolean rewardYn;
     private final LocalDate attendedDate;

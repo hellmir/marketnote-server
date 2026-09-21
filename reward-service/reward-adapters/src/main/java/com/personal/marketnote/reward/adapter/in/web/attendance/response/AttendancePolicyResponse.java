@@ -23,7 +23,7 @@ public class AttendancePolicyResponse {
                 .id(policy.getId())
                 .continuousPeriod(policy.getContinuousPeriod())
                 .rewardType(policy.getRewardType())
-                .rewardQuantity(policy.getRewardQuantity())
+                .rewardQuantity(policy.getRewardQuantityValue())
                 .attendenceDate(policy.getAttendenceDate())
                 .status(policy.getStatus())
                 .build();

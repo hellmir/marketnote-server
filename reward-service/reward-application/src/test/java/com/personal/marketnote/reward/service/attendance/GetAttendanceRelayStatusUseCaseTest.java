@@ -4,10 +4,15 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.reward.domain.attendance.*;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.result.attendance.GetAttendanceRelayStatusResult;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.attendance.FindAttendancePolicyPort;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.attendance.FindUserAttendanceHistoryPort;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.attendance.FindUserAttendancePort;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -193,7 +198,7 @@ class GetAttendanceRelayStatusUseCaseTest {
                             .userId(USER_ID)
                             .year(year)
                             .month(month)
-                            .totalRewardQuantity(100L)
+                            .totalRewardQuantity(RewardQuantity.of(100L))
                             .histories(List.of())
                             .build()
             );
@@ -215,7 +220,7 @@ class GetAttendanceRelayStatusUseCaseTest {
                             .userAttendanceId(ATTENDANCE_ID)
                             .attendancePolicyId(continuousPeriod)
                             .continuousPeriod(continuousPeriod)
-                            .rewardQuantity(50L)
+                            .rewardQuantity(RewardQuantity.of(50L))
                             .attendedAt(attendedAt)
                             .build()
             );
@@ -238,7 +243,7 @@ class GetAttendanceRelayStatusUseCaseTest {
                             .id(continuousPeriod)
                             .continuousPeriod(continuousPeriod)
                             .rewardType(rewardType)
-                            .rewardQuantity(rewardQuantity)
+                            .rewardQuantity(RewardQuantity.of(rewardQuantity))
                             .status(EntityStatus.ACTIVE)
                             .build()
             );

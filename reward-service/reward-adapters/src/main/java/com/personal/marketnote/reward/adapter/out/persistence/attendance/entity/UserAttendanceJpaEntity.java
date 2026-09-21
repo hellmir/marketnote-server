@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.domain.attendance.UserAttendance;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceSnapshotState;
 import jakarta.persistence.*;
@@ -63,7 +64,7 @@ public class UserAttendanceJpaEntity {
                 .year(attendance.getYear())
                 .month(attendance.getMonth())
                 .createdAt(attendance.getCreatedAt())
-                .totalRewardQuantity(attendance.getTotalRewardQuantity())
+                .totalRewardQuantity(attendance.getTotalRewardQuantityValue())
                 .histories(FormatValidator.hasNoValue(attendance.getHistories()) ? null : attendance.getHistories().stream()
                         .map(UserAttendanceHistoryJpaEntity::from)
                         .toList())
@@ -78,7 +79,7 @@ public class UserAttendanceJpaEntity {
                         .year(year)
                         .month(month)
                         .createdAt(createdAt)
-                        .totalRewardQuantity(totalRewardQuantity)
+                        .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
                         .histories(FormatValidator.hasNoValue(histories) ? null : histories.stream()
                                 .map(UserAttendanceHistoryJpaEntity::toDomain)
                                 .toList())

@@ -17,8 +17,12 @@ public class UserAttendance {
     private Year year;
     private Month month;
     private LocalDateTime createdAt;
-    private long totalRewardQuantity;
+    private RewardQuantity totalRewardQuantity;
     private List<UserAttendanceHistory> histories;
+
+    public long getTotalRewardQuantityValue() {
+        return totalRewardQuantity.getValue();
+    }
 
     public static UserAttendance from(UserAttendanceCreateState state) {
         return UserAttendance.builder()
@@ -43,13 +47,14 @@ public class UserAttendance {
     }
 
     public UserAttendance withAddedReward(long rewardQuantity) {
+        RewardQuantity added = RewardQuantity.of(rewardQuantity);
         return UserAttendance.builder()
                 .id(id)
                 .userId(userId)
                 .year(year)
                 .month(month)
                 .createdAt(createdAt)
-                .totalRewardQuantity(totalRewardQuantity + rewardQuantity)
+                .totalRewardQuantity(totalRewardQuantity.add(added))
                 .histories(histories)
                 .build();
     }

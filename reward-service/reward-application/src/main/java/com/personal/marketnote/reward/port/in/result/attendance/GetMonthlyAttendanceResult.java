@@ -33,7 +33,7 @@ public record GetMonthlyAttendanceResult(
         return new GetMonthlyAttendanceResult(
                 dates,
                 dates.size(),
-                attendance.getTotalRewardQuantity()
+                attendance.getTotalRewardQuantityValue()
         );
     }
 

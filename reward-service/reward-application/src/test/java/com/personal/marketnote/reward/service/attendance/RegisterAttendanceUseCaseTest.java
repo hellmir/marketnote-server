@@ -4,10 +4,15 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
 import com.personal.marketnote.reward.domain.attendance.*;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.exception.InvalidAttendanceTimeException;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.command.attendance.RegisterAttendanceCommand;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.in.result.attendance.RegisterAttendanceResult;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.attendance.*;
+import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -67,7 +72,7 @@ class RegisterAttendanceUseCaseTest {
                             .userId(1L)
                             .year(Year.from(now.getYear()))
                             .month(Month.from(now.getMonthValue()))
-                            .totalRewardQuantity(100L)
+                            .totalRewardQuantity(RewardQuantity.of(100L))
                             .histories(List.of())
                             .build()
             );
@@ -77,7 +82,7 @@ class RegisterAttendanceUseCaseTest {
                             .id((short) 1)
                             .continuousPeriod((short) 1)
                             .rewardType(AttendanceRewardType.POINT)
-                            .rewardQuantity(50L)
+                            .rewardQuantity(RewardQuantity.of(50L))
                             .status(EntityStatus.ACTIVE)
                             .build()
             );
@@ -88,7 +93,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 1)
                             .continuousPeriod((short) 1)
-                            .rewardQuantity(50L)
+                            .rewardQuantity(RewardQuantity.of(50L))
                             .attendedAt(now)
                             .build()
             );
@@ -145,7 +150,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 1)
                             .continuousPeriod((short) 1)
-                            .rewardQuantity(50L)
+                            .rewardQuantity(RewardQuantity.of(50L))
                             .attendedAt(yesterday)
                             .build()
             );
@@ -158,7 +163,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 2)
                             .continuousPeriod((short) 2)
-                            .rewardQuantity(100L)
+                            .rewardQuantity(RewardQuantity.of(100L))
                             .attendedAt(now)
                             .build()
             );
@@ -199,7 +204,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 3)
                             .continuousPeriod((short) 3)
-                            .rewardQuantity(150L)
+                            .rewardQuantity(RewardQuantity.of(150L))
                             .attendedAt(yesterday)
                             .build()
             );
@@ -212,7 +217,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 4)
                             .continuousPeriod((short) 4)
-                            .rewardQuantity(1L)
+                            .rewardQuantity(RewardQuantity.of(1L))
                             .attendedAt(now)
                             .build()
             );
@@ -253,7 +258,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 4)
                             .continuousPeriod((short) 4)
-                            .rewardQuantity(1L)
+                            .rewardQuantity(RewardQuantity.of(1L))
                             .attendedAt(yesterday)
                             .build()
             );
@@ -266,7 +271,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 1)
                             .continuousPeriod((short) 1)
-                            .rewardQuantity(50L)
+                            .rewardQuantity(RewardQuantity.of(50L))
                             .attendedAt(now)
                             .build()
             );
@@ -306,7 +311,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 2)
                             .continuousPeriod((short) 2)
-                            .rewardQuantity(100L)
+                            .rewardQuantity(RewardQuantity.of(100L))
                             .attendedAt(twoDaysAgo)
                             .build()
             );
@@ -319,7 +324,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 1)
                             .continuousPeriod((short) 1)
-                            .rewardQuantity(50L)
+                            .rewardQuantity(RewardQuantity.of(50L))
                             .attendedAt(now)
                             .build()
             );
@@ -359,7 +364,7 @@ class RegisterAttendanceUseCaseTest {
                             .userAttendanceId(10L)
                             .attendancePolicyId((short) 1)
                             .continuousPeriod((short) 1)
-                            .rewardQuantity(3L)
+                            .rewardQuantity(RewardQuantity.of(3L))
                             .attendedAt(now)
                             .build()
             );
@@ -389,7 +394,7 @@ class RegisterAttendanceUseCaseTest {
                             .userId(1L)
                             .year(Year.from(dateTime.getYear()))
                             .month(Month.from(dateTime.getMonthValue()))
-                            .totalRewardQuantity(100L)
+                            .totalRewardQuantity(RewardQuantity.of(100L))
                             .histories(List.of())
                             .build()
             );
@@ -401,7 +406,7 @@ class RegisterAttendanceUseCaseTest {
                             .id(continuousPeriod)
                             .continuousPeriod(continuousPeriod)
                             .rewardType(rewardType)
-                            .rewardQuantity(rewardQuantity)
+                            .rewardQuantity(RewardQuantity.of(rewardQuantity))
                             .status(EntityStatus.ACTIVE)
                             .build()
             );
@@ -472,7 +477,7 @@ class RegisterAttendanceUseCaseTest {
                             .userId(1L)
                             .year(Year.from(now.getYear()))
                             .month(Month.from(now.getMonthValue()))
-                            .totalRewardQuantity(0L)
+                            .totalRewardQuantity(RewardQuantity.of(0L))
                             .histories(List.of())
                             .build()
             );
