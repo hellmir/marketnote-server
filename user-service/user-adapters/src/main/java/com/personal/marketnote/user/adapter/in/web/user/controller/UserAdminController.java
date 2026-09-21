@@ -3,6 +3,7 @@ package com.personal.marketnote.user.adapter.in.web.user.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.ApplyUserPenaltyApiDocs;
+import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.ChangeUserStatusApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetLoginHistoriesApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserInfoApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserPenaltyHistoriesApiDocs;
@@ -11,9 +12,11 @@ import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.Updat
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserPenaltyCountApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.ApplyUserPenaltyRequest;
+import com.personal.marketnote.user.adapter.in.web.user.request.ChangeUserStatusRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserInfoRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.UpdateUserPenaltyCountRequest;
 import com.personal.marketnote.user.adapter.in.web.user.response.ApplyUserPenaltyResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.ChangeUserStatusResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetLoginHistoriesResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUserPenaltyHistoriesResponse;
@@ -24,10 +27,13 @@ import com.personal.marketnote.user.domain.user.UserPenaltyHistorySortProperty;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.command.ApplyUserPenaltyCommand;
+import com.personal.marketnote.user.port.in.command.ChangeUserStatusCommand;
 import com.personal.marketnote.user.port.in.command.UpdateUserPenaltyCountCommand;
 import com.personal.marketnote.user.port.in.result.ApplyUserPenaltyResult;
+import com.personal.marketnote.user.port.in.result.ChangeUserStatusResult;
 import com.personal.marketnote.user.port.in.result.UpdateUserPenaltyCountResult;
 import com.personal.marketnote.user.port.in.usecase.user.ApplyUserPenaltyUseCase;
+import com.personal.marketnote.user.port.in.usecase.user.ChangeUserStatusUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetLoginHistoryUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserPenaltyHistoryUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
@@ -72,6 +78,7 @@ public class UserAdminController {
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final GetLoginHistoryUseCase getLoginHistoryUseCase;
+    private final ChangeUserStatusUseCase changeUserStatusUseCase;
     private final ApplyUserPenaltyUseCase applyUserPenaltyUseCase;
     private final UpdateUserPenaltyCountUseCase updateUserPenaltyCountUseCase;
     private final GetUserPenaltyHistoryUseCase getUserPenaltyHistoryUseCase;
@@ -220,6 +227,41 @@ public class UserAdminController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "회원 로그인 내역 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 회원 상태 변경 (비활성화/활성화)
+     *
+     * @param userId    회원 ID
+     * @param request   상태 변경 요청
+     * @param principal 인증된 관리자
+     * @return 회원 상태 변경 응답 {@link ChangeUserStatusResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 특정 회원의 상태를 비활성화 또는 활성화합니다. 관리자만 가능합니다.
+     */
+    @PatchMapping("/{userId}/status")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @ChangeUserStatusApiDocs
+    public ResponseEntity<BaseResponse<ChangeUserStatusResponse>> changeUserStatus(
+            @PathVariable Long userId,
+            @Valid @RequestBody ChangeUserStatusRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long adminId = ElementExtractor.extractUserId(principal);
+        ChangeUserStatusResult result = changeUserStatusUseCase.changeStatus(
+                new ChangeUserStatusCommand(userId, adminId, request.action().name(), request.reason(), request.deactivatedUntil())
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        ChangeUserStatusResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 상태 변경 성공"
                 ),
                 HttpStatus.OK
         );

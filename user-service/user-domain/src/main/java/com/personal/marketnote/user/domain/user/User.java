@@ -8,6 +8,7 @@ import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.user.domain.authentication.Role;
+import com.personal.marketnote.user.exception.InvalidUserStatusTransitionException;
 import com.personal.marketnote.user.exception.ReferredUserCodeAlreadyExistsException;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.AccessLevel;
@@ -48,6 +49,7 @@ public class User extends BaseDomain {
     private LocalDateTime withdrawnAt;
     private Long orderNum;
     private int penaltyCount;
+    private LocalDateTime deactivatedUntil;
 
     public static User from(UserCreateState state) {
         if (state.isGuest()) {
@@ -84,6 +86,7 @@ public class User extends BaseDomain {
                 .role(Role.getBuyer())
                 .lastLoggedInAt(LocalDateTime.now())
                 .penaltyCount(0)
+                .deactivatedUntil(null)
                 .build();
 
         // 일반 회원 가입인 경우 비밀번호 설정
@@ -124,6 +127,7 @@ public class User extends BaseDomain {
                 .withdrawnAt(state.getWithdrawnAt())
                 .orderNum(state.getOrderNum())
                 .penaltyCount(state.getPenaltyCount())
+                .deactivatedUntil(state.getDeactivatedUntil())
                 .build();
 
         EntityStatus status = state.getStatus();
@@ -311,6 +315,25 @@ public class User extends BaseDomain {
         userAuthProviders.stream()
                 .filter(v -> v.isVendor(vendor))
                 .forEach(UserAuthProvider::removeOidcId);
+    }
+
+    public void deactivateWithDuration(LocalDateTime deactivatedUntil) {
+        if (isInactive()) {
+            throw new InvalidUserStatusTransitionException(status, UserStatusAction.DEACTIVATE.name());
+        }
+        deactivate();
+        this.deactivatedUntil = deactivatedUntil;
+    }
+
+    public void activateFromDeactivation() {
+        if (isActive()) {
+            throw new InvalidUserStatusTransitionException(status, UserStatusAction.ACTIVATE.name());
+        }
+        if (isWithdrawn()) {
+            throw new InvalidUserStatusTransitionException(status, "ACTIVATE (탈퇴 회원)");
+        }
+        activate();
+        deactivatedUntil = null;
     }
 
     public void addPenalty() {

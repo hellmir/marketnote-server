@@ -91,6 +91,9 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "penalty_count", nullable = false)
     private int penaltyCount;
 
+    @Column(name = "deactivated_until")
+    private LocalDateTime deactivatedUntil;
+
     public static UserJpaEntity from(User user, TermsJpaRepository termsJpaRepository) {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
                 .userKey(user.getUserKey())
@@ -106,6 +109,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .withdrawnAt(user.getWithdrawnAt())
                 .lastLoggedInAt(user.getLastLoggedInAt())
                 .penaltyCount(user.getPenaltyCount())
+                .deactivatedUntil(user.getDeactivatedUntil())
                 .build();
 
         // set vendors after building to avoid recursive mapping
@@ -141,6 +145,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .withdrawalYn(user.isWithdrawn())
                 .withdrawnAt(user.getWithdrawnAt())
                 .penaltyCount(user.getPenaltyCount())
+                .deactivatedUntil(user.getDeactivatedUntil())
                 .build();
 
         userJpaEntity.userOauth2VendorsJpaEntities = user.getUserAuthProviders().stream()
@@ -163,6 +168,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         withdrawalYn = user.isWithdrawn();
         withdrawnAt = user.getWithdrawnAt();
         penaltyCount = user.getPenaltyCount();
+        deactivatedUntil = user.getDeactivatedUntil();
 
         // 회원 계정 정보 업데이트
         for (int i = 0; i < userOauth2VendorsJpaEntities.size(); i++) {
