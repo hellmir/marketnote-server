@@ -7,6 +7,7 @@ import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.Chang
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetLoginHistoriesApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserInfoApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserPenaltyHistoriesApiDocs;
+import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUserStatusHistoriesApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.GetUsersApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserInfoApiDocs;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.UpdateUserPenaltyCountApiDocs;
@@ -20,10 +21,12 @@ import com.personal.marketnote.user.adapter.in.web.user.response.ChangeUserStatu
 import com.personal.marketnote.user.adapter.in.web.user.response.GetLoginHistoriesResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUserInfoResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUserPenaltyHistoriesResponse;
+import com.personal.marketnote.user.adapter.in.web.user.response.GetUserStatusHistoriesResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.GetUsersResponse;
 import com.personal.marketnote.user.adapter.in.web.user.response.UpdateUserPenaltyCountResponse;
 import com.personal.marketnote.user.domain.user.LoginHistorySortProperty;
 import com.personal.marketnote.user.domain.user.UserPenaltyHistorySortProperty;
+import com.personal.marketnote.user.domain.user.UserStatusHistorySortProperty;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserSortProperty;
 import com.personal.marketnote.user.port.in.command.ApplyUserPenaltyCommand;
@@ -36,6 +39,7 @@ import com.personal.marketnote.user.port.in.usecase.user.ApplyUserPenaltyUseCase
 import com.personal.marketnote.user.port.in.usecase.user.ChangeUserStatusUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetLoginHistoryUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserPenaltyHistoryUseCase;
+import com.personal.marketnote.user.port.in.usecase.user.GetUserStatusHistoryUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.UpdateUserPenaltyCountUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.UpdateUserUseCase;
@@ -74,6 +78,7 @@ public class UserAdminController {
     private static final String GET_USERS_DEFAULT_PAGE_SIZE = "10";
     private static final String GET_LOGIN_HISTORIES_DEFAULT_PAGE_SIZE = "20";
     private static final String GET_USER_PENALTY_HISTORIES_DEFAULT_PAGE_SIZE = "20";
+    private static final String GET_USER_STATUS_HISTORIES_DEFAULT_PAGE_SIZE = "20";
 
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
@@ -82,6 +87,7 @@ public class UserAdminController {
     private final ApplyUserPenaltyUseCase applyUserPenaltyUseCase;
     private final UpdateUserPenaltyCountUseCase updateUserPenaltyCountUseCase;
     private final GetUserPenaltyHistoryUseCase getUserPenaltyHistoryUseCase;
+    private final GetUserStatusHistoryUseCase getUserStatusHistoryUseCase;
 
     /**
      * (관리자) 회원 목록 조회
@@ -376,6 +382,50 @@ public class UserAdminController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "회원 패널티 내역 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * (관리자) 회원 상태 변경 내역 목록 조회
+     *
+     * @param userId        회원 ID
+     * @param pageSize      페이지 크기
+     * @param pageNumber    페이지 번호
+     * @param sortDirection 정렬 방향
+     * @param sortProperty  정렬 속성
+     * @return 회원 상태 변경 내역 목록 응답 {@link GetUserStatusHistoriesResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 특정 회원의 비활성화/활성화 상태 변경 내역을 조회합니다. 관리자만 가능합니다.
+     */
+    @GetMapping("/{userId}/status-histories")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @GetUserStatusHistoriesApiDocs
+    public ResponseEntity<BaseResponse<GetUserStatusHistoriesResponse>> getUserStatusHistories(
+            @PathVariable Long userId,
+            @RequestParam(required = false, defaultValue = GET_USER_STATUS_HISTORIES_DEFAULT_PAGE_SIZE) int pageSize,
+            @RequestParam(required = false, defaultValue = DEFAULT_PAGE_NUMBER) int pageNumber,
+            @RequestParam(required = false, defaultValue = "DESC") Sort.Direction sortDirection,
+            @RequestParam(required = false, defaultValue = "ID") UserStatusHistorySortProperty sortProperty
+    ) {
+        GetUserStatusHistoriesResponse response = GetUserStatusHistoriesResponse.from(
+                getUserStatusHistoryUseCase.getUserStatusHistories(
+                        userId,
+                        pageSize,
+                        pageNumber - 1,
+                        sortDirection,
+                        sortProperty
+                )
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        response,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "회원 상태 변경 내역 조회 성공"
                 ),
                 HttpStatus.OK
         );
