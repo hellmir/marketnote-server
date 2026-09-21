@@ -76,6 +76,7 @@ import java.lang.annotation.*;
                 | status | string | 상태 | "ACTIVE" / "INACTIVE" / "DELETED" |
                 | isWithdrawn | boolean | 탈퇴 여부 | true / false |
                 | orderNum | number | 정렬 순서 | 1 |
+                | penaltyCount | number | 패널티 횟수 | 0 |
                 ---
                 
                 ### Response > content > userInfo > accountInfo
@@ -146,7 +147,8 @@ import java.lang.annotation.*;
                                               "lastLoggedInAt": "2025-12-28T16:23:26.964246",
                                               "status": "ACTIVE",
                                               "isWithdrawn": false,
-                                              "orderNum": 1
+                                              "orderNum": 1,
+                                              "penaltyCount": 0
                                             }
                                           },
                                           "message": "회원 정보 조회 성공"
