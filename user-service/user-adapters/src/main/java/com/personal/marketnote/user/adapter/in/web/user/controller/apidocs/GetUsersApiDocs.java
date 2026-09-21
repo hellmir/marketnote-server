@@ -86,6 +86,7 @@ import java.lang.annotation.*;
                 | status | string | 상태 | "ACTIVE" / "INACTIVE" / "DELETED" |
                 | isWithdrawn | boolean | 탈퇴 여부 | true / false |
                 | orderNum | number | 정렬 순서 | 1 |
+                | penaltyCount | number | 패널티 횟수 | 0 |
                 ---
                 
                 ### Response > content > users > accountInfo
@@ -197,7 +198,8 @@ import java.lang.annotation.*;
                                                 "lastLoggedInAt": "2025-12-28T15:04:14.896225",
                                                 "status": "INACTIVE",
                                                 "isWithdrawn": true,
-                                                "orderNum": 1
+                                                "orderNum": 1,
+                                                "penaltyCount": 3
                                               },
                                               {
                                                 "id": 87,
@@ -231,7 +233,8 @@ import java.lang.annotation.*;
                                                 "lastLoggedInAt": "2025-12-29T15:22:45.433588",
                                                 "status": "ACTIVE",
                                                 "isWithdrawn": false,
-                                                "orderNum": 2
+                                                "orderNum": 2,
+                                                "penaltyCount": 0
                                               }
                                             ]
                                           },
