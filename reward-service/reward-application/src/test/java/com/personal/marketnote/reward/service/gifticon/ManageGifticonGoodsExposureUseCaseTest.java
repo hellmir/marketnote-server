@@ -4,6 +4,7 @@ import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundExce
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotSaleException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
+import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand;
 import com.personal.marketnote.reward.port.in.command.gifticon.ManageGifticonGoodsExposureCommand.ExposureItem;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonGoodsPort;
@@ -155,7 +156,7 @@ class ManageGifticonGoodsExposureUseCaseTest {
                 .imageUrl("https://img.com/goods.png")
                 .description("설명")
                 .validDays(30)
-                .goodsStatus(goodsStatus)
+                .goodsStatus("SUS".equals(goodsStatus) ? GoodsStatus.SUSPENDED : GoodsStatus.SALE)
                 .exposed(exposed)
                 .orderNum(null)
                 .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
