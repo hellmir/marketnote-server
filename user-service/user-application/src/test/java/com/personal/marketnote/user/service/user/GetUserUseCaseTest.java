@@ -687,4 +687,135 @@ class GetUserUseCaseTest {
         verifyNoMoreInteractions(findUserPort);
     }
 
+    @Test
+    @DisplayName("회원 목록 조회 시 비활성 회원의 deactivatedUntil이 응답에 포함된다")
+    void getAllStatusUsers_inactiveUser_includesDeactivatedUntil() {
+        // given
+        int pageSize = 10;
+        int pageNumber = 0;
+        Sort.Direction sortDirection = Sort.Direction.ASC;
+        UserSortProperty sortProperty = UserSortProperty.ID;
+        UserSearchTarget searchTarget = UserSearchTarget.NICKNAME;
+        String searchKeyword = "";
+
+        LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 5, 1, 0, 0);
+        User inactiveUser = UserTestObjectFactory.createUser(
+                40L,
+                "inactiveNick",
+                "inactive@test.com",
+                "비활성",
+                "010-2000-0001",
+                "ref-40",
+                Role.getBuyer(),
+                List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-40")),
+                LocalDateTime.of(2024, 4, 1, 9, 0),
+                LocalDateTime.of(2024, 4, 2, 10, 0),
+                EntityStatus.INACTIVE,
+                false,
+                1L,
+                deactivatedUntil
+        );
+
+        Page<User> users = new PageImpl<>(
+                List.of(inactiveUser),
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
+                1
+        );
+
+        when(findUserPort.findAllStatusUsersByPage(
+                ArgumentMatchers.any(Pageable.class),
+                ArgumentMatchers.eq(searchTarget),
+                ArgumentMatchers.eq(searchKeyword)
+        )).thenReturn(users);
+
+        // when
+        Page<GetUserResult> result = getUserService.getAllStatusUsers(
+                pageSize,
+                pageNumber,
+                sortDirection,
+                sortProperty,
+                searchTarget,
+                searchKeyword
+        );
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        GetUserResult first = result.getContent().get(0);
+        assertThat(first.id()).isEqualTo(40L);
+        assertThat(first.status()).isEqualTo(EntityStatus.INACTIVE.name());
+        assertThat(first.deactivatedUntil()).isEqualTo(deactivatedUntil);
+
+        verify(findUserPort).findAllStatusUsersByPage(
+                ArgumentMatchers.any(Pageable.class),
+                ArgumentMatchers.eq(searchTarget),
+                ArgumentMatchers.eq(searchKeyword)
+        );
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("회원 목록 조회 시 활성 회원의 deactivatedUntil은 null이다")
+    void getAllStatusUsers_activeUser_deactivatedUntilIsNull() {
+        // given
+        int pageSize = 10;
+        int pageNumber = 0;
+        Sort.Direction sortDirection = Sort.Direction.ASC;
+        UserSortProperty sortProperty = UserSortProperty.ID;
+        UserSearchTarget searchTarget = UserSearchTarget.NICKNAME;
+        String searchKeyword = "";
+
+        User activeUser = UserTestObjectFactory.createUser(
+                41L,
+                "activeNick",
+                "active@test.com",
+                "활성",
+                "010-2000-0002",
+                "ref-41",
+                Role.getBuyer(),
+                List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-41")),
+                LocalDateTime.of(2024, 4, 3, 9, 0),
+                LocalDateTime.of(2024, 4, 4, 10, 0),
+                EntityStatus.ACTIVE,
+                false,
+                2L,
+                null
+        );
+
+        Page<User> users = new PageImpl<>(
+                List.of(activeUser),
+                PageRequest.of(pageNumber, pageSize, Sort.by(sortDirection, sortProperty.getCamelCaseValue())),
+                1
+        );
+
+        when(findUserPort.findAllStatusUsersByPage(
+                ArgumentMatchers.any(Pageable.class),
+                ArgumentMatchers.eq(searchTarget),
+                ArgumentMatchers.eq(searchKeyword)
+        )).thenReturn(users);
+
+        // when
+        Page<GetUserResult> result = getUserService.getAllStatusUsers(
+                pageSize,
+                pageNumber,
+                sortDirection,
+                sortProperty,
+                searchTarget,
+                searchKeyword
+        );
+
+        // then
+        assertThat(result.getContent()).hasSize(1);
+        GetUserResult first = result.getContent().get(0);
+        assertThat(first.id()).isEqualTo(41L);
+        assertThat(first.status()).isEqualTo(EntityStatus.ACTIVE.name());
+        assertThat(first.deactivatedUntil()).isNull();
+
+        verify(findUserPort).findAllStatusUsersByPage(
+                ArgumentMatchers.any(Pageable.class),
+                ArgumentMatchers.eq(searchTarget),
+                ArgumentMatchers.eq(searchKeyword)
+        );
+        verifyNoMoreInteractions(findUserPort);
+    }
+
 }
