@@ -24,7 +24,8 @@ public record GetUserInfoResult(
         String status,
         boolean isWithdrawn,
         Long orderNum,
-        int penaltyCount
+        int penaltyCount,
+        LocalDateTime deactivatedUntil
 ) {
     public static GetUserInfoResult from(User user) {
         return GetUserInfoResult.builder()
@@ -42,6 +43,7 @@ public record GetUserInfoResult(
                 .isWithdrawn(user.isWithdrawn())
                 .orderNum(user.getOrderNum())
                 .penaltyCount(user.getPenaltyCount())
+                .deactivatedUntil(user.getDeactivatedUntil())
                 .build();
     }
 
