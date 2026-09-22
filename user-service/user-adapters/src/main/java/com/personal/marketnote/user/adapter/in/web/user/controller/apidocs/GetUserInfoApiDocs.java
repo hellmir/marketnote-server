@@ -77,8 +77,9 @@ import java.lang.annotation.*;
                 | isWithdrawn | boolean | 탈퇴 여부 | true / false |
                 | orderNum | number | 정렬 순서 | 1 |
                 | penaltyCount | number | 패널티 횟수 | 0 |
+                | deactivatedUntil | string(datetime) | 비활성화 종료 일시 (null이면 영구 또는 활성 상태) | "2026-05-13T00:00:00" |
                 ---
-                
+
                 ### Response > content > userInfo > accountInfo
                 
                 | **키** | **타입** | **설명** | **예시** |
@@ -148,7 +149,8 @@ import java.lang.annotation.*;
                                               "status": "ACTIVE",
                                               "isWithdrawn": false,
                                               "orderNum": 1,
-                                              "penaltyCount": 0
+                                              "penaltyCount": 0,
+                                              "deactivatedUntil": null
                                             }
                                           },
                                           "message": "회원 정보 조회 성공"
