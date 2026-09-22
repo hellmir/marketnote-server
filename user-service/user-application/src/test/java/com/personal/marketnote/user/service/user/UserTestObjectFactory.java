@@ -54,6 +54,40 @@ final class UserTestObjectFactory {
             boolean withdrawalYn,
             Long orderNum
     ) {
+        return createUser(
+                id,
+                nickname,
+                email,
+                fullName,
+                phoneNumber,
+                referenceCode,
+                role,
+                userAuthProviders,
+                signedUpAt,
+                lastLoggedInAt,
+                status,
+                withdrawalYn,
+                orderNum,
+                null
+        );
+    }
+
+    static User createUser(
+            Long id,
+            String nickname,
+            String email,
+            String fullName,
+            String phoneNumber,
+            String referenceCode,
+            Role role,
+            List<UserAuthProvider> userAuthProviders,
+            LocalDateTime signedUpAt,
+            LocalDateTime lastLoggedInAt,
+            EntityStatus status,
+            boolean withdrawalYn,
+            Long orderNum,
+            LocalDateTime deactivatedUntil
+    ) {
         UserSnapshotState state = UserSnapshotState.builder()
                 .id(id)
                 .userKey(DEFAULT_USER_KEY)
@@ -70,6 +104,7 @@ final class UserTestObjectFactory {
                 .status(status)
                 .withdrawalYn(withdrawalYn)
                 .orderNum(orderNum)
+                .deactivatedUntil(deactivatedUntil)
                 .build();
 
         return User.from(state);
