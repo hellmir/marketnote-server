@@ -33,6 +33,9 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
+    @Column(name = "order_product_key", nullable = false, unique = true)
+    private UUID orderProductKey;
+
     @Column(name = "sharer_key")
     private UUID sharerKey;
 
@@ -66,6 +69,7 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
                 .orderJpaEntity(orderJpaEntity)
                 .sellerId(orderProduct.getSellerId())
+                .orderProductKey(orderProduct.getOrderProductKey())
                 .sharerKey(orderProduct.getSharerKey())
                 .quantity(orderProduct.getQuantity().getValue())
                 .unitAmount(orderProduct.getUnitAmount().getValue())

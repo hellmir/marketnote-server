@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.domain.order;
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class OrderProduct {
     private Long orderId;
     private Long sellerId;
     private Long pricePolicyId;
+    private UUID orderProductKey;
     private UUID sharerKey;
     private Quantity quantity;
     private Money unitAmount;
@@ -32,6 +34,7 @@ public class OrderProduct {
         return OrderProduct.builder()
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
+                .orderProductKey(RandomCodeGenerator.generateOrderProductKey())
                 .sharerKey(state.getSharerKey())
                 .quantity(Quantity.of(state.getQuantity()))
                 .unitAmount(Money.of(state.getUnitAmount()))
@@ -46,6 +49,7 @@ public class OrderProduct {
                 .orderId(state.getOrderId())
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
+                .orderProductKey(state.getOrderProductKey())
                 .sharerKey(state.getSharerKey())
                 .quantity(Quantity.of(state.getQuantity()))
                 .unitAmount(Money.of(state.getUnitAmount()))

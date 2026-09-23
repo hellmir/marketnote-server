@@ -63,7 +63,15 @@ public class RandomCodeGenerator {
         return generateUuidV7();
     }
 
+    public static UUID generateOrderProductKey() {
+        return generateUuidV7Epoch();
+    }
+
     private static UUID generateUuidV7() {
         return UuidCreator.getTimeOrdered();
+    }
+
+    private static UUID generateUuidV7Epoch() {
+        return UuidCreator.getTimeOrderedEpoch();
     }
 }
