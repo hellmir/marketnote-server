@@ -67,6 +67,10 @@ public class RandomCodeGenerator {
         return generateUuidV7Epoch();
     }
 
+    public static UUID generatePostKey() {
+        return generateUuidV7();
+    }
+
     private static UUID generateUuidV7() {
         return UuidCreator.getTimeOrdered();
     }

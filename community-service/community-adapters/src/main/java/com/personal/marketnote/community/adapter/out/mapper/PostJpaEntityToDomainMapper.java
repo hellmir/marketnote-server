@@ -18,6 +18,7 @@ public class PostJpaEntityToDomainMapper {
                         PostSnapshotState.builder()
                                 .id(entity.getId())
                                 .userId(entity.getUserId())
+                                .postKey(entity.getPostKey())
                                 .parentId(entity.getParentId())
                                 .board(entity.getBoard())
                                 .category(entity.getCategory())

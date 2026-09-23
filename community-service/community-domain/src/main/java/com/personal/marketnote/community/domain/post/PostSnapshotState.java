@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 public class PostSnapshotState {
     private final Long id;
     private final Long userId;
+    private final UUID postKey;
     private final Long parentId;
     private final Board board;
     private final String category;

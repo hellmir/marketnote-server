@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.common.utility.ValueMasker;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
@@ -22,6 +24,7 @@ import java.util.List;
 public class Post {
     private Long id;
     private Long userId;
+    private UUID postKey;
     private Long parentId;
     private Board board;
     private PostCategory category;
@@ -55,6 +58,7 @@ public class Post {
     public static Post from(PostCreateState state) {
         return Post.builder()
                 .userId(state.getUserId())
+                .postKey(RandomCodeGenerator.generatePostKey())
                 .parentId(state.getParentId())
                 .board(state.getBoard())
                 .category(PostCategoryResolver.resolve(state.getBoard(), state.getCategory()))
@@ -84,6 +88,7 @@ public class Post {
         return Post.builder()
                 .id(state.getId())
                 .userId(state.getUserId())
+                .postKey(state.getPostKey())
                 .parentId(state.getParentId())
                 .board(state.getBoard())
                 .category(PostCategoryResolver.resolve(state.getBoard(), state.getCategory()))
