@@ -8,6 +8,8 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "post")
 @DynamicInsert
@@ -19,6 +21,9 @@ import org.hibernate.annotations.DynamicUpdate;
 public class PostJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @Column(name = "post_key", nullable = false, unique = true, updatable = false)
+    private UUID postKey;
 
     @Column(name = "parent_id")
     private Long parentId;
@@ -70,6 +75,7 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
 
         return PostJpaEntity.builder()
                 .userId(post.getUserId())
+                .postKey(post.getPostKey())
                 .parentId(post.getParentId())
                 .board(post.getBoard())
                 .category(FormatValidator.hasValue(category) ? category.getCode() : null)
