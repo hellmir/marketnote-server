@@ -110,6 +110,10 @@ public class Post {
                 .build();
     }
 
+    public boolean isOwnedBy(Long userId) {
+        return FormatValidator.equals(this.userId, userId);
+    }
+
     public boolean isActive() {
         return status.isActive();
     }

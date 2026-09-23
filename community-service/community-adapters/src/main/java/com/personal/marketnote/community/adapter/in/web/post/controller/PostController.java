@@ -52,6 +52,7 @@ public class PostController {
 
     private final RegisterPostUseCase registerPostUseCase;
     private final GetPostUseCase getPostUseCase;
+    private final GetPostKeyUseCase getPostKeyUseCase;
     private final GetUserProductInquiryPostsUseCase getUserProductInquiryPostsUseCase;
     private final GetUserOneOnOneInquiryPostsUseCase getUserOneOnOneInquiryPostsUseCase;
     private final UpdatePostUseCase updatePostUseCase;
@@ -224,6 +225,37 @@ public class PostController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "게시글 정보 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 게시글 postKey 조회
+     *
+     * @param id        게시글 ID
+     * @param principal 인증된 사용자 정보
+     * @return postKey 조회 응답 {@link GetPostKeyResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 게시글 작성자 본인만 postKey를 조회할 수 있습니다.
+     */
+    @GetMapping("/{id}/post-key")
+    @GetPostKeyApiDocs
+    public ResponseEntity<BaseResponse<GetPostKeyResponse>> getPostKey(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        GetPostKeyResult result = getPostKeyUseCase.getPostKey(id, userId);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetPostKeyResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "게시글 postKey 조회 성공"
                 ),
                 HttpStatus.OK
         );
