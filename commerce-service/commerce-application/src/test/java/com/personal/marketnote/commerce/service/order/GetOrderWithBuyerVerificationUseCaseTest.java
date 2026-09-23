@@ -2,8 +2,10 @@ package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
+import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.result.order.GetOrderKeyResult;
+import com.personal.marketnote.commerce.port.in.result.order.GetOrderProductKeyResult;
 import com.personal.marketnote.commerce.port.in.result.order.GetOrderResult;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderProductPort;
@@ -214,6 +216,88 @@ class GetOrderWithBuyerVerificationUseCaseTest {
     }
 
     // ==================================================================================
+    // getOrderProductKey(orderId, pricePolicyId, buyerId) - 소유자 검증 포함
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("getOrderProductKey(orderId, pricePolicyId, buyerId) - 소유자 검증 성공")
+    class GetOrderProductKeyWithBuyerIdSuccessTest {
+
+        @Test
+        @DisplayName("주문 소유자와 요청 buyerId가 일치하면 주문 상품 키를 반환한다")
+        void ownerMatches_returnsOrderProductKey() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Long pricePolicyId = 200L;
+            UUID expectedOrderProductKey = UUID.fromString("018f0000-0000-7000-8000-000000000001");
+            Order order = createOrderWithBuyerIdAndProductKey(orderId, buyerId, pricePolicyId, expectedOrderProductKey);
+
+            when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
+
+            GetOrderProductKeyResult result = getOrderService.getOrderProductKey(orderId, pricePolicyId, buyerId);
+
+            assertThat(result).isNotNull();
+            assertThat(result.orderProductKey()).isEqualTo(expectedOrderProductKey.toString());
+        }
+    }
+
+    @Nested
+    @DisplayName("getOrderProductKey(orderId, pricePolicyId, buyerId) - 실패")
+    class GetOrderProductKeyWithBuyerIdFailureTest {
+
+        @Test
+        @DisplayName("주문 소유자와 요청 buyerId가 다르면 UnauthorizedOrderAccessException이 발생한다")
+        void ownerMismatch_throwsUnauthorizedOrderAccessException() {
+            Long orderId = 1L;
+            Long ownerBuyerId = 100L;
+            Long requestedBuyerId = 999L;
+            Long pricePolicyId = 200L;
+            Order order = createOrderWithBuyerIdAndProductKey(
+                    orderId, ownerBuyerId, pricePolicyId, UUID.randomUUID()
+            );
+
+            when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
+
+            assertThatThrownBy(
+                    () -> getOrderService.getOrderProductKey(orderId, pricePolicyId, requestedBuyerId)
+            )
+                    .isInstanceOf(UnauthorizedOrderAccessException.class);
+        }
+
+        @Test
+        @DisplayName("주문이 존재하지 않으면 OrderNotFoundException이 발생한다")
+        void orderNotFound_throwsOrderNotFoundException() {
+            Long orderId = 999L;
+            Long pricePolicyId = 200L;
+            Long buyerId = 100L;
+
+            when(findOrderPort.findById(orderId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> getOrderService.getOrderProductKey(orderId, pricePolicyId, buyerId))
+                    .isInstanceOf(OrderNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("주문 상품(pricePolicyId)이 주문에 포함되어 있지 않으면 OrderProductNotFoundException이 발생한다")
+        void orderProductNotFound_throwsOrderProductNotFoundException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Long existingPricePolicyId = 200L;
+            Long requestedPricePolicyId = 999L;
+            Order order = createOrderWithBuyerIdAndProductKey(
+                    orderId, buyerId, existingPricePolicyId, UUID.randomUUID()
+            );
+
+            when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
+
+            assertThatThrownBy(
+                    () -> getOrderService.getOrderProductKey(orderId, requestedPricePolicyId, buyerId)
+            )
+                    .isInstanceOf(OrderProductNotFoundException.class);
+        }
+    }
+
+    // ==================================================================================
     // 기존 getOrder(id) 검증 없음 확인
     // ==================================================================================
 
@@ -250,6 +334,34 @@ class GetOrderWithBuyerVerificationUseCaseTest {
                 .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of())
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+    }
+
+    private Order createOrderWithBuyerIdAndProductKey(
+            Long orderId, Long buyerId, Long pricePolicyId, UUID orderProductKey
+    ) {
+        OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
+                .orderId(orderId)
+                .sellerId(10L)
+                .pricePolicyId(pricePolicyId)
+                .orderProductKey(orderProductKey)
+                .quantity(1)
+                .unitAmount(50000L)
+                .orderStatus(OrderStatus.PAID)
+                .accumulatedPoint(0L)
+                .build();
+
+        return Order.from(OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
+                .orderStatus(OrderStatus.PAID)
+                .amount(OrderAmount.of(100000L, null, 0L, 0L, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .orderProductStates(List.of(productState))
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .build());
