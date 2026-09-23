@@ -818,4 +818,77 @@ class GetUserUseCaseTest {
         verifyNoMoreInteractions(findUserPort);
     }
 
+    @Test
+    @DisplayName("회원 정보 조회 시 비활성 회원의 deactivatedUntil이 응답에 포함된다")
+    void getAllStatusUserInfo_inactiveUser_includesDeactivatedUntil() {
+        // given
+        Long id = 50L;
+        LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 6, 1, 0, 0);
+        User inactiveUser = UserTestObjectFactory.createUser(
+                id,
+                "inactiveInfoNick",
+                "inactive-info@test.com",
+                "비활성정보",
+                "010-3000-0001",
+                "ref-50",
+                Role.getBuyer(),
+                List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-50")),
+                LocalDateTime.of(2024, 5, 1, 9, 0),
+                LocalDateTime.of(2024, 5, 2, 10, 0),
+                EntityStatus.INACTIVE,
+                false,
+                3L,
+                deactivatedUntil
+        );
+
+        when(findUserPort.findAllStatusUserById(id)).thenReturn(Optional.of(inactiveUser));
+
+        // when
+        GetUserInfoResult result = getUserService.getAllStatusUserInfo(id);
+
+        // then
+        assertThat(result.id()).isEqualTo(id);
+        assertThat(result.status()).isEqualTo(EntityStatus.INACTIVE.name());
+        assertThat(result.deactivatedUntil()).isEqualTo(deactivatedUntil);
+
+        verify(findUserPort).findAllStatusUserById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 시 활성 회원의 deactivatedUntil은 null이다")
+    void getAllStatusUserInfo_activeUser_deactivatedUntilIsNull() {
+        // given
+        Long id = 51L;
+        User activeUser = UserTestObjectFactory.createUser(
+                id,
+                "activeInfoNick",
+                "active-info@test.com",
+                "활성정보",
+                "010-3000-0002",
+                "ref-51",
+                Role.getBuyer(),
+                List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-51")),
+                LocalDateTime.of(2024, 5, 3, 9, 0),
+                LocalDateTime.of(2024, 5, 4, 10, 0),
+                EntityStatus.ACTIVE,
+                false,
+                4L,
+                null
+        );
+
+        when(findUserPort.findAllStatusUserById(id)).thenReturn(Optional.of(activeUser));
+
+        // when
+        GetUserInfoResult result = getUserService.getAllStatusUserInfo(id);
+
+        // then
+        assertThat(result.id()).isEqualTo(id);
+        assertThat(result.status()).isEqualTo(EntityStatus.ACTIVE.name());
+        assertThat(result.deactivatedUntil()).isNull();
+
+        verify(findUserPort).findAllStatusUserById(id);
+        verifyNoMoreInteractions(findUserPort);
+    }
+
 }
