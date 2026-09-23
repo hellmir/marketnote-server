@@ -143,6 +143,17 @@ public class GetOrderService implements GetOrderUseCase {
                 .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
     }
 
+    @Override
+    public GetOrderProductKeyResult getOrderProductKey(Long orderId, Long pricePolicyId, Long buyerId) {
+        Order order = getOrderAndVerifyOwner(orderId, buyerId);
+        OrderProduct orderProduct = order.getOrderProducts().stream()
+                .filter(op -> pricePolicyId.equals(op.getPricePolicyId()))
+                .findFirst()
+                .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
+
+        return GetOrderProductKeyResult.from(orderProduct);
+    }
+
     private Order getOrderAndVerifyOwner(Long id, Long buyerId) {
         Order order = getOrder(id);
 

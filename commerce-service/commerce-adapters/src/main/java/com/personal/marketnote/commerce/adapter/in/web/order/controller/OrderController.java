@@ -141,6 +141,38 @@ public class OrderController {
     }
 
     /**
+     * 주문 상품 키 조회
+     *
+     * @param orderId       주문 ID
+     * @param pricePolicyId 가격 정책 ID
+     * @param principal     인증된 사용자 정보
+     * @return 주문 상품 키 조회 응답 {@link GetOrderProductKeyResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 주문 ID와 가격 정책 ID로 주문 상품 키를 조회합니다. 구매자 소유자 검증을 수행합니다.
+     */
+    @GetMapping("/api/v1/orders/{orderId}/order-products/{pricePolicyId}/order-product-key")
+    @GetOrderProductKeyApiDocs
+    public ResponseEntity<BaseResponse<GetOrderProductKeyResponse>> getOrderProductKey(
+            @PathVariable("orderId") Long orderId,
+            @PathVariable("pricePolicyId") Long pricePolicyId,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+        GetOrderProductKeyResult result = getOrderUseCase.getOrderProductKey(orderId, pricePolicyId, buyerId);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetOrderProductKeyResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "주문 상품 키 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
      * 주문 정보 조회
      *
      * @param id        주문 ID
