@@ -97,4 +97,15 @@ public interface GetOrderUseCase {
      * @Description 주문 상품 정보를 조회합니다.
      */
     OrderProduct getOrderProduct(Long orderId, Long pricePolicyId);
+
+    /**
+     * @param orderId       주문 ID
+     * @param pricePolicyId 가격 정책 ID
+     * @param buyerId       요청 구매자 ID
+     * @return 주문 상품 키 조회 결과 {@link GetOrderProductKeyResult}
+     * @Date 2026-09-20
+     * @Author 성효빈
+     * @Description 구매자 소유자 검증 후 주문 상품 키를 조회합니다.
+     */
+    GetOrderProductKeyResult getOrderProductKey(Long orderId, Long pricePolicyId, Long buyerId);
 }
