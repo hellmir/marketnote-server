@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,13 +37,58 @@ class PostTest {
     }
 
     @Test
+    @DisplayName("PostCreateState로 생성하면 postKey가 자동 발급된다")
+    void shouldGeneratePostKeyWhenCreatedFromCreateState() {
+        PostCreateState state = createPostCreateState(Board.NOTICE, "ANNOUNCEMENT", "홍길동");
+
+        Post post = Post.from(state);
+
+        assertThat(post.getPostKey()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("PostCreateState로 두 번 생성하면 서로 다른 postKey가 발급된다")
+    void shouldGenerateDifferentPostKeysForEachCreation() {
+        PostCreateState state = createPostCreateState(Board.NOTICE, "ANNOUNCEMENT", "홍길동");
+
+        Post first = Post.from(state);
+        Post second = Post.from(state);
+
+        assertThat(first.getPostKey()).isNotEqualTo(second.getPostKey());
+    }
+
+    @Test
+    @DisplayName("SnapshotState로 복원하면 postKey가 그대로 유지된다")
+    void shouldRestorePostKeyFromSnapshotState() {
+        UUID postKey = UUID.randomUUID();
+        PostSnapshotState state = PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .postKey(postKey)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("공지 제목")
+                .content("공지 내용")
+                .status(EntityStatus.ACTIVE)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.getPostKey()).isEqualTo(postKey);
+    }
+
+    @Test
     @DisplayName("SnapshotState로 복원하면 모든 필드가 올바르게 매핑된다")
     void shouldRestoreAllFieldsFromSnapshotState() {
         LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
         LocalDateTime modifiedAt = LocalDateTime.of(2026, 4, 1, 12, 0);
+        UUID postKey = UUID.randomUUID();
         PostSnapshotState state = PostSnapshotState.builder()
                 .id(1L)
                 .userId(100L)
+                .postKey(postKey)
                 .parentId(null)
                 .board(Board.NOTICE)
                 .category("ANNOUNCEMENT")
@@ -62,6 +108,7 @@ class PostTest {
 
         assertThat(post.getId()).isEqualTo(1L);
         assertThat(post.getUserId()).isEqualTo(100L);
+        assertThat(post.getPostKey()).isEqualTo(postKey);
         assertThat(post.getTitle()).isEqualTo("공지 제목");
         assertThat(post.getContent()).isEqualTo("공지 내용");
         assertThat(post.getMaskedWriterName()).isEqualTo("홍*동");
