@@ -116,6 +116,7 @@ import java.lang.annotation.*;
                 | sellerId | number | 판매자 회원 ID | 1 |
                 | productId | number | 상품 ID | 1 |
                 | pricePolicyId | number | 가격 정책 ID | 1 |
+                | orderProductKey | string(uuid) | 주문 상품 식별키 | "018f0000-0000-7000-8000-000000000001" |
                 | sharerKey | string(uuid) | 링크 공유 회원 식별키 | "550e8400-e29b-41d4-a716-446655440000" |
                 | quantity | number | 주문 수량 | 2 |
                 | unitAmount | number | 단위 금액(원) | 50000 |
@@ -167,6 +168,7 @@ import java.lang.annotation.*;
                                                         "sellerId": 12,
                                                         "productId": 1,
                                                         "pricePolicyId": 166,
+                                                        "orderProductKey": "018f0000-0000-7000-8000-000000000001",
                                                         "sharerKey": "550e8400-e29b-41d4-a716-446655440000",
                                                         "quantity": 2,
                                                         "unitAmount": 50000,
@@ -187,6 +189,7 @@ import java.lang.annotation.*;
                                                         "sellerId": 12,
                                                         "productId": 2,
                                                         "pricePolicyId": 180,
+                                                        "orderProductKey": "018f0000-0000-7000-8000-000000000002",
                                                         "sharerKey": "550e8400-e29b-41d4-a716-446655440000",
                                                         "quantity": 10,
                                                         "unitAmount": 70000,
@@ -225,6 +228,7 @@ import java.lang.annotation.*;
                                                         "sellerId": 1,
                                                         "productId": 3,
                                                         "pricePolicyId": 144,
+                                                        "orderProductKey": "018f0000-0000-7000-8000-000000000003",
                                                         "sharerKey": "550e8400-e29b-41d4-a716-446655440000",
                                                         "quantity": 10,
                                                         "unitAmount": 70000,
@@ -255,6 +259,7 @@ import java.lang.annotation.*;
                                                         "sellerId": 1,
                                                         "productId": 4,
                                                         "pricePolicyId": 189,
+                                                        "orderProductKey": "018f0000-0000-7000-8000-000000000004",
                                                         "sharerKey": null,
                                                         "quantity": 2,
                                                         "unitAmount": 50000,
@@ -298,6 +303,7 @@ import java.lang.annotation.*;
                                                         "sellerId": 1,
                                                         "productId": 5,
                                                         "pricePolicyId": 159,
+                                                        "orderProductKey": "018f0000-0000-7000-8000-000000000005",
                                                         "sharerKey": null,
                                                         "quantity": 2,
                                                         "unitAmount": 50000,
@@ -323,6 +329,7 @@ import java.lang.annotation.*;
                                                         "sellerId": 1,
                                                         "productId": 6,
                                                         "pricePolicyId": 185,
+                                                        "orderProductKey": "018f0000-0000-7000-8000-000000000006",
                                                         "sharerKey": "550e8400-e29b-41d4-a716-446655440000",
                                                         "quantity": 10,
                                                         "unitAmount": 70000,

@@ -238,20 +238,29 @@
   {토픽명}.dlt
 ```
 
-## 서버(AWS ECS Fargate)
+## 인프라 구성
 
 **로그:** CloudWatch (awslogs)
+
 **이미지:** AWS ECR (서비스별 레포지토리)
 
-**배포 사양 (jenkins/resolve-and-register.groovy 기준):**
+**서버 사양 (AWS ECS Fargate):**
 
-| 티어 | CPU / Memory | 서비스 | desired | Auto Scaling (min~max, CPU 70% 타깃) | Capacity Provider |
-|------|--------------|--------|---------|--------------------------------------|-------------------|
-| Heavy | 1024 / 2048 | commerce-service | 2 | 2 ~ 4 | FARGATE(base=1) + FARGATE_SPOT |
-| Heavy | 1024 / 2048 | notification-service | 3 | 3 ~ 5 | FARGATE(base=1) + FARGATE_SPOT |
-| Heavy | 1024 / 2048 | product-service | 2 | 2 ~ 5 | FARGATE(base=1) + FARGATE_SPOT |
-| Medium | 512 / 2048 | reward-service | 2 | 2 ~ 3 | FARGATE(base=1) + FARGATE_SPOT |
-| Medium | 512 / 2048 | fulfillment-service | 2 | 2 ~ 3 | FARGATE(base=1) + FARGATE_SPOT |
-| Medium | 512 / 2048 | user-service | 2 | 2 ~ 4 | FARGATE(base=1) + FARGATE_SPOT |
-| Light | 512 / 1024 | community-service | 2 | 2 ~ 3 | FARGATE only |
-| Light | 512 / 1024 | file-service | 1 | 미적용 (단일 인스턴스 운영) | FARGATE only |
+| Service              | Node Machine    | Tier   | CPU / Memory | desired | Auto Scaling (min~max, CPU 70% 타깃)| Capacity Provider              |
+|----------------------|-----------------|--------|--------------|---------|------------------------------------|--------------------------------|
+| commerce-service     | AWS ECS Fargate | Heavy  | 1024 / 2048  | 2       | 2 ~ 4                              | FARGATE(base=1) + FARGATE_SPOT |
+| notification-service | AWS ECS Fargate | Heavy  | 1024 / 2048  | 3       | 3 ~ 5                              | FARGATE(base=1) + FARGATE_SPOT |
+| product-service      | AWS ECS Fargate | Heavy  | 1024 / 2048  | 2       | 2 ~ 5                              | FARGATE(base=1) + FARGATE_SPOT |
+| reward-service       | AWS ECS Fargate | Medium | 512 / 2048   | 2       | 2 ~ 3                              | FARGATE(base=1) + FARGATE_SPOT |
+| fulfillment-service  | AWS ECS Fargate | Medium | 512 / 2048   | 2       | 2 ~ 3                              | FARGATE(base=1) + FARGATE_SPOT |
+| user-service         | AWS ECS Fargate | Medium | 512 / 2048   | 2       | 2 ~ 4                              | FARGATE(base=1) + FARGATE_SPOT |
+| community-service    | AWS ECS Fargate | Light  | 512 / 1024   | 2       | 2 ~ 3                              | FARGATE only                   |
+| file-service         | AWS ECS Fargate | Light  | 512 / 1024   | 1       | 미적용 (단일 인스턴스 운영)              | FARGATE only                   |
+
+**Kafka Cluster:**
+
+| Broker  | Host                         | Node Machine  | CPU / Memory | Port |
+|---------|------------------------------|---------------|--------------|------|
+| kafka-1 | marketnote-qa_kafka-broker-1 | AWS Lightsail | 2048 / 4096  | 9092 |
+| kafka-2 | marketnote-qa_kafka-broker-2 | AWS Lightsail | 2048 / 4096  | 9092 |
+| kafka-3 | marketnote-qa_kafka-broker-3 | AWS Lightsail | 2048 / 4096  | 9092 |
