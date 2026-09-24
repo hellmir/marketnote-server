@@ -244,7 +244,7 @@
 
 **이미지:** AWS ECR (서비스별 레포지토리)
 
-**서버 사양 (AWS ECS Fargate):**
+**Service Cluster:**
 
 | Service              | Node Machine    | Tier   | CPU / Memory | desired | Auto Scaling (min~max, CPU 70% 타깃)| Capacity Provider              |
 |----------------------|-----------------|--------|--------------|---------|------------------------------------|--------------------------------|
