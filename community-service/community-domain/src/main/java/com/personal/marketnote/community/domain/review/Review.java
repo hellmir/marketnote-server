@@ -124,6 +124,10 @@ public class Review {
         this.isPhoto = isPhoto;
     }
 
+    public boolean isOwnedBy(Long reviewerId) {
+        return FormatValidator.equals(this.reviewerId, reviewerId);
+    }
+
     public boolean isActive() {
         return status.isActive();
     }

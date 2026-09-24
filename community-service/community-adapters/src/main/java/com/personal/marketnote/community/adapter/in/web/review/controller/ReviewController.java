@@ -48,6 +48,7 @@ public class ReviewController {
 
     private final RegisterReviewUseCase registerReviewUseCase;
     private final GetReviewUseCase getReviewUseCase;
+    private final GetReviewKeyUseCase getReviewKeyUseCase;
     private final GetUserReviewsUseCase getUserReviewsUseCase;
     private final UpdateReviewUseCase updateReviewUseCase;
     private final DeleteReviewUseCase deleteReviewUseCase;
@@ -199,6 +200,37 @@ public class ReviewController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "리뷰 상세 정보 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 리뷰 reviewKey 조회
+     *
+     * @param id        리뷰 ID
+     * @param principal 인증된 사용자 정보
+     * @return reviewKey 조회 응답 {@link GetReviewKeyResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 리뷰의 reviewKey를 조회합니다. 작성자 본인만 조회할 수 있습니다.
+     */
+    @GetMapping("/reviews/{id}/review-key")
+    @GetReviewKeyApiDocs
+    public ResponseEntity<BaseResponse<GetReviewKeyResponse>> getReviewKey(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long userId = ElementExtractor.extractUserId(principal);
+
+        GetReviewKeyResult result = getReviewKeyUseCase.getReviewKey(id, userId);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetReviewKeyResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "리뷰 reviewKey 조회 성공"
                 ),
                 HttpStatus.OK
         );
