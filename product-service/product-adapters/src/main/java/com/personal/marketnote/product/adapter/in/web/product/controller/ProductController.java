@@ -51,6 +51,7 @@ public class ProductController {
     private final GetProductSortPropertiesUseCase getProductSortPropertiesUseCase;
     private final GetProductSearchTargetsUseCase getProductSearchTargetsUseCase;
     private final GetProductUseCase getProductUseCase;
+    private final GetProductKeyUseCase getProductKeyUseCase;
     private final GetAdminProductsUseCase getAdminProductsUseCase;
     private final GetAdminProductDetailUseCase getAdminProductDetailUseCase;
     private final UpdateProductUseCase updateProductUseCase;
@@ -324,6 +325,39 @@ public class ProductController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "상품 상세 정보 조회 성공"
+                )
+        );
+    }
+
+    /**
+     * (판매자/관리자) 상품 productKey 조회
+     *
+     * @param id        상품 ID
+     * @param principal 인증된 사용자
+     * @return 상품 productKey 조회 응답 {@link GetProductKeyResponse}
+     * @Author 성효빈
+     * @Date 2026-09-20
+     * @Description 상품의 productKey를 조회합니다. 관리자 또는 해당 상품 판매자만 조회할 수 있습니다.
+     */
+    @GetMapping("/{id}/product-key")
+    @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
+    @GetProductKeyApiDocs
+    public ResponseEntity<BaseResponse<GetProductKeyResponse>> getProductKey(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        GetProductKeyResult result = getProductKeyUseCase.getProductKey(
+                id,
+                ElementExtractor.extractUserId(principal),
+                AuthorityValidator.hasAdminRole(principal)
+        );
+
+        return ResponseEntity.ok(
+                BaseResponse.of(
+                        GetProductKeyResponse.from(result),
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "상품 productKey 조회 성공"
                 )
         );
     }
