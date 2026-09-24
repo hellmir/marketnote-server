@@ -60,10 +60,11 @@ import java.lang.annotation.*;
                 | message | string | 처리 결과 | "리뷰 등록 성공" |
                 
                 ### Response > content
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 생성된 리뷰 ID | 3 |
+                | reviewKey | string(uuid) | 생성된 리뷰 reviewKey (파일 업로드 API ownerKey로 사용) | "01890d0a-1234-7000-89ab-0123456789ab" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -98,7 +99,8 @@ import java.lang.annotation.*;
                                           "code": "SUC01",
                                           "timestamp": "2026-01-09T16:32:18.828188",
                                           "content": {
-                                            "id": 3
+                                            "id": 3,
+                                            "reviewKey": "01890d0a-1234-7000-89ab-0123456789ab"
                                           },
                                           "message": "리뷰 등록 성공"
                                         }
