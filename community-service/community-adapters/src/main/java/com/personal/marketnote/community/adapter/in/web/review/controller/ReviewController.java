@@ -277,17 +277,18 @@ public class ReviewController {
      */
     @PatchMapping("/reviews/{id}")
     @UpdateReviewApiDocs
-    public ResponseEntity<BaseResponse<Void>> updateReview(
+    public ResponseEntity<BaseResponse<UpdateReviewResponse>> updateReview(
             @PathVariable("id") Long id,
             @Valid @RequestBody UpdateReviewRequest request,
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
-        updateReviewUseCase.updateReview(
+        UpdateReviewResult result = updateReviewUseCase.updateReview(
                 ReviewRequestToCommandMapper.mapToCommand(id, request, ElementExtractor.extractUserId(principal))
         );
 
         return new ResponseEntity<>(
                 BaseResponse.of(
+                        UpdateReviewResponse.from(result),
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "리뷰 수정 성공"
