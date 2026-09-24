@@ -93,6 +93,7 @@ public class SendNotificationService implements SendNotificationUseCase {
 
         SendNotificationResult result = sendPushNotifications(notification, title, body, landingUrl, command.userId());
         publishUnreadCountChangedEvent(command.userId());
+
         return result;
     }
 

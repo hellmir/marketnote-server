@@ -143,17 +143,115 @@
 - [Github Issues](https://github.com/hellmir/marketnote-server/issues)
   <br>
 
-## 🧩 서비스 구성
+## Kafka 토픽
 
-헥사고날 아키텍처 기반 멀티모듈로 구성되며, 각 서비스는 `adapters` · `application` · `domain` 모듈로 분리된다. 공용 코드는 `common` 모듈에 위치한다.
+```
+# User
+  user.user.signup-completed
+  user.user.guest-signup-completed
+  user.user.referral-completed
+  user.user.withdrawn
+  user.user.status-changed
+  user.user.marketing-consent-changed
+  user.shipping-address.changed
 
-- **user-service** — 회원 서비스
-- **product-service** — 상품 서비스
-- **commerce-service** — 커머스 서비스
-- **fulfillment-service** — 풀필먼트 서비스
-- **community-service** — 커뮤니티 서비스
-- **reward-service** — 리워드 서비스
-- **notification-service** — 알림 서비스
-- **file-service** — 파일 서비스
-- **common** — 공용 모듈
-  <br>
+# Product
+  product.product.registered
+  product.product.updated
+  product.product.deleted
+  product.product.tag-changed
+  product.product.status-changed
+  product.price-policy.created
+  product.price-policy.deleted
+  product.shipping-policy.changed
+  product.seller.changed
+
+# Commerce
+  commerce.order.payment-completed
+  commerce.order.cancelled
+  commerce.order.cancel-failed
+  commerce.order.auto-confirm-failed
+  commerce.order.purchase-confirmed
+  commerce.order.returned
+  commerce.order.return-requested
+  commerce.order.repurchase-nudged
+  commerce.return-inspection.completed
+  commerce.payment.approved
+  commerce.payment.failed
+  commerce.payment.cancelled
+  commerce.settlement.executed
+  commerce.inventory.changed
+
+# Fulfillment
+  fulfillment.shipping.status-changed
+  fulfillment.inventory.synced
+  fulfillment.goods.synced
+  fulfillment.delivery.work-status-changed
+
+# Community
+  community.review.registered
+  community.review.updated
+  community.review.deleted
+  community.notice.registered
+  community.event.registered
+  community.inquiry.answered
+
+# Reward
+  reward.booster.applied
+  reward.booster.revoke-requested
+  reward.payback-policy.changed
+  reward.attendance.reminder-consecutive
+  reward.attendance.reminder-non-consecutive
+  reward.coupon.expiry-reminder-24h
+  reward.coupon.expiry-reminder-3h
+  reward.coupon.welcome-expiry-reminder-24h
+  reward.coupon.welcome-expiry-reminder-3h
+  reward.purchase.point-confirmed
+  reward.shared-purchase.point-confirmed
+  reward.shared-purchase.point-pending
+
+# File
+  file.image.changed
+
+# SAGA (인프라)
+  saga.response
+  saga.order-payment.inventory
+  saga.order-payment.ledger
+  saga.order-payment.completed
+  saga.order-cancel.fulfillment
+  saga.order-cancel.refund
+  saga.order-cancel.point-refund
+  saga.order-cancel.coupon-restore
+  saga.order-cancel.completed
+  saga.order-return.refund
+  saga.order-return.point-refund
+  saga.order-return.coupon-restore
+  saga.order-return.completed
+  saga.order-payment-downstream.fulfillment
+  saga.order-payment-downstream.order-point
+  saga.order-payment-downstream.coupon
+  saga.order-payment-downstream.shared-point
+  saga.order-payment-downstream.product-point
+  saga.order-payment-downstream.cart
+
+# 각 토픽별 DLT
+  {토픽명}.dlt
+```
+
+## 서버(AWS ECS Fargate)
+
+**로그:** CloudWatch (awslogs)
+**이미지:** AWS ECR (서비스별 레포지토리)
+
+**배포 사양 (jenkins/resolve-and-register.groovy 기준):**
+
+| 티어 | CPU / Memory | 서비스 | desired | Auto Scaling (min~max, CPU 70% 타깃) | Capacity Provider |
+|------|--------------|--------|---------|--------------------------------------|-------------------|
+| Heavy | 1024 / 2048 | commerce-service | 2 | 2 ~ 4 | FARGATE(base=1) + FARGATE_SPOT |
+| Heavy | 1024 / 2048 | notification-service | 3 | 3 ~ 5 | FARGATE(base=1) + FARGATE_SPOT |
+| Heavy | 1024 / 2048 | product-service | 2 | 2 ~ 5 | FARGATE(base=1) + FARGATE_SPOT |
+| Medium | 512 / 2048 | reward-service | 2 | 2 ~ 3 | FARGATE(base=1) + FARGATE_SPOT |
+| Medium | 512 / 2048 | fulfillment-service | 2 | 2 ~ 3 | FARGATE(base=1) + FARGATE_SPOT |
+| Medium | 512 / 2048 | user-service | 2 | 2 ~ 4 | FARGATE(base=1) + FARGATE_SPOT |
+| Light | 512 / 1024 | community-service | 2 | 2 ~ 3 | FARGATE only |
+| Light | 512 / 1024 | file-service | 1 | 미적용 (단일 인스턴스 운영) | FARGATE only |

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,4 +167,14 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             @Param("byPhone") boolean byPhone,
             @Param("byRefCode") boolean byRefCode,
             @Param("searchKeyword") String searchKeyword);
+
+    @Query("""
+            SELECT u
+            FROM UserJpaEntity u
+            WHERE u.status = com.personal.marketnote.common.domain.EntityStatus.INACTIVE
+                AND u.deactivatedUntil IS NOT NULL
+                AND u.deactivatedUntil <= :now
+            ORDER BY u.id ASC
+            """)
+    List<UserJpaEntity> findAllByDeactivatedUntilExpired(@Param("now") LocalDateTime now);
 }

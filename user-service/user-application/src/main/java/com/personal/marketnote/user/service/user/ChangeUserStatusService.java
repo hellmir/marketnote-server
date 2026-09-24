@@ -37,7 +37,7 @@ public class ChangeUserStatusService implements ChangeUserStatusUseCase {
         updateUserPort.update(user);
 
         UserStatusHistory savedHistory = saveUserStatusHistoryPort.save(
-                UserStatusHistory.of(
+                UserStatusHistory.byAdmin(
                         command.userId(),
                         action,
                         command.reason(),

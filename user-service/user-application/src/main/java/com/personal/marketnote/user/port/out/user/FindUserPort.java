@@ -6,6 +6,7 @@ import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -155,4 +156,13 @@ public interface FindUserPort {
      * @Description 활성화/비활성화/비노출 회원 목록을 페이지 단위로 조회합니다.
      */
     Page<User> findAllStatusUsersByPage(Pageable pageable, UserSearchTarget searchTarget, String searchKeyword);
+
+    /**
+     * @param now 기준 시각
+     * @return 비활성화 기간이 만료된 INACTIVE 회원 목록 {@link List<User>}
+     * @Date 2026-09-20
+     * @Author 성효빈
+     * @Description deactivatedUntil이 기준 시각보다 이전이고 INACTIVE 상태인 회원을 조회합니다.
+     */
+    List<User> findAllByDeactivatedUntilExpired(LocalDateTime now);
 }

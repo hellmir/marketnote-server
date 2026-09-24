@@ -16,6 +16,7 @@ public class UserStatusHistorySnapshotState {
     private final UserStatusAction statusAction;
     private final String reason;
     private final LocalDateTime deactivatedUntil;
+    private final UserStatusActor actor;
     private final Long createdBy;
     private final LocalDateTime createdAt;
 }

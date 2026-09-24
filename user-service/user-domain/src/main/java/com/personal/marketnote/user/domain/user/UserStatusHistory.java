@@ -18,17 +18,34 @@ public class UserStatusHistory {
     private UserStatusAction statusAction;
     private String reason;
     private LocalDateTime deactivatedUntil;
+    private UserStatusActor actor;
     private Long createdBy;
     private LocalDateTime createdAt;
 
-    public static UserStatusHistory of(Long userId, UserStatusAction statusAction, String reason,
-                                       LocalDateTime deactivatedUntil, Long createdBy) {
+    public static UserStatusHistory byAdmin(
+            Long userId, UserStatusAction statusAction, String reason,
+            LocalDateTime deactivatedUntil, Long adminId
+    ) {
         return UserStatusHistory.builder()
                 .userId(userId)
                 .statusAction(statusAction)
                 .reason(reason)
                 .deactivatedUntil(deactivatedUntil)
-                .createdBy(createdBy)
+                .actor(UserStatusActor.ADMIN)
+                .createdBy(adminId)
+                .build();
+    }
+
+    public static UserStatusHistory bySystem(
+            Long userId, UserStatusAction statusAction, String reason, LocalDateTime deactivatedUntil
+    ) {
+        return UserStatusHistory.builder()
+                .userId(userId)
+                .statusAction(statusAction)
+                .reason(reason)
+                .deactivatedUntil(deactivatedUntil)
+                .actor(UserStatusActor.SYSTEM)
+                .createdBy(null)
                 .build();
     }
 
@@ -39,6 +56,7 @@ public class UserStatusHistory {
                 .statusAction(state.getStatusAction())
                 .reason(state.getReason())
                 .deactivatedUntil(state.getDeactivatedUntil())
+                .actor(state.getActor())
                 .createdBy(state.getCreatedBy())
                 .createdAt(state.getCreatedAt())
                 .build();
