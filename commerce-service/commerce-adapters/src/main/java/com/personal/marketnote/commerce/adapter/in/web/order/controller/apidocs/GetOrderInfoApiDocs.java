@@ -127,6 +127,7 @@ import java.lang.annotation.*;
                 | sellerId | number | 판매자 회원 ID | 1 |
                 | productId | number | 상품 ID | 1 |
                 | pricePolicyId | number | 가격 정책 ID | 1 |
+                | orderProductKey | string(uuid) | 주문 상품 식별키 | "018f0000-0000-7000-8000-000000000001" |
                 | sharerKey | string(uuid) | 링크 공유 회원 식별키 | "550e8400-e29b-41d4-a716-446655440000" |
                 | quantity | number | 주문 수량 | 2 |
                 | unitAmount | number | 단위 금액(원) | 50000 |
@@ -198,6 +199,7 @@ import java.lang.annotation.*;
                                                   "sellerId": 12,
                                                   "productId": 1,
                                                   "pricePolicyId": 180,
+                                                  "orderProductKey": "018f0000-0000-7000-8000-000000000011",
                                                   "sharerKey": "550e8400-e29b-41d4-a716-446655440000",
                                                   "quantity": 10,
                                                   "unitAmount": 70000,
@@ -223,6 +225,7 @@ import java.lang.annotation.*;
                                                   "sellerId": 11,
                                                   "productId": 2,
                                                   "pricePolicyId": 166,
+                                                  "orderProductKey": "018f0000-0000-7000-8000-000000000012",
                                                   "sharerKey": null,
                                                   "quantity": 2,
                                                   "unitAmount": 50000,
