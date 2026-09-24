@@ -8,12 +8,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductSnapshotState {
     private final Long id;
+    private final UUID productKey;
     private final Long sellerId;
     private final String name;
     private final String brandName;

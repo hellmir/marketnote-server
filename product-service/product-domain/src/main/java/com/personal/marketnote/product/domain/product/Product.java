@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 @Getter
 public class Product extends BaseDomain {
     private Long id;
+    private UUID productKey;
     private Long sellerId;
     private String name;
     private String brandName;
@@ -32,6 +35,7 @@ public class Product extends BaseDomain {
     @JsonCreator
     private static Product jsonCreator(
             @JsonProperty("id") Long id,
+            @JsonProperty("productKey") UUID productKey,
             @JsonProperty("sellerId") Long sellerId,
             @JsonProperty("name") String name,
             @JsonProperty("brandName") String brandName,
@@ -48,6 +52,7 @@ public class Product extends BaseDomain {
         return from(
                 ProductSnapshotState.builder()
                         .id(id)
+                        .productKey(productKey)
                         .sellerId(sellerId)
                         .name(name)
                         .brandName(brandName)
@@ -73,6 +78,7 @@ public class Product extends BaseDomain {
                 : List.of();
 
         return Product.builder()
+                .productKey(RandomCodeGenerator.generateProductKey())
                 .sellerId(state.getSellerId())
                 .name(state.getName())
                 .brandName(state.getBrandName())
@@ -85,6 +91,7 @@ public class Product extends BaseDomain {
     public static Product from(ProductSnapshotState state) {
         Product product = Product.builder()
                 .id(state.getId())
+                .productKey(state.getProductKey())
                 .sellerId(state.getSellerId())
                 .name(state.getName())
                 .brandName(state.getBrandName())

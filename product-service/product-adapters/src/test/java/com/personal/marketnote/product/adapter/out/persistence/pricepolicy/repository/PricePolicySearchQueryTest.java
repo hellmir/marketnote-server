@@ -2,6 +2,7 @@ package com.personal.marketnote.product.adapter.out.persistence.pricepolicy.repo
 
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
@@ -612,6 +613,7 @@ class PricePolicySearchQueryTest {
     private ProductJpaEntity saveProduct(String name, String brandName) {
         Product product = Product.from(
                 ProductSnapshotState.builder()
+                        .productKey(RandomCodeGenerator.generateProductKey())
                         .sellerId(1L)
                         .name(name)
                         .brandName(brandName)
