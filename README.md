@@ -142,3 +142,18 @@
 ### Issue Tracking
 - [Github Issues](https://github.com/hellmir/marketnote-server/issues)
   <br>
+
+## 🧩 서비스 구성
+
+헥사고날 아키텍처 기반 멀티모듈로 구성되며, 각 서비스는 `adapters` · `application` · `domain` 모듈로 분리된다. 공용 코드는 `common` 모듈에 위치한다.
+
+- **user-service** — 회원 서비스
+- **product-service** — 상품 서비스
+- **commerce-service** — 커머스 서비스
+- **fulfillment-service** — 풀필먼트 서비스
+- **community-service** — 커뮤니티 서비스
+- **reward-service** — 리워드 서비스
+- **notification-service** — 알림 서비스
+- **file-service** — 파일 서비스
+- **common** — 공용 모듈
+  <br>
