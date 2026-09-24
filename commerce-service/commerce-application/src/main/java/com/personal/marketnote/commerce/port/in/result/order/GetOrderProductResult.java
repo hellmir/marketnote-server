@@ -17,6 +17,7 @@ public record GetOrderProductResult(
         Long sellerId,
         Long productId,
         Long pricePolicyId,
+        UUID orderProductKey,
         UUID sharerKey,
         Integer quantity,
         Long unitAmount,
@@ -43,6 +44,7 @@ public record GetOrderProductResult(
                                 : null
                 )
                 .pricePolicyId(orderProduct.getPricePolicyId())
+                .orderProductKey(orderProduct.getOrderProductKey())
                 .sharerKey(orderProduct.getSharerKey())
                 .quantity(orderProduct.getQuantity().getValue())
                 .unitAmount(orderProduct.getUnitAmount().getValue())
