@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -57,6 +58,19 @@ class RegisterPostUseCaseTest {
 
         assertThat(result.id()).isEqualTo(100L);
         verify(savePostPort).save(any(Post.class));
+    }
+
+    @Test
+    @DisplayName("게시글을 등록하면 저장된 Post의 postKey가 Result에 포함된다")
+    void registerPost_resultIncludesPostKey() {
+        UUID postKey = UUID.randomUUID();
+        RegisterPostCommand command = buildCommand(1L, null, Board.ONE_ON_ONE_INQUERY, "ORDER_PAYMENT");
+        Post savedPost = buildSavedPost(101L, command, postKey);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        RegisterPostResult result = registerPostService.registerPost(false, command);
+
+        assertThat(result.postKey()).isEqualTo(postKey);
     }
 
     @Test
@@ -468,6 +482,10 @@ class RegisterPostUseCaseTest {
     }
 
     private Post buildSavedPost(Long id, RegisterPostCommand command) {
+        return buildSavedPost(id, command, UUID.randomUUID());
+    }
+
+    private Post buildSavedPost(Long id, RegisterPostCommand command, UUID postKey) {
         String maskedName = command.board().requiresWriterMasking()
                 ? ValueMasker.mask(command.writerName())
                 : command.writerName();
@@ -475,6 +493,7 @@ class RegisterPostUseCaseTest {
                 PostSnapshotState.builder()
                         .id(id)
                         .userId(command.userId())
+                        .postKey(postKey)
                         .parentId(command.parentId())
                         .board(command.board())
                         .category(command.category())
