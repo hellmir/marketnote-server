@@ -7,6 +7,7 @@ import com.personal.marketnote.community.domain.post.PostSnapshotState;
 import com.personal.marketnote.community.exception.PostNotEditableException;
 import com.personal.marketnote.community.exception.PostNotFoundException;
 import com.personal.marketnote.community.port.in.command.post.UpdatePostCommand;
+import com.personal.marketnote.community.port.in.result.post.UpdatePostResult;
 import com.personal.marketnote.community.port.in.usecase.post.GetPostUseCase;
 import com.personal.marketnote.community.port.out.post.UpdatePostPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
@@ -18,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -130,10 +133,30 @@ class UpdatePostUseCaseTest {
         verify(updatePostPort).update(post);
     }
 
+    @Test
+    @DisplayName("게시글을 수정하면 Result에 id와 postKey가 포함된다")
+    void updatePost_resultIncludesIdAndPostKey() {
+        Long postId = 1L;
+        UUID postKey = UUID.randomUUID();
+        Post post = buildPost(postId, Board.NOTICE, postKey);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "수정된 제목", "수정된 내용");
+
+        UpdatePostResult result = updatePostService.updatePost(command);
+
+        assertThat(result.id()).isEqualTo(postId);
+        assertThat(result.postKey()).isEqualTo(postKey);
+    }
+
     private Post buildPost(Long id, Board board) {
+        return buildPost(id, board, UUID.randomUUID());
+    }
+
+    private Post buildPost(Long id, Board board, UUID postKey) {
         return Post.from(PostSnapshotState.builder()
                 .id(id)
                 .userId(1L)
+                .postKey(postKey)
                 .board(board)
                 .category(resolveCategoryCode(board))
                 .title("원본 제목")
