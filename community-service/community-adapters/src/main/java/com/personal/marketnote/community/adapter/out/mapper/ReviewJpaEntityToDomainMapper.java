@@ -18,6 +18,7 @@ public class ReviewJpaEntityToDomainMapper {
                 Review.from(
                         ReviewSnapshotState.builder()
                                 .id(entity.getId())
+                                .reviewKey(entity.getReviewKey())
                                 .reviewerId(entity.getReviewerId())
                                 .orderId(entity.getOrderId())
                                 .productId(entity.getProductId())
