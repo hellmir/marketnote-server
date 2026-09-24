@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -196,6 +197,54 @@ class ReviewTest {
         review.updateIsUserLiked(false);
 
         assertThat(review.isUserLiked()).isFalse();
+    }
+
+    @Test
+    @DisplayName("CreateState로 생성하면 reviewKey가 자동으로 생성된다")
+    void shouldGenerateReviewKeyWhenCreatedFromCreateState() {
+        ReviewCreateState state = createDefaultCreateState(Rating.of(5.0f));
+
+        Review review = Review.from(state);
+
+        assertThat(review.getReviewKey()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("CreateState로 두 번 생성하면 각각 다른 reviewKey가 생성된다")
+    void shouldGenerateUniqueReviewKeyOnEachCreation() {
+        ReviewCreateState state = createDefaultCreateState(Rating.of(5.0f));
+
+        Review first = Review.from(state);
+        Review second = Review.from(state);
+
+        assertThat(first.getReviewKey()).isNotEqualTo(second.getReviewKey());
+    }
+
+    @Test
+    @DisplayName("SnapshotState로 복원하면 reviewKey가 state에서 복원된다")
+    void shouldRestoreReviewKeyFromSnapshotState() {
+        UUID reviewKey = UUID.randomUUID();
+        ReviewSnapshotState state = ReviewSnapshotState.builder()
+                .id(1L)
+                .reviewerId(100L)
+                .orderId(200L)
+                .productId(300L)
+                .pricePolicyId(400L)
+                .reviewerName("홍길동")
+                .maskedReviewerName("홍**")
+                .rating(Rating.of(5.0f))
+                .content("테스트 리뷰 내용")
+                .isPhoto(false)
+                .isEdited(false)
+                .likeCount(0)
+                .status(EntityStatus.ACTIVE)
+                .unitAmount(15000L)
+                .reviewKey(reviewKey)
+                .build();
+
+        Review review = Review.from(state);
+
+        assertThat(review.getReviewKey()).isEqualTo(reviewKey);
     }
 
     private ReviewCreateState createDefaultCreateState(Rating rating) {
