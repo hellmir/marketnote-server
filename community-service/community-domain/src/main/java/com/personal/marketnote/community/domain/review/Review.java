@@ -8,10 +8,12 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.common.utility.ValueMasker;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 @Getter
 public class Review {
     private Long id;
+    private UUID reviewKey;
     private Long reviewerId;
     private Long orderId;
     private Long productId;
@@ -49,6 +52,7 @@ public class Review {
 
     public static Review from(ReviewCreateState state) {
         return Review.builder()
+                .reviewKey(RandomCodeGenerator.generateReviewKey())
                 .reviewerId(state.getReviewerId())
                 .orderId(state.getOrderId())
                 .productId(state.getProductId())
@@ -83,6 +87,7 @@ public class Review {
     public static Review from(ReviewSnapshotState state) {
         return Review.builder()
                 .id(state.getId())
+                .reviewKey(state.getReviewKey())
                 .reviewerId(state.getReviewerId())
                 .orderId(state.getOrderId())
                 .productId(state.getProductId())

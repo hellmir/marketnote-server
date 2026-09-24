@@ -11,6 +11,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Formula;
 
+import java.util.UUID;
+
 import static com.personal.marketnote.common.utility.EntityConstant.BOOLEAN_DEFAULT_FALSE;
 
 @Entity
@@ -22,6 +24,9 @@ import static com.personal.marketnote.common.utility.EntityConstant.BOOLEAN_DEFA
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
+    @Column(name = "review_key", nullable = false, unique = true)
+    private UUID reviewKey;
+
     @Column(name = "reviewer_id", nullable = false)
     private Long reviewerId;
 
@@ -77,6 +82,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
 
     public static ReviewJpaEntity from(Review review) {
         return ReviewJpaEntity.builder()
+                .reviewKey(review.getReviewKey())
                 .reviewerId(review.getReviewerId())
                 .orderId(review.getOrderId())
                 .productId(review.getProductId())
