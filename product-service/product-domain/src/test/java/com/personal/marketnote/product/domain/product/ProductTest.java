@@ -2,9 +2,11 @@ package com.personal.marketnote.product.domain.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -202,6 +204,65 @@ class ProductTest {
         assertThat(product.getPopularity()).isNull();
         assertThat(product.getOrderNum()).isNull();
         assertThat(product.getDefaultPricePolicy()).isNull();
+        assertThat(product.getProductKey()).isNotNull();
+    }
+
+    @Nested
+    @DisplayName("productKey 생성/복원")
+    class ProductKeyTest {
+
+        @Test
+        @DisplayName("ProductCreateState로 생성하면 productKey가 자동으로 부여된다")
+        void shouldAssignProductKeyWhenCreatedFromCreateState() {
+            ProductCreateState state = createDefaultCreateState();
+
+            Product product = Product.from(state);
+
+            assertThat(product.getProductKey()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("ProductCreateState로 생성된 productKey는 UUID v7이다")
+        void shouldAssignUuidV7ProductKeyWhenCreatedFromCreateState() {
+            ProductCreateState state = createDefaultCreateState();
+
+            Product product = Product.from(state);
+
+            assertThat(product.getProductKey().version()).isEqualTo(7);
+        }
+
+        @Test
+        @DisplayName("동일 CreateState로 두 번 생성해도 productKey는 서로 다르다")
+        void shouldAssignDifferentProductKeyOnEachCreation() {
+            ProductCreateState state = createDefaultCreateState();
+
+            Product first = Product.from(state);
+            Product second = Product.from(state);
+
+            assertThat(first.getProductKey()).isNotEqualTo(second.getProductKey());
+        }
+
+        @Test
+        @DisplayName("ProductSnapshotState로 복원하면 productKey가 그대로 보존된다")
+        void shouldPreserveProductKeyWhenRestoredFromSnapshotState() {
+            UUID expectedKey = UUID.fromString("018f0000-0000-7000-8000-000000000001");
+            ProductSnapshotState state = ProductSnapshotState.builder()
+                    .id(1L)
+                    .productKey(expectedKey)
+                    .sellerId(100L)
+                    .name("테스트 상품")
+                    .brandName("테스트 브랜드")
+                    .detail("상품 설명")
+                    .findAllOptionsYn(false)
+                    .productTags(List.of())
+                    .orderNum(1L)
+                    .status(EntityStatus.ACTIVE)
+                    .build();
+
+            Product product = Product.from(state);
+
+            assertThat(product.getProductKey()).isEqualTo(expectedKey);
+        }
     }
 
     @Test
