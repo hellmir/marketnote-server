@@ -30,6 +30,7 @@ public class ProductJpaEntityToDomainMapper {
                             return Product.from(
                                     ProductSnapshotState.builder()
                                             .id(entity.getId())
+                                            .productKey(entity.getProductKey())
                                             .sellerId(entity.getSellerId())
                                             .name(entity.getName())
                                             .brandName(entity.getBrandName())
@@ -64,6 +65,7 @@ public class ProductJpaEntityToDomainMapper {
                             return Product.from(
                                     ProductSnapshotState.builder()
                                             .id(entity.getId())
+                                            .productKey(entity.getProductKey())
                                             .sellerId(entity.getSellerId())
                                             .name(entity.getName())
                                             .brandName(entity.getBrandName())
@@ -207,6 +209,7 @@ public class ProductJpaEntityToDomainMapper {
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(productJpaEntity.getId())
+                        .productKey(productJpaEntity.getProductKey())
                         .sellerId(productJpaEntity.getSellerId())
                         .name(productJpaEntity.getName())
                         .brandName(productJpaEntity.getBrandName())

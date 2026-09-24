@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.personal.marketnote.common.utility.EntityConstant.BOOLEAN_DEFAULT_FALSE;
@@ -32,6 +33,9 @@ import static jakarta.persistence.CascadeType.PERSIST;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class ProductJpaEntity extends BaseOrderedGeneralEntity {
+    @Column(name = "product_key", nullable = false, unique = true, updatable = false)
+    private UUID productKey;
+
     @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
@@ -67,6 +71,7 @@ public class ProductJpaEntity extends BaseOrderedGeneralEntity {
 
     public static ProductJpaEntity from(Product product) {
         ProductJpaEntity productJpaEntity = ProductJpaEntity.builder()
+                .productKey(product.getProductKey())
                 .sellerId(product.getSellerId())
                 .name(product.getName())
                 .brandName(product.getBrandName())

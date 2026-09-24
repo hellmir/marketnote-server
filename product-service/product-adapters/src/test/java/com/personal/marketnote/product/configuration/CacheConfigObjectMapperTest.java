@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +42,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
  * ArrayList는 공개 클래스이므로 ["java.util.ArrayList", [...]] 형태로 정상 직렬화된다.
  */
 class CacheConfigObjectMapperTest {
+
+    private static final UUID TEST_PRODUCT_KEY = UUID.fromString("018f0000-0000-7000-8000-000000000001");
 
     private ObjectMapper createCacheObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -95,6 +98,7 @@ class CacheConfigObjectMapperTest {
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(1L)
+                        .productKey(TEST_PRODUCT_KEY)
                         .sellerId(2L)
                         .name("테스트 상품")
                         .brandName("테스트 브랜드")
@@ -161,6 +165,7 @@ class CacheConfigObjectMapperTest {
         assertThat(deserialized).isInstanceOf(Product.class);
         Product result = (Product) deserialized;
         assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getProductKey()).isEqualTo(TEST_PRODUCT_KEY);
         assertThat(result.getName()).isEqualTo("테스트 상품");
         assertThat(result.isActive()).isTrue();
         assertThat(result.getProductTags()).hasSize(1);
