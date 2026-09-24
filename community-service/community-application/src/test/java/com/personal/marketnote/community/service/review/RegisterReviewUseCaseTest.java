@@ -189,6 +189,24 @@ class RegisterReviewUseCaseTest {
         verifyNoInteractions(saveReviewPort);
     }
 
+    @Test
+    @DisplayName("리뷰 등록 시 서버가 생성한 reviewKey가 Review에 포함된다")
+    void registerReview_includesGeneratedReviewKey() {
+        RegisterReviewCommand command = buildCommand("테스트유저");
+        Review savedReview = buildSavedReview(1L, command);
+        when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
+        when(getReviewUseCase.getProductReviewAggregate(anyLong()))
+                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+
+        registerReviewService.registerReview(command);
+
+        ArgumentCaptor<Review> reviewCaptor = ArgumentCaptor.forClass(Review.class);
+        verify(saveReviewPort).save(reviewCaptor.capture());
+        Review captured = reviewCaptor.getValue();
+
+        assertThat(captured.getReviewKey()).isNotNull();
+    }
+
     private Review buildSavedReview(Long id, RegisterReviewCommand command) {
         return Review.from(
                 ReviewSnapshotState.builder()
