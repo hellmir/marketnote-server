@@ -6,6 +6,7 @@ import com.personal.marketnote.community.domain.review.Review;
 import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
 import com.personal.marketnote.community.port.in.command.review.UpdateReviewCommand;
+import com.personal.marketnote.community.port.in.result.review.UpdateReviewResult;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
@@ -19,7 +20,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -83,6 +86,58 @@ class UpdateReviewUseCaseTest {
 
         verify(findProfanityWordPort).containsProfanity("좋은 상품입니다");
         verify(updateReviewPort).update(review);
+    }
+
+    @Test
+    @DisplayName("리뷰 수정 응답에 수정된 Review의 reviewKey가 포함된다")
+    void updateReview_resultContainsReviewKey() {
+        Long reviewId = 1L;
+        Long reviewerId = 10L;
+        Long productId = 50L;
+        UUID expectedReviewKey = UUID.randomUUID();
+        Review review = buildReviewWithKey(reviewId, reviewerId, productId, 5.0f, expectedReviewKey);
+        when(getReviewUseCase.getReview(reviewId)).thenReturn(review);
+        when(getReviewUseCase.getProductReviewAggregate(productId))
+                .thenReturn(buildProductReviewAggregate(productId));
+        UpdateReviewCommand command = UpdateReviewCommand.builder()
+                .id(reviewId)
+                .reviewerId(reviewerId)
+                .rating(4.0f)
+                .content("좋은 상품입니다")
+                .isPhoto(false)
+                .build();
+        when(findProfanityWordPort.containsProfanity("좋은 상품입니다")).thenReturn(false);
+
+        UpdateReviewResult result = updateReviewService.updateReview(command);
+
+        assertThat(result.reviewKey()).isEqualTo(expectedReviewKey);
+    }
+
+    private Review buildReviewWithKey(Long id, Long reviewerId, Long productId, Float rating, UUID reviewKey) {
+        return Review.from(
+                ReviewSnapshotState.builder()
+                        .id(id)
+                        .reviewKey(reviewKey)
+                        .reviewerId(reviewerId)
+                        .orderId(100L)
+                        .productId(productId)
+                        .pricePolicyId(30L)
+                        .productImageUrl("https://example.com/image.jpg")
+                        .selectedOptions("30개입, 5박스")
+                        .quantity(2)
+                        .reviewerName("테스트유저")
+                        .maskedReviewerName("테스트***")
+                        .rating(Rating.of(rating))
+                        .content("기존 리뷰 내용")
+                        .isPhoto(false)
+                        .isEdited(false)
+                        .likeCount(0)
+                        .status(EntityStatus.ACTIVE)
+                        .createdAt(LocalDateTime.now())
+                        .modifiedAt(LocalDateTime.now())
+                        .orderNum(id)
+                        .build()
+        );
     }
 
     private Review buildReview(Long id, Long reviewerId) {
