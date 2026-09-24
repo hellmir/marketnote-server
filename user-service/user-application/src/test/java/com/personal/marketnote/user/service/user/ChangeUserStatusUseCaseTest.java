@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserSnapshotState;
 import com.personal.marketnote.user.domain.user.UserStatusAction;
+import com.personal.marketnote.user.domain.user.UserStatusActor;
 import com.personal.marketnote.user.domain.user.UserStatusHistory;
 import com.personal.marketnote.user.domain.user.UserStatusHistorySnapshotState;
 import com.personal.marketnote.user.exception.AdminSelfDeactivationException;
@@ -82,6 +83,7 @@ class ChangeUserStatusUseCaseTest {
         assertThat(capturedHistory.getStatusAction()).isEqualTo(UserStatusAction.DEACTIVATE);
         assertThat(capturedHistory.getReason()).isEqualTo("욕설 사용");
         assertThat(capturedHistory.getDeactivatedUntil()).isEqualTo(deactivatedUntil);
+        assertThat(capturedHistory.getActor()).isEqualTo(UserStatusActor.ADMIN);
         assertThat(capturedHistory.getCreatedBy()).isEqualTo(ADMIN_ID);
     }
 
@@ -244,6 +246,7 @@ class ChangeUserStatusUseCaseTest {
                         .statusAction(action)
                         .reason("테스트 사유")
                         .deactivatedUntil(deactivatedUntil)
+                        .actor(UserStatusActor.ADMIN)
                         .createdBy(ADMIN_ID)
                         .createdAt(LocalDateTime.now())
                         .build()

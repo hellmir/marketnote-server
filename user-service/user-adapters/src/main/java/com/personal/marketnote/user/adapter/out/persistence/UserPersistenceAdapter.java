@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -156,6 +157,16 @@ public class UserPersistenceAdapter
                 .collect(Collectors.toList());
 
         return new PageImpl<>(users, pageable, userJpaEntityPage.getTotalElements());
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
+    public List<User> findAllByDeactivatedUntilExpired(LocalDateTime now) {
+        return userJpaRepository.findAllByDeactivatedUntilExpired(now).stream()
+                .map(UserJpaEntityToDomainMapper::mapToDomain)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     @Override

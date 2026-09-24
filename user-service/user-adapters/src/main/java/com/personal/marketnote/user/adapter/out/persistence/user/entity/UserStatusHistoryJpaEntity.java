@@ -2,6 +2,7 @@ package com.personal.marketnote.user.adapter.out.persistence.user.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.user.domain.user.UserStatusAction;
+import com.personal.marketnote.user.domain.user.UserStatusActor;
 import com.personal.marketnote.user.domain.user.UserStatusHistory;
 import com.personal.marketnote.user.domain.user.UserStatusHistorySnapshotState;
 import jakarta.persistence.Column;
@@ -47,7 +48,11 @@ public class UserStatusHistoryJpaEntity extends BaseEntity {
     @Column(name = "deactivated_until")
     private LocalDateTime deactivatedUntil;
 
-    @Column(name = "created_by", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "actor", nullable = false, length = 20)
+    private UserStatusActor actor;
+
+    @Column(name = "created_by")
     private Long createdBy;
 
     public static UserStatusHistoryJpaEntity from(UserStatusHistory history) {
@@ -57,6 +62,7 @@ public class UserStatusHistoryJpaEntity extends BaseEntity {
                 .statusAction(history.getStatusAction())
                 .reason(history.getReason())
                 .deactivatedUntil(history.getDeactivatedUntil())
+                .actor(history.getActor())
                 .createdBy(history.getCreatedBy())
                 .build();
     }
@@ -69,6 +75,7 @@ public class UserStatusHistoryJpaEntity extends BaseEntity {
                         .statusAction(statusAction)
                         .reason(reason)
                         .deactivatedUntil(deactivatedUntil)
+                        .actor(actor)
                         .createdBy(createdBy)
                         .createdAt(getCreatedAt())
                         .build()

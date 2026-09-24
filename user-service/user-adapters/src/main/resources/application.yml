@@ -150,3 +150,9 @@ profanity:
 remote-area:
   init:
     enabled: ${REMOTE_AREA_INIT_ENABLED:false}
+
+user:
+  activate-expired-deactivation:
+    scheduler:
+      enabled: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_ENABLED:true}
+      cron: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_CRON:0 0 * * * *}
