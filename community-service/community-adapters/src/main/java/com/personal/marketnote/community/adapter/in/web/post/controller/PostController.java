@@ -359,16 +359,17 @@ public class PostController {
     @PatchMapping("/{id}")
     @PreAuthorize(ADMIN_POINTCUT)
     @UpdatePostApiDocs
-    public ResponseEntity<BaseResponse<Void>> updatePost(
+    public ResponseEntity<BaseResponse<UpdatePostResponse>> updatePost(
             @PathVariable Long id,
             @Valid @RequestBody UpdatePostRequest request
     ) {
-        updatePostUseCase.updatePost(
+        UpdatePostResult result = updatePostUseCase.updatePost(
                 PostRequestToCommandMapper.mapToCommand(id, request)
         );
 
         return new ResponseEntity<>(
                 BaseResponse.of(
+                        UpdatePostResponse.from(result),
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "게시글 수정 성공"

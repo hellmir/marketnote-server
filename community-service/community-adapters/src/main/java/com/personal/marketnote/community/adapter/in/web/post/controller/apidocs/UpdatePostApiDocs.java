@@ -42,14 +42,21 @@ import java.lang.annotation.*;
                 | content | string | 내용 | Y | "게시글 내용" |
                 
                 ## Response
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | statusCode | number | HTTP 상태 코드 | 201 |
+                | statusCode | number | HTTP 상태 코드 | 200 |
                 | code | string | 응답 코드 | "SUC01" |
                 | timestamp | string(datetime) | 응답 일시 | "2026-01-09T16:32:18.828188" |
-                | content | null | 응답 본문 (Void) | null |
+                | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "게시글 수정 성공" |
+
+                ### Response > content
+
+                | **키** | **타입** | **설명** | **예시** |
+                | --- | --- | --- | --- |
+                | id | number | 수정된 게시글 ID | 3 |
+                | postKey | string(uuid) | 게시글 postKey (파일 업로드 ownerKey) | "01890d0a-1234-7000-89ab-0123456789ab" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -83,7 +90,10 @@ import java.lang.annotation.*;
                                           "statusCode": 200,
                                           "code": "SUC01",
                                           "timestamp": "2026-01-13T16:39:31.057206",
-                                          "content": null,
+                                          "content": {
+                                            "id": 3,
+                                            "postKey": "01890d0a-1234-7000-89ab-0123456789ab"
+                                          },
                                           "message": "게시글 수정 성공"
                                         }
                                         """)

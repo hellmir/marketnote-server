@@ -6,6 +6,7 @@ import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.exception.InvalidPostContentContainsProfanityException;
 import com.personal.marketnote.community.exception.PostNotEditableException;
 import com.personal.marketnote.community.port.in.command.post.UpdatePostCommand;
+import com.personal.marketnote.community.port.in.result.post.UpdatePostResult;
 import com.personal.marketnote.community.port.in.usecase.post.GetPostUseCase;
 import com.personal.marketnote.community.port.in.usecase.post.UpdatePostUseCase;
 import com.personal.marketnote.community.port.out.post.UpdatePostPort;
@@ -24,7 +25,7 @@ public class UpdatePostService implements UpdatePostUseCase {
     private final FindProfanityWordPort findProfanityWordPort;
 
     @Override
-    public void updatePost(UpdatePostCommand command) {
+    public UpdatePostResult updatePost(UpdatePostCommand command) {
         Long id = command.id();
         Post post = getPostUseCase.getPost(id);
 
@@ -38,6 +39,8 @@ public class UpdatePostService implements UpdatePostUseCase {
 
         post.update(command.title(), command.content());
         updatePostPort.update(post);
+
+        return UpdatePostResult.from(post);
     }
 
     private void validateProfanity(String title, String content) {
