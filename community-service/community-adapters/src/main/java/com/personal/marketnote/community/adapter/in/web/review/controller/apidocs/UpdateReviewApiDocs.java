@@ -39,14 +39,21 @@ import java.lang.annotation.*;
                 ---
                 
                 ## Response
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | statusCode | number | HTTP 상태 코드 | 200 |
                 | code | string | 응답 코드 | "SUC01" |
                 | timestamp | string(datetime) | 응답 일시 | "2026-01-12T16:32:18.828188" |
-                | content | object | 응답 본문 | null |
+                | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "리뷰 수정 성공" |
+
+                ### Response > content
+
+                | **키** | **타입** | **설명** | **예시** |
+                | --- | --- | --- | --- |
+                | id | number | 수정된 리뷰 ID | 1 |
+                | reviewKey | string(uuid) | 리뷰 reviewKey (파일 업로드 API ownerKey로 사용) | "01890d0a-1234-7000-89ab-0123456789ab" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -81,7 +88,10 @@ import java.lang.annotation.*;
                                           "statusCode": 200,
                                           "code": "SUC01",
                                           "timestamp": "2026-01-12T16:32:18.828188",
-                                          "content": null,
+                                          "content": {
+                                            "id": 1,
+                                            "reviewKey": "01890d0a-1234-7000-89ab-0123456789ab"
+                                          },
                                           "message": "리뷰 수정 성공"
                                         }
                                         """)
