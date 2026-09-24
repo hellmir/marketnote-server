@@ -247,6 +247,22 @@ class ReviewTest {
         assertThat(review.getReviewKey()).isEqualTo(reviewKey);
     }
 
+    @Test
+    @DisplayName("isOwnedBy는 동일한 reviewerId를 전달하면 true를 반환한다")
+    void shouldReturnTrueWhenOwnedByReviewerId() {
+        Review review = createActiveReview();
+
+        assertThat(review.isOwnedBy(100L)).isTrue();
+    }
+
+    @Test
+    @DisplayName("isOwnedBy는 다른 reviewerId를 전달하면 false를 반환한다")
+    void shouldReturnFalseWhenNotOwnedByReviewerId() {
+        Review review = createActiveReview();
+
+        assertThat(review.isOwnedBy(999L)).isFalse();
+    }
+
     private ReviewCreateState createDefaultCreateState(Rating rating) {
         return createDefaultCreateState(rating, "홍길동");
     }
