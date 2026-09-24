@@ -114,10 +114,11 @@ import java.lang.annotation.*;
                 | message | string | 처리 결과 | "게시글 등록 성공" |
                 
                 ### Response > content
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 생성된 게시글 ID | 3 |
+                | postKey | string(uuid) | 게시글 postKey (파일 업로드 ownerKey) | "01890d0a-1234-7000-89ab-0123456789ab" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -153,7 +154,8 @@ import java.lang.annotation.*;
                                           "code": "SUC01",
                                           "timestamp": "2026-01-13T16:39:31.057206",
                                           "content": {
-                                            "id": 3
+                                            "id": 3,
+                                            "postKey": "01890d0a-1234-7000-89ab-0123456789ab"
                                           },
                                           "message": "게시글 등록 성공"
                                         }
