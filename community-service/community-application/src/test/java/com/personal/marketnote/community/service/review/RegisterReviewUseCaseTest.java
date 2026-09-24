@@ -10,6 +10,7 @@ import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoun
 import com.personal.marketnote.community.exception.ReviewAlreadyExistsException;
 import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.community.port.in.command.review.RegisterReviewCommand;
+import com.personal.marketnote.community.port.in.result.review.RegisterReviewResult;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
 import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import com.personal.marketnote.community.port.out.order.VerifyOrderOwnershipPort;
@@ -25,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -205,6 +207,48 @@ class RegisterReviewUseCaseTest {
         Review captured = reviewCaptor.getValue();
 
         assertThat(captured.getReviewKey()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("리뷰 등록 응답에 저장된 Review의 reviewKey가 포함된다")
+    void registerReview_resultContainsReviewKey() {
+        RegisterReviewCommand command = buildCommand("테스트유저");
+        UUID expectedReviewKey = UUID.randomUUID();
+        Review savedReview = buildSavedReviewWithKey(1L, command, expectedReviewKey);
+        when(saveReviewPort.save(any(Review.class))).thenReturn(savedReview);
+        when(getReviewUseCase.getProductReviewAggregate(anyLong()))
+                .thenThrow(new ProductReviewAggregateNotFoundException(command.productId()));
+
+        RegisterReviewResult result = registerReviewService.registerReview(command);
+
+        assertThat(result.reviewKey()).isEqualTo(expectedReviewKey);
+    }
+
+    private Review buildSavedReviewWithKey(Long id, RegisterReviewCommand command, UUID reviewKey) {
+        return Review.from(
+                ReviewSnapshotState.builder()
+                        .id(id)
+                        .reviewKey(reviewKey)
+                        .reviewerId(command.reviewerId())
+                        .orderId(command.orderId())
+                        .productId(command.productId())
+                        .pricePolicyId(command.pricePolicyId())
+                        .productImageUrl(command.productImageUrl())
+                        .selectedOptions(command.selectedOptions())
+                        .quantity(command.quantity())
+                        .reviewerName(command.reviewerName())
+                        .maskedReviewerName(ValueMasker.mask(command.reviewerName()))
+                        .rating(Rating.of(command.rating()))
+                        .content(command.content())
+                        .isPhoto(command.isPhoto())
+                        .isEdited(false)
+                        .likeCount(0)
+                        .status(EntityStatus.ACTIVE)
+                        .createdAt(LocalDateTime.now())
+                        .modifiedAt(LocalDateTime.now())
+                        .orderNum(id)
+                        .build()
+        );
     }
 
     private Review buildSavedReview(Long id, RegisterReviewCommand command) {
