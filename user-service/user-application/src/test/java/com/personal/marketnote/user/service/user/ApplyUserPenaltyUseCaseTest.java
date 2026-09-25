@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ApplyUserPenaltyServiceTest {
+class ApplyUserPenaltyUseCaseTest {
     @Mock
     private GetUserUseCase getUserUseCase;
     @Mock

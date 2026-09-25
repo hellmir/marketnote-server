@@ -28,8 +28,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("DltReprocessService 테스트")
-class DltReprocessServiceTest {
+@DisplayName("DltReprocessUseCase 테스트")
+class DltReprocessUseCaseTest {
     @InjectMocks
     private DltReprocessService dltReprocessService;
 

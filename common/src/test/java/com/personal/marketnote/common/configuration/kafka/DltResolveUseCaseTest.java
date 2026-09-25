@@ -29,8 +29,8 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("DltResolveService 테스트")
-class DltResolveServiceTest {
+@DisplayName("DltResolveUseCase 테스트")
+class DltResolveUseCaseTest {
     @InjectMocks
     private DltResolveService dltResolveService;
 

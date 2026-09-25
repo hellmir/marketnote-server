@@ -19,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("OutboxQueryService 테스트")
-class OutboxQueryServiceTest {
+@DisplayName("OutboxQueryUseCase 테스트")
+class OutboxQueryUseCaseTest {
     private static final LocalDateTime FIXED_TIME = LocalDateTime.of(2026, 4, 2, 10, 0, 0);
 
     @InjectMocks
