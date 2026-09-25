@@ -130,6 +130,16 @@ public interface FindUserPort {
     Optional<User> findAllStatusUserByEmail(String email);
 
     /**
+     * @param authVendor 인증 제공자
+     * @param oidcId     외부 인증 ID
+     * @return 회원 {@link Optional<User>}
+     * @Date 2026-09-20
+     * @Author 성효빈
+     * @Description 인증 제공자와 외부 인증 ID로 활성화/비활성화/비노출 회원을 조회합니다.
+     */
+    Optional<User> findAllStatusUserByAuthVendorAndOidcId(AuthVendor authVendor, String oidcId);
+
+    /**
      * @param id 회원 ID
      * @return 회원 키 {@link Optional<UUID>}
      * @Date 2026-01-19

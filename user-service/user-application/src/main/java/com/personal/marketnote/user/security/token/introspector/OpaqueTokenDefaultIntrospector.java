@@ -42,37 +42,13 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
             OAuth2AuthenticationInfo userInfo = tokenSupport.authenticate(token);
             String oidcId = userInfo.id();
             AuthVendor authVendor = userInfo.authVendor();
-            User user = findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)
-                    .orElse(findUserPort.findById(userInfo.userId()).orElse(null));
+            String issuer = authVendor.name();
+            User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)
+                    .orElseGet(() -> findUserPort.findAllStatusUserById(userInfo.userId()).orElse(null));
 
-            if (FormatValidator.hasValue(user)) {
-                return new DefaultOAuth2AuthenticatedPrincipal(
-                        String.valueOf(user.getId()),
-                        Map.of(
-                                SUB_CLAIM_KEY, FormatValidator.hasValue(oidcId) ? oidcId : "",
-                                ISS_CLAIM_KEY, userInfo.authVendor().name()
-                        ),
-                        List.of(new SimpleGrantedAuthority(user.getRole().getId()))
-                );
-            }
-
-            return new DefaultOAuth2AuthenticatedPrincipal(
-                    "-1",
-                    Map.of(
-                            SUB_CLAIM_KEY, FormatValidator.hasValue(oidcId) ? oidcId : "",
-                            ISS_CLAIM_KEY, userInfo.authVendor().name()
-                    ),
-                    List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_GUEST.name()))
-            );
+            return resolvePrincipal(user, oidcId, issuer);
         } catch (InvalidAccessTokenException e) {
-            return new DefaultOAuth2AuthenticatedPrincipal(
-                    "-1",
-                    Map.of(
-                            SUB_CLAIM_KEY, "",
-                            ISS_CLAIM_KEY, AuthVendor.NATIVE.name()
-                    ),
-                    List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_ANONYMOUS.name()))
-            );
+            return buildAnonymousPrincipal("", AuthVendor.NATIVE.name());
         }
     }
 
@@ -119,27 +95,51 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
     private OAuth2AuthenticatedPrincipal parseVendorIdToken(String token, AuthVendor vendor) {
         JSONObject payload = parseJwtPayload(token);
         String oidcId = payload.optString(SUB_CLAIM_KEY, "");
+        String issuer = vendor.name();
 
-        User user = findUserPort.findByAuthVendorAndOidcId(vendor, oidcId).orElse(null);
+        User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(vendor, oidcId).orElse(null);
 
-        if (FormatValidator.hasValue(user)) {
-            return new DefaultOAuth2AuthenticatedPrincipal(
-                    String.valueOf(user.getId()),
-                    Map.of(
-                            SUB_CLAIM_KEY, oidcId,
-                            ISS_CLAIM_KEY, vendor.name()
-                    ),
-                    List.of(new SimpleGrantedAuthority(user.getRole().getId()))
-            );
+        return resolvePrincipal(user, oidcId, issuer);
+    }
+
+    private OAuth2AuthenticatedPrincipal resolvePrincipal(User user, String oidcId, String issuer) {
+        if (FormatValidator.hasNoValue(user)) {
+            return buildGuestPrincipal(oidcId, issuer);
         }
+        if (!user.isActive()) {
+            return buildAnonymousPrincipal(oidcId, issuer);
+        }
+        return buildUserPrincipal(user, oidcId, issuer);
+    }
 
+    private OAuth2AuthenticatedPrincipal buildUserPrincipal(User user, String oidcId, String issuer) {
+        return new DefaultOAuth2AuthenticatedPrincipal(
+                String.valueOf(user.getId()),
+                buildAttributes(oidcId, issuer),
+                List.of(new SimpleGrantedAuthority(user.getRole().getId()))
+        );
+    }
+
+    private OAuth2AuthenticatedPrincipal buildGuestPrincipal(String oidcId, String issuer) {
         return new DefaultOAuth2AuthenticatedPrincipal(
                 "-1",
-                Map.of(
-                        SUB_CLAIM_KEY, oidcId,
-                        ISS_CLAIM_KEY, vendor.name()
-                ),
+                buildAttributes(oidcId, issuer),
                 List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_GUEST.name()))
+        );
+    }
+
+    private OAuth2AuthenticatedPrincipal buildAnonymousPrincipal(String oidcId, String issuer) {
+        return new DefaultOAuth2AuthenticatedPrincipal(
+                "-1",
+                buildAttributes(oidcId, issuer),
+                List.of(new SimpleGrantedAuthority(PrimaryRole.ROLE_ANONYMOUS.name()))
+        );
+    }
+
+    private Map<String, Object> buildAttributes(String oidcId, String issuer) {
+        return Map.of(
+                SUB_CLAIM_KEY, FormatValidator.hasValue(oidcId) ? oidcId : "",
+                ISS_CLAIM_KEY, issuer
         );
     }
 
