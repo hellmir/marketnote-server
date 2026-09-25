@@ -124,6 +124,14 @@ public class UserPersistenceAdapter
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
+    public Optional<User> findAllStatusUserByAuthVendorAndOidcId(AuthVendor authVendor, String oidcId) {
+        return UserJpaEntityToDomainMapper.mapToDomain(
+                userJpaRepository.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId).orElse(null)
+        );
+    }
+
+    @Override
     public Optional<UUID> findUserKeyById(Long id) {
         return Optional.ofNullable(findEntityById(id).getUserKey());
     }

@@ -139,6 +139,23 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             SELECT u
             FROM UserJpaEntity u
             WHERE 1 = 1
+                AND EXISTS (
+                    SELECT 1
+                    FROM UserOauth2VendorJpaEntity uov
+                    WHERE uov.userJpaEntity = u
+                    AND uov.authVendor = :authVendor
+                    AND uov.oidcId = :oidcId
+                )
+            ORDER BY u.orderNum ASC
+            """)
+    Optional<UserJpaEntity> findAllStatusUserByAuthVendorAndOidcId(
+            @Param("authVendor") AuthVendor authVendor, @Param("oidcId") String oidcId
+    );
+
+    @Query("""
+            SELECT u
+            FROM UserJpaEntity u
+            WHERE 1 = 1
             ORDER BY u.orderNum ASC
             """)
     List<UserJpaEntity> findAllStatusUsers();
