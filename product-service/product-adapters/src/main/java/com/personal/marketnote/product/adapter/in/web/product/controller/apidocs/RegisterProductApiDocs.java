@@ -101,10 +101,11 @@ import java.lang.annotation.*;
                 ---
                 
                 ### Response > content
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | id | number | 상품 ID | 1 |
+                | productKey | string(uuid) | 상품 productKey | "01890d0a-1234-7000-89ab-0123456789ab" |
                 """, security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
                 required = true,
@@ -136,7 +137,8 @@ import java.lang.annotation.*;
                                           "code": "SUC01",
                                           "timestamp": "2025-12-30T12:12:30.013",
                                           "content": {
-                                            "id": 1
+                                            "id": 1,
+                                            "productKey": "01890d0a-1234-7000-89ab-0123456789ab"
                                           },
                                           "message": "상품 등록 성공"
                                         }
