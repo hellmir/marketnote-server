@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +28,7 @@ class EventEnvelopeTest {
 
         // then
         assertThat(envelope.eventId()).isNotNull();
-        assertThat(envelope.eventId()).matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$");
+        assertThat(UUID.fromString(envelope.eventId()).version()).isEqualTo(7);
     }
 
     @Test
