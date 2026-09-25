@@ -63,16 +63,16 @@ public class RandomCodeGenerator {
         return generateUuidV7();
     }
 
-    public static UUID generateOrderProductKey() {
-        return generateUuidV7Epoch();
-    }
-
     public static UUID generatePostKey() {
         return generateUuidV7();
     }
 
+    public static UUID generateOrderProductKey() {
+        return generateUuidV7();
+    }
+
     public static UUID generateReviewKey() {
-        return generateUuidV7Epoch();
+        return generateUuidV7();
     }
 
     public static UUID generateProductKey() {
@@ -80,10 +80,6 @@ public class RandomCodeGenerator {
     }
 
     private static UUID generateUuidV7() {
-        return UuidCreator.getTimeOrdered();
-    }
-
-    private static UUID generateUuidV7Epoch() {
         return UuidCreator.getTimeOrderedEpoch();
     }
 }

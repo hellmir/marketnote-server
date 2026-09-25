@@ -19,7 +19,7 @@ public record EventEnvelope<T>(
 
     public static <T> EventEnvelope<T> of(String eventType, String source, T payload, Clock clock) {
         return EventEnvelope.<T>builder()
-                .eventId(UuidCreator.getTimeOrdered().toString())
+                .eventId(UuidCreator.getTimeOrderedEpoch().toString())
                 .eventType(eventType)
                 .source(source)
                 .timestamp(LocalDateTime.now(clock))
