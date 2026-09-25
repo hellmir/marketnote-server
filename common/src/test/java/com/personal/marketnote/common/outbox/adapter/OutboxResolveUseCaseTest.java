@@ -26,8 +26,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("OutboxResolveService 테스트")
-class OutboxResolveServiceTest {
+@DisplayName("OutboxResolveUseCase 테스트")
+class OutboxResolveUseCaseTest {
     private static final Clock FIXED_CLOCK = Clock.fixed(
             Instant.parse("2026-04-05T10:00:00Z"), ZoneId.of("Asia/Seoul")
     );

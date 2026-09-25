@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class GetPostKeyServiceTest {
+class GetPostKeyUseCaseTest {
     @Mock
     private FindPostPort findPostPort;
 

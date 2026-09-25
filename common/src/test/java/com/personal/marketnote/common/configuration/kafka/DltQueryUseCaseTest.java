@@ -29,8 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("DltQueryService 테스트")
-class DltQueryServiceTest {
+@DisplayName("DltQueryUseCase 테스트")
+class DltQueryUseCaseTest {
 
     @InjectMocks
     private DltQueryService dltQueryService;
