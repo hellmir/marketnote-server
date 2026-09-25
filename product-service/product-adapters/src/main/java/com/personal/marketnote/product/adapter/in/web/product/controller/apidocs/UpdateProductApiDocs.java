@@ -52,8 +52,17 @@ import java.lang.annotation.*;
                 | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 |
                 | code | string | 응답 코드 | "SUC01" / "BAD_REQUEST" / "UNAUTHORIZED" / "FORBIDDEN" / "NOT_FOUND" / "CONFLICT" / "INTERNAL_SERVER_ERROR" |
                 | timestamp | string(datetime) | 응답 일시 | "2026-01-01T12:12:30.013" |
-                | content | object | 응답 본문 | null |
+                | content | object | 응답 본문 | { ... } |
                 | message | string | 처리 결과 | "상품 정보 수정 성공" |
+
+                ---
+
+                ### Response > content
+
+                | **키** | **타입** | **설명** | **예시** |
+                | --- | --- | --- | --- |
+                | id | number | 상품 ID | 1 |
+                | productKey | string(uuid) | 상품 productKey | "01890d0a-1234-7000-89ab-0123456789ab" |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         requestBody = @RequestBody(
@@ -89,7 +98,10 @@ import java.lang.annotation.*;
                                           "statusCode": 200,
                                           "code": "SUC01",
                                           "timestamp": "2026-01-01T12:12:30.013",
-                                          "content": null,
+                                          "content": {
+                                            "id": 1,
+                                            "productKey": "01890d0a-1234-7000-89ab-0123456789ab"
+                                          },
                                           "message": "상품 정보 수정 성공"
                                         }
                                         """)

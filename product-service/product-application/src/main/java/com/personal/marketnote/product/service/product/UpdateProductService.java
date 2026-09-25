@@ -7,6 +7,7 @@ import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.mapper.ProductUpdatedEventMapper;
 import com.personal.marketnote.product.port.in.command.UpdateProductCommand;
+import com.personal.marketnote.product.port.in.result.product.UpdateProductResult;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.UpdateProductUseCase;
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
@@ -28,7 +29,7 @@ public class UpdateProductService implements UpdateProductUseCase {
     private final PublishProductEventPort publishProductEventPort;
 
     @Override
-    public void update(Long userId, boolean isAdmin, UpdateProductCommand command) {
+    public UpdateProductResult update(Long userId, boolean isAdmin, UpdateProductCommand command) {
         Long id = command.id();
         if (!isAdmin && !findProductPort.existsByIdAndSellerId(id, userId)) {
             throw new NotProductOwnerException(FIRST_ERROR_CODE, id);
@@ -48,5 +49,7 @@ public class UpdateProductService implements UpdateProductUseCase {
 
             publishProductEventPort.publishProductUpdatedEvent(productUpdatedEvent);
         }
+
+        return UpdateProductResult.from(product);
     }
 }
