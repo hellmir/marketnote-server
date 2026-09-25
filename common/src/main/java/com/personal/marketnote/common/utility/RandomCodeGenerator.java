@@ -76,7 +76,7 @@ public class RandomCodeGenerator {
     }
 
     public static UUID generateProductKey() {
-        return generateUuidV7Epoch();
+        return generateUuidV7();
     }
 
     private static UUID generateUuidV7() {

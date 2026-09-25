@@ -374,12 +374,12 @@ public class ProductController {
     @PutMapping("/{id}")
     @PreAuthorize(ADMIN_OR_SELLER_POINTCUT)
     @UpdateProductApiDocs
-    public ResponseEntity<BaseResponse<Void>> updateProduct(
+    public ResponseEntity<BaseResponse<UpdateProductResponse>> updateProduct(
             @PathVariable("id") Long id,
             @Valid @RequestBody UpdateProductRequest request,
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
-        updateProductUseCase.update(
+        UpdateProductResult result = updateProductUseCase.update(
                 ElementExtractor.extractUserId(principal),
                 AuthorityValidator.hasAdminRole(principal),
                 ProductRequestToCommandMapper.mapToCommand(id, request)
@@ -387,7 +387,7 @@ public class ProductController {
 
         return ResponseEntity.ok(
                 BaseResponse.of(
-                        null,
+                        UpdateProductResponse.from(result),
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "상품 정보 수정 성공"
