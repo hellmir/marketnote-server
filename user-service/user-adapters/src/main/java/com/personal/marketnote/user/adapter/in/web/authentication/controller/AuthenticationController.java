@@ -16,9 +16,11 @@ import com.personal.marketnote.user.adapter.in.web.authentication.response.verif
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.VerifyCodeRequest;
 import com.personal.marketnote.user.adapter.out.vendor.authentication.WebBasedAuthenticationServiceAdapter;
+import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.port.in.result.VerifyCodeResult;
 import com.personal.marketnote.user.port.in.usecase.authentication.SendEmailVerificationUseCase;
 import com.personal.marketnote.user.port.in.usecase.authentication.VerifyCodeUseCase;
+import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.utility.jwt.JwtUtil;
@@ -66,6 +68,7 @@ public class AuthenticationController {
     private final VerifyCodeUseCase verifyCodeUseCase;
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate stringRedisTemplate;
+    private final FindUserPort findUserPort;
 
     /**
      * OAuth2 로그인
@@ -120,6 +123,11 @@ public class AuthenticationController {
         String stored = stringRedisTemplate.opsForValue().get(redisKey);
 
         if (FormatValidator.notEquals(expected, stored)) {
+            return new ResponseEntity<>(respondError(), HttpStatus.UNAUTHORIZED);
+        }
+
+        User user = findUserPort.findAllStatusUserById(userId).orElse(null);
+        if (FormatValidator.hasNoValue(user) || !user.isActive()) {
             return new ResponseEntity<>(respondError(), HttpStatus.UNAUTHORIZED);
         }
 

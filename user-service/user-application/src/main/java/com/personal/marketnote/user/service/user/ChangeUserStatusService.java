@@ -10,6 +10,7 @@ import com.personal.marketnote.user.port.in.result.ChangeUserStatusResult;
 import com.personal.marketnote.user.port.in.usecase.user.ChangeUserStatusUseCase;
 import com.personal.marketnote.user.exception.AdminSelfDeactivationException;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.out.authentication.DeleteRefreshTokenPort;
 import com.personal.marketnote.user.port.out.user.SaveUserStatusHistoryPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class ChangeUserStatusService implements ChangeUserStatusUseCase {
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserPort updateUserPort;
     private final SaveUserStatusHistoryPort saveUserStatusHistoryPort;
+    private final DeleteRefreshTokenPort deleteRefreshTokenPort;
 
     @Override
     public ChangeUserStatusResult changeStatus(ChangeUserStatusCommand command) {
@@ -57,6 +59,7 @@ public class ChangeUserStatusService implements ChangeUserStatusUseCase {
     private void applyStatusChange(User user, UserStatusAction action, LocalDateTime deactivatedUntil) {
         if (action.isDeactivate()) {
             user.deactivateWithDuration(deactivatedUntil);
+            deleteRefreshTokenPort.deleteByUserId(user.getId());
             return;
         }
         user.activateFromDeactivation();
