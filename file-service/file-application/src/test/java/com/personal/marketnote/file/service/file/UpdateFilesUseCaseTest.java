@@ -289,6 +289,82 @@ class UpdateFilesUseCaseTest {
         );
     }
 
+    @Test
+    @DisplayName("관리자가 아이콘을 업로드하면 정상 처리된다")
+    void updateFiles_admin_icon_processesSuccessfully() {
+        UpdateFilesCommand command = buildCommand(FileSort.ICON.name(), 1, "ADMIN");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.ICON.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/icon_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+
+        assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
+
+        verify(uploadFilesPort).uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L));
+        verify(saveFilesPort).saveAll(anyList(), anyList());
+        verify(publishImageEventPort).publishImageCreatedEvents(anyList());
+    }
+
+    @Test
+    @DisplayName("판매자가 아이콘을 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_seller_icon_throws() {
+        UpdateFilesCommand command = buildCommand(FileSort.ICON.name(), 1, "SELLER");
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
+    @Test
+    @DisplayName("구매자가 아이콘을 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_buyer_icon_throws() {
+        UpdateFilesCommand command = buildCommand(FileSort.ICON.name(), 1, "BUYER");
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
+    @Test
+    @DisplayName("판매자가 기타 파일을 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_seller_etc_throws() {
+        UpdateFilesCommand command = buildCommand(FileSort.ETC.name(), 1, "SELLER");
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
+    @Test
+    @DisplayName("판매자가 리뷰 이미지와 아이콘을 혼합 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_seller_mixedReviewAndIcon_throws() {
+        UpdateFilesCommand command = buildCommandWithSorts(
+                List.of(FileSort.REVIEW_IMAGE.name(), FileSort.ICON.name()),
+                "SELLER"
+        );
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
     private static FileDomain snapshotFileDomain(Long userId, String ownerKey) {
         return FileDomain.from(FileDomainSnapshotState.builder()
                 .id(1L)
