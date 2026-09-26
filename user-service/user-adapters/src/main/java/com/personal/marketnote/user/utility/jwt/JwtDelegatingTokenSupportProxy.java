@@ -6,6 +6,7 @@ import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeExce
 import com.personal.marketnote.common.utility.FormatConverter;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserCreateState;
+import com.personal.marketnote.user.exception.UserNotActiveException;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.dto.OAuth2AuthenticationInfo;
@@ -19,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 
 import java.util.List;
 
@@ -42,7 +45,7 @@ public class JwtDelegatingTokenSupportProxy extends DelegatingTokenSupport {
     public GrantedTokenInfo grantToken(String code, String redirectUri, AuthVendor authVendor) throws UnsupportedCodeException {
         GrantedTokenInfo tokenFrom3rdParty = super.grantToken(code, redirectUri, authVendor);
         String oidcId = tokenFrom3rdParty.id();
-        User user = findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)
+        User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)
                 .orElse(User.from(
                         UserCreateState.builder()
                                 .authVendor(authVendor)
@@ -50,6 +53,10 @@ public class JwtDelegatingTokenSupportProxy extends DelegatingTokenSupport {
                                 .guest(true)
                                 .build()
                 ));
+
+        if (!user.isGuest() && !user.isActive()) {
+            throw new UserNotActiveException(FIRST_ERROR_CODE, authVendor);
+        }
 
         OAuth2UserInfo userInfo = user.isGuest()
                 ? retrieveUserInfo(tokenFrom3rdParty.accessToken())
