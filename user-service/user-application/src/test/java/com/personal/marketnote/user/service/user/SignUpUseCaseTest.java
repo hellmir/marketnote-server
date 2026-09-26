@@ -380,6 +380,69 @@ class SignUpUseCaseTest {
         verify(updateUserPort).update(withdrawnUser);
     }
 
+    @Test
+    @DisplayName("닉네임이 null이면 중복/금칙어 검사를 건너뛰고 회원 가입이 성공한다")
+    void signUp_nicknameNull_success() {
+        // given
+        String email = "user@test.com";
+        String password = "password1!";
+        SignUpCommand command = createCommand(email, password, "123456", null, "홍길동", null);
+
+        when(findUserPort.existsByEmail(email)).thenReturn(false);
+        when(verifyCodePort.verify(email, "123456")).thenReturn(true);
+        when(findTermsPort.findAll()).thenReturn(List.of(mock(Terms.class)));
+        when(passwordEncoder.encode(password)).thenReturn("encoded");
+
+        UUID userKey = UUID.randomUUID();
+        User savedUser = mock(User.class);
+        when(savedUser.getId()).thenReturn(100L);
+        when(savedUser.getUserKey()).thenReturn(userKey);
+        when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        // when
+        SignUpResult result = signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        assertThat(result.id()).isEqualTo(100L);
+        assertThat(result.isNewUser()).isTrue();
+
+        verify(findProfanityWordPort, never()).containsProfanity(any());
+        verify(findUserPort, never()).existsByNickname(any());
+        verify(saveUserPort).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("닉네임이 빈 문자열이면 중복/금칙어 검사를 건너뛰고 회원 가입이 성공한다")
+    void signUp_nicknameBlank_success() {
+        // given
+        String email = "user@test.com";
+        String password = "password1!";
+        SignUpCommand command = createCommand(email, password, "123456", "   ", "홍길동", null);
+
+        when(findUserPort.existsByEmail(email)).thenReturn(false);
+        when(verifyCodePort.verify(email, "123456")).thenReturn(true);
+        when(findTermsPort.findAll()).thenReturn(List.of(mock(Terms.class)));
+        when(passwordEncoder.encode(password)).thenReturn("encoded");
+
+        UUID userKey = UUID.randomUUID();
+        User savedUser = mock(User.class);
+        when(savedUser.getId()).thenReturn(101L);
+        when(savedUser.getUserKey()).thenReturn(userKey);
+        when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        // when
+        SignUpResult result = signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        assertThat(result.id()).isEqualTo(101L);
+
+        verify(findProfanityWordPort, never()).containsProfanity(any());
+        verify(findUserPort, never()).existsByNickname(any());
+        verify(saveUserPort).save(any(User.class));
+    }
+
     private SignUpCommand createCommand(
             String email,
             String password,

@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.PasswordNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.Terms;
@@ -104,14 +105,16 @@ public class SignUpService implements SignUpUseCase {
         }
 
         String nickname = signUpCommand.nickname();
-        if (findProfanityWordPort.containsProfanity(nickname)) {
-            throw new InvalidNicknameContainsProfanityException(THIRD_ERROR_CODE, nickname);
-        }
+        if (FormatValidator.hasValue(nickname)) {
+            if (findProfanityWordPort.containsProfanity(nickname)) {
+                throw new InvalidNicknameContainsProfanityException(THIRD_ERROR_CODE, nickname);
+            }
 
-        if (findUserPort.existsByNickname(nickname)) {
-            throw new UserExistsException(
-                    String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, THIRD_ERROR_CODE, nickname)
-            );
+            if (findUserPort.existsByNickname(nickname)) {
+                throw new UserExistsException(
+                        String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, THIRD_ERROR_CODE, nickname)
+                );
+            }
         }
 
         if (signUpCommand.hasPhoneNumber()) {

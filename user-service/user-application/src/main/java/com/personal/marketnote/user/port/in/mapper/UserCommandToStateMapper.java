@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.port.in.mapper;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.Terms;
 import com.personal.marketnote.user.domain.user.UserCreateState;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
@@ -25,10 +26,12 @@ public final class UserCommandToStateMapper {
             encodedPassword = passwordEncoder.encode(command.password());
         }
 
+        String nickname = FormatValidator.hasValue(command.nickname()) ? command.nickname() : null;
+
         return UserCreateState.builder()
                 .authVendor(authVendor)
                 .oidcId(oidcId)
-                .nickname(command.nickname())
+                .nickname(nickname)
                 .email(command.email())
                 .encodedPassword(encodedPassword)
                 .fullName(command.fullName())
