@@ -69,6 +69,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
         }
 
         validateProductImageRole(updateFilesCommand.fileInfo(), requesterRole);
+        validateAdminOnlyFileRole(updateFilesCommand.fileInfo(), requesterRole);
 
         // 기존 파일 목록이 존재하는 경우 소유권 검증 후 비활성화
         List<FileDomain> currentFiles = getFileUseCase.getFiles(OwnerType.from(ownerType), ownerId, sort);
@@ -145,6 +146,17 @@ public class UpdateFilesService implements UpdateFileUseCase {
         }
         for (UpdateFileCommand item : fileInfos) {
             if (FileSort.from(item.sort()).isProductImage()) {
+                throw new InvalidFileRoleException();
+            }
+        }
+    }
+
+    private void validateAdminOnlyFileRole(List<UpdateFileCommand> fileInfos, String requesterRole) {
+        if (ROLE_ADMIN.equals(requesterRole)) {
+            return;
+        }
+        for (UpdateFileCommand item : fileInfos) {
+            if (FileSort.from(item.sort()).isAdminOnly()) {
                 throw new InvalidFileRoleException();
             }
         }

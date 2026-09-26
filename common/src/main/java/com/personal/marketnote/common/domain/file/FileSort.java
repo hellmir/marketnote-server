@@ -43,4 +43,8 @@ public enum FileSort {
                 || this == FileSort.PRODUCT_REPRESENTATIVE_IMAGE
                 || this == FileSort.PRODUCT_CONTENT_IMAGE;
     }
+
+    public boolean isAdminOnly() {
+        return this == FileSort.ICON || this == FileSort.ETC;
+    }
 }
