@@ -36,7 +36,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "user_key", nullable = false, unique = true)
     private UUID userKey;
 
-    @Column(name = "nickname", nullable = false, unique = true, length = 31)
+    @Column(name = "nickname", unique = true, length = 31)
     private String nickname;
 
     @Column(name = "email", unique = true)
