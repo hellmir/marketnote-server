@@ -52,6 +52,8 @@ public class UpdateFilesService implements UpdateFileUseCase {
     public void updateFiles(UpdateFilesCommand updateFilesCommand) {
         String ownerType = updateFilesCommand.ownerType();
         Long ownerId = updateFilesCommand.ownerId();
+        String ownerKey = updateFilesCommand.ownerKey();
+        Long requesterId = updateFilesCommand.requesterId();
         String sort = updateFilesCommand.fileInfo().getFirst().sort();
 
         FileSort fileSort = FileSort.from(sort);
@@ -61,9 +63,10 @@ public class UpdateFilesService implements UpdateFileUseCase {
             throw new InvalidFileCountLimitException(maxCount, requestedCount);
         }
 
-        // 기존 파일 목록이 존재하는 경우 비활성화
+        // 기존 파일 목록이 존재하는 경우 소유권 검증 후 비활성화
         List<FileDomain> currentFiles = getFileUseCase.getFiles(OwnerType.from(ownerType), ownerId, sort);
         if (FormatValidator.hasValue(currentFiles)) {
+            currentFiles.forEach(file -> file.validateOwner(requesterId, ownerKey));
             List<ImageEventCommand> deletedEvents = buildImageEventCommands(currentFiles);
             currentFiles.forEach(FileDomain::delete);
             List<ResizedFile> resizedFiles = getFileUseCase.getResizedFiles(currentFiles);

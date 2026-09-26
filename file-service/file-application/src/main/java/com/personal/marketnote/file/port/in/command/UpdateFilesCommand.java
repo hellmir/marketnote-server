@@ -8,6 +8,8 @@ import java.util.List;
 public record UpdateFilesCommand(
         List<UpdateFileCommand> fileInfo,
         String ownerType,
-        Long ownerId
+        Long ownerId,
+        String ownerKey,
+        Long requesterId
 ) {
 }

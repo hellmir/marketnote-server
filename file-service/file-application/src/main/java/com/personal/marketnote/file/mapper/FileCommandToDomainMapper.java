@@ -21,6 +21,8 @@ public class FileCommandToDomainMapper {
                                 .sort(FileSort.from(fileInfo.sort()))
                                 .extension(fileInfo.extension())
                                 .name(fileInfo.name())
+                                .userId(updateFilesCommand.requesterId())
+                                .ownerKey(updateFilesCommand.ownerKey())
                                 .build()
                 ))
                 .toList();

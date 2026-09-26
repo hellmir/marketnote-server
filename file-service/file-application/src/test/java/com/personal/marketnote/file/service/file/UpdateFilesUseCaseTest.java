@@ -102,6 +102,8 @@ class UpdateFilesUseCaseTest {
                 .fileInfo(fileCommands)
                 .ownerType("PRODUCT")
                 .ownerId(1L)
+                .ownerKey("test-owner-key")
+                .requesterId(100L)
                 .build();
     }
 }

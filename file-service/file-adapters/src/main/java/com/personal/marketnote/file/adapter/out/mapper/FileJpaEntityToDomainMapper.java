@@ -22,6 +22,8 @@ public class FileJpaEntityToDomainMapper {
                                 .createdAt(entity.getCreatedAt())
                                 .status(entity.getStatus())
                                 .orderNum(entity.getOrderNum())
+                                .userId(entity.getUserId())
+                                .ownerKey(entity.getOwnerKey())
                                 .build()
                 ));
     }

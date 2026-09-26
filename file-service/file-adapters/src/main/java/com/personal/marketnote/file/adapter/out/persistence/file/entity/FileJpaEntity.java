@@ -42,6 +42,12 @@ public class FileJpaEntity extends BaseGeneralEntity {
 
     private Long orderNum;
 
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "owner_key", length = 64)
+    private String ownerKey;
+
     public static FileJpaEntity from(FileDomain domain, String storageUrl) {
         return FileJpaEntity.builder()
                 .ownerType(domain.getOwnerType())
@@ -50,6 +56,8 @@ public class FileJpaEntity extends BaseGeneralEntity {
                 .extension(domain.getExtension())
                 .name(domain.getName())
                 .storageUrl(storageUrl)
+                .userId(domain.getUserId())
+                .ownerKey(domain.getOwnerKey())
                 .build();
     }
 
@@ -66,6 +74,8 @@ public class FileJpaEntity extends BaseGeneralEntity {
         ownerType = file.getOwnerType();
         ownerId = file.getOwnerId();
         orderNum = file.getOrderNum();
+        userId = file.getUserId();
+        ownerKey = file.getOwnerKey();
     }
 
     private void updateActivation(FileDomain fileDomain) {
