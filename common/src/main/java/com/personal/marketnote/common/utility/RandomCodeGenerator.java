@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class RandomCodeGenerator {
-    private static final char[] REFERENCE_CODE_AALLOWED_LETTERS = "ABCDEFGHJKMNPQRTUVWXYZ".toCharArray();
-    private static final char[] REFERENCE_CODE_ALLOWED_DIGITS = "2346789".toCharArray();
+    private static final char[] REFERENCE_CODE_AALLOWED_LETTERS = "ABCDEFGHJKLMNPQRTUVWXY".toCharArray();
+    private static final char[] REFERENCE_CODE_ALLOWED_DIGITS = "346789".toCharArray();
     private static final char[] ALL_ALLOWED_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
     private static final char[] ALL_DIGITS = "1234567890".toCharArray();
 
