@@ -14,11 +14,13 @@ import org.json.JSONObject;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.ISS_CLAIM_KEY;
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.SUB_CLAIM_KEY;
@@ -26,9 +28,12 @@ import static com.personal.marketnote.common.security.token.utility.TokenConstan
 @RequiredArgsConstructor
 @Slf4j
 public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
+    private static final Set<String> ASYMMETRIC_ALGORITHMS = Set.of("RS256", "ES256");
+
     private final TokenSupport tokenSupport;
     private final FindUserPort findUserPort;
     private final Map<AuthVendor, List<String>> vendorIssuerMap;
+    private final VendorIdTokenVerifier vendorIdTokenVerifier;
 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
@@ -38,7 +43,6 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
                 return parseVendorIdToken(token, resolvedVendor);
             }
 
-            // Default path: our own JWT or opaque token handled by TokenSupport
             OAuth2AuthenticationInfo userInfo = tokenSupport.authenticate(token);
             String oidcId = userInfo.id();
             AuthVendor authVendor = userInfo.authVendor();
@@ -69,9 +73,11 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
             JSONObject payload = new JSONObject(payloadJson);
 
             boolean isJwt = "JWT".equalsIgnoreCase(header.optString("typ", "JWT"));
-            boolean isRs256 = "RS256".equalsIgnoreCase(header.optString("alg", ""));
+            // pre-filter only: actual algorithm enforcement is done by NimbusJwtDecoder in VendorIdTokenVerifier
+            String alg = header.optString("alg", "").toUpperCase();
+            boolean isAsymmetricAlg = ASYMMETRIC_ALGORITHMS.contains(alg);
 
-            if (!isJwt || !isRs256) {
+            if (!isJwt || !isAsymmetricAlg) {
                 return null;
             }
 
@@ -93,13 +99,15 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
     }
 
     private OAuth2AuthenticatedPrincipal parseVendorIdToken(String token, AuthVendor vendor) {
-        JSONObject payload = parseJwtPayload(token);
-        String oidcId = payload.optString(SUB_CLAIM_KEY, "");
-        String issuer = vendor.name();
-
-        User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(vendor, oidcId).orElse(null);
-
-        return resolvePrincipal(user, oidcId, issuer);
+        try {
+            String oidcId = vendorIdTokenVerifier.verifyAndExtractSubject(token, vendor);
+            String issuer = vendor.name();
+            User user = findUserPort.findAllStatusUserByAuthVendorAndOidcId(vendor, oidcId).orElse(null);
+            return resolvePrincipal(user, oidcId, issuer);
+        } catch (JwtException e) {
+            log.warn("벤더 ID 토큰 검증 실패: vendor={}, error={}", vendor, e.getMessage());
+            return buildAnonymousPrincipal("", vendor.name());
+        }
     }
 
     private OAuth2AuthenticatedPrincipal resolvePrincipal(User user, String oidcId, String issuer) {
@@ -141,11 +149,5 @@ public class OpaqueTokenDefaultIntrospector implements OpaqueTokenIntrospector {
                 SUB_CLAIM_KEY, FormatValidator.hasValue(oidcId) ? oidcId : "",
                 ISS_CLAIM_KEY, issuer
         );
-    }
-
-    private JSONObject parseJwtPayload(String token) {
-        String[] parts = token.split("\\.");
-        String payloadJson = new String(Base64.getUrlDecoder().decode(parts[1]));
-        return new JSONObject(payloadJson);
     }
 }
