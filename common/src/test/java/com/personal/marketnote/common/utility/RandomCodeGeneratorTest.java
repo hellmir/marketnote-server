@@ -54,6 +54,63 @@ class RandomCodeGeneratorTest {
     }
 
     @Nested
+    @DisplayName("generateReferenceCode")
+    class GenerateReferenceCodeTest {
+
+        @Test
+        @DisplayName("생성된 코드는 6자리이다")
+        void shouldReturnSixCharacterCode() {
+            String code = RandomCodeGenerator.generateReferenceCode();
+
+            assertThat(code).hasSize(6);
+        }
+
+        @Test
+        @DisplayName("홀수 위치(1,3,5)에는 허용 문자만 포함된다")
+        void shouldContainAllowedLettersAtOddPositions() {
+            String allowedLetters = "ABCDEFGHJKLMNPQRTUVWXY";
+
+            for (int i = 0; i < 100; i++) {
+                String code = RandomCodeGenerator.generateReferenceCode();
+                assertThat(allowedLetters).contains(String.valueOf(code.charAt(0)));
+                assertThat(allowedLetters).contains(String.valueOf(code.charAt(2)));
+                assertThat(allowedLetters).contains(String.valueOf(code.charAt(4)));
+            }
+        }
+
+        @Test
+        @DisplayName("짝수 위치(2,4,6)에는 허용 숫자만 포함된다")
+        void shouldContainAllowedDigitsAtEvenPositions() {
+            String allowedDigits = "346789";
+
+            for (int i = 0; i < 100; i++) {
+                String code = RandomCodeGenerator.generateReferenceCode();
+                assertThat(allowedDigits).contains(String.valueOf(code.charAt(1)));
+                assertThat(allowedDigits).contains(String.valueOf(code.charAt(3)));
+                assertThat(allowedDigits).contains(String.valueOf(code.charAt(5)));
+            }
+        }
+
+        @Test
+        @DisplayName("제외 문자(I, O, S, Z)가 포함되지 않는다")
+        void shouldNotContainExcludedLetters() {
+            for (int i = 0; i < 100; i++) {
+                String code = RandomCodeGenerator.generateReferenceCode();
+                assertThat(code).doesNotContain("I", "O", "S", "Z");
+            }
+        }
+
+        @Test
+        @DisplayName("제외 숫자(0, 1, 2, 5)가 포함되지 않는다")
+        void shouldNotContainExcludedDigits() {
+            for (int i = 0; i < 100; i++) {
+                String code = RandomCodeGenerator.generateReferenceCode();
+                assertThat(code).doesNotContain("0", "1", "2", "5");
+            }
+        }
+    }
+
+    @Nested
     @DisplayName("generateProductKey")
     class GenerateProductKeyTest {
 
