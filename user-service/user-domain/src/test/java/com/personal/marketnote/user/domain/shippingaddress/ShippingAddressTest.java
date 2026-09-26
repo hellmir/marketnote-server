@@ -1,9 +1,9 @@
 package com.personal.marketnote.user.domain.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidDeliveryRequestMessageLengthException;
+import com.personal.marketnote.common.domain.exception.illegalargument.novalue.DeliveryRequestMessageNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
-import com.personal.marketnote.user.domain.shippingaddress.exception.DeliveryRequestMessageNoValueException;
-import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidDeliveryRequestMessageLengthException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidShippingAddressDeletionException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.ShippingAddressCompanyNameNoValueException;
 import org.junit.jupiter.api.DisplayName;
@@ -131,7 +131,7 @@ class ShippingAddressTest {
 
         assertThat(address.getAddress()).isEqualTo("서울시 서초구");
         assertThat(address.getRecipientName()).isEqualTo("김철수");
-        assertThat(address.getDeliveryRequestMessage()).isEqualTo("현관 비밀번호 1234");
+        assertThat(address.getDeliveryRequestMessage().getValue()).isEqualTo("현관 비밀번호 1234");
     }
 
     private ShippingAddressCreateState createHomeAddressState() {

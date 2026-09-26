@@ -1,12 +1,12 @@
 package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidDeliveryRequestMessageLengthException;
+import com.personal.marketnote.common.domain.exception.illegalargument.novalue.DeliveryRequestMessageNoValueException;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressSnapshotState;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
-import com.personal.marketnote.user.domain.shippingaddress.exception.DeliveryRequestMessageNoValueException;
-import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidDeliveryRequestMessageLengthException;
 import com.personal.marketnote.user.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.user.port.in.command.shippingaddress.UpdateDeliveryRequestCommand;
 import com.personal.marketnote.user.port.out.shippingaddress.FindShippingAddressPort;
@@ -111,7 +111,7 @@ class UpdateDeliveryRequestUseCaseTest {
 
         // then
         assertThat(shippingAddress.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.CUSTOM);
-        assertThat(shippingAddress.getDeliveryRequestMessage()).isEqualTo(message);
+        assertThat(shippingAddress.getDeliveryRequestMessage().getValue()).isEqualTo(message);
 
         verify(updateShippingAddressPort).update(shippingAddress);
     }
