@@ -120,6 +120,8 @@ oauth2:
     client-id: ${KAKAO_CLIENT_ID:abc}
     client-secret: ${KAKAO_CLIENT_SECRET:def}
     admin-key: ${KAKAO_ADMIN_KEY:ghi}
+  apple:
+    audience: ${APPLE_CLIENT_ID:abc}
 
 management:
   endpoints:

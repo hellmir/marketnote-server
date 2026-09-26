@@ -2,8 +2,11 @@ package com.personal.marketnote.user.adapter.in.configuration.security;
 
 import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.security.token.introspector.OpaqueTokenDefaultIntrospector;
+import com.personal.marketnote.user.security.token.introspector.VendorIdTokenVerifier;
+import com.personal.marketnote.user.security.token.introspector.VendorJwtConfig;
 import com.personal.marketnote.user.security.token.support.TokenSupport;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,18 +18,42 @@ import java.util.Map;
 @Configuration
 public class AuthenticationEntryPointConfig {
 
-    private static final Map<AuthVendor, List<String>> VENDOR_ISSUER_MAP = Map.of(
-            AuthVendor.KAKAO, List.of("kauth.kakao.com", "https://kauth.kakao.com"),
-            AuthVendor.GOOGLE, List.of("accounts.google.com", "https://accounts.google.com"),
-            AuthVendor.APPLE, List.of("appleid.apple.com", "https://appleid.apple.com")
-    );
+    @Bean
+    public VendorIdTokenVerifier vendorIdTokenVerifier(
+            @Value("${oauth2.kakao.client-id}") String kakaoClientId,
+            @Value("${oauth2.google.client-id}") String googleClientId,
+            @Value("${oauth2.apple.audience}") String appleAudience
+    ) {
+        Map<AuthVendor, VendorJwtConfig> configMap = Map.of(
+                AuthVendor.KAKAO, new VendorJwtConfig(
+                        "https://kauth.kakao.com/.well-known/jwks.json",
+                        List.of("kauth.kakao.com", "https://kauth.kakao.com"),
+                        kakaoClientId
+                ),
+                AuthVendor.GOOGLE, new VendorJwtConfig(
+                        "https://www.googleapis.com/oauth2/v3/certs",
+                        List.of("accounts.google.com", "https://accounts.google.com"),
+                        googleClientId
+                ),
+                AuthVendor.APPLE, new VendorJwtConfig(
+                        "https://appleid.apple.com/auth/keys",
+                        List.of("appleid.apple.com", "https://appleid.apple.com"),
+                        appleAudience
+                )
+        );
+        return new VendorIdTokenVerifier(configMap);
+    }
 
     @Bean
     @ConditionalOnMissingBean(OpaqueTokenIntrospector.class)
     public OpaqueTokenIntrospector defaultOpaqueTokenIntrospector(
             TokenSupport tokenSupport,
-            FindUserPort findUserPort
+            FindUserPort findUserPort,
+            VendorIdTokenVerifier vendorIdTokenVerifier
     ) {
-        return new OpaqueTokenDefaultIntrospector(tokenSupport, findUserPort, VENDOR_ISSUER_MAP);
+        Map<AuthVendor, List<String>> vendorIssuerMap = vendorIdTokenVerifier.getVendorIssuerMap();
+        return new OpaqueTokenDefaultIntrospector(
+                tokenSupport, findUserPort, vendorIssuerMap, vendorIdTokenVerifier
+        );
     }
 }
