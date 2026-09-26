@@ -50,7 +50,8 @@ class Oauth2LoginUseCaseTest {
         User user = mock(User.class);
 
         when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
-        when(findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.of(user));
+        when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.of(user));
+        when(user.isActive()).thenReturn(true);
         when(user.getNickname()).thenReturn("tester");
 
         // when
@@ -63,7 +64,7 @@ class Oauth2LoginUseCaseTest {
         assertThat(result.getNickname()).isEqualTo("tester");
 
         verify(tokenSupport).grantToken(code, redirectUri, authVendor);
-        verify(findUserPort).findByAuthVendorAndOidcId(authVendor, oidcId);
+        verify(findUserPort).findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId);
         verify(user).getNickname();
         verifyNoMoreInteractions(tokenSupport, findUserPort, user);
     }
@@ -89,7 +90,7 @@ class Oauth2LoginUseCaseTest {
                 .build();
 
         when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
-        when(findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.empty());
+        when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.empty());
 
         // when
         LoginResult result = oauth2LoginService.loginByOAuth2(code, redirectUri, authVendor);
@@ -101,7 +102,7 @@ class Oauth2LoginUseCaseTest {
         assertThat(result.getNickname()).isEqualTo("new-user");
 
         verify(tokenSupport).grantToken(code, redirectUri, authVendor);
-        verify(findUserPort).findByAuthVendorAndOidcId(authVendor, oidcId);
+        verify(findUserPort).findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId);
         verifyNoMoreInteractions(tokenSupport, findUserPort);
     }
 
@@ -122,14 +123,14 @@ class Oauth2LoginUseCaseTest {
                 .build();
 
         when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
-        when(findUserPort.findByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.empty());
+        when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.empty());
 
         // expect
         assertThatThrownBy(() -> oauth2LoginService.loginByOAuth2(code, redirectUri, authVendor))
                 .isInstanceOf(OauthTokenNoValueException.class);
 
         verify(tokenSupport).grantToken(code, redirectUri, authVendor);
-        verify(findUserPort).findByAuthVendorAndOidcId(authVendor, oidcId);
+        verify(findUserPort).findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId);
         verifyNoMoreInteractions(tokenSupport, findUserPort);
     }
 
