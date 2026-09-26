@@ -6,6 +6,7 @@ import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.FileDomainSnapshotState;
 import com.personal.marketnote.file.domain.file.exception.InvalidFileOwnerException;
+import com.personal.marketnote.file.domain.file.exception.InvalidFileRoleException;
 import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
 import com.personal.marketnote.file.port.in.command.UpdateFilesCommand;
@@ -178,6 +179,116 @@ class UpdateFilesUseCaseTest {
         verify(publishImageEventPort).publishImageCreatedEvents(anyList());
     }
 
+    @Test
+    @DisplayName("판매자가 상품 카탈로그 이미지를 업로드하면 정상 처리된다")
+    void updateFiles_seller_productCatalogImage_processesSuccessfully() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+
+        assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
+
+        verify(uploadFilesPort).uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L));
+        verify(saveFilesPort).saveAll(anyList(), anyList());
+        verify(publishImageEventPort).publishImageCreatedEvents(anyList());
+    }
+
+    @Test
+    @DisplayName("관리자가 상품 카탈로그 이미지를 업로드하면 정상 처리된다")
+    void updateFiles_admin_productCatalogImage_processesSuccessfully() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "ADMIN");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+
+        assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
+
+        verify(uploadFilesPort).uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L));
+        verify(saveFilesPort).saveAll(anyList(), anyList());
+        verify(publishImageEventPort).publishImageCreatedEvents(anyList());
+    }
+
+    @Test
+    @DisplayName("구매자가 상품 카탈로그 이미지를 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_buyer_productCatalogImage_throws() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "BUYER");
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
+    @Test
+    @DisplayName("구매자가 상품 대표 이미지를 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_buyer_productRepresentativeImage_throws() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 1, "BUYER");
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
+    @Test
+    @DisplayName("구매자가 상품 본문 이미지를 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_buyer_productContentImage_throws() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1, "BUYER");
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
+    @Test
+    @DisplayName("구매자가 리뷰 이미지를 단독 업로드하면 정상 처리된다")
+    void updateFiles_buyer_reviewImage_processesSuccessfully() {
+        UpdateFilesCommand command = buildCommand(FileSort.REVIEW_IMAGE.name(), 1, "BUYER");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.REVIEW_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+
+        assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
+
+        verify(uploadFilesPort).uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L));
+        verify(saveFilesPort).saveAll(anyList(), anyList());
+        verify(publishImageEventPort).publishImageCreatedEvents(anyList());
+    }
+
+    @Test
+    @DisplayName("구매자가 리뷰 이미지와 상품 카탈로그 이미지를 혼합 업로드하면 InvalidFileRoleException을 던진다")
+    void updateFiles_buyer_mixedSorts_throws() {
+        UpdateFilesCommand command = buildCommandWithSorts(
+                List.of(FileSort.REVIEW_IMAGE.name(), FileSort.PRODUCT_CATALOG_IMAGE.name()),
+                "BUYER"
+        );
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileRoleException.class);
+
+        verifyNoInteractions(
+                getFileUseCase, uploadFilesPort, saveFilesPort,
+                saveResizedFilesPort, updateFilesPort, publishImageEventPort
+        );
+    }
+
     private static FileDomain snapshotFileDomain(Long userId, String ownerKey) {
         return FileDomain.from(FileDomainSnapshotState.builder()
                 .id(1L)
@@ -196,26 +307,45 @@ class UpdateFilesUseCaseTest {
     }
 
     private UpdateFilesCommand buildCommand(String sort, int fileCount) {
+        return buildCommand(sort, fileCount, "SELLER");
+    }
+
+    private UpdateFilesCommand buildCommand(String sort, int fileCount, String role) {
         List<UpdateFileCommand> fileCommands = new ArrayList<>();
         for (int i = 0; i < fileCount; i++) {
-            MockMultipartFile mockFile = new MockMultipartFile(
-                    "file", "test_" + i + ".png", "image/png", new byte[]{1}
-            );
-            fileCommands.add(UpdateFileCommand.builder()
-                    .file(mockFile)
-                    .sort(sort)
-                    .extension("png")
-                    .name("test_" + i + ".png")
-                    .build());
+            fileCommands.add(buildFileCommand(sort, i));
         }
+        return buildFilesCommand(fileCommands, role);
+    }
 
+    private UpdateFilesCommand buildCommandWithSorts(List<String> sorts, String role) {
+        List<UpdateFileCommand> fileCommands = new ArrayList<>();
+        for (int i = 0; i < sorts.size(); i++) {
+            fileCommands.add(buildFileCommand(sorts.get(i), i));
+        }
+        return buildFilesCommand(fileCommands, role);
+    }
+
+    private UpdateFileCommand buildFileCommand(String sort, int index) {
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "file", "test_" + index + ".png", "image/png", new byte[]{1}
+        );
+        return UpdateFileCommand.builder()
+                .file(mockFile)
+                .sort(sort)
+                .extension("png")
+                .name("test_" + index + ".png")
+                .build();
+    }
+
+    private UpdateFilesCommand buildFilesCommand(List<UpdateFileCommand> fileCommands, String role) {
         return UpdateFilesCommand.builder()
                 .fileInfo(fileCommands)
                 .ownerType("PRODUCT")
                 .ownerId(1L)
                 .ownerKey("test-owner-key")
                 .requesterId(100L)
-                .requesterRole("SELLER")
+                .requesterRole(role)
                 .build();
     }
 }
