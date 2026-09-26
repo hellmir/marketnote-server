@@ -9,6 +9,7 @@ import com.personal.marketnote.reward.port.out.gifticon.QueryGifticonCouponStatu
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -311,6 +312,146 @@ class GetMyGifticonOrderDetailUseCaseTest {
         // then
         assertThat(result.pinNo()).isNull();
         verifyNoInteractions(decryptGifticonPinPort);
+    }
+
+    @Test
+    @DisplayName("ISSUED→USED 상태 변경 시 TransactionTemplate.execute로 update를 감싸 호출한다")
+    void shouldExecuteUpdateInsideTransactionTemplateWhenStatusChanged() {
+        // given
+        GifticonOrder order = createOrder(GifticonOrderStatus.ISSUED);
+        GifticonGoods goods = createGoods();
+
+        when(findGifticonOrderPort.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(Optional.of(order));
+        when(queryGifticonCouponStatusPort.queryStatus(TR_ID)).thenReturn(
+                CouponStatusResult.builder().success(true).pinStatusCd("02").validPrdEndDt("20260504").build()
+        );
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+        when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+        stubTransactionTemplateExecute();
+
+        GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
+
+        // when
+        getMyGifticonOrderDetailService.getMyGifticonOrderDetail(command);
+
+        // then
+        verify(transactionTemplate).execute(any());
+        verify(updateGifticonOrderPort).update(order);
+    }
+
+    @Test
+    @DisplayName("벤더 API 호출은 TransactionTemplate.execute보다 먼저 발생한다")
+    void shouldCallVendorApiBeforeTransactionTemplate() {
+        // given
+        GifticonOrder order = createOrder(GifticonOrderStatus.ISSUED);
+        GifticonGoods goods = createGoods();
+
+        when(findGifticonOrderPort.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(Optional.of(order));
+        when(queryGifticonCouponStatusPort.queryStatus(TR_ID)).thenReturn(
+                CouponStatusResult.builder().success(true).pinStatusCd("02").validPrdEndDt("20260504").build()
+        );
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+        when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+        stubTransactionTemplateExecute();
+
+        GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
+
+        // when
+        getMyGifticonOrderDetailService.getMyGifticonOrderDetail(command);
+
+        // then
+        InOrder inOrder = inOrder(queryGifticonCouponStatusPort, transactionTemplate, updateGifticonOrderPort);
+        inOrder.verify(queryGifticonCouponStatusPort).queryStatus(TR_ID);
+        inOrder.verify(transactionTemplate).execute(any());
+        inOrder.verify(updateGifticonOrderPort).update(order);
+    }
+
+    @Test
+    @DisplayName("기프티쇼 API 조회 결과 동일 상태이면 TransactionTemplate을 호출하지 않는다")
+    void shouldNotCallTransactionTemplateWhenStatusUnchanged() {
+        // given
+        GifticonOrder order = createOrder(GifticonOrderStatus.ISSUED);
+        GifticonGoods goods = createGoods();
+
+        when(findGifticonOrderPort.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(Optional.of(order));
+        when(queryGifticonCouponStatusPort.queryStatus(TR_ID)).thenReturn(
+                CouponStatusResult.builder().success(true).pinStatusCd("01").validPrdEndDt("20260504").build()
+        );
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+        when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+
+        GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
+
+        // when
+        getMyGifticonOrderDetailService.getMyGifticonOrderDetail(command);
+
+        // then
+        verifyNoInteractions(transactionTemplate);
+    }
+
+    @Test
+    @DisplayName("terminal 상태(USED)에서는 벤더 호출과 TransactionTemplate을 모두 호출하지 않는다")
+    void shouldNotCallVendorAndTransactionTemplateForTerminalStatus() {
+        // given
+        GifticonOrder order = createOrder(GifticonOrderStatus.USED);
+        GifticonGoods goods = createGoods();
+
+        when(findGifticonOrderPort.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(Optional.of(order));
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+        when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+
+        GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
+
+        // when
+        getMyGifticonOrderDetailService.getMyGifticonOrderDetail(command);
+
+        // then
+        verifyNoInteractions(queryGifticonCouponStatusPort);
+        verifyNoInteractions(transactionTemplate);
+    }
+
+    @Test
+    @DisplayName("PENDING 상태에서는 벤더 호출과 TransactionTemplate을 모두 호출하지 않는다")
+    void shouldNotCallVendorAndTransactionTemplateForPendingStatus() {
+        // given
+        GifticonOrder order = createOrder(GifticonOrderStatus.PENDING);
+        GifticonGoods goods = createGoods();
+
+        when(findGifticonOrderPort.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(Optional.of(order));
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+        when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+
+        GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
+
+        // when
+        getMyGifticonOrderDetailService.getMyGifticonOrderDetail(command);
+
+        // then
+        verifyNoInteractions(queryGifticonCouponStatusPort);
+        verifyNoInteractions(transactionTemplate);
+    }
+
+    @Test
+    @DisplayName("벤더 API 실패(fail-open) 시 TransactionTemplate을 호출하지 않는다")
+    void shouldNotCallTransactionTemplateWhenVendorApiFails() {
+        // given
+        GifticonOrder order = createOrder(GifticonOrderStatus.ISSUED);
+        GifticonGoods goods = createGoods();
+
+        when(findGifticonOrderPort.findByIdAndUserId(ORDER_ID, USER_ID)).thenReturn(Optional.of(order));
+        when(queryGifticonCouponStatusPort.queryStatus(TR_ID)).thenReturn(
+                CouponStatusResult.builder().success(false).errorCode("COMM_ERROR").errorMessage("통신 오류").build()
+        );
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+        when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+
+        GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
+
+        // when
+        getMyGifticonOrderDetailService.getMyGifticonOrderDetail(command);
+
+        // then
+        verifyNoInteractions(transactionTemplate);
     }
 
     private GifticonOrder createOrder(GifticonOrderStatus status) {
