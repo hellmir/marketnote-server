@@ -13,12 +13,10 @@ import com.personal.marketnote.reward.port.out.gifticon.*;
 import com.personal.marketnote.reward.port.out.gifticon.QueryGifticonCouponStatusPort.CouponStatusResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 import java.time.LocalDate;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @UseCase
 @RequiredArgsConstructor
@@ -30,6 +28,7 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
     private final QueryGifticonCouponStatusPort queryGifticonCouponStatusPort;
     private final UpdateGifticonOrderPort updateGifticonOrderPort;
     private final DecryptGifticonPinPort decryptGifticonPinPort;
+    private final TransactionTemplate transactionTemplate;
     private final Clock clock;
 
     @Override
@@ -41,8 +40,7 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
         return buildDetailResult(order);
     }
 
-    @Transactional(isolation = READ_COMMITTED, readOnly = true)
-    public GifticonOrder findOrder(Long orderId, Long userId) {
+    private GifticonOrder findOrder(Long orderId, Long userId) {
         return findGifticonOrderPort.findByIdAndUserId(orderId, userId)
                 .orElseThrow(() -> new GifticonOrderNotFoundException(orderId));
     }
@@ -60,7 +58,11 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
         if (!changed) {
             return;
         }
-        persistStatusChange(order, newStatus);
+        transactionTemplate.execute(status -> {
+            updateGifticonOrderPort.update(order);
+            return null;
+        });
+        log.info("기프티콘 주문 상태 동기화: orderId={}, newStatus={}", order.getId(), newStatus);
     }
 
     private CouponStatusResult queryCouponStatus(String trId) {
@@ -77,14 +79,7 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
         }
     }
 
-    @Transactional(isolation = READ_COMMITTED)
-    public void persistStatusChange(GifticonOrder order, GifticonOrderStatus newStatus) {
-        updateGifticonOrderPort.update(order);
-        log.info("기프티콘 주문 상태 동기화: orderId={}, newStatus={}", order.getId(), newStatus);
-    }
-
-    @Transactional(isolation = READ_COMMITTED, readOnly = true)
-    public GetMyGifticonOrderDetailResult buildDetailResult(GifticonOrder order) {
+    private GetMyGifticonOrderDetailResult buildDetailResult(GifticonOrder order) {
         GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(order.getGoodsCode()).orElse(null);
         String decryptedPin = decryptPin(order.getPinNo());
         LocalDate now = LocalDate.now(clock);

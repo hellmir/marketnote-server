@@ -13,6 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.*;
 import java.util.Optional;
@@ -41,6 +43,9 @@ class GetMyGifticonOrderDetailUseCaseTest {
 
     @Mock
     private DecryptGifticonPinPort decryptGifticonPinPort;
+
+    @Mock
+    private TransactionTemplate transactionTemplate;
 
     @Spy
     private Clock clock = Clock.fixed(
@@ -113,6 +118,7 @@ class GetMyGifticonOrderDetailUseCaseTest {
         );
         when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
         when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+        stubTransactionTemplateExecute();
 
         GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
 
@@ -138,6 +144,7 @@ class GetMyGifticonOrderDetailUseCaseTest {
         );
         when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
         when(decryptGifticonPinPort.decrypt("encryptedPin")).thenReturn("900343630367");
+        stubTransactionTemplateExecute();
 
         GetMyGifticonOrderDetailCommand command = new GetMyGifticonOrderDetailCommand(USER_ID, ORDER_ID);
 
@@ -148,6 +155,13 @@ class GetMyGifticonOrderDetailUseCaseTest {
         assertThat(result.orderStatus()).isEqualTo("EXPIRED");
         assertThat(result.statusLabel()).isEqualTo("기간만료");
         verify(updateGifticonOrderPort).update(order);
+    }
+
+    private void stubTransactionTemplateExecute() {
+        when(transactionTemplate.execute(any())).thenAnswer(invocation -> {
+            TransactionCallback<Object> callback = invocation.getArgument(0);
+            return callback.doInTransaction(null);
+        });
     }
 
     @Test
