@@ -99,6 +99,10 @@ dependencies {
     // PostgreSQL 드라이버
     runtimeOnly("org.postgresql:postgresql:42.7.4")
 
+    // Flyway (DB 마이그레이션)
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+
     // 빌드 정보를 위한 스프링 부트 액추에이터
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
