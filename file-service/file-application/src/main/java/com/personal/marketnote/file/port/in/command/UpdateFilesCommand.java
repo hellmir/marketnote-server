@@ -10,6 +10,7 @@ public record UpdateFilesCommand(
         String ownerType,
         Long ownerId,
         String ownerKey,
-        Long requesterId
+        Long requesterId,
+        String requesterRole
 ) {
 }

@@ -58,7 +58,10 @@ public class FileController {
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
         Long requesterId = ElementExtractor.extractUserId(principal);
-        updateFileUseCase.updateFiles(FileRequestToCommandMapper.mapToCommand(updateFilesRequest, requesterId));
+        String requesterRole = ElementExtractor.extractRole(principal);
+        updateFileUseCase.updateFiles(
+                FileRequestToCommandMapper.mapToCommand(updateFilesRequest, requesterId, requesterRole)
+        );
 
         return new ResponseEntity<>(
                 BaseResponse.of(

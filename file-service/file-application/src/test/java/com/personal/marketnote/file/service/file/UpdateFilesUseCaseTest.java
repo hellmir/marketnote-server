@@ -215,6 +215,7 @@ class UpdateFilesUseCaseTest {
                 .ownerId(1L)
                 .ownerKey("test-owner-key")
                 .requesterId(100L)
+                .requesterRole("SELLER")
                 .build();
     }
 }
