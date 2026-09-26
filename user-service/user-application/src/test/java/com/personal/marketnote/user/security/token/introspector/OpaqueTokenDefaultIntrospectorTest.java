@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.util.Base64;
 import java.util.List;
@@ -37,6 +38,8 @@ class OpaqueTokenDefaultIntrospectorTest {
     private TokenSupport tokenSupport;
     @Mock
     private FindUserPort findUserPort;
+    @Mock
+    private VendorIdTokenVerifier vendorIdTokenVerifier;
 
     private OpaqueTokenDefaultIntrospector introspector;
 
@@ -45,7 +48,9 @@ class OpaqueTokenDefaultIntrospectorTest {
         Map<AuthVendor, List<String>> vendorIssuerMap = Map.of(
                 AuthVendor.KAKAO, List.of(KAKAO_ISSUER)
         );
-        introspector = new OpaqueTokenDefaultIntrospector(tokenSupport, findUserPort, vendorIssuerMap);
+        introspector = new OpaqueTokenDefaultIntrospector(
+                tokenSupport, findUserPort, vendorIssuerMap, vendorIdTokenVerifier
+        );
     }
 
     @Test
@@ -138,6 +143,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         when(activeUser.isActive()).thenReturn(true);
         when(activeUser.getRole()).thenReturn(Role.getBuyer());
 
+        when(vendorIdTokenVerifier.verifyAndExtractSubject(vendorToken, AuthVendor.KAKAO))
+                .thenReturn(KAKAO_OIDC_ID);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, KAKAO_OIDC_ID))
                 .thenReturn(Optional.of(activeUser));
 
@@ -159,6 +166,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         User inactiveUser = mock(User.class);
         when(inactiveUser.isActive()).thenReturn(false);
 
+        when(vendorIdTokenVerifier.verifyAndExtractSubject(vendorToken, AuthVendor.KAKAO))
+                .thenReturn(KAKAO_OIDC_ID);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, KAKAO_OIDC_ID))
                 .thenReturn(Optional.of(inactiveUser));
 
@@ -180,6 +189,8 @@ class OpaqueTokenDefaultIntrospectorTest {
         User unexposedUser = mock(User.class);
         when(unexposedUser.isActive()).thenReturn(false);
 
+        when(vendorIdTokenVerifier.verifyAndExtractSubject(vendorToken, AuthVendor.KAKAO))
+                .thenReturn(KAKAO_OIDC_ID);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(AuthVendor.KAKAO, KAKAO_OIDC_ID))
                 .thenReturn(Optional.of(unexposedUser));
 
@@ -227,6 +238,44 @@ class OpaqueTokenDefaultIntrospectorTest {
 
         // when
         OAuth2AuthenticatedPrincipal principal = introspector.introspect(OPAQUE_TOKEN);
+
+        // then
+        assertThat(principal.getName()).isEqualTo("-1");
+        assertThat(principal.getAuthorities())
+                .extracting(GrantedAuthority::getAuthority)
+                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+    }
+
+    @Test
+    @DisplayName("위조된 벤더 ID 토큰 검증 시 ANONYMOUS principal을 반환한다")
+    void introspectForgedVendorIdTokenReturnsAnonymousPrincipal() {
+        // given
+        String forgedToken = buildVendorIdToken(KAKAO_ISSUER, "victim-oidc-id");
+
+        when(vendorIdTokenVerifier.verifyAndExtractSubject(forgedToken, AuthVendor.KAKAO))
+                .thenThrow(new JwtException("JWT signature verification failed"));
+
+        // when
+        OAuth2AuthenticatedPrincipal principal = introspector.introspect(forgedToken);
+
+        // then
+        assertThat(principal.getName()).isEqualTo("-1");
+        assertThat(principal.getAuthorities())
+                .extracting(GrantedAuthority::getAuthority)
+                .containsExactly(PrimaryRole.ROLE_ANONYMOUS.name());
+    }
+
+    @Test
+    @DisplayName("만료된 벤더 ID 토큰 검증 시 ANONYMOUS principal을 반환한다")
+    void introspectExpiredVendorIdTokenReturnsAnonymousPrincipal() {
+        // given
+        String expiredToken = buildVendorIdToken(KAKAO_ISSUER, KAKAO_OIDC_ID);
+
+        when(vendorIdTokenVerifier.verifyAndExtractSubject(expiredToken, AuthVendor.KAKAO))
+                .thenThrow(new JwtException("JWT expired"));
+
+        // when
+        OAuth2AuthenticatedPrincipal principal = introspector.introspect(expiredToken);
 
         // then
         assertThat(principal.getName()).isEqualTo("-1");
