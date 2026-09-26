@@ -4,6 +4,7 @@ import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.port.in.result.WithdrawResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.out.authentication.DeleteRefreshTokenPort;
 import com.personal.marketnote.user.port.out.oauth.Oauth2AccountUnlinkPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -31,6 +32,8 @@ class WithdrawUseCaseTest {
     private GetUserUseCase getUserUseCase;
     @Mock
     private UpdateUserPort updateUserPort;
+    @Mock
+    private DeleteRefreshTokenPort deleteRefreshTokenPort;
     @Mock
     private Oauth2AccountUnlinkPort oauth2AccountUnlinkPort;
     @Mock

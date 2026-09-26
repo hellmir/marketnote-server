@@ -12,6 +12,7 @@ import com.personal.marketnote.user.exception.InvalidUserStatusTransitionExcepti
 import com.personal.marketnote.user.port.in.command.ChangeUserStatusCommand;
 import com.personal.marketnote.user.port.in.result.ChangeUserStatusResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.out.authentication.DeleteRefreshTokenPort;
 import com.personal.marketnote.user.port.out.user.SaveUserStatusHistoryPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import org.junit.jupiter.api.DisplayName;
@@ -45,6 +46,9 @@ class ChangeUserStatusUseCaseTest {
 
     @Mock
     private SaveUserStatusHistoryPort saveUserStatusHistoryPort;
+
+    @Mock
+    private DeleteRefreshTokenPort deleteRefreshTokenPort;
 
     private static final Long USER_ID = 1L;
     private static final Long ADMIN_ID = 100L;

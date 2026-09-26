@@ -6,6 +6,7 @@ import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.port.in.result.WithdrawResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.WithdrawUseCase;
+import com.personal.marketnote.user.port.out.authentication.DeleteRefreshTokenPort;
 import com.personal.marketnote.user.port.out.oauth.Oauth2AccountUnlinkPort;
 import com.personal.marketnote.user.port.out.user.UpdateUserPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -28,6 +29,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class WithdrawService implements WithdrawUseCase {
     private final GetUserUseCase getUserUseCase;
     private final UpdateUserPort updateUserPort;
+    private final DeleteRefreshTokenPort deleteRefreshTokenPort;
     private final Oauth2AccountUnlinkPort oauth2AccountUnlinkPort;
     private final Clock clock;
 
@@ -37,6 +39,7 @@ public class WithdrawService implements WithdrawUseCase {
     public WithdrawResult withdrawUser(Long id, Map<AuthVendor, String> vendorCredentials) {
         User user = getUserUseCase.getAllStatusUser(id);
         user.withdraw(LocalDateTime.now(clock));
+        deleteRefreshTokenPort.deleteByUserId(id);
 
         Map<AuthVendor, Boolean> disconnectResults = new EnumMap<>(AuthVendor.class);
 
