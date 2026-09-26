@@ -7,6 +7,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.ResizedFile;
 import com.personal.marketnote.file.domain.file.ResizedFileCreateState;
+import com.personal.marketnote.file.domain.file.exception.InvalidFileRoleException;
 import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.mapper.FileCommandToDomainMapper;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
@@ -42,6 +43,9 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
 public class UpdateFilesService implements UpdateFileUseCase {
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_SELLER = "SELLER";
+
     private final GetFileUseCase getFileUseCase;
     private final UploadFilesPort uploadFilesPort;
     private final SaveFilesPort saveFilesPort;
@@ -54,6 +58,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
         Long ownerId = updateFilesCommand.ownerId();
         String ownerKey = updateFilesCommand.ownerKey();
         Long requesterId = updateFilesCommand.requesterId();
+        String requesterRole = updateFilesCommand.requesterRole();
         String sort = updateFilesCommand.fileInfo().getFirst().sort();
 
         FileSort fileSort = FileSort.from(sort);
@@ -62,6 +67,8 @@ public class UpdateFilesService implements UpdateFileUseCase {
         if (requestedCount > maxCount) {
             throw new InvalidFileCountLimitException(maxCount, requestedCount);
         }
+
+        validateProductImageRole(updateFilesCommand.fileInfo(), requesterRole);
 
         // 기존 파일 목록이 존재하는 경우 소유권 검증 후 비활성화
         List<FileDomain> currentFiles = getFileUseCase.getFiles(OwnerType.from(ownerType), ownerId, sort);
@@ -126,6 +133,21 @@ public class UpdateFilesService implements UpdateFileUseCase {
         return files.stream()
                 .map(ImageEventCommand::from)
                 .toList();
+    }
+
+    private boolean isAdminOrSeller(String role) {
+        return ROLE_ADMIN.equals(role) || ROLE_SELLER.equals(role);
+    }
+
+    private void validateProductImageRole(List<UpdateFileCommand> fileInfos, String requesterRole) {
+        if (isAdminOrSeller(requesterRole)) {
+            return;
+        }
+        for (UpdateFileCommand item : fileInfos) {
+            if (FileSort.from(item.sort()).isProductImage()) {
+                throw new InvalidFileRoleException();
+            }
+        }
     }
 
     private void resize(

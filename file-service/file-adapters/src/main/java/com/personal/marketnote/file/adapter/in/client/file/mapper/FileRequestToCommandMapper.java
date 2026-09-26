@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileRequestToCommandMapper {
-    public static UpdateFilesCommand mapToCommand(UpdateFilesRequest updateFilesRequest, Long requesterId) {
+    public static UpdateFilesCommand mapToCommand(
+            UpdateFilesRequest updateFilesRequest, Long requesterId, String requesterRole
+    ) {
         List<MultipartFile> files = updateFilesRequest.getFile();
         List<String> sorts = updateFilesRequest.getSort();
         List<String> extensions = updateFilesRequest.getExtension();
@@ -23,6 +25,7 @@ public class FileRequestToCommandMapper {
                     .ownerId(updateFilesRequest.getOwnerId())
                     .ownerKey(updateFilesRequest.getOwnerKey())
                     .requesterId(requesterId)
+                    .requesterRole(requesterRole)
                     .build();
         }
 
@@ -43,6 +46,7 @@ public class FileRequestToCommandMapper {
                 .ownerId(updateFilesRequest.getOwnerId())
                 .ownerKey(updateFilesRequest.getOwnerKey())
                 .requesterId(requesterId)
+                .requesterRole(requesterRole)
                 .build();
     }
 

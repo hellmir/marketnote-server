@@ -37,4 +37,10 @@ public enum FileSort {
     public boolean isRepresentativeImage() {
         return this == FileSort.PRODUCT_REPRESENTATIVE_IMAGE;
     }
+
+    public boolean isProductImage() {
+        return this == FileSort.PRODUCT_CATALOG_IMAGE
+                || this == FileSort.PRODUCT_REPRESENTATIVE_IMAGE
+                || this == FileSort.PRODUCT_CONTENT_IMAGE;
+    }
 }
