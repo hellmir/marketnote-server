@@ -2,10 +2,9 @@ package com.personal.marketnote.user.domain.shippingaddress;
 
 import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.user.domain.shippingaddress.exception.DeliveryRequestMessageNoValueException;
-import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidDeliveryRequestMessageLengthException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidShippingAddressDeletionException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.ShippingAddressCompanyNameNoValueException;
 import lombok.AccessLevel;
@@ -27,7 +26,7 @@ public class ShippingAddress extends BaseDomain {
     private String recipientName;
     private PhoneNumber recipientPhoneNumber;
     private DeliveryRequestType deliveryRequestType;
-    private String deliveryRequestMessage;
+    private DeliveryRequestMessage deliveryRequestMessage;
     private boolean isDefault;
     private ShippingAddressRegionType regionType;
 
@@ -42,12 +41,12 @@ public class ShippingAddress extends BaseDomain {
                 .recipientName(state.getRecipientName())
                 .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
                 .deliveryRequestType(state.getDeliveryRequestType())
-                .deliveryRequestMessage(state.getDeliveryRequestMessage())
+                .deliveryRequestMessage(resolveDeliveryRequestMessage(state.getDeliveryRequestType(), state.getDeliveryRequestMessage()))
                 .isDefault(state.isDefault())
                 .regionType(state.getRegionType())
                 .build();
 
-        shippingAddress.validate();
+        shippingAddress.validateCompanyName();
         return shippingAddress;
     }
 
@@ -63,7 +62,7 @@ public class ShippingAddress extends BaseDomain {
                 .recipientName(state.getRecipientName())
                 .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
                 .deliveryRequestType(state.getDeliveryRequestType())
-                .deliveryRequestMessage(state.getDeliveryRequestMessage())
+                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
                 .isDefault(state.isDefault())
                 .regionType(state.getRegionType())
                 .build();
@@ -118,35 +117,32 @@ public class ShippingAddress extends BaseDomain {
         this.recipientName = recipientName;
         this.recipientPhoneNumber = recipientPhoneNumber;
         this.deliveryRequestType = deliveryRequestType;
-        this.deliveryRequestMessage = deliveryRequestMessage;
-        validate();
+        this.deliveryRequestMessage = resolveDeliveryRequestMessage(deliveryRequestType, deliveryRequestMessage);
+        validateCompanyName();
     }
 
     public void updateDeliveryRequest(DeliveryRequestType deliveryRequestType, String deliveryRequestMessage) {
         this.deliveryRequestType = deliveryRequestType;
-        this.deliveryRequestMessage = deliveryRequestMessage;
-        validateDeliveryRequest();
+        this.deliveryRequestMessage = resolveDeliveryRequestMessage(deliveryRequestType, deliveryRequestMessage);
     }
 
-    private void validate() {
+    private void validateCompanyName() {
         if (addressType == ShippingAddressType.COMPANY && FormatValidator.hasNoValue(companyName)) {
             throw new ShippingAddressCompanyNameNoValueException();
         }
-        validateDeliveryRequest();
     }
 
-    private void validateDeliveryRequest() {
+    private static DeliveryRequestMessage resolveDeliveryRequestMessage(DeliveryRequestType deliveryRequestType, String deliveryRequestMessage) {
         if (FormatValidator.hasNoValue(deliveryRequestType) || !deliveryRequestType.isCustom()) {
-            this.deliveryRequestMessage = null;
-            return;
+            return null;
         }
+        return DeliveryRequestMessage.of(deliveryRequestMessage);
+    }
 
+    private static DeliveryRequestMessage toDeliveryRequestMessageOrNull(String deliveryRequestMessage) {
         if (FormatValidator.hasNoValue(deliveryRequestMessage)) {
-            throw new DeliveryRequestMessageNoValueException();
+            return null;
         }
-
-        if (deliveryRequestMessage.length() > 60) {
-            throw new InvalidDeliveryRequestMessageLengthException();
-        }
+        return DeliveryRequestMessage.of(deliveryRequestMessage);
     }
 }

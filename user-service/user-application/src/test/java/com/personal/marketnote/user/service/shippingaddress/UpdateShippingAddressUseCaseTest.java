@@ -174,7 +174,7 @@ class UpdateShippingAddressUseCaseTest {
 
         // then
         assertThat(shippingAddress.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.CUSTOM);
-        assertThat(shippingAddress.getDeliveryRequestMessage()).isEqualTo(message);
+        assertThat(shippingAddress.getDeliveryRequestMessage().getValue()).isEqualTo(message);
 
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(updateShippingAddressPort).update(shippingAddress);

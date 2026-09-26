@@ -360,7 +360,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(argThat(sa ->
                 sa.getDeliveryRequestType() == DeliveryRequestType.CUSTOM
-                        && message.equals(sa.getDeliveryRequestMessage())
+                        && message.equals(sa.getDeliveryRequestMessage().getValue())
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(
                 1L, 1L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL", ShippingAddressChangeAction.CREATED

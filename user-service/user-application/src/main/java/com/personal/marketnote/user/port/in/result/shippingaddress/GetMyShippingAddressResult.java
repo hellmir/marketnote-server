@@ -1,6 +1,8 @@
 package com.personal.marketnote.user.port.in.result.shippingaddress;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressType;
@@ -33,9 +35,16 @@ public record GetMyShippingAddressResult(
                 .recipientName(shippingAddress.getRecipientName())
                 .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
                 .deliveryRequestType(shippingAddress.getDeliveryRequestType())
-                .deliveryRequestMessage(shippingAddress.getDeliveryRequestMessage())
+                .deliveryRequestMessage(toValueOrNull(shippingAddress.getDeliveryRequestMessage()))
                 .isDefault(shippingAddress.isDefault())
                 .regionType(shippingAddress.getRegionType())
                 .build();
+    }
+
+    private static String toValueOrNull(DeliveryRequestMessage deliveryRequestMessage) {
+        if (FormatValidator.hasNoValue(deliveryRequestMessage)) {
+            return null;
+        }
+        return deliveryRequestMessage.getValue();
     }
 }
