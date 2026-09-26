@@ -1,6 +1,11 @@
 package com.personal.marketnote.file.service.file;
 
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
+import com.personal.marketnote.common.domain.file.OwnerType;
+import com.personal.marketnote.file.domain.file.FileDomain;
+import com.personal.marketnote.file.domain.file.FileDomainSnapshotState;
+import com.personal.marketnote.file.domain.file.exception.InvalidFileOwnerException;
 import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
 import com.personal.marketnote.file.port.in.command.UpdateFilesCommand;
@@ -18,11 +23,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateFilesUseCaseTest {
@@ -82,6 +94,105 @@ class UpdateFilesUseCaseTest {
                 .hasMessageContaining("5");
 
         verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort);
+    }
+
+    @Test
+    @DisplayName("재업로드 시 기존 파일의 userId와 ownerKey가 일치하면 정상 처리된다")
+    void updateFiles_reupload_ownerMatched_processesSuccessfully() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        FileDomain existing = snapshotFileDomain(100L, "test-owner-key");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>(List.of(existing)));
+        when(getFileUseCase.getResizedFiles(anyList())).thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+
+        assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
+
+        verify(updateFilesPort).update(anyList(), anyList());
+        verify(publishImageEventPort).publishImageDeletedEvents(anyList());
+        verify(uploadFilesPort).uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L));
+        verify(saveFilesPort).saveAll(anyList(), anyList());
+        verify(publishImageEventPort).publishImageCreatedEvents(anyList());
+    }
+
+    @Test
+    @DisplayName("재업로드 시 기존 파일의 userId가 불일치하면 InvalidFileOwnerException을 던지고 부수효과를 실행하지 않는다")
+    void updateFiles_reupload_userIdMismatch_throwsAndSkipsSideEffects() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        FileDomain existing = snapshotFileDomain(999L, "test-owner-key");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>(List.of(existing)));
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileOwnerException.class);
+
+        verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort, updateFilesPort, publishImageEventPort);
+    }
+
+    @Test
+    @DisplayName("재업로드 시 기존 파일의 ownerKey가 불일치하면 InvalidFileOwnerException을 던지고 부수효과를 실행하지 않는다")
+    void updateFiles_reupload_ownerKeyMismatch_throwsAndSkipsSideEffects() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        FileDomain existing = snapshotFileDomain(100L, "other-owner-key");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>(List.of(existing)));
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileOwnerException.class);
+
+        verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort, updateFilesPort, publishImageEventPort);
+    }
+
+    @Test
+    @DisplayName("재업로드 시 기존 파일의 userId가 null이면 InvalidFileOwnerException을 던진다")
+    void updateFiles_reupload_existingUserIdNull_throws() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        FileDomain existing = snapshotFileDomain(null, "test-owner-key");
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>(List.of(existing)));
+
+        assertThatThrownBy(() -> updateFilesService.updateFiles(command))
+                .isInstanceOf(InvalidFileOwnerException.class);
+
+        verifyNoInteractions(uploadFilesPort, saveFilesPort, saveResizedFilesPort, updateFilesPort, publishImageEventPort);
+    }
+
+    @Test
+    @DisplayName("최초 업로드 시 기존 파일이 없으면 소유권 검증 없이 정상 저장된다")
+    void updateFiles_firstUpload_noExistingFiles_savesSuccessfully() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList())).thenReturn(new ArrayList<>());
+
+        assertThatCode(() -> updateFilesService.updateFiles(command)).doesNotThrowAnyException();
+
+        verify(updateFilesPort, never()).update(anyList(), anyList());
+        verify(publishImageEventPort, never()).publishImageDeletedEvents(anyList());
+        verify(uploadFilesPort).uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L));
+        verify(saveFilesPort).saveAll(anyList(), anyList());
+        verify(publishImageEventPort).publishImageCreatedEvents(anyList());
+    }
+
+    private static FileDomain snapshotFileDomain(Long userId, String ownerKey) {
+        return FileDomain.from(FileDomainSnapshotState.builder()
+                .id(1L)
+                .ownerType(OwnerType.PRODUCT)
+                .ownerId(1L)
+                .sort(FileSort.PRODUCT_CONTENT_IMAGE)
+                .extension("png")
+                .name("existing.png")
+                .storageUrl("https://cdn.example.com/existing.png")
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+                .status(EntityStatus.ACTIVE)
+                .orderNum(1L)
+                .userId(userId)
+                .ownerKey(ownerKey)
+                .build());
     }
 
     private UpdateFilesCommand buildCommand(String sort, int fileCount) {
