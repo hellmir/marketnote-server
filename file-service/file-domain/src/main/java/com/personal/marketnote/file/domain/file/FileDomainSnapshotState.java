@@ -24,5 +24,7 @@ public class FileDomainSnapshotState {
     private final LocalDateTime createdAt;
     private final EntityStatus status;
     private final Long orderNum;
+    private final Long userId;
+    private final String ownerKey;
 }
 

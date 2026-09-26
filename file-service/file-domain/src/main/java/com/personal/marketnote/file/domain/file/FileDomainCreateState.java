@@ -16,5 +16,7 @@ public class FileDomainCreateState {
     private final FileSort sort;
     private final String extension;
     private final String name;
+    private final Long userId;
+    private final String ownerKey;
 }
 

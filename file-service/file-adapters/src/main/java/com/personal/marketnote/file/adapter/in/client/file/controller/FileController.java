@@ -1,6 +1,7 @@
 package com.personal.marketnote.file.adapter.in.client.file.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.file.adapter.in.client.file.controller.apidocs.DeleteFileApiDocs;
 import com.personal.marketnote.file.adapter.in.client.file.controller.apidocs.GetFilesApiDocs;
 import com.personal.marketnote.file.adapter.in.client.file.controller.apidocs.UpdateFilesApiDocs;
@@ -12,11 +13,14 @@ import com.personal.marketnote.file.port.in.usecase.file.GetFileUseCase;
 import com.personal.marketnote.file.port.in.usecase.file.UpdateFileUseCase;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,9 +54,11 @@ public class FileController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @UpdateFilesApiDocs
     public ResponseEntity<BaseResponse<Void>> updateFiles(
-            @Parameter(hidden = true) @ModelAttribute UpdateFilesRequest updateFilesRequest
+            @Parameter(hidden = true) @Valid @ModelAttribute UpdateFilesRequest updateFilesRequest,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
-        updateFileUseCase.updateFiles(FileRequestToCommandMapper.mapToCommand(updateFilesRequest));
+        Long requesterId = ElementExtractor.extractUserId(principal);
+        updateFileUseCase.updateFiles(FileRequestToCommandMapper.mapToCommand(updateFilesRequest, requesterId));
 
         return new ResponseEntity<>(
                 BaseResponse.of(

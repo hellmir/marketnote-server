@@ -3,6 +3,8 @@ package com.personal.marketnote.file.domain.file;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.file.domain.file.exception.InvalidFileOwnerException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,14 +26,21 @@ public class FileDomain {
     private LocalDateTime createdAt;
     private EntityStatus status;
     private Long orderNum;
+    private Long userId;
+    private String ownerKey;
 
     public static FileDomain from(FileDomainCreateState state) {
+        if (FormatValidator.hasNoValue(state.getUserId()) || FormatValidator.hasNoValue(state.getOwnerKey())) {
+            throw new InvalidFileOwnerException();
+        }
         return FileDomain.builder()
                 .ownerType(state.getOwnerType())
                 .ownerId(state.getOwnerId())
                 .sort(state.getSort())
                 .extension(state.getExtension())
                 .name(state.getName())
+                .userId(state.getUserId())
+                .ownerKey(state.getOwnerKey())
                 .build();
     }
 
@@ -47,6 +56,8 @@ public class FileDomain {
                 .createdAt(state.getCreatedAt())
                 .status(state.getStatus())
                 .orderNum(state.getOrderNum())
+                .userId(state.getUserId())
+                .ownerKey(state.getOwnerKey())
                 .build();
     }
 
@@ -60,5 +71,14 @@ public class FileDomain {
 
     public void delete() {
         status = EntityStatus.INACTIVE;
+    }
+
+    public void validateOwner(Long requesterId, String ownerKey) {
+        if (FormatValidator.hasNoValue(userId) || !userId.equals(requesterId)) {
+            throw new InvalidFileOwnerException();
+        }
+        if (FormatValidator.hasNoValue(this.ownerKey) || !this.ownerKey.equals(ownerKey)) {
+            throw new InvalidFileOwnerException();
+        }
     }
 }

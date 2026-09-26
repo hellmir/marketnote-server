@@ -60,6 +60,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- | --- |
                 | ownerType | string | 소유 도메인 타입 | Y | "PRODUCT": 상품 / "ORDER": 주문 / "POST": 게시글 / "REVIEW": 리뷰 |
                 | ownerId | number | 소유 도메인 ID | Y | 1 |
+                | ownerKey | string | 소유자 키 (최대 64자) | Y | "01HZXQ2K6E5X7F9Y3Z1M8N4Q0P" |
                 | file | file[] | 업로드할 파일 목록 | Y | [file1, file2] |
                 | sort | string[] | 파일 종류 목록 | Y | ["PRODUCT_CATALOG_IMAGE", "PRODUCT_REPRESENTATIVE_IMAGE", "REVIEW_IMAGE"] |
                 | extension | string[] | 파일 확장자 목록 | N | ["jpg", "png"] |
@@ -86,6 +87,10 @@ import java.lang.annotation.*;
                 @Parameter(name = "ownerId", in = ParameterIn.QUERY, required = true,
                         description = "소유 도메인 ID",
                         schema = @Schema(type = "number", example = "1")
+                ),
+                @Parameter(name = "ownerKey", in = ParameterIn.QUERY, required = true,
+                        description = "소유자 키 (최대 64자)",
+                        schema = @Schema(type = "string", example = "01HZXQ2K6E5X7F9Y3Z1M8N4Q0P")
                 ),
                 @Parameter(name = "file", in = ParameterIn.QUERY, required = true,
                         description = "업로드할 파일 목록",
