@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserSnapshotState;
 import com.personal.marketnote.user.domain.user.UserStatusAction;
@@ -205,7 +206,7 @@ class ChangeUserStatusUseCaseTest {
         User withdrawnUser = User.from(
                 UserSnapshotState.builder()
                         .id(USER_ID)
-                        .nickname("withdrawn")
+                        .nickname(Nickname.of("withdrawn"))
                         .status(EntityStatus.INACTIVE)
                         .penaltyCount(0)
                         .withdrawalYn(true)
@@ -232,7 +233,7 @@ class ChangeUserStatusUseCaseTest {
         return User.from(
                 UserSnapshotState.builder()
                         .id(USER_ID)
-                        .nickname("testuser")
+                        .nickname(Nickname.of("testuser"))
                         .status(status)
                         .penaltyCount(0)
                         .userAuthProviders(List.of())

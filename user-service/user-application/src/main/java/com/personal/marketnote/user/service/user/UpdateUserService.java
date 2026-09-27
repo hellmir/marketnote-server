@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.exception.UserExistsException;
@@ -47,10 +48,10 @@ public class UpdateUserService implements UpdateUserUseCase {
         }
 
         if (updateUserInfoCommand.hasNickname()) {
-            String newNickname = updateUserInfoCommand.nickname();
+            Nickname newNickname = Nickname.of(updateUserInfoCommand.nickname());
             user.validateDifferentNickname(newNickname);
-            validateNicknameProfanity(newNickname);
-            validateDuplicateNickname(newNickname);
+            validateNicknameProfanity(newNickname.getValue());
+            validateDuplicateNickname(newNickname.getValue());
             user.updateNickname(newNickname);
 
             return;

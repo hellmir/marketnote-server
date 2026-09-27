@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.UpdateTargetNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.exception.UserNotFoundException;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.InvalidNicknameContainsProfanityException;
 import com.personal.marketnote.user.exception.UserExistsException;
@@ -222,7 +223,8 @@ class UpdateUserUseCaseTest {
     void updateUserInfo_updatesNickname() {
         // given
         Long id = 8L;
-        String nickname = "new-nick";
+        String nickname = "newNick";
+        Nickname nicknameVo = Nickname.of(nickname);
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
                 .nickname(nickname)
                 .build();
@@ -237,10 +239,10 @@ class UpdateUserUseCaseTest {
 
         // then
         verify(getUserUseCase).getUser(id);
-        verify(user).validateDifferentNickname(nickname);
+        verify(user).validateDifferentNickname(nicknameVo);
         verify(findProfanityWordPort).containsProfanity(nickname);
         verify(findUserPort).existsByNickname(nickname);
-        verify(user).updateNickname(nickname);
+        verify(user).updateNickname(nicknameVo);
         verify(updateUserPort).update(user);
         verifyNoMoreInteractions(getUserUseCase, user, updateUserPort, findProfanityWordPort);
         verifyNoMoreInteractions(findUserPort);
@@ -251,7 +253,8 @@ class UpdateUserUseCaseTest {
     void updateUserInfo_duplicateNickname_throws() {
         // given
         Long id = 9L;
-        String nickname = "dup-nick";
+        String nickname = "dupNick";
+        Nickname nicknameVo = Nickname.of(nickname);
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
                 .nickname(nickname)
                 .build();
@@ -267,10 +270,10 @@ class UpdateUserUseCaseTest {
                 .hasMessage(String.format(NICKNAME_ALREADY_EXISTS_EXCEPTION_MESSAGE, FIFTH_ERROR_CODE, nickname));
 
         verify(getUserUseCase).getUser(id);
-        verify(user).validateDifferentNickname(nickname);
+        verify(user).validateDifferentNickname(nicknameVo);
         verify(findProfanityWordPort).containsProfanity(nickname);
         verify(findUserPort).existsByNickname(nickname);
-        verify(user, never()).updateNickname(anyString());
+        verify(user, never()).updateNickname(any(Nickname.class));
         verifyNoInteractions(updateUserPort);
         verifyNoMoreInteractions(getUserUseCase, user, findUserPort, findProfanityWordPort);
     }
@@ -357,6 +360,7 @@ class UpdateUserUseCaseTest {
         // given
         Long id = 13L;
         String nickname = "나는바보야";
+        Nickname nicknameVo = Nickname.of(nickname);
         UpdateUserInfoCommand command = UpdateUserInfoCommand.builder()
                 .nickname(nickname)
                 .build();
@@ -370,9 +374,9 @@ class UpdateUserUseCaseTest {
                 .isInstanceOf(InvalidNicknameContainsProfanityException.class);
 
         verify(getUserUseCase).getUser(id);
-        verify(user).validateDifferentNickname(nickname);
+        verify(user).validateDifferentNickname(nicknameVo);
         verify(findProfanityWordPort).containsProfanity(nickname);
-        verify(user, never()).updateNickname(anyString());
+        verify(user, never()).updateNickname(any(Nickname.class));
         verifyNoInteractions(findUserPort, updateUserPort);
     }
 }

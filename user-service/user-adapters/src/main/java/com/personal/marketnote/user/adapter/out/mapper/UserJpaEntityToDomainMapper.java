@@ -5,6 +5,7 @@ import com.personal.marketnote.user.adapter.out.persistence.user.entity.TermsJpa
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserOauth2VendorJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserTermsJpaEntity;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.authentication.Role;
 import com.personal.marketnote.user.domain.user.*;
 
@@ -25,7 +26,7 @@ public class UserJpaEntityToDomainMapper {
                             UserSnapshotState.builder()
                                     .id(entity.getId())
                                     .userKey(entity.getUserKey())
-                                    .nickname(entity.getNickname())
+                                    .nickname(toNickname(entity.getNickname()))
                                     .email(entity.getEmail())
                                     .password(entity.getPassword())
                                     .fullName(entity.getFullName())
@@ -50,6 +51,13 @@ public class UserJpaEntityToDomainMapper {
 
                     return user;
                 });
+    }
+
+    private static Nickname toNickname(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return Nickname.of(value);
     }
 
     private static Optional<Role> mapToRoleDomain(RoleJpaEntity roleJpaEntity) {

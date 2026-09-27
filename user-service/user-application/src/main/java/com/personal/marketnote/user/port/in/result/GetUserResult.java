@@ -3,6 +3,7 @@ package com.personal.marketnote.user.port.in.result;
 import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -31,7 +32,7 @@ public record GetUserResult(
         return GetUserResult.builder()
                 .id(user.getId())
                 .accountInfo(AccountInfoResult.from(user.getUserAuthProviders()))
-                .nickname(user.getNickname())
+                .nickname(toNicknameValue(user.getNickname()))
                 .email(toEmailValue(user.getEmail()))
                 .fullName(user.getFullName())
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
@@ -45,6 +46,13 @@ public record GetUserResult(
                 .penaltyCount(user.getPenaltyCount())
                 .deactivatedUntil(user.getDeactivatedUntil())
                 .build();
+    }
+
+    private static String toNicknameValue(Nickname nickname) {
+        if (FormatValidator.hasNoValue(nickname)) {
+            return null;
+        }
+        return nickname.getValue();
     }
 
     private static String toPhoneNumberValue(PhoneNumber phoneNumber) {

@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.authentication;
 
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.OauthTokenNoValueException;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.port.in.result.LoginResult;
 import com.personal.marketnote.user.port.out.user.FindUserPort;
@@ -52,7 +53,7 @@ class Oauth2LoginUseCaseTest {
         when(tokenSupport.grantToken(code, redirectUri, authVendor)).thenReturn(tokenInfo);
         when(findUserPort.findAllStatusUserByAuthVendorAndOidcId(authVendor, oidcId)).thenReturn(Optional.of(user));
         when(user.isActive()).thenReturn(true);
-        when(user.getNickname()).thenReturn("tester");
+        when(user.getNickname()).thenReturn(Nickname.of("tester"));
 
         // when
         LoginResult result = oauth2LoginService.loginByOAuth2(code, redirectUri, authVendor);

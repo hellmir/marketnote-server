@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.port.in.mapper;
 
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.UserCreateState;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -37,7 +38,7 @@ class UserCommandToStateMapperTest {
         );
 
         // then
-        assertThat(state.getNickname()).isEqualTo("tester");
+        assertThat(state.getNickname()).isEqualTo(Nickname.of("tester"));
     }
 
     @ParameterizedTest
