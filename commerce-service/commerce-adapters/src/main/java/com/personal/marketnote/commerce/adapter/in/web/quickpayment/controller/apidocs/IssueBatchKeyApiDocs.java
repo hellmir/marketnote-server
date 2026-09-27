@@ -32,22 +32,23 @@ import java.lang.annotation.*;
                 ---
                 
                 ## Request
-                
+
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | encData | string | KCP 결제창 인증결과 암호화 데이터 | Y | "encrypted_data..." |
                 | encInfo | string | KCP 결제창 인증결과 암호화 정보 | Y | "encrypted_info..." |
-                
+                | cardMaskNo | string | KCP 결제창 인증결과 마스킹 카드번호 | N | "123412******1234" |
+
                 ---
-                
+
                 ## Response > content
-                
+
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
                 | quickPaymentCardId | number | 빠른결제 카드 ID | 1 |
                 | cardCode | string | 카드사 코드 | "CCDI" |
                 | cardName | string | 카드사명 | "현대카드" |
-                | maskedCardNumber | string | 마스킹 카드번호 | null |
+                | maskedCardNumber | string | 마스킹 카드번호 | "123412******1234" |
                 | cardBinType01 | string | 개인(0)/법인(1) | "0" |
                 | cardBinType02 | string | 일반(0)/체크(1) | "0" |
                 """,
@@ -59,7 +60,8 @@ import java.lang.annotation.*;
                         examples = @ExampleObject("""
                                 {
                                   "encData": "encrypted_data_from_payment_window",
-                                  "encInfo": "encrypted_info_from_payment_window"
+                                  "encInfo": "encrypted_info_from_payment_window",
+                                  "cardMaskNo": "123412******1234"
                                 }
                                 """)
                 )
@@ -78,7 +80,7 @@ import java.lang.annotation.*;
                                             "quickPaymentCardId": 1,
                                             "cardCode": "CCDI",
                                             "cardName": "현대카드",
-                                            "maskedCardNumber": null,
+                                            "maskedCardNumber": "123412******1234",
                                             "cardBinType01": "0",
                                             "cardBinType02": "0"
                                           },

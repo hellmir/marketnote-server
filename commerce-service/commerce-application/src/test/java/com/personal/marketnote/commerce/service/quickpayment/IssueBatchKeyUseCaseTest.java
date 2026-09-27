@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.quickpayment;
 
+import com.personal.marketnote.commerce.domain.payment.InvalidMaskedCardNumberException;
 import com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCard;
 import com.personal.marketnote.commerce.exception.QuickPaymentBatchKeyIssuanceFailedException;
 import com.personal.marketnote.commerce.port.in.command.quickpayment.IssueBatchKeyCommand;
@@ -115,6 +116,99 @@ class IssueBatchKeyUseCaseTest {
     }
 
     @Nested
+    @DisplayName("마스킹 카드번호 저장")
+    class MaskedCardNumberSaveTest {
+
+        @Test
+        @DisplayName("command에 마스킹 카드번호가 있으면 QuickPaymentCard.maskedCardNumber에 반영되어 저장된다")
+        void shouldSaveMaskedCardNumberWhenProvided() {
+            IssueBatchKeyCommand command = createCommandWithMaskedCardNumber("123412******1234");
+            IssueBatchKeyPortResult portResult = createSuccessPortResult();
+            QuickPaymentCard savedCard = createSavedCardWithMaskedCardNumber("123412******1234");
+
+            when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
+            when(saveQuickPaymentCardPort.save(argThat(card ->
+                    card.getMaskedCardNumber() != null
+                            && "123412******1234".equals(card.getMaskedCardNumber().getValue())
+            ))).thenReturn(savedCard);
+
+            issueBatchKeyService.issueBatchKey(command);
+
+            verify(saveQuickPaymentCardPort).save(argThat(card ->
+                    card.getMaskedCardNumber() != null
+                            && "123412******1234".equals(card.getMaskedCardNumber().getValue())
+            ));
+        }
+
+        @Test
+        @DisplayName("command의 마스킹 카드번호가 null이면 QuickPaymentCard.maskedCardNumber도 null로 저장된다")
+        void shouldSaveNullMaskedCardNumberWhenCommandIsNull() {
+            IssueBatchKeyCommand command = createCommandWithMaskedCardNumber(null);
+            IssueBatchKeyPortResult portResult = createSuccessPortResult();
+            QuickPaymentCard savedCard = createSavedCard();
+
+            when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
+            when(saveQuickPaymentCardPort.save(argThat(card ->
+                    card.getMaskedCardNumber() == null
+            ))).thenReturn(savedCard);
+
+            issueBatchKeyService.issueBatchKey(command);
+
+            verify(saveQuickPaymentCardPort).save(argThat(card ->
+                    card.getMaskedCardNumber() == null
+            ));
+        }
+
+        @Test
+        @DisplayName("command의 마스킹 카드번호가 빈 문자열이면 QuickPaymentCard.maskedCardNumber도 null로 저장된다")
+        void shouldSaveNullMaskedCardNumberWhenCommandIsBlank() {
+            IssueBatchKeyCommand command = createCommandWithMaskedCardNumber("   ");
+            IssueBatchKeyPortResult portResult = createSuccessPortResult();
+            QuickPaymentCard savedCard = createSavedCard();
+
+            when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
+            when(saveQuickPaymentCardPort.save(argThat(card ->
+                    card.getMaskedCardNumber() == null
+            ))).thenReturn(savedCard);
+
+            issueBatchKeyService.issueBatchKey(command);
+
+            verify(saveQuickPaymentCardPort).save(argThat(card ->
+                    card.getMaskedCardNumber() == null
+            ));
+        }
+
+        @Test
+        @DisplayName("command의 마스킹 카드번호가 VO 형식과 다르면 InvalidMaskedCardNumberException이 전파된다")
+        void shouldPropagateExceptionWhenMaskedCardNumberInvalid() {
+            IssueBatchKeyCommand command = createCommandWithMaskedCardNumber("invalid_format");
+            IssueBatchKeyPortResult portResult = createSuccessPortResult();
+
+            when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
+
+            assertThatThrownBy(() -> issueBatchKeyService.issueBatchKey(command))
+                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+
+            verify(saveQuickPaymentCardPort, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("저장된 카드의 maskedCardNumber가 결과에 포함된다")
+        void shouldReturnMaskedCardNumberInResult() {
+            IssueBatchKeyCommand command = createCommandWithMaskedCardNumber("123412******1234");
+            IssueBatchKeyPortResult portResult = createSuccessPortResult();
+            QuickPaymentCard savedCard = createSavedCardWithMaskedCardNumber("123412******1234");
+
+            when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
+            when(saveQuickPaymentCardPort.save(any(QuickPaymentCard.class))).thenReturn(savedCard);
+
+            IssueBatchKeyResult result = issueBatchKeyService.issueBatchKey(command);
+
+            assertThat(result.maskedCardNumber()).isEqualTo("123412******1234");
+        }
+    }
+
+    @Nested
     @DisplayName("배치키 발급 실패")
     class IssueBatchKeyFailureTest {
 
@@ -182,6 +276,15 @@ class IssueBatchKeyUseCaseTest {
                 .build();
     }
 
+    private IssueBatchKeyCommand createCommandWithMaskedCardNumber(String maskedCardNumber) {
+        return IssueBatchKeyCommand.builder()
+                .userId(USER_ID)
+                .encData("test_enc_data")
+                .encInfo("test_enc_info")
+                .maskedCardNumber(maskedCardNumber)
+                .build();
+    }
+
     private IssueBatchKeyPortResult createSuccessPortResult() {
         return IssueBatchKeyPortResult.builder()
                 .success(true)
@@ -213,6 +316,23 @@ class IssueBatchKeyUseCaseTest {
                         .batchKey("batch_key_123")
                         .cardCode("CCDI")
                         .cardName("현대카드")
+                        .cardBinType01("0")
+                        .cardBinType02("0")
+                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                        .build()
+        );
+        return card;
+    }
+
+    private QuickPaymentCard createSavedCardWithMaskedCardNumber(String maskedCardNumber) {
+        QuickPaymentCard card = QuickPaymentCard.from(
+                com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCardSnapshotState.builder()
+                        .id(SAVED_CARD_ID)
+                        .userId(USER_ID)
+                        .batchKey("batch_key_123")
+                        .cardCode("CCDI")
+                        .cardName("현대카드")
+                        .maskedCardNumber(com.personal.marketnote.commerce.domain.payment.MaskedCardNumber.of(maskedCardNumber))
                         .cardBinType01("0")
                         .cardBinType02("0")
                         .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)

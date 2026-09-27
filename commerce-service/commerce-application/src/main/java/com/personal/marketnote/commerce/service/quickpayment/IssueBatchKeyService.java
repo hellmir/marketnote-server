@@ -43,6 +43,7 @@ public class IssueBatchKeyService implements IssueBatchKeyUseCase {
                 .batchKey(portResult.batchKey())
                 .cardCode(portResult.cardCode())
                 .cardName(portResult.cardName())
+                .maskedCardNumber(toMaskedCardNumber(command.maskedCardNumber()))
                 .cardBinType01(portResult.cardBinType01())
                 .cardBinType02(portResult.cardBinType02())
                 .build();
@@ -64,5 +65,12 @@ public class IssueBatchKeyService implements IssueBatchKeyUseCase {
             return null;
         }
         return maskedCardNumber.getValue();
+    }
+
+    private MaskedCardNumber toMaskedCardNumber(String maskedCardNumber) {
+        if (FormatValidator.hasNoValue(maskedCardNumber)) {
+            return null;
+        }
+        return MaskedCardNumber.of(maskedCardNumber);
     }
 }

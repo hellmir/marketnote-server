@@ -10,6 +10,7 @@ public record KcpTradeRegisterRequest(
         @JsonProperty("good_mny") String goodMny,
         @JsonProperty("pay_method") String payMethod,
         @JsonProperty("good_name") String goodName,
-        @JsonProperty("Ret_URL") String retUrl
+        @JsonProperty("Ret_URL") String retUrl,
+        @JsonProperty("batch_cardno_return_yn") String batchCardnoReturnYn
 ) {
 }

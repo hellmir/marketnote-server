@@ -107,6 +107,7 @@ public class QuickPaymentController {
                         .userId(userId)
                         .encData(request.getEncData())
                         .encInfo(request.getEncInfo())
+                        .maskedCardNumber(request.getCardMaskNo())
                         .build()
         );
 
