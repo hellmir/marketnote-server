@@ -61,7 +61,7 @@ public class GifticonOrderJpaEntity extends BaseEntity {
         return GifticonOrderJpaEntity.builder()
                 .id(domain.getId())
                 .userId(domain.getUserId())
-                .goodsCode(domain.getGoodsCode())
+                .goodsCode(domain.getGoodsCode().getValue())
                 .goodsName(domain.getGoodsName())
                 .brandName(domain.getBrandName())
                 .productImageUrl(domain.getProductImageUrl())

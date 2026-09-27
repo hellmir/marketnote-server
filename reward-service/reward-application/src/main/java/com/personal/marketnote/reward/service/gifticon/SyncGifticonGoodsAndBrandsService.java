@@ -189,7 +189,7 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
         List<GifticonGoods> saleGoods = findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE);
 
         for (GifticonGoods goods : saleGoods) {
-            if (syncedGoodsCodes.contains(goods.getGoodsCode())) {
+            if (syncedGoodsCodes.contains(goods.getGoodsCode().getValue())) {
                 continue;
             }
             goods.suspend();

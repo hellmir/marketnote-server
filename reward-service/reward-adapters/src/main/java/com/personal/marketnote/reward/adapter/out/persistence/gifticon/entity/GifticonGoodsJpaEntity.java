@@ -75,7 +75,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
     public static GifticonGoodsJpaEntity from(GifticonGoods domain) {
         return GifticonGoodsJpaEntity.builder()
                 .id(domain.getId())
-                .goodsCode(domain.getGoodsCode())
+                .goodsCode(domain.getGoodsCode().getValue())
                 .goodsName(domain.getGoodsName())
                 .brandCode(toBrandCodeValue(domain.getBrandCode()))
                 .brandName(domain.getBrandName())

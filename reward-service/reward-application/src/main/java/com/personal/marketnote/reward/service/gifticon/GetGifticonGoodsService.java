@@ -58,7 +58,7 @@ public class GetGifticonGoodsService implements GetGifticonGoodsUseCase {
 
     private GifticonGoodsItem mapToItem(GifticonGoods goods) {
         return new GifticonGoodsItem(
-                goods.getGoodsCode(),
+                goods.getGoodsCode().getValue(),
                 goods.getGoodsName(),
                 toBrandCodeValue(goods.getBrandCode()),
                 goods.getBrandName(),

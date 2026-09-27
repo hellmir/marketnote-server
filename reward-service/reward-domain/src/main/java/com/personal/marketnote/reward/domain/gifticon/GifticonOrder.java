@@ -18,7 +18,7 @@ public class GifticonOrder {
     private static final DateTimeFormatter EXPIRY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yy.MM.dd");
     private Long id;
     private Long userId;
-    private String goodsCode;
+    private GoodsCode goodsCode;
     private String goodsName;
     private String brandName;
     private String productImageUrl;
@@ -35,7 +35,7 @@ public class GifticonOrder {
     public static GifticonOrder from(GifticonOrderCreateState state) {
         return GifticonOrder.builder()
                 .userId(state.getUserId())
-                .goodsCode(state.getGoodsCode())
+                .goodsCode(GoodsCode.of(state.getGoodsCode()))
                 .goodsName(state.getGoodsName())
                 .brandName(state.getBrandName())
                 .productImageUrl(state.getProductImageUrl())
@@ -49,7 +49,7 @@ public class GifticonOrder {
         return GifticonOrder.builder()
                 .id(state.getId())
                 .userId(state.getUserId())
-                .goodsCode(state.getGoodsCode())
+                .goodsCode(GoodsCode.fromSnapshot(state.getGoodsCode()))
                 .goodsName(state.getGoodsName())
                 .brandName(state.getBrandName())
                 .productImageUrl(state.getProductImageUrl())

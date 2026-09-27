@@ -65,7 +65,7 @@ class GifticonOrderTest {
 
             assertThat(order.getId()).isEqualTo(1L);
             assertThat(order.getUserId()).isEqualTo(100L);
-            assertThat(order.getGoodsCode()).isEqualTo("G001");
+            assertThat(order.getGoodsCode().getValue()).isEqualTo("G001");
             assertThat(order.getGoodsName()).isEqualTo("스타벅스 아메리카노");
             assertThat(order.getBrandName()).isEqualTo("스타벅스");
             assertThat(order.getTrId()).isEqualTo("NTCASH_100_20260403120000");

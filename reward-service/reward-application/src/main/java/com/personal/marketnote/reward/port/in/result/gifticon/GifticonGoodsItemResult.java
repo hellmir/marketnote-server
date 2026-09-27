@@ -26,7 +26,7 @@ public record GifticonGoodsItemResult(
 ) {
     public static GifticonGoodsItemResult from(GifticonGoods goods) {
         return new GifticonGoodsItemResult(
-                goods.getGoodsCode(),
+                goods.getGoodsCode().getValue(),
                 goods.getGoodsName(),
                 toBrandCodeValue(goods.getBrandCode()),
                 goods.getBrandName(),

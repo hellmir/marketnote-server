@@ -37,7 +37,7 @@ public class GetPopularGifticonGoodsService implements GetPopularGifticonGoodsUs
 
     private PopularGifticonGoodsItem mapToItem(GifticonGoods goods) {
         return new PopularGifticonGoodsItem(
-                goods.getGoodsCode(),
+                goods.getGoodsCode().getValue(),
                 goods.getGoodsName(),
                 toBrandCodeValue(goods.getBrandCode()),
                 goods.getBrandName(),
