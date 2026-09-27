@@ -31,8 +31,8 @@ public class UserJpaEntityToDomainMapper {
                                     .password(entity.getPassword())
                                     .fullName(entity.getFullName())
                                     .phoneNumber(entity.getPhoneNumber())
-                                    .referenceCode(entity.getReferenceCode())
-                                    .referredUserCode(entity.getReferredUserCode())
+                                    .referenceCode(toReferenceCode(entity.getReferenceCode()))
+                                    .referredUserCode(toReferenceCode(entity.getReferredUserCode()))
                                     .role(role)
                                     .userAuthProviders(vendors)
                                     .userTerms(userTerms)
@@ -58,6 +58,13 @@ public class UserJpaEntityToDomainMapper {
             return null;
         }
         return Nickname.of(value);
+    }
+
+    private static ReferenceCode toReferenceCode(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return ReferenceCode.of(value);
     }
 
     private static Optional<Role> mapToRoleDomain(RoleJpaEntity roleJpaEntity) {

@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.email.Email;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.Nickname;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -36,7 +37,7 @@ public record GetUserInfoResult(
                 .email(toEmailValue(user.getEmail()))
                 .fullName(user.getFullName())
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
-                .referenceCode(user.getReferenceCode())
+                .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
                 .roleId(user.getRole().getId())
                 .signedUpAt(user.getSignedUpAt())
                 .lastLoggedInAt(user.getLastLoggedInAt())
@@ -53,6 +54,13 @@ public record GetUserInfoResult(
             return null;
         }
         return nickname.getValue();
+    }
+
+    private static String toReferenceCodeValue(ReferenceCode referenceCode) {
+        if (FormatValidator.hasNoValue(referenceCode)) {
+            return null;
+        }
+        return referenceCode.getValue();
     }
 
     private static String toPhoneNumberValue(PhoneNumber phoneNumber) {

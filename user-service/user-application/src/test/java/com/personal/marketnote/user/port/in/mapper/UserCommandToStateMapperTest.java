@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.port.in.mapper;
 
 import com.personal.marketnote.user.domain.user.Nickname;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.UserCreateState;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -34,7 +35,7 @@ class UserCommandToStateMapperTest {
 
         // when
         UserCreateState state = UserCommandToStateMapper.mapToState(
-                command, AuthVendor.NATIVE, null, List.of(), "REF", passwordEncoder
+                command, AuthVendor.NATIVE, null, List.of(), ReferenceCode.of("REF123"), passwordEncoder
         );
 
         // then
@@ -56,7 +57,7 @@ class UserCommandToStateMapperTest {
 
         // when
         UserCreateState state = UserCommandToStateMapper.mapToState(
-                command, AuthVendor.NATIVE, null, List.of(), "REF", passwordEncoder
+                command, AuthVendor.NATIVE, null, List.of(), ReferenceCode.of("REF123"), passwordEncoder
         );
 
         // then

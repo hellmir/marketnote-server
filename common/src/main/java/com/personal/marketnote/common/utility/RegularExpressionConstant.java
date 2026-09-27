@@ -9,6 +9,9 @@ public class RegularExpressionConstant {
     public static final String POSITIVE_INTEGER_PATTERN = "^([1-9]\\d*)$";
     public static final String ZERO_OR_POSITIVE_INTEGER_PATTERN = "^(0|[1-9]\\d*)$";
     public static final String RECIPIENT_NAME_PATTERN = "^[가-힣a-zA-Z\\s]{1,50}$";
+    // RandomCodeGenerator.generateReferenceCode()는 보다 좁은 알파벳(A-HJ-NPQR-Y + 3-4,6-9)으로 6자리를 생성하지만,
+    // 기존 데이터 호환과 외부 입력 유연성을 위해 VO 포맷 검증은 [A-Z0-9] superset으로 완화했다.
+    public static final String REFERENCE_CODE_PATTERN = "^[A-Z0-9]{6}$";
     public static final String ZIP_CODE_PATTERN = "^\\d{5}$";
     public static final String NO_HTML_TAG_PATTERN = "^[^<>]*$";
     private static final String IPV4_OCTET = "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])";

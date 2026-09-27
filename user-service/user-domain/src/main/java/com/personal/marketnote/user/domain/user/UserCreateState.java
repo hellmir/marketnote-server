@@ -21,7 +21,7 @@ public class UserCreateState {
     private final String fullName;
     private final String phoneNumber;
     private final List<Terms> terms;
-    private final String referenceCode;
+    private final ReferenceCode referenceCode;
     private final boolean guest;
 
     public boolean hasPassword() {

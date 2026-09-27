@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.exception.UserNotFoundException;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.MutualReferralNotAllowedException;
 import com.personal.marketnote.user.exception.SelfReferralNotAllowedException;
@@ -26,19 +27,22 @@ public class RegisterReferredUserCodeService implements RegisterReferredUserCode
 
     @Override
     public void registerReferredUserCode(Long requestUserId, String referredUserCode) {
-        if (!getUserUseCase.existsUser(referredUserCode)) {
+        ReferenceCode referredUserCodeVo = ReferenceCode.of(referredUserCode);
+        String normalizedCode = referredUserCodeVo.getValue();
+
+        if (!getUserUseCase.existsUser(normalizedCode)) {
             throw new UserNotFoundException(
-                    String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, referredUserCode)
+                    String.format(USER_REFERENCE_CODE_NOT_FOUND_EXCEPTION_MESSAGE, normalizedCode)
             );
         }
 
         User requestUser = getUserUseCase.getUser(requestUserId);
-        validateNotSelfReferral(requestUser, referredUserCode);
+        validateNotSelfReferral(requestUser, referredUserCodeVo);
 
-        User referredUser = getUserUseCase.getUser(referredUserCode);
+        User referredUser = getUserUseCase.getUser(normalizedCode);
         validateNotMutualReferral(referredUser, requestUser);
 
-        requestUser.registerReferredUserCode(referredUserCode);
+        requestUser.registerReferredUserCode(referredUserCodeVo);
         updateUserPort.update(requestUser);
 
         // Outbox 이벤트 저장 (트랜잭션 내)
@@ -52,7 +56,7 @@ public class RegisterReferredUserCodeService implements RegisterReferredUserCode
         }
     }
 
-    private void validateNotSelfReferral(User requestUser, String referredUserCode) {
+    private void validateNotSelfReferral(User requestUser, ReferenceCode referredUserCode) {
         if (requestUser.isSelfReferral(referredUserCode)) {
             throw new SelfReferralNotAllowedException(FIRST_ERROR_CODE);
         }

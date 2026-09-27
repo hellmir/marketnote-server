@@ -2,6 +2,7 @@ package com.personal.marketnote.user.port.in.mapper;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.Nickname;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.Terms;
 import com.personal.marketnote.user.domain.user.UserCreateState;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
@@ -19,7 +20,7 @@ public final class UserCommandToStateMapper {
             AuthVendor authVendor,
             String oidcId,
             List<Terms> terms,
-            String referenceCode,
+            ReferenceCode referenceCode,
             PasswordEncoder passwordEncoder
     ) {
         String encodedPassword = null;

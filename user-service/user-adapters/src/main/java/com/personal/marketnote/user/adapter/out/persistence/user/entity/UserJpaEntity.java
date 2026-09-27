@@ -11,6 +11,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.out.persistence.authentication.entity.RoleJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.TermsJpaRepository;
 import com.personal.marketnote.user.domain.user.Nickname;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserTerms;
@@ -103,8 +104,8 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .password(user.getPassword())
                 .fullName(user.getFullName())
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
-                .referenceCode(user.getReferenceCode())
-                .referredUserCode(user.getReferredUserCode())
+                .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
+                .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
                 .withdrawalYn(user.isWithdrawn())
                 .withdrawnAt(user.getWithdrawnAt())
@@ -139,8 +140,8 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
                 .password(user.getPassword())
                 .fullName(user.getFullName())
                 .phoneNumber(toPhoneNumberValue(user.getPhoneNumber()))
-                .referenceCode(user.getReferenceCode())
-                .referredUserCode(user.getReferredUserCode())
+                .referenceCode(toReferenceCodeValue(user.getReferenceCode()))
+                .referredUserCode(toReferenceCodeValue(user.getReferredUserCode()))
                 .roleJpaEntity(RoleJpaEntity.from(user.getRole()))
                 .lastLoggedInAt(user.getLastLoggedInAt())
                 .withdrawalYn(user.isWithdrawn())
@@ -162,7 +163,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
         email = toEmailValue(user.getEmail());
         password = user.getPassword();
         phoneNumber = toPhoneNumberValue(user.getPhoneNumber());
-        referredUserCode = user.getReferredUserCode();
+        referredUserCode = toReferenceCodeValue(user.getReferredUserCode());
         roleJpaEntity = RoleJpaEntity.from(user.getRole());
         signedUpAt = user.getSignedUpAt();
         lastLoggedInAt = user.getLastLoggedInAt();
@@ -209,6 +210,13 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
             return null;
         }
         return nickname.getValue();
+    }
+
+    private static String toReferenceCodeValue(ReferenceCode referenceCode) {
+        if (FormatValidator.hasNoValue(referenceCode)) {
+            return null;
+        }
+        return referenceCode.getValue();
     }
 
     private static String toPhoneNumberValue(PhoneNumber phoneNumber) {

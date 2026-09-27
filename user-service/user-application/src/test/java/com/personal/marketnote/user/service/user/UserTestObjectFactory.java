@@ -2,7 +2,9 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.user.domain.authentication.Role;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.Nickname;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserSnapshotState;
@@ -29,7 +31,7 @@ final class UserTestObjectFactory {
                 "user@test.com",
                 "홍길동",
                 "010-1111-2222",
-                "ref-123",
+                "REF123",
                 Role.getBuyer(),
                 userAuthProviders,
                 LocalDateTime.of(2024, 1, 1, 10, 0),
@@ -96,7 +98,7 @@ final class UserTestObjectFactory {
                 .email(email)
                 .fullName(fullName)
                 .phoneNumber(phoneNumber)
-                .referenceCode(referenceCode)
+                .referenceCode(toReferenceCode(referenceCode))
                 .role(role)
                 .userAuthProviders(userAuthProviders)
                 .userTerms(List.of())
@@ -109,5 +111,12 @@ final class UserTestObjectFactory {
                 .build();
 
         return User.from(state);
+    }
+
+    private static ReferenceCode toReferenceCode(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return ReferenceCode.of(value);
     }
 }
