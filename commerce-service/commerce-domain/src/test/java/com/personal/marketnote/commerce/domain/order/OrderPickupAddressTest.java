@@ -42,7 +42,7 @@ class OrderPickupAddressTest {
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
-            assertThat(order.getPickupAddress().getDeliveryRequestMessage()).isEqualTo("부재시 경비실에 맡겨주세요");
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage().getValue()).isEqualTo("부재시 경비실에 맡겨주세요");
         }
 
         @Test
@@ -127,7 +127,7 @@ class OrderPickupAddressTest {
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
             assertThat(order.getPickupAddress().getAddressDetail()).isEqualTo("회수지 상세주소");
-            assertThat(order.getPickupAddress().getDeliveryRequestMessage()).isEqualTo("회수 요청사항");
+            assertThat(order.getPickupAddress().getDeliveryRequestMessage().getValue()).isEqualTo("회수 요청사항");
         }
     }
 

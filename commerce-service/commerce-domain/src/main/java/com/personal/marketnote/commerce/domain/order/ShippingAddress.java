@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.domain.order;
 
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.delivery.PickupRequestType;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
@@ -17,7 +18,7 @@ public class ShippingAddress {
     private String address;
     private String addressDetail;
     private DeliveryRequestType deliveryRequestType;
-    private String deliveryRequestMessage;
+    private DeliveryRequestMessage deliveryRequestMessage;
     private PickupRequestType pickupRequestType;
 
     public static ShippingAddress of(
@@ -36,7 +37,7 @@ public class ShippingAddress {
                 .address(address)
                 .addressDetail(addressDetail)
                 .deliveryRequestType(deliveryRequestType)
-                .deliveryRequestMessage(deliveryRequestMessage)
+                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(deliveryRequestMessage))
                 .build();
     }
 
@@ -56,7 +57,7 @@ public class ShippingAddress {
                 .address(address)
                 .addressDetail(addressDetail)
                 .pickupRequestType(pickupRequestType)
-                .deliveryRequestMessage(pickupRequestMessage)
+                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(pickupRequestMessage))
                 .build();
     }
 
@@ -65,6 +66,13 @@ public class ShippingAddress {
             return null;
         }
         return PhoneNumber.of(value);
+    }
+
+    private static DeliveryRequestMessage toDeliveryRequestMessageOrNull(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return DeliveryRequestMessage.of(value);
     }
 
     public boolean hasRecipientName() {

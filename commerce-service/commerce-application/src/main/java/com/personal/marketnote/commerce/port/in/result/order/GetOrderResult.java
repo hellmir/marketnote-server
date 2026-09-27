@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.AccessLevel;
@@ -66,14 +67,14 @@ public record GetOrderResult(
                 .address(order.getShippingAddress().getAddress())
                 .addressDetail(order.getShippingAddress().getAddressDetail())
                 .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
-                .deliveryRequestMessage(order.getShippingAddress().getDeliveryRequestMessage())
+                .deliveryRequestMessage(toDeliveryRequestMessageValue(order.getShippingAddress().getDeliveryRequestMessage()))
                 .pickupRecipientName(resolvePickupField(order, ShippingAddress::getRecipientName))
                 .pickupRecipientPhoneNumber(toPhoneNumberValue(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)))
                 .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
                 .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
                 .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
                 .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getDeliveryRequestType))
-                .pickupDeliveryRequestMessage(resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage))
+                .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)))
                 .orderProducts(order.getOrderProducts().stream()
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,
@@ -97,5 +98,12 @@ public record GetOrderResult(
             return null;
         }
         return phoneNumber.getValue();
+    }
+
+    private static String toDeliveryRequestMessageValue(DeliveryRequestMessage deliveryRequestMessage) {
+        if (FormatValidator.hasNoValue(deliveryRequestMessage)) {
+            return null;
+        }
+        return deliveryRequestMessage.getValue();
     }
 }
