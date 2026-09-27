@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.payment.Installment;
+import com.personal.marketnote.commerce.domain.payment.MaskedCardNumber;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentApprovalInfo;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
@@ -129,7 +130,7 @@ public class PaymentApprovalTransactionHelper {
         PaymentApprovalInfo approvalInfo = PaymentApprovalInfo.builder()
                 .pgPaymentKey(vendorResult.transactionId())
                 .method(vendorResult.payMethod())
-                .cardNumber(vendorResult.cardNumber())
+                .cardNumber(toMaskedCardNumber(vendorResult.cardNumber()))
                 .approvalNumber(vendorResult.approvalNumber())
                 .installment(installment)
                 .issueCompanyCode(vendorResult.cardCode())
@@ -353,4 +354,10 @@ public class PaymentApprovalTransactionHelper {
         }
     }
 
+    private MaskedCardNumber toMaskedCardNumber(String cardNumber) {
+        if (FormatValidator.hasNoValue(cardNumber)) {
+            return null;
+        }
+        return MaskedCardNumber.of(cardNumber);
+    }
 }

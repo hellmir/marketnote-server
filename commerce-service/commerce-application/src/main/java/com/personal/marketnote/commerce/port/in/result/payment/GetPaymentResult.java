@@ -36,7 +36,7 @@ public record GetPaymentResult(
         if (FormatValidator.hasValue(event)) {
             builder.pgCompanyKey(event.getPgCompanyKey())
                     .method(event.getMethod())
-                    .cardNumber(event.getCardNumber())
+                    .cardNumber(resolveCardNumberValue(event))
                     .approvalNumber(event.getApprovalNumber())
                     .installment(resolveInstallmentValue(event))
                     .issueCompanyName(event.getIssueCompanyName())
@@ -52,5 +52,12 @@ public record GetPaymentResult(
             return null;
         }
         return event.getInstallment().getValue();
+    }
+
+    private static String resolveCardNumberValue(PspPaymentEvent event) {
+        if (FormatValidator.hasNoValue(event.getCardNumber())) {
+            return null;
+        }
+        return event.getCardNumber().getValue();
     }
 }

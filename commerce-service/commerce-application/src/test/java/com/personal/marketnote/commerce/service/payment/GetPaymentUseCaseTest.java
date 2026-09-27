@@ -200,7 +200,7 @@ class GetPaymentUseCaseTest {
                 .poStatus(PaymentEventStatus.COMPLETE)
                 .method("CARD")
                 .amount(50000L)
-                .cardNumber("1234-****-****-5678")
+                .cardNumber(MaskedCardNumber.of("1234-****-****-5678"))
                 .approvalNumber("12345678")
                 .installment(Installment.of((short) 0))
                 .issueCompanyCode("CCLG")

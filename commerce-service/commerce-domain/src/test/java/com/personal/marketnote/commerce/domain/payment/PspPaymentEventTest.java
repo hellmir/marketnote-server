@@ -74,7 +74,7 @@ class PspPaymentEventTest {
             assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.COMPLETE);
             assertThat(event.getPgPaymentKey()).isEqualTo("tno_123");
             assertThat(event.getMethod()).isEqualTo("PACA");
-            assertThat(event.getCardNumber()).isEqualTo("1234-****-****-5678");
+            assertThat(event.getCardNumber()).isEqualTo(MaskedCardNumber.of("1234-****-****-5678"));
             assertThat(event.getApprovalNumber()).isEqualTo("12345678");
             assertThat(event.getInstallment()).isEqualTo(Installment.of((short) 0));
             assertThat(event.getIssueCompanyCode()).isEqualTo("CCLG");
@@ -392,7 +392,7 @@ class PspPaymentEventTest {
         return PaymentApprovalInfo.builder()
                 .pgPaymentKey("tno_123")
                 .method("PACA")
-                .cardNumber("1234-****-****-5678")
+                .cardNumber(MaskedCardNumber.of("1234-****-****-5678"))
                 .approvalNumber("12345678")
                 .installment(Installment.of((short) 0))
                 .issueCompanyCode("CCLG")
