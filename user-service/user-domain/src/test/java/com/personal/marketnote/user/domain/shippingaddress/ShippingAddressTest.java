@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidDeliveryRequestMessageLengthException;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.DeliveryRequestMessageNoValueException;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.domain.recipientname.RecipientName;
 import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidShippingAddressDeletionException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.ShippingAddressCompanyNameNoValueException;
 import org.junit.jupiter.api.DisplayName;
@@ -127,10 +128,10 @@ class ShippingAddressTest {
         ShippingAddress address = ShippingAddress.from(createHomeAddressState());
 
         address.update("서울시 서초구", "201호", null, "새 별칭",
-                "김철수", PhoneNumber.of("010-9999-8888"), DeliveryRequestType.CUSTOM, "현관 비밀번호 1234");
+                RecipientName.of("김철수"), PhoneNumber.of("010-9999-8888"), DeliveryRequestType.CUSTOM, "현관 비밀번호 1234");
 
         assertThat(address.getAddress()).isEqualTo("서울시 서초구");
-        assertThat(address.getRecipientName()).isEqualTo("김철수");
+        assertThat(address.getRecipientName().getValue()).isEqualTo("김철수");
         assertThat(address.getDeliveryRequestMessage().getValue()).isEqualTo("현관 비밀번호 1234");
     }
 
