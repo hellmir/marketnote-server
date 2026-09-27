@@ -230,6 +230,6 @@ class SignInUseCaseTest {
         LoginHistory loginHistory = captor.getValue();
         assertThat(loginHistory.getUser()).isEqualTo(user);
         assertThat(loginHistory.getAuthVendor()).isEqualTo(authVendor);
-        assertThat(loginHistory.getIpAddress()).isEqualTo(ipAddress);
+        assertThat(loginHistory.getIpAddress().getValue()).isEqualTo(ipAddress);
     }
 }

@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.adapter.out.persistence;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.domain.ipaddress.IpAddress;
 import com.personal.marketnote.common.exception.UserNotFoundException;
 import com.personal.marketnote.user.adapter.out.mapper.UserJpaEntityToDomainMapper;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.LoginHistoryJpaEntity;
@@ -198,7 +199,7 @@ public class UserPersistenceAdapter
         UserJpaEntity userRef = userJpaRepository.getReferenceById(userId);
         userRef.updateLoginTime();
         LoginHistoryJpaEntity entity = LoginHistoryJpaEntity.of(
-                userRef, loginHistory.getAuthVendor(), loginHistory.getIpAddress()
+                userRef, loginHistory.getAuthVendor(), loginHistory.getIpAddress().getValue()
         );
         loginHistoryJpaRepository.save(entity);
     }
@@ -215,7 +216,7 @@ public class UserPersistenceAdapter
                                         () -> com.personal.marketnote.user.domain.user.User.referenceOf(e.getUserJpaEntity().getId())
                                 ))
                                 .authVendor(e.getAuthVendor())
-                                .ipAddress(e.getIpAddress())
+                                .ipAddress(IpAddress.of(e.getIpAddress()))
                                 .createdAt(e.getCreatedAt())
                                 .build()
                 ))
