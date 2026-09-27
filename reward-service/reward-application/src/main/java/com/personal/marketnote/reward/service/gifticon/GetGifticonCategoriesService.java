@@ -26,7 +26,7 @@ public class GetGifticonCategoriesService implements GetGifticonCategoriesUseCas
 
         List<GifticonCategoryItem> items = categories.stream()
                 .map(category -> new GifticonCategoryItem(
-                        category.getCategoryCode(),
+                        category.getCategoryCode().getValue(),
                         category.getEffectiveDisplayName(),
                         category.getIconUrl(),
                         category.getOrderNum()

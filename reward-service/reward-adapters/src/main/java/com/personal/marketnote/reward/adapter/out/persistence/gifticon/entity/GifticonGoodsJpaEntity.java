@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.converter.GoodsStatusConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.gifticon.BrandCode;
+import com.personal.marketnote.reward.domain.gifticon.CategoryCode;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
 import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
@@ -79,7 +80,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
                 .brandCode(toBrandCodeValue(domain.getBrandCode()))
                 .brandName(domain.getBrandName())
                 .brandImageUrl(domain.getBrandImageUrl())
-                .categoryCode(domain.getCategoryCode())
+                .categoryCode(toCategoryCodeValue(domain.getCategoryCode()))
                 .realPrice(domain.getRealPrice().getValue())
                 .salePrice(domain.getSalePrice().getValue())
                 .cashPrice(domain.getCashPrice().getValue())
@@ -124,7 +125,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
         this.brandCode = toBrandCodeValue(domain.getBrandCode());
         this.brandName = domain.getBrandName();
         this.brandImageUrl = domain.getBrandImageUrl();
-        this.categoryCode = domain.getCategoryCode();
+        this.categoryCode = toCategoryCodeValue(domain.getCategoryCode());
         this.realPrice = domain.getRealPrice().getValue();
         this.salePrice = domain.getSalePrice().getValue();
         this.cashPrice = domain.getCashPrice().getValue();
@@ -149,5 +150,12 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
             return null;
         }
         return brandCode.getValue();
+    }
+
+    private static String toCategoryCodeValue(CategoryCode categoryCode) {
+        if (FormatValidator.hasNoValue(categoryCode)) {
+            return null;
+        }
+        return categoryCode.getValue();
     }
 }

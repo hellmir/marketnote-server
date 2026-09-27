@@ -10,7 +10,7 @@ public record GetAdminGifticonCategoriesResult(List<GifticonCategoryItemResult> 
         List<GifticonCategoryItemResult> items = categories.stream()
                 .map(category -> new GifticonCategoryItemResult(
                         category.getId(),
-                        category.getCategoryCode(),
+                        category.getCategoryCode().getValue(),
                         category.getCategoryName(),
                         category.getDisplayName(),
                         category.getEffectiveDisplayName(),

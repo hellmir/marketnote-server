@@ -177,7 +177,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         ArgumentCaptor<GifticonCategory> categoryCaptor = ArgumentCaptor.forClass(GifticonCategory.class);
         verify(saveGifticonCategoryPort).save(categoryCaptor.capture());
         GifticonCategory created = categoryCaptor.getValue();
-        assertThat(created.getCategoryCode()).isEqualTo("1");
+        assertThat(created.getCategoryCode().getValue()).isEqualTo("1");
         assertThat(created.getCategoryName()).isEqualTo("커피");
         assertThat(created.isExposed()).isFalse();
 
