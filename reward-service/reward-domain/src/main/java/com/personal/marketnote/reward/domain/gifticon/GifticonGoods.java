@@ -14,7 +14,7 @@ public class GifticonGoods {
     private Long id;
     private String goodsCode;
     private String goodsName;
-    private String brandCode;
+    private BrandCode brandCode;
     private String brandName;
     private String brandImageUrl;
     private String categoryCode;
@@ -35,7 +35,7 @@ public class GifticonGoods {
         return GifticonGoods.builder()
                 .goodsCode(state.getGoodsCode())
                 .goodsName(state.getGoodsName())
-                .brandCode(state.getBrandCode())
+                .brandCode(BrandCode.of(state.getBrandCode()))
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
                 .categoryCode(state.getCategoryCode())
@@ -57,7 +57,7 @@ public class GifticonGoods {
                 .id(state.getId())
                 .goodsCode(state.getGoodsCode())
                 .goodsName(state.getGoodsName())
-                .brandCode(state.getBrandCode())
+                .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
                 .categoryCode(state.getCategoryCode())
@@ -78,7 +78,7 @@ public class GifticonGoods {
 
     public void syncFromApi(GifticonGoodsSyncState state) {
         this.goodsName = state.getGoodsName();
-        this.brandCode = state.getBrandCode();
+        this.brandCode = BrandCode.of(state.getBrandCode());
         this.brandName = state.getBrandName();
         this.brandImageUrl = state.getBrandImageUrl();
         this.categoryCode = state.getCategoryCode();

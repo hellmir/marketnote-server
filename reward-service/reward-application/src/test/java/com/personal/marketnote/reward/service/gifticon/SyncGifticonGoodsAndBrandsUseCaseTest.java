@@ -111,7 +111,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         ArgumentCaptor<GifticonBrand> brandCaptor = ArgumentCaptor.forClass(GifticonBrand.class);
         verify(saveGifticonBrandPort).save(brandCaptor.capture());
         GifticonBrand savedBrand = brandCaptor.getValue();
-        assertThat(savedBrand.getBrandCode()).isEqualTo("BR001");
+        assertThat(savedBrand.getBrandCode().getValue()).isEqualTo("BR001");
         assertThat(savedBrand.getBrandName()).isEqualTo("스타벅스");
         assertThat(savedBrand.getBrandImageUrl()).isEqualTo("https://img.com/starbucks.png");
     }

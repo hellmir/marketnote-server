@@ -1,6 +1,8 @@
 package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.gifticon.BrandCode;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsResult;
@@ -58,7 +60,7 @@ public class GetGifticonGoodsService implements GetGifticonGoodsUseCase {
         return new GifticonGoodsItem(
                 goods.getGoodsCode(),
                 goods.getGoodsName(),
-                goods.getBrandCode(),
+                toBrandCodeValue(goods.getBrandCode()),
                 goods.getBrandName(),
                 goods.getBrandImageUrl(),
                 goods.getSalePrice().getValue(),
@@ -66,5 +68,12 @@ public class GetGifticonGoodsService implements GetGifticonGoodsUseCase {
                 goods.getImageUrl(),
                 goods.getOrderNum()
         );
+    }
+
+    private String toBrandCodeValue(BrandCode brandCode) {
+        if (FormatValidator.hasNoValue(brandCode)) {
+            return null;
+        }
+        return brandCode.getValue();
     }
 }

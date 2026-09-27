@@ -3,6 +3,7 @@ package com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.converter.GoodsStatusConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.gifticon.BrandCode;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
 import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
@@ -75,7 +76,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
                 .id(domain.getId())
                 .goodsCode(domain.getGoodsCode())
                 .goodsName(domain.getGoodsName())
-                .brandCode(domain.getBrandCode())
+                .brandCode(toBrandCodeValue(domain.getBrandCode()))
                 .brandName(domain.getBrandName())
                 .brandImageUrl(domain.getBrandImageUrl())
                 .categoryCode(domain.getCategoryCode())
@@ -120,7 +121,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
 
     public void updateFrom(GifticonGoods domain) {
         this.goodsName = domain.getGoodsName();
-        this.brandCode = domain.getBrandCode();
+        this.brandCode = toBrandCodeValue(domain.getBrandCode());
         this.brandName = domain.getBrandName();
         this.brandImageUrl = domain.getBrandImageUrl();
         this.categoryCode = domain.getCategoryCode();
@@ -141,5 +142,12 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
             return null;
         }
         return validDays.getValue();
+    }
+
+    private static String toBrandCodeValue(BrandCode brandCode) {
+        if (FormatValidator.hasNoValue(brandCode)) {
+            return null;
+        }
+        return brandCode.getValue();
     }
 }
