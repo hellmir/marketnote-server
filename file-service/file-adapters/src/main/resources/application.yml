@@ -36,6 +36,8 @@ spring:
       host: ${REDIS_HOST_NAME:localhost}
       port: 6379
       password: ${REDIS_PASSWORD:password}
+      repositories:
+        enabled: false
 
   jpa:
     hibernate:
