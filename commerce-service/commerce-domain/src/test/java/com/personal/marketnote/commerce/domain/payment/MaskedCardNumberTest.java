@@ -75,6 +75,48 @@ class MaskedCardNumberTest {
             assertThatThrownBy(() -> MaskedCardNumber.of("12****"))
                     .isInstanceOf(InvalidMaskedCardNumberException.class);
         }
+
+        @Test
+        @DisplayName("정확히 12자(최소 길이)로 생성 시 정상 생성된다")
+        void shouldCreateWithExactlyMinLength() {
+            String value = "1234********";
+
+            MaskedCardNumber maskedCardNumber = MaskedCardNumber.of(value);
+
+            assertThat(maskedCardNumber.getValue()).isEqualTo(value);
+            assertThat(value).hasSize(12);
+        }
+
+        @Test
+        @DisplayName("정확히 20자(최대 길이)로 생성 시 정상 생성된다")
+        void shouldCreateWithExactlyMaxLength() {
+            String value = "12345-****-****-1234";
+
+            MaskedCardNumber maskedCardNumber = MaskedCardNumber.of(value);
+
+            assertThat(maskedCardNumber.getValue()).isEqualTo(value);
+            assertThat(value).hasSize(20);
+        }
+
+        @Test
+        @DisplayName("11자(최소 길이 미만)로 생성 시 InvalidMaskedCardNumberException을 던진다")
+        void shouldThrowWhenLengthBelowMin() {
+            String value = "123*******1";
+
+            assertThat(value).hasSize(11);
+            assertThatThrownBy(() -> MaskedCardNumber.of(value))
+                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+        }
+
+        @Test
+        @DisplayName("21자(최대 길이 초과)로 생성 시 InvalidMaskedCardNumberException을 던진다")
+        void shouldThrowWhenLengthAboveMax() {
+            String value = "12345-****-****-12345";
+
+            assertThat(value).hasSize(21);
+            assertThatThrownBy(() -> MaskedCardNumber.of(value))
+                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+        }
     }
 
     @Nested
