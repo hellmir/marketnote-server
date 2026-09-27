@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.domain.payment;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.Objects;
 
@@ -22,6 +23,13 @@ public final class Installment {
     public static Installment of(short value) {
         validate(value);
         return new Installment(value);
+    }
+
+    public static Short toNullableValue(Installment installment) {
+        if (FormatValidator.hasNoValue(installment)) {
+            return null;
+        }
+        return installment.value;
     }
 
     @JsonValue

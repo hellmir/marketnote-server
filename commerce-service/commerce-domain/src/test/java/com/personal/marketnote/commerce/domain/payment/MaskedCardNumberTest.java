@@ -78,6 +78,64 @@ class MaskedCardNumberTest {
     }
 
     @Nested
+    @DisplayName("toNullableValue(MaskedCardNumber) 정적 헬퍼")
+    class ToNullableValueHelper {
+
+        @Test
+        @DisplayName("MaskedCardNumber가 null이면 null을 반환한다")
+        void shouldReturnNullWhenNull() {
+            assertThat(MaskedCardNumber.toNullableValue(null)).isNull();
+        }
+
+        @Test
+        @DisplayName("MaskedCardNumber가 있으면 내부 String 값을 반환한다")
+        void shouldReturnValueWhenPresent() {
+            MaskedCardNumber maskedCardNumber = MaskedCardNumber.of("1234-****-****-5678");
+
+            assertThat(MaskedCardNumber.toNullableValue(maskedCardNumber)).isEqualTo("1234-****-****-5678");
+        }
+    }
+
+    @Nested
+    @DisplayName("fromNullable(String) 정적 헬퍼")
+    class FromNullableHelper {
+
+        @Test
+        @DisplayName("입력이 null이면 null을 반환한다")
+        void shouldReturnNullWhenInputNull() {
+            assertThat(MaskedCardNumber.fromNullable(null)).isNull();
+        }
+
+        @Test
+        @DisplayName("입력이 빈 문자열이면 null을 반환한다")
+        void shouldReturnNullWhenInputEmpty() {
+            assertThat(MaskedCardNumber.fromNullable("")).isNull();
+        }
+
+        @Test
+        @DisplayName("입력이 공백 문자열이면 null을 반환한다")
+        void shouldReturnNullWhenInputBlank() {
+            assertThat(MaskedCardNumber.fromNullable("   ")).isNull();
+        }
+
+        @Test
+        @DisplayName("유효한 마스킹 카드번호 입력 시 VO를 반환한다")
+        void shouldReturnVoWhenValidInput() {
+            MaskedCardNumber result = MaskedCardNumber.fromNullable("1234-****-****-5678");
+
+            assertThat(result).isNotNull();
+            assertThat(result.getValue()).isEqualTo("1234-****-****-5678");
+        }
+
+        @Test
+        @DisplayName("유효하지 않은 입력 시 InvalidMaskedCardNumberException을 전파한다")
+        void shouldPropagateExceptionWhenInputInvalid() {
+            assertThatThrownBy(() -> MaskedCardNumber.fromNullable("invalid"))
+                    .isInstanceOf(InvalidMaskedCardNumberException.class);
+        }
+    }
+
+    @Nested
     @DisplayName("equals/hashCode")
     class EqualityContract {
 

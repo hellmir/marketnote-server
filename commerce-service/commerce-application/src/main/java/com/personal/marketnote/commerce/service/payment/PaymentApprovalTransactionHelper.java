@@ -130,7 +130,7 @@ public class PaymentApprovalTransactionHelper {
         PaymentApprovalInfo approvalInfo = PaymentApprovalInfo.builder()
                 .pgPaymentKey(vendorResult.transactionId())
                 .method(vendorResult.payMethod())
-                .cardNumber(toMaskedCardNumber(vendorResult.cardNumber()))
+                .cardNumber(MaskedCardNumber.fromNullable(vendorResult.cardNumber()))
                 .approvalNumber(vendorResult.approvalNumber())
                 .installment(installment)
                 .issueCompanyCode(vendorResult.cardCode())
@@ -354,10 +354,4 @@ public class PaymentApprovalTransactionHelper {
         }
     }
 
-    private MaskedCardNumber toMaskedCardNumber(String cardNumber) {
-        if (FormatValidator.hasNoValue(cardNumber)) {
-            return null;
-        }
-        return MaskedCardNumber.of(cardNumber);
-    }
 }

@@ -52,6 +52,33 @@ class InstallmentTest {
     }
 
     @Nested
+    @DisplayName("toNullableValue(Installment) 정적 헬퍼")
+    class ToNullableValueHelper {
+
+        @Test
+        @DisplayName("Installment가 null이면 null을 반환한다")
+        void shouldReturnNullWhenNull() {
+            assertThat(Installment.toNullableValue(null)).isNull();
+        }
+
+        @Test
+        @DisplayName("Installment가 일시불(0)이면 0을 반환한다")
+        void shouldReturnZeroWhenLumpSum() {
+            Installment installment = Installment.of((short) 0);
+
+            assertThat(Installment.toNullableValue(installment)).isEqualTo((short) 0);
+        }
+
+        @Test
+        @DisplayName("Installment가 할부면 개월 수를 반환한다")
+        void shouldReturnMonthsWhenInstallment() {
+            Installment installment = Installment.of((short) 6);
+
+            assertThat(Installment.toNullableValue(installment)).isEqualTo((short) 6);
+        }
+    }
+
+    @Nested
     @DisplayName("equals/hashCode")
     class EqualityContract {
 

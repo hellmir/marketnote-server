@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.port.in.result.payment;
 
+import com.personal.marketnote.commerce.domain.payment.Installment;
+import com.personal.marketnote.commerce.domain.payment.MaskedCardNumber;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -36,28 +38,14 @@ public record GetPaymentResult(
         if (FormatValidator.hasValue(event)) {
             builder.pgCompanyKey(event.getPgCompanyKey())
                     .method(event.getMethod())
-                    .cardNumber(resolveCardNumberValue(event))
+                    .cardNumber(MaskedCardNumber.toNullableValue(event.getCardNumber()))
                     .approvalNumber(event.getApprovalNumber())
-                    .installment(resolveInstallmentValue(event))
+                    .installment(Installment.toNullableValue(event.getInstallment()))
                     .issueCompanyName(event.getIssueCompanyName())
                     .resultCode(event.getResultCode())
                     .resultMessage(event.getResultMessage());
         }
 
         return builder.build();
-    }
-
-    private static Short resolveInstallmentValue(PspPaymentEvent event) {
-        if (FormatValidator.hasNoValue(event.getInstallment())) {
-            return null;
-        }
-        return event.getInstallment().getValue();
-    }
-
-    private static String resolveCardNumberValue(PspPaymentEvent event) {
-        if (FormatValidator.hasNoValue(event.getCardNumber())) {
-            return null;
-        }
-        return event.getCardNumber().getValue();
     }
 }
