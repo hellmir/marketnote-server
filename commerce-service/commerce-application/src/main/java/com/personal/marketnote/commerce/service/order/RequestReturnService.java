@@ -136,7 +136,7 @@ public class RequestReturnService implements RequestReturnUseCase {
         return RegisterFulfillmentReturnDeliveryCommand.builder()
                 .orderId(command.id())
                 .orderDate(orderDate)
-                .recipientName(shippingAddress.getRecipientName())
+                .recipientName(shippingAddress.getRecipientName().getValue())
                 .recipientPhoneNumber(shippingAddress.getRecipientPhoneNumber().getValue())
                 .recipientAddress(fullAddress)
                 .pickupRecipientName(command.pickupRecipientName())

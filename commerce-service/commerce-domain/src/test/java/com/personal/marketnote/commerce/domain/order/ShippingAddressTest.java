@@ -28,7 +28,7 @@ class ShippingAddressTest {
             );
 
             // then
-            assertThat(shippingAddress.getRecipientName()).isEqualTo("홍길동");
+            assertThat(shippingAddress.getRecipientName().getValue()).isEqualTo("홍길동");
             assertThat(shippingAddress.getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
             assertThat(shippingAddress.getZipCode()).isEqualTo("12345");
             assertThat(shippingAddress.getAddress()).isEqualTo("서울시 강남구");
@@ -52,7 +52,7 @@ class ShippingAddressTest {
             );
 
             // then
-            assertThat(shippingAddress.getRecipientName()).isEqualTo("홍길동");
+            assertThat(shippingAddress.getRecipientName().getValue()).isEqualTo("홍길동");
             assertThat(shippingAddress.getDeliveryRequestType()).isNull();
             assertThat(shippingAddress.getDeliveryRequestMessage()).isNull();
         }
@@ -109,7 +109,7 @@ class ShippingAddressTest {
             ShippingAddress copied = original.withoutDeliveryRequest();
 
             // then
-            assertThat(copied.getRecipientName()).isEqualTo("홍길동");
+            assertThat(copied.getRecipientName().getValue()).isEqualTo("홍길동");
             assertThat(copied.getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
             assertThat(copied.getZipCode()).isEqualTo("12345");
             assertThat(copied.getAddress()).isEqualTo("서울시 강남구");

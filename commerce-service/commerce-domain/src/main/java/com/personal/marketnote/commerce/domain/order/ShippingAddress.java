@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.delivery.PickupRequestType;
 import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.domain.recipientname.RecipientName;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import lombok.*;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class ShippingAddress {
-    private String recipientName;
+    private RecipientName recipientName;
     private PhoneNumber recipientPhoneNumber;
     private String zipCode;
     private String address;
@@ -31,7 +32,7 @@ public class ShippingAddress {
             String deliveryRequestMessage
     ) {
         return ShippingAddress.builder()
-                .recipientName(recipientName)
+                .recipientName(toNullableRecipientName(recipientName))
                 .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
                 .zipCode(zipCode)
                 .address(address)
@@ -51,7 +52,7 @@ public class ShippingAddress {
             String pickupRequestMessage
     ) {
         return ShippingAddress.builder()
-                .recipientName(recipientName)
+                .recipientName(toNullableRecipientName(recipientName))
                 .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
                 .zipCode(zipCode)
                 .address(address)
@@ -73,6 +74,13 @@ public class ShippingAddress {
             return null;
         }
         return DeliveryRequestMessage.of(value);
+    }
+
+    private static RecipientName toNullableRecipientName(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return RecipientName.of(value);
     }
 
     public boolean hasRecipientName() {

@@ -190,7 +190,7 @@ class RequestReturnUseCaseTest {
 
             requestReturnService.requestReturn(command);
 
-            assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("회수 수령인");
+            assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 수령인");
             assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-9999-8888");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("54321");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("회수지 주소");
@@ -214,7 +214,7 @@ class RequestReturnUseCaseTest {
 
             requestReturnService.requestReturn(command);
 
-            assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("수령인");
+            assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("수령인");
             assertThat(order.getPickupAddress().getRecipientPhoneNumber().getValue()).isEqualTo("010-1234-5678");
             assertThat(order.getPickupAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getPickupAddress().getAddress()).isEqualTo("서울시 강남구");

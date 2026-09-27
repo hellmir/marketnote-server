@@ -129,7 +129,7 @@ class OrderTest {
         order.applyPickupAddress(pickupAddress);
 
         assertThat(order.getPickupAddress()).isEqualTo(pickupAddress);
-        assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("회수 담당자");
+        assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("회수 담당자");
     }
 
     @Test
@@ -142,7 +142,7 @@ class OrderTest {
 
         order.applyPickupAddress(pickupAddress);
 
-        assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("홍길동");
+        assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("홍길동");
         assertThat(order.getPickupAddress().getDeliveryRequestType()).isNull();
         assertThat(order.getPickupAddress().getDeliveryRequestMessage()).isNull();
     }
@@ -154,7 +154,7 @@ class OrderTest {
 
         order.applyPickupAddress(null);
 
-        assertThat(order.getPickupAddress().getRecipientName()).isEqualTo("홍길동");
+        assertThat(order.getPickupAddress().getRecipientName().getValue()).isEqualTo("홍길동");
         assertThat(order.getPickupAddress().getDeliveryRequestType()).isNull();
     }
 
