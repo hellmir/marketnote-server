@@ -20,7 +20,7 @@ public record GetLoginHistoryResult(
                 .id(loginHistory.getId())
                 .userId(loginHistory.getUser().getId())
                 .authVendor(loginHistory.getAuthVendor())
-                .ipAddress(loginHistory.getIpAddress())
+                .ipAddress(loginHistory.getIpAddress().getValue())
                 .loggedInAt(loginHistory.getCreatedAt())
                 .build();
     }

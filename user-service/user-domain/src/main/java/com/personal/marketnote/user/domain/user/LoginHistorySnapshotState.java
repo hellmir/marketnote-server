@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.domain.user;
 
+import com.personal.marketnote.common.domain.ipaddress.IpAddress;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ public class LoginHistorySnapshotState {
     private final Long id;
     private final User user;
     private final AuthVendor authVendor;
-    private final String ipAddress;
+    private final IpAddress ipAddress;
     private final LocalDateTime createdAt;
 }
 

@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.domain.user;
 
+import com.personal.marketnote.common.domain.ipaddress.IpAddress;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.*;
 
@@ -13,14 +14,14 @@ public class LoginHistory {
     private Long id;
     private User user;
     private AuthVendor authVendor;
-    private String ipAddress;
+    private IpAddress ipAddress;
     private LocalDateTime createdAt;
 
     public static LoginHistory of(User user, AuthVendor authVendor, String ipAddress) {
         return LoginHistory.builder()
                 .user(user)
                 .authVendor(authVendor)
-                .ipAddress(ipAddress)
+                .ipAddress(IpAddress.of(ipAddress))
                 .build();
     }
 

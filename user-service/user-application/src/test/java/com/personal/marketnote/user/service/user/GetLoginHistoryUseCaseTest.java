@@ -1,6 +1,7 @@
 package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.domain.ipaddress.IpAddress;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.LoginHistorySnapshotState;
 import com.personal.marketnote.user.domain.user.LoginHistorySortProperty;
@@ -147,7 +148,7 @@ class GetLoginHistoryUseCaseTest {
                 .id(id)
                 .user(user)
                 .authVendor(authVendor)
-                .ipAddress(ipAddress)
+                .ipAddress(IpAddress.of(ipAddress))
                 .createdAt(createdAt)
                 .build();
 
