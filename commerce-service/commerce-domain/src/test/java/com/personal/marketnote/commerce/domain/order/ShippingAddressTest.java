@@ -132,7 +132,7 @@ class ShippingAddressTest {
 
             // then
             assertThat(original.getDeliveryRequestType()).isEqualTo(DeliveryRequestType.CUSTOM);
-            assertThat(original.getDeliveryRequestMessage()).isEqualTo("요청사항");
+            assertThat(original.getDeliveryRequestMessage().getValue()).isEqualTo("요청사항");
         }
     }
 }
