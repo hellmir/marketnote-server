@@ -27,6 +27,20 @@ public final class MaskedCardNumber {
         return new MaskedCardNumber(value);
     }
 
+    public static MaskedCardNumber fromNullable(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return of(value);
+    }
+
+    public static String toNullableValue(MaskedCardNumber maskedCardNumber) {
+        if (FormatValidator.hasNoValue(maskedCardNumber)) {
+            return null;
+        }
+        return maskedCardNumber.value;
+    }
+
     public String getValue() {
         return value;
     }

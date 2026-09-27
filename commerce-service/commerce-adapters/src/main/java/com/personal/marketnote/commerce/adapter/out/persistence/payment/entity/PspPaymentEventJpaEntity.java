@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.payment.entity;
 
+import com.personal.marketnote.commerce.domain.payment.Installment;
+import com.personal.marketnote.commerce.domain.payment.MaskedCardNumber;
 import com.personal.marketnote.commerce.domain.payment.PaymentEventStatus;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
@@ -133,9 +135,9 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
                 .amount(event.getAmount().getValue())
                 .vatAmount(event.getVatAmount())
                 .natAmount(event.getNatAmount())
-                .cardNumber(toCardNumberValue(event))
+                .cardNumber(MaskedCardNumber.toNullableValue(event.getCardNumber()))
                 .approvalNumber(event.getApprovalNumber())
-                .installment(toInstallmentValue(event))
+                .installment(Installment.toNullableValue(event.getInstallment()))
                 .issueCompanyCode(event.getIssueCompanyCode())
                 .issueCompanyName(event.getIssueCompanyName())
                 .purchaseCompanyCode(event.getPurchaseCompanyCode())
@@ -158,9 +160,9 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
         this.pgCancelApprovalResult = event.getPgCancelApprovalResult();
         this.poStatus = event.getPoStatus();
         this.method = FormatValidator.hasValue(event.getMethod()) ? event.getMethod() : this.method;
-        this.cardNumber = toCardNumberValue(event);
+        this.cardNumber = MaskedCardNumber.toNullableValue(event.getCardNumber());
         this.approvalNumber = event.getApprovalNumber();
-        this.installment = toInstallmentValue(event);
+        this.installment = Installment.toNullableValue(event.getInstallment());
         this.issueCompanyCode = event.getIssueCompanyCode();
         this.issueCompanyName = event.getIssueCompanyName();
         this.purchaseCompanyCode = event.getPurchaseCompanyCode();
@@ -184,17 +186,4 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
         }
     }
 
-    private static Short toInstallmentValue(PspPaymentEvent event) {
-        if (FormatValidator.hasNoValue(event.getInstallment())) {
-            return null;
-        }
-        return event.getInstallment().getValue();
-    }
-
-    private static String toCardNumberValue(PspPaymentEvent event) {
-        if (FormatValidator.hasNoValue(event.getCardNumber())) {
-            return null;
-        }
-        return event.getCardNumber().getValue();
-    }
 }
