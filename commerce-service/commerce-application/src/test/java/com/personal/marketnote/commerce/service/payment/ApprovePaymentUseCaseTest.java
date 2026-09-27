@@ -54,14 +54,14 @@ class ApprovePaymentUseCaseTest {
 
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Short.class))).thenReturn(expectedResult);
+            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class))).thenReturn(expectedResult);
 
             ApprovePaymentResult result = approvePaymentService.approve(command);
 
             assertThat(result.pgPaymentKey()).isEqualTo("tno_123");
             assertThat(result.resultCode()).isEqualTo("0000");
             verify(txHelper).prepareExecution(command);
-            verify(txHelper).commitSuccess(eq(context), eq(vendorResult), eq((short) 0));
+            verify(txHelper).commitSuccess(eq(context), eq(vendorResult), eq(Installment.of((short) 0)));
             verify(txHelper, never()).commitFailure(any(), any(), any());
             verify(txHelper, never()).commitUnknown(any(), any(), any());
         }
@@ -201,14 +201,14 @@ class ApprovePaymentUseCaseTest {
 
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Short.class))).thenReturn(expectedResult);
+            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class))).thenReturn(expectedResult);
 
             approvePaymentService.approve(command);
 
             InOrder inOrder = inOrder(txHelper, paymentVendorPort);
             inOrder.verify(txHelper).prepareExecution(command);
             inOrder.verify(paymentVendorPort).approvePayment(any());
-            inOrder.verify(txHelper).commitSuccess(eq(context), eq(vendorResult), any(Short.class));
+            inOrder.verify(txHelper).commitSuccess(eq(context), eq(vendorResult), any(Installment.class));
         }
 
         @Test

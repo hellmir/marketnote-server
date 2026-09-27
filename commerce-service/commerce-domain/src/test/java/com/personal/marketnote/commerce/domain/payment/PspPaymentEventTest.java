@@ -76,7 +76,7 @@ class PspPaymentEventTest {
             assertThat(event.getMethod()).isEqualTo("PACA");
             assertThat(event.getCardNumber()).isEqualTo("1234-****-****-5678");
             assertThat(event.getApprovalNumber()).isEqualTo("12345678");
-            assertThat(event.getInstallment()).isEqualTo((short) 0);
+            assertThat(event.getInstallment()).isEqualTo(Installment.of((short) 0));
             assertThat(event.getIssueCompanyCode()).isEqualTo("CCLG");
             assertThat(event.getIssueCompanyName()).isEqualTo("신한카드");
             assertThat(event.getResultCode()).isEqualTo("0000");
@@ -394,7 +394,7 @@ class PspPaymentEventTest {
                 .method("PACA")
                 .cardNumber("1234-****-****-5678")
                 .approvalNumber("12345678")
-                .installment((short) 0)
+                .installment(Installment.of((short) 0))
                 .issueCompanyCode("CCLG")
                 .issueCompanyName("신한카드")
                 .resultCode("0000")

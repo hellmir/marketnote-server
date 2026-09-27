@@ -78,14 +78,14 @@ class ApproveQuickPaymentUseCaseTest {
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
                     .thenReturn(context);
             when(approveQuickPaymentPort.approvePayment(any())).thenReturn(portResult);
-            when(txHelper.commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Short.class)))
+            when(txHelper.commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class)))
                     .thenReturn(buildApprovePaymentResult());
 
             ApproveQuickPaymentResult result = approveQuickPaymentService.approve(command);
 
             assertThat(result.pgPaymentKey()).isEqualTo("tno_quick_123");
             assertThat(result.resultCode()).isEqualTo("0000");
-            verify(txHelper).commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), eq((short) 0));
+            verify(txHelper).commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), eq(Installment.of((short) 0)));
             verify(txHelper, never()).commitFailure(any(), any(), any());
         }
     }
@@ -226,7 +226,7 @@ class ApproveQuickPaymentUseCaseTest {
             when(txHelper.prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000"))
                     .thenReturn(context);
             when(approveQuickPaymentPort.approvePayment(any())).thenReturn(portResult);
-            when(txHelper.commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Short.class)))
+            when(txHelper.commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class)))
                     .thenReturn(buildApprovePaymentResult());
 
             approveQuickPaymentService.approve(command);
@@ -235,7 +235,7 @@ class ApproveQuickPaymentUseCaseTest {
             inOrder.verify(findQuickPaymentCardPort).findActiveByIdAndUserId(CARD_ID, BUYER_ID);
             inOrder.verify(txHelper).prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000");
             inOrder.verify(approveQuickPaymentPort).approvePayment(any());
-            inOrder.verify(txHelper).commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Short.class));
+            inOrder.verify(txHelper).commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class));
         }
     }
 

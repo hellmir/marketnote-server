@@ -28,7 +28,7 @@ public class PspPaymentEvent {
     private Long natAmount;
     private String cardNumber;
     private String approvalNumber;
-    private Short installment;
+    private Installment installment;
     private String issueCompanyCode;
     private String issueCompanyName;
     private String purchaseCompanyCode;
