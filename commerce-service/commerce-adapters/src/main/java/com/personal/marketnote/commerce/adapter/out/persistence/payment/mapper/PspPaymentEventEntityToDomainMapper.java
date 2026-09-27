@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.persistence.payment.mapper;
 
 import com.personal.marketnote.commerce.adapter.out.persistence.payment.entity.PspPaymentEventJpaEntity;
 import com.personal.marketnote.commerce.domain.payment.Installment;
+import com.personal.marketnote.commerce.domain.payment.MaskedCardNumber;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEventSnapshotState;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -11,6 +12,9 @@ public class PspPaymentEventEntityToDomainMapper {
     public static PspPaymentEvent toDomain(PspPaymentEventJpaEntity entity) {
         Installment installment = FormatValidator.hasValue(entity.getInstallment())
                 ? Installment.of(entity.getInstallment())
+                : null;
+        MaskedCardNumber cardNumber = FormatValidator.hasValue(entity.getCardNumber())
+                ? MaskedCardNumber.of(entity.getCardNumber())
                 : null;
         return PspPaymentEvent.from(
                 PspPaymentEventSnapshotState.builder()
@@ -28,7 +32,7 @@ public class PspPaymentEventEntityToDomainMapper {
                         .amount(entity.getAmount())
                         .vatAmount(entity.getVatAmount())
                         .natAmount(entity.getNatAmount())
-                        .cardNumber(entity.getCardNumber())
+                        .cardNumber(cardNumber)
                         .approvalNumber(entity.getApprovalNumber())
                         .installment(installment)
                         .issueCompanyCode(entity.getIssueCompanyCode())

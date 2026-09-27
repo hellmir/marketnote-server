@@ -1,8 +1,10 @@
 package com.personal.marketnote.commerce.service.quickpayment;
 
+import com.personal.marketnote.commerce.domain.payment.MaskedCardNumber;
 import com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCard;
 import com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCardCreateState;
 import com.personal.marketnote.commerce.exception.QuickPaymentBatchKeyIssuanceFailedException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.commerce.port.in.command.quickpayment.IssueBatchKeyCommand;
 import com.personal.marketnote.commerce.port.in.result.quickpayment.IssueBatchKeyResult;
 import com.personal.marketnote.commerce.port.in.usecase.quickpayment.IssueBatchKeyUseCase;
@@ -51,9 +53,16 @@ public class IssueBatchKeyService implements IssueBatchKeyUseCase {
                 .quickPaymentCardId(savedCard.getId())
                 .cardCode(savedCard.getCardCode())
                 .cardName(savedCard.getCardName())
-                .maskedCardNumber(savedCard.getMaskedCardNumber())
+                .maskedCardNumber(toMaskedCardNumberValue(savedCard.getMaskedCardNumber()))
                 .cardBinType01(savedCard.getCardBinType01())
                 .cardBinType02(savedCard.getCardBinType02())
                 .build();
+    }
+
+    private String toMaskedCardNumberValue(MaskedCardNumber maskedCardNumber) {
+        if (FormatValidator.hasNoValue(maskedCardNumber)) {
+            return null;
+        }
+        return maskedCardNumber.getValue();
     }
 }

@@ -11,7 +11,7 @@ import lombok.Getter;
 public class PaymentApprovalInfo {
     private final String pgPaymentKey;
     private final String method;
-    private final String cardNumber;
+    private final MaskedCardNumber cardNumber;
     private final String approvalNumber;
     private final Installment installment;
     private final String issueCompanyCode;

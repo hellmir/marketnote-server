@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.out.persistence.quickpayment.en
 import com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCard;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -57,7 +58,7 @@ public class QuickPaymentCardJpaEntity extends BaseEntity {
                 .groupId(domain.getGroupId())
                 .cardCode(domain.getCardCode())
                 .cardName(domain.getCardName())
-                .maskedCardNumber(domain.getMaskedCardNumber())
+                .maskedCardNumber(toMaskedCardNumberValue(domain))
                 .cardBinType01(domain.getCardBinType01())
                 .cardBinType02(domain.getCardBinType02())
                 .status(domain.getStatus())
@@ -66,5 +67,12 @@ public class QuickPaymentCardJpaEntity extends BaseEntity {
 
     public void markInactive() {
         this.status = EntityStatus.INACTIVE;
+    }
+
+    private static String toMaskedCardNumberValue(QuickPaymentCard domain) {
+        if (FormatValidator.hasNoValue(domain.getMaskedCardNumber())) {
+            return null;
+        }
+        return domain.getMaskedCardNumber().getValue();
     }
 }

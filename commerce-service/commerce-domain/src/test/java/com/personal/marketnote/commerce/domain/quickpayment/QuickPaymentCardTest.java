@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.quickpayment;
 
+import com.personal.marketnote.commerce.domain.payment.MaskedCardNumber;
 import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ class QuickPaymentCardTest {
                 .groupId("group-001")
                 .cardCode("CARD01")
                 .cardName("테스트카드")
-                .maskedCardNumber("1234-****-****-5678")
+                .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
                 .cardBinType01("CREDIT")
                 .cardBinType02("PERSONAL")
                 .build();
@@ -34,7 +35,7 @@ class QuickPaymentCardTest {
         assertThat(card.getUserId()).isEqualTo(1L);
         assertThat(card.getBatchKey()).isEqualTo("batch-key-001");
         assertThat(card.getCardName()).isEqualTo("테스트카드");
-        assertThat(card.getMaskedCardNumber()).isEqualTo("1234-****-****-5678");
+        assertThat(card.getMaskedCardNumber()).isEqualTo(MaskedCardNumber.of("1234-****-****-5678"));
         assertThat(card.isActive()).isTrue();
     }
 
@@ -49,7 +50,7 @@ class QuickPaymentCardTest {
                 .groupId("group-001")
                 .cardCode("CARD01")
                 .cardName("테스트카드")
-                .maskedCardNumber("1234-****-****-5678")
+                .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
                 .cardBinType01("CREDIT")
                 .cardBinType02("PERSONAL")
                 .status(EntityStatus.INACTIVE)
@@ -77,7 +78,7 @@ class QuickPaymentCardTest {
                 .groupId("group-001")
                 .cardCode("CARD01")
                 .cardName("테스트카드")
-                .maskedCardNumber("1234-****-****-5678")
+                .maskedCardNumber(MaskedCardNumber.of("1234-****-****-5678"))
                 .cardBinType01("CREDIT")
                 .cardBinType02("PERSONAL")
                 .build());
