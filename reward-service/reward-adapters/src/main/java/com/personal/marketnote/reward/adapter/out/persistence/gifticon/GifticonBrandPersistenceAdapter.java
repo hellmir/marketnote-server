@@ -32,7 +32,7 @@ public class GifticonBrandPersistenceAdapter implements FindGifticonBrandPort, S
     @Override
     public void update(GifticonBrand brand) {
         GifticonBrandJpaEntity entity = repository.findById(brand.getId())
-                .orElseThrow(() -> new GifticonBrandNotFoundException(brand.getBrandCode()));
+                .orElseThrow(() -> new GifticonBrandNotFoundException(brand.getBrandCode().getValue()));
         entity.updateFrom(brand);
     }
 }

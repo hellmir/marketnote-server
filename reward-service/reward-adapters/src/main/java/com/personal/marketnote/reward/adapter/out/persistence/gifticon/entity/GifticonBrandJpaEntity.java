@@ -29,7 +29,7 @@ public class GifticonBrandJpaEntity extends BaseEntity {
     public static GifticonBrandJpaEntity from(GifticonBrand domain) {
         return GifticonBrandJpaEntity.builder()
                 .id(domain.getId())
-                .brandCode(domain.getBrandCode())
+                .brandCode(domain.getBrandCode().getValue())
                 .brandName(domain.getBrandName())
                 .brandImageUrl(domain.getBrandImageUrl())
                 .build();

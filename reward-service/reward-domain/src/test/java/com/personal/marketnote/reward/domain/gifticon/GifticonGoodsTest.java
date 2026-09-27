@@ -36,7 +36,7 @@ class GifticonGoodsTest {
 
             assertThat(goods.getGoodsCode()).isEqualTo("G001");
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 아메리카노");
-            assertThat(goods.getBrandCode()).isEqualTo("B001");
+            assertThat(goods.getBrandCode().getValue()).isEqualTo("B001");
             assertThat(goods.getBrandName()).isEqualTo("스타벅스");
             assertThat(goods.getRealPrice()).isEqualTo(Money.of(5000L));
             assertThat(goods.getSalePrice()).isEqualTo(Money.of(4500L));

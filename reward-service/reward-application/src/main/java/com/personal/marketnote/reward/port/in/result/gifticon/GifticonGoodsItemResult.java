@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.port.in.result.gifticon;
 
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.domain.gifticon.BrandCode;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
 
@@ -26,7 +27,7 @@ public record GifticonGoodsItemResult(
         return new GifticonGoodsItemResult(
                 goods.getGoodsCode(),
                 goods.getGoodsName(),
-                goods.getBrandCode(),
+                toBrandCodeValue(goods.getBrandCode()),
                 goods.getBrandName(),
                 goods.getCategoryCode(),
                 goods.getRealPrice().getValue(),
@@ -46,5 +47,12 @@ public record GifticonGoodsItemResult(
             return null;
         }
         return goodsStatus.getDbValue();
+    }
+
+    private static String toBrandCodeValue(BrandCode brandCode) {
+        if (FormatValidator.hasNoValue(brandCode)) {
+            return null;
+        }
+        return brandCode.getValue();
     }
 }

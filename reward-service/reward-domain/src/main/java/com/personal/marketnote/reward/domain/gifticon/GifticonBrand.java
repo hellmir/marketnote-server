@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 public class GifticonBrand {
     private Long id;
-    private String brandCode;
+    private BrandCode brandCode;
     private String brandName;
     private String brandImageUrl;
     private LocalDateTime createdAt;
@@ -18,7 +18,7 @@ public class GifticonBrand {
 
     public static GifticonBrand from(GifticonBrandCreateState state) {
         return GifticonBrand.builder()
-                .brandCode(state.getBrandCode())
+                .brandCode(BrandCode.of(state.getBrandCode()))
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
                 .build();
@@ -27,7 +27,7 @@ public class GifticonBrand {
     public static GifticonBrand from(GifticonBrandSnapshotState state) {
         return GifticonBrand.builder()
                 .id(state.getId())
-                .brandCode(state.getBrandCode())
+                .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
                 .createdAt(state.getCreatedAt())
