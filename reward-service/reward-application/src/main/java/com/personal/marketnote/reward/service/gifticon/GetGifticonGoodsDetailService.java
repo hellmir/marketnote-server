@@ -1,8 +1,10 @@
 package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
+import com.personal.marketnote.reward.domain.gifticon.ValidDays;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetGifticonGoodsDetailCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsDetailResult;
@@ -39,9 +41,16 @@ public class GetGifticonGoodsDetailService implements GetGifticonGoodsDetailUseC
                 goods.getCashPrice().getValue(),
                 goods.getImageUrl(),
                 goods.getDescription(),
-                goods.getValidDays(),
+                toValidDaysValue(goods.getValidDays()),
                 userCashBalance
         );
+    }
+
+    private Integer toValidDaysValue(ValidDays validDays) {
+        if (FormatValidator.hasNoValue(validDays)) {
+            return null;
+        }
+        return validDays.getValue();
     }
 
     private GifticonGoods findExposedSaleGoods(String goodsCode) {
