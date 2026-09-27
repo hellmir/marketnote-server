@@ -11,4 +11,19 @@ public class RegularExpressionConstant {
     public static final String RECIPIENT_NAME_PATTERN = "^[가-힣a-zA-Z\\s]{1,50}$";
     public static final String ZIP_CODE_PATTERN = "^\\d{5}$";
     public static final String NO_HTML_TAG_PATTERN = "^[^<>]*$";
+    private static final String IPV4_OCTET = "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])";
+    public static final String IPV4_PATTERN = "^" + IPV4_OCTET + "(\\." + IPV4_OCTET + "){3}$";
+    public static final String IPV6_PATTERN =
+            "^(" +
+                    "([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|" +
+                    "([0-9a-fA-F]{1,4}:){1,7}:|" +
+                    "([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|" +
+                    "([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|" +
+                    "([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|" +
+                    "([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|" +
+                    "([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|" +
+                    "[0-9a-fA-F]{1,4}:(:[0-9a-fA-F]{1,4}){1,6}|" +
+                    ":((:[0-9a-fA-F]{1,4}){1,7}|:)|" +
+                    "::(ffff(:0{1,4})?:)?" + IPV4_OCTET + "(\\." + IPV4_OCTET + "){3}" +
+                    ")$";
 }
