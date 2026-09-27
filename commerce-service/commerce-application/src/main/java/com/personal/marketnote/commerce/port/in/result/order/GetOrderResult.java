@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResul
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.domain.recipientname.RecipientName;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -61,14 +62,14 @@ public record GetOrderResult(
                 .couponAmount(order.getAmount().getCouponAmount().getValue())
                 .pointAmount(order.getAmount().getPointAmount().getValue())
                 .shippingFee(order.getAmount().getShippingFee().getValue())
-                .recipientName(order.getShippingAddress().getRecipientName())
+                .recipientName(toRecipientNameValue(order.getShippingAddress().getRecipientName()))
                 .recipientPhoneNumber(toPhoneNumberValue(order.getShippingAddress().getRecipientPhoneNumber()))
                 .zipCode(order.getShippingAddress().getZipCode())
                 .address(order.getShippingAddress().getAddress())
                 .addressDetail(order.getShippingAddress().getAddressDetail())
                 .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
                 .deliveryRequestMessage(toDeliveryRequestMessageValue(order.getShippingAddress().getDeliveryRequestMessage()))
-                .pickupRecipientName(resolvePickupField(order, ShippingAddress::getRecipientName))
+                .pickupRecipientName(toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName)))
                 .pickupRecipientPhoneNumber(toPhoneNumberValue(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)))
                 .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
                 .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
@@ -105,5 +106,12 @@ public record GetOrderResult(
             return null;
         }
         return deliveryRequestMessage.getValue();
+    }
+
+    private static String toRecipientNameValue(RecipientName recipientName) {
+        if (FormatValidator.hasNoValue(recipientName)) {
+            return null;
+        }
+        return recipientName.getValue();
     }
 }
