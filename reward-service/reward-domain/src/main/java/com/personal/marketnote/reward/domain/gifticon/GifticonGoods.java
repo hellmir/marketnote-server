@@ -23,7 +23,7 @@ public class GifticonGoods {
     private Money cashPrice;
     private String imageUrl;
     private String description;
-    private Integer validDays;
+    private ValidDays validDays;
     private GoodsStatus goodsStatus;
     private boolean exposed;
     private boolean popular;
@@ -44,7 +44,7 @@ public class GifticonGoods {
                 .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
                 .imageUrl(state.getImageUrl())
                 .description(state.getDescription())
-                .validDays(state.getValidDays())
+                .validDays(toNullableValidDays(state.getValidDays()))
                 .goodsStatus(state.getGoodsStatus())
                 .exposed(false)
                 .popular(false)
@@ -66,7 +66,7 @@ public class GifticonGoods {
                 .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
                 .imageUrl(state.getImageUrl())
                 .description(state.getDescription())
-                .validDays(state.getValidDays())
+                .validDays(toNullableValidDaysFromSnapshot(state.getValidDays()))
                 .goodsStatus(state.getGoodsStatus())
                 .exposed(state.isExposed())
                 .popular(state.isPopular())
@@ -86,8 +86,22 @@ public class GifticonGoods {
         this.salePrice = resolveMoneyOrZero(state.getSalePrice());
         this.imageUrl = state.getImageUrl();
         this.description = state.getDescription();
-        this.validDays = state.getValidDays();
+        this.validDays = toNullableValidDays(state.getValidDays());
         this.goodsStatus = state.getGoodsStatus();
+    }
+
+    private static ValidDays toNullableValidDays(Integer value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return ValidDays.of(value);
+    }
+
+    private static ValidDays toNullableValidDaysFromSnapshot(Integer value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return ValidDays.fromSnapshot(value);
     }
 
     private static Money resolveMoneyOrZero(Long value) {

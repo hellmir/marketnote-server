@@ -2,9 +2,11 @@ package com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.converter.GoodsStatusConverter;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoodsSnapshotState;
 import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
+import com.personal.marketnote.reward.domain.gifticon.ValidDays;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -82,7 +84,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
                 .cashPrice(domain.getCashPrice().getValue())
                 .imageUrl(domain.getImageUrl())
                 .description(domain.getDescription())
-                .validDays(domain.getValidDays())
+                .validDays(toValidDaysValue(domain.getValidDays()))
                 .goodsStatus(domain.getGoodsStatus())
                 .exposed(domain.isExposed())
                 .popular(domain.isPopular())
@@ -127,10 +129,17 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
         this.cashPrice = domain.getCashPrice().getValue();
         this.imageUrl = domain.getImageUrl();
         this.description = domain.getDescription();
-        this.validDays = domain.getValidDays();
+        this.validDays = toValidDaysValue(domain.getValidDays());
         this.goodsStatus = domain.getGoodsStatus();
         this.exposed = domain.isExposed();
         this.popular = domain.isPopular();
         this.orderNum = domain.getOrderNum();
+    }
+
+    private static Integer toValidDaysValue(ValidDays validDays) {
+        if (FormatValidator.hasNoValue(validDays)) {
+            return null;
+        }
+        return validDays.getValue();
     }
 }
