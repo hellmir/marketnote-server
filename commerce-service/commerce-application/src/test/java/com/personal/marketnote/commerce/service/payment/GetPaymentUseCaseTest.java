@@ -202,7 +202,7 @@ class GetPaymentUseCaseTest {
                 .amount(50000L)
                 .cardNumber("1234-****-****-5678")
                 .approvalNumber("12345678")
-                .installment((short) 0)
+                .installment(Installment.of((short) 0))
                 .issueCompanyCode("CCLG")
                 .issueCompanyName("신한카드")
                 .resultCode("0000")

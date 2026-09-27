@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.payment;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.domain.payment.Installment;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentApprovalInfo;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
@@ -117,7 +118,7 @@ public class PaymentApprovalTransactionHelper {
      */
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public ApprovePaymentResult commitSuccess(
-            PaymentApprovalContext context, PaymentApprovalVendorResult vendorResult, Short installment
+            PaymentApprovalContext context, PaymentApprovalVendorResult vendorResult, Installment installment
     ) {
         Payment payment = context.payment();
         PspPaymentEvent event = context.event();

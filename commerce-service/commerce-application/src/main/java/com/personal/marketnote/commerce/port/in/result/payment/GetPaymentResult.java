@@ -38,12 +38,19 @@ public record GetPaymentResult(
                     .method(event.getMethod())
                     .cardNumber(event.getCardNumber())
                     .approvalNumber(event.getApprovalNumber())
-                    .installment(event.getInstallment())
+                    .installment(resolveInstallmentValue(event))
                     .issueCompanyName(event.getIssueCompanyName())
                     .resultCode(event.getResultCode())
                     .resultMessage(event.getResultMessage());
         }
 
         return builder.build();
+    }
+
+    private static Short resolveInstallmentValue(PspPaymentEvent event) {
+        if (FormatValidator.hasNoValue(event.getInstallment())) {
+            return null;
+        }
+        return event.getInstallment().getValue();
     }
 }

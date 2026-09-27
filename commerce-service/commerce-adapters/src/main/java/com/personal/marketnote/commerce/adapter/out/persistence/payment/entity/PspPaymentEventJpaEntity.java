@@ -135,7 +135,7 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
                 .natAmount(event.getNatAmount())
                 .cardNumber(event.getCardNumber())
                 .approvalNumber(event.getApprovalNumber())
-                .installment(event.getInstallment())
+                .installment(toInstallmentValue(event))
                 .issueCompanyCode(event.getIssueCompanyCode())
                 .issueCompanyName(event.getIssueCompanyName())
                 .purchaseCompanyCode(event.getPurchaseCompanyCode())
@@ -160,7 +160,7 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
         this.method = FormatValidator.hasValue(event.getMethod()) ? event.getMethod() : this.method;
         this.cardNumber = event.getCardNumber();
         this.approvalNumber = event.getApprovalNumber();
-        this.installment = event.getInstallment();
+        this.installment = toInstallmentValue(event);
         this.issueCompanyCode = event.getIssueCompanyCode();
         this.issueCompanyName = event.getIssueCompanyName();
         this.purchaseCompanyCode = event.getPurchaseCompanyCode();
@@ -182,5 +182,12 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
         if (FormatValidator.hasNoValue(version)) {
             version = 0L;
         }
+    }
+
+    private static Short toInstallmentValue(PspPaymentEvent event) {
+        if (FormatValidator.hasNoValue(event.getInstallment())) {
+            return null;
+        }
+        return event.getInstallment().getValue();
     }
 }

@@ -1,5 +1,7 @@
 package com.personal.marketnote.commerce.service.payment;
 
+import com.personal.marketnote.commerce.domain.payment.Installment;
+import com.personal.marketnote.commerce.domain.payment.InvalidInstallmentException;
 import com.personal.marketnote.commerce.exception.PaymentApprovalException;
 import com.personal.marketnote.commerce.exception.PaymentVendorConnectionFailedException;
 import com.personal.marketnote.commerce.port.in.command.payment.ApprovePaymentCommand;
@@ -40,7 +42,7 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
 
         // TX-2: 성공 또는 실패 커밋
         if (vendorResult.success()) {
-            Short installment = parseInstallment(vendorResult.installmentMonths());
+            Installment installment = parseInstallment(vendorResult.installmentMonths());
             return txHelper.commitSuccess(context, vendorResult, installment);
         }
 
@@ -77,11 +79,12 @@ public class ApprovePaymentService implements ApprovePaymentUseCase {
                 .build();
     }
 
-    private Short parseInstallment(String quota) {
+    private Installment parseInstallment(String quota) {
         try {
-            return Short.parseShort(quota);
-        } catch (NumberFormatException e) {
-            return (short) 0;
+            return Installment.of(Short.parseShort(quota));
+        } catch (NumberFormatException | InvalidInstallmentException e) {
+            log.warn("할부 개월 수 파싱 실패, 일시불로 폴백합니다. quota={}", quota, e);
+            return Installment.of((short) 0);
         }
     }
 }

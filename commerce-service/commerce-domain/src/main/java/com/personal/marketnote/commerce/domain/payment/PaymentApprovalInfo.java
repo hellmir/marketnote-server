@@ -13,7 +13,7 @@ public class PaymentApprovalInfo {
     private final String method;
     private final String cardNumber;
     private final String approvalNumber;
-    private final Short installment;
+    private final Installment installment;
     private final String issueCompanyCode;
     private final String issueCompanyName;
     private final String resultCode;
