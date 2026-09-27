@@ -6,6 +6,7 @@ import lombok.Builder;
 public record IssueBatchKeyCommand(
         Long userId,
         String encData,
-        String encInfo
+        String encInfo,
+        String maskedCardNumber
 ) {
 }

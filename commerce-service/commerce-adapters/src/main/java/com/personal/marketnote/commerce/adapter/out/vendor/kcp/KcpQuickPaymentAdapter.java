@@ -33,6 +33,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
     private static final String PAY_METHOD = "AUTH";
     private static final String GOOD_NAME = "빠른결제 카드 등록";
     private static final String BATCH_KEY_TRAN_CD = "00300001";
+    private static final String BATCH_CARDNO_RETURN_YN = "Y";
     private static final String MASKED = "***MASKED***";
     private static final String BATCH_PAYMENT_PAY_METHOD = "CARD";
     private static final String BATCH_PAYMENT_QUOTA = "00";
@@ -61,6 +62,7 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
                 .payMethod(PAY_METHOD)
                 .goodName(GOOD_NAME)
                 .retUrl(kcpProperties.getRetUrl())
+                .batchCardnoReturnYn(BATCH_CARDNO_RETURN_YN)
                 .build();
 
         recordRequest(
