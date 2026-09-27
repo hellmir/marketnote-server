@@ -8,6 +8,9 @@ import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonBrandPort.F
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonBrandPort.FetchedGifticonBrandItem;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonGoodsPort.FetchGifticonGoodsResult;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonGoodsPort.FetchedGifticonGoodsItem;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -21,6 +24,7 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
 
     private static final int PAGE_SIZE = 20;
     private static final int MAX_PAGES = 500;
+    private static final String INVALID_ITEM_METRIC = "gifticon.sync.invalid_item";
 
     private final TransactionTemplate transactionTemplate;
     private final FetchGifticonBrandPort fetchGifticonBrandPort;
@@ -36,6 +40,16 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
     private final UpdateGifticonCategoryPort updateGifticonCategoryPort;
     private final FindGifticonCategoryMappingPort findGifticonCategoryMappingPort;
     private final SaveGifticonCategoryMappingPort saveGifticonCategoryMappingPort;
+    private final MeterRegistry meterRegistry;
+
+    private Counter invalidItemCounter;
+
+    @PostConstruct
+    void initMetrics() {
+        invalidItemCounter = Counter.builder(INVALID_ITEM_METRIC)
+                .description("Giftishow 동기화 중 벤더 이상치로 스킵된 아이템 수")
+                .register(meterRegistry);
+    }
 
     @Override
     public void syncAll() {
@@ -44,7 +58,12 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
 
         transactionTemplate.execute(status -> {
             syncBrandsAndCategories(brandResult.items());
-            Set<String> syncedGoodsCodes = syncGoods(allGoodsItems);
+            return null;
+        });
+
+        Set<String> syncedGoodsCodes = syncGoods(allGoodsItems);
+
+        transactionTemplate.execute(status -> {
             suspendMissingGoods(syncedGoodsCodes);
             return null;
         });
@@ -138,8 +157,17 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
         Set<String> syncedGoodsCodes = new HashSet<>();
 
         for (FetchedGifticonGoodsItem item : goodsItems) {
-            syncSingleGoods(item);
             syncedGoodsCodes.add(item.goodsCode());
+            try {
+                transactionTemplate.execute(status -> {
+                    syncSingleGoods(item);
+                    return null;
+                });
+            } catch (RuntimeException e) {
+                invalidItemCounter.increment();
+                log.warn("Giftishow 동기화 이상치 스킵 - goodsCode: {}, cause: {}, message: {}",
+                        item.goodsCode(), e.getClass().getSimpleName(), e.getMessage());
+            }
         }
 
         return syncedGoodsCodes;
