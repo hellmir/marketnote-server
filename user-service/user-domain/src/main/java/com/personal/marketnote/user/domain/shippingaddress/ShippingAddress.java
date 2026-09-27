@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.BaseDomain;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.domain.recipientname.RecipientName;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.shippingaddress.exception.InvalidShippingAddressDeletionException;
 import com.personal.marketnote.user.domain.shippingaddress.exception.ShippingAddressCompanyNameNoValueException;
@@ -23,7 +24,7 @@ public class ShippingAddress extends BaseDomain {
     private String addressDetail;
     private String companyName;
     private String addressAlias;
-    private String recipientName;
+    private RecipientName recipientName;
     private PhoneNumber recipientPhoneNumber;
     private DeliveryRequestType deliveryRequestType;
     private DeliveryRequestMessage deliveryRequestMessage;
@@ -38,7 +39,7 @@ public class ShippingAddress extends BaseDomain {
                 .addressDetail(state.getAddressDetail())
                 .companyName(state.getCompanyName())
                 .addressAlias(state.getAddressAlias())
-                .recipientName(state.getRecipientName())
+                .recipientName(RecipientName.of(state.getRecipientName()))
                 .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
                 .deliveryRequestType(state.getDeliveryRequestType())
                 .deliveryRequestMessage(resolveDeliveryRequestMessage(state.getDeliveryRequestType(), state.getDeliveryRequestMessage()))
@@ -59,7 +60,7 @@ public class ShippingAddress extends BaseDomain {
                 .addressDetail(state.getAddressDetail())
                 .companyName(state.getCompanyName())
                 .addressAlias(state.getAddressAlias())
-                .recipientName(state.getRecipientName())
+                .recipientName(RecipientName.of(state.getRecipientName()))
                 .recipientPhoneNumber(PhoneNumber.of(state.getRecipientPhoneNumber()))
                 .deliveryRequestType(state.getDeliveryRequestType())
                 .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
@@ -105,7 +106,7 @@ public class ShippingAddress extends BaseDomain {
             String addressDetail,
             String companyName,
             String addressAlias,
-            String recipientName,
+            RecipientName recipientName,
             PhoneNumber recipientPhoneNumber,
             DeliveryRequestType deliveryRequestType,
             String deliveryRequestMessage

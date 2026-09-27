@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.shippingaddress;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
+import com.personal.marketnote.common.domain.recipientname.RecipientName;
 import com.personal.marketnote.common.kafka.event.ShippingAddressChangeAction;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddress;
 import com.personal.marketnote.user.domain.shippingaddress.ShippingAddressRegionType;
@@ -37,7 +38,7 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
                 command.addressDetail(),
                 command.companyName(),
                 command.addressAlias(),
-                command.recipientName(),
+                RecipientName.of(command.recipientName()),
                 PhoneNumber.of(command.recipientPhoneNumber()),
                 command.deliveryRequestType(),
                 command.deliveryRequestMessage()
@@ -53,7 +54,7 @@ public class UpdateShippingAddressService implements UpdateShippingAddressUseCas
 
         publishShippingAddressEventPort.publishShippingAddressChangedEvent(
                 shippingAddressId, userId,
-                shippingAddress.getRecipientName(), shippingAddress.getRecipientPhoneNumber().getValue(),
+                shippingAddress.getRecipientName().getValue(), shippingAddress.getRecipientPhoneNumber().getValue(),
                 shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
                 regionType.name(),
                 ShippingAddressChangeAction.UPDATED

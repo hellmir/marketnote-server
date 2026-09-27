@@ -32,7 +32,7 @@ public class DeleteShippingAddressService implements DeleteShippingAddressUseCas
 
         publishShippingAddressEventPort.publishShippingAddressChangedEvent(
                 shippingAddressId, userId,
-                shippingAddress.getRecipientName(), shippingAddress.getRecipientPhoneNumber().getValue(),
+                shippingAddress.getRecipientName().getValue(), shippingAddress.getRecipientPhoneNumber().getValue(),
                 shippingAddress.getAddress(), shippingAddress.getAddressDetail(),
                 null,
                 ShippingAddressChangeAction.DELETED
