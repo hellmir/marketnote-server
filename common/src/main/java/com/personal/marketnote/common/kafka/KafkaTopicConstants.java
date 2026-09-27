@@ -1,5 +1,7 @@
 package com.personal.marketnote.common.kafka;
 
+import java.util.List;
+
 public final class KafkaTopicConstants {
 
     private KafkaTopicConstants() {
@@ -74,4 +76,50 @@ public final class KafkaTopicConstants {
 
     // Dead Letter Topic 접미사
     public static final String DLT_SUFFIX = ".dlt";
+
+    public static List<String> getAllTopics() {
+        return List.of(
+                ORDER_PAYMENT_COMPLETED,
+                PAYMENT_APPROVED,
+                PAYMENT_FAILED,
+                PAYMENT_CANCELLED,
+                SETTLEMENT_EXECUTED,
+                ORDER_CANCELLED,
+                ORDER_CANCEL_FAILED,
+                ORDER_PURCHASE_CONFIRMED,
+                ORDER_RETURNED,
+                RETURN_REQUESTED,
+                RETURN_REJECTED,
+                RETURN_INSPECTION_COMPLETED,
+                PRODUCT_REGISTERED,
+                PRICE_POLICY_CREATED,
+                PRODUCT_UPDATED,
+                USER_SIGNUP_COMPLETED,
+                USER_REFERRAL_COMPLETED,
+                SHIPPING_ADDRESS_CHANGED,
+                REVIEW_REGISTERED,
+                REVIEW_UPDATED,
+                REVIEW_DELETED,
+                REVIEW_REPLY_REGISTERED,
+                NOTICE_REGISTERED,
+                EVENT_REGISTERED,
+                INQUIRY_ANSWERED,
+                FILE_IMAGE_CHANGED,
+                SAGA_RESPONSE,
+                SAGA_ORDER_PAYMENT_INVENTORY,
+                SAGA_ORDER_PAYMENT_LEDGER,
+                SAGA_ORDER_PAYMENT_COMPLETED,
+                SAGA_ORDER_CANCEL_FULFILLMENT,
+                SAGA_ORDER_CANCEL_REFUND,
+                SAGA_ORDER_CANCEL_COMPLETED,
+                INVENTORY_CHANGED,
+                SHIPPING_POLICY_CHANGED,
+                SHIPPING_STATUS_CHANGED,
+                FULFILLMENT_INVENTORY_SYNCED,
+                FULFILLMENT_GOODS_SYNCED,
+                FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED,
+                NOTIFICATION_PUSH_SENT,
+                POINT_ACCRUED
+        );
+    }
 }
