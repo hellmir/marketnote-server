@@ -99,9 +99,6 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
     @Column(name = "bill_sequence_number")
     private String billSequenceNumber;
 
-    @Column(name = "user_ip", length = 31)
-    private String userIp;
-
     @Column(name = "payment_info", length = 2047)
     private String paymentInfo;
 
@@ -147,7 +144,6 @@ public class PspPaymentEventJpaEntity extends BaseEntity {
                 .bankName(event.getBankName())
                 .billNumber(event.getBillNumber())
                 .billSequenceNumber(event.getBillSequenceNumber())
-                .userIp(event.getUserIp())
                 .paymentInfo(event.getPaymentInfo())
                 .paymentSource(event.getPaymentSource())
                 .resultCode(event.getResultCode())

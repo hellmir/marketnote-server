@@ -34,7 +34,6 @@ public class PspPaymentEventSnapshotState {
     private String bankName;
     private String billNumber;
     private String billSequenceNumber;
-    private String userIp;
     private String paymentInfo;
     private String paymentSource;
     private String resultCode;
