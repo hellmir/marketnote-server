@@ -80,7 +80,7 @@ public class GetMyGifticonOrderDetailService implements GetMyGifticonOrderDetail
     }
 
     private GetMyGifticonOrderDetailResult buildDetailResult(GifticonOrder order) {
-        GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(order.getGoodsCode()).orElse(null);
+        GifticonGoods goods = findGifticonGoodsPort.findByGoodsCode(order.getGoodsCode().getValue()).orElse(null);
         String decryptedPin = decryptPin(order.getPinNo());
         LocalDate now = LocalDate.now(clock);
 

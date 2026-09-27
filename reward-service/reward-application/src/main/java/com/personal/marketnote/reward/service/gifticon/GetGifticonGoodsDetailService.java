@@ -32,7 +32,7 @@ public class GetGifticonGoodsDetailService implements GetGifticonGoodsDetailUseC
         Long userCashBalance = getUserCashBalance(command.userId());
 
         return new GetGifticonGoodsDetailResult(
-                goods.getGoodsCode(),
+                goods.getGoodsCode().getValue(),
                 goods.getGoodsName(),
                 toBrandCodeValue(goods.getBrandCode()),
                 goods.getBrandName(),

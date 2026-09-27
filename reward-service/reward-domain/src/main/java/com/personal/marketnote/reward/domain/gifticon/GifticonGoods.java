@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 public class GifticonGoods {
     private Long id;
-    private String goodsCode;
+    private GoodsCode goodsCode;
     private String goodsName;
     private BrandCode brandCode;
     private String brandName;
@@ -33,7 +33,7 @@ public class GifticonGoods {
 
     public static GifticonGoods from(GifticonGoodsCreateState state) {
         return GifticonGoods.builder()
-                .goodsCode(state.getGoodsCode())
+                .goodsCode(GoodsCode.of(state.getGoodsCode()))
                 .goodsName(state.getGoodsName())
                 .brandCode(BrandCode.of(state.getBrandCode()))
                 .brandName(state.getBrandName())
@@ -55,7 +55,7 @@ public class GifticonGoods {
     public static GifticonGoods from(GifticonGoodsSnapshotState state) {
         return GifticonGoods.builder()
                 .id(state.getId())
-                .goodsCode(state.getGoodsCode())
+                .goodsCode(GoodsCode.fromSnapshot(state.getGoodsCode()))
                 .goodsName(state.getGoodsName())
                 .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
                 .brandName(state.getBrandName())

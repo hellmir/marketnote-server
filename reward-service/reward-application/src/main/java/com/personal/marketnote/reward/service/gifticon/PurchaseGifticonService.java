@@ -31,7 +31,7 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
 
         DeductCashAndCreateOrderContext context = transactionHelper.deductCashAndCreateOrder(
                 command.userId(),
-                goods.getGoodsCode(),
+                goods.getGoodsCode().getValue(),
                 goods.getGoodsName(),
                 goods.getBrandName(),
                 goods.getImageUrl(),

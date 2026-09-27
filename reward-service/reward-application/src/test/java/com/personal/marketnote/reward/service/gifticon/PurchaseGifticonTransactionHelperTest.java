@@ -86,7 +86,7 @@ class PurchaseGifticonTransactionHelperTest {
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
                     .id(1L)
                     .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode())
+                    .goodsCode(order.getGoodsCode().getValue())
                     .goodsName(order.getGoodsName())
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())
@@ -106,7 +106,7 @@ class PurchaseGifticonTransactionHelperTest {
         verify(saveGifticonOrderPort).save(orderCaptor.capture());
         GifticonOrder savedOrder = orderCaptor.getValue();
         assertThat(savedOrder.getOrderStatus()).isEqualTo(GifticonOrderStatus.PENDING);
-        assertThat(savedOrder.getGoodsCode()).isEqualTo(GOODS_CODE);
+        assertThat(savedOrder.getGoodsCode().getValue()).isEqualTo(GOODS_CODE);
         assertThat(savedOrder.getCashPrice()).isEqualTo(Money.of(CASH_PRICE));
     }
 
@@ -142,7 +142,7 @@ class PurchaseGifticonTransactionHelperTest {
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
                     .id(1L)
                     .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode())
+                    .goodsCode(order.getGoodsCode().getValue())
                     .goodsName(order.getGoodsName())
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())
@@ -173,7 +173,7 @@ class PurchaseGifticonTransactionHelperTest {
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
                     .id(1L)
                     .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode())
+                    .goodsCode(order.getGoodsCode().getValue())
                     .goodsName(order.getGoodsName())
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())
@@ -207,7 +207,7 @@ class PurchaseGifticonTransactionHelperTest {
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
                     .id(1L)
                     .userId(order.getUserId())
-                    .goodsCode(order.getGoodsCode())
+                    .goodsCode(order.getGoodsCode().getValue())
                     .goodsName(order.getGoodsName())
                     .brandName(order.getBrandName())
                     .productImageUrl(order.getProductImageUrl())

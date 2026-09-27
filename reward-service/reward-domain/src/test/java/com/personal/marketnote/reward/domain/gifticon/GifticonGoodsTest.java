@@ -34,7 +34,7 @@ class GifticonGoodsTest {
                     .goodsStatus(GoodsStatus.SALE)
                     .build());
 
-            assertThat(goods.getGoodsCode()).isEqualTo("G001");
+            assertThat(goods.getGoodsCode().getValue()).isEqualTo("G001");
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 아메리카노");
             assertThat(goods.getBrandCode().getValue()).isEqualTo("B001");
             assertThat(goods.getBrandName()).isEqualTo("스타벅스");

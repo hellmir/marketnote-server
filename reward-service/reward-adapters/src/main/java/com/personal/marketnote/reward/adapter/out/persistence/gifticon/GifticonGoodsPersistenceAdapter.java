@@ -47,7 +47,7 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     @Override
     public void update(GifticonGoods goods) {
         GifticonGoodsJpaEntity entity = repository.findById(goods.getId())
-                .orElseThrow(() -> new GifticonGoodsNotFoundException(goods.getGoodsCode()));
+                .orElseThrow(() -> new GifticonGoodsNotFoundException(goods.getGoodsCode().getValue()));
         entity.updateFrom(goods);
     }
 

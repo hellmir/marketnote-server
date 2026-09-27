@@ -238,7 +238,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         ArgumentCaptor<GifticonGoods> goodsCaptor = ArgumentCaptor.forClass(GifticonGoods.class);
         verify(saveGifticonGoodsPort).save(goodsCaptor.capture());
         GifticonGoods savedGoods = goodsCaptor.getValue();
-        assertThat(savedGoods.getGoodsCode()).isEqualTo("GD001");
+        assertThat(savedGoods.getGoodsCode().getValue()).isEqualTo("GD001");
         assertThat(savedGoods.getGoodsName()).isEqualTo("아메리카노");
         assertThat(savedGoods.getCashPrice()).isEqualTo(Money.of(4500L));
         assertThat(savedGoods.getSalePrice()).isEqualTo(Money.of(4500L));
