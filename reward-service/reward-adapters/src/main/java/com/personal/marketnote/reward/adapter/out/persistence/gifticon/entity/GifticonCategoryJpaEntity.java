@@ -38,7 +38,7 @@ public class GifticonCategoryJpaEntity extends BaseEntity {
     public static GifticonCategoryJpaEntity from(GifticonCategory domain) {
         return GifticonCategoryJpaEntity.builder()
                 .id(domain.getId())
-                .categoryCode(domain.getCategoryCode())
+                .categoryCode(domain.getCategoryCode().getValue())
                 .categoryName(domain.getCategoryName())
                 .displayName(domain.getDisplayName())
                 .iconUrl(domain.getIconUrl())

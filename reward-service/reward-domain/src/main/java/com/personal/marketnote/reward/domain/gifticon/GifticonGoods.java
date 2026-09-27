@@ -17,7 +17,7 @@ public class GifticonGoods {
     private BrandCode brandCode;
     private String brandName;
     private String brandImageUrl;
-    private String categoryCode;
+    private CategoryCode categoryCode;
     private Money realPrice;
     private Money salePrice;
     private Money cashPrice;
@@ -38,7 +38,7 @@ public class GifticonGoods {
                 .brandCode(BrandCode.of(state.getBrandCode()))
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
-                .categoryCode(state.getCategoryCode())
+                .categoryCode(toNullableCategoryCode(state.getCategoryCode()))
                 .realPrice(resolveMoneyOrZero(state.getRealPrice()))
                 .salePrice(resolveMoneyOrZero(state.getSalePrice()))
                 .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
@@ -60,7 +60,7 @@ public class GifticonGoods {
                 .brandCode(BrandCode.fromSnapshot(state.getBrandCode()))
                 .brandName(state.getBrandName())
                 .brandImageUrl(state.getBrandImageUrl())
-                .categoryCode(state.getCategoryCode())
+                .categoryCode(toNullableCategoryCodeFromSnapshot(state.getCategoryCode()))
                 .realPrice(resolveMoneyOrZero(state.getRealPrice()))
                 .salePrice(resolveMoneyOrZero(state.getSalePrice()))
                 .cashPrice(resolveMoneyOrZero(state.getCashPrice()))
@@ -81,7 +81,7 @@ public class GifticonGoods {
         this.brandCode = BrandCode.of(state.getBrandCode());
         this.brandName = state.getBrandName();
         this.brandImageUrl = state.getBrandImageUrl();
-        this.categoryCode = state.getCategoryCode();
+        this.categoryCode = toNullableCategoryCode(state.getCategoryCode());
         this.realPrice = resolveMoneyOrZero(state.getRealPrice());
         this.salePrice = resolveMoneyOrZero(state.getSalePrice());
         this.imageUrl = state.getImageUrl();
@@ -102,6 +102,20 @@ public class GifticonGoods {
             return null;
         }
         return ValidDays.fromSnapshot(value);
+    }
+
+    private static CategoryCode toNullableCategoryCode(String value) {
+        if (FormatValidator.hasNoValue(value) || value.isBlank()) {
+            return null;
+        }
+        return CategoryCode.of(value);
+    }
+
+    private static CategoryCode toNullableCategoryCodeFromSnapshot(String value) {
+        if (FormatValidator.hasNoValue(value)) {
+            return null;
+        }
+        return CategoryCode.fromSnapshot(value);
     }
 
     private static Money resolveMoneyOrZero(Long value) {

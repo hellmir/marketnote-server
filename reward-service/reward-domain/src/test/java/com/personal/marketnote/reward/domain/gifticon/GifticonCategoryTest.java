@@ -24,7 +24,7 @@ class GifticonCategoryTest {
         GifticonCategory category = GifticonCategory.from(state);
 
         // then
-        assertThat(category.getCategoryCode()).isEqualTo("CAT001");
+        assertThat(category.getCategoryCode().getValue()).isEqualTo("CAT001");
         assertThat(category.getCategoryName()).isEqualTo("커피/음료");
         assertThat(category.isExposed()).isFalse();
         assertThat(category.getOrderNum()).isNull();

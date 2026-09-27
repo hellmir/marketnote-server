@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 public class GifticonCategory {
     private Long id;
-    private String categoryCode;
+    private CategoryCode categoryCode;
     private String categoryName;
     private String displayName;
     private String iconUrl;
@@ -22,7 +22,7 @@ public class GifticonCategory {
 
     public static GifticonCategory from(GifticonCategoryCreateState state) {
         return GifticonCategory.builder()
-                .categoryCode(state.getCategoryCode())
+                .categoryCode(CategoryCode.of(state.getCategoryCode()))
                 .categoryName(state.getCategoryName())
                 .exposed(false)
                 .orderNum(null)
@@ -32,7 +32,7 @@ public class GifticonCategory {
     public static GifticonCategory from(GifticonCategorySnapshotState state) {
         return GifticonCategory.builder()
                 .id(state.getId())
-                .categoryCode(state.getCategoryCode())
+                .categoryCode(CategoryCode.fromSnapshot(state.getCategoryCode()))
                 .categoryName(state.getCategoryName())
                 .displayName(state.getDisplayName())
                 .iconUrl(state.getIconUrl())
