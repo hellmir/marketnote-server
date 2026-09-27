@@ -38,8 +38,8 @@ public class User extends BaseDomain {
     private String password;
     private String fullName;
     private PhoneNumber phoneNumber;
-    private String referenceCode;
-    private String referredUserCode;
+    private ReferenceCode referenceCode;
+    private ReferenceCode referredUserCode;
     private Role role;
     private List<UserAuthProvider> userAuthProviders;
     private List<UserTerms> userTerms;
@@ -205,7 +205,7 @@ public class User extends BaseDomain {
         this.password = passwordEncoder.encode(password);
     }
 
-    public boolean isSelfReferral(String code) {
+    public boolean isSelfReferral(ReferenceCode code) {
         return FormatValidator.hasValue(referenceCode) && referenceCode.equals(code);
     }
 
@@ -215,7 +215,7 @@ public class User extends BaseDomain {
                 && this.referredUserCode.equals(otherUser.referenceCode);
     }
 
-    public void registerReferredUserCode(String referredUserCode) {
+    public void registerReferredUserCode(ReferenceCode referredUserCode) {
         if (FormatValidator.hasValue(this.referredUserCode)) {
             throw new ReferredUserCodeAlreadyExistsException(SECOND_ERROR_CODE);
         }

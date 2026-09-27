@@ -7,6 +7,7 @@ import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.user.domain.user.LoginHistory;
+import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.Terms;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.*;
@@ -65,7 +66,7 @@ public class SignUpService implements SignUpUseCase {
         }
 
         List<Terms> terms = findTermsPort.findAll();
-        String referenceCode = RandomCodeGenerator.generateReferenceCode();
+        ReferenceCode referenceCode = ReferenceCode.of(RandomCodeGenerator.generateReferenceCode());
 
         User signedUpUser = saveUserPort.save(
                 User.from(

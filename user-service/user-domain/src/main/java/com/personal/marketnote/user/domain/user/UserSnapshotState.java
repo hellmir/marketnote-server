@@ -22,8 +22,8 @@ public class UserSnapshotState {
     private final String password;
     private final String fullName;
     private final String phoneNumber;
-    private final String referenceCode;
-    private final String referredUserCode;
+    private final ReferenceCode referenceCode;
+    private final ReferenceCode referredUserCode;
     private final Role role;
     private final List<UserAuthProvider> userAuthProviders;
     private final List<UserTerms> userTerms;

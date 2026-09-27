@@ -49,7 +49,7 @@ class GetUserUseCaseTest {
         String email = "user@test.com";
         String fullName = "홍길동";
         String phoneNumber = "010-1111-2222";
-        String referenceCode = "ref-123";
+        String referenceCode = "REF123";
         Role role = Role.getBuyer();
         List<UserAuthProvider> userAuthProviders = List.of(
                 UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc"),
@@ -130,7 +130,7 @@ class GetUserUseCaseTest {
         String email = "user2@test.com";
         String fullName = "김영희";
         String phoneNumber = "010-2222-3333";
-        String referenceCode = "ref-456";
+        String referenceCode = "REF456";
         Role role = Role.getBuyer();
         List<UserAuthProvider> userAuthProviders = List.of(
                 UserAuthProvider.of(AuthVendor.KAKAO, "kakao-oidc-2")
@@ -378,7 +378,7 @@ class GetUserUseCaseTest {
     @DisplayName("추천 코드를 전송해 회원 도메인을 조회한다")
     void getUser_byReferenceCode_success_returnsUser() {
         // given
-        String referenceCode = "ref-123";
+        String referenceCode = "REF123";
         User user = UserTestObjectFactory.createDefaultUser(12L, EntityStatus.ACTIVE, false, List.of());
 
         when(findUserPort.findByReferenceCode(referenceCode)).thenReturn(Optional.of(user));
@@ -396,7 +396,7 @@ class GetUserUseCaseTest {
     @DisplayName("추천 코드로 조회 시 회원이 존재하지 않으면 예외를 던진다")
     void getUser_byReferenceCode_notFound_throws() {
         // given
-        String referenceCode = "missing-ref";
+        String referenceCode = "MISSN1";
         when(findUserPort.findByReferenceCode(referenceCode)).thenReturn(Optional.empty());
 
         // expect
@@ -446,7 +446,7 @@ class GetUserUseCaseTest {
     @DisplayName("전송한 추천인 코드를 가진 회원이 존재하면 true를 반환한다")
     void existsUser_whenReferenceCodeExists_returnsTrue() {
         // given
-        String referenceCode = "ref-exists";
+        String referenceCode = "EXIST1";
         when(findUserPort.existsByReferenceCode(referenceCode)).thenReturn(true);
 
         // when
@@ -462,7 +462,7 @@ class GetUserUseCaseTest {
     @DisplayName("전송한 추천인 코드를 가진 회원이 존재하지 않으면 false를 반환한다")
     void existsUser_whenReferenceCodeMissing_returnsFalse() {
         // given
-        String referenceCode = "ref-missing";
+        String referenceCode = "MISSN1";
         when(findUserPort.existsByReferenceCode(referenceCode)).thenReturn(false);
 
         // when
@@ -491,7 +491,7 @@ class GetUserUseCaseTest {
                 "user1@test.com",
                 "홍길동",
                 "010-1000-0001",
-                "ref-1",
+                "REFONE",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-1")),
                 LocalDateTime.of(2024, 3, 1, 9, 0),
@@ -506,7 +506,7 @@ class GetUserUseCaseTest {
                 "user2@test.com",
                 "김철수",
                 "010-1000-0002",
-                "ref-2",
+                "REFTWO",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-2")),
                 LocalDateTime.of(2024, 3, 3, 9, 0),
@@ -548,7 +548,7 @@ class GetUserUseCaseTest {
         assertThat(first.email()).isEqualTo("user1@test.com");
         assertThat(first.fullName()).isEqualTo("홍길동");
         assertThat(first.phoneNumber()).isEqualTo("010-1000-0001");
-        assertThat(first.referenceCode()).isEqualTo("ref-1");
+        assertThat(first.referenceCode()).isEqualTo("REFONE");
         assertThat(first.roleId()).isEqualTo(Role.getBuyer().getId());
         assertThat(first.signedUpAt()).isEqualTo(LocalDateTime.of(2024, 3, 1, 9, 0));
         assertThat(first.lastLoggedInAt()).isEqualTo(LocalDateTime.of(2024, 3, 2, 10, 0));
@@ -566,7 +566,7 @@ class GetUserUseCaseTest {
         assertThat(second.email()).isEqualTo("user2@test.com");
         assertThat(second.fullName()).isEqualTo("김철수");
         assertThat(second.phoneNumber()).isEqualTo("010-1000-0002");
-        assertThat(second.referenceCode()).isEqualTo("ref-2");
+        assertThat(second.referenceCode()).isEqualTo("REFTWO");
         assertThat(second.roleId()).isEqualTo(Role.getBuyer().getId());
         assertThat(second.signedUpAt()).isEqualTo(LocalDateTime.of(2024, 3, 3, 9, 0));
         assertThat(second.lastLoggedInAt()).isEqualTo(LocalDateTime.of(2024, 3, 4, 10, 0));
@@ -705,7 +705,7 @@ class GetUserUseCaseTest {
                 "inactive@test.com",
                 "비활성",
                 "010-2000-0001",
-                "ref-40",
+                "REF040",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-40")),
                 LocalDateTime.of(2024, 4, 1, 9, 0),
@@ -770,7 +770,7 @@ class GetUserUseCaseTest {
                 "active@test.com",
                 "활성",
                 "010-2000-0002",
-                "ref-41",
+                "REF041",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-41")),
                 LocalDateTime.of(2024, 4, 3, 9, 0),
@@ -830,7 +830,7 @@ class GetUserUseCaseTest {
                 "inactinfo@test.com",
                 "비활성정보",
                 "010-3000-0001",
-                "ref-50",
+                "REF050",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.KAKAO, "kakao-50")),
                 LocalDateTime.of(2024, 5, 1, 9, 0),
@@ -866,7 +866,7 @@ class GetUserUseCaseTest {
                 "activeinfo@test.com",
                 "활성정보",
                 "010-3000-0002",
-                "ref-51",
+                "REF051",
                 Role.getBuyer(),
                 List.of(UserAuthProvider.of(AuthVendor.GOOGLE, "google-51")),
                 LocalDateTime.of(2024, 5, 3, 9, 0),

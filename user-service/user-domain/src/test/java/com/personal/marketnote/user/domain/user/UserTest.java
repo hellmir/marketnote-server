@@ -110,7 +110,7 @@ class UserTest {
         void shouldReturnTrueWhenCodeMatchesReferenceCode() {
             User user = createUserWithReferenceCode("ABC123");
 
-            assertThat(user.isSelfReferral("ABC123")).isTrue();
+            assertThat(user.isSelfReferral(ReferenceCode.of("ABC123"))).isTrue();
         }
 
         @Test
@@ -118,7 +118,7 @@ class UserTest {
         void shouldReturnFalseWhenCodeDiffers() {
             User user = createUserWithReferenceCode("ABC123");
 
-            assertThat(user.isSelfReferral("XYZ789")).isFalse();
+            assertThat(user.isSelfReferral(ReferenceCode.of("XYZ789"))).isFalse();
         }
     }
 
@@ -129,8 +129,8 @@ class UserTest {
         @Test
         @DisplayName("상호 추천 관계이면 true를 반환한다")
         void shouldReturnTrueWhenMutualReferral() {
-            User userA = createUserWithReferredUserCode("CODE_B");
-            User userB = createUserWithReferenceCode("CODE_B");
+            User userA = createUserWithReferredUserCode("CODEBB");
+            User userB = createUserWithReferenceCode("CODEBB");
 
             assertThat(userA.isMutualReferralWith(userB)).isTrue();
         }
@@ -138,8 +138,8 @@ class UserTest {
         @Test
         @DisplayName("상호 추천 관계가 아니면 false를 반환한다")
         void shouldReturnFalseWhenNotMutualReferral() {
-            User userA = createUserWithReferredUserCode("CODE_B");
-            User userB = createUserWithReferenceCode("CODE_C");
+            User userA = createUserWithReferredUserCode("CODEBB");
+            User userB = createUserWithReferenceCode("CODECC");
 
             assertThat(userA.isMutualReferralWith(userB)).isFalse();
         }
@@ -153,18 +153,19 @@ class UserTest {
         @DisplayName("추천코드 미등록 상태에서 정상 등록된다")
         void shouldRegisterWhenNotAlreadyRegistered() {
             User user = createActiveUser();
+            ReferenceCode invitedCode = ReferenceCode.of("INVCD1");
 
-            user.registerReferredUserCode("INVITED_CODE");
+            user.registerReferredUserCode(invitedCode);
 
-            assertThat(user.getReferredUserCode()).isEqualTo("INVITED_CODE");
+            assertThat(user.getReferredUserCode()).isEqualTo(invitedCode);
         }
 
         @Test
         @DisplayName("이미 등록된 상태에서 호출하면 ReferredUserCodeAlreadyExistsException이 발생한다")
         void shouldThrowWhenAlreadyRegistered() {
-            User user = createUserWithReferredUserCode("EXISTING_CODE");
+            User user = createUserWithReferredUserCode("EXSTC1");
 
-            assertThatThrownBy(() -> user.registerReferredUserCode("NEW_CODE"))
+            assertThatThrownBy(() -> user.registerReferredUserCode(ReferenceCode.of("NEWCD1")))
                     .isInstanceOf(ReferredUserCodeAlreadyExistsException.class);
         }
     }
@@ -394,7 +395,7 @@ class UserTest {
         return User.from(UserSnapshotState.builder()
                 .id(1L)
                 .userKey(UUID.randomUUID())
-                .referenceCode(referenceCode)
+                .referenceCode(ReferenceCode.of(referenceCode))
                 .role(Role.getBuyer())
                 .userAuthProviders(new ArrayList<>())
                 .userTerms(List.of())
@@ -407,7 +408,7 @@ class UserTest {
         return User.from(UserSnapshotState.builder()
                 .id(1L)
                 .userKey(UUID.randomUUID())
-                .referredUserCode(referredUserCode)
+                .referredUserCode(ReferenceCode.of(referredUserCode))
                 .role(Role.getBuyer())
                 .userAuthProviders(new ArrayList<>())
                 .userTerms(List.of())
