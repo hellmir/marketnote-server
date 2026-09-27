@@ -701,7 +701,7 @@ class GetUserUseCaseTest {
         LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 5, 1, 0, 0);
         User inactiveUser = UserTestObjectFactory.createUser(
                 40L,
-                "inactiveNick",
+                "inactNick",
                 "inactive@test.com",
                 "비활성",
                 "010-2000-0001",
@@ -826,8 +826,8 @@ class GetUserUseCaseTest {
         LocalDateTime deactivatedUntil = LocalDateTime.of(2026, 6, 1, 0, 0);
         User inactiveUser = UserTestObjectFactory.createUser(
                 id,
-                "inactiveInfoNick",
-                "inactive-info@test.com",
+                "inactInfo",
+                "inactinfo@test.com",
                 "비활성정보",
                 "010-3000-0001",
                 "ref-50",
@@ -862,8 +862,8 @@ class GetUserUseCaseTest {
         Long id = 51L;
         User activeUser = UserTestObjectFactory.createUser(
                 id,
-                "activeInfoNick",
-                "active-info@test.com",
+                "activeInfo",
+                "activeinfo@test.com",
                 "활성정보",
                 "010-3000-0002",
                 "ref-51",

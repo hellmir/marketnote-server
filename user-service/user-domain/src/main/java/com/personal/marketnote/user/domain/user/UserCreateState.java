@@ -15,7 +15,7 @@ import java.util.List;
 public class UserCreateState {
     private final AuthVendor authVendor;
     private final String oidcId;
-    private final String nickname;
+    private final Nickname nickname;
     private final String email;
     private final String encodedPassword;
     private final String fullName;

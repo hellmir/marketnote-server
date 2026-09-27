@@ -17,7 +17,7 @@ import java.util.UUID;
 public class UserSnapshotState {
     private final Long id;
     private final UUID userKey;
-    private final String nickname;
+    private final Nickname nickname;
     private final String email;
     private final String password;
     private final String fullName;

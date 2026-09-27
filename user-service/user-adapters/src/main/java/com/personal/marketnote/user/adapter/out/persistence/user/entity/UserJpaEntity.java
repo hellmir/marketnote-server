@@ -10,6 +10,7 @@ import com.personal.marketnote.common.domain.phonenumber.PhoneNumber;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.out.persistence.authentication.entity.RoleJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.repository.TermsJpaRepository;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserTerms;
@@ -97,7 +98,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
     public static UserJpaEntity from(User user, TermsJpaRepository termsJpaRepository) {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
                 .userKey(user.getUserKey())
-                .nickname(user.getNickname())
+                .nickname(toNicknameValue(user.getNickname()))
                 .email(toEmailValue(user.getEmail()))
                 .password(user.getPassword())
                 .fullName(user.getFullName())
@@ -133,7 +134,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
     public static UserJpaEntity from(User user) {
         UserJpaEntity userJpaEntity = UserJpaEntity.builder()
                 .userKey(user.getUserKey())
-                .nickname(user.getNickname())
+                .nickname(toNicknameValue(user.getNickname()))
                 .email(toEmailValue(user.getEmail()))
                 .password(user.getPassword())
                 .fullName(user.getFullName())
@@ -157,7 +158,7 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
 
     public void updateFrom(User user) {
         updateActivation(user);
-        nickname = user.getNickname();
+        nickname = toNicknameValue(user.getNickname());
         email = toEmailValue(user.getEmail());
         password = user.getPassword();
         phoneNumber = toPhoneNumberValue(user.getPhoneNumber());
@@ -201,6 +202,13 @@ public class UserJpaEntity extends BaseOrderedGeneralEntity {
 
     public void updateLoginTime() {
         lastLoggedInAt = LocalDateTime.now();
+    }
+
+    private static String toNicknameValue(Nickname nickname) {
+        if (FormatValidator.hasNoValue(nickname)) {
+            return null;
+        }
+        return nickname.getValue();
     }
 
     private static String toPhoneNumberValue(PhoneNumber phoneNumber) {

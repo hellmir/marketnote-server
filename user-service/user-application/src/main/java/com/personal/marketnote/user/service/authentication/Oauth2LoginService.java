@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.domain.exception.illegalargument.novalue.OauthTokenNoValueException;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.UserNotActiveException;
 import com.personal.marketnote.user.port.in.result.LoginResult;
@@ -42,7 +43,7 @@ public class Oauth2LoginService implements Oauth2LoginUseCase {
             }
 
             return LoginResult.of(
-                    false, grantedTokenInfo.accessToken(), grantedTokenInfo.refreshToken(), signedUpUser.getNickname()
+                    false, grantedTokenInfo.accessToken(), grantedTokenInfo.refreshToken(), toNicknameValue(signedUpUser.getNickname())
             );
         }
 
@@ -53,6 +54,13 @@ public class Oauth2LoginService implements Oauth2LoginUseCase {
         }
 
         return LoginResult.of(true, grantedTokenInfo.accessToken(), grantedTokenInfo.refreshToken(), userInfo.name());
+    }
+
+    private static String toNicknameValue(Nickname nickname) {
+        if (FormatValidator.hasNoValue(nickname)) {
+            return null;
+        }
+        return nickname.getValue();
     }
 }
 

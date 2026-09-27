@@ -33,7 +33,7 @@ public class User extends BaseDomain {
 
     private Long id;
     private UUID userKey;
-    private String nickname;
+    private Nickname nickname;
     private Email email;
     private String password;
     private String fullName;
@@ -193,7 +193,7 @@ public class User extends BaseDomain {
         this.email = email;
     }
 
-    public void updateNickname(String nickname) {
+    public void updateNickname(Nickname nickname) {
         this.nickname = nickname;
     }
 
@@ -247,9 +247,9 @@ public class User extends BaseDomain {
         }
     }
 
-    public void validateDifferentNickname(String nickname) {
+    public void validateDifferentNickname(Nickname nickname) {
         if (FormatValidator.equals(this.nickname, nickname)) {
-            throw new SameUpdateTargetException(SECOND_ERROR_CODE, nickname);
+            throw new SameUpdateTargetException(SECOND_ERROR_CODE, nickname.getValue());
         }
     }
 

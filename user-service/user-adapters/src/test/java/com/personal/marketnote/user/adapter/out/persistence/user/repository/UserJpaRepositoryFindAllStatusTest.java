@@ -5,6 +5,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.user.adapter.out.persistence.authentication.entity.RoleJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserJpaEntity;
 import com.personal.marketnote.user.domain.authentication.Role;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserSnapshotState;
@@ -51,7 +52,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 ACTIVE 회원을 조회한다")
     void findAllStatusReturnsActiveUser() {
         Long savedId = persistUser(
-                "active-user", "010-1111-2222", "active@test.com",
+                "activeUser", "010-1111-2222", "active@test.com",
                 AuthVendor.KAKAO, "oidc-active", EntityStatus.ACTIVE
         );
 
@@ -68,7 +69,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 INACTIVE 회원도 조회한다")
     void findAllStatusReturnsInactiveUser() {
         Long savedId = persistUser(
-                "inactive-user", "010-1111-3333", "inactive@test.com",
+                "inactUser", "010-1111-3333", "inactive@test.com",
                 AuthVendor.KAKAO, "oidc-inactive", EntityStatus.INACTIVE
         );
 
@@ -85,7 +86,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("findAllStatusUserByAuthVendorAndOidcId는 UNEXPOSED 회원도 조회한다")
     void findAllStatusReturnsUnexposedUser() {
         Long savedId = persistUser(
-                "hidden-user", "010-1111-4444", "hidden@test.com",
+                "hiddenUser", "010-1111-4444", "hidden@test.com",
                 AuthVendor.KAKAO, "oidc-hidden", EntityStatus.UNEXPOSED
         );
 
@@ -102,7 +103,7 @@ class UserJpaRepositoryFindAllStatusTest {
     @DisplayName("기존 findByAuthVendorAndOidcId는 여전히 INACTIVE 회원을 조회하지 않는다")
     void existingQueryStillExcludesInactiveUser() {
         persistUser(
-                "legacy-filter", "010-1111-5555", "legacy@test.com",
+                "legacyUser", "010-1111-5555", "legacy@test.com",
                 AuthVendor.KAKAO, "oidc-legacy", EntityStatus.INACTIVE
         );
 
@@ -130,7 +131,7 @@ class UserJpaRepositoryFindAllStatusTest {
         User user = User.from(
                 UserSnapshotState.builder()
                         .userKey(UUID.randomUUID())
-                        .nickname(nickname)
+                        .nickname(Nickname.of(nickname))
                         .email(email)
                         .password("encoded-password")
                         .fullName("테스트")

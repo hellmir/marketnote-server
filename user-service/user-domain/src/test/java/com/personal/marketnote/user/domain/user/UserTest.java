@@ -187,7 +187,7 @@ class UserTest {
         void shouldThrowWhenSameNickname() {
             User user = createUserWithNickname("홍길동");
 
-            assertThatThrownBy(() -> user.validateDifferentNickname("홍길동"))
+            assertThatThrownBy(() -> user.validateDifferentNickname(Nickname.of("홍길동")))
                     .isInstanceOf(SameUpdateTargetException.class);
         }
 
@@ -367,7 +367,7 @@ class UserTest {
         return User.from(UserSnapshotState.builder()
                 .id(1L)
                 .userKey(UUID.randomUUID())
-                .nickname("테스트유저")
+                .nickname(Nickname.of("테스트유저"))
                 .email("test@example.com")
                 .phoneNumber("010-1234-5678")
                 .role(Role.getBuyer())
@@ -433,7 +433,7 @@ class UserTest {
         return User.from(UserSnapshotState.builder()
                 .id(1L)
                 .userKey(UUID.randomUUID())
-                .nickname(nickname)
+                .nickname(Nickname.of(nickname))
                 .role(Role.getBuyer())
                 .userAuthProviders(new ArrayList<>())
                 .userTerms(List.of())

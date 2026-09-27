@@ -2,6 +2,7 @@ package com.personal.marketnote.user.service.user;
 
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.user.domain.authentication.Role;
+import com.personal.marketnote.user.domain.user.Nickname;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserAuthProvider;
 import com.personal.marketnote.user.domain.user.UserSnapshotState;
@@ -91,7 +92,7 @@ final class UserTestObjectFactory {
         UserSnapshotState state = UserSnapshotState.builder()
                 .id(id)
                 .userKey(DEFAULT_USER_KEY)
-                .nickname(nickname)
+                .nickname(Nickname.of(nickname))
                 .email(email)
                 .fullName(fullName)
                 .phoneNumber(phoneNumber)
