@@ -34,7 +34,6 @@ public class PspPaymentEventEntityToDomainMapper {
                         .bankName(entity.getBankName())
                         .billNumber(entity.getBillNumber())
                         .billSequenceNumber(entity.getBillSequenceNumber())
-                        .userIp(entity.getUserIp())
                         .paymentInfo(entity.getPaymentInfo())
                         .paymentSource(entity.getPaymentSource())
                         .resultCode(entity.getResultCode())

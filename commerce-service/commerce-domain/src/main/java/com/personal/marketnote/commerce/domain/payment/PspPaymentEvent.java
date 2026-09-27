@@ -37,7 +37,6 @@ public class PspPaymentEvent {
     private String bankName;
     private String billNumber;
     private String billSequenceNumber;
-    private String userIp;
     private String paymentInfo;
     private String paymentSource;
     private String resultCode;
@@ -85,7 +84,6 @@ public class PspPaymentEvent {
                 .bankName(state.getBankName())
                 .billNumber(state.getBillNumber())
                 .billSequenceNumber(state.getBillSequenceNumber())
-                .userIp(state.getUserIp())
                 .paymentInfo(state.getPaymentInfo())
                 .paymentSource(state.getPaymentSource())
                 .resultCode(state.getResultCode())
