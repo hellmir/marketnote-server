@@ -2,10 +2,14 @@ package com.personal.marketnote.common.configuration.kafka;
 
 import com.personal.marketnote.common.kafka.DltTopicRegistry;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -133,5 +137,56 @@ class KafkaTopicConfigTest {
             assertThat(topic.replicationFactor()).isEqualTo(EXPECTED_REPLICATION_FACTOR);
             assertThat(topic.configs()).containsEntry(MIN_INSYNC_REPLICAS_KEY, EXPECTED_MIN_INSYNC_REPLICAS);
         });
+    }
+
+    @Test
+    @DisplayName("KafkaAdmin 빈에 bootstrap.servers가 정상 주입된다")
+    void shouldInjectBootstrapServersToKafkaAdmin() {
+        KafkaSaslProperties saslProperties = new KafkaSaslProperties();
+        KafkaTopicConfig config = new KafkaTopicConfig(saslProperties);
+        ReflectionTestUtils.setField(config, "bootstrapServers", "kafka-broker:9092");
+
+        KafkaAdmin admin = config.kafkaAdmin();
+
+        assertThat(admin).isNotNull();
+        assertThat(admin.getConfigurationProperties())
+                .containsEntry(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:9092");
+    }
+
+    @Test
+    @DisplayName("SASL 비활성화 상태에서 KafkaAdmin 빈에 SASL props가 주입되지 않는다")
+    void shouldNotInjectSaslPropsWhenDisabled() {
+        KafkaSaslProperties saslProperties = new KafkaSaslProperties();
+        saslProperties.setEnabled(false);
+        KafkaTopicConfig config = new KafkaTopicConfig(saslProperties);
+        ReflectionTestUtils.setField(config, "bootstrapServers", "kafka-broker:9092");
+
+        Map<String, Object> configMap = config.kafkaAdmin().getConfigurationProperties();
+
+        assertThat(configMap).doesNotContainKey(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG);
+        assertThat(configMap).doesNotContainKey(SaslConfigs.SASL_MECHANISM);
+        assertThat(configMap).doesNotContainKey(SaslConfigs.SASL_JAAS_CONFIG);
+    }
+
+    @Test
+    @DisplayName("SASL 활성화 상태에서 KafkaAdmin 빈에 SASL props가 주입된다")
+    void shouldInjectSaslPropsWhenEnabled() {
+        KafkaSaslProperties saslProperties = new KafkaSaslProperties();
+        saslProperties.setEnabled(true);
+        saslProperties.setMechanism("SCRAM-SHA-256");
+        saslProperties.setProtocol("SASL_PLAINTEXT");
+        saslProperties.setUsername("test-user");
+        saslProperties.setPassword("test-password");
+        KafkaTopicConfig config = new KafkaTopicConfig(saslProperties);
+        ReflectionTestUtils.setField(config, "bootstrapServers", "kafka-broker:9092");
+
+        Map<String, Object> configMap = config.kafkaAdmin().getConfigurationProperties();
+
+        assertThat(configMap).containsEntry(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        assertThat(configMap).containsEntry(SaslConfigs.SASL_MECHANISM, "SCRAM-SHA-256");
+        assertThat(configMap).containsKey(SaslConfigs.SASL_JAAS_CONFIG);
+        assertThat(configMap.get(SaslConfigs.SASL_JAAS_CONFIG).toString())
+                .contains("username=\"test-user\"")
+                .contains("ScramLoginModule");
     }
 }
