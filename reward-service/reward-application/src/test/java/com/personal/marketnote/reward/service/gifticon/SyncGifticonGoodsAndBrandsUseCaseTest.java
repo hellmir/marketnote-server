@@ -5,12 +5,18 @@ import com.personal.marketnote.reward.domain.gifticon.*;
 import com.personal.marketnote.reward.port.out.gifticon.*;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonBrandPort.FetchGifticonBrandResult;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonBrandPort.FetchedGifticonBrandItem;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonGoodsPort.FetchGifticonGoodsResult;
 import com.personal.marketnote.reward.port.out.gifticon.FetchGifticonGoodsPort.FetchedGifticonGoodsItem;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
@@ -372,6 +379,161 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         // then
         assertThat(susGoods.getGoodsStatus()).isEqualTo(GoodsStatus.SUSPENDED);
         verify(updateGifticonGoodsPort, never()).update(susGoods);
+    }
+
+    @Nested
+    @DisplayName("벤더 이상치 격리")
+    class InvalidItemIsolationTest {
+
+        private ListAppender<ILoggingEvent> logAppender;
+        private Logger serviceLogger;
+
+        @BeforeEach
+        void setUpLogAppender() {
+            serviceLogger = (Logger) LoggerFactory.getLogger(SyncGifticonGoodsAndBrandsService.class);
+            logAppender = new ListAppender<>();
+            logAppender.start();
+            serviceLogger.addAppender(logAppender);
+        }
+
+        @AfterEach
+        void tearDownLogAppender() {
+            serviceLogger.detachAppender(logAppender);
+            logAppender.stop();
+        }
+
+        @Test
+        @DisplayName("정상 item 사이 이상치(limitDay=0) 1건이 섞여도 나머지는 정상 save 된다")
+        void shouldIsolateInvalidLimitDayItem() {
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem normalItem = createGoodsItem(
+                    "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 5000L, 4500L, 30, "커피", "SALE"
+            );
+            FetchedGifticonGoodsItem invalidItem = createGoodsItem(
+                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+            );
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(2, List.of(normalItem, invalidItem)));
+            when(findGifticonGoodsPort.findByGoodsCode("GD001")).thenReturn(Optional.empty());
+            when(findGifticonGoodsPort.findByGoodsCode("GD002")).thenReturn(Optional.empty());
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
+
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            verify(saveGifticonGoodsPort, times(1)).save(any(GifticonGoods.class));
+            verify(saveGifticonGoodsPort).save(argThat(g -> "GD001".equals(g.getGoodsCode().getValue())));
+        }
+
+        @Test
+        @DisplayName("brandCode blank item이 섞여도 나머지는 정상 처리되고 실패 아이템만 경고 로그에 기록된다")
+        void shouldIsolateBlankBrandCodeItem() {
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem normalItem = createGoodsItem(
+                    "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 5000L, 4500L, 30, "커피", "SALE"
+            );
+            FetchedGifticonGoodsItem invalidItem = createGoodsItem(
+                    "GD003", "라떼", "", "스타벅스", "https://img.com/sb.png",
+                    "1", 6000L, 5500L, 30, "라떼", "SALE"
+            );
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(2, List.of(normalItem, invalidItem)));
+            when(findGifticonGoodsPort.findByGoodsCode("GD001")).thenReturn(Optional.empty());
+            when(findGifticonGoodsPort.findByGoodsCode("GD003")).thenReturn(Optional.empty());
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
+
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            verify(saveGifticonGoodsPort, times(1)).save(argThat(g -> "GD001".equals(g.getGoodsCode().getValue())));
+            boolean hasInvalidWarn = logAppender.list.stream()
+                    .anyMatch(event -> event.getLevel() == Level.WARN
+                            && event.getFormattedMessage().contains("GD003"));
+            assertThat(hasInvalidWarn).isTrue();
+        }
+
+        @Test
+        @DisplayName("syncAll은 단계별 트랜잭션을 분리하여 호출한다 (브랜드/per-item 상품/suspend)")
+        void shouldExecuteSeparateTransactionsForEachStage() {
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem item1 = createGoodsItem(
+                    "GD001", "아메리카노", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 5000L, 4500L, 30, "커피", "SALE"
+            );
+            FetchedGifticonGoodsItem item2 = createGoodsItem(
+                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 6000L, 5500L, 30, "라떼", "SALE"
+            );
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(2, List.of(item1, item2)));
+            when(findGifticonGoodsPort.findByGoodsCode(anyString())).thenReturn(Optional.empty());
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
+
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            verify(transactionTemplate, times(4)).execute(any());
+        }
+
+        @Test
+        @DisplayName("상품 sync 일부 실패가 suspendMissingGoods 호출을 막지 않는다")
+        void shouldStillCallSuspendWhenSomeProductSyncFails() {
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem invalidItem = createGoodsItem(
+                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+            );
+            GifticonGoods missingGoods = createGoods(99L, "GD099", "단종후보", 4500L, 4500L, "SALE");
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of(missingGoods));
+
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            verify(updateGifticonGoodsPort).update(missingGoods);
+            assertThat(missingGoods.getGoodsStatus()).isEqualTo(GoodsStatus.SUSPENDED);
+        }
+
+        @Test
+        @DisplayName("이상치 발생 시 gifticon.sync.invalid_item 메트릭이 증가한다")
+        void shouldIncrementInvalidItemMetric() {
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem invalidItem = createGoodsItem(
+                    "GD002", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+            );
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
+
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            double counterValue = meterRegistry.counter("gifticon.sync.invalid_item").count();
+            assertThat(counterValue).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("이상치 로그에 goodsCode와 예외 클래스명이 포함된다")
+        void shouldLogGoodsCodeAndCauseOnInvalidItem() {
+            stubEmptyBrandSync();
+            FetchedGifticonGoodsItem invalidItem = createGoodsItem(
+                    "GD777", "라떼", "BR001", "스타벅스", "https://img.com/sb.png",
+                    "1", 6000L, 5500L, 0, "라떼", "SALE"
+            );
+            when(fetchGifticonGoodsPort.fetchProductList(1, 20))
+                    .thenReturn(new FetchGifticonGoodsResult(1, List.of(invalidItem)));
+            when(findGifticonGoodsPort.findAllByGoodsStatus(GoodsStatus.SALE)).thenReturn(List.of());
+
+            syncGifticonGoodsAndBrandsService.syncAll();
+
+            ILoggingEvent warnEvent = logAppender.list.stream()
+                    .filter(event -> event.getLevel() == Level.WARN)
+                    .findFirst()
+                    .orElseThrow();
+            String message = warnEvent.getFormattedMessage();
+            assertThat(message).contains("GD777");
+            assertThat(message).contains("Exception");
+        }
     }
 
     // --- Helper Methods ---
