@@ -49,7 +49,7 @@ spring:
     sasl:
       enabled: ${KAFKA_SASL_ENABLED:false}
       mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-256}
-      protocol: ${KAFKA_SASL_PROTOCOL:SASL_PLAINTEXT}
+      protocol: ${KAFKA_SASL_PROTOCOL:SASL_SSL}
       username: ${KAFKA_SASL_USERNAME:}
       password: ${KAFKA_SASL_PASSWORD:}
     consumer:
