@@ -22,7 +22,7 @@ class KafkaTopicConfigTest {
     private static final String EXPECTED_MIN_INSYNC_REPLICAS = "2";
     private static final String MIN_INSYNC_REPLICAS_KEY = "min.insync.replicas";
 
-    private final KafkaTopicConfig kafkaTopicConfig = new KafkaTopicConfig();
+    private final KafkaTopicConfig kafkaTopicConfig = new KafkaTopicConfig(new KafkaSaslProperties());
 
     @Test
     @DisplayName("KafkaAdmin.NewTopics 빈이 정상 등록된다")
