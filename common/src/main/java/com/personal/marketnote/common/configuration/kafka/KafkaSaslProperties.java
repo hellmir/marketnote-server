@@ -26,7 +26,7 @@ public class KafkaSaslProperties {
 
     private boolean enabled = false;
     private String mechanism = "SCRAM-SHA-256";
-    private String protocol = "SASL_PLAINTEXT";
+    private String protocol = "SASL_SSL";
     private String username;
     private String password;
 

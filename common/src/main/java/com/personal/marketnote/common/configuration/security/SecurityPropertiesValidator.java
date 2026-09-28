@@ -26,6 +26,8 @@ public class SecurityPropertiesValidator {
             "0000", "1234567890123456"
     );
 
+    private static final String REQUIRED_KAFKA_SASL_PROTOCOL = "SASL_SSL";
+
     @Value("${spring.jwt.secret:}")
     private String jwtSecret;
 
@@ -43,6 +45,9 @@ public class SecurityPropertiesValidator {
 
     @Value("${spring.kafka.sasl.enabled:false}")
     private boolean kafkaSaslEnabled;
+
+    @Value("${spring.kafka.sasl.protocol:}")
+    private String kafkaSaslProtocol;
 
     @Value("${spring.kafka.sasl.username:}")
     private String kafkaSaslUsername;
@@ -65,10 +70,7 @@ public class SecurityPropertiesValidator {
         validateRequired(violations, "spring.datasource.password (DB_PASSWORD)", dbPassword);
         validateRequired(violations, "spring.hmac.secret-key (HMAC_SECRET_KEY)", hmacSecretKey);
 
-        if (kafkaSaslEnabled) {
-            validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);
-            validateRequired(violations, "spring.kafka.sasl.password (KAFKA_SASL_PASSWORD)", kafkaSaslPassword);
-        }
+        validateKafkaSasl(violations);
 
         if (gifticonPinValidationEnabled) {
             validateRequired(violations, "gifticon.pin.encrypt-key (GIFTICON_PIN_ENCRYPT_KEY)", gifticonPinEncryptKey);
@@ -85,8 +87,24 @@ public class SecurityPropertiesValidator {
     private void validateRequired(List<String> violations, String propertyName, String value) {
         if (FormatValidator.hasNoValue(value)) {
             violations.add(propertyName + " 값이 설정되지 않았습니다.");
-        } else if (WEAK_DEFAULTS.contains(value.toLowerCase())) {
+            return;
+        }
+        if (WEAK_DEFAULTS.contains(value.toLowerCase())) {
             violations.add(propertyName + " 값이 기본 플레이스홀더입니다. 강력한 값으로 변경하세요.");
         }
+    }
+
+    private void validateKafkaSasl(List<String> violations) {
+        if (!kafkaSaslEnabled) {
+            violations.add("spring.kafka.sasl.enabled (KAFKA_SASL_ENABLED) 값이 true여야 합니다. 운영 환경에서 Kafka SASL을 활성화하세요.");
+            return;
+        }
+        String currentProtocol = FormatValidator.hasValue(kafkaSaslProtocol) ? kafkaSaslProtocol : "(미설정)";
+        if (!REQUIRED_KAFKA_SASL_PROTOCOL.equals(kafkaSaslProtocol)) {
+            violations.add("spring.kafka.sasl.protocol (KAFKA_SASL_PROTOCOL) 값이 " + REQUIRED_KAFKA_SASL_PROTOCOL
+                    + "이어야 합니다. 현재 값: " + currentProtocol);
+        }
+        validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);
+        validateRequired(violations, "spring.kafka.sasl.password (KAFKA_SASL_PASSWORD)", kafkaSaslPassword);
     }
 }
