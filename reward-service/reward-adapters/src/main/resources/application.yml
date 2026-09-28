@@ -151,6 +151,8 @@ management:
   endpoint:
     health:
       show-details: always
+    env:
+      keys-to-sanitize: sasl.jaas.config,sasl.*,jaas.*
   metrics:
     tags:
       application: ${spring.application.name}
