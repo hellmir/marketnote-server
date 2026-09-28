@@ -61,15 +61,68 @@ class SecurityPropertiesValidatorTest {
                 .hasMessageContaining("gifticon.pin.encrypt-key");
     }
 
+    @Test
+    @DisplayName("Kafka SASL 비활성화 시 검증에 실패한다")
+    void shouldFailWhenKafkaSaslDisabled() {
+        ReflectionTestUtils.setField(validator, "kafkaSaslEnabled", false);
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("spring.kafka.sasl.enabled");
+    }
+
+    @Test
+    @DisplayName("Kafka SASL 프로토콜이 SASL_PLAINTEXT이면 검증에 실패한다")
+    void shouldFailWhenKafkaSaslProtocolIsPlaintext() {
+        ReflectionTestUtils.setField(validator, "kafkaSaslProtocol", "SASL_PLAINTEXT");
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("spring.kafka.sasl.protocol");
+    }
+
+    @Test
+    @DisplayName("Kafka SASL 프로토콜이 설정되지 않으면 검증에 실패한다")
+    void shouldFailWhenKafkaSaslProtocolEmpty() {
+        ReflectionTestUtils.setField(validator, "kafkaSaslProtocol", "");
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("spring.kafka.sasl.protocol");
+    }
+
+    @Test
+    @DisplayName("Kafka SASL 활성화 + SASL_SSL 프로토콜 + 자격증명 설정 시 검증을 통과한다")
+    void shouldPassWhenKafkaSaslEnabledWithSaslSslAndCredentials() {
+        ReflectionTestUtils.setField(validator, "kafkaSaslEnabled", true);
+        ReflectionTestUtils.setField(validator, "kafkaSaslProtocol", "SASL_SSL");
+        ReflectionTestUtils.setField(validator, "kafkaSaslUsername", "kafka-user");
+        ReflectionTestUtils.setField(validator, "kafkaSaslPassword", "kafka-password");
+
+        assertThatCode(() -> validator.validateSecurityProperties())
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("Kafka SASL 활성화 + 사용자명 미설정 시 검증에 실패한다")
+    void shouldFailWhenKafkaSaslEnabledAndUsernameEmpty() {
+        ReflectionTestUtils.setField(validator, "kafkaSaslUsername", "");
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("spring.kafka.sasl.username");
+    }
+
     private void setCommonRequiredFields(SecurityPropertiesValidator validator) {
         ReflectionTestUtils.setField(validator, "jwtSecret", "valid-jwt-secret");
         ReflectionTestUtils.setField(validator, "adminAccessToken", "valid-admin-token");
         ReflectionTestUtils.setField(validator, "dbPassword", "valid-db-password");
         ReflectionTestUtils.setField(validator, "redisPassword", "valid-redis-password");
         ReflectionTestUtils.setField(validator, "hmacSecretKey", "valid-hmac-key");
-        ReflectionTestUtils.setField(validator, "kafkaSaslEnabled", false);
-        ReflectionTestUtils.setField(validator, "kafkaSaslUsername", "");
-        ReflectionTestUtils.setField(validator, "kafkaSaslPassword", "");
+        ReflectionTestUtils.setField(validator, "kafkaSaslEnabled", true);
+        ReflectionTestUtils.setField(validator, "kafkaSaslProtocol", "SASL_SSL");
+        ReflectionTestUtils.setField(validator, "kafkaSaslUsername", "kafka-user");
+        ReflectionTestUtils.setField(validator, "kafkaSaslPassword", "kafka-password");
         ReflectionTestUtils.setField(validator, "gifticonPinValidationEnabled", false);
         ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "");
     }
