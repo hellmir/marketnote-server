@@ -64,6 +64,8 @@ spring:
       protocol: ${KAFKA_SASL_PROTOCOL:SASL_SSL}
       username: ${KAFKA_SASL_USERNAME:}
       password: ${KAFKA_SASL_PASSWORD:}
+      ssl-truststore-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:classpath:kafka.truststore.jks}
+      ssl-truststore-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
     consumer:
       group-id: ${spring.application.name}
 
