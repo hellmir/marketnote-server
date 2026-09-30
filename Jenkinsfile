@@ -70,6 +70,7 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "KAFKA_SASL_PROTOCOL",                       value: env.KAFKA_SASL_PROTOCOL],
                 [name: "KAFKA_SASL_USERNAME",                       value: env.KAFKA_SASL_USERNAME],
                 [name: "KAFKA_SASL_PASSWORD",                       value: env.KAFKA_SASL_PASSWORD],
+                [name: "KAFKA_SSL_TRUSTSTORE_PASSWORD",             value: env.KAFKA_SSL_TRUSTSTORE_PASSWORD],
                 [name: "HMAC_SECRET_KEY",                           value: env.HMAC_SECRET_KEY],
                 [name: "GIFTICON_PIN_ENCRYPT_KEY",                  value: env.GIFTICON_PIN_ENCRYPT_KEY],
                 [name: "GIFTICON_SYNC_SCHEDULER_ENABLED",           value: env.GIFTICON_SYNC_SCHEDULER_ENABLED],

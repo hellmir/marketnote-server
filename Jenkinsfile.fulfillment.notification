@@ -239,6 +239,7 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PROTOCOL',           variable: 'KAFKA_SASL_PROTOCOL'),
 						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_USERNAME',           variable: 'KAFKA_SASL_USERNAME'),
 						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PASSWORD',           variable: 'KAFKA_SASL_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SSL_TRUSTSTORE_PASSWORD', variable: 'KAFKA_SSL_TRUSTSTORE_PASSWORD'),
 					]) {
 						env.DB_USERNAME = DB_USERNAME
 						env.JWT_SECRET_KEY = JWT_SECRET_KEY
@@ -261,6 +262,7 @@ pipeline {
 						env.KAFKA_SASL_PROTOCOL = KAFKA_SASL_PROTOCOL
 						env.KAFKA_SASL_USERNAME = KAFKA_SASL_USERNAME
 						env.KAFKA_SASL_PASSWORD = KAFKA_SASL_PASSWORD
+						env.KAFKA_SSL_TRUSTSTORE_PASSWORD = KAFKA_SSL_TRUSTSTORE_PASSWORD
 
 						def svc = env.SERVICE_NAME
 						if (svc == 'fulfillment-service') {
@@ -387,6 +389,7 @@ pipeline {
 						envLine('KAFKA_SASL_PROTOCOL', env.KAFKA_SASL_PROTOCOL),
 						envLine('KAFKA_SASL_USERNAME', env.KAFKA_SASL_USERNAME),
 						envLine('KAFKA_SASL_PASSWORD', env.KAFKA_SASL_PASSWORD),
+						envLine('KAFKA_SSL_TRUSTSTORE_PASSWORD', env.KAFKA_SSL_TRUSTSTORE_PASSWORD),
 					].join('\n') + '\n'
 
 					writeFile file: env.LIGHTSAIL_ENV_PATH, text: envText
