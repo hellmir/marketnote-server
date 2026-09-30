@@ -155,6 +155,7 @@ def registerTaskDefinition(parentScript) {
         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PROTOCOL',                variable: 'KAFKA_SASL_PROTOCOL'),
         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_USERNAME',                variable: 'KAFKA_SASL_USERNAME'),
         string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PASSWORD',                variable: 'KAFKA_SASL_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_KAFKA_SSL_TRUSTSTORE_PASSWORD',    variable: 'KAFKA_SSL_TRUSTSTORE_PASSWORD'),
         string(credentialsId: 'MARKETNOTE_QA_HMAC_SECRET_KEY',                    variable: 'HMAC_SECRET_KEY'),
         string(credentialsId: 'MARKETNOTE_QA_GIFTICON_PIN_ENCRYPT_KEY',           variable: 'GIFTICON_PIN_ENCRYPT_KEY'),
         string(credentialsId: 'MARKETNOTE_QA_GIFTICON_SYNC_SCHEDULER_ENABLED',   variable: 'GIFTICON_SYNC_SCHEDULER_ENABLED'),
