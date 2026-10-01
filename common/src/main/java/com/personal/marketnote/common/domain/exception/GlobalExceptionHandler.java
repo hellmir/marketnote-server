@@ -96,7 +96,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-            HttpRequestMethodNotSupportedException e) {
+            HttpRequestMethodNotSupportedException e
+    ) {
         HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
         log.warn(LOG_WARN_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 HTTP 메서드입니다.");
@@ -168,8 +169,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(
-            HttpMediaTypeNotSupportedException e) {
+    ResponseEntity<ErrorResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
         HttpStatus httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "지원하지 않는 미디어 타입입니다.");
@@ -219,7 +219,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
-            MissingServletRequestParameterException e) {
+            MissingServletRequestParameterException e
+    ) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message = "필수 요청 파라미터 '" + e.getParameterName() + "'이(가) 누락되었습니다.";
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
@@ -227,8 +228,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-            MethodArgumentTypeMismatchException e) {
+    ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         String message = "요청 파라미터 '" + e.getName() + "'의 타입이 올바르지 않습니다.";
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
@@ -243,8 +243,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
-            DataIntegrityViolationException e) {
+    ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "데이터 무결성 제약 조건을 위반했습니다.");

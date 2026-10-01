@@ -46,22 +46,24 @@ public class OutboxEventPublisher {
             outboxEventJpaRepository.save(event);
 
             log.info("Outbox 이벤트 발행 성공. topic={}, partitionKey={}, eventId={}",
-                    event.getTopic(), event.getPartitionKey(), event.getEventId());
+                    event.getTopic(), event.getPartitionKey(), event.getEventId()
+            );
         } catch (Exception e) {
             event.incrementRetry(e.getMessage(), LocalDateTime.now(clock));
             outboxEventJpaRepository.save(event);
 
             if (event.getStatus().isFailed()) {
                 outboxMetricsCollector.incrementFailedCount(event.getTopic());
-                outboxAuditLogger.logFailed(event.getTopic(), event.getEventId(),
-                        event.getRetryCount(), e.getMessage());
+                outboxAuditLogger.logFailed(event.getTopic(), event.getEventId(), event.getRetryCount(), e.getMessage());
                 log.error("Outbox 이벤트 최대 재시도 초과. topic={}, eventId={}, retryCount={}",
-                        event.getTopic(), event.getEventId(), event.getRetryCount(), e);
+                        event.getTopic(), event.getEventId(), event.getRetryCount(), e
+                );
                 return;
             }
 
             log.warn("Outbox 이벤트 발행 실패 (재시도 예정). topic={}, eventId={}, retryCount={}, error={}",
-                    event.getTopic(), event.getEventId(), event.getRetryCount(), e.getMessage());
+                    event.getTopic(), event.getEventId(), event.getRetryCount(), e.getMessage()
+            );
         }
     }
 }

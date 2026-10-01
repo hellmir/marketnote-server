@@ -13,8 +13,10 @@ public class OpaqueTokenIntrospectorProvider {
     @ConditionalOnMissingBean(OpaqueTokenIntrospector.class)
     public OpaqueTokenIntrospector defaultOpaqueTokenIntrospector(
             ObjectMapper objectMapper,
-            @Value("${spring.jwt.secret}") String jwtSecret) {
+            @Value("${spring.jwt.secret}") String jwtSecret
+    ) {
         return new com.personal.marketnote.common.security.introspection.HmacJwtOpaqueTokenIntrospector(objectMapper,
-                jwtSecret);
+                jwtSecret
+        );
     }
 }

@@ -30,16 +30,17 @@ public class SagaResponsePublisher {
     private final Clock clock;
 
     @Transactional(isolation = READ_COMMITTED)
-    public void publishSuccess(String sagaId, String sagaType, String stepName,
-                               String messageType, String response) {
+    public void publishSuccess(String sagaId, String sagaType, String stepName, String messageType, String response) {
         SagaResponseMessage responseMessage = new SagaResponseMessage(
                 sagaId, sagaType, stepName, messageType, true, response);
         publishToOutbox(responseMessage, sagaId);
     }
 
     @Transactional(isolation = READ_COMMITTED)
-    public void publishFailure(String sagaId, String sagaType, String stepName,
-                               String messageType, String errorMessage) {
+    public void publishFailure(
+            String sagaId, String sagaType, String stepName,
+            String messageType, String errorMessage
+    ) {
         SagaResponseMessage responseMessage = new SagaResponseMessage(
                 sagaId, sagaType, stepName, messageType, false, errorMessage);
         publishToOutbox(responseMessage, sagaId);
@@ -47,11 +48,13 @@ public class SagaResponsePublisher {
 
     private void publishToOutbox(SagaResponseMessage message, String partitionKey) {
         EventEnvelope<SagaResponseMessage> envelope = EventEnvelope.of(
-                KafkaTopicConstants.SAGA_RESPONSE, SOURCE, message, clock);
+                KafkaTopicConstants.SAGA_RESPONSE, SOURCE, message, clock
+        );
         String envelopeJson = serialize(envelope);
         OutboxEvent event = OutboxEvent.of(
                 envelope.eventId(), KafkaTopicConstants.SAGA_RESPONSE, partitionKey,
-                envelope.eventType(), SOURCE, envelopeJson, clock);
+                envelope.eventType(), SOURCE, envelopeJson, clock
+        );
         saveOutboxEventPort.save(event);
     }
 

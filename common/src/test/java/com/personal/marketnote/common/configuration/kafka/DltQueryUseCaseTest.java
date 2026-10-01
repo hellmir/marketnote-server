@@ -58,7 +58,8 @@ class DltQueryUseCaseTest {
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record = buildDltRecord(dltTopic, 0, 0L, "key-1", originalTopic,
-                "java.lang.RuntimeException", "DB 연결 오류");
+                "java.lang.RuntimeException", "DB 연결 오류"
+        );
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
                 Map.of(topicPartition, List.of(record))
         );
@@ -215,9 +216,11 @@ class DltQueryUseCaseTest {
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record1 = buildDltRecord(dltTopic, 0, 0L, "key-1", originalTopic,
-                "RuntimeException", "에러 1");
+                "RuntimeException", "에러 1"
+        );
         ConsumerRecord<String, Object> record2 = buildDltRecord(dltTopic, 0, 1L, "key-2", originalTopic,
-                "RuntimeException", "에러 2");
+                "RuntimeException", "에러 2"
+        );
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
                 Map.of(topicPartition, List.of(record1, record2))
         );
@@ -256,11 +259,14 @@ class DltQueryUseCaseTest {
 
         TopicPartition topicPartition = new TopicPartition(dltTopic, 0);
         ConsumerRecord<String, Object> record1 = buildDltRecord(dltTopic, 0, 0L, "key-1", originalTopic,
-                "RuntimeException", "에러 1");
+                "RuntimeException", "에러 1"
+        );
         ConsumerRecord<String, Object> record2 = buildDltRecord(dltTopic, 0, 1L, "key-2", originalTopic,
-                "RuntimeException", "에러 2");
+                "RuntimeException", "에러 2"
+        );
         ConsumerRecord<String, Object> record3 = buildDltRecord(dltTopic, 0, 2L, "key-3", originalTopic,
-                "RuntimeException", "에러 3");
+                "RuntimeException", "에러 3"
+        );
         ConsumerRecords<String, Object> records = new ConsumerRecords<>(
                 Map.of(topicPartition, List.of(record1, record2, record3))
         );

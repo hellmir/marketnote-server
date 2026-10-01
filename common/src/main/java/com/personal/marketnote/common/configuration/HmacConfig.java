@@ -12,7 +12,8 @@ public class HmacConfig {
     @Bean
     public HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder(
             @Value("${spring.hmac.secret-key}") String hmacSecretKey,
-            Clock clock) {
+            Clock clock
+    ) {
         return new HmacServiceAuthHeaderBuilder(hmacSecretKey, clock);
     }
 }

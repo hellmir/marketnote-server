@@ -42,7 +42,8 @@ public class OpaqueTokenIntrospectorConfig {
     public HmacAuthenticationFilter hmacAuthenticationFilter(
             @Value("${spring.hmac.secret-key}") String hmacSecretKey,
             HmacNonceValidator hmacNonceValidator,
-            Clock clock) {
+            Clock clock
+    ) {
         return new HmacAuthenticationFilter(hmacSecretKey, hmacNonceValidator, clock);
     }
 
@@ -57,10 +58,12 @@ public class OpaqueTokenIntrospectorConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   BearerTokenResolver resolver,
-                                                   AuthenticationEntryPoint entryPoint,
-                                                   HmacAuthenticationFilter hmacAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            BearerTokenResolver resolver,
+            AuthenticationEntryPoint entryPoint,
+            HmacAuthenticationFilter hmacAuthenticationFilter
+    ) throws Exception {
         http.addFilterBefore(hmacAuthenticationFilter, BearerTokenAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
@@ -105,7 +108,8 @@ public class OpaqueTokenIntrospectorConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
-            @Value("${client.cors.allowed-origins}") String allowedOrigins) {
+            @Value("${client.cors.allowed-origins}") String allowedOrigins
+    ) {
         CorsConfiguration config = new CorsConfiguration();
         List<String> origins = Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
@@ -118,7 +122,8 @@ public class OpaqueTokenIntrospectorConfig {
                 "X-Requested-With", "X-HTTP-Method-Override",
                 HmacHeaderConstants.HEADER_SIGNATURE,
                 HmacHeaderConstants.HEADER_TIMESTAMP,
-                HmacHeaderConstants.HEADER_NONCE));
+                HmacHeaderConstants.HEADER_NONCE
+        ));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

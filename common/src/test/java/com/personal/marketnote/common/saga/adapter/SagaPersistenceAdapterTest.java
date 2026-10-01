@@ -50,7 +50,8 @@ class SagaPersistenceAdapterTest {
         void save_convertsToEntityAndReturnsDomain() {
             // given
             SagaInstance instance = createSagaInstance(null, "saga-001", "ORDER_PAYMENT",
-                    SagaStatus.STARTED, 0, "{\"orderId\":1}", null);
+                    SagaStatus.STARTED, 0, "{\"orderId\":1}", null
+            );
 
             when(sagaInstanceJpaRepository.save(any(SagaInstanceJpaEntity.class)))
                     .thenAnswer(invocation -> {
@@ -94,7 +95,8 @@ class SagaPersistenceAdapterTest {
         void saveStep_convertsToEntityAndReturnsDomain() {
             // given
             SagaStep step = createSagaStep(null, 1L, "DEDUCT_INVENTORY", 0,
-                    SagaStepStatus.PENDING, "{\"productId\":10}", null, null, null);
+                    SagaStepStatus.PENDING, "{\"productId\":10}", null, null, null
+            );
 
             when(sagaStepJpaRepository.save(any(SagaStepJpaEntity.class)))
                     .thenAnswer(invocation -> {
@@ -137,7 +139,8 @@ class SagaPersistenceAdapterTest {
         void findBySagaId_returnsDomainWhenExists() {
             // given
             SagaInstanceJpaEntity entity = createSagaInstanceEntity(1L, "saga-001",
-                    "ORDER_PAYMENT", SagaStatus.PROCESSING, 2, "{\"orderId\":1}");
+                    "ORDER_PAYMENT", SagaStatus.PROCESSING, 2, "{\"orderId\":1}"
+            );
 
             when(sagaInstanceJpaRepository.findBySagaId("saga-001"))
                     .thenReturn(Optional.of(entity));
@@ -186,9 +189,11 @@ class SagaPersistenceAdapterTest {
         void findStepsBySagaInstanceId_returnsSortedSteps() {
             // given
             SagaStepJpaEntity entity1 = createSagaStepEntity(1L, 1L, "DEDUCT_INVENTORY", 0,
-                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null);
+                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
+            );
             SagaStepJpaEntity entity2 = createSagaStepEntity(2L, 1L, "PROCESS_PAYMENT", 1,
-                    SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null);
+                    SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
+            );
 
             when(sagaStepJpaRepository.findBySagaInstanceIdOrderByStepIndexAsc(1L))
                     .thenReturn(List.of(entity1, entity2));
@@ -236,11 +241,13 @@ class SagaPersistenceAdapterTest {
         void update_findsEntityAndUpdatesState() {
             // given
             SagaInstanceJpaEntity existingEntity = createSagaInstanceEntity(1L, "saga-001",
-                    "ORDER_PAYMENT", SagaStatus.STARTED, 0, "{\"orderId\":1}");
+                    "ORDER_PAYMENT", SagaStatus.STARTED, 0, "{\"orderId\":1}"
+            );
 
             LocalDateTime completedAt = FIXED_TIME.plusHours(1);
             SagaInstance updatedInstance = createSagaInstance(1L, "saga-001", "ORDER_PAYMENT",
-                    SagaStatus.SUCCEEDED, 3, "{\"orderId\":1}", completedAt);
+                    SagaStatus.SUCCEEDED, 3, "{\"orderId\":1}", completedAt
+            );
 
             when(sagaInstanceJpaRepository.findById(1L))
                     .thenReturn(Optional.of(existingEntity));
@@ -262,7 +269,8 @@ class SagaPersistenceAdapterTest {
         void update_throwsExceptionWhenNotFound() {
             // given
             SagaInstance instance = createSagaInstance(1L, "saga-001", "ORDER_PAYMENT",
-                    SagaStatus.PROCESSING, 1, "{\"orderId\":1}", null);
+                    SagaStatus.PROCESSING, 1, "{\"orderId\":1}", null
+            );
 
             when(sagaInstanceJpaRepository.findById(1L))
                     .thenReturn(Optional.empty());
@@ -285,11 +293,13 @@ class SagaPersistenceAdapterTest {
         void updateStep_findsEntityAndUpdatesState() {
             // given
             SagaStepJpaEntity existingEntity = createSagaStepEntity(1L, 1L, "DEDUCT_INVENTORY", 0,
-                    SagaStepStatus.PENDING, "{\"productId\":10}", null, null, null);
+                    SagaStepStatus.PENDING, "{\"productId\":10}", null, null, null
+            );
 
             SagaStep updatedStep = createSagaStep(1L, 1L, "DEDUCT_INVENTORY", 0,
                     SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}",
-                    null, null);
+                    null, null
+            );
 
             when(sagaStepJpaRepository.findById(1L))
                     .thenReturn(Optional.of(existingEntity));
@@ -312,11 +322,13 @@ class SagaPersistenceAdapterTest {
         void updateStep_updatesCompensationFields() {
             // given
             SagaStepJpaEntity existingEntity = createSagaStepEntity(1L, 1L, "DEDUCT_INVENTORY", 0,
-                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null);
+                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
+            );
 
             SagaStep updatedStep = createSagaStep(1L, 1L, "DEDUCT_INVENTORY", 0,
                     SagaStepStatus.COMPENSATED, "{\"productId\":10}", "{\"success\":true}",
-                    "{\"rollbackProductId\":10}", "{\"rollbackSuccess\":true}");
+                    "{\"rollbackProductId\":10}", "{\"rollbackSuccess\":true}"
+            );
 
             when(sagaStepJpaRepository.findById(1L))
                     .thenReturn(Optional.of(existingEntity));
@@ -339,7 +351,8 @@ class SagaPersistenceAdapterTest {
             // given
             SagaStep step = createSagaStep(1L, 1L, "DEDUCT_INVENTORY", 0,
                     SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}",
-                    null, null);
+                    null, null
+            );
 
             when(sagaStepJpaRepository.findById(1L))
                     .thenReturn(Optional.empty());
@@ -376,8 +389,7 @@ class SagaPersistenceAdapterTest {
     private SagaInstanceJpaEntity createSagaInstanceEntity(Long id, String sagaId, String sagaType,
                                                            SagaStatus status, int currentStepIndex,
                                                            String payload) {
-        SagaInstance instance = createSagaInstance(null, sagaId, sagaType, status,
-                currentStepIndex, payload, null);
+        SagaInstance instance = createSagaInstance(null, sagaId, sagaType, status, currentStepIndex, payload, null);
         SagaInstanceJpaEntity entity = SagaInstanceJpaEntity.from(instance);
         ReflectionTestUtils.setField(entity, "id", id);
         ReflectionTestUtils.setField(entity, "createdAt", FIXED_TIME);
@@ -390,8 +402,7 @@ class SagaPersistenceAdapterTest {
                                                    String request, String response,
                                                    String compensationRequest,
                                                    String compensationResponse) {
-        SagaStep step = createSagaStep(null, sagaInstanceId, stepName, stepIndex, status,
-                request, null, null, null);
+        SagaStep step = createSagaStep(null, sagaInstanceId, stepName, stepIndex, status, request, null, null, null);
         SagaStepJpaEntity entity = SagaStepJpaEntity.from(step);
         ReflectionTestUtils.setField(entity, "id", id);
         ReflectionTestUtils.setField(entity, "createdAt", FIXED_TIME);

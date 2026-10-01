@@ -55,7 +55,8 @@ public class RateLimitAspect {
             throw rlExceededException;
         } catch (Exception e) {
             log.warn("Rate limiting 확인 중 오류 발생, 요청을 허용합니다. key={}, userId={}, error={}",
-                    rateLimited.key(), userId, e.getMessage());
+                    rateLimited.key(), userId, e.getMessage()
+            );
         }
 
         return joinPoint.proceed();

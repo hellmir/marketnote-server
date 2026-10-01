@@ -146,7 +146,8 @@ class DltResolveUseCaseTest {
 
         DltMessageResolutionJpaEntity existingEntity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, 0, 3L,
-                DltResolutionStatus.DISCARDED, "other-admin", LocalDateTime.now(), "이전 폐기 사유");
+                DltResolutionStatus.DISCARDED, "other-admin", LocalDateTime.now(), "이전 폐기 사유"
+        );
         when(resolutionRepository.findByDltTopicAndPartitionNumberAndOffsetNumber(dltTopic, 0, 3L))
                 .thenReturn(Optional.of(existingEntity));
 

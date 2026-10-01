@@ -15,11 +15,13 @@ public final class HmacSignatureGenerator {
     private HmacSignatureGenerator() {
     }
 
-    public static String generate(String secretKey,
-                                  String timestamp,
-                                  String nonce,
-                                  String httpMethod,
-                                  String requestPath) {
+    public static String generate(
+            String secretKey,
+            String timestamp,
+            String nonce,
+            String httpMethod,
+            String requestPath
+    ) {
         String signingInput = buildSigningInput(timestamp, nonce, httpMethod, requestPath);
         return computeHmacMd5(secretKey, signingInput);
     }
@@ -28,15 +30,10 @@ public final class HmacSignatureGenerator {
         if (a == null || b == null) {
             return false;
         }
-        return MessageDigest.isEqual(
-                a.getBytes(StandardCharsets.UTF_8),
-                b.getBytes(StandardCharsets.UTF_8));
+        return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
     }
 
-    static String buildSigningInput(String timestamp,
-                                    String nonce,
-                                    String httpMethod,
-                                    String requestPath) {
+    static String buildSigningInput(String timestamp, String nonce, String httpMethod, String requestPath) {
         return timestamp
                 + SIGNING_INPUT_DELIMITER + nonce
                 + SIGNING_INPUT_DELIMITER + httpMethod

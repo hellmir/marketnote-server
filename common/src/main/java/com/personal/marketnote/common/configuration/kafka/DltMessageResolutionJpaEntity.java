@@ -55,11 +55,13 @@ public class DltMessageResolutionJpaEntity {
     @Column(name = "reason", length = 500)
     private String reason;
 
-    private DltMessageResolutionJpaEntity(String originalTopic, String dltTopic,
-                                          int partitionNumber, long offsetNumber,
-                                          DltResolutionStatus resolution,
-                                          String resolvedBy, LocalDateTime resolvedAt,
-                                          String reason) {
+    private DltMessageResolutionJpaEntity(
+            String originalTopic, String dltTopic,
+            int partitionNumber, long offsetNumber,
+            DltResolutionStatus resolution,
+            String resolvedBy, LocalDateTime resolvedAt,
+            String reason
+    ) {
         this.originalTopic = originalTopic;
         this.dltTopic = dltTopic;
         this.partitionNumber = partitionNumber;
@@ -70,11 +72,13 @@ public class DltMessageResolutionJpaEntity {
         this.reason = reason;
     }
 
-    public static DltMessageResolutionJpaEntity of(String originalTopic, String dltTopic,
-                                                   int partitionNumber, long offsetNumber,
-                                                   DltResolutionStatus resolution,
-                                                   String resolvedBy, LocalDateTime resolvedAt,
-                                                   String reason) {
+    public static DltMessageResolutionJpaEntity of(
+            String originalTopic, String dltTopic,
+            int partitionNumber, long offsetNumber,
+            DltResolutionStatus resolution,
+            String resolvedBy, LocalDateTime resolvedAt,
+            String reason
+    ) {
         return new DltMessageResolutionJpaEntity(
                 originalTopic, dltTopic, partitionNumber, offsetNumber,
                 resolution, resolvedBy, resolvedAt, reason
