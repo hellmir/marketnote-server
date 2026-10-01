@@ -59,8 +59,10 @@ public class ShippingPolicy extends BaseDomain {
         return policy;
     }
 
-    public void update(String deliveryCompany, Long shippingFee, Long freeShippingThreshold,
-                       Long jejuSurcharge, Long islandSurcharge) {
+    public void update(
+            String deliveryCompany, Long shippingFee, Long freeShippingThreshold,
+            Long jejuSurcharge, Long islandSurcharge
+    ) {
         validateShippingFee(shippingFee);
         validateFreeShippingThreshold(freeShippingThreshold);
 

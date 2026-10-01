@@ -30,13 +30,15 @@ public class RegisterShippingPolicyService implements RegisterShippingPolicyUseC
         validateNoDuplicatePolicy(sellerId);
 
         ShippingPolicy shippingPolicy = ShippingPolicy.from(
-                ShippingPolicyCommandToStateMapper.mapToState(sellerId, command));
+                ShippingPolicyCommandToStateMapper.mapToState(sellerId, command)
+        );
 
         Long savedId = saveShippingPolicyPort.save(shippingPolicy);
 
         publishShippingPolicyEventPort.publishShippingPolicyChangedEvent(
                 sellerId, shippingPolicy.getShippingFee().getValue(), shippingPolicy.getFreeShippingThreshold().getValue(),
-                shippingPolicy.getJejuSurcharge().getValue(), shippingPolicy.getIslandSurcharge().getValue(), ShippingPolicyChangeAction.CREATED
+                shippingPolicy.getJejuSurcharge().getValue(), shippingPolicy.getIslandSurcharge().getValue(),
+                ShippingPolicyChangeAction.CREATED
         );
 
         return RegisterShippingPolicyResult.of(savedId);

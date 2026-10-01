@@ -44,7 +44,8 @@ public class ReviewUpdatedReadModelConsumer {
 
         log.info("리뷰 수정 Read Model 이벤트 수신. eventId={}, reviewId={}, productId={}, totalCount={}, averageRating={}",
                 envelope.eventId(), payload.reviewId(), payload.productId(),
-                payload.totalCount(), payload.averageRating());
+                payload.totalCount(), payload.averageRating()
+        );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                 EventPayloadValidator.id("reviewId", payload.reviewId()),
@@ -53,9 +54,7 @@ public class ReviewUpdatedReadModelConsumer {
             return;
         }
 
-        saveReviewAggregateReadModelPort.upsert(
-                payload.productId(), payload.totalCount(), payload.averageRating()
-        );
+        saveReviewAggregateReadModelPort.upsert(payload.productId(), payload.totalCount(), payload.averageRating());
 
         log.info("리뷰 집계 Read Model 업데이트 완료. productId={}", payload.productId());
         acknowledgment.acknowledge();

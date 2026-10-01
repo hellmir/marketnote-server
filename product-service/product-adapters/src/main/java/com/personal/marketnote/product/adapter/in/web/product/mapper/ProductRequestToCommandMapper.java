@@ -25,7 +25,9 @@ public class ProductRequestToCommandMapper {
                 .build();
     }
 
-    private static FulfillmentVendorGoodsOptionCommand mapToCommand(RegisterProductFulfillmentVendorGoodsRequest request) {
+    private static FulfillmentVendorGoodsOptionCommand mapToCommand(
+            RegisterProductFulfillmentVendorGoodsRequest request
+    ) {
         if (FormatValidator.hasNoValue(request)) {
             return null;
         }
@@ -67,7 +69,9 @@ public class ProductRequestToCommandMapper {
                 .build();
     }
 
-    private static FulfillmentVendorGoodsOptionCommand mapToCommand(UpdateProductFulfillmentVendorGoodsRequest request) {
+    private static FulfillmentVendorGoodsOptionCommand mapToCommand(
+            UpdateProductFulfillmentVendorGoodsRequest request
+    ) {
         if (FormatValidator.hasNoValue(request)) {
             return null;
         }
@@ -112,9 +116,7 @@ public class ProductRequestToCommandMapper {
     public static RegisterProductCategoriesCommand mapToCommand(
             Long productId, RegisterProductCategoriesRequest registerProductCategoriesRequest
     ) {
-        return RegisterProductCategoriesCommand.of(
-                productId, registerProductCategoriesRequest.getCategoryIds()
-        );
+        return RegisterProductCategoriesCommand.of(productId, registerProductCategoriesRequest.getCategoryIds());
     }
 
     public static RegisterProductOptionsCommand mapToCommand(
@@ -168,8 +170,8 @@ public class ProductRequestToCommandMapper {
                 getMyOrderingProductsRequest.orderingItemRequests()
                         .stream()
                         .map(request -> OrderingItemQuery.of(
-                                request.pricePolicyId(), request.sharerKey(), request.quantity(), request.imageUrl())
-                        )
+                                request.pricePolicyId(), request.sharerKey(), request.quantity(), request.imageUrl()
+                        ))
                         .toList()
         );
     }

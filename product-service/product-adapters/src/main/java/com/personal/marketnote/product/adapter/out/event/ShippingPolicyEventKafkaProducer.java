@@ -25,10 +25,13 @@ public class ShippingPolicyEventKafkaProducer implements PublishShippingPolicyEv
     private final Clock clock;
 
     @Override
-    public void publishShippingPolicyChangedEvent(Long sellerId, Long shippingFee, Long freeShippingThreshold,
-                                                  Long jejuSurcharge, Long islandSurcharge, ShippingPolicyChangeAction action) {
+    public void publishShippingPolicyChangedEvent(
+            Long sellerId, Long shippingFee, Long freeShippingThreshold,
+            Long jejuSurcharge, Long islandSurcharge, ShippingPolicyChangeAction action
+    ) {
         ShippingPolicyChangedEvent payload = new ShippingPolicyChangedEvent(
-                sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge, action);
+                sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge, action
+        );
         String topic = KafkaTopicConstants.SHIPPING_POLICY_CHANGED;
         EventEnvelope<ShippingPolicyChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
@@ -43,11 +46,9 @@ public class ShippingPolicyEventKafkaProducer implements PublishShippingPolicyEv
                     envelope.eventType(), SOURCE, payloadJson, clock
             );
             saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                    topic, partitionKey, envelope.eventId());
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
         } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e);
+            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}", topic, partitionKey, e.getMessage(), e);
         }
     }
 }

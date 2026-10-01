@@ -48,8 +48,7 @@ public class ImageReadModelJpaEntity extends BaseGeneralEntity {
                 .build();
     }
 
-    public void updateFrom(Long targetId, String targetType, String fileSort,
-                           String imageUrl, Integer sortOrder) {
+    public void updateFrom(Long targetId, String targetType, String fileSort, String imageUrl, Integer sortOrder) {
         this.targetId = targetId;
         this.targetType = targetType;
         this.fileSort = fileSort;

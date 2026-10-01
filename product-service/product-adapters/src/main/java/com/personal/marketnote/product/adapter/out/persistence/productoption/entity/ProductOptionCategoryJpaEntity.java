@@ -28,8 +28,9 @@ public class ProductOptionCategoryJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    public static ProductOptionCategoryJpaEntity from(ProductOptionCategory category,
-                                                      ProductJpaEntity productJpaEntity) {
+    public static ProductOptionCategoryJpaEntity from(
+            ProductOptionCategory category, ProductJpaEntity productJpaEntity
+    ) {
         ProductOptionCategoryJpaEntity productOptionCategoryJpaEntity = ProductOptionCategoryJpaEntity.builder()
                 .productJpaEntity(productJpaEntity)
                 .name(category.getName())

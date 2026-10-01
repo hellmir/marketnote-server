@@ -35,9 +35,10 @@ class OrderPaymentCompletedCartConsumerTest {
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId,
-                                                                 Long totalAmount, Long pointAmount,
-                                                                 List<OrderProductItem> orderProducts) {
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
+            Long orderId, Long buyerId, Long totalAmount, Long pointAmount,
+            List<OrderProductItem> orderProducts
+    ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
                 orderId, buyerId, totalAmount, pointAmount, orderProducts, null
         );
@@ -45,8 +46,7 @@ class OrderPaymentCompletedCartConsumerTest {
                 "test-event-id", "commerce.order.payment-completed", "commerce-service",
                 LocalDateTime.of(2026, 3, 5, 10, 0), event
         );
-        return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L,
-                String.valueOf(orderId), envelope);
+        return new ConsumerRecord<>("commerce.order.payment-completed", 0, 0L, String.valueOf(orderId), envelope);
     }
 
     private List<OrderProductItem> createOrderProductItems() {

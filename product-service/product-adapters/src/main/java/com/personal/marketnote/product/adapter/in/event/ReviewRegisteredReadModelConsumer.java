@@ -44,7 +44,8 @@ public class ReviewRegisteredReadModelConsumer {
         ReviewRegisteredEvent payload = envelope.getPayloadAs(ReviewRegisteredEvent.class, objectMapper);
 
         log.info("리뷰 등록 Read Model 이벤트 수신. eventId={}, productId={}, totalCount={}, averageRating={}",
-                envelope.eventId(), payload.productId(), payload.totalCount(), payload.averageRating());
+                envelope.eventId(), payload.productId(), payload.totalCount(), payload.averageRating()
+        );
 
         if (FormatValidator.hasNoValue(payload.productId()) || payload.productId() <= 0) {
             log.warn("productId가 없는 기존 이벤트 무시. eventId={}", envelope.eventId());
@@ -58,9 +59,7 @@ public class ReviewRegisteredReadModelConsumer {
             return;
         }
 
-        saveReviewAggregateReadModelPort.upsert(
-                payload.productId(), payload.totalCount(), payload.averageRating()
-        );
+        saveReviewAggregateReadModelPort.upsert(payload.productId(), payload.totalCount(), payload.averageRating());
 
         log.info("리뷰 집계 Read Model 저장 완료. productId={}", payload.productId());
         acknowledgment.acknowledge();

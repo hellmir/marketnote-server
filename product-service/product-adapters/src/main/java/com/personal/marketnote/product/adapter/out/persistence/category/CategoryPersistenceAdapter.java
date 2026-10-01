@@ -44,10 +44,7 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
 
     @Override
     public Category save(Category category) {
-        CategoryJpaEntity entity = CategoryJpaEntity.of(
-                category.getParentCategoryId(),
-                category.getName()
-        );
+        CategoryJpaEntity entity = CategoryJpaEntity.of(category.getParentCategoryId(), category.getName());
         CategoryJpaEntity saved = categoryJpaRepository.save(entity);
 
         return CategoryJpaEntityToDomainMapper.mapToDomain(saved).get();

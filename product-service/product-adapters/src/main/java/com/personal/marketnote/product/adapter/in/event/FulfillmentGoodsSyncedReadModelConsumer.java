@@ -45,7 +45,8 @@ public class FulfillmentGoodsSyncedReadModelConsumer {
         FulfillmentGoodsSyncedEvent payload = envelope.getPayloadAs(FulfillmentGoodsSyncedEvent.class, objectMapper);
 
         log.info("풀필먼트 상품 동기화 이벤트 수신. eventId={}, customerGoodsCode={}",
-                envelope.eventId(), payload.customerGoodsCode());
+                envelope.eventId(), payload.customerGoodsCode()
+        );
 
         if (FormatValidator.hasNoValue(payload.customerGoodsCode())) {
             log.warn("풀필먼트 상품 동기화 이벤트 customerGoodsCode가 null. eventId={}", envelope.eventId());
