@@ -58,8 +58,7 @@ public class ProductRegisteredFulfillmentConsumer {
         try {
             ProductRegisteredEvent payload = envelope.getPayloadAs(ProductRegisteredEvent.class, objectMapper);
 
-            log.info("상품 등록 이벤트 수신 (풀필먼트). eventId={}, productId={}",
-                    envelope.eventId(), payload.productId());
+            log.info("상품 등록 이벤트 수신 (풀필먼트). eventId={}, productId={}", envelope.eventId(), payload.productId());
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                     EventPayloadValidator.id("productId", payload.productId()))) {
@@ -68,8 +67,7 @@ public class ProductRegisteredFulfillmentConsumer {
             }
 
             if (FormatValidator.hasNoValue(payload.productName())) {
-                log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}",
-                        envelope.eventId(), payload.productName());
+                log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}", envelope.eventId(), payload.productName());
                 acknowledgment.acknowledge();
                 return;
             }
@@ -99,7 +97,8 @@ public class ProductRegisteredFulfillmentConsumer {
             log.info("Kafka 이벤트로 풀필먼트 상품 등록 완료. productId={}", payload.productId());
         } catch (FulfillmentGoodsAlreadyRegisteredException e) {
             log.warn("이미 Fulfillment에 등록된 상품입니다 (멱등 처리). eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage());
+                    envelope.eventId(), record.key(), e.getMessage()
+            );
         }
         // 그 외 예외(RegisterFulfillmentGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
 

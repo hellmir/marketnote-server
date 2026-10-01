@@ -8,10 +8,6 @@ public record CancelInternalFulfillmentDeliveryResponse(
         String message
 ) {
     public static CancelInternalFulfillmentDeliveryResponse from(CancelInternalFulfillmentDeliveryResult result) {
-        return new CancelInternalFulfillmentDeliveryResponse(
-                result.orderId(),
-                result.cancelled(),
-                result.message()
-        );
+        return new CancelInternalFulfillmentDeliveryResponse(result.orderId(), result.cancelled(), result.message());
     }
 }

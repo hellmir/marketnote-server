@@ -41,10 +41,7 @@ public class RegisterFulfillmentDeliveryService implements RegisterFulfillmentDe
 
         Long orderId = Long.parseLong(command.deliveryRequests().getFirst().orderNumber());
         publishFulfillmentDeliveryWorkStatusChangedEventPort.publish(
-                new FulfillmentDeliveryWorkStatusChangedEvent(
-                        orderId,
-                        FulfillmentWorkStatus.REGISTERED.name()
-                )
+                new FulfillmentDeliveryWorkStatusChangedEvent(orderId, FulfillmentWorkStatus.REGISTERED.name())
         );
 
         return result;

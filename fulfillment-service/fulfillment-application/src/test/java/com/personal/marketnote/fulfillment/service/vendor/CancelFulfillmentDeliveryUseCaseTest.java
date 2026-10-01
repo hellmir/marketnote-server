@@ -31,9 +31,7 @@ class CancelFulfillmentDeliveryUseCaseTest {
     @DisplayName("출고 취소 커맨드를 전달하면 포트를 통해 취소 결과를 반환한다")
     void shouldReturnCancelDeliveryResultFromPort() {
         // given
-        CancelFulfillmentDeliveryItemCommand itemCommand = CancelFulfillmentDeliveryItemCommand.of(
-                "SLIP001", "ORD001"
-        );
+        CancelFulfillmentDeliveryItemCommand itemCommand = CancelFulfillmentDeliveryItemCommand.of("SLIP001", "ORD001");
         CancelFulfillmentDeliveryCommand command = CancelFulfillmentDeliveryCommand.of(
                 "CUST001", "token", List.of(itemCommand)
         );

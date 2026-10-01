@@ -69,10 +69,7 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
             stopPolling(context.ordNo());
             return;
         }
-        ScheduledFuture<?> future = taskScheduler.schedule(
-                () -> poll(context),
-                scheduledAt
-        );
+        ScheduledFuture<?> future = taskScheduler.schedule(() -> poll(context), scheduledAt);
         if (FormatValidator.hasValue(future)) {
             scheduledTasks.put(context.ordNo(), future);
         }

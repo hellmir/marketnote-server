@@ -7,9 +7,6 @@ public record GetFulfillmentWorkStatusResponse(
         String workStatus
 ) {
     public static GetFulfillmentWorkStatusResponse from(GetFulfillmentWorkStatusResult result) {
-        return new GetFulfillmentWorkStatusResponse(
-                result.orderId(),
-                result.workStatus()
-        );
+        return new GetFulfillmentWorkStatusResponse(result.orderId(), result.workStatus());
     }
 }

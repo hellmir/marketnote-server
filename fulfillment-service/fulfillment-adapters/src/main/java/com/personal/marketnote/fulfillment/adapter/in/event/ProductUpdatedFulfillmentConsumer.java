@@ -53,8 +53,7 @@ public class ProductUpdatedFulfillmentConsumer {
 
         ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
 
-        log.info("상품 수정 이벤트 수신 (풀필먼트). eventId={}, productId={}",
-                envelope.eventId(), payload.productId());
+        log.info("상품 수정 이벤트 수신 (풀필먼트). eventId={}, productId={}", envelope.eventId(), payload.productId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                 EventPayloadValidator.id("productId", payload.productId()))) {
@@ -63,8 +62,7 @@ public class ProductUpdatedFulfillmentConsumer {
         }
 
         if (FormatValidator.hasNoValue(payload.productName())) {
-            log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}",
-                    envelope.eventId(), payload.productName());
+            log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}", envelope.eventId(), payload.productName());
             acknowledgment.acknowledge();
             return;
         }

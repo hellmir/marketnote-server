@@ -338,11 +338,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             throw new IllegalArgumentException("Fulfillment warehousing inspection detail query is required.");
         }
 
-        URI uri = buildWarehousingInspecDetailUri(
-                query.getCustomerCode(),
-                query.getSlipNo(),
-                query.getWhCd()
-        );
+        URI uri = buildWarehousingInspecDetailUri(query.getCustomerCode(), query.getSlipNo(), query.getWhCd());
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -1471,21 +1467,11 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     }
 
     private RegisterFulfillmentWarehousingItemResult mapWarehousingItem(RegisterFulfillmentWarehousingItemResponse item) {
-        return RegisterFulfillmentWarehousingItemResult.of(
-                item.msg(),
-                item.code(),
-                item.slipNo(),
-                item.ordNo()
-        );
+        return RegisterFulfillmentWarehousingItemResult.of(item.msg(), item.code(), item.slipNo(), item.ordNo());
     }
 
     private UpdateFulfillmentWarehousingItemResult mapUpdateWarehousingItem(RegisterFulfillmentWarehousingItemResponse item) {
-        return UpdateFulfillmentWarehousingItemResult.of(
-                item.msg(),
-                item.code(),
-                item.slipNo(),
-                item.ordNo()
-        );
+        return UpdateFulfillmentWarehousingItemResult.of(item.msg(), item.code(), item.slipNo(), item.ordNo());
     }
 
     private FulfillmentWarehousingInfoResult mapWarehousingInfo(FulfillmentWarehousingItemResponse item) {

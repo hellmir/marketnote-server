@@ -70,11 +70,7 @@ public class GetInternalReturnGodDetailService implements GetInternalReturnGodDe
                 .map(this::mapToGoodsResult)
                 .toList();
 
-        return InternalReturnGodDetailInfoResult.of(
-                info.orderNumber(),
-                info.inboundOrderSlipNumber(),
-                goods
-        );
+        return InternalReturnGodDetailInfoResult.of(info.orderNumber(), info.inboundOrderSlipNumber(), goods);
     }
 
     private InternalReturnGodDetailGoodsResult mapToGoodsResult(FulfillmentReturnGodDetailGoodsResult goods) {

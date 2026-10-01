@@ -41,10 +41,7 @@ class ShippingStatusEventOutboxAdapterTest {
     private ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
     @Spy
-    private Clock clock = Clock.fixed(
-            Instant.parse("2026-06-03T10:00:00Z"),
-            ZoneId.of("Asia/Seoul")
-    );
+    private Clock clock = Clock.fixed(Instant.parse("2026-06-03T10:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @Test
     @DisplayName("ShippingStatusChangedEvent를 OutboxEvent로 저장한다")

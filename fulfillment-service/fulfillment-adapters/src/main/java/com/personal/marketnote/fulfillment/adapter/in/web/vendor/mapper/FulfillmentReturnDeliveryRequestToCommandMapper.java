@@ -32,9 +32,7 @@ public class FulfillmentReturnDeliveryRequestToCommandMapper {
             String rtnSlipNoList,
             String whCd
     ) {
-        return GetFulfillmentReturnGodDetailCommand.of(
-                customerCode, accessToken, strDt, endDt, rtnSlipNoList, whCd
-        );
+        return GetFulfillmentReturnGodDetailCommand.of(customerCode, accessToken, strDt, endDt, rtnSlipNoList, whCd);
     }
 
     private static RegisterFulfillmentReturnDeliveryItemCommand mapItem(RegisterFulfillmentReturnDeliveryRequest item) {
@@ -66,10 +64,6 @@ public class FulfillmentReturnDeliveryRequestToCommandMapper {
     }
 
     private static RegisterFulfillmentDeliveryGoodsCommand mapGoods(RegisterFulfillmentDeliveryGoodsRequest item) {
-        return RegisterFulfillmentDeliveryGoodsCommand.of(
-                item.getCstGodCd(),
-                item.getDistTermDt(),
-                item.getOrdQty()
-        );
+        return RegisterFulfillmentDeliveryGoodsCommand.of(item.getCstGodCd(), item.getDistTermDt(), item.getOrdQty());
     }
 }

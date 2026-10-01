@@ -75,15 +75,7 @@ public class FulfillmentDeliveryRequestToCommandMapper {
             String outDiv,
             String ordNo
     ) {
-        return GetFulfillmentDeliveriesCommand.of(
-                customerCode,
-                accessToken,
-                startDate,
-                endDate,
-                status,
-                outDiv,
-                ordNo
-        );
+        return GetFulfillmentDeliveriesCommand.of(customerCode, accessToken, startDate, endDate, status, outDiv, ordNo);
     }
 
     public static GetFulfillmentDeliveryDetailCommand mapToDeliveryDetailCommand(
@@ -132,13 +124,7 @@ public class FulfillmentDeliveryRequestToCommandMapper {
             String endDate,
             String ordNo
     ) {
-        return GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.of(
-                customerCode,
-                accessToken,
-                startDate,
-                endDate,
-                ordNo
-        );
+        return GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand.of(customerCode, accessToken, startDate, endDate, ordNo);
     }
 
     public static GetFulfillmentDeliveryGoodDetailCommand mapToDeliveryGoodDetailCommand(
@@ -148,13 +134,7 @@ public class FulfillmentDeliveryRequestToCommandMapper {
             String endDate,
             String ordNo
     ) {
-        return GetFulfillmentDeliveryGoodDetailCommand.of(
-                customerCode,
-                accessToken,
-                startDate,
-                endDate,
-                ordNo
-        );
+        return GetFulfillmentDeliveryGoodDetailCommand.of(customerCode, accessToken, startDate, endDate, ordNo);
     }
 
     public static CompleteFulfillmentDeliveryIcsCommand mapToIcsCompletionCommand(
@@ -270,18 +250,10 @@ public class FulfillmentDeliveryRequestToCommandMapper {
     }
 
     private static RegisterFulfillmentDeliveryGoodsCommand mapGoods(RegisterFulfillmentDeliveryGoodsRequest item) {
-        return RegisterFulfillmentDeliveryGoodsCommand.of(
-                item.getCstGodCd(),
-                item.getDistTermDt(),
-                item.getOrdQty()
-        );
+        return RegisterFulfillmentDeliveryGoodsCommand.of(item.getCstGodCd(), item.getDistTermDt(), item.getOrdQty());
     }
 
     private static RegisterFulfillmentDeliveryGoodsCommand mapIcsGoods(RegisterFulfillmentDeliveryIcsGoodsRequest item) {
-        return RegisterFulfillmentDeliveryGoodsCommand.of(
-                item.getCstGodCd(),
-                null,
-                item.getOrdQty()
-        );
+        return RegisterFulfillmentDeliveryGoodsCommand.of(item.getCstGodCd(), null, item.getOrdQty());
     }
 }

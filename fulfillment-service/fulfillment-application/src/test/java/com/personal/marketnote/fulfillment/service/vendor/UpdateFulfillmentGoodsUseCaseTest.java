@@ -100,9 +100,7 @@ class UpdateFulfillmentGoodsUseCaseTest {
     @DisplayName("빈 상품 목록이면 이벤트를 발행하지 않는다")
     void shouldNotPublishEventWhenGoodsListIsEmpty() {
         // given
-        UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
-                "CUST001", "token", List.of()
-        );
+        UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of("CUST001", "token", List.of());
         UpdateFulfillmentGoodsResult expectedResult = UpdateFulfillmentGoodsResult.of(0, List.of());
         when(updateFulfillmentGoodsPort.updateGoods(any())).thenReturn(expectedResult);
 

@@ -16,12 +16,6 @@ public record FulfillmentGoodsElementInfoResult(
             String useYn,
             List<FulfillmentGoodsElementItemResult> elementList
     ) {
-        return new FulfillmentGoodsElementInfoResult(
-                productCode,
-                customerProductCode,
-                productName,
-                useYn,
-                elementList
-        );
+        return new FulfillmentGoodsElementInfoResult(productCode, customerProductCode, productName, useYn, elementList);
     }
 }

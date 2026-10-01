@@ -44,9 +44,7 @@ class GetShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
 
         // when
-        GetShippingStatusResult result = getShippingStatusService.getShippingStatus(
-                new GetShippingStatusCommand(100L)
-        );
+        GetShippingStatusResult result = getShippingStatusService.getShippingStatus(new GetShippingStatusCommand(100L));
 
         // then
         assertThat(result.orderId()).isEqualTo(100L);
@@ -66,9 +64,7 @@ class GetShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
 
         // when
-        GetShippingStatusResult result = getShippingStatusService.getShippingStatus(
-                new GetShippingStatusCommand(100L)
-        );
+        GetShippingStatusResult result = getShippingStatusService.getShippingStatus(new GetShippingStatusCommand(100L));
 
         // then
         assertThat(result.cancellable()).isFalse();
@@ -83,9 +79,7 @@ class GetShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
 
         // when
-        GetShippingStatusResult result = getShippingStatusService.getShippingStatus(
-                new GetShippingStatusCommand(100L)
-        );
+        GetShippingStatusResult result = getShippingStatusService.getShippingStatus(new GetShippingStatusCommand(100L));
 
         // then
         assertThat(result.trackingNumber()).isEqualTo("INV001");

@@ -49,10 +49,6 @@ public class FasstoDirectReturnDeliveryCommandToRequestMapper {
     }
 
     private static FulfillmentDeliveryGoodsMapper mapGoods(RegisterFulfillmentDeliveryGoodsCommand item) {
-        return FulfillmentDeliveryGoodsMapper.of(
-                item.productCode(),
-                item.expirationDate(),
-                item.orderQuantity()
-        );
+        return FulfillmentDeliveryGoodsMapper.of(item.productCode(), item.expirationDate(), item.orderQuantity());
     }
 }

@@ -76,11 +76,7 @@ public class FasstoDeliveryCommandToRequestMapper {
                 .map(FasstoDeliveryCommandToRequestMapper::mapCancelItem)
                 .toList();
 
-        return FulfillmentDeliveryCancelMapper.of(
-                command.customerCode(),
-                command.accessToken(),
-                cancelRequests
-        );
+        return FulfillmentDeliveryCancelMapper.of(command.customerCode(), command.accessToken(), cancelRequests);
     }
 
     public static FulfillmentDeliveryMapper mapToRegisterRequest(RegisterFulfillmentDeliveryCommand command) {
@@ -88,11 +84,7 @@ public class FasstoDeliveryCommandToRequestMapper {
                 .map(FasstoDeliveryCommandToRequestMapper::mapItem)
                 .toList();
 
-        return FulfillmentDeliveryMapper.register(
-                command.customerCode(),
-                command.accessToken(),
-                deliveryRequests
-        );
+        return FulfillmentDeliveryMapper.register(command.customerCode(), command.accessToken(), deliveryRequests);
     }
 
     public static FulfillmentDeliveryMapper mapToUpdateRequest(UpdateFulfillmentDeliveryCommand command) {
@@ -100,11 +92,7 @@ public class FasstoDeliveryCommandToRequestMapper {
                 .map(FasstoDeliveryCommandToRequestMapper::mapUpdateItem)
                 .toList();
 
-        return FulfillmentDeliveryMapper.update(
-                command.customerCode(),
-                command.accessToken(),
-                deliveryRequests
-        );
+        return FulfillmentDeliveryMapper.update(command.customerCode(), command.accessToken(), deliveryRequests);
     }
 
     public static FulfillmentDeliveryCarMapper mapToRegisterCarRequest(RegisterFulfillmentDeliveryCarCommand command) {
@@ -112,11 +100,7 @@ public class FasstoDeliveryCommandToRequestMapper {
                 .map(FasstoDeliveryCommandToRequestMapper::mapCarItem)
                 .toList();
 
-        return FulfillmentDeliveryCarMapper.register(
-                command.customerCode(),
-                command.accessToken(),
-                deliveryRequests
-        );
+        return FulfillmentDeliveryCarMapper.register(command.customerCode(), command.accessToken(), deliveryRequests);
     }
 
     public static FulfillmentDeliveryCarMapper mapToUpdateCarRequest(UpdateFulfillmentDeliveryCarCommand command) {
@@ -124,11 +108,7 @@ public class FasstoDeliveryCommandToRequestMapper {
                 .map(FasstoDeliveryCommandToRequestMapper::mapUpdateCarItem)
                 .toList();
 
-        return FulfillmentDeliveryCarMapper.update(
-                command.customerCode(),
-                command.accessToken(),
-                deliveryRequests
-        );
+        return FulfillmentDeliveryCarMapper.update(command.customerCode(), command.accessToken(), deliveryRequests);
     }
 
     public static FulfillmentDeliveryIcsMapper mapToRegisterIcsRequest(RegisterFulfillmentDeliveryIcsCommand command) {
@@ -136,11 +116,7 @@ public class FasstoDeliveryCommandToRequestMapper {
                 .map(FasstoDeliveryCommandToRequestMapper::mapIcsItem)
                 .toList();
 
-        return FulfillmentDeliveryIcsMapper.register(
-                command.customerCode(),
-                command.accessToken(),
-                deliveryRequests
-        );
+        return FulfillmentDeliveryIcsMapper.register(command.customerCode(), command.accessToken(), deliveryRequests);
     }
 
     private static FulfillmentDeliveryItemMapper mapItem(RegisterFulfillmentDeliveryItemCommand item) {
@@ -224,11 +200,7 @@ public class FasstoDeliveryCommandToRequestMapper {
     }
 
     private static FulfillmentDeliveryGoodsMapper mapGoods(RegisterFulfillmentDeliveryGoodsCommand item) {
-        return FulfillmentDeliveryGoodsMapper.of(
-                item.productCode(),
-                item.expirationDate(),
-                item.orderQuantity()
-        );
+        return FulfillmentDeliveryGoodsMapper.of(item.productCode(), item.expirationDate(), item.orderQuantity());
     }
 
     private static FulfillmentDeliveryIcsItemMapper mapIcsItem(RegisterFulfillmentDeliveryIcsItemCommand item) {
@@ -275,9 +247,6 @@ public class FasstoDeliveryCommandToRequestMapper {
     }
 
     private static FulfillmentDeliveryCancelItemMapper mapCancelItem(CancelFulfillmentDeliveryItemCommand item) {
-        return FulfillmentDeliveryCancelItemMapper.of(
-                item.slipNumber(),
-                item.orderNumber()
-        );
+        return FulfillmentDeliveryCancelItemMapper.of(item.slipNumber(), item.orderNumber());
     }
 }
