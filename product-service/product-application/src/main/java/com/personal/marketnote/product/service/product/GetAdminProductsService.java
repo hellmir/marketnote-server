@@ -169,9 +169,7 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
         Map<Long, GetFilesResult> productIdToImages = new ConcurrentHashMap<>();
         List<CompletableFuture<Void>> futures = productItems.stream()
                 .map(item -> CompletableFuture.runAsync(
-                        () -> findProductImagesPort.findImagesByProductIdAndSort(
-                                        item.getId(), PRODUCT_CATALOG_IMAGE
-                                )
+                        () -> findProductImagesPort.findImagesByProductIdAndSort(item.getId(), PRODUCT_CATALOG_IMAGE)
                                 .ifPresent(result -> productIdToImages.put(item.getId(), result)),
                         productImageExecutor
                 ))

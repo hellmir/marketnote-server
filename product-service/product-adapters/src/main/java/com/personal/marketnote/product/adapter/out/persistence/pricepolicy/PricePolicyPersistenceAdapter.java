@@ -251,7 +251,9 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     }
 
     @Override
-    public long countActivePricePoliciesByCategoryId(Long categoryId, ProductSearchTarget searchTarget, String searchKeyword) {
+    public long countActivePricePoliciesByCategoryId(
+            Long categoryId, ProductSearchTarget searchTarget, String searchKeyword
+    ) {
         String searchPattern = generateSearchPattern(searchKeyword);
 
         if (FormatValidator.hasValue(categoryId)) {

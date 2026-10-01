@@ -46,7 +46,8 @@ public class InventoryChangedReadModelConsumer {
 
         log.info("재고 변경 이벤트 수신. eventId={}, pricePolicyId={}, productId={}, stockQuantity={}, action={}",
                 envelope.eventId(), payload.pricePolicyId(), payload.productId(),
-                payload.stockQuantity(), payload.action());
+                payload.stockQuantity(), payload.action()
+        );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                 EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()),
@@ -66,7 +67,8 @@ public class InventoryChangedReadModelConsumer {
                     payload.pricePolicyId(), payload.productId(), payload.stockQuantity()
             );
             log.info("재고 Read Model 저장 완료. pricePolicyId={}, productId={}",
-                    payload.pricePolicyId(), payload.productId());
+                    payload.pricePolicyId(), payload.productId()
+            );
         }
 
         acknowledgment.acknowledge();

@@ -81,8 +81,7 @@ class ProductPersistenceAdapterTagOrderNumTest {
         Product savedProduct = productPersistenceAdapter.save(product);
 
         // when
-        savedProduct.update("테스트 상품", "테스트 브랜드", "상세 설명", false,
-                List.of("신규태그A", "신규태그B"));
+        savedProduct.update("테스트 상품", "테스트 브랜드", "상세 설명", false, List.of("신규태그A", "신규태그B"));
         productPersistenceAdapter.update(savedProduct);
 
         // then

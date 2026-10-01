@@ -70,7 +70,8 @@ public class ProductOptionController {
         UpdateProductOptionsResult result = registerProductOptionsUseCase.registerProductOptions(
                 ElementExtractor.extractUserId(principal),
                 AuthorityValidator.hasAdminRole(principal),
-                ProductRequestToCommandMapper.mapToCommand(productId, request));
+                ProductRequestToCommandMapper.mapToCommand(productId, request)
+        );
 
         return new ResponseEntity<>(
                 BaseResponse.of(

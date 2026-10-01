@@ -54,8 +54,10 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long imageId, Long targetId, String targetType,
-                       String fileSort, String imageUrl, Integer sortOrder) {
+    public void upsert(
+            Long imageId, Long targetId, String targetType,
+            String fileSort, String imageUrl, Integer sortOrder
+    ) {
         Optional<ImageReadModelJpaEntity> existing = imageReadModelJpaRepository.findByImageId(imageId);
 
         if (existing.isPresent()) {

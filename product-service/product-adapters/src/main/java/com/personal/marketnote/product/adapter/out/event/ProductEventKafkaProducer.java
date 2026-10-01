@@ -26,8 +26,14 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
     private final Clock clock;
 
     @Override
-    public void publishProductRegisteredEvent(Long productId, Long pricePolicyId, Long sellerId, String productName, String goodsType, String brandName, Long price, Long discountPrice, Long accumulatedPoint) {
-        ProductRegisteredEvent payload = new ProductRegisteredEvent(productId, pricePolicyId, sellerId, productName, goodsType, brandName, price, discountPrice, accumulatedPoint);
+    public void publishProductRegisteredEvent(
+            Long productId, Long pricePolicyId, Long sellerId, String productName, String goodsType,
+            String brandName, Long price, Long discountPrice, Long accumulatedPoint
+    ) {
+        ProductRegisteredEvent payload = new ProductRegisteredEvent(
+                productId, pricePolicyId, sellerId, productName, goodsType, brandName,
+                price, discountPrice, accumulatedPoint
+        );
         String topic = KafkaTopicConstants.PRODUCT_REGISTERED;
         EventEnvelope<ProductRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
@@ -59,11 +65,9 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
                     envelope.eventType(), SOURCE, payloadJson, clock
             );
             saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                    topic, partitionKey, envelope.eventId());
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
         } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e);
+            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}", topic, partitionKey, e.getMessage(), e);
         }
     }
 }

@@ -56,7 +56,8 @@ public final class Rate {
         if (value.compareTo(MIN_VALUE) < 0 || value.compareTo(MAX_VALUE) > 0) {
             throw new InvalidRateException(
                     String.format("비율 값은 %s 이상 %s 이하여야 합니다. value=%s",
-                            MIN_VALUE.toPlainString(), MAX_VALUE.toPlainString(), value.toPlainString())
+                            MIN_VALUE.toPlainString(), MAX_VALUE.toPlainString(), value.toPlainString()
+                    )
             );
         }
     }

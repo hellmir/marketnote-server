@@ -255,10 +255,7 @@ public class ProductController {
             selectedOptionIds = List.of();
         }
 
-        GetAdminProductDetailResult result = getAdminProductDetailUseCase.getAdminProductDetail(
-                id,
-                selectedOptionIds
-        );
+        GetAdminProductDetailResult result = getAdminProductDetailUseCase.getAdminProductDetail(id, selectedOptionIds);
 
         return ResponseEntity.ok(
                 BaseResponse.of(

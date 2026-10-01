@@ -44,13 +44,12 @@ public class OrderPaymentCompletedCartConsumer {
             return;
         }
 
-        OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
-                OrderPaymentCompletedEvent.class, objectMapper
-        );
+        OrderPaymentCompletedEvent payload = envelope.getPayloadAs(OrderPaymentCompletedEvent.class, objectMapper);
 
         log.info("주문 결제 완료 이벤트 수신 (장바구니 삭제). eventId={}, orderId={}, buyerId={}, orderProducts={}건",
                 envelope.eventId(), payload.orderId(), payload.buyerId(),
-                FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0);
+                FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0
+        );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                 EventPayloadValidator.id("buyerId", payload.buyerId()))) {
@@ -73,7 +72,8 @@ public class OrderPaymentCompletedCartConsumer {
         );
 
         log.info("장바구니 삭제 완료. orderId={}, buyerId={}, pricePolicyIds={}",
-                payload.orderId(), payload.buyerId(), pricePolicyIds);
+                payload.orderId(), payload.buyerId(), pricePolicyIds
+        );
         // 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();
