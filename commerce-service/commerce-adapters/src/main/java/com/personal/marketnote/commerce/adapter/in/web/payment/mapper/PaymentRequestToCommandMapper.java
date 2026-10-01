@@ -34,7 +34,8 @@ public class PaymentRequestToCommandMapper {
     }
 
     public static CancelPaymentCommand mapToCommand(String orderKey, CancelPaymentRequest request, Long buyerId) {
-        List<CancelPaymentCommand.CancelProductItem> cancelProducts = FormatValidator.hasValue(request.getCancelProducts())
+        List<CancelPaymentCommand.CancelProductItem> cancelProducts =
+                FormatValidator.hasValue(request.getCancelProducts())
                 ? request.getCancelProducts().stream()
                 .map(item -> new CancelPaymentCommand.CancelProductItem(
                         item.getPricePolicyId(), item.getQuantity()))

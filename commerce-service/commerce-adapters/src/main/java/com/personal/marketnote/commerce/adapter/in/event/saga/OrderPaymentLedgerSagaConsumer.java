@@ -46,8 +46,7 @@ public class OrderPaymentLedgerSagaConsumer {
 
         SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
-        log.info("SAGA 분개 스텝 수신. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+        log.info("SAGA 분개 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
 
         if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
             handleAction(stepMessage);
@@ -61,8 +60,7 @@ public class OrderPaymentLedgerSagaConsumer {
             return;
         }
 
-        log.warn("알 수 없는 messageType. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+        log.warn("알 수 없는 messageType. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
         acknowledgment.acknowledge();
     }
 
@@ -80,20 +78,24 @@ public class OrderPaymentLedgerSagaConsumer {
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}");
+                    stepMessage.messageType(), "{\"success\":true}"
+            );
 
             log.info("SAGA 결제 승인 분개 성공. sagaId={}, orderId={}, paymentAmount={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.paymentAmount());
+                    stepMessage.sagaId(), payload.orderId(), payload.paymentAmount()
+            );
         } catch (DuplicateLedgerTransactionException e) {
             log.info("이미 처리된 SAGA 분개 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}");
+                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+            );
         } catch (Exception e) {
             log.error("SAGA 분개 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "분개 처리 실패");
+                    stepMessage.messageType(), "분개 처리 실패"
+            );
         }
     }
 
@@ -109,23 +111,27 @@ public class OrderPaymentLedgerSagaConsumer {
             }
 
             recordLedgerEntryUseCase.recordPaymentCancellation(
-                    payload.orderId(), payload.cancelAmount(), payload.idempotencyKey());
+                    payload.orderId(), payload.cancelAmount(), payload.idempotencyKey()
+            );
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}");
+                    stepMessage.messageType(), "{\"compensated\":true}"
+            );
 
             log.info("SAGA 역분개 완료. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (DuplicateLedgerTransactionException e) {
             log.info("이미 처리된 SAGA 역분개 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}");
+                    stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
+            );
         } catch (Exception e) {
             log.error("SAGA 역분개 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "역분개 처리 실패");
+                    stepMessage.messageType(), "역분개 처리 실패"
+            );
         }
     }
 
@@ -133,6 +139,7 @@ public class OrderPaymentLedgerSagaConsumer {
         log.warn("SAGA 분개 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason);
+                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+        );
     }
 }

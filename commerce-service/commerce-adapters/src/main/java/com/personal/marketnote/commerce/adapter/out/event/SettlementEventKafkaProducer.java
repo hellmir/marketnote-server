@@ -24,10 +24,12 @@ public class SettlementEventKafkaProducer implements PublishSettlementEventPort 
     private final Clock clock;
 
     @Override
-    public void publishSettlementExecutedEvent(Long settlementId, Long sellerId,
-                                               Long totalAllocatedAmount, Long shippingFee,
-                                               Long pgFeeAmount, Long platformFeeAmount,
-                                               Long sellerPayoutAmount) {
+    public void publishSettlementExecutedEvent(
+            Long settlementId, Long sellerId,
+            Long totalAllocatedAmount, Long shippingFee,
+            Long pgFeeAmount, Long platformFeeAmount,
+            Long sellerPayoutAmount
+    ) {
         SettlementExecutedEvent payload = new SettlementExecutedEvent(
                 settlementId, sellerId, totalAllocatedAmount, shippingFee,
                 pgFeeAmount, platformFeeAmount, sellerPayoutAmount
@@ -44,11 +46,11 @@ public class SettlementEventKafkaProducer implements PublishSettlementEventPort 
                     envelope.eventType(), SOURCE, payloadJson, clock
             );
             saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, settlementId={}, eventId={}",
-                    topic, settlementId, envelope.eventId());
+            log.info("Outbox 이벤트 저장. topic={}, settlementId={}, eventId={}", topic, settlementId, envelope.eventId());
         } catch (Exception e) {
             log.error("Outbox 이벤트 저장 실패. topic={}, settlementId={}, error={}",
-                    topic, settlementId, e.getMessage(), e);
+                    topic, settlementId, e.getMessage(), e
+            );
         }
     }
 }

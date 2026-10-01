@@ -47,8 +47,7 @@ public class OrderCancelFulfillmentSagaConsumer {
 
         SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
-        log.info("SAGA 풀필먼트 취소 스텝 수신. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+        log.info("SAGA 풀필먼트 취소 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
 
         if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
             handleAction(stepMessage);
@@ -57,7 +56,8 @@ public class OrderCancelFulfillmentSagaConsumer {
         }
 
         log.warn("풀필먼트 취소 스텝은 보상이 없음. 알 수 없는 messageType. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+                stepMessage.sagaId(), stepMessage.messageType()
+        );
         acknowledgment.acknowledge();
     }
 
@@ -73,10 +73,12 @@ public class OrderCancelFulfillmentSagaConsumer {
 
             if (!REQUIRES_FULFILLMENT_CANCEL.equals(payload.originalStatus())) {
                 log.info("풀필먼트 취소 불필요 (originalStatus={}). sagaId={}, orderId={}",
-                        payload.originalStatus(), stepMessage.sagaId(), payload.orderId());
+                        payload.originalStatus(), stepMessage.sagaId(), payload.orderId()
+                );
                 sagaResponsePublisher.publishSuccess(
                         stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "{\"success\":true,\"skipped\":true}");
+                        stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
+                );
                 return;
             }
 
@@ -84,33 +86,35 @@ public class OrderCancelFulfillmentSagaConsumer {
 
             if (!result.cancelled()) {
                 log.warn("풀필먼트 출고 취소 거부. sagaId={}, orderId={}, message={}",
-                        stepMessage.sagaId(), payload.orderId(), result.message());
+                        stepMessage.sagaId(), payload.orderId(), result.message()
+                );
                 sagaResponsePublisher.publishFailure(
                         stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "풀필먼트 출고 취소 거부: " + result.message());
+                        stepMessage.messageType(), "풀필먼트 출고 취소 거부: " + result.message()
+                );
                 return;
             }
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}");
+                    stepMessage.messageType(), "{\"success\":true}"
+            );
 
-            log.info("SAGA 풀필먼트 출고 취소 성공. sagaId={}, orderId={}",
-                    stepMessage.sagaId(), payload.orderId());
+            log.info("SAGA 풀필먼트 출고 취소 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (Exception e) {
-            log.error("SAGA 풀필먼트 출고 취소 처리 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e);
+            log.error("SAGA 풀필먼트 출고 취소 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "풀필먼트 출고 취소 처리 실패");
+                    stepMessage.messageType(), "풀필먼트 출고 취소 처리 실패"
+            );
         }
     }
 
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
-        log.warn("SAGA 풀필먼트 취소 스텝 페이로드 검증 실패. sagaId={}, reason={}",
-                stepMessage.sagaId(), reason);
+        log.warn("SAGA 풀필먼트 취소 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason);
+                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+        );
     }
 }

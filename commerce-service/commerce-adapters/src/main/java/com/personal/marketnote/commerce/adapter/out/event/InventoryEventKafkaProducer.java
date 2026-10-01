@@ -25,8 +25,10 @@ public class InventoryEventKafkaProducer implements PublishInventoryEventPort {
     private final Clock clock;
 
     @Override
-    public void publishInventoryChangedEvent(Long pricePolicyId, Long productId, Integer stockQuantity,
-                                             InventoryChangeAction action) {
+    public void publishInventoryChangedEvent(
+            Long pricePolicyId, Long productId, Integer stockQuantity,
+            InventoryChangeAction action
+    ) {
         InventoryChangedEvent payload = new InventoryChangedEvent(
                 pricePolicyId, productId, stockQuantity, action
         );
@@ -46,11 +48,11 @@ public class InventoryEventKafkaProducer implements PublishInventoryEventPort {
                     envelope.eventType(), SOURCE, payloadJson, clock
             );
             saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                    topic, partitionKey, envelope.eventId());
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
         } catch (Exception e) {
             log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e);
+                    topic, partitionKey, e.getMessage(), e
+            );
         }
     }
 }

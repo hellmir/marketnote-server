@@ -45,10 +45,12 @@ public class PaymentCancelledLedgerConsumer {
         PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
 
         log.info("결제 취소 이벤트 수신 (회계 역분개). eventId={}, orderId={}, isFullCancel={}, cancelAmount={}",
-                envelope.eventId(), payload.orderId(), payload.isFullCancel(), payload.cancelAmount());
+                envelope.eventId(), payload.orderId(), payload.isFullCancel(), payload.cancelAmount()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -60,10 +62,10 @@ public class PaymentCancelledLedgerConsumer {
                     payload.orderId(), payload.cancelAmount(), idempotencyKey
             );
             log.info("결제 취소 역분개 완료. orderId={}, isFullCancel={}, cancelAmount={}, idempotencyKey={}",
-                    payload.orderId(), payload.isFullCancel(), payload.cancelAmount(), idempotencyKey);
+                    payload.orderId(), payload.isFullCancel(), payload.cancelAmount(), idempotencyKey
+            );
         } catch (DuplicateLedgerTransactionException e) {
-            log.info("이미 처리된 결제 취소 역분개 이벤트 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 결제 취소 역분개 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         }
         // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 

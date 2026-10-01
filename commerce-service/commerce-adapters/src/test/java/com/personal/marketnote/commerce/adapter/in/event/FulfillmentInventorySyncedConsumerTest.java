@@ -82,7 +82,9 @@ class FulfillmentInventorySyncedConsumerTest {
             consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment);
 
             // then
-            verify(syncFulfillmentVendorInventoryUseCase).syncInventories(any(SyncFulfillmentVendorInventoryCommand.class));
+            verify(syncFulfillmentVendorInventoryUseCase).syncInventories(
+                    any(SyncFulfillmentVendorInventoryCommand.class)
+            );
             verify(acknowledgment).acknowledge();
         }
     }

@@ -36,7 +36,9 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
 
     @Override
     public void pollPendingInspections() {
-        List<ReturnTracker> pendingTrackers = findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING);
+        List<ReturnTracker> pendingTrackers = findReturnTrackerPort.findByInspectionStatus(
+                ReturnInspectionStatus.PENDING
+        );
         if (pendingTrackers.isEmpty()) {
             return;
         }
@@ -104,7 +106,8 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
                 processInspectionResult(resultItem, trackerByOrderId);
             } catch (Exception e) {
                 log.error("반품 검수 상태 업데이트 실패 - orderNumber: {}, error: {}",
-                        resultItem.orderNumber(), e.getMessage(), e);
+                        resultItem.orderNumber(), e.getMessage(), e
+                );
             }
         }
     }
@@ -160,7 +163,8 @@ public class PollReturnInspectionService implements PollReturnInspectionUseCase 
         }
 
         log.warn("반품 검수 폴링: 분류 불가능한 상태 조합 - statuses: {}",
-                products.stream().map(ReturnInspectionGoodsItem::returnProductCheckStatus).toList());
+                products.stream().map(ReturnInspectionGoodsItem::returnProductCheckStatus).toList()
+        );
         return null;
     }
 

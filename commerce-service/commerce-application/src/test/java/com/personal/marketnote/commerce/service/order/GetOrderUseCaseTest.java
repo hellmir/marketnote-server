@@ -808,7 +808,9 @@ class GetOrderUseCaseTest {
                 .build());
     }
 
-    private Order createOrderWithStatusChangeReason(Long orderId, OrderStatusReasonCategory reasonCategory, String reason) {
+    private Order createOrderWithStatusChangeReason(
+            Long orderId, OrderStatusReasonCategory reasonCategory, String reason
+    ) {
         return Order.from(OrderSnapshotState.builder()
                 .id(orderId)
                 .buyerId(1L)
@@ -825,7 +827,9 @@ class GetOrderUseCaseTest {
                 .build());
     }
 
-    private Order createOrderWithAmounts(Long orderId, Long totalAmount, Long paidAmount, Long couponAmount, Long pointAmount) {
+    private Order createOrderWithAmounts(
+            Long orderId, Long totalAmount, Long paidAmount, Long couponAmount, Long pointAmount
+    ) {
         return Order.from(OrderSnapshotState.builder()
                 .id(orderId)
                 .buyerId(1L)

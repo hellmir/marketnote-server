@@ -45,11 +45,11 @@ public class ReturnInspectionCompletedConsumer {
                 ReturnInspectionCompletedEvent.class, objectMapper
         );
 
-        log.info("반품 검수 완료 이벤트 수신. eventId={}, orderId={}",
-                envelope.eventId(), payload.orderId());
+        log.info("반품 검수 완료 이벤트 수신. eventId={}, orderId={}", envelope.eventId(), payload.orderId());
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -60,8 +60,7 @@ public class ReturnInspectionCompletedConsumer {
 
             log.info("반품 완료 처리 성공. orderId={}", payload.orderId());
         } catch (Exception e) {
-            log.error("반품 완료 처리 실패. orderId={}, error={}",
-                    payload.orderId(), e.getMessage(), e);
+            log.error("반품 완료 처리 실패. orderId={}, error={}", payload.orderId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

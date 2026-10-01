@@ -332,7 +332,9 @@ class IssueBatchKeyUseCaseTest {
                         .batchKey("batch_key_123")
                         .cardCode("CCDI")
                         .cardName("현대카드")
-                        .maskedCardNumber(com.personal.marketnote.commerce.domain.payment.MaskedCardNumber.of(maskedCardNumber))
+                        .maskedCardNumber(
+                                com.personal.marketnote.commerce.domain.payment.MaskedCardNumber.of(maskedCardNumber)
+                        )
                         .cardBinType01("0")
                         .cardBinType02("0")
                         .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)

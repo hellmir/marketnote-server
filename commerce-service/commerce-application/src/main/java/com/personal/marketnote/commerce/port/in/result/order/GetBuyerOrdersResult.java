@@ -10,7 +10,9 @@ public record GetBuyerOrdersResult(
         List<Order> orders,
         Map<Long, ProductInfoResult> orderedProducts
 ) {
-    public static GetBuyerOrdersResult of(List<Order> orders, Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId) {
+    public static GetBuyerOrdersResult of(
+            List<Order> orders, Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId
+    ) {
         return new GetBuyerOrdersResult(orders, productInfoResultsByPricePolicyId);
     }
 }

@@ -27,7 +27,6 @@ public class ReturnTrackerPersistenceService {
 
         saveReturnTrackerPort.save(returnTracker);
 
-        log.info("ReturnTracker 생성 완료 - orderId: {}, returnSlipNumber: {}",
-                orderId, returnSlipNumber);
+        log.info("ReturnTracker 생성 완료 - orderId: {}, returnSlipNumber: {}", orderId, returnSlipNumber);
     }
 }

@@ -25,7 +25,9 @@ public class FeeRate {
             throw new InvalidFeeRateException(String.format(FEE_RATE_NEGATIVE_EXCEPTION, value));
         }
         if (value > BASIS_POINT_DENOMINATOR) {
-            throw new InvalidFeeRateException(String.format(FEE_RATE_EXCEEDS_MAX_EXCEPTION, BASIS_POINT_DENOMINATOR, value));
+            throw new InvalidFeeRateException(
+                    String.format(FEE_RATE_EXCEEDS_MAX_EXCEPTION, BASIS_POINT_DENOMINATOR, value)
+            );
         }
     }
 

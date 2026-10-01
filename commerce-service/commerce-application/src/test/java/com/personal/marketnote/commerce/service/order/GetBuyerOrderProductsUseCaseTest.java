@@ -474,7 +474,9 @@ class GetBuyerOrderProductsUseCaseTest {
             when(findOrderPort.findByBuyerId(eq(buyerId), isNull(), isNull(), eq(List.of())))
                     .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
-                    .thenReturn(Map.of(100L, new ProductInfoResult(100L, null, "상품A", "나이키", null, null, null, List.of())));
+                    .thenReturn(Map.of(
+                            100L, new ProductInfoResult(100L, null, "상품A", "나이키", null, null, null, List.of())
+                    ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
 

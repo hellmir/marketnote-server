@@ -165,7 +165,9 @@ public class GetOrderService implements GetOrderUseCase {
         return order;
     }
 
-    private BuyerOrdersAndProductsResult findBuyerOrders(GetBuyerOrderHistoryQuery query, boolean includeProductDetails) {
+    private BuyerOrdersAndProductsResult findBuyerOrders(
+            GetBuyerOrderHistoryQuery query, boolean includeProductDetails
+    ) {
         LocalDate today = now();
         List<Order> orders = findOrderPort.findByBuyerId(
                 query.buyerId(),

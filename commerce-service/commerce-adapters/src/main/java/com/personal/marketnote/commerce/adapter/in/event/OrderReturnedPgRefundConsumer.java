@@ -44,10 +44,12 @@ public class OrderReturnedPgRefundConsumer {
         OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
         log.info("반품 완료 이벤트 수신 (PG 환불). eventId={}, orderId={}, isFullReturn={}, returnAmount={}",
-                envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount());
+                envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -69,8 +71,7 @@ public class OrderReturnedPgRefundConsumer {
 
             log.info("반품 PG 환불 처리 완료. orderId={}", payload.orderId());
         } catch (Exception e) {
-            log.error("반품 PG 환불 처리 실패. orderId={}, error={}",
-                    payload.orderId(), e.getMessage(), e);
+            log.error("반품 PG 환불 처리 실패. orderId={}, error={}", payload.orderId(), e.getMessage(), e);
         }
 
         acknowledgment.acknowledge();

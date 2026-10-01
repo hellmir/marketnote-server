@@ -59,7 +59,10 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long pricePolicyId, Long productId, Long sellerId, String name, String brandName, Long price, Long discountPrice, Long accumulatedPoint) {
+    public void upsert(
+            Long pricePolicyId, Long productId, Long sellerId,
+            String name, String brandName, Long price, Long discountPrice, Long accumulatedPoint
+    ) {
         Optional<ProductReadModelJpaEntity> existing =
                 productReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
 

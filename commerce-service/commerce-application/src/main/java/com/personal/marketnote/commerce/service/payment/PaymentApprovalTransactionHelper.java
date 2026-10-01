@@ -171,8 +171,7 @@ public class PaymentApprovalTransactionHelper {
         return buildApprovePaymentResult(payment, vendorResult);
     }
 
-    private ApprovePaymentResult buildApprovePaymentResult(Payment payment,
-                                                           PaymentApprovalVendorResult vendorResult) {
+    private ApprovePaymentResult buildApprovePaymentResult(Payment payment, PaymentApprovalVendorResult vendorResult) {
         return ApprovePaymentResult.builder()
                 .orderId(payment.getOrderId())
                 .orderKey(payment.getOrderKey().toString())
@@ -246,7 +245,8 @@ public class PaymentApprovalTransactionHelper {
         if (FormatValidator.notEquals(expectedAmount, payment.getPaymentAmount().getValue())) {
             log.error("결제 금액 불일치: orderId={}, 주문금액={}, 쿠폰={}, 포인트={}, 예상결제금액={}, 실제결제금액={}",
                     order.getId(), order.getAmount().getTotalAmount().getValue(), couponAmount, pointAmount,
-                    expectedAmount, payment.getPaymentAmount().getValue());
+                    expectedAmount, payment.getPaymentAmount().getValue()
+            );
             throw new PaymentAmountMismatchException(expectedAmount, payment.getPaymentAmount().getValue());
         }
     }
@@ -255,8 +255,7 @@ public class PaymentApprovalTransactionHelper {
         Order order = findOrderPort.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
         if (!order.isBuyer(buyerId)) {
-            log.warn("결제 승인 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    orderId, order.getBuyerId(), buyerId);
+            log.warn("결제 승인 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", orderId, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();
         }
         return order;
@@ -271,7 +270,9 @@ public class PaymentApprovalTransactionHelper {
 
         List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
                 .map(op -> new OrderPaymentSagaContext.OrderProductItem(
-                        op.getPricePolicyId(), op.getSharerKey(), op.getQuantity().getValue(), op.getUnitAmount().getValue()))
+                        op.getPricePolicyId(), op.getSharerKey(),
+                        op.getQuantity().getValue(), op.getUnitAmount().getValue()
+                ))
                 .toList();
 
         Long pointAmount = order.getAmount().getPointAmount().getValue();
@@ -290,8 +291,7 @@ public class PaymentApprovalTransactionHelper {
         orderPaymentSagaStarter.get().start(sagaContext);
     }
 
-    private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts,
-                                                List<Long> pricePolicyIds) {
+    private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts, List<Long> pricePolicyIds) {
         Long snapshotTotal = calculateSnapshotAccumulatedPoint(orderProducts);
         if (FormatValidator.hasValue(snapshotTotal)) {
             return snapshotTotal;
@@ -308,8 +308,10 @@ public class PaymentApprovalTransactionHelper {
             if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
                 continue;
             }
-            totalAccumulatedPoint = Math.addExact(totalAccumulatedPoint,
-                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue()));
+            totalAccumulatedPoint = Math.addExact(
+                    totalAccumulatedPoint,
+                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
+            );
         }
 
         return totalAccumulatedPoint;
@@ -324,7 +326,10 @@ public class PaymentApprovalTransactionHelper {
 
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
-            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue());
+            total = Math.addExact(
+                    total,
+                    orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
+            );
         }
         return total;
     }

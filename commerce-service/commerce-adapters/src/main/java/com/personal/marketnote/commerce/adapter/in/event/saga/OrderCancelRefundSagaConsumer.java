@@ -46,8 +46,7 @@ public class OrderCancelRefundSagaConsumer {
 
             SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
-            log.info("SAGA PG 환불 스텝 수신. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType());
+            log.info("SAGA PG 환불 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
 
             if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
                 handleAction(stepMessage);
@@ -55,10 +54,12 @@ public class OrderCancelRefundSagaConsumer {
             }
 
             log.warn("PG 환불 스텝은 보상이 없음. 알 수 없는 messageType. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType());
+                    stepMessage.sagaId(), stepMessage.messageType()
+            );
         } catch (Exception e) {
             log.error("SAGA PG 환불 스텝 메시지 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e);
+                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
+            );
         } finally {
             acknowledgment.acknowledge();
         }
@@ -102,30 +103,32 @@ public class OrderCancelRefundSagaConsumer {
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}");
+                    stepMessage.messageType(), "{\"success\":true}"
+            );
 
             log.info("SAGA PG 환불 성공. sagaId={}, orderId={}, orderKey={}",
-                    stepMessage.sagaId(), payload.orderId(), payload.orderKey());
+                    stepMessage.sagaId(), payload.orderId(), payload.orderKey()
+            );
         } catch (PaymentAlreadyRefundedException e) {
-            log.info("이미 환불 처리된 결제 (멱등 처리). sagaId={}, message={}",
-                    stepMessage.sagaId(), e.getMessage());
+            log.info("이미 환불 처리된 결제 (멱등 처리). sagaId={}, message={}", stepMessage.sagaId(), e.getMessage());
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"skipped\":true}");
+                    stepMessage.messageType(), "{\"success\":true,\"skipped\":true}"
+            );
         } catch (Exception e) {
-            log.error("SAGA PG 환불 처리 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e);
+            log.error("SAGA PG 환불 처리 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "PG 환불 처리 실패");
+                    stepMessage.messageType(), "PG 환불 처리 실패"
+            );
         }
     }
 
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
-        log.warn("SAGA PG 환불 스텝 페이로드 검증 실패. sagaId={}, reason={}",
-                stepMessage.sagaId(), reason);
+        log.warn("SAGA PG 환불 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason);
+                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+        );
     }
 }

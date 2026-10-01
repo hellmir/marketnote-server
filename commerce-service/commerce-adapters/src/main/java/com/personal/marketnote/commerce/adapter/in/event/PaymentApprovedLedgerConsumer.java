@@ -44,10 +44,12 @@ public class PaymentApprovedLedgerConsumer {
         PaymentApprovedEvent payload = envelope.getPayloadAs(PaymentApprovedEvent.class, objectMapper);
 
         log.info("결제 승인 이벤트 수신 (회계 분개). eventId={}, orderId={}, orderKey={}, paymentAmount={}",
-                envelope.eventId(), payload.orderId(), payload.orderKey(), payload.paymentAmount());
+                envelope.eventId(), payload.orderId(), payload.orderKey(), payload.paymentAmount()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -56,8 +58,7 @@ public class PaymentApprovedLedgerConsumer {
             recordLedgerEntryUseCase.recordPaymentApproval(payload.orderId(), payload.paymentAmount());
             log.info("결제 승인 분개 완료. orderId={}, paymentAmount={}", payload.orderId(), payload.paymentAmount());
         } catch (DuplicateLedgerTransactionException e) {
-            log.info("이미 처리된 결제 승인 분개 이벤트 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 결제 승인 분개 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         }
         // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 

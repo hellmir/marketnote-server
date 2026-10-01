@@ -53,7 +53,8 @@ public class FulfillmentInventorySyncedConsumer {
             );
 
             log.info("풀필먼트 재고 동기화 이벤트 수신. eventId={}, inventoryCount={}",
-                    envelope.eventId(), payload.inventories().size());
+                    envelope.eventId(), payload.inventories().size()
+            );
 
             List<SyncFulfillmentVendorInventoryItemCommand> items = payload.inventories().stream()
                     .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.productId(), item.stock()))
@@ -64,11 +65,9 @@ public class FulfillmentInventorySyncedConsumer {
 
             log.info("풀필먼트 재고 동기화 완료. eventId={}", envelope.eventId());
         } catch (InventoryProductNotFoundException | InvalidFulfillmentSyncCommandException e) {
-            log.warn("풀필먼트 재고 동기화 실패 (재시도 불필요). eventId={}, error={}",
-                    envelope.eventId(), e.getMessage());
+            log.warn("풀필먼트 재고 동기화 실패 (재시도 불필요). eventId={}, error={}", envelope.eventId(), e.getMessage());
         } catch (Exception e) {
-            log.error("풀필먼트 재고 동기화 실패. eventId={}, error={}",
-                    envelope.eventId(), e.getMessage(), e);
+            log.error("풀필먼트 재고 동기화 실패. eventId={}, error={}", envelope.eventId(), e.getMessage(), e);
             throw e;
         }
 

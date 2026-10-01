@@ -34,7 +34,8 @@ public class KcpApiClient {
 
         log.info("KCP 거래등록 요청: url={}, site_cd={}, ordr_idxx={}, good_mny={}, pay_method={}, good_name={}, Ret_URL={}",
                 url, request.siteCd(), request.ordrIdxx(), request.goodMny(),
-                request.payMethod(), request.goodName(), request.retUrl());
+                request.payMethod(), request.goodName(), request.retUrl()
+        );
 
         ResponseEntity<String> rawResponse = restClient.post()
                 .uri(url)
@@ -44,7 +45,9 @@ public class KcpApiClient {
                 .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
-        log.debug("KCP 거래등록 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+        log.debug("KCP 거래등록 응답 Content-Type={}, body={}",
+                rawResponse.getHeaders().getContentType(), responseBody
+        );
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new KcpCommunicationException("KCP 거래등록 응답 본문이 비어 있습니다.");
@@ -71,7 +74,9 @@ public class KcpApiClient {
                 .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
-        log.debug("KCP 결제승인 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+        log.debug("KCP 결제승인 응답 Content-Type={}, body={}",
+                rawResponse.getHeaders().getContentType(), responseBody
+        );
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new KcpCommunicationException("KCP 결제승인 응답 본문이 비어 있습니다.");
@@ -98,7 +103,9 @@ public class KcpApiClient {
                 .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
-        log.debug("KCP 결제취소 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+        log.debug("KCP 결제취소 응답 Content-Type={}, body={}",
+                rawResponse.getHeaders().getContentType(), responseBody
+        );
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new KcpCommunicationException("KCP 결제취소 응답 본문이 비어 있습니다.");
@@ -125,7 +132,9 @@ public class KcpApiClient {
                 .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
-        log.debug("KCP 배치키 발급 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+        log.debug("KCP 배치키 발급 응답 Content-Type={}, body={}",
+                rawResponse.getHeaders().getContentType(), responseBody
+        );
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new KcpCommunicationException("KCP 배치키 발급 응답 본문이 비어 있습니다.");
@@ -142,7 +151,9 @@ public class KcpApiClient {
     public KcpBatchPaymentApprovalResponse approveBatchPayment(KcpBatchPaymentApprovalRequest request) {
         String url = kcpProperties.getApi().getBatchPaymentApprovalUrl();
 
-        log.info("KCP 배치 결제승인 요청: url={}, site_cd={}, ordr_idxx={}", url, request.siteCd(), request.ordrIdxx());
+        log.info("KCP 배치 결제승인 요청: url={}, site_cd={}, ordr_idxx={}",
+                url, request.siteCd(), request.ordrIdxx()
+        );
 
         ResponseEntity<String> rawResponse = restClient.post()
                 .uri(url)
@@ -152,7 +163,9 @@ public class KcpApiClient {
                 .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
-        log.debug("KCP 배치 결제승인 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+        log.debug("KCP 배치 결제승인 응답 Content-Type={}, body={}",
+                rawResponse.getHeaders().getContentType(), responseBody
+        );
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new KcpCommunicationException("KCP 배치 결제승인 응답 본문이 비어 있습니다.");
@@ -179,7 +192,9 @@ public class KcpApiClient {
                 .toEntity(String.class);
 
         String responseBody = rawResponse.getBody();
-        log.debug("KCP 배치키 삭제 응답 Content-Type={}, body={}", rawResponse.getHeaders().getContentType(), responseBody);
+        log.debug("KCP 배치키 삭제 응답 Content-Type={}, body={}",
+                rawResponse.getHeaders().getContentType(), responseBody
+        );
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new KcpCommunicationException("KCP 배치키 삭제 응답 본문이 비어 있습니다.");

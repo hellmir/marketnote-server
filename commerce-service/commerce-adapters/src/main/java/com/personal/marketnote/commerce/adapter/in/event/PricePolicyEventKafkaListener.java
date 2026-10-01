@@ -46,11 +46,14 @@ public class PricePolicyEventKafkaListener {
             PricePolicyCreatedEvent payload = envelope.getPayloadAs(PricePolicyCreatedEvent.class, objectMapper);
 
             log.info("가격 정책 등록 이벤트 수신. eventId={}, productId={}, pricePolicyId={}",
-                    envelope.eventId(), payload.productId(), payload.pricePolicyId());
+                    envelope.eventId(), payload.productId(), payload.pricePolicyId()
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+            if (EventPayloadValidator.hasInvalidIds(
+                    envelope.eventId(),
                     EventPayloadValidator.id("productId", payload.productId()),
-                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId())
+            )) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -61,10 +64,10 @@ public class PricePolicyEventKafkaListener {
             registerInventoryUseCase.registerInventory(command);
 
             log.info("Kafka 이벤트로 재고 등록 완료. productId={}, pricePolicyId={}",
-                    payload.productId(), payload.pricePolicyId());
+                    payload.productId(), payload.pricePolicyId()
+            );
         } catch (InventoryAlreadyExistsException e) {
-            log.info("재고가 이미 존재합니다 (멱등 처리). eventId={}, key={}",
-                    envelope.eventId(), record.key());
+            log.info("재고가 이미 존재합니다 (멱등 처리). eventId={}, key={}", envelope.eventId(), record.key());
         }
         // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 

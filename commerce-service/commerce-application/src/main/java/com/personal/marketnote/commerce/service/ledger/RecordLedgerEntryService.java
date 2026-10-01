@@ -55,7 +55,8 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
 
         log.info("장부 거래 기록 완료 - transactionId: {}, type: {}, targetType: {}, targetId: {}, idempotencyKey: {}",
                 savedTransaction.getId(), command.transactionType(),
-                command.targetType(), command.targetId(), command.idempotencyKey());
+                command.targetType(), command.targetId(), command.idempotencyKey()
+        );
     }
 
     @Override
@@ -167,7 +168,9 @@ public class RecordLedgerEntryService implements RecordLedgerEntryUseCase {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED)
-    public void recordSellerSettlement(Long settlementId, long totalAmount, long sellerPayoutAmount, long platformFeeAmount) {
+    public void recordSellerSettlement(
+            Long settlementId, long totalAmount, long sellerPayoutAmount, long platformFeeAmount
+    ) {
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)

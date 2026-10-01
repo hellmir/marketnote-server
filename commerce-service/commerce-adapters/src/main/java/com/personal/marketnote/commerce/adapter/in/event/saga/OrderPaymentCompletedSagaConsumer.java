@@ -47,8 +47,7 @@ public class OrderPaymentCompletedSagaConsumer {
 
         SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
-        log.info("SAGA 결제 완료 이벤트 발행 스텝 수신. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+        log.info("SAGA 결제 완료 이벤트 발행 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
 
         if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
             handleAction(stepMessage);
@@ -56,8 +55,7 @@ public class OrderPaymentCompletedSagaConsumer {
             return;
         }
 
-        log.warn("결제 완료 스텝은 보상이 없습니다. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+        log.warn("결제 완료 스텝은 보상이 없습니다. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
         acknowledgment.acknowledge();
     }
 
@@ -79,19 +77,21 @@ public class OrderPaymentCompletedSagaConsumer {
 
             publishOrderEventPort.publishOrderPaymentCompletedEvent(
                     payload.orderId(), payload.buyerId(), payload.totalAmount(),
-                    payload.pointAmount(), orderProducts, payload.totalAccumulatedPoint());
+                    payload.pointAmount(), orderProducts, payload.totalAccumulatedPoint()
+            );
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}");
+                    stepMessage.messageType(), "{\"success\":true}"
+            );
 
             log.info("SAGA 결제 완료 이벤트 발행 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (Exception e) {
-            log.error("SAGA 결제 완료 이벤트 발행 실패. sagaId={}, error={}",
-                    stepMessage.sagaId(), e.getMessage(), e);
+            log.error("SAGA 결제 완료 이벤트 발행 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "결제 완료 이벤트 발행 실패");
+                    stepMessage.messageType(), "결제 완료 이벤트 발행 실패"
+            );
         }
     }
 
@@ -99,6 +99,7 @@ public class OrderPaymentCompletedSagaConsumer {
         log.warn("SAGA 결제 완료 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason);
+                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+        );
     }
 }

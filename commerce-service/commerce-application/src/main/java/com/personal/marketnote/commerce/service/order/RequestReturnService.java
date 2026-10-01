@@ -73,7 +73,8 @@ public class RequestReturnService implements RequestReturnUseCase {
     private void validateBuyerOwnership(RequestReturnCommand command, Order order) {
         if (!order.getBuyerId().equals(command.buyerId())) {
             log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    command.id(), order.getBuyerId(), command.buyerId());
+                    command.id(), order.getBuyerId(), command.buyerId()
+            );
             throw new UnauthorizedOrderAccessException();
         }
     }

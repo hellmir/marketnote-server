@@ -598,7 +598,9 @@ class RecordLedgerEntryUseCaseTest {
             when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1"))
+            assertThatThrownBy(
+                    () -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1")
+            )
                     .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());
@@ -613,7 +615,9 @@ class RecordLedgerEntryUseCaseTest {
             when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1"))
+            assertThatThrownBy(
+                    () -> recordLedgerEntryService.recordPaymentCancellation(1L, 50000L, "PAYMENT_CANCELLATION:1")
+            )
                     .isInstanceOf(AccountNotFoundException.class);
 
             verify(saveLedgerTransactionPort, never()).save(any());

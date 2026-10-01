@@ -86,7 +86,9 @@ class RefundPaymentUseCaseTest {
             assertThatCode(() -> refundPaymentService.refund(command))
                     .doesNotThrowAnyException();
 
-            ArgumentCaptor<PaymentCancelVendorCommand> vendorCaptor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            ArgumentCaptor<PaymentCancelVendorCommand> vendorCaptor = ArgumentCaptor.forClass(
+                    PaymentCancelVendorCommand.class
+            );
             verify(paymentVendorPort).cancelPayment(vendorCaptor.capture());
             PaymentCancelVendorCommand vendorCommand = vendorCaptor.getValue();
             assertThat(vendorCommand.cancelType()).isEqualTo("STSC");
@@ -224,7 +226,9 @@ class RefundPaymentUseCaseTest {
             assertThatCode(() -> refundPaymentService.refund(command))
                     .doesNotThrowAnyException();
 
-            ArgumentCaptor<PaymentCancelVendorCommand> vendorCaptor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            ArgumentCaptor<PaymentCancelVendorCommand> vendorCaptor = ArgumentCaptor.forClass(
+                    PaymentCancelVendorCommand.class
+            );
             verify(paymentVendorPort).cancelPayment(vendorCaptor.capture());
             PaymentCancelVendorCommand vendorCommand = vendorCaptor.getValue();
             assertThat(vendorCommand.cancelType()).isEqualTo("STPC");
@@ -289,7 +293,9 @@ class RefundPaymentUseCaseTest {
             assertThatCode(() -> refundPaymentService.refund(command))
                     .doesNotThrowAnyException();
 
-            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(
+                    PaymentCancelVendorCommand.class
+            );
             verify(paymentVendorPort).cancelPayment(captor.capture());
             assertThat(captor.getValue().cancelAmount()).isEqualTo(30000L);
         }
@@ -309,7 +315,9 @@ class RefundPaymentUseCaseTest {
             assertThatCode(() -> refundPaymentService.refund(command))
                     .doesNotThrowAnyException();
 
-            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(
+                    PaymentCancelVendorCommand.class
+            );
             verify(paymentVendorPort).cancelPayment(captor.capture());
             assertThat(captor.getValue().cancelAmount()).isEqualTo(30000L);
         }
@@ -329,7 +337,9 @@ class RefundPaymentUseCaseTest {
             assertThatCode(() -> refundPaymentService.refund(command))
                     .doesNotThrowAnyException();
 
-            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(PaymentCancelVendorCommand.class);
+            ArgumentCaptor<PaymentCancelVendorCommand> captor = ArgumentCaptor.forClass(
+                    PaymentCancelVendorCommand.class
+            );
             verify(paymentVendorPort).cancelPayment(captor.capture());
             assertThat(captor.getValue().cancelAmount()).isEqualTo(24000L);
             assertThat(captor.getValue().remainAmount()).isEqualTo(PAYMENT_AMOUNT - 24000L);

@@ -44,11 +44,12 @@ public class ProductUpdatedReadModelConsumer {
 
         ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
 
-        log.info("상품 수정 이벤트 수신 (Read Model). eventId={}, productId={}",
-                envelope.eventId(), payload.productId());
+        log.info("상품 수정 이벤트 수신 (Read Model). eventId={}, productId={}", envelope.eventId(), payload.productId());
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -61,8 +62,7 @@ public class ProductUpdatedReadModelConsumer {
 
         productReadModelPersistenceAdapter.updateNameByProductId(payload.productId(), payload.productName());
 
-        log.info("상품 Read Model 이름 업데이트 완료. productId={}, productName={}",
-                payload.productId(), payload.productName());
+        log.info("상품 Read Model 이름 업데이트 완료. productId={}, productName={}", payload.productId(), payload.productName());
 
         acknowledgment.acknowledge();
     }

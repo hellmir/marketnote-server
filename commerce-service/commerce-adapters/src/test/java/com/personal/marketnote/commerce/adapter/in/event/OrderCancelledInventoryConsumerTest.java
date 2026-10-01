@@ -101,7 +101,9 @@ class OrderCancelledInventoryConsumerTest {
     void handleOrderCancelledEvent_partialCancel_restoresInventoryWithCancelProductsAndAcknowledges() {
         // given
         List<OrderProductItem> cancelProducts = createCancelProductItems();
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(2L, false, createOrderProductItems(), cancelProducts);
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(
+                2L, false, createOrderProductItems(), cancelProducts
+        );
 
         // when
         consumer.handleOrderCancelledEvent(record, acknowledgment);

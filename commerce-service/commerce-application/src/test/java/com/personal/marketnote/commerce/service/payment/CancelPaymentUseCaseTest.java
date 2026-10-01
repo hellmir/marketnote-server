@@ -421,7 +421,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 25000L, cancelProducts
+            );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -448,7 +450,9 @@ class CancelPaymentUseCaseTest {
                     new CancelPaymentCommand.CancelProductItem(200L, 2)
             );
             Order order = createOrderWithMultipleProducts(1L, BUYER_ID, List.of(100L, 200L), List.of(2, 3));
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 30000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 30000L, cancelProducts
+            );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -475,7 +479,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 25000L, cancelProducts
+            );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
@@ -554,7 +560,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(999L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 25000L, cancelProducts
+            );
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
@@ -576,7 +584,9 @@ class CancelPaymentUseCaseTest {
                     new CancelPaymentCommand.CancelProductItem(100L, 1),
                     new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 25000L, cancelProducts
+            );
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
@@ -597,7 +607,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 5)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 25000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 25000L, cancelProducts
+            );
 
             when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
             when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
@@ -761,7 +773,9 @@ class CancelPaymentUseCaseTest {
     @DisplayName("환불 상세 기록 검증")
     class RefundRecordTest {
 
-        private Payment createPaymentWithId(Long paymentId, Long orderId, UUID orderKey, Long amount, String pgPaymentKey) {
+        private Payment createPaymentWithId(
+                Long paymentId, Long orderId, UUID orderKey, Long amount, String pgPaymentKey
+        ) {
             PaymentSnapshotState state = PaymentSnapshotState.builder()
                     .id(paymentId)
                     .orderId(orderId)
@@ -1017,7 +1031,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 10000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 10000L, cancelProducts
+            );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
@@ -1045,7 +1061,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 20000L, cancelProducts
+            );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
@@ -1072,7 +1090,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 2)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 20000L, cancelProducts
+            );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 25000L, 500L);
@@ -1099,7 +1119,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 10000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 10000L, cancelProducts
+            );
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
             Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
@@ -1272,7 +1294,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 20000L, cancelProducts
+            );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
                     List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
@@ -1308,7 +1332,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 20000L, cancelProducts
+            );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
                     List.of(100L, 200L), List.of(1, 1), List.of(60000L, 20000L), List.of(SELLER_A, SELLER_A));
@@ -1342,7 +1368,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 20000L, cancelProducts
+            );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
                     List.of(100L, 200L, 300L), List.of(1, 1, 1),
@@ -1377,7 +1405,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(100L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 10000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 10000L, cancelProducts
+            );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
                     List.of(100L, 200L), List.of(1, 1), List.of(10000L, 10000L), List.of(SELLER_A, SELLER_A));
@@ -1430,7 +1460,9 @@ class CancelPaymentUseCaseTest {
             List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
                     new CancelPaymentCommand.CancelProductItem(200L, 1)
             );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, cancelProducts);
+            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
+                    ORDER_KEY_STR, 20000L, cancelProducts
+            );
 
             Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
                     List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
@@ -1475,7 +1507,9 @@ class CancelPaymentUseCaseTest {
             return Order.from(state);
         }
 
-        private PaymentAllocation createAllocation(Long orderId, Long sellerId, Long allocatedAmount, Long shippingFee) {
+        private PaymentAllocation createAllocation(
+                Long orderId, Long sellerId, Long allocatedAmount, Long shippingFee
+        ) {
             PaymentAllocationSnapshotState state = PaymentAllocationSnapshotState.builder()
                     .id(1L)
                     .orderId(orderId)
@@ -1494,8 +1528,10 @@ class CancelPaymentUseCaseTest {
         return createOrderWithAccumulatedPoint(orderId, buyerId, totalAmount, pricePolicyId, quantity, unitAmount, 0L);
     }
 
-    private Order createOrderWithAccumulatedPoint(Long orderId, Long buyerId, Long totalAmount,
-                                                  Long pricePolicyId, int quantity, Long unitAmount, Long accumulatedPoint) {
+    private Order createOrderWithAccumulatedPoint(
+            Long orderId, Long buyerId, Long totalAmount,
+            Long pricePolicyId, int quantity, Long unitAmount, Long accumulatedPoint
+    ) {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
                 .pricePolicyId(pricePolicyId)
                 .quantity(quantity)

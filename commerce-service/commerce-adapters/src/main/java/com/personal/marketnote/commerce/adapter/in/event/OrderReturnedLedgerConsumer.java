@@ -46,10 +46,12 @@ public class OrderReturnedLedgerConsumer {
         OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
         log.info("반품 완료 이벤트 수신 (회계 역분개). eventId={}, orderId={}, isFullReturn={}, returnAmount={}",
-                envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount());
+                envelope.eventId(), payload.orderId(), payload.isFullReturn(), payload.returnAmount()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -61,10 +63,10 @@ public class OrderReturnedLedgerConsumer {
                     payload.orderId(), payload.returnAmount(), idempotencyKey
             );
             log.info("반품 완료 역분개 완료. orderId={}, returnAmount={}, idempotencyKey={}",
-                    payload.orderId(), payload.returnAmount(), idempotencyKey);
+                    payload.orderId(), payload.returnAmount(), idempotencyKey
+            );
         } catch (DuplicateLedgerTransactionException e) {
-            log.info("이미 처리된 반품 완료 역분개 이벤트 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 반품 완료 역분개 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         }
 
         acknowledgment.acknowledge();

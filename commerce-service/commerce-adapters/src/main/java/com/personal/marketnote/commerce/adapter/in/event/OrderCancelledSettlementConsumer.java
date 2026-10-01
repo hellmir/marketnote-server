@@ -55,10 +55,12 @@ public class OrderCancelledSettlementConsumer {
         OrderCancelledEvent payload = envelope.getPayloadAs(OrderCancelledEvent.class, objectMapper);
 
         log.info("주문 취소 이벤트 수신 (정산 역배분). eventId={}, orderId={}, isFullCancel={}",
-                envelope.eventId(), payload.orderId(), payload.isFullCancel());
+                envelope.eventId(), payload.orderId(), payload.isFullCancel()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -67,8 +69,7 @@ public class OrderCancelledSettlementConsumer {
             createCancellationAllocations(payload.orderId());
             log.info("주문 취소 역배분 생성 완료. orderId={}", payload.orderId());
         } catch (DataIntegrityViolationException e) {
-            log.info("이미 처리된 주문 취소 역배분 이벤트 (멱등 처리). eventId={}, orderId={}",
-                    envelope.eventId(), payload.orderId());
+            log.info("이미 처리된 주문 취소 역배분 이벤트 (멱등 처리). eventId={}, orderId={}", envelope.eventId(), payload.orderId());
         }
 
         acknowledgment.acknowledge();
@@ -87,7 +88,9 @@ public class OrderCancelledSettlementConsumer {
                                 .shippingFee(allocation.getShippingFee().getValue())
                                 .transactionType(PaymentAllocationTransactionType.CANCELLATION)
                                 .targetType(PaymentAllocationTargetType.ORDER)
-                                .idempotencyKey(IdempotencyKey.of(IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()))
+                                .idempotencyKey(IdempotencyKey.of(
+                                        IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()
+                                ))
                                 .build()
                 ))
                 .toList();

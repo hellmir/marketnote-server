@@ -186,7 +186,9 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
         return orderJpaRepository.findOrderIdsEligibleForAutoConfirm(deliveredBefore);
     }
 
-    private OrderProductJpaEntity findEntityByOrderIdAndPricePolicyId(Long orderId, Long pricePolicyId) throws OrderProductNotFoundException {
+    private OrderProductJpaEntity findEntityByOrderIdAndPricePolicyId(
+            Long orderId, Long pricePolicyId
+    ) throws OrderProductNotFoundException {
         return orderProductJpaRepository.findByOrderIdAndPricePolicyId(orderId, pricePolicyId)
                 .orElseThrow(() -> new OrderProductNotFoundException(orderId, pricePolicyId));
     }

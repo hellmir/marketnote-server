@@ -42,8 +42,7 @@ public class ReturnTrackerEventKafkaProducer implements PublishReturnTrackerEven
                 envelope.eventType(), SOURCE, payloadJson, clock
         );
         saveOutboxEventPort.save(outboxEvent);
-        log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                topic, partitionKey, envelope.eventId());
+        log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
     }
 
     private <T> String serializeEnvelope(EventEnvelope<T> envelope) {

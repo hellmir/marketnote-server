@@ -55,10 +55,12 @@ public class OrderReturnedSettlementConsumer {
         OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
         log.info("반품 완료 이벤트 수신 (정산 역배분). eventId={}, orderId={}, isFullReturn={}",
-                envelope.eventId(), payload.orderId(), payload.isFullReturn());
+                envelope.eventId(), payload.orderId(), payload.isFullReturn()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -68,7 +70,8 @@ public class OrderReturnedSettlementConsumer {
             log.info("반품 완료 역배분 생성 완료. orderId={}", payload.orderId());
         } catch (DataIntegrityViolationException e) {
             log.info("이미 처리된 반품 완료 역배분 이벤트 (멱등 처리). eventId={}, orderId={}",
-                    envelope.eventId(), payload.orderId());
+                    envelope.eventId(), payload.orderId()
+            );
         }
 
         acknowledgment.acknowledge();
@@ -87,7 +90,9 @@ public class OrderReturnedSettlementConsumer {
                                 .shippingFee(allocation.getShippingFee().getValue())
                                 .transactionType(PaymentAllocationTransactionType.RETURN_REFUND)
                                 .targetType(PaymentAllocationTargetType.ORDER)
-                                .idempotencyKey(IdempotencyKey.of(IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()))
+                                .idempotencyKey(IdempotencyKey.of(
+                                        IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()
+                                ))
                                 .build()
                 ))
                 .toList();

@@ -49,7 +49,9 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
             recordLedgerEntryUseCase.recordPgSettlement(settlementId, totalAllocatedAmount, pgFeeAmount);
 
             long sellerSettlementDebit = sellerPayoutAmount + platformFeeAmount;
-            recordLedgerEntryUseCase.recordSellerSettlement(settlementId, sellerSettlementDebit, sellerPayoutAmount, platformFeeAmount);
+            recordLedgerEntryUseCase.recordSellerSettlement(
+                    settlementId, sellerSettlementDebit, sellerPayoutAmount, platformFeeAmount
+            );
 
             settlement.complete();
         } catch (Exception e) {
@@ -62,6 +64,7 @@ public class RetryFailedSettlementService implements RetryFailedSettlementUseCas
         updateSettlementPort.update(settlement);
 
         log.info("정산 재시도 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}",
-                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth());
+                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth()
+        );
     }
 }

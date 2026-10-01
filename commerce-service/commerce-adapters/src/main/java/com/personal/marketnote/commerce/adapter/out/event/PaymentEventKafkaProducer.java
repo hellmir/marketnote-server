@@ -51,13 +51,15 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
     }
 
     @Override
-    public void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
-                                             Long cancelAmount, Long paymentAmount, Long pointAmount,
-                                             boolean isFullCancel, Long alreadyRefunded,
-                                             String cancelId,
-                                             List<OrderProduct> orderProducts,
-                                             List<OrderProduct> cancelProducts,
-                                             Long partialProductPendingDeduction) {
+    public void publishPaymentCancelledEvent(
+            Long orderId, String orderKey, Long buyerId,
+            Long cancelAmount, Long paymentAmount, Long pointAmount,
+            boolean isFullCancel, Long alreadyRefunded,
+            String cancelId,
+            List<OrderProduct> orderProducts,
+            List<OrderProduct> cancelProducts,
+            Long partialProductPendingDeduction
+    ) {
         List<PaymentCancelledEvent.OrderProductItem> items = orderProducts.stream()
                 .map(op -> new PaymentCancelledEvent.OrderProductItem(
                         op.getPricePolicyId(),
@@ -99,11 +101,11 @@ public class PaymentEventKafkaProducer implements PublishPaymentEventPort {
                     envelope.eventType(), SOURCE, payloadJson, clock
             );
             saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                    topic, partitionKey, envelope.eventId());
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
         } catch (Exception e) {
             log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e);
+                    topic, partitionKey, e.getMessage(), e
+            );
         }
     }
 }

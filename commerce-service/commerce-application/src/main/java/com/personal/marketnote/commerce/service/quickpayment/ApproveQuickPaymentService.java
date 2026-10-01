@@ -34,12 +34,14 @@ public class ApproveQuickPaymentService implements ApproveQuickPaymentUseCase {
     @Override
     public ApproveQuickPaymentResult approve(ApproveQuickPaymentCommand command) {
         log.info("빠른결제 승인 요청 - buyerId: {}, orderKey: {}, cardId: {}",
-                command.buyerId(), command.orderKey(), command.quickPaymentCardId());
+                command.buyerId(), command.orderKey(), command.quickPaymentCardId()
+        );
 
         QuickPaymentCard card = findQuickPaymentCardPort
                 .findActiveByIdAndUserId(command.quickPaymentCardId(), command.buyerId())
                 .orElseThrow(() -> new QuickPaymentCardNotFoundException(
-                        command.quickPaymentCardId(), command.buyerId()));
+                        command.quickPaymentCardId(), command.buyerId()
+                ));
 
         // TX-1: 검증 + PspPaymentEvent 생성 + EXECUTING
         PaymentApprovalContext context = txHelper.prepareExecutionForQuickPayment(

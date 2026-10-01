@@ -67,7 +67,9 @@ class ShippingAddressChangedReadModelConsumerTest {
         consumer.handleShippingAddressChangedEvent(record, acknowledgment);
 
         // then
-        verify(saveShippingAddressReadModelPort).upsert(1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL");
+        verify(saveShippingAddressReadModelPort).upsert(
+                1L, 100L, "홍길동", "010-1234-5678", "서울시 강남구 테헤란로 123", "101동 1001호", "NORMAL"
+        );
         verify(acknowledgment).acknowledge();
     }
 
@@ -85,7 +87,9 @@ class ShippingAddressChangedReadModelConsumerTest {
         consumer.handleShippingAddressChangedEvent(record, acknowledgment);
 
         // then
-        verify(saveShippingAddressReadModelPort).upsert(2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "JEJU");
+        verify(saveShippingAddressReadModelPort).upsert(
+                2L, 200L, "김철수", "010-9876-5432", "서울시 서초구 서초대로 456", "202동 303호", "JEJU"
+        );
         verify(acknowledgment).acknowledge();
     }
 

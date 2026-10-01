@@ -387,7 +387,9 @@ class CancelOrderUseCaseTest {
             Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             when(cancelFulfillmentReleasePort.cancelRelease(orderId))
-                    .thenThrow(new FulfillmentServiceRequestFailedException(new java.io.IOException("Connection refused")));
+                    .thenThrow(new FulfillmentServiceRequestFailedException(
+                            new java.io.IOException("Connection refused")
+                    ));
 
             CancelOrderCommand command = createCommand(orderId, buyerId);
 

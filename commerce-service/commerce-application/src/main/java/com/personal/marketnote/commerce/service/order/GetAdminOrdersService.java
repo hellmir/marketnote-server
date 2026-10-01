@@ -38,7 +38,8 @@ public class GetAdminOrdersService implements GetAdminOrdersUseCase {
     @Override
     public GetAdminOrdersResult getAdminOrders(GetAdminOrdersQuery query) {
         log.info("관리자 주문 조회 - sellerId={}, startDate={}, endDate={}, status={}",
-                query.sellerId(), query.startDate(), query.endDate(), query.orderStatus());
+                query.sellerId(), query.startDate(), query.endDate(), query.orderStatus()
+        );
 
         List<Order> orders = findOrderPort.findAllWithFilters(
                 query.sellerId(),

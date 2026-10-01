@@ -51,24 +51,26 @@ public class OrderReturnedInventoryConsumer {
             OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
             log.info("반품 완료 이벤트 수신 (재고 복구). eventId={}, orderId={}, isFullReturn={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullReturn());
+                    envelope.eventId(), payload.orderId(), payload.isFullReturn()
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+            if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (FormatValidator.hasNoValue(payload.returnProducts()) || payload.returnProducts().isEmpty()) {
                 log.warn("반품 완료인데 returnProducts가 없는 이벤트. eventId={}, orderId={}",
-                        envelope.eventId(), payload.orderId());
+                        envelope.eventId(), payload.orderId()
+                );
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (hasInvalidReturnProductItem(payload.returnProducts())) {
-                log.error("유효하지 않은 returnProduct 항목. eventId={}, orderId={}",
-                        envelope.eventId(), payload.orderId());
+                log.error("유효하지 않은 returnProduct 항목. eventId={}, orderId={}", envelope.eventId(), payload.orderId());
                 acknowledgment.acknowledge();
                 return;
             }
@@ -79,13 +81,14 @@ public class OrderReturnedInventoryConsumer {
             restoreProductInventoryUseCase.restore(returnOrderProducts, payload.orderId(), reason);
 
             log.info("반품 완료 재고 복구 완료. orderId={}, returnProducts={}건",
-                    payload.orderId(), payload.returnProducts().size());
+                    payload.orderId(), payload.returnProducts().size()
+            );
         } catch (DuplicateInventoryRestorationException e) {
-            log.info("이미 처리된 재고 복구 이벤트 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 재고 복구 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         } catch (Exception e) {
             log.error("반품 완료 재고 복구 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                    envelope.eventId(), record.key(), e.getMessage(), e
+            );
             throw e;
         }
 

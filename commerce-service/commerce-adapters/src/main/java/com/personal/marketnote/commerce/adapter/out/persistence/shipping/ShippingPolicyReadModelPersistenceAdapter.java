@@ -53,9 +53,12 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long sellerId, Long shippingFee, Long freeShippingThreshold,
-                       Long jejuSurcharge, Long islandSurcharge) {
-        Optional<ShippingPolicyReadModelJpaEntity> existing = shippingPolicyReadModelJpaRepository.findBySellerId(sellerId);
+    public void upsert(
+            Long sellerId, Long shippingFee, Long freeShippingThreshold,
+            Long jejuSurcharge, Long islandSurcharge
+    ) {
+        Optional<ShippingPolicyReadModelJpaEntity> existing =
+                shippingPolicyReadModelJpaRepository.findBySellerId(sellerId);
 
         if (existing.isPresent()) {
             existing.get().updateFrom(shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge);
@@ -70,7 +73,9 @@ public class ShippingPolicyReadModelPersistenceAdapter implements FindShippingPo
         } catch (DataIntegrityViolationException e) {
             log.info("배송비 정책 Read Model 중복 저장 (멱등 처리). sellerId={}", sellerId);
             shippingPolicyReadModelJpaRepository.findBySellerId(sellerId)
-                    .ifPresent(entity -> entity.updateFrom(shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge));
+                    .ifPresent(entity -> entity.updateFrom(
+                            shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
+                    ));
         }
     }
 

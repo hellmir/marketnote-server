@@ -34,7 +34,8 @@ class ReturnTrackerPersistenceUseCaseTest {
             // given
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
-            when(saveReturnTrackerPort.save(any(ReturnTracker.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);
@@ -54,7 +55,8 @@ class ReturnTrackerPersistenceUseCaseTest {
             // given
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
-            when(saveReturnTrackerPort.save(any(ReturnTracker.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);
@@ -73,7 +75,8 @@ class ReturnTrackerPersistenceUseCaseTest {
             // given
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
-            when(saveReturnTrackerPort.save(any(ReturnTracker.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);
@@ -92,7 +95,8 @@ class ReturnTrackerPersistenceUseCaseTest {
             // given
             Long orderId = 1L;
             String returnSlipNumber = "RS-2026041100001";
-            when(saveReturnTrackerPort.save(any(ReturnTracker.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(saveReturnTrackerPort.save(any(ReturnTracker.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
             returnTrackerPersistenceService.saveReturnTracker(orderId, returnSlipNumber);

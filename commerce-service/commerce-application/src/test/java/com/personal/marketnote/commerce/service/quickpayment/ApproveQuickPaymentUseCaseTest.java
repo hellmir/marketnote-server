@@ -85,7 +85,9 @@ class ApproveQuickPaymentUseCaseTest {
 
             assertThat(result.pgPaymentKey()).isEqualTo("tno_quick_123");
             assertThat(result.resultCode()).isEqualTo("0000");
-            verify(txHelper).commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), eq(Installment.of((short) 0)));
+            verify(txHelper).commitSuccess(
+                    eq(context), any(PaymentApprovalVendorResult.class), eq(Installment.of((short) 0))
+            );
             verify(txHelper, never()).commitFailure(any(), any(), any());
         }
     }
@@ -235,7 +237,9 @@ class ApproveQuickPaymentUseCaseTest {
             inOrder.verify(findQuickPaymentCardPort).findActiveByIdAndUserId(CARD_ID, BUYER_ID);
             inOrder.verify(txHelper).prepareExecutionForQuickPayment(BUYER_ID, ORDER_KEY_STR, "NHN_KCP", "T0000");
             inOrder.verify(approveQuickPaymentPort).approvePayment(any());
-            inOrder.verify(txHelper).commitSuccess(eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class));
+            inOrder.verify(txHelper).commitSuccess(
+                    eq(context), any(PaymentApprovalVendorResult.class), any(Installment.class)
+            );
         }
     }
 

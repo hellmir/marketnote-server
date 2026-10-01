@@ -45,11 +45,14 @@ public class ShippingAddressChangedReadModelConsumer {
         ShippingAddressChangedEvent payload = envelope.getPayloadAs(ShippingAddressChangedEvent.class, objectMapper);
 
         log.info("배송지 변경 이벤트 수신. eventId={}, shippingAddressId={}, userId={}, action={}",
-                envelope.eventId(), payload.shippingAddressId(), payload.userId(), payload.action());
+                envelope.eventId(), payload.shippingAddressId(), payload.userId(), payload.action()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(),
                 EventPayloadValidator.id("shippingAddressId", payload.shippingAddressId()),
-                EventPayloadValidator.id("userId", payload.userId()))) {
+                EventPayloadValidator.id("userId", payload.userId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -73,7 +76,8 @@ public class ShippingAddressChangedReadModelConsumer {
                     || FormatValidator.hasNoValue(payload.address())
                     || FormatValidator.hasNoValue(payload.addressDetail())) {
                 log.warn("배송지 변경 이벤트 필수 필드 누락. eventId={}, shippingAddressId={}",
-                        envelope.eventId(), payload.shippingAddressId());
+                        envelope.eventId(), payload.shippingAddressId()
+                );
                 acknowledgment.acknowledge();
                 return;
             }
@@ -85,7 +89,8 @@ public class ShippingAddressChangedReadModelConsumer {
                     payload.regionType()
             );
             log.info("배송지 Read Model 저장 완료. shippingAddressId={}, userId={}",
-                    payload.shippingAddressId(), payload.userId());
+                    payload.shippingAddressId(), payload.userId()
+            );
         }
 
         acknowledgment.acknowledge();

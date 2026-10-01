@@ -112,9 +112,7 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
         return executeApprovalWithRetry(request, command.orderNumber());
     }
 
-    private PaymentApprovalVendorResult executeApprovalWithRetry(
-            KcpPaymentApprovalRequest request, String orderNo
-    ) {
+    private PaymentApprovalVendorResult executeApprovalWithRetry(KcpPaymentApprovalRequest request, String orderNo) {
         KcpProperties.Retry retryConfig = kcpProperties.getRetry();
         long sleepMillis = retryConfig.getInitialDelayMs();
         int maxAttempts = retryConfig.getMaxAttempts();
@@ -132,7 +130,8 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
 
                 if (isConnectionFailure(e)) {
                     log.warn("KCP 결제승인 연결 실패 - orderNo: {}, attempt: {}/{}, error: {}",
-                            orderNo, attempt, maxAttempts, e.getMessage());
+                            orderNo, attempt, maxAttempts, e.getMessage()
+                    );
                     if (attempt < maxAttempts) {
                         sleep(sleepMillis);
                         sleepMillis *= retryConfig.getBackoffMultiplier();
@@ -146,7 +145,9 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
                 if (isReadTimeout(e)) {
                     readTimeoutAttemptCount++;
                     log.warn("KCP 결제승인 읽기 타임아웃 - orderNo: {}, attempt: {}/{}, readTimeoutCount: {}/{}",
-                            orderNo, attempt, maxAttempts, readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts());
+                            orderNo, attempt, maxAttempts,
+                            readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts()
+                    );
                     if (readTimeoutAttemptCount < retryConfig.getReadTimeoutMaxAttempts() && attempt < maxAttempts) {
                         sleep(sleepMillis);
                         sleepMillis *= retryConfig.getBackoffMultiplier();
@@ -245,9 +246,7 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
         return executeCancelWithRetry(request, command.transactionId());
     }
 
-    private PaymentCancelVendorResult executeCancelWithRetry(
-            KcpPaymentCancelRequest request, String transactionId
-    ) {
+    private PaymentCancelVendorResult executeCancelWithRetry(KcpPaymentCancelRequest request, String transactionId) {
         KcpProperties.Retry retryConfig = kcpProperties.getRetry();
         long sleepMillis = retryConfig.getInitialDelayMs();
         int maxAttempts = retryConfig.getMaxAttempts();
@@ -265,7 +264,8 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
 
                 if (isConnectionFailure(e)) {
                     log.warn("KCP 결제취소 연결 실패 - transactionId: {}, attempt: {}/{}, error: {}",
-                            transactionId, attempt, maxAttempts, e.getMessage());
+                            transactionId, attempt, maxAttempts, e.getMessage()
+                    );
                     if (attempt < maxAttempts) {
                         sleep(sleepMillis);
                         sleepMillis *= retryConfig.getBackoffMultiplier();
@@ -279,7 +279,9 @@ public class KcpPaymentVendorAdapter implements PaymentVendorPort {
                 if (isReadTimeout(e)) {
                     readTimeoutAttemptCount++;
                     log.warn("KCP 결제취소 읽기 타임아웃 - transactionId: {}, attempt: {}/{}, readTimeoutCount: {}/{}",
-                            transactionId, attempt, maxAttempts, readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts());
+                            transactionId, attempt, maxAttempts,
+                            readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts()
+                    );
                     if (readTimeoutAttemptCount < retryConfig.getReadTimeoutMaxAttempts() && attempt < maxAttempts) {
                         sleep(sleepMillis);
                         sleepMillis *= retryConfig.getBackoffMultiplier();
