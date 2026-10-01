@@ -53,7 +53,8 @@ class SagaResponsePublisherTest {
             // when
             sagaResponsePublisher.publishSuccess(
                     "saga-001", "ORDER_PAYMENT", "DEDUCT_INVENTORY",
-                    SagaStepMessage.ACTION, "{\"success\":true}");
+                    SagaStepMessage.ACTION, "{\"success\":true}"
+            );
 
             // then
             ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -79,7 +80,8 @@ class SagaResponsePublisherTest {
             // when
             sagaResponsePublisher.publishFailure(
                     "saga-002", "ORDER_PAYMENT", "RECORD_LEDGER",
-                    SagaStepMessage.ACTION, "분개 처리 실패");
+                    SagaStepMessage.ACTION, "분개 처리 실패"
+            );
 
             // then
             ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -98,7 +100,8 @@ class SagaResponsePublisherTest {
             // when
             sagaResponsePublisher.publishFailure(
                     "saga-003", "ORDER_PAYMENT", "DEDUCT_INVENTORY",
-                    SagaStepMessage.COMPENSATION, "재고 복구 실패");
+                    SagaStepMessage.COMPENSATION, "재고 복구 실패"
+            );
 
             // then
             ArgumentCaptor<OutboxEvent> captor = ArgumentCaptor.forClass(OutboxEvent.class);

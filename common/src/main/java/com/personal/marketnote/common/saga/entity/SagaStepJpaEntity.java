@@ -64,8 +64,10 @@ public class SagaStepJpaEntity {
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
-    private SagaStepJpaEntity(Long sagaInstanceId, String stepName, int stepIndex,
-                              SagaStepStatus status, String request) {
+    private SagaStepJpaEntity(
+            Long sagaInstanceId, String stepName, int stepIndex,
+            SagaStepStatus status, String request
+    ) {
         this.sagaInstanceId = sagaInstanceId;
         this.stepName = stepName;
         this.stepIndex = stepIndex;

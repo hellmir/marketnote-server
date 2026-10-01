@@ -77,10 +77,12 @@ public class OutboxEventJpaEntity {
     @Column(name = "discarded_at")
     private LocalDateTime discardedAt;
 
-    private OutboxEventJpaEntity(String eventId, String topic, String partitionKey,
-                                 String eventType, String source, String payload,
-                                 OutboxEventStatus status, int retryCount, int maxRetries,
-                                 LocalDateTime createdAt) {
+    private OutboxEventJpaEntity(
+            String eventId, String topic, String partitionKey,
+            String eventType, String source, String payload,
+            OutboxEventStatus status, int retryCount, int maxRetries,
+            LocalDateTime createdAt
+    ) {
         this.eventId = eventId;
         this.topic = topic;
         this.partitionKey = partitionKey;

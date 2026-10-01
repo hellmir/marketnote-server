@@ -559,8 +559,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
             // when — 타입 헤더에 악의적 클래스명을 설정하여 발행
             ProducerRecord<String, String> record = new ProducerRecord<>(SECURITY_TOPIC, "key", json);
-            record.headers().add(new RecordHeader("__TypeId__",
-                    "java.lang.Runtime".getBytes(StandardCharsets.UTF_8)));
+            record.headers().add(new RecordHeader("__TypeId__", "java.lang.Runtime".getBytes(StandardCharsets.UTF_8)));
             publishRawRecord(record);
 
             // then — USE_TYPE_INFO_HEADERS=false이므로 타입 헤더 무시, EventEnvelope로 정상 역직렬화
@@ -585,8 +584,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             byte[] data = validJson.getBytes(StandardCharsets.UTF_8);
 
             org.apache.kafka.common.header.Headers headers = new org.apache.kafka.common.header.internals.RecordHeaders();
-            headers.add(new RecordHeader("__TypeId__",
-                    "java.lang.ProcessBuilder".getBytes(StandardCharsets.UTF_8)));
+            headers.add(new RecordHeader("__TypeId__", "java.lang.ProcessBuilder".getBytes(StandardCharsets.UTF_8)));
 
             // then — 신뢰하지 않는 패키지이므로 역직렬화 거부
             assertThatThrownBy(() -> deserializer.deserialize(SECURITY_TOPIC, headers, data))

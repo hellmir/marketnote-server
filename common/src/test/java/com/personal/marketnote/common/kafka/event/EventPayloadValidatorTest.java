@@ -18,7 +18,8 @@ class EventPayloadValidatorTest {
 
     private EventEnvelope<?> buildEnvelope(String eventType) {
         return new EventEnvelope<>(EVENT_ID, eventType, "test-source",
-                LocalDateTime.of(2026, 3, 9, 10, 0), "test-payload");
+                LocalDateTime.of(2026, 3, 9, 10, 0), "test-payload"
+        );
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(EventEnvelope<?> envelope) {
@@ -126,7 +127,8 @@ class EventPayloadValidatorTest {
             // when
             boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID,
                     EventPayloadValidator.id("orderId", 1L),
-                    EventPayloadValidator.id("buyerId", 100L));
+                    EventPayloadValidator.id("buyerId", 100L)
+            );
 
             // then
             assertThat(result).isFalse();
@@ -136,8 +138,7 @@ class EventPayloadValidatorTest {
         @DisplayName("ID가 null이면 true를 반환한다")
         void nullId_returnsTrue() {
             // when
-            boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID,
-                    EventPayloadValidator.id("orderId", null));
+            boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID, EventPayloadValidator.id("orderId", null));
 
             // then
             assertThat(result).isTrue();
@@ -148,8 +149,7 @@ class EventPayloadValidatorTest {
         @DisplayName("ID가 0 이하이면 true를 반환한다")
         void nonPositiveId_returnsTrue(Long value) {
             // when
-            boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID,
-                    EventPayloadValidator.id("orderId", value));
+            boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID, EventPayloadValidator.id("orderId", value));
 
             // then
             assertThat(result).isTrue();
@@ -161,7 +161,8 @@ class EventPayloadValidatorTest {
             // when
             boolean result = EventPayloadValidator.hasInvalidIds(EVENT_ID,
                     EventPayloadValidator.id("orderId", 1L),
-                    EventPayloadValidator.id("buyerId", null));
+                    EventPayloadValidator.id("buyerId", null)
+            );
 
             // then
             assertThat(result).isTrue();

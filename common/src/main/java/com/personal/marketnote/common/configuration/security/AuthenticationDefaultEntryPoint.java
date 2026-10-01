@@ -18,7 +18,9 @@ public class AuthenticationDefaultEntryPoint implements AuthenticationEntryPoint
     private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(
+            HttpServletRequest request, HttpServletResponse response, AuthenticationException authException
+    ) throws IOException, ServletException {
         if (log.isDebugEnabled()) {
             log.debug("Authentication Failed", authException);
         }

@@ -72,7 +72,8 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
-            CommonErrorHandler commonErrorHandler) {
+            CommonErrorHandler commonErrorHandler
+    ) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setCommonErrorHandler(commonErrorHandler);
@@ -82,7 +83,8 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> dltKafkaListenerContainerFactory(
-            CommonErrorHandler dltErrorHandler) {
+            CommonErrorHandler dltErrorHandler
+    ) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.setCommonErrorHandler(dltErrorHandler);

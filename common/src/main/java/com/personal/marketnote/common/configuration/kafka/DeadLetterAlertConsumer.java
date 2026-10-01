@@ -28,7 +28,8 @@ public class DeadLetterAlertConsumer {
             String errorMessage = DltHeaderExtractor.extractExceptionMessage(record);
 
             log.error("DLT 메시지 도착. originalTopic={}, partition={}, offset={}, key={}, error={}: {}",
-                    originalTopic, record.partition(), record.offset(), record.key(), errorFqcn, errorMessage);
+                    originalTopic, record.partition(), record.offset(), record.key(), errorFqcn, errorMessage
+            );
 
             dltSlackNotifier.notify(originalTopic, record, errorFqcn, errorMessage);
             dltMetricsCollector.incrementDltMessageCount(originalTopic);

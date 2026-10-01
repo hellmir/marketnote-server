@@ -102,7 +102,8 @@ public class SecurityPropertiesValidator {
         String currentProtocol = FormatValidator.hasValue(kafkaSaslProtocol) ? kafkaSaslProtocol : "(미설정)";
         if (!REQUIRED_KAFKA_SASL_PROTOCOL.equals(kafkaSaslProtocol)) {
             violations.add("spring.kafka.sasl.protocol (KAFKA_SASL_PROTOCOL) 값이 " + REQUIRED_KAFKA_SASL_PROTOCOL
-                    + "이어야 합니다. 현재 값: " + currentProtocol);
+                    + "이어야 합니다. 현재 값: " + currentProtocol
+            );
         }
         validateRequired(violations, "spring.kafka.sasl.username (KAFKA_SASL_USERNAME)", kafkaSaslUsername);
         validateRequired(violations, "spring.kafka.sasl.password (KAFKA_SASL_PASSWORD)", kafkaSaslPassword);

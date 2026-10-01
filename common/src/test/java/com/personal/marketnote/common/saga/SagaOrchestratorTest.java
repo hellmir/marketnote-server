@@ -178,7 +178,8 @@ class SagaOrchestratorTest {
             // given
             SagaInstance instance = createProcessingInstance(0);
             SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null);
+                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+            );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
             when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
@@ -212,7 +213,8 @@ class SagaOrchestratorTest {
             // given
             SagaInstance instance = createProcessingInstance(2);
             SagaStep step2 = createSagaStep(30L, 1L, STEP_3_NAME, 2,
-                    SagaStepStatus.PROCESSING, "{\"message\":\"test\"}", null, null, null);
+                    SagaStepStatus.PROCESSING, "{\"message\":\"test\"}", null, null, null
+            );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
             when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step2));
@@ -239,9 +241,11 @@ class SagaOrchestratorTest {
             // given
             SagaInstance instance = createProcessingInstance(1);
             SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null);
+                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
+            );
             SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
-                    SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null);
+                    SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
+            );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
             when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0, step1));
@@ -269,7 +273,8 @@ class SagaOrchestratorTest {
             // given
             SagaInstance instance = createProcessingInstance(0);
             SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null);
+                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+            );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
             when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
@@ -297,9 +302,11 @@ class SagaOrchestratorTest {
             SagaInstance instance = createCompensatingInstance();
             SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
                     SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
-                    "{\"rollback\":true}", null);
+                    "{\"rollback\":true}", null
+            );
             SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
-                    SagaStepStatus.FAILED, "{\"amount\":5000}", "{\"error\":\"fail\"}", null, null);
+                    SagaStepStatus.FAILED, "{\"amount\":5000}", "{\"error\":\"fail\"}", null, null
+            );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
             when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0, step1));
@@ -323,7 +330,8 @@ class SagaOrchestratorTest {
             SagaInstance instance = createCompensatingInstance();
             SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
                     SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
-                    "{\"rollback\":true}", null);
+                    "{\"rollback\":true}", null
+            );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
             when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
@@ -364,7 +372,8 @@ class SagaOrchestratorTest {
         void shouldIgnoreResponseForTerminalSaga() throws Exception {
             // given
             SagaInstance instance = createSagaInstance(1L, SAGA_ID, SAGA_TYPE,
-                    SagaStatus.SUCCEEDED, 2, PAYLOAD_JSON, FIXED_TIME);
+                    SagaStatus.SUCCEEDED, 2, PAYLOAD_JSON, FIXED_TIME
+            );
 
             when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
 
@@ -404,13 +413,11 @@ class SagaOrchestratorTest {
     }
 
     private SagaInstance createProcessingInstance(int currentStepIndex) {
-        return createSagaInstance(1L, SAGA_ID, SAGA_TYPE,
-                SagaStatus.PROCESSING, currentStepIndex, PAYLOAD_JSON, null);
+        return createSagaInstance(1L, SAGA_ID, SAGA_TYPE, SagaStatus.PROCESSING, currentStepIndex, PAYLOAD_JSON, null);
     }
 
     private SagaInstance createCompensatingInstance() {
-        return createSagaInstance(1L, SAGA_ID, SAGA_TYPE,
-                SagaStatus.COMPENSATING, 1, PAYLOAD_JSON, null);
+        return createSagaInstance(1L, SAGA_ID, SAGA_TYPE, SagaStatus.COMPENSATING, 1, PAYLOAD_JSON, null);
     }
 
     private SagaInstance createSagaInstance(Long id, String sagaId, String sagaType,

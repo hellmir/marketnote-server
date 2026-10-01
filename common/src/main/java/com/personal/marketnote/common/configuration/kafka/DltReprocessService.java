@@ -45,9 +45,7 @@ public class DltReprocessService {
             throw new InvalidDltTopicException(originalTopic);
         }
 
-        if (FormatValidator.hasValue(
-                reprocessingTopics.putIfAbsent(originalTopic, Boolean.TRUE)
-        )) {
+        if (FormatValidator.hasValue(reprocessingTopics.putIfAbsent(originalTopic, Boolean.TRUE))) {
             throw new DltReprocessAlreadyInProgressException(originalTopic);
         }
 
@@ -92,7 +90,8 @@ public class DltReprocessService {
                     if (resolvedKeys.contains(key)) {
                         skippedCount++;
                         log.info("이미 처리된 DLT 메시지 스킵. originalTopic={}, partition={}, offset={}",
-                                originalTopic, record.partition(), record.offset());
+                                originalTopic, record.partition(), record.offset()
+                        );
                         continue;
                     }
 
@@ -103,18 +102,22 @@ public class DltReprocessService {
                         dltMetricsCollector.incrementDltReprocessCount(originalTopic, "success");
                         try {
                             saveResolution(originalTopic, dltTopic, record.partition(), record.offset(),
-                                    DltResolutionStatus.RETRIED, operatorInfo, null);
+                                    DltResolutionStatus.RETRIED, operatorInfo, null
+                            );
                         } catch (Exception se) {
                             log.warn("DLT resolution 저장 실패. originalTopic={}, partition={}, offset={}",
-                                    originalTopic, record.partition(), record.offset(), se);
+                                    originalTopic, record.partition(), record.offset(), se
+                            );
                         }
                         log.info("DLT 메시지 재처리 성공. originalTopic={}, key={}, offset={}",
-                                originalTopic, record.key(), record.offset());
+                                originalTopic, record.key(), record.offset()
+                        );
                     } catch (Exception e) {
                         failedCount++;
                         dltMetricsCollector.incrementDltReprocessCount(originalTopic, "failure");
                         log.error("DLT 메시지 재처리 실패. originalTopic={}, key={}, offset={}",
-                                originalTopic, record.key(), record.offset(), e);
+                                originalTopic, record.key(), record.offset(), e
+                        );
                     }
                 }
                 pollIteration++;
@@ -122,7 +125,8 @@ public class DltReprocessService {
             }
 
             log.info("DLT 재처리 완료. dltTopic={}, reprocessed={}, failed={}, skipped={}",
-                    dltTopic, reprocessedCount, failedCount, skippedCount);
+                    dltTopic, reprocessedCount, failedCount, skippedCount
+            );
             dltAuditLogger.logReprocessComplete(originalTopic, operatorInfo, reprocessedCount, failedCount);
             return new DltReprocessResult(reprocessedCount, failedCount, skippedCount);
         } catch (InvalidDltTopicException e) {
@@ -142,10 +146,12 @@ public class DltReprocessService {
         return keys;
     }
 
-    private void saveResolution(String originalTopic, String dltTopic,
-                                int partition, long offset,
-                                DltResolutionStatus resolution, String operatorInfo,
-                                String reason) {
+    private void saveResolution(
+            String originalTopic, String dltTopic,
+            int partition, long offset,
+            DltResolutionStatus resolution, String operatorInfo,
+            String reason
+    ) {
         DltMessageResolutionJpaEntity entity = DltMessageResolutionJpaEntity.of(
                 originalTopic, dltTopic, partition, offset,
                 resolution, operatorInfo, LocalDateTime.now(), reason

@@ -41,13 +41,15 @@ public class SagaOrchestrator {
     private final Clock clock;
     private final Map<String, SagaDefinition<?>> definitionRegistry;
 
-    public SagaOrchestrator(SaveSagaPort saveSagaPort,
-                            FindSagaPort findSagaPort,
-                            UpdateSagaPort updateSagaPort,
-                            SaveOutboxEventPort saveOutboxEventPort,
-                            ObjectMapper objectMapper,
-                            Clock clock,
-                            List<SagaDefinition<?>> definitions) {
+    public SagaOrchestrator(
+            SaveSagaPort saveSagaPort,
+            FindSagaPort findSagaPort,
+            UpdateSagaPort updateSagaPort,
+            SaveOutboxEventPort saveOutboxEventPort,
+            ObjectMapper objectMapper,
+            Clock clock,
+            List<SagaDefinition<?>> definitions
+    ) {
         this.saveSagaPort = saveSagaPort;
         this.findSagaPort = findSagaPort;
         this.updateSagaPort = updateSagaPort;
@@ -137,7 +139,8 @@ public class SagaOrchestrator {
         SagaStep currentStep = currentStepOpt.get();
 
         log.warn("SAGA PROCESSING 타임아웃 처리. sagaId={}, sagaType={}, stepName={}",
-                instance.getSagaId(), instance.getSagaType(), currentStep.getStepName());
+                instance.getSagaId(), instance.getSagaType(), currentStep.getStepName()
+        );
 
         currentStep.fail("TIMEOUT");
         updateSagaPort.updateStep(currentStep);
@@ -170,7 +173,8 @@ public class SagaOrchestrator {
         updateSagaPort.update(instance);
 
         log.warn("SAGA COMPENSATING 타임아웃 처리. sagaId={}, sagaType={}, 관리자 개입이 필요합니다.",
-                instance.getSagaId(), instance.getSagaType());
+                instance.getSagaId(), instance.getSagaType()
+        );
     }
 
     private void handleStepSuccess(SagaInstance instance, SagaStep currentStep, String response) {
@@ -180,16 +184,17 @@ public class SagaOrchestrator {
         processNextStepOrComplete(instance, currentStep.getStepIndex());
     }
 
-    private void handleStepFailure(SagaInstance instance, List<SagaStep> steps,
-                                   SagaStep currentStep, String response) {
+    private void handleStepFailure(SagaInstance instance, List<SagaStep> steps, SagaStep currentStep, String response) {
         currentStep.fail(response);
         updateSagaPort.updateStep(currentStep);
 
         startCompensation(instance, steps);
     }
 
-    private void handleCompensationSuccess(SagaInstance instance, List<SagaStep> steps,
-                                           SagaStep step, String response) {
+    private void handleCompensationSuccess(
+            SagaInstance instance, List<SagaStep> steps,
+            SagaStep step, String response
+    ) {
         step.completeCompensation(response);
         updateSagaPort.updateStep(step);
 
@@ -208,14 +213,14 @@ public class SagaOrchestrator {
         updateSagaPort.update(instance);
     }
 
-    private <T> void processStep(SagaDefinition<T> definition, SagaInstance instance,
-                                 T context, int stepIndex) {
+    private <T> void processStep(SagaDefinition<T> definition, SagaInstance instance, T context, int stepIndex) {
         SagaStepDefinition<T> stepDef = definition.getSteps().get(stepIndex);
         String actionRequest = stepDef.action().apply(context);
 
         SagaStep step = SagaStep.from(
                 new SagaStepCreateState(instance.getId(), stepDef.stepName(), stepIndex, actionRequest),
-                clock);
+                clock
+        );
         step.process();
         saveSagaPort.saveStep(step);
 
@@ -274,20 +279,20 @@ public class SagaOrchestrator {
         }
     }
 
-    private <T> void publishActionMessage(SagaInstance instance, SagaStepDefinition<T> stepDef,
-                                          String request) {
+    private <T> void publishActionMessage(SagaInstance instance, SagaStepDefinition<T> stepDef, String request) {
         SagaStepMessage message = new SagaStepMessage(
                 instance.getSagaId(), instance.getSagaType(), stepDef.stepName(),
-                SagaStepMessage.ACTION, request);
+                SagaStepMessage.ACTION, request
+        );
         String eventType = "saga." + instance.getSagaType() + "." + stepDef.stepName() + ".action";
         publishToOutbox(stepDef.topic(), instance.getSagaId(), eventType, message);
     }
 
-    private <T> void publishCompensationMessage(SagaInstance instance, SagaStepDefinition<T> stepDef,
-                                                String request) {
+    private <T> void publishCompensationMessage(SagaInstance instance, SagaStepDefinition<T> stepDef, String request) {
         SagaStepMessage message = new SagaStepMessage(
                 instance.getSagaId(), instance.getSagaType(), stepDef.stepName(),
-                SagaStepMessage.COMPENSATION, request);
+                SagaStepMessage.COMPENSATION, request
+        );
         String eventType = "saga." + instance.getSagaType() + "." + stepDef.stepName() + ".compensation";
         publishToOutbox(stepDef.topic(), instance.getSagaId(), eventType, message);
     }
@@ -297,7 +302,8 @@ public class SagaOrchestrator {
         String envelopeJson = serialize(envelope);
         OutboxEvent event = OutboxEvent.of(
                 envelope.eventId(), topic, partitionKey,
-                envelope.eventType(), SOURCE, envelopeJson, clock);
+                envelope.eventType(), SOURCE, envelopeJson, clock
+        );
         saveOutboxEventPort.save(event);
     }
 

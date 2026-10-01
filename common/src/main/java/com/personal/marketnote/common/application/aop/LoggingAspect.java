@@ -76,7 +76,8 @@ public class LoggingAspect {
         log.info(END + PERFORMANCE_MEASUREMENT,
                 joinPoint.getSignature().getDeclaringType().getSimpleName(),
                 joinPoint.getSignature().getName(), className, methodName,
-                elapsedTime, memoryUsage);
+                elapsedTime, memoryUsage
+        );
 
         return process;
     }

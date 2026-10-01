@@ -21,5 +21,6 @@ public interface SagaInstanceJpaRepository extends JpaRepository<SagaInstanceJpa
     List<SagaInstanceJpaEntity> findByStatusAndModifiedAtBefore(
             @Param("status") SagaStatus status,
             @Param("cutoff") LocalDateTime cutoff,
-            Pageable pageable);
+            Pageable pageable
+    );
 }

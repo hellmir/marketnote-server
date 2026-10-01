@@ -413,8 +413,7 @@ class KafkaConsumerRebalancingScenarioTest {
         assertThat(lagMessages).isEqualTo(lagMessageCount);
         assertThat(recoveryMs).isLessThan(60_000L);
 
-        log.info("Consumer Lag 복구 시간 측정 — 밀린 메시지: {}건, 복구 소요: {}ms, SLA 60초 이내: PASS",
-                lagMessageCount, recoveryMs);
+        log.info("Consumer Lag 복구 시간 측정 — 밀린 메시지: {}건, 복구 소요: {}ms, SLA 60초 이내: PASS", lagMessageCount, recoveryMs);
     }
 
     // === Phase 5: max.poll.interval.ms 킥아웃 ===

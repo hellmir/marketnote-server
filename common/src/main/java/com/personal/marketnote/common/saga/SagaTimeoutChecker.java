@@ -52,7 +52,8 @@ public class SagaTimeoutChecker {
     private void handleProcessingTimeoutSafely(SagaInstance instance) {
         try {
             log.warn("SAGA PROCESSING 타임아웃 감지. sagaId={}, sagaType={}, modifiedAt={}",
-                    instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt());
+                    instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt()
+            );
             sagaOrchestrator.handleProcessingTimeout(instance.getSagaId());
         } catch (Exception e) {
             log.error("SAGA PROCESSING 타임아웃 처리 실패. sagaId={}", instance.getSagaId(), e);
@@ -62,7 +63,8 @@ public class SagaTimeoutChecker {
     private void handleCompensatingTimeoutSafely(SagaInstance instance) {
         try {
             log.warn("SAGA COMPENSATING 타임아웃 감지. sagaId={}, sagaType={}, modifiedAt={}",
-                    instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt());
+                    instance.getSagaId(), instance.getSagaType(), instance.getModifiedAt()
+            );
             sagaOrchestrator.handleCompensationTimeout(instance.getSagaId());
         } catch (Exception e) {
             log.error("SAGA COMPENSATING 타임아웃 처리 실패. sagaId={}", instance.getSagaId(), e);

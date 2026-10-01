@@ -10,5 +10,6 @@ public interface DltMessageResolutionJpaRepository extends JpaRepository<DltMess
     List<DltMessageResolutionJpaEntity> findByOriginalTopic(String originalTopic);
 
     Optional<DltMessageResolutionJpaEntity> findByDltTopicAndPartitionNumberAndOffsetNumber(
-            String dltTopic, int partitionNumber, long offsetNumber);
+            String dltTopic, int partitionNumber, long offsetNumber
+    );
 }

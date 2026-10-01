@@ -31,8 +31,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion
-            (HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
         long beforeMemory = (long) request.getAttribute(BEFORE_MEMORY);
         long startedAt = (long) request.getAttribute(STARTED_AT);
         long elapsedTime = PerformanceMeasurer.computeElapsedTime(startedAt);

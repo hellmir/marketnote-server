@@ -31,9 +31,11 @@ public class OutboxEvent {
     private String discardReason;
     private LocalDateTime discardedAt;
 
-    public static OutboxEvent of(String eventId, String topic, String partitionKey,
-                                 String eventType, String source, String payload,
-                                 Clock clock) {
+    public static OutboxEvent of(
+            String eventId, String topic, String partitionKey,
+            String eventType, String source, String payload,
+            Clock clock
+    ) {
         return OutboxEvent.builder()
                 .eventId(eventId)
                 .topic(topic)
