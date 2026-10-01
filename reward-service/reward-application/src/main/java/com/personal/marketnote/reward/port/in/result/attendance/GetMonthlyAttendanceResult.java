@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public record GetMonthlyAttendanceResult(
-        List<LocalDate> attendanceDates,
-        int totalAttendanceDays,
-        long totalRewardQuantity
+        List<LocalDate> attendanceDates, int totalAttendanceDays, long totalRewardQuantity
 ) {
     public static GetMonthlyAttendanceResult from(UserAttendance attendance) {
         if (FormatValidator.hasNoValue(attendance)) {

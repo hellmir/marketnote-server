@@ -32,7 +32,8 @@ class GifticonGoodsTest {
                     .description("상품 설명")
                     .validDays(90)
                     .goodsStatus(GoodsStatus.SALE)
-                    .build());
+                    .build()
+            );
 
             assertThat(goods.getGoodsCode().getValue()).isEqualTo("G001");
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 아메리카노");
@@ -73,7 +74,8 @@ class GifticonGoodsTest {
                     .orderNum(1)
                     .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
                     .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                    .build());
+                    .build()
+            );
 
             assertThat(goods.getId()).isEqualTo(1L);
             assertThat(goods.isExposed()).isTrue();
@@ -98,7 +100,8 @@ class GifticonGoodsTest {
                     .salePrice(4500L)
                     .cashPrice(4500L)
                     .goodsStatus(GoodsStatus.SALE)
-                    .build());
+                    .build()
+            );
 
             goods.expose();
 
@@ -122,7 +125,8 @@ class GifticonGoodsTest {
                     .orderNum(1)
                     .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
                     .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                    .build());
+                    .build()
+            );
 
             goods.unexpose();
 
@@ -141,7 +145,8 @@ class GifticonGoodsTest {
                     .salePrice(4500L)
                     .cashPrice(4500L)
                     .goodsStatus(GoodsStatus.SALE)
-                    .build());
+                    .build()
+            );
 
             goods.changeOrderNum(5);
 
@@ -165,7 +170,8 @@ class GifticonGoodsTest {
                     .orderNum(1)
                     .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
                     .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                    .build());
+                    .build()
+            );
 
             goods.syncFromApi(GifticonGoodsSyncState.builder()
                     .goodsName("스타벅스 카페라떼")
@@ -179,7 +185,8 @@ class GifticonGoodsTest {
                     .description("새 설명")
                     .validDays(90)
                     .goodsStatus(GoodsStatus.SALE)
-                    .build());
+                    .build()
+            );
 
             assertThat(goods.getGoodsName()).isEqualTo("스타벅스 카페라떼");
             assertThat(goods.getRealPrice()).isEqualTo(Money.of(5500L));
@@ -201,7 +208,8 @@ class GifticonGoodsTest {
                     .salePrice(4500L)
                     .cashPrice(4500L)
                     .goodsStatus(GoodsStatus.SALE)
-                    .build());
+                    .build()
+            );
 
             assertThat(goods.isSale()).isTrue();
         }
@@ -218,7 +226,8 @@ class GifticonGoodsTest {
                     .salePrice(4500L)
                     .cashPrice(4500L)
                     .goodsStatus(GoodsStatus.SUSPENDED)
-                    .build());
+                    .build()
+            );
 
             assertThat(goods.isSale()).isFalse();
         }

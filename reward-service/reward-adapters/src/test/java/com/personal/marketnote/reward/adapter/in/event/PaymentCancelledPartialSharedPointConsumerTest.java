@@ -83,7 +83,9 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(ModifyPendingSharedPointCommand.class);
+        ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(
+                ModifyPendingSharedPointCommand.class
+        );
         verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(captor.capture());
 
         List<ModifyPendingSharedPointCommand> commands = captor.getAllValues();
@@ -384,7 +386,9 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, 30000L, 80000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"))
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        200L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"
+                ))
                 .thenReturn(null);
 
         // when
@@ -405,8 +409,12 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, 30000L, 80000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"))
-                .thenThrow(new DuplicateUserPointHistoryException(300L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"));
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        200L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"
+                ))
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        300L, UserPointSourceType.ORDER, 1L, "부분 결제 취소 공유 적립 예정 포인트 차감"
+                ));
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);

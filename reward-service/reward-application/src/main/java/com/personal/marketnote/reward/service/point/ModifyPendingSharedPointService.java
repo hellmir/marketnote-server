@@ -28,7 +28,11 @@ public class ModifyPendingSharedPointService implements ModifyPendingSharedPoint
     @Override
     public UpdateUserPointResult modifyPending(ModifyPendingSharedPointCommand command) {
         UserPoint sharerPoint = findUserPointPort.findByUserKey(command.sharerKey().toString())
-                .orElseThrow(() -> new com.personal.marketnote.reward.exception.UserPointNotFoundException(command.sharerKey().toString()));
+                .orElseThrow(
+                        () -> new com.personal.marketnote.reward.exception.UserPointNotFoundException(
+                                command.sharerKey().toString()
+                        )
+                );
 
         Long sharerId = sharerPoint.getUserId();
 

@@ -4,10 +4,6 @@ import java.util.List;
 
 public record GetGifticonBrandsResult(List<GifticonBrandItem> brands) {
 
-    public record GifticonBrandItem(
-            String brandCode,
-            String brandName,
-            String brandImageUrl
-    ) {
+    public record GifticonBrandItem(String brandCode, String brandName, String brandImageUrl) {
     }
 }

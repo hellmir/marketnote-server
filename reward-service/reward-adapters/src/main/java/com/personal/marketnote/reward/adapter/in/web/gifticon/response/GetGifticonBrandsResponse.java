@@ -8,20 +8,12 @@ public record GetGifticonBrandsResponse(List<GifticonBrandItemResponse> brands) 
 
     public static GetGifticonBrandsResponse from(GetGifticonBrandsResult result) {
         List<GifticonBrandItemResponse> items = result.brands().stream()
-                .map(item -> new GifticonBrandItemResponse(
-                        item.brandCode(),
-                        item.brandName(),
-                        item.brandImageUrl()
-                ))
+                .map(item -> new GifticonBrandItemResponse(item.brandCode(), item.brandName(), item.brandImageUrl()))
                 .toList();
 
         return new GetGifticonBrandsResponse(items);
     }
 
-    public record GifticonBrandItemResponse(
-            String brandCode,
-            String brandName,
-            String brandImageUrl
-    ) {
+    public record GifticonBrandItemResponse(String brandCode, String brandName, String brandImageUrl) {
     }
 }

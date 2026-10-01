@@ -29,7 +29,9 @@ public class AttendancePolicyPersistenceAdapter implements FindAttendancePolicyP
     }
 
     @Override
-    public Optional<AttendancePolicy> findByContinuousPeriodAndAttendenceDate(short continuousPeriod, LocalDate attendedDate) {
+    public Optional<AttendancePolicy> findByContinuousPeriodAndAttendenceDate(
+            short continuousPeriod, LocalDate attendedDate
+    ) {
         return repository.findTop1ByContinuousPeriodAndAttendenceDate(continuousPeriod, attendedDate)
                 .map(AttendancePolicyJpaEntity::toDomain);
     }

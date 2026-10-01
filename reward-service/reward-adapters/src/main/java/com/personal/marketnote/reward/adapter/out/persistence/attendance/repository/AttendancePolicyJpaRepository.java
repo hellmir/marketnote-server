@@ -13,9 +13,13 @@ public interface AttendancePolicyJpaRepository extends JpaRepository<AttendanceP
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<AttendancePolicyJpaEntity> findWithLockingById(Short id);
 
-    Optional<AttendancePolicyJpaEntity> findTop1ByContinuousPeriodAndAttendenceDate(short continuousPeriod, LocalDate attendenceDate);
+    Optional<AttendancePolicyJpaEntity> findTop1ByContinuousPeriodAndAttendenceDate(
+            short continuousPeriod, LocalDate attendenceDate
+    );
 
-    Optional<AttendancePolicyJpaEntity> findTop1ByContinuousPeriodAndAttendenceDateIsNullOrderByOrderNumDesc(short continuousPeriod);
+    Optional<AttendancePolicyJpaEntity> findTop1ByContinuousPeriodAndAttendenceDateIsNullOrderByOrderNumDesc(
+            short continuousPeriod
+    );
 
     List<AttendancePolicyJpaEntity> findAllByOrderByOrderNumDesc();
 }

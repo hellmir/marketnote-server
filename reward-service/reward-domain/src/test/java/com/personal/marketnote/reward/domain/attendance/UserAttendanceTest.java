@@ -80,7 +80,8 @@ class UserAttendanceTest {
                 .createdAt(createdAt)
                 .totalRewardQuantity(RewardQuantity.of(100L))
                 .histories(histories)
-                .build());
+                .build()
+        );
 
         UserAttendance updated = original.withAddedReward(30L);
 
@@ -99,6 +100,7 @@ class UserAttendanceTest {
                 .month(Month.APRIL)
                 .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
                 .histories(List.of())
-                .build());
+                .build()
+        );
     }
 }

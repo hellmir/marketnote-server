@@ -76,10 +76,12 @@ class PaymentCancelledPendingSharedPointConsumerTest {
 
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
                 .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+        );
         UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
                 .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+        );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
 
@@ -260,10 +262,12 @@ class PaymentCancelledPendingSharedPointConsumerTest {
 
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
                 .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+        );
         UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
                 .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+        );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
 

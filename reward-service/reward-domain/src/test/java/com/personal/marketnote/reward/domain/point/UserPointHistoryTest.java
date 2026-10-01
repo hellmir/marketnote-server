@@ -84,8 +84,9 @@ class UserPointHistoryTest {
         @Test
         @DisplayName("CreateState의 amount가 null이면 UserPointHistoryAmountNoValueException이 발생한다")
         void shouldThrowWhenAmountIsNull() {
-            assertThatThrownBy(() -> UserPointHistory.from(createStateWithPointAmount(UserPointChangeType.ACCRUAL, null)))
-                    .isInstanceOf(UserPointHistoryAmountNoValueException.class);
+            assertThatThrownBy(
+                    () -> UserPointHistory.from(createStateWithPointAmount(UserPointChangeType.ACCRUAL, null))
+            ).isInstanceOf(UserPointHistoryAmountNoValueException.class);
         }
 
         @Test

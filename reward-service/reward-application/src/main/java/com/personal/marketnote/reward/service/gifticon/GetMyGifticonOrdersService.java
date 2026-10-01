@@ -59,8 +59,10 @@ public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
         );
     }
 
-    private Long resolveNextCursor(GifticonOrderSortType sortType, boolean hasNext,
-                                   List<GifticonOrder> orders, GetMyGifticonOrdersCommand command) {
+    private Long resolveNextCursor(
+            GifticonOrderSortType sortType, boolean hasNext,
+            List<GifticonOrder> orders, GetMyGifticonOrdersCommand command
+    ) {
         if (!hasNext) {
             return null;
         }

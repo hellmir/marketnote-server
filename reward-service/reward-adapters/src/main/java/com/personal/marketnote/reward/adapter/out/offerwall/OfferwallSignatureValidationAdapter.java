@@ -37,7 +37,9 @@ public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSig
             String rewardUnit
     ) {
         String hashKey = resolveHashKey(offerwallType, userDeviceType);
-        String plainText = buildPlainText(offerwallType, hashKey, userKey, rewardKey, quantity, campaignKey, rewardUnit);
+        String plainText = buildPlainText(
+                offerwallType, hashKey, userKey, rewardKey, quantity, campaignKey, rewardUnit
+        );
 
         Map<OfferwallType, Runnable> signatureValidators = buildSignatureValidators(
                 hashKey, plainText, signedValue
@@ -57,9 +59,13 @@ public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSig
             String signedValue
     ) {
         Map<OfferwallType, Runnable> validators = new EnumMap<>(OfferwallType.class);
-        validators.put(OfferwallType.ADPOPCORN, () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue));
+        validators.put(OfferwallType.ADPOPCORN,
+                () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue)
+        );
         validators.put(OfferwallType.TNK, () -> VendorVerificationProcessor.validateSignature(plainText, signedValue));
-        validators.put(OfferwallType.ADISCOPE, () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue));
+        validators.put(OfferwallType.ADISCOPE,
+                () -> VendorVerificationProcessor.validateSignature(hashKey, plainText, signedValue)
+        );
         return validators;
     }
 
@@ -95,7 +101,9 @@ public class OfferwallSignatureValidationAdapter implements ValidateOfferwallSig
 
         String hashKey = deviceHashKeys.get(userDeviceType);
         if (FormatValidator.hasNoValue(hashKey)) {
-            throw new RewardTargetInfoNotFoundException("오퍼월 리워드 지급 대상 디바이스 정보가 없습니다.");
+            throw new RewardTargetInfoNotFoundException(
+                    "오퍼월 리워드 지급 대상 디바이스 정보가 없습니다."
+            );
         }
 
         return requireHashKey(hashKey);

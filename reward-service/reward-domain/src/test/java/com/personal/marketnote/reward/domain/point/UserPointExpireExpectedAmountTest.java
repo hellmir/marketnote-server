@@ -77,7 +77,8 @@ class UserPointExpireExpectedAmountTest {
                 .expireExpectedAmount(PointAmount.of(450L))
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
 
         UserPoint changed = original.withAmount(5000L);
 

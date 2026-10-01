@@ -19,10 +19,7 @@ public record GetUserPointHistoryResult(
         List<UserPointHistoryByDateResult> histories
 ) {
     public static GetUserPointHistoryResult from(
-            Long totalElements,
-            boolean hasNext,
-            Long nextCursor,
-            List<UserPointHistory> histories
+            Long totalElements, boolean hasNext, Long nextCursor, List<UserPointHistory> histories
     ) {
         Map<LocalDate, List<UserPointHistory>> historiesByDate = new LinkedHashMap<>();
 

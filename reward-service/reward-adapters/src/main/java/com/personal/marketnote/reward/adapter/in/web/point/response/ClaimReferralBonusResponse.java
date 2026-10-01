@@ -5,11 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 
 @Builder(access = AccessLevel.PRIVATE)
-public record ClaimReferralBonusResponse(
-        int requiredCount,
-        int bonusAmount,
-        String reason
-) {
+public record ClaimReferralBonusResponse(int requiredCount, int bonusAmount, String reason) {
     public static ClaimReferralBonusResponse from(ClaimReferralBonusResult result) {
         return ClaimReferralBonusResponse.builder()
                 .requiredCount(result.requiredCount())

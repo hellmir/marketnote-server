@@ -27,9 +27,11 @@ public interface FindUserPointHistoryPort {
      * @Author 성효빈
      * @Description 회원 식별자와 필터/기간/커서 조건으로 포인트 이력을 페이징 조회합니다.
      */
-    List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter,
-                                        LocalDate startDate, LocalDate endDate,
-                                        Long cursor, int pageSize);
+    List<UserPointHistory> findByUserId(
+            Long userId, UserPointHistoryFilter filter,
+            LocalDate startDate, LocalDate endDate,
+            Long cursor, int pageSize
+    );
 
     /**
      * @param userId    회원 식별자

@@ -259,7 +259,9 @@ class UserReferralCompletedRewardConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, REFERRER_POINT_REASON))
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        2L, UserPointSourceType.USER, 1L, REFERRER_POINT_REASON
+                ))
                 .thenReturn(null);
 
         // when
@@ -278,7 +280,9 @@ class UserReferralCompletedRewardConsumerTest {
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
                 .thenReturn(null)
-                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, REFERRED_POINT_REASON));
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        1L, UserPointSourceType.USER, 2L, REFERRED_POINT_REASON
+                ));
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);
@@ -295,8 +299,12 @@ class UserReferralCompletedRewardConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 2L);
         when(getReferralStatusUseCase.countCompletedReferrals(2L)).thenReturn(0L);
         when(modifyUserPointUseCase.modify(any(ModifyUserPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(2L, UserPointSourceType.USER, 1L, REFERRER_POINT_REASON))
-                .thenThrow(new DuplicateUserPointHistoryException(1L, UserPointSourceType.USER, 2L, REFERRED_POINT_REASON));
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        2L, UserPointSourceType.USER, 1L, REFERRER_POINT_REASON
+                ))
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        1L, UserPointSourceType.USER, 2L, REFERRED_POINT_REASON
+                ));
 
         // when
         userReferralCompletedRewardConsumer.handleUserReferralCompletedEvent(record, acknowledgment);

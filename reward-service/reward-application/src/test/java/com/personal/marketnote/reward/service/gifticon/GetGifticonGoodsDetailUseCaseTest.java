@@ -130,7 +130,8 @@ class GetGifticonGoodsDetailUseCaseTest {
                 .orderNum(1)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .build()
+        );
     }
 
     private UserPoint createUserPoint(Long userId, Long amount) {
@@ -141,6 +142,7 @@ class GetGifticonGoodsDetailUseCaseTest {
                 .expireExpectedAmount(PointAmount.zero())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .build()
+        );
     }
 }

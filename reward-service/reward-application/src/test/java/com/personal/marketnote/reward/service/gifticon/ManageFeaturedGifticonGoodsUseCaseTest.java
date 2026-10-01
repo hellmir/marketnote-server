@@ -136,7 +136,8 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
                 .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(false)
-                .build());
+                .build()
+        );
     }
 
     private GifticonGoods createPopularGoods(String goodsCode) {
@@ -156,7 +157,8 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
                 .exposed(true)
                 .popular(true)
                 .orderNum(1)
-                .build());
+                .build()
+        );
     }
 
     private GifticonGoods createUnexposedGoods(String goodsCode) {
@@ -175,6 +177,7 @@ class ManageFeaturedGifticonGoodsUseCaseTest {
                 .goodsStatus(GoodsStatus.SALE)
                 .exposed(false)
                 .popular(false)
-                .build());
+                .build()
+        );
     }
 }

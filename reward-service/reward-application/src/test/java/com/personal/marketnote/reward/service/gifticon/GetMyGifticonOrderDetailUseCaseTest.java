@@ -471,7 +471,8 @@ class GetMyGifticonOrderDetailUseCaseTest {
                 .validEndDate(LocalDate.of(2026, 5, 4))
                 .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build());
+                .build()
+        );
     }
 
     private GifticonOrder createOrderWithNullPin() {
@@ -489,7 +490,8 @@ class GetMyGifticonOrderDetailUseCaseTest {
                 .validEndDate(LocalDate.of(2026, 5, 4))
                 .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build());
+                .build()
+        );
     }
 
     private GifticonGoods createGoods() {
@@ -510,6 +512,7 @@ class GetMyGifticonOrderDetailUseCaseTest {
                 .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(false)
-                .build());
+                .build()
+        );
     }
 }

@@ -75,7 +75,9 @@ public class OrderPaymentCompletedProductPointConsumer {
                 return;
             }
 
-            modifyPendingPointIdempotent(envelope.eventId(), payload.buyerId(), payload.totalAccumulatedPoint(), payload.orderId());
+            modifyPendingPointIdempotent(
+                    envelope.eventId(), payload.buyerId(), payload.totalAccumulatedPoint(), payload.orderId()
+            );
 
             log.info("상품 구매 포인트 적립 완료. orderId={}, buyerId={}, totalAccumulatedPoint={}",
                     payload.orderId(), payload.buyerId(), payload.totalAccumulatedPoint());

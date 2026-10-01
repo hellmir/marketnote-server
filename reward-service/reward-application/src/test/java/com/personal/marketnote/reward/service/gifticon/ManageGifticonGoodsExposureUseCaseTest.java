@@ -161,6 +161,7 @@ class ManageGifticonGoodsExposureUseCaseTest {
                 .orderNum(null)
                 .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build());
+                .build()
+        );
     }
 }

@@ -5,9 +5,7 @@ import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryRe
 
 import java.util.List;
 
-public record GetUserPointHistoryResponse(
-        CursorResponse<UserPointHistoryByDateResponse> histories
-) {
+public record GetUserPointHistoryResponse(CursorResponse<UserPointHistoryByDateResponse> histories) {
     public static GetUserPointHistoryResponse from(GetUserPointHistoryResult result) {
         List<UserPointHistoryByDateResponse> items = result.histories().stream()
                 .map(UserPointHistoryByDateResponse::from)

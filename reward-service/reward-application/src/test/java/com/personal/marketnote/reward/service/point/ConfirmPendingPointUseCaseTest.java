@@ -63,7 +63,8 @@ class ConfirmPendingPointUseCaseTest {
                 .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
     }
 
     private ConfirmPendingPointCommand createCommand() {
@@ -91,7 +92,8 @@ class ConfirmPendingPointUseCaseTest {
                 .reason("주문 결제 적립 예정")
                 .accumulatedAt(NOW)
                 .createdAt(NOW)
-                .build());
+                .build()
+        );
     }
 
     @Test

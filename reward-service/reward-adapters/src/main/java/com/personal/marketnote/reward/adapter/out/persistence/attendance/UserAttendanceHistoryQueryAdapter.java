@@ -21,7 +21,9 @@ public class UserAttendanceHistoryQueryAdapter implements FindUserAttendanceHist
     }
 
     @Override
-    public boolean existsByUserAttendanceIdAndAttendedAtBetween(Long userAttendanceId, LocalDateTime startInclusive, LocalDateTime endExclusive) {
+    public boolean existsByUserAttendanceIdAndAttendedAtBetween(
+            Long userAttendanceId, LocalDateTime startInclusive, LocalDateTime endExclusive
+    ) {
         return repository.existsByUserAttendanceIdAndAttendedAtGreaterThanEqualAndAttendedAtLessThan(
                 userAttendanceId,
                 startInclusive,

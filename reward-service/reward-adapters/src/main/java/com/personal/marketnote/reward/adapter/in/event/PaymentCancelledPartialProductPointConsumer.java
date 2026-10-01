@@ -81,7 +81,9 @@ public class PaymentCancelledPartialProductPointConsumer {
                 return;
             }
 
-            modifyPendingPointIdempotent(envelope.eventId(), payload.buyerId(), payload.partialProductPendingDeduction(), payload.orderId());
+            modifyPendingPointIdempotent(
+                    envelope.eventId(), payload.buyerId(), payload.partialProductPendingDeduction(), payload.orderId()
+            );
 
             log.info("부분 상품 적립 예정 포인트 차감 완료. orderId={}, buyerId={}, deductionAmount={}",
                     payload.orderId(), payload.buyerId(), payload.partialProductPendingDeduction());

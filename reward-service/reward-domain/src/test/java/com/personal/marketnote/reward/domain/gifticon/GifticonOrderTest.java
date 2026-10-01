@@ -31,7 +31,8 @@ class GifticonOrderTest {
                 .validEndDate(LocalDate.of(2026, 7, 3))
                 .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                .build());
+                .build()
+        );
     }
 
     private GifticonOrder createIssuedOrder() {
@@ -51,7 +52,8 @@ class GifticonOrderTest {
                 .validEndDate(LocalDate.of(2026, 7, 3))
                 .createdAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 3, 12, 0, 0))
-                .build());
+                .build()
+        );
     }
 
     @Nested

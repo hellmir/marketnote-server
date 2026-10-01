@@ -42,9 +42,11 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
     }
 
     @Override
-    public List<UserPointHistory> findByUserId(Long userId, UserPointHistoryFilter filter,
-                                               LocalDate startDate, LocalDate endDate,
-                                               Long cursor, int pageSize) {
+    public List<UserPointHistory> findByUserId(
+            Long userId, UserPointHistoryFilter filter,
+            LocalDate startDate, LocalDate endDate,
+            Long cursor, int pageSize
+    ) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
         PageRequest pageable = PageRequest.of(0, pageSize);
