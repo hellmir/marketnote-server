@@ -35,9 +35,7 @@ public class UserRequestToCommandMapper {
                 .build();
     }
 
-    public static VerifyCodeCommand mapToCommand(
-            VerifyCodeRequest verifyCodeRequest
-    ) {
+    public static VerifyCodeCommand mapToCommand(VerifyCodeRequest verifyCodeRequest) {
         return VerifyCodeCommand.of(
                 verifyCodeRequest.getEmail(),
                 verifyCodeRequest.getVerificationCode()

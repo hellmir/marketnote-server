@@ -224,7 +224,8 @@ public class UserAdminController {
                         pageSize,
                         pageNumber - 1,
                         sortDirection,
-                        sortProperty)
+                        sortProperty
+                )
         );
 
         return new ResponseEntity<>(
@@ -259,7 +260,9 @@ public class UserAdminController {
     ) {
         Long adminId = ElementExtractor.extractUserId(principal);
         ChangeUserStatusResult result = changeUserStatusUseCase.changeStatus(
-                new ChangeUserStatusCommand(userId, adminId, request.action().name(), request.reason(), request.deactivatedUntil())
+                new ChangeUserStatusCommand(
+                        userId, adminId, request.action().name(), request.reason(), request.deactivatedUntil()
+                )
         );
 
         return new ResponseEntity<>(

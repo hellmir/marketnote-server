@@ -321,9 +321,9 @@ class ShippingAddressRegionClassifierTest {
         assertThat(result).isEqualTo(ShippingAddressRegionType.DELIVERY_IMPOSSIBLE);
     }
 
-    private RemoteAreaJpaEntity createRemoteAreaEntity(String province, String district,
-                                                       String village, String subarea,
-                                                       ShippingAddressRegionType regionType) {
+    private RemoteAreaJpaEntity createRemoteAreaEntity(
+            String province, String district, String village, String subarea, ShippingAddressRegionType regionType
+    ) {
         RemoteArea remoteArea = RemoteArea.from(RemoteAreaSnapshotState.builder()
                 .id(1L)
                 .province(province)

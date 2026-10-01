@@ -119,8 +119,10 @@ public class UserController {
         String redisKey = "userId:" + id;
         String refreshTokenValue = "r" + encodeBySha256Hex(refreshToken);
         stringRedisTemplate.opsForValue()
-                .set(Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
-                        Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS);
+                .set(
+                        Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
+                        Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS
+                );
 
         HttpStatus httpStatus = HttpStatus.CREATED;
         boolean isNewUser = signUpResult.isNewUser();
@@ -219,8 +221,10 @@ public class UserController {
         String redisKey = "refreshToken:" + id;
         String refreshTokenValue = "r" + encodeBySha256Hex(refreshToken);
         stringRedisTemplate.opsForValue()
-                .set(Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
-                        Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS);
+                .set(
+                        Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
+                        Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS
+                );
 
         HttpStatus httpStatus = HttpStatus.OK;
 
