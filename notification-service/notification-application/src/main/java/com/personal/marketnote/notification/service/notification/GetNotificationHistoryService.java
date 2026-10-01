@@ -40,8 +40,7 @@ public class GetNotificationHistoryService implements GetNotificationHistoryUseC
         return GetNotificationHistoryResult.from(totalElements, hasNext, nextCursor, pagedNotifications);
     }
 
-    private Long resolveTotalElements(GetNotificationHistoryCommand command,
-                                      boolean hasNext, int currentSize) {
+    private Long resolveTotalElements(GetNotificationHistoryCommand command, boolean hasNext, int currentSize) {
         if (FormatValidator.hasValue(command.cursor())) {
             return null;
         }

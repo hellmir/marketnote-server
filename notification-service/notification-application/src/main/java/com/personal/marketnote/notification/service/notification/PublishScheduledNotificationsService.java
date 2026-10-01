@@ -73,8 +73,7 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
     private void publishUnreadCountChangedEvent(Long userId) {
         try {
             long unreadCount = findNotificationPort.countUnreadByUserId(userId);
-            publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED",
-                    "{\"unreadCount\":" + unreadCount + "}");
+            publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
         } catch (Exception e) {
             log.error("SSE unreadCount 이벤트 발행 실패: userId={}", userId, e);
         }

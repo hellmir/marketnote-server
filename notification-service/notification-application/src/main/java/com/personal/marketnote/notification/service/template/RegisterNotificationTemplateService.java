@@ -23,11 +23,14 @@ public class RegisterNotificationTemplateService implements RegisterNotification
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public RegisterNotificationTemplateResult registerNotificationTemplate(RegisterNotificationTemplateCommand command) {
+    public RegisterNotificationTemplateResult registerNotificationTemplate(
+            RegisterNotificationTemplateCommand command
+    ) {
         validateNoDuplicateTemplateCode(command.templateCode());
 
         NotificationTemplate template = NotificationTemplate.from(
-                NotificationTemplateCommandToStateMapper.mapToState(command));
+                NotificationTemplateCommandToStateMapper.mapToState(command)
+        );
 
         Long savedId = saveNotificationTemplatePort.save(template);
 

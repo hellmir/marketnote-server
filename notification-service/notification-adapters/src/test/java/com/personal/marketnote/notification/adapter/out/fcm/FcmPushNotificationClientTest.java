@@ -100,7 +100,9 @@ class FcmPushNotificationClientTest {
         void shouldReturnTokenInvalidForInvalidArgument() throws Exception {
             // given
             SendPushNotificationCommand command = createDefaultCommand();
-            FirebaseMessagingException exception = createFirebaseMessagingException(MessagingErrorCode.INVALID_ARGUMENT);
+            FirebaseMessagingException exception = createFirebaseMessagingException(
+                    MessagingErrorCode.INVALID_ARGUMENT
+            );
             when(firebaseMessaging.send(any(Message.class))).thenThrow(exception);
 
             // when

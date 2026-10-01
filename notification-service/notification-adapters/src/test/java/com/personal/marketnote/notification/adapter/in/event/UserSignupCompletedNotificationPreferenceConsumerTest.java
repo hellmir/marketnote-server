@@ -58,7 +58,9 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
         consumer.handleUserSignupCompletedEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<InitializeNotificationPreferenceCommand> captor = ArgumentCaptor.forClass(InitializeNotificationPreferenceCommand.class);
+        ArgumentCaptor<InitializeNotificationPreferenceCommand> captor = ArgumentCaptor.forClass(
+                InitializeNotificationPreferenceCommand.class
+        );
         verify(initializeNotificationPreferenceUseCase).initializeNotificationPreference(captor.capture());
 
         InitializeNotificationPreferenceCommand command = captor.getValue();
@@ -138,13 +140,17 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
         doThrow(new DuplicateNotificationPreferenceException(1L))
-                .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(any(InitializeNotificationPreferenceCommand.class));
+                .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
+                        any(InitializeNotificationPreferenceCommand.class)
+                );
 
         // when
         consumer.handleUserSignupCompletedEvent(record, acknowledgment);
 
         // then
-        verify(initializeNotificationPreferenceUseCase).initializeNotificationPreference(any(InitializeNotificationPreferenceCommand.class));
+        verify(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
+                any(InitializeNotificationPreferenceCommand.class)
+        );
         verify(acknowledgment).acknowledge();
     }
 
@@ -154,7 +160,9 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "user-key-123");
         doThrow(new RuntimeException("DB 연결 실패"))
-                .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(any(InitializeNotificationPreferenceCommand.class));
+                .when(initializeNotificationPreferenceUseCase).initializeNotificationPreference(
+                        any(InitializeNotificationPreferenceCommand.class)
+                );
 
         // when & then
         assertThatThrownBy(() ->

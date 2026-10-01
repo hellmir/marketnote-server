@@ -31,8 +31,9 @@ class GetNotificationTemplateUseCaseTest {
     @DisplayName("ID로 알림 템플릿을 조회한다")
     void shouldGetNotificationTemplateById() {
         // given
-        NotificationTemplate template = createTemplate("ORDER_PAYMENT_COMPLETED",
-                NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다");
+        NotificationTemplate template = createTemplate(
+                "ORDER_PAYMENT_COMPLETED", NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다"
+        );
 
         when(findNotificationTemplatePort.findActiveById(1L))
                 .thenReturn(Optional.of(template));
@@ -63,10 +64,12 @@ class GetNotificationTemplateUseCaseTest {
     @DisplayName("전체 알림 템플릿을 조회한다")
     void shouldGetAllNotificationTemplates() {
         // given
-        NotificationTemplate template1 = createTemplate("ORDER_PAYMENT_COMPLETED",
-                NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다");
-        NotificationTemplate template2 = createTemplate("SHIPPING_STARTED",
-                NotificationType.SHIPPING_STARTED, "배송이 시작되었습니다");
+        NotificationTemplate template1 = createTemplate(
+                "ORDER_PAYMENT_COMPLETED", NotificationType.ORDER_PAYMENT_COMPLETED, "주문이 완료되었습니다"
+        );
+        NotificationTemplate template2 = createTemplate(
+                "SHIPPING_STARTED", NotificationType.SHIPPING_STARTED, "배송이 시작되었습니다"
+        );
 
         when(findNotificationTemplatePort.findAllActive())
                 .thenReturn(List.of(template1, template2));

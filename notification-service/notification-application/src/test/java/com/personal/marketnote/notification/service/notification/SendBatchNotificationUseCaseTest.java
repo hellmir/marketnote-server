@@ -242,8 +242,8 @@ class SendBatchNotificationUseCaseTest {
                     createPreference(3L, true)
             );
             when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED))
-                    .thenReturn(enabledPrefs);
+                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+            )).thenReturn(enabledPrefs);
 
             setupSaveAllReturnsWithIds();
             setupDeviceTokensForUsers(List.of(1L, 3L), 1);
@@ -268,8 +268,8 @@ class SendBatchNotificationUseCaseTest {
             setupTemplateFound(template);
 
             when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED))
-                    .thenReturn(List.of());
+                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+            )).thenReturn(List.of());
 
             setupSaveAllReturnsWithIds();
 
@@ -554,8 +554,8 @@ class SendBatchNotificationUseCaseTest {
                     createPreference(1L, true)
             );
             when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED))
-                    .thenReturn(enabledPrefs);
+                    userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+            )).thenReturn(enabledPrefs);
 
             setupSaveAllReturnsWithIds();
             setupDeviceTokensForUsers(List.of(1L), 1);
@@ -636,8 +636,7 @@ class SendBatchNotificationUseCaseTest {
         long tokenIdCounter = 10L;
         for (Long userId : userIds) {
             for (int i = 0; i < devicesPerUser; i++) {
-                tokens.add(createDeviceToken(tokenIdCounter++, userId,
-                        "token-" + userId + "-" + i, Platform.ANDROID));
+                tokens.add(createDeviceToken(tokenIdCounter++, userId, "token-" + userId + "-" + i, Platform.ANDROID));
             }
         }
         when(findDeviceTokenPort.findActiveByUserIds(userIds)).thenReturn(tokens);
@@ -655,8 +654,8 @@ class SendBatchNotificationUseCaseTest {
                 .map(userId -> createPreference(userId, true))
                 .toList();
         when(findNotificationPreferencePort.findEnabledByUserIdsAndNotificationType(
-                userIds, NotificationType.ORDER_PAYMENT_COMPLETED))
-                .thenReturn(prefs);
+                userIds, NotificationType.ORDER_PAYMENT_COMPLETED
+        )).thenReturn(prefs);
     }
 
     private NotificationPreference createPreference(Long userId, boolean enabled) {

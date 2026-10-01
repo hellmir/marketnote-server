@@ -55,7 +55,9 @@ public class UserSignupCompletedNotificationPreferenceConsumer {
                 return;
             }
 
-            InitializeNotificationPreferenceCommand command = new InitializeNotificationPreferenceCommand(payload.userId());
+            InitializeNotificationPreferenceCommand command = new InitializeNotificationPreferenceCommand(
+                    payload.userId()
+            );
             initializeNotificationPreferenceUseCase.initializeNotificationPreference(command);
 
             log.info("Kafka 이벤트로 알림 수신 설정 초기화 완료. userId={}", payload.userId());

@@ -51,7 +51,10 @@ import java.lang.annotation.*;
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
-                @Parameter(name = "deviceId", description = "기기 고유 식별자", required = true, example = "550e8400-e29b-41d4-a716-446655440000")
+                @Parameter(
+                        name = "deviceId", description = "기기 고유 식별자", required = true,
+                        example = "550e8400-e29b-41d4-a716-446655440000"
+                )
         },
         responses = {
                 @ApiResponse(

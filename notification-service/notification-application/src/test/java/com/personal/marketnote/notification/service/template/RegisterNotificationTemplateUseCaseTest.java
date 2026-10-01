@@ -50,7 +50,9 @@ class RegisterNotificationTemplateUseCaseTest {
                 .thenReturn(1L);
 
         // when
-        RegisterNotificationTemplateResult result = registerNotificationTemplateService.registerNotificationTemplate(command);
+        RegisterNotificationTemplateResult result = registerNotificationTemplateService.registerNotificationTemplate(
+                command
+        );
 
         // then
         assertThat(result.id()).isEqualTo(1L);

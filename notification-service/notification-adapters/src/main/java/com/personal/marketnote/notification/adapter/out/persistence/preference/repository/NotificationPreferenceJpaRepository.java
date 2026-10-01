@@ -14,10 +14,13 @@ import java.util.Optional;
 public interface NotificationPreferenceJpaRepository extends JpaRepository<NotificationPreferenceJpaEntity, Long> {
     List<NotificationPreferenceJpaEntity> findAllByUserIdAndStatus(Long userId, EntityStatus status);
 
-    Optional<NotificationPreferenceJpaEntity> findByUserIdAndNotificationTypeAndStatus(Long userId, NotificationType notificationType, EntityStatus status);
+    Optional<NotificationPreferenceJpaEntity> findByUserIdAndNotificationTypeAndStatus(
+            Long userId, NotificationType notificationType, EntityStatus status
+    );
 
     List<NotificationPreferenceJpaEntity> findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(
-            List<Long> userIds, NotificationType notificationType, EntityStatus status);
+            List<Long> userIds, NotificationType notificationType, EntityStatus status
+    );
 
     @Query("SELECT DISTINCT p.userId FROM NotificationPreferenceJpaEntity p WHERE p.status = 'ACTIVE'")
     List<Long> findAllDistinctUserIds();

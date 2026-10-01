@@ -54,7 +54,9 @@ class UpdateNotificationTemplateUseCaseTest {
                 .thenReturn(Optional.of(template));
 
         // when
-        UpdateNotificationTemplateResult result = updateNotificationTemplateService.updateNotificationTemplate(1L, command);
+        UpdateNotificationTemplateResult result = updateNotificationTemplateService.updateNotificationTemplate(
+                1L, command
+        );
 
         // then
         assertThat(result.title()).isEqualTo("수정된 제목");

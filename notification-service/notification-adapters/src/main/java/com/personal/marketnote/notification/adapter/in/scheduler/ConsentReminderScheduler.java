@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "notification.consent-reminder", name = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(
+        prefix = "notification.consent-reminder", name = "enabled", havingValue = "true", matchIfMissing = true
+)
 public class ConsentReminderScheduler {
 
     private final SendConsentReminderUseCase sendConsentReminderUseCase;

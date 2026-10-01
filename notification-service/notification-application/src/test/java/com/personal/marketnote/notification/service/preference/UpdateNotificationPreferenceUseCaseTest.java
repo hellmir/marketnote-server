@@ -119,10 +119,13 @@ class UpdateNotificationPreferenceUseCaseTest {
         // given
         Long userId = 200L;
 
-        when(findNotificationPreferencePort.findByUserIdAndNotificationType(userId, NotificationType.ORDER_PAYMENT_COMPLETED))
-                .thenReturn(Optional.empty());
+        when(findNotificationPreferencePort.findByUserIdAndNotificationType(
+                userId, NotificationType.ORDER_PAYMENT_COMPLETED
+        )).thenReturn(Optional.empty());
 
-        UpdateNotificationPreferenceCommand command = new UpdateNotificationPreferenceCommand(userId, "ORDER_PAYMENT_COMPLETED", true);
+        UpdateNotificationPreferenceCommand command = new UpdateNotificationPreferenceCommand(
+                userId, "ORDER_PAYMENT_COMPLETED", true
+        );
 
         // when & then
         assertThatThrownBy(() -> updateNotificationPreferenceService.updateNotificationPreference(command))
