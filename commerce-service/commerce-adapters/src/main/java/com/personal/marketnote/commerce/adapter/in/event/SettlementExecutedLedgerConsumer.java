@@ -44,10 +44,13 @@ public class SettlementExecutedLedgerConsumer {
         SettlementExecutedEvent payload = envelope.getPayloadAs(SettlementExecutedEvent.class, objectMapper);
 
         log.info("정산 실행 이벤트 수신 (회계 분개). eventId={}, settlementId={}, sellerId={}",
-                envelope.eventId(), payload.settlementId(), payload.sellerId());
+                envelope.eventId(), payload.settlementId(), payload.sellerId()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("settlementId", payload.settlementId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(),
+                EventPayloadValidator.id("settlementId", payload.settlementId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -68,10 +71,10 @@ public class SettlementExecutedLedgerConsumer {
 
             log.info("정산 분개 완료. settlementId={}, totalAllocated={}, pgFee={}, sellerPayout={}, platformFee={}",
                     payload.settlementId(), payload.totalAllocatedAmount(), payload.pgFeeAmount(),
-                    payload.sellerPayoutAmount(), payload.platformFeeAmount());
+                    payload.sellerPayoutAmount(), payload.platformFeeAmount()
+            );
         } catch (DuplicateLedgerTransactionException e) {
-            log.info("이미 처리된 정산 분개 이벤트 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 정산 분개 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         }
         // 그 외 예외는 DefaultErrorHandler가 재시도 + DLT로 처리
 

@@ -48,14 +48,18 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
         validateReasonCategory(command.reasonCategory());
         validateReturnableStatus(order);
 
-        Set<Long> targetPricePolicyIds = resolveTargetPricePolicyIds(order.getOrderProducts(), command.returnPricePolicyIds());
+        Set<Long> targetPricePolicyIds = resolveTargetPricePolicyIds(
+                order.getOrderProducts(), command.returnPricePolicyIds()
+        );
         boolean isFullReturn = targetPricePolicyIds.size() >= order.getOrderProducts().size();
 
         long totalProductAmount = calculateTotalProductAmount(order.getOrderProducts(), targetPricePolicyIds);
         long returnShippingFee = calculateReturnShippingFee(command);
         String refundMethod = resolveRefundMethod(order);
         long estimatedRefundCash = calculateEstimatedRefundCash(order, totalProductAmount, isFullReturn);
-        long estimatedRefundAmount = calculateEstimatedRefundAmount(totalProductAmount, returnShippingFee, estimatedRefundCash);
+        long estimatedRefundAmount = calculateEstimatedRefundAmount(
+                totalProductAmount, returnShippingFee, estimatedRefundCash
+        );
 
         return GetReturnRefundInfoResult.builder()
                 .totalProductAmount(totalProductAmount)
@@ -116,7 +120,9 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
                 .returnPricePolicyIds(command.returnPricePolicyIds())
                 .build();
 
-        CalculateReturnShippingFeeResult result = calculateReturnShippingFeeUseCase.calculateReturnShippingFee(shippingFeeCommand);
+        CalculateReturnShippingFeeResult result = calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                shippingFeeCommand
+        );
         return result.returnShippingFee();
     }
 
@@ -146,8 +152,12 @@ public class GetReturnRefundInfoService implements GetReturnRefundInfoUseCase {
         return Math.multiplyExact(pointAmount, totalProductAmount) / totalAmount;
     }
 
-    private long calculateEstimatedRefundAmount(long totalProductAmount, long returnShippingFee, long estimatedRefundCash) {
-        long amount = Math.subtractExact(Math.subtractExact(totalProductAmount, returnShippingFee), estimatedRefundCash);
+    private long calculateEstimatedRefundAmount(
+            long totalProductAmount, long returnShippingFee, long estimatedRefundCash
+    ) {
+        long amount = Math.subtractExact(
+                Math.subtractExact(totalProductAmount, returnShippingFee), estimatedRefundCash
+        );
         return Math.max(amount, 0L);
     }
 }

@@ -51,10 +51,12 @@ public class PaymentCancelledInventoryConsumer {
             PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
 
             log.info("결제 취소 이벤트 수신 (재고 복구). eventId={}, orderId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel());
+                    envelope.eventId(), payload.orderId(), payload.isFullCancel()
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+            if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -67,11 +69,11 @@ public class PaymentCancelledInventoryConsumer {
                 handlePartialCancelInventoryRestore(envelope, payload);
             }
         } catch (DuplicateInventoryRestorationException e) {
-            log.info("이미 처리된 재고 복구 이벤트 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 재고 복구 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         } catch (Exception e) {
             log.error("재고 복구 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                    envelope.eventId(), record.key(), e.getMessage(), e
+            );
             throw e;
         }
 
@@ -80,32 +82,28 @@ public class PaymentCancelledInventoryConsumer {
 
     private void handleFullCancelInventoryRestore(EventEnvelope<?> envelope, PaymentCancelledEvent payload) {
         if (FormatValidator.hasNoValue(payload.orderProducts()) || payload.orderProducts().isEmpty()) {
-            log.warn("전체 취소인데 주문 상품이 없는 이벤트. eventId={}, orderId={}",
-                    envelope.eventId(), payload.orderId());
+            log.warn("전체 취소인데 주문 상품이 없는 이벤트. eventId={}, orderId={}", envelope.eventId(), payload.orderId());
             return;
         }
 
         List<OrderProduct> orderProducts = convertToOrderProducts(payload.orderProducts());
         restoreProductInventoryUseCase.restore(orderProducts, payload.orderId(), "Kafka 전액 취소 재고 복구");
 
-        log.info("전체 취소 재고 복구 완료. orderId={}, orderProducts={}건",
-                payload.orderId(), payload.orderProducts().size());
+        log.info("전체 취소 재고 복구 완료. orderId={}, orderProducts={}건", payload.orderId(), payload.orderProducts().size());
     }
 
     private void handlePartialCancelInventoryRestore(EventEnvelope<?> envelope, PaymentCancelledEvent payload) {
         List<OrderProductItem> cancelProducts = payload.cancelProducts();
 
         if (FormatValidator.hasNoValue(cancelProducts) || cancelProducts.isEmpty()) {
-            log.warn("부분 취소인데 cancelProducts가 없는 이벤트. eventId={}, orderId={}",
-                    envelope.eventId(), payload.orderId());
+            log.warn("부분 취소인데 cancelProducts가 없는 이벤트. eventId={}, orderId={}", envelope.eventId(), payload.orderId());
             return;
         }
 
         List<OrderProduct> cancelOrderProducts = convertToOrderProducts(cancelProducts);
         restoreProductInventoryUseCase.restore(cancelOrderProducts, payload.orderId(), "Kafka 부분 취소 재고 복구");
 
-        log.info("부분 취소 재고 복구 완료. orderId={}, cancelProducts={}건",
-                payload.orderId(), cancelProducts.size());
+        log.info("부분 취소 재고 복구 완료. orderId={}, cancelProducts={}건", payload.orderId(), cancelProducts.size());
     }
 
     private List<OrderProduct> convertToOrderProducts(List<OrderProductItem> items) {

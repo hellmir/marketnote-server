@@ -15,9 +15,13 @@ public interface InventoryReservationJpaRepository extends JpaRepository<Invento
     List<InventoryReservationJpaEntity> findByOrderIdAndPricePolicyIdIn(Long orderId, Set<Long> pricePolicyIds);
 
     @Query("SELECT e FROM InventoryReservationJpaEntity e WHERE e.reservedAt < :cutoff ORDER BY e.reservedAt ASC")
-    List<InventoryReservationJpaEntity> findByReservedAtBefore(@Param("cutoff") LocalDateTime cutoff, Pageable pageable);
+    List<InventoryReservationJpaEntity> findByReservedAtBefore(
+            @Param("cutoff") LocalDateTime cutoff, Pageable pageable
+    );
 
     @Modifying
     @Query("DELETE FROM InventoryReservationJpaEntity e WHERE e.orderId = :orderId AND e.pricePolicyId IN :pricePolicyIds")
-    void deleteByOrderIdAndPricePolicyIdIn(@Param("orderId") Long orderId, @Param("pricePolicyIds") Set<Long> pricePolicyIds);
+    void deleteByOrderIdAndPricePolicyIdIn(
+            @Param("orderId") Long orderId, @Param("pricePolicyIds") Set<Long> pricePolicyIds
+    );
 }

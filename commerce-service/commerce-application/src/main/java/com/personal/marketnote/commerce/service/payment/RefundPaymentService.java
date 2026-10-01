@@ -54,7 +54,9 @@ public class RefundPaymentService implements RefundPaymentUseCase {
 
         Long adjustedCancelAmount = cancelAmount;
         if (!command.isFullCancel()) {
-            adjustedCancelAmount = deductReturnShippingFee(cancelAmount, command.returnShippingFee(), command.orderId());
+            adjustedCancelAmount = deductReturnShippingFee(
+                    cancelAmount, command.returnShippingFee(), command.orderId()
+            );
         }
 
         if (adjustedCancelAmount <= 0L) {
@@ -114,7 +116,8 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         }
 
         log.info("반품 배송비 차감 - orderId: {}, 원래 환불액: {}, 반품 배송비: {}, 조정 환불액: {}",
-                orderId, cancelAmount, returnShippingFee, adjusted);
+                orderId, cancelAmount, returnShippingFee, adjusted
+        );
         return adjusted;
     }
 
@@ -145,8 +148,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);
         } catch (Exception e) {
-            log.error("반품 배송비 차감 환불 기록 저장 실패 - orderId: {}, error: {}",
-                    payment.getOrderId(), e.getMessage(), e);
+            log.error("반품 배송비 차감 환불 기록 저장 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }
 
@@ -221,8 +223,7 @@ public class RefundPaymentService implements RefundPaymentUseCase {
             Refund refund = Refund.from(createState);
             saveRefundPort.save(refund);
         } catch (Exception e) {
-            log.error("환불 상세 기록 저장 실패 - orderId: {}, error: {}",
-                    payment.getOrderId(), e.getMessage(), e);
+            log.error("환불 상세 기록 저장 실패 - orderId: {}, error: {}", payment.getOrderId(), e.getMessage(), e);
         }
     }
 }

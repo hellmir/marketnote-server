@@ -47,10 +47,12 @@ public class PaymentCancelledOrderStatusConsumer {
             PaymentCancelledEvent payload = envelope.getPayloadAs(PaymentCancelledEvent.class, objectMapper);
 
             log.info("결제 취소 이벤트 수신 (주문 상태 변경). eventId={}, orderId={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.isFullCancel());
+                    envelope.eventId(), payload.orderId(), payload.isFullCancel()
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+            if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
                 acknowledgment.acknowledge();
                 return;
             }

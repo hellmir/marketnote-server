@@ -13,7 +13,9 @@ public interface PaymentAllocationJpaRepository extends JpaRepository<PaymentAll
 
     @Query("SELECT pa FROM PaymentAllocationJpaEntity pa WHERE pa.settlementId IS NULL " +
             "AND YEAR(pa.createdAt) = :year AND MONTH(pa.createdAt) = :month")
-    List<PaymentAllocationJpaEntity> findAllUnsettledByPeriod(@Param("year") Integer year, @Param("month") Integer month);
+    List<PaymentAllocationJpaEntity> findAllUnsettledByPeriod(
+            @Param("year") Integer year, @Param("month") Integer month
+    );
 
     @Modifying
     @Query("UPDATE PaymentAllocationJpaEntity pa SET pa.settlementId = :settlementId WHERE pa.id IN :ids AND pa.settlementId IS NULL")

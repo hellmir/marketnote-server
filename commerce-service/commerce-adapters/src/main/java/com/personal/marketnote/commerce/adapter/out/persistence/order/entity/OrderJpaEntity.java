@@ -134,14 +134,20 @@ public class OrderJpaEntity extends BaseEntity {
                 .address(order.getShippingAddress().getAddress())
                 .addressDetail(order.getShippingAddress().getAddressDetail())
                 .deliveryRequestType(order.getShippingAddress().getDeliveryRequestType())
-                .deliveryRequestMessage(toDeliveryRequestMessageValue(order.getShippingAddress().getDeliveryRequestMessage()))
+                .deliveryRequestMessage(toDeliveryRequestMessageValue(
+                        order.getShippingAddress().getDeliveryRequestMessage()
+                ))
                 .pickupRecipientName(toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName)))
-                .pickupRecipientPhoneNumber(toPhoneNumberValue(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)))
+                .pickupRecipientPhoneNumber(toPhoneNumberValue(
+                        resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
+                ))
                 .pickupZipCode(resolvePickupField(order, ShippingAddress::getZipCode))
                 .pickupAddress(resolvePickupField(order, ShippingAddress::getAddress))
                 .pickupAddressDetail(resolvePickupField(order, ShippingAddress::getAddressDetail))
                 .pickupDeliveryRequestType(resolvePickupField(order, ShippingAddress::getPickupRequestType))
-                .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)))
+                .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(
+                        resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
+                ))
                 .build();
     }
 
@@ -157,12 +163,16 @@ public class OrderJpaEntity extends BaseEntity {
         pointAmount = order.getAmount().getPointAmount().getValue();
         shippingFee = order.getAmount().getShippingFee().getValue();
         pickupRecipientName = toRecipientNameValue(resolvePickupField(order, ShippingAddress::getRecipientName));
-        pickupRecipientPhoneNumber = toPhoneNumberValue(resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber));
+        pickupRecipientPhoneNumber = toPhoneNumberValue(
+                resolvePickupField(order, ShippingAddress::getRecipientPhoneNumber)
+        );
         pickupZipCode = resolvePickupField(order, ShippingAddress::getZipCode);
         pickupAddress = resolvePickupField(order, ShippingAddress::getAddress);
         pickupAddressDetail = resolvePickupField(order, ShippingAddress::getAddressDetail);
         pickupDeliveryRequestType = resolvePickupField(order, ShippingAddress::getPickupRequestType);
-        pickupDeliveryRequestMessage = toDeliveryRequestMessageValue(resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage));
+        pickupDeliveryRequestMessage = toDeliveryRequestMessageValue(
+                resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
+        );
 
         Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()
                 .stream()

@@ -97,8 +97,10 @@ public class CancelOrderService implements CancelOrderUseCase {
         log.info("주문 취소 SAGA 시작. orderId={}, sagaId={}", order.getId(), sagaId);
     }
 
-    private void cancelOrderSync(CancelOrderCommand command, Order order,
-                                 OrderStatus originalStatus, OrderStatus targetStatus) {
+    private void cancelOrderSync(
+            CancelOrderCommand command, Order order,
+            OrderStatus originalStatus, OrderStatus targetStatus
+    ) {
         cancelFulfillmentIfRequired(order);
         persistStatusChange(command, order, targetStatus);
 
@@ -183,8 +185,7 @@ public class CancelOrderService implements CancelOrderUseCase {
 
     private void validateBuyerOwnership(CancelOrderCommand command, Order order) {
         if (!order.isBuyer(command.buyerId())) {
-            log.warn("주문 소유자 불일치 - orderId: {}, 요청자: {}",
-                    command.id(), command.buyerId());
+            log.warn("주문 소유자 불일치 - orderId: {}, 요청자: {}", command.id(), command.buyerId());
             throw new UnauthorizedOrderAccessException();
         }
     }

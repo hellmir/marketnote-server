@@ -56,13 +56,19 @@ public class CancelSettlementService implements CancelSettlementUseCase {
 
         settlement.cancel();
 
-        recordPgSettlementCancellation(settlementId, settlement.getTotalAllocatedAmount().getValue(), settlement.getPgFeeAmount().getValue());
-        recordSellerSettlementCancellation(settlementId, settlement.getSellerPayoutAmount().getValue(), settlement.getPlatformFeeAmount().getValue());
+        recordPgSettlementCancellation(
+                settlementId, settlement.getTotalAllocatedAmount().getValue(), settlement.getPgFeeAmount().getValue()
+        );
+        recordSellerSettlementCancellation(
+                settlementId,
+                settlement.getSellerPayoutAmount().getValue(), settlement.getPlatformFeeAmount().getValue()
+        );
 
         updateSettlementPort.update(settlement);
 
         log.info("정산 취소 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}",
-                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth());
+                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth()
+        );
     }
 
     /**
@@ -130,7 +136,9 @@ public class CancelSettlementService implements CancelSettlementUseCase {
      * </pre>
      * </p>
      */
-    private void recordSellerSettlementCancellation(Long settlementId, Long sellerPayoutAmount, Long platformFeeAmount) {
+    private void recordSellerSettlementCancellation(
+            Long settlementId, Long sellerPayoutAmount, Long platformFeeAmount
+    ) {
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)

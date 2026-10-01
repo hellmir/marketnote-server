@@ -95,7 +95,9 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
             Map<Long, Long> productIdsByPricePolicyId = inventories.stream()
                     .collect(Collectors.toMap(Inventory::getPricePolicyId, Inventory::getProductId));
             saveInventoryRestorationHistoryPort.save(
-                    InventoryRestorationHistories.from(quantityByPricePolicyId, productIdsByPricePolicyId, orderId, "예약 만료 - 스케줄러 자동 해소")
+                    InventoryRestorationHistories.from(
+                            quantityByPricePolicyId, productIdsByPricePolicyId, orderId, "예약 만료 - 스케줄러 자동 해소"
+                    )
             );
 
             saveCacheStockPort.save(inventories);

@@ -45,11 +45,14 @@ public class ReviewRegisteredCommerceConsumer {
             ReviewRegisteredEvent payload = envelope.getPayloadAs(ReviewRegisteredEvent.class, objectMapper);
 
             log.info("리뷰 등록 이벤트 수신. eventId={}, orderId={}, pricePolicyId={}",
-                    envelope.eventId(), payload.orderId(), payload.pricePolicyId());
+                    envelope.eventId(), payload.orderId(), payload.pricePolicyId()
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+            if (EventPayloadValidator.hasInvalidIds(
+                    envelope.eventId(),
                     EventPayloadValidator.id("orderId", payload.orderId()),
-                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+                    EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId())
+            )) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -60,10 +63,12 @@ public class ReviewRegisteredCommerceConsumer {
             updateOrderProductUseCase.updateReviewStatus(command);
 
             log.info("Kafka 이벤트로 주문상품 리뷰 상태 업데이트 완료. orderId={}, pricePolicyId={}",
-                    payload.orderId(), payload.pricePolicyId());
+                    payload.orderId(), payload.pricePolicyId()
+            );
         } catch (Exception e) {
             log.error("주문상품 리뷰 상태 업데이트 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                    envelope.eventId(), record.key(), e.getMessage(), e
+            );
             throw e;
         }
 

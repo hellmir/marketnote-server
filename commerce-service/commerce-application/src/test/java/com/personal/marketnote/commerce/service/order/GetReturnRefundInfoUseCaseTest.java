@@ -63,7 +63,9 @@ class GetReturnRefundInfoUseCaseTest {
             // given
             Order order = createOrder(OrderStatus.DELIVERED, 50000L, 0L, 0L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
                     .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
@@ -92,7 +94,9 @@ class GetReturnRefundInfoUseCaseTest {
             // given
             Order order = createOrder(OrderStatus.DELIVERED, 30000L, 0L, 0L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(6000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
                     .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
@@ -114,7 +118,9 @@ class GetReturnRefundInfoUseCaseTest {
             // given
             Order order = createOrder(OrderStatus.DELIVERED, 50000L, 0L, 10000L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
                     .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
@@ -140,7 +146,9 @@ class GetReturnRefundInfoUseCaseTest {
                     0L, 10000L
             );
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
                     .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
@@ -165,7 +173,9 @@ class GetReturnRefundInfoUseCaseTest {
             // given
             Order order = createOrder(OrderStatus.DELIVERED, 5000L, 0L, 3000L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(6000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
                     .thenReturn(Optional.of(createPspPaymentEvent("CARD")));
@@ -272,7 +282,9 @@ class GetReturnRefundInfoUseCaseTest {
             // given
             Order order = createOrder(OrderStatus.DELIVERED, 50000L, 0L, 0L);
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
             when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY.toString()))
                     .thenReturn(Optional.empty());

@@ -32,18 +32,17 @@ public class GetSellerSettlementsService implements GetSellerSettlementsUseCase 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementsResult getSellerSettlements(GetSellerSettlementsQuery query) {
-        log.info("판매자 정산 조회 - sellerId={}, year={}, month={}",
-                query.sellerId(), query.year(), query.month());
+        log.info("판매자 정산 조회 - sellerId={}, year={}, month={}", query.sellerId(), query.year(), query.month());
 
         List<Settlement> settlements;
 
         if (FormatValidator.hasValue(query.month())) {
             Optional<Settlement> settlement = findSettlementPort.findBySellerIdAndYearAndMonth(
-                    query.sellerId(), query.year(), query.month());
+                    query.sellerId(), query.year(), query.month()
+            );
             settlements = settlement.map(List::of).orElse(List.of());
         } else {
-            settlements = findSettlementPort.findAllBySellerIdAndYear(
-                    query.sellerId(), query.year());
+            settlements = findSettlementPort.findAllBySellerIdAndYear(query.sellerId(), query.year());
         }
 
         return GetSettlementsResult.from(settlements);

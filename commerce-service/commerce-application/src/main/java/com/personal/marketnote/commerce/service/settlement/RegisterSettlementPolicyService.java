@@ -49,7 +49,8 @@ public class RegisterSettlementPolicyService implements RegisterSettlementPolicy
         SettlementPolicy saved = saveSettlementPolicyPort.save(policy);
 
         log.info("정산 정책 등록 완료 - sellerId: {}, pgFeeRate: {}, platformFeeRate: {}, cycle: {}",
-                command.sellerId(), command.pgFeeRate(), command.platformFeeRate(), command.settlementCycle());
+                command.sellerId(), command.pgFeeRate(), command.platformFeeRate(), command.settlementCycle()
+        );
 
         return GetSettlementPolicyResult.from(saved);
     }

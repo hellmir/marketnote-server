@@ -50,8 +50,7 @@ public class OrderPaymentInventorySagaConsumer {
 
         SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
 
-        log.info("SAGA 재고 스텝 수신. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+        log.info("SAGA 재고 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
 
         if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
             handleAction(stepMessage);
@@ -65,8 +64,7 @@ public class OrderPaymentInventorySagaConsumer {
             return;
         }
 
-        log.warn("알 수 없는 messageType. sagaId={}, messageType={}",
-                stepMessage.sagaId(), stepMessage.messageType());
+        log.warn("알 수 없는 messageType. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
         acknowledgment.acknowledge();
     }
 
@@ -90,19 +88,22 @@ public class OrderPaymentInventorySagaConsumer {
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true}");
+                    stepMessage.messageType(), "{\"success\":true}"
+            );
 
             log.info("SAGA 재고 차감 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (DuplicateInventoryDeductionException e) {
             log.info("이미 처리된 SAGA 재고 차감 (멱등 처리). sagaId={}", stepMessage.sagaId());
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}");
+                    stepMessage.messageType(), "{\"success\":true,\"idempotent\":true}"
+            );
         } catch (Exception e) {
             log.error("SAGA 재고 차감 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "재고 차감 처리 실패");
+                    stepMessage.messageType(), "재고 차감 처리 실패"
+            );
         }
     }
 
@@ -126,14 +127,16 @@ public class OrderPaymentInventorySagaConsumer {
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true}");
+                    stepMessage.messageType(), "{\"compensated\":true}"
+            );
 
             log.info("SAGA 재고 복구 완료. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
         } catch (Exception e) {
             log.error("SAGA 재고 복구 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "재고 복구 처리 실패");
+                    stepMessage.messageType(), "재고 복구 처리 실패"
+            );
         }
     }
 
@@ -141,6 +144,7 @@ public class OrderPaymentInventorySagaConsumer {
         log.warn("SAGA 재고 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                stepMessage.messageType(), "페이로드 검증 실패: " + reason);
+                stepMessage.messageType(), "페이로드 검증 실패: " + reason
+        );
     }
 }

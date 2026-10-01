@@ -48,8 +48,7 @@ public class GetPaymentService implements GetPaymentUseCase {
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
         if (!order.isBuyer(buyerId)) {
-            log.warn("결제 조회 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    orderId, order.getBuyerId(), buyerId);
+            log.warn("결제 조회 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}", orderId, order.getBuyerId(), buyerId);
             throw new UnauthorizedOrderAccessException();
         }
     }

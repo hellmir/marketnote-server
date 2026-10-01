@@ -54,10 +54,12 @@ public class ShippingStatusChangedOrderStatusConsumer {
             ShippingStatusChangedEvent payload = envelope.getPayloadAs(ShippingStatusChangedEvent.class, objectMapper);
 
             log.info("배송 상태 변경 이벤트 수신. eventId={}, orderId={}, shippingStatus={}",
-                    envelope.eventId(), payload.orderId(), payload.shippingStatus());
+                    envelope.eventId(), payload.orderId(), payload.shippingStatus()
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+            if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -65,7 +67,8 @@ public class ShippingStatusChangedOrderStatusConsumer {
             OrderStatus orderStatus = resolveOrderStatus(payload.shippingStatus());
             if (FormatValidator.hasNoValue(orderStatus)) {
                 log.info("주문 상태 전이 불필요한 배송 상태. eventId={}, shippingStatus={}",
-                        envelope.eventId(), payload.shippingStatus());
+                        envelope.eventId(), payload.shippingStatus()
+                );
                 acknowledgment.acknowledge();
                 return;
             }
@@ -76,17 +79,15 @@ public class ShippingStatusChangedOrderStatusConsumer {
                     .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
-            log.info("Kafka 이벤트로 주문 상태 {} 변경 완료. orderId={}",
-                    orderStatus, payload.orderId());
+            log.info("Kafka 이벤트로 주문 상태 {} 변경 완료. orderId={}", orderStatus, payload.orderId());
         } catch (OrderStatusAlreadyChangedException e) {
-            log.warn("이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage());
+            log.warn("이미 주문 상태가 변경됨. eventId={}, key={}, message={}", envelope.eventId(), record.key(), e.getMessage());
         } catch (InvalidOrderStatusTransitionException e) {
             log.warn("전이 불가 상태에서 배송 상태 변경 이벤트 수신. eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage());
+                    envelope.eventId(), record.key(), e.getMessage()
+            );
         } catch (Exception e) {
-            log.error("주문 상태 변경 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+            log.error("주문 상태 변경 실패. eventId={}, key={}, error={}", envelope.eventId(), record.key(), e.getMessage(), e);
             throw e;
         }
 

@@ -92,7 +92,9 @@ public class ReturnTracker {
 
     public void holdInspection() {
         if (!inspectionStatus.canTransitionTo(ReturnInspectionStatus.ON_HOLD)) {
-            throw new InvalidReturnInspectionStatusTransitionException(inspectionStatus, ReturnInspectionStatus.ON_HOLD);
+            throw new InvalidReturnInspectionStatusTransitionException(
+                    inspectionStatus, ReturnInspectionStatus.ON_HOLD
+            );
         }
         this.inspectionStatus = ReturnInspectionStatus.ON_HOLD;
     }

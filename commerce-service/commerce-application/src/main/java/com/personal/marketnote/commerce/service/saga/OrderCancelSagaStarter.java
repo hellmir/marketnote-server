@@ -22,7 +22,8 @@ public class OrderCancelSagaStarter {
         String sagaId = SAGA_ID_PREFIX + context.orderId();
 
         log.info("OrderCancel SAGA 시작. sagaId={}, orderId={}, originalStatus={}",
-                sagaId, context.orderId(), context.originalStatus());
+                sagaId, context.orderId(), context.originalStatus()
+        );
 
         sagaOrchestrator.start(orderCancelSagaDefinition, sagaId, context);
     }

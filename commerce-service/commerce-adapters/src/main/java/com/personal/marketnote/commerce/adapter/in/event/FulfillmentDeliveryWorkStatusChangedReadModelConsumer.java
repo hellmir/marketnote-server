@@ -37,7 +37,9 @@ public class FulfillmentDeliveryWorkStatusChangedReadModelConsumer {
             return;
         }
 
-        if (EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED)) {
+        if (EventPayloadValidator.hasEventTypeMismatch(
+                envelope, KafkaTopicConstants.FULFILLMENT_DELIVERY_WORK_STATUS_CHANGED
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -46,10 +48,12 @@ public class FulfillmentDeliveryWorkStatusChangedReadModelConsumer {
                 envelope.getPayloadAs(FulfillmentDeliveryWorkStatusChangedEvent.class, objectMapper);
 
         log.info("풀필먼트 배송 작업 상태 변경 이벤트 수신. eventId={}, orderId={}, workStatus={}",
-                envelope.eventId(), payload.orderId(), payload.workStatus());
+                envelope.eventId(), payload.orderId(), payload.workStatus()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("orderId", payload.orderId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -62,8 +66,7 @@ public class FulfillmentDeliveryWorkStatusChangedReadModelConsumer {
 
         saveFulfillmentWorkStatusReadModelPort.upsert(payload.orderId(), payload.workStatus());
 
-        log.info("풀필먼트 작업 상태 Read Model 저장 완료. orderId={}, workStatus={}",
-                payload.orderId(), payload.workStatus());
+        log.info("풀필먼트 작업 상태 Read Model 저장 완료. orderId={}, workStatus={}", payload.orderId(), payload.workStatus());
 
         acknowledgment.acknowledge();
     }

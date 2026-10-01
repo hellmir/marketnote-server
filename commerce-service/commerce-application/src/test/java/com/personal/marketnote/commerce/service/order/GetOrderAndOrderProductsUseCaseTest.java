@@ -141,7 +141,9 @@ class GetOrderAndOrderProductsUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             Map<Long, ProductInfoResult> productInfoMap = new HashMap<>();
-            productInfoMap.put(pricePolicyId1, new ProductInfoResult(1L, null, "상품1", "브랜드1", null, null, null, List.of()));
+            productInfoMap.put(
+                    pricePolicyId1, new ProductInfoResult(1L, null, "상품1", "브랜드1", null, null, null, List.of())
+            );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(productInfoMap);
 
@@ -306,7 +308,9 @@ class GetOrderAndOrderProductsUseCaseTest {
         void getOrderAndOrderProducts_mapsStatusChangeReasonCorrectly() {
             Long orderId = 1L;
             String reason = "단순 변심으로 인한 취소";
-            Order order = createOrderWithStatusChangeReason(orderId, OrderStatusReasonCategory.CANCEL_ORDER, reason, List.of());
+            Order order = createOrderWithStatusChangeReason(
+                    orderId, OrderStatusReasonCategory.CANCEL_ORDER, reason, List.of()
+            );
 
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
@@ -1198,7 +1202,9 @@ class GetOrderAndOrderProductsUseCaseTest {
                         .build());
     }
 
-    private OrderProduct createOrderProductWithSellerId(Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount) {
+    private OrderProduct createOrderProductWithSellerId(
+            Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount
+    ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
                 .sellerId(sellerId)
@@ -1210,7 +1216,9 @@ class GetOrderAndOrderProductsUseCaseTest {
                         .build());
     }
 
-    private OrderProduct createOrderProductWithSharerKey(Long pricePolicyId, Long sellerId, UUID sharerKey, Integer quantity, Long unitAmount) {
+    private OrderProduct createOrderProductWithSharerKey(
+            Long pricePolicyId, Long sellerId, UUID sharerKey, Integer quantity, Long unitAmount
+    ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
                 .sellerId(sellerId)
@@ -1223,7 +1231,9 @@ class GetOrderAndOrderProductsUseCaseTest {
                         .build());
     }
 
-    private OrderProduct createOrderProductWithImageUrl(Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, String imageUrl) {
+    private OrderProduct createOrderProductWithImageUrl(
+            Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, String imageUrl
+    ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
                 .sellerId(sellerId)
@@ -1236,7 +1246,9 @@ class GetOrderAndOrderProductsUseCaseTest {
                         .build());
     }
 
-    private OrderProduct createOrderProductWithReviewStatus(Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, Boolean isReviewed) {
+    private OrderProduct createOrderProductWithReviewStatus(
+            Long pricePolicyId, Long sellerId, Integer quantity, Long unitAmount, Boolean isReviewed
+    ) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
                 .sellerId(sellerId)

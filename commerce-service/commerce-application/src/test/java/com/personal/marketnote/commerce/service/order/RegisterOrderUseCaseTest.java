@@ -88,7 +88,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -125,7 +132,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(5000L).pointAmount(3000L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(100000L)
+                                    .couponAmount(5000L)
+                                    .pointAmount(3000L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -179,7 +193,14 @@ class RegisterOrderUseCaseTest {
             Long couponAmount = 10000L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(couponAmount).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(couponAmount)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -217,7 +238,14 @@ class RegisterOrderUseCaseTest {
             Long pointAmount = 5000L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(pointAmount).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(pointAmount)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -257,7 +285,14 @@ class RegisterOrderUseCaseTest {
             Long pointAmount = 5000L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(couponAmount)
+                                    .pointAmount(pointAmount)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -296,7 +331,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -336,7 +378,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -376,7 +425,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(null).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(null)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -413,7 +469,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(null).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(null)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -459,7 +522,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -501,7 +571,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -639,7 +716,14 @@ class RegisterOrderUseCaseTest {
             Long sellerId = 99L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -722,7 +806,14 @@ class RegisterOrderUseCaseTest {
             String imageUrl = "https://marketnote.example.com/images/product-123.png";
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -753,7 +844,14 @@ class RegisterOrderUseCaseTest {
             UUID sharerKey = UUID.fromString("00000000-0000-0000-0000-000000000055");
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -821,7 +919,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_totalAmountLessThanCalculated_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(30000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(30000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -843,7 +948,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_totalAmountGreaterThanCalculated_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(100000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -864,7 +976,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_zeroTotalAmountWithNonZeroProducts_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(0L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(0L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -885,7 +1004,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_multipleProductsMismatch_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(99999L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(99999L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -913,7 +1039,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_amountMismatch_doesNotCallSubsequentPorts() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(1L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(1L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -936,7 +1069,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_overflowInMultiplication_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(Long.MAX_VALUE).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(Long.MAX_VALUE)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -957,7 +1097,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_overflowInSum_throwsException() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(Long.MAX_VALUE).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(Long.MAX_VALUE)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1101,7 +1248,14 @@ class RegisterOrderUseCaseTest {
             Long sellerId = 10L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1128,7 +1282,14 @@ class RegisterOrderUseCaseTest {
             Long actualSellerId = 10L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1153,7 +1314,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1178,7 +1346,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1205,7 +1380,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(100000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1225,8 +1407,12 @@ class RegisterOrderUseCaseTest {
                     .build();
 
             java.util.HashMap<Long, ProductInfoResult> productInfoMap = new java.util.HashMap<>();
-            productInfoMap.put(pricePolicyId1, new ProductInfoResult(1L, 10L, "상품1", "브랜드1", 50000L, null, null, List.of()));
-            productInfoMap.put(pricePolicyId2, new ProductInfoResult(2L, 20L, "상품2", "브랜드2", 50000L, null, null, List.of()));
+            productInfoMap.put(
+                    pricePolicyId1, new ProductInfoResult(1L, 10L, "상품1", "브랜드1", 50000L, null, null, List.of())
+            );
+            productInfoMap.put(
+                    pricePolicyId2, new ProductInfoResult(2L, 20L, "상품2", "브랜드2", 50000L, null, null, List.of())
+            );
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(productInfoMap);
 
@@ -1294,7 +1480,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(null).pointAmount(null).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(null)
+                                    .pointAmount(null)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1331,7 +1524,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(Long.MAX_VALUE / 2 + 1).pointAmount(Long.MAX_VALUE / 2 + 1).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(Long.MAX_VALUE / 2 + 1)
+                                    .pointAmount(Long.MAX_VALUE / 2 + 1)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1362,7 +1562,9 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Long pointAmount = 5000L;
-            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount);
+            RegisterOrderCommand command = createSingleProductCommand(
+                    buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
+            );
 
             mockProductPrice(pricePolicyId, 50000L);
             when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(10000L);
@@ -1380,7 +1582,9 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Long pointAmount = 10000L;
-            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount);
+            RegisterOrderCommand command = createSingleProductCommand(
+                    buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
+            );
 
             when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(5000L);
 
@@ -1396,7 +1600,9 @@ class RegisterOrderUseCaseTest {
             Long buyerId = 1L;
             Long pricePolicyId = 100L;
             Long pointAmount = 5000L;
-            RegisterOrderCommand command = createSingleProductCommand(buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount);
+            RegisterOrderCommand command = createSingleProductCommand(
+                    buyerId, pricePolicyId, 50000L, 1, 0L, pointAmount
+            );
 
             mockProductPrice(pricePolicyId, 50000L);
             when(modifyUserPointPort.getAvailablePoints(buyerId)).thenReturn(5000L);
@@ -1452,7 +1658,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(100000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1495,7 +1708,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(250000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(250000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1530,7 +1750,14 @@ class RegisterOrderUseCaseTest {
             int orderQuantity = 10;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(500000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(500000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1563,7 +1790,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(500000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(500000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1613,7 +1847,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId2 = 200L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(100000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1654,7 +1895,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(350000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(350000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1691,7 +1939,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(350000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(350000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1767,7 +2022,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(500000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(500000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1876,7 +2138,9 @@ class RegisterOrderUseCaseTest {
         @DisplayName("배송비 정책 조회 중 예외 발생 시 CompletionException을 unwrap하여 원래 예외를 전파한다")
         void registerOrder_findShippingPolicyFails_unwrapsAndPropagatesOriginalException() {
             Long pricePolicyId = 100L;
-            RegisterOrderCommand command = createCommandWithShippingFee(1L, 10L, pricePolicyId, 50000L, 1, 0L, 0L, 3000L);
+            RegisterOrderCommand command = createCommandWithShippingFee(
+                    1L, 10L, pricePolicyId, 50000L, 1, 0L, 0L, 3000L
+            );
 
             mockProductPrice(pricePolicyId, 50000L);
 
@@ -1929,7 +2193,14 @@ class RegisterOrderUseCaseTest {
             RegisterOrderCommand command1 = createSingleProductCommand(1L, pricePolicyId, 50000L, 1, 0L, 0L);
             RegisterOrderCommand command2 = RegisterOrderCommand.builder()
                     .buyerId(2L)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(100000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -1975,7 +2246,14 @@ class RegisterOrderUseCaseTest {
         void registerOrder_emptyOrderProducts_savesEmptyOrder() {
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(0L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(0L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of())
                     .build();
 
@@ -1999,7 +2277,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(0L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(0L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -2035,7 +2320,14 @@ class RegisterOrderUseCaseTest {
             Long largeTotalAmount = Long.MAX_VALUE - 1;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(largeTotalAmount).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(largeTotalAmount)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -2092,7 +2384,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId3 = 300L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(300000L).couponAmount(10000L).pointAmount(5000L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(300000L)
+                                    .couponAmount(10000L)
+                                    .pointAmount(5000L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -2170,7 +2469,14 @@ class RegisterOrderUseCaseTest {
             Long shippingFeeB = 2500L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(100000L).couponAmount(0L).pointAmount(0L).shippingFee(shippingFeeA + shippingFeeB).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(100000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(shippingFeeA + shippingFeeB)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -2231,7 +2537,14 @@ class RegisterOrderUseCaseTest {
             Long sameSellerId = 10L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(150000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(150000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -2428,7 +2741,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(null).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(null)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -2461,7 +2781,14 @@ class RegisterOrderUseCaseTest {
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(unitAmountA + unitAmountB).couponAmount(0L).pointAmount(0L).shippingFee(shippingFeeA + shippingFeeB).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(unitAmountA + unitAmountB)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(shippingFeeA + shippingFeeB)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(1L)
@@ -2509,7 +2836,14 @@ class RegisterOrderUseCaseTest {
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(unitAmountA + unitAmountB).couponAmount(0L).pointAmount(0L).shippingFee(shippingFeeB).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(unitAmountA + unitAmountB)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(shippingFeeB)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(1L)
@@ -2557,7 +2891,14 @@ class RegisterOrderUseCaseTest {
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(unitAmountA + unitAmountB).couponAmount(0L).pointAmount(0L).shippingFee(shippingFeeA).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(unitAmountA + unitAmountB)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(shippingFeeA)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(1L)
@@ -2602,7 +2943,14 @@ class RegisterOrderUseCaseTest {
 
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(1L)
-                    .amount(OrderAmountCommand.builder().totalAmount(unitAmountA + unitAmountB).couponAmount(0L).pointAmount(0L).shippingFee(0L).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(unitAmountA + unitAmountB)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(0L)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(1L)
@@ -2907,7 +3255,14 @@ class RegisterOrderUseCaseTest {
     ) {
         return RegisterOrderCommand.builder()
                 .buyerId(buyerId)
-                .amount(OrderAmountCommand.builder().totalAmount(unitAmount * quantity).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build())
+                .amount(
+                        OrderAmountCommand.builder()
+                                .totalAmount(unitAmount * quantity)
+                                .couponAmount(couponAmount)
+                                .pointAmount(pointAmount)
+                                .shippingFee(null)
+                                .build()
+                )
                 .orderProducts(List.of(
                         OrderProductItemCommand.builder()
                                 .productId(100L)
@@ -2986,7 +3341,14 @@ class RegisterOrderUseCaseTest {
             Long pricePolicyId = 100L;
             RegisterOrderCommand command = RegisterOrderCommand.builder()
                     .buyerId(buyerId)
-                    .amount(OrderAmountCommand.builder().totalAmount(50000L).couponAmount(0L).pointAmount(0L).shippingFee(0L).build())
+                    .amount(
+                            OrderAmountCommand.builder()
+                                    .totalAmount(50000L)
+                                    .couponAmount(0L)
+                                    .pointAmount(0L)
+                                    .shippingFee(0L)
+                                    .build()
+                    )
                     .orderProducts(List.of(
                             OrderProductItemCommand.builder()
                                     .productId(100L)
@@ -3015,7 +3377,14 @@ class RegisterOrderUseCaseTest {
     ) {
         return RegisterOrderCommand.builder()
                 .buyerId(buyerId)
-                .amount(OrderAmountCommand.builder().totalAmount(unitAmount * quantity).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(shippingFee).build())
+                .amount(
+                        OrderAmountCommand.builder()
+                                .totalAmount(unitAmount * quantity)
+                                .couponAmount(couponAmount)
+                                .pointAmount(pointAmount)
+                                .shippingFee(shippingFee)
+                                .build()
+                )
                 .orderProducts(List.of(
                         OrderProductItemCommand.builder()
                                 .productId(100L)
@@ -3030,13 +3399,19 @@ class RegisterOrderUseCaseTest {
 
     private void mockShippingPolicy(Long sellerId, Long shippingFee, Long freeShippingThreshold) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, 0L, 0L)));
+                .thenReturn(Map.of(
+                        sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, 0L, 0L)
+                ));
     }
 
     private void mockShippingPolicyWithSurcharge(Long sellerId, Long shippingFee, Long freeShippingThreshold,
                                                  Long jejuSurcharge, Long islandSurcharge) {
         when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
-                .thenReturn(Map.of(sellerId, new ShippingPolicyInfoResult(sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge)));
+                .thenReturn(Map.of(
+                        sellerId, new ShippingPolicyInfoResult(
+                                sellerId, shippingFee, freeShippingThreshold, jejuSurcharge, islandSurcharge
+                        )
+                ));
     }
 
     private void mockShippingAddressWithRegionType(String regionType) {

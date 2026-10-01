@@ -85,7 +85,9 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
 
-            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 2, 500L, pricePolicyId2, 3, 300L);
+            Order order = createOrderWithMultipleProducts(
+                    orderId, buyerId, pricePolicyId1, 2, 500L, pricePolicyId2, 3, 300L
+            );
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -111,7 +113,9 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
 
-            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L);
+            Order order = createOrderWithMultipleProducts(
+                    orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L
+            );
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -136,7 +140,9 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId1 = 10L;
             Long pricePolicyId2 = 20L;
 
-            Order order = createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L);
+            Order order = createOrderWithMultipleProducts(
+                    orderId, buyerId, pricePolicyId1, 1, 500L, pricePolicyId2, 1, 0L
+            );
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -212,7 +218,9 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
         return new ProductInfoResult(1L, 1L, "테스트 상품", "브랜드", 50000L, null, accumulatedPoint, List.of());
     }
 
-    private Order createOrderWithSharer(Long orderId, Long buyerId, UUID sharerKey, Long pricePolicyId, Long totalAmount) {
+    private Order createOrderWithSharer(
+            Long orderId, Long buyerId, UUID sharerKey, Long pricePolicyId, Long totalAmount
+    ) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -276,7 +284,9 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
             Long pricePolicyId1, int quantity1,
             Long pricePolicyId2, int quantity2
     ) {
-        return createOrderWithMultipleProducts(orderId, buyerId, pricePolicyId1, quantity1, 0L, pricePolicyId2, quantity2, 0L);
+        return createOrderWithMultipleProducts(
+                orderId, buyerId, pricePolicyId1, quantity1, 0L, pricePolicyId2, quantity2, 0L
+        );
     }
 
     private Order createOrderWithMultipleProducts(

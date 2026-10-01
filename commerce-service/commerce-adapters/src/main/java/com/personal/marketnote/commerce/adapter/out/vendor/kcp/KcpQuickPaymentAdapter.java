@@ -236,7 +236,9 @@ public class KcpQuickPaymentAdapter implements RegisterQuickPaymentTransactionPo
                 if (isReadTimeout(e)) {
                     readTimeoutAttemptCount++;
                     log.warn("빠른결제 배치 결제승인 읽기 타임아웃 - orderKey: {}, attempt: {}/{}, readTimeoutCount: {}/{}",
-                            orderKey, attempt, maxAttempts, readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts());
+                            orderKey, attempt, maxAttempts,
+                            readTimeoutAttemptCount, retryConfig.getReadTimeoutMaxAttempts()
+                    );
                     if (readTimeoutAttemptCount < retryConfig.getReadTimeoutMaxAttempts() && attempt < maxAttempts) {
                         sleep(sleepMillis);
                         sleepMillis *= retryConfig.getBackoffMultiplier();

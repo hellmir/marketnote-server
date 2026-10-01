@@ -73,7 +73,9 @@ public class ReleaseInventoryReservationService implements ReleaseInventoryReser
                     productIdsByPricePolicyId.put(inventory.getPricePolicyId(), inventory.getProductId())
             );
             saveInventoryRestorationHistoryPort.save(
-                    InventoryRestorationHistories.from(stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason)
+                    InventoryRestorationHistories.from(
+                            stocksByPricePolicyId, productIdsByPricePolicyId, orderId, reason
+                    )
             );
 
             saveCacheStockPort.save(inventories);

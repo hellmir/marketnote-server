@@ -50,7 +50,9 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
 
         List<Long> sellerIds = extractDistinctSellerIds(orderProducts);
         Map<Long, Long> initialShippingFeeBySellerIdMap = buildInitialShippingFeeMap(command.orderId());
-        Map<Long, ShippingPolicyInfoResult> shippingPolicyMap = findShippingPolicyBySellerIdsPort.findBySellerIds(sellerIds);
+        Map<Long, ShippingPolicyInfoResult> shippingPolicyMap = findShippingPolicyBySellerIdsPort.findBySellerIds(
+                sellerIds
+        );
 
         long totalReturnShippingFee = calculateTotalReturnShippingFee(
                 faultType, returnType, orderProducts, returnPricePolicyIdSet,
@@ -71,7 +73,9 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
         }
     }
 
-    private Set<Long> resolveReturnPricePolicyIdSet(CalculateReturnShippingFeeCommand command, List<OrderProduct> orderProducts) {
+    private Set<Long> resolveReturnPricePolicyIdSet(
+            CalculateReturnShippingFeeCommand command, List<OrderProduct> orderProducts
+    ) {
         Set<Long> validPricePolicyIds = orderProducts.stream()
                 .map(OrderProduct::getPricePolicyId)
                 .collect(Collectors.toSet());

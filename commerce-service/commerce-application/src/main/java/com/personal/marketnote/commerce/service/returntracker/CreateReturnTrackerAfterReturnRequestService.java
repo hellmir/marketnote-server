@@ -26,12 +26,13 @@ public class CreateReturnTrackerAfterReturnRequestService {
         persistReturnTracker(command.orderId(), result.returnSlipNumber());
     }
 
-    private RegisterFulfillmentReturnDeliveryResult registerReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
+    private RegisterFulfillmentReturnDeliveryResult registerReturnDelivery(
+            RegisterFulfillmentReturnDeliveryCommand command
+    ) {
         try {
             return registerFulfillmentReturnDeliveryPort.registerReturnDelivery(command);
         } catch (FulfillmentServiceRequestFailedException e) {
-            log.error("풀필먼트 반품 등록 실패 - orderId: {}, error: {}",
-                    command.orderId(), e.getMessage(), e);
+            log.error("풀필먼트 반품 등록 실패 - orderId: {}, error: {}", command.orderId(), e.getMessage(), e);
             return null;
         }
     }
@@ -43,7 +44,8 @@ public class CreateReturnTrackerAfterReturnRequestService {
             log.warn("ReturnTracker 이미 존재 - orderId: {} (멱등 처리)", orderId);
         } catch (DataAccessException e) {
             log.error("ReturnTracker 저장 실패 - orderId: {}, returnSlipNumber: {}, error: {}",
-                    orderId, returnSlipNumber, e.getMessage(), e);
+                    orderId, returnSlipNumber, e.getMessage(), e
+            );
         }
     }
 }

@@ -54,17 +54,18 @@ public class OrderPaymentCompletedInventoryConsumer {
 
             log.info("주문 결제 완료 이벤트 수신 (재고 차감). eventId={}, orderId={}, orderProducts={}건",
                     envelope.eventId(), payload.orderId(),
-                    FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0);
+                    FormatValidator.hasValue(payload.orderProducts()) ? payload.orderProducts().size() : 0
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+            if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (FormatValidator.hasNoValue(payload.orderProducts()) || payload.orderProducts().isEmpty()) {
-                log.warn("주문 상품이 없는 이벤트. eventId={}, orderId={}",
-                        envelope.eventId(), payload.orderId());
+                log.warn("주문 상품이 없는 이벤트. eventId={}, orderId={}", envelope.eventId(), payload.orderId());
                 acknowledgment.acknowledge();
                 return;
             }
@@ -72,14 +73,13 @@ public class OrderPaymentCompletedInventoryConsumer {
             List<OrderProduct> orderProducts = convertToOrderProducts(payload.orderProducts());
             reduceProductInventoryUseCase.reduce(orderProducts, payload.orderId(), "Kafka 결제 완료 재고 차감");
 
-            log.info("재고 차감 완료. orderId={}, 차감 상품={}건",
-                    payload.orderId(), orderProducts.size());
+            log.info("재고 차감 완료. orderId={}, 차감 상품={}건", payload.orderId(), orderProducts.size());
         } catch (DuplicateInventoryDeductionException e) {
-            log.info("이미 처리된 재고 차감 이벤트 (멱등 처리). eventId={}, message={}",
-                    envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 재고 차감 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         } catch (Exception e) {
             log.error("재고 차감 이벤트 처리 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                    envelope.eventId(), record.key(), e.getMessage(), e
+            );
             throw e;
         }
 

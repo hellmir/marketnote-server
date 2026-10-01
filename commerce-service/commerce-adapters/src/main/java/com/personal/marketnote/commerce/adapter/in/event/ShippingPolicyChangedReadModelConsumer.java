@@ -45,10 +45,13 @@ public class ShippingPolicyChangedReadModelConsumer {
         ShippingPolicyChangedEvent payload = envelope.getPayloadAs(ShippingPolicyChangedEvent.class, objectMapper);
 
         log.info("배송비 정책 변경 이벤트 수신. eventId={}, sellerId={}, action={}",
-                envelope.eventId(), payload.sellerId(), payload.action());
+                envelope.eventId(), payload.sellerId(), payload.action()
+        );
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("sellerId", payload.sellerId()))) {
+        if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(),
+                EventPayloadValidator.id("sellerId", payload.sellerId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }
@@ -67,7 +70,8 @@ public class ShippingPolicyChangedReadModelConsumer {
             );
             log.info("배송비 정책 Read Model 저장 완료. sellerId={}, shippingFee={}, freeShippingThreshold={}, jejuSurcharge={}, islandSurcharge={}",
                     payload.sellerId(), payload.shippingFee(), payload.freeShippingThreshold(),
-                    payload.jejuSurcharge(), payload.islandSurcharge());
+                    payload.jejuSurcharge(), payload.islandSurcharge()
+            );
         }
 
         acknowledgment.acknowledge();

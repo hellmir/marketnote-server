@@ -42,7 +42,9 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
     }
 
     @Override
-    public void updateDeliveryRequest(Long shippingAddressId, Long userId, DeliveryRequestType deliveryRequestType, String deliveryRequestMessage) {
+    public void updateDeliveryRequest(
+            Long shippingAddressId, Long userId, DeliveryRequestType deliveryRequestType, String deliveryRequestMessage
+    ) {
         String path = "/api/v1/internal/shipping-addresses/" + shippingAddressId + "/delivery-request";
 
         URI uri = UriComponentsBuilder.fromUriString(userServiceBaseUrl)
@@ -68,11 +70,13 @@ public class UserShippingAddressServiceClient implements UpdateUserShippingAddre
 
             if (responseEntity.getStatusCode().isError()) {
                 log.warn("배송 요청사항 업데이트 실패 - shippingAddressId: {}, userId: {}, status: {}",
-                        shippingAddressId, userId, responseEntity.getStatusCode());
+                        shippingAddressId, userId, responseEntity.getStatusCode()
+                );
             }
         } catch (Exception e) {
             log.warn("배송 요청사항 업데이트 실패 - shippingAddressId: {}, userId: {}, error: {}",
-                    shippingAddressId, userId, e.getMessage());
+                    shippingAddressId, userId, e.getMessage()
+            );
         }
     }
 

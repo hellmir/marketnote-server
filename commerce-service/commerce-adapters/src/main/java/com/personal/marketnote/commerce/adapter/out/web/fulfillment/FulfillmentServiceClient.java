@@ -78,7 +78,9 @@ public class FulfillmentServiceClient implements CancelFulfillmentReleasePort, R
     }
 
     @Override
-    public RegisterFulfillmentReturnDeliveryResult registerReturnDelivery(RegisterFulfillmentReturnDeliveryCommand command) {
+    public RegisterFulfillmentReturnDeliveryResult registerReturnDelivery(
+            RegisterFulfillmentReturnDeliveryCommand command
+    ) {
         URI uri = buildReturnDeliveryUri();
 
         Map<String, Object> body = buildReturnDeliveryBody(command);

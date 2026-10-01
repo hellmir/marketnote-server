@@ -61,7 +61,9 @@ class CompleteReturnUseCaseTest {
         void shouldTransitionFromReturnRequestedToReturnedAndPublishEvent() {
             Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
 
             CompleteReturnCommand command = new CompleteReturnCommand(1L);
@@ -82,7 +84,9 @@ class CompleteReturnUseCaseTest {
         void shouldTransitionFromReturnInProgressToReturned() {
             Order order = createReturnableOrder(OrderStatus.RETURN_IN_PROGRESS);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(0L).build());
 
             CompleteReturnCommand command = new CompleteReturnCommand(1L);
@@ -103,7 +107,9 @@ class CompleteReturnUseCaseTest {
         void shouldCalculateReturnShippingFeeAndIncludeInEvent() {
             Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
-            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(any(CalculateReturnShippingFeeCommand.class)))
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            ))
                     .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(5000L).build());
 
             CompleteReturnCommand command = new CompleteReturnCommand(1L);

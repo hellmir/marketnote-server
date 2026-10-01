@@ -25,7 +25,8 @@ public class DeleteQuickPaymentCardService implements DeleteQuickPaymentCardUseC
         QuickPaymentCard card = findQuickPaymentCardPort
                 .findActiveByIdAndUserId(command.quickPaymentCardId(), command.userId())
                 .orElseThrow(() -> new QuickPaymentCardNotFoundException(
-                        command.quickPaymentCardId(), command.userId()));
+                        command.quickPaymentCardId(), command.userId()
+                ));
 
         DeleteBatchKeyPortResult portResult = deleteBatchKeyPort.deleteBatchKey(
                 DeleteBatchKeyPortCommand.builder()

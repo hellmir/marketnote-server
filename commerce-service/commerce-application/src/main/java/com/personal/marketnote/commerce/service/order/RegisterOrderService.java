@@ -115,7 +115,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             inventory.validateIsSufficient(orderQuantity);
         });
 
-        List<OrderProductCreateState> orderProductStates = OrderCommandToStateMapper.mapToOrderProductStates(command.orderProducts(), productInfoMap);
+        List<OrderProductCreateState> orderProductStates = OrderCommandToStateMapper.mapToOrderProductStates(
+                command.orderProducts(), productInfoMap
+        );
 
         OrderAmount orderAmount = OrderAmount.from(
                 OrderCommandToStateMapper.mapToOrderAmountState(command.amount())
@@ -139,8 +141,11 @@ public class RegisterOrderService implements RegisterOrderUseCase {
 
         if (paymentAmount < 0) {
             log.error("결제 금액 음수 발생 - totalAmount: {}, shippingFee: {}, coupon: {}, point: {}",
-                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount);
-            throw new ExcessiveDiscountException(command.amount().totalAmount(), shippingFee, couponAmount, pointAmount);
+                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+            );
+            throw new ExcessiveDiscountException(
+                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+            );
         }
 
         savePaymentPort.save(
@@ -155,9 +160,11 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         return RegisterOrderResult.from(savedOrder);
     }
 
-    private void createPaymentAllocations(Long orderId, List<OrderProductItemCommand> orderProducts,
-                                          Map<Long, ShippingPolicyInfoResult> shippingPolicies,
-                                          ShippingRegionType regionType) {
+    private void createPaymentAllocations(
+            Long orderId, List<OrderProductItemCommand> orderProducts,
+            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+            ShippingRegionType regionType
+    ) {
         Map<Long, Long> sellerGrossAmounts = orderProducts.stream()
                 .collect(Collectors.groupingBy(
                         OrderProductItemCommand::sellerId,
@@ -165,7 +172,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                                 Math.multiplyExact(item.unitAmount(), (long) item.quantity()))
                 ));
 
-        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(sellerGrossAmounts, shippingPolicies, regionType);
+        Map<Long, Long> sellerShippingFees = calculateSellerShippingFees(
+                sellerGrossAmounts, shippingPolicies, regionType
+        );
 
         List<PaymentAllocation> allocations = sellerGrossAmounts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0)
@@ -200,7 +209,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
                 continue;
             }
 
-            ShippingFeeContext context = ShippingFeeContext.of(Money.of(sellerAmount), Money.of(policy.shippingFee()), Money.of(policy.freeShippingThreshold()));
+            ShippingFeeContext context = ShippingFeeContext.of(
+                    Money.of(sellerAmount), Money.of(policy.shippingFee()), Money.of(policy.freeShippingThreshold())
+            );
             long baseFee = ShippingFeeCalculator.calculateBaseFee(context).getValue();
             long surcharge = resolveSurcharge(policy, regionType);
             sellerShippingFees.put(sellerId, Math.addExact(baseFee, surcharge));
@@ -249,12 +260,18 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             payableAmount = Math.addExact(command.amount().totalAmount(), shippingFee);
         } catch (ArithmeticException e) {
             log.warn("할인/배송비 금액 오버플로우 - 쿠폰: {}, 포인트: {}, 배송비: {}", couponAmount, pointAmount, shippingFee);
-            throw new ExcessiveDiscountException(command.amount().totalAmount(), shippingFee, couponAmount, pointAmount);
+            throw new ExcessiveDiscountException(
+                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+            );
         }
 
         if (totalDiscount > payableAmount) {
-            log.warn("할인 금액 초과 - 주문 총액: {}, 배송비: {}, 쿠폰: {}, 포인트: {}", command.amount().totalAmount(), shippingFee, couponAmount, pointAmount);
-            throw new ExcessiveDiscountException(command.amount().totalAmount(), shippingFee, couponAmount, pointAmount);
+            log.warn("할인 금액 초과 - 주문 총액: {}, 배송비: {}, 쿠폰: {}, 포인트: {}",
+                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+            );
+            throw new ExcessiveDiscountException(
+                    command.amount().totalAmount(), shippingFee, couponAmount, pointAmount
+            );
         }
     }
 
@@ -289,11 +306,14 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         }
     }
 
-    private void validateUnitAmountsAgainstActualPrices(RegisterOrderCommand command,
-                                                        Map<Long, ProductInfoResult> productInfoMap) {
+    private void validateUnitAmountsAgainstActualPrices(
+            RegisterOrderCommand command,
+            Map<Long, ProductInfoResult> productInfoMap
+    ) {
         if (productInfoMap.isEmpty()) {
             log.warn("[PRODUCT_VALIDATION_SKIPPED] product-service 응답 없음 - 가격/판매자 검증 생략. pricePolicyIds: {}",
-                    command.orderProducts().stream().map(OrderProductItemCommand::pricePolicyId).distinct().toList());
+                    command.orderProducts().stream().map(OrderProductItemCommand::pricePolicyId).distinct().toList()
+            );
             return;
         }
 
@@ -335,9 +355,11 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         }
     }
 
-    private void validateShippingFee(RegisterOrderCommand command,
-                                     Map<Long, ShippingPolicyInfoResult> shippingPolicies,
-                                     ShippingRegionType regionType) {
+    private void validateShippingFee(
+            RegisterOrderCommand command,
+            Map<Long, ShippingPolicyInfoResult> shippingPolicies,
+            ShippingRegionType regionType
+    ) {
         long requestedShippingFee = resolveAmount(command.amount().shippingFee());
 
         if (shippingPolicies.isEmpty()) {
@@ -346,7 +368,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
             return;
         }
 
-        long calculatedShippingFee = calculateExpectedShippingFee(command.orderProducts(), shippingPolicies, regionType);
+        long calculatedShippingFee = calculateExpectedShippingFee(
+                command.orderProducts(), shippingPolicies, regionType
+        );
 
         if (requestedShippingFee != calculatedShippingFee) {
             log.warn("배송비 불일치 - 전송된 배송비: {}, 계산된 배송비: {}", requestedShippingFee, calculatedShippingFee);
@@ -375,8 +399,9 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         return totalShippingFee;
     }
 
-    private ShippingAddress resolveShippingAddress(RegisterOrderCommand command,
-                                                   ShippingAddressInfoResult addressInfo) {
+    private ShippingAddress resolveShippingAddress(
+            RegisterOrderCommand command, ShippingAddressInfoResult addressInfo
+    ) {
         return ShippingAddress.of(
                 addressInfo.recipientName(),
                 addressInfo.recipientPhoneNumber(),

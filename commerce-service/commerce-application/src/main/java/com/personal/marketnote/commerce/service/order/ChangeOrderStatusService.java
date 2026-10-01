@@ -121,8 +121,10 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
                 continue;
             }
-            totalAccumulatedPoint = Math.addExact(totalAccumulatedPoint,
-                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue()));
+            totalAccumulatedPoint = Math.addExact(
+                    totalAccumulatedPoint,
+                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
+            );
         }
 
         return totalAccumulatedPoint;
@@ -137,7 +139,10 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
         long total = 0L;
         for (OrderProduct orderProduct : orderProducts) {
-            total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue());
+            total = Math.addExact(
+                    total,
+                    orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
+            );
         }
         return total;
     }
@@ -155,7 +160,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             );
         } catch (Exception e) {
             log.error("상품 적립 예정 포인트 추가 실패 - orderId: {}, buyerId: {}, amount: {}, error: {}",
-                    orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e);
+                    orderId, buyerId, totalAccumulatedPoint, e.getMessage(), e
+            );
         }
     }
 
@@ -174,7 +180,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, true);
         } catch (Exception e) {
             log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
-                    orderId, buyerId, e.getMessage(), e);
+                    orderId, buyerId, e.getMessage(), e
+            );
         }
     }
 
@@ -189,8 +196,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                     totalAccumulatedPoint
             );
         } catch (Exception e) {
-            log.error("주문 결제 완료 이벤트 발행 실패 - orderId: {}, error: {}",
-                    order.getId(), e.getMessage(), e);
+            log.error("주문 결제 완료 이벤트 발행 실패 - orderId: {}, error: {}", order.getId(), e.getMessage(), e);
         }
     }
 

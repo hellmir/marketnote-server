@@ -58,7 +58,8 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
     private void validateBuyerOwnership(ConfirmOrderCommand command, Order order) {
         if (!order.getBuyerId().equals(command.buyerId())) {
             log.warn("주문 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    command.id(), order.getBuyerId(), command.buyerId());
+                    command.id(), order.getBuyerId(), command.buyerId()
+            );
             throw new UnauthorizedOrderAccessException();
         }
     }
@@ -85,7 +86,8 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
             );
         } catch (Exception e) {
             log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
-                    order.getId(), order.getBuyerId(), e.getMessage(), e);
+                    order.getId(), order.getBuyerId(), e.getMessage(), e
+            );
         }
     }
 }

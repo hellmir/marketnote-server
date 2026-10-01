@@ -127,7 +127,9 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
             adapter.upsert(10L, 3000L, 20000L, 3000L, 5000L);
 
             // then
-            Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(10L, EntityStatus.ACTIVE);
+            Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(
+                    10L, EntityStatus.ACTIVE
+            );
             assertThat(entity).isPresent();
             assertThat(entity.get().getSellerId()).isEqualTo(10L);
             assertThat(entity.get().getShippingFee()).isEqualTo(3000L);
@@ -147,7 +149,9 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
             adapter.upsert(10L, 5000L, 50000L, 7000L, 8000L);
 
             // then
-            Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(10L, EntityStatus.ACTIVE);
+            Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(
+                    10L, EntityStatus.ACTIVE
+            );
             assertThat(entity).isPresent();
             assertThat(entity.get().getShippingFee()).isEqualTo(5000L);
             assertThat(entity.get().getFreeShippingThreshold()).isEqualTo(50000L);
@@ -166,7 +170,9 @@ class ShippingPolicyReadModelPersistenceAdapterTest {
             adapter.upsert(10L, 5000L, 50000L, 7000L, 8000L);
 
             // then
-            Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(10L, EntityStatus.ACTIVE);
+            Optional<ShippingPolicyReadModelJpaEntity> entity = repository.findBySellerIdAndStatus(
+                    10L, EntityStatus.ACTIVE
+            );
             assertThat(entity).isPresent();
             assertThat(entity.get().getShippingFee()).isEqualTo(5000L);
             assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);

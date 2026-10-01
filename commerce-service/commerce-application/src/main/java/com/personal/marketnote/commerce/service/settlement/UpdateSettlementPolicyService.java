@@ -45,7 +45,8 @@ public class UpdateSettlementPolicyService implements UpdateSettlementPolicyUseC
         SettlementPolicy updated = updateSettlementPolicyPort.update(policy);
 
         log.info("정산 정책 수정 완료 - id: {}, sellerId: {}, pgFeeRate: {}, platformFeeRate: {}",
-                command.id(), policy.getSellerId(), command.pgFeeRate(), command.platformFeeRate());
+                command.id(), policy.getSellerId(), command.pgFeeRate(), command.platformFeeRate()
+        );
 
         return GetSettlementPolicyResult.from(updated);
     }

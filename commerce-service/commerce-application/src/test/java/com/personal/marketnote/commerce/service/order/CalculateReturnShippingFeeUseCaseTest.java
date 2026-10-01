@@ -129,7 +129,9 @@ class CalculateReturnShippingFeeUseCaseTest {
         @DisplayName("case3: 고객 귀책 + 초기 무료 배송 + 부분 반품 + 무료 배송 기준 미달이면 왕복 배송비를 반환한다")
         void shouldReturnRoundTripFeeWhenPartialReturnBelowThreshold() {
             // given
-            Order order = createOrderWithTwoProducts(SELLER_ID, PRICE_POLICY_ID_1, 20000L, 1, PRICE_POLICY_ID_2, 15000L, 1);
+            Order order = createOrderWithTwoProducts(
+                    SELLER_ID, PRICE_POLICY_ID_1, 20000L, 1, PRICE_POLICY_ID_2, 15000L, 1
+            );
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
                     .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
@@ -153,7 +155,9 @@ class CalculateReturnShippingFeeUseCaseTest {
         @DisplayName("case4: 고객 귀책 + 초기 무료 배송 + 부분 반품 + 무료 배송 기준 유지이면 편도 배송비를 반환한다")
         void shouldReturnOneWayFeeWhenPartialReturnMeetsThreshold() {
             // given
-            Order order = createOrderWithTwoProducts(SELLER_ID, PRICE_POLICY_ID_1, 10000L, 1, PRICE_POLICY_ID_2, 35000L, 1);
+            Order order = createOrderWithTwoProducts(
+                    SELLER_ID, PRICE_POLICY_ID_1, 10000L, 1, PRICE_POLICY_ID_2, 35000L, 1
+            );
             when(getOrderUseCase.getOrder(ORDER_ID)).thenReturn(order);
             when(findPaymentAllocationPort.findByOrderId(ORDER_ID))
                     .thenReturn(List.of(createPaymentAllocation(SELLER_ID, 0L)));
@@ -191,7 +195,9 @@ class CalculateReturnShippingFeeUseCaseTest {
             when(findShippingPolicyBySellerIdsPort.findBySellerIds(anyList()))
                     .thenReturn(Map.of(
                             SELLER_ID, createShippingPolicy(SELLER_ID),
-                            sellerId2, new ShippingPolicyInfoResult(sellerId2, ONE_WAY_FEE, FREE_SHIPPING_THRESHOLD, 0L, 0L)
+                            sellerId2, new ShippingPolicyInfoResult(
+                                    sellerId2, ONE_WAY_FEE, FREE_SHIPPING_THRESHOLD, 0L, 0L
+                            )
                     ));
 
             CalculateReturnShippingFeeCommand command = CalculateReturnShippingFeeCommand.builder()

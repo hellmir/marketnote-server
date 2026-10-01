@@ -100,7 +100,8 @@ class OrderPickupAddressTest {
             assertThat(order.getShippingAddress().getZipCode()).isEqualTo("12345");
             assertThat(order.getShippingAddress().getAddress()).isEqualTo("서울시 강남구");
             assertThat(order.getShippingAddress().getAddressDetail()).isEqualTo("테헤란로 123");
-            assertThat(order.getShippingAddress().getDeliveryRequestType()).isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
+            assertThat(order.getShippingAddress().getDeliveryRequestType())
+                    .isEqualTo(DeliveryRequestType.LEAVE_AT_DOOR);
         }
 
         @Test
@@ -114,8 +115,12 @@ class OrderPickupAddressTest {
                     .orderNumber(OrderNumber.of("ORD-1"))
                     .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .amount(OrderAmount.of(50000L, null, null, null, null))
-                    .shippingAddress(ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", null, null))
-                    .pickupAddress(ShippingAddress.of("회수 수령인", "010-9999-8888", "54321", "회수지 주소", "회수지 상세주소", null, "회수 요청사항"))
+                    .shippingAddress(
+                            ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", null, null)
+                    )
+                    .pickupAddress(
+                            ShippingAddress.of("회수 수령인", "010-9999-8888", "54321", "회수지 주소", "회수지 상세주소", null, "회수 요청사항")
+                    )
                     .orderProductStates(List.of())
                     .createdAt(LocalDateTime.now())
                     .modifiedAt(LocalDateTime.now())
@@ -139,7 +144,9 @@ class OrderPickupAddressTest {
                 .orderNumber(OrderNumber.of("ORD-1"))
                 .orderStatus(OrderStatus.DELIVERED)
                 .amount(OrderAmount.of(50000L, null, null, null, null))
-                .shippingAddress(ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", DeliveryRequestType.LEAVE_AT_DOOR, null))
+                .shippingAddress(
+                        ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", DeliveryRequestType.LEAVE_AT_DOOR, null)
+                )
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(1L)

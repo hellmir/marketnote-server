@@ -47,10 +47,12 @@ public class PaymentApprovedOrderStatusConsumer {
             PaymentApprovedEvent payload = envelope.getPayloadAs(PaymentApprovedEvent.class, objectMapper);
 
             log.info("결제 승인 이벤트 수신. eventId={}, orderId={}, orderKey={}",
-                    envelope.eventId(), payload.orderId(), payload.orderKey());
+                    envelope.eventId(), payload.orderId(), payload.orderKey()
+            );
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("orderId", payload.orderId()))) {
+            if (EventPayloadValidator.hasInvalidIds(
+                envelope.eventId(), EventPayloadValidator.id("orderId", payload.orderId())
+        )) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -61,14 +63,15 @@ public class PaymentApprovedOrderStatusConsumer {
                     .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
-            log.info("Kafka 이벤트로 주문 상태 PAID 변경 완료. orderId={}, orderKey={}",
-                    payload.orderId(), payload.orderKey());
+            log.info("Kafka 이벤트로 주문 상태 PAID 변경 완료. orderId={}, orderKey={}", payload.orderId(), payload.orderKey());
         } catch (OrderStatusAlreadyChangedException e) {
             log.warn("듀얼 라이트: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
-                    envelope.eventId(), record.key(), e.getMessage());
+                    envelope.eventId(), record.key(), e.getMessage()
+            );
         } catch (Exception e) {
             log.error("주문 상태 PAID 변경 실패. eventId={}, key={}, error={}",
-                    envelope.eventId(), record.key(), e.getMessage(), e);
+                    envelope.eventId(), record.key(), e.getMessage(), e
+            );
             throw e;
         }
 

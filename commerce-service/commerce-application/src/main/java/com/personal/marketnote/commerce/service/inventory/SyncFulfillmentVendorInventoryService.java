@@ -73,9 +73,7 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
         });
     }
 
-    private Map<Long, Integer> resolveStocksByProductId(
-            Iterable<SyncFulfillmentVendorInventoryItemCommand> items
-    ) {
+    private Map<Long, Integer> resolveStocksByProductId(Iterable<SyncFulfillmentVendorInventoryItemCommand> items) {
         Map<Long, Integer> stocksByProductId = new LinkedHashMap<>();
         for (SyncFulfillmentVendorInventoryItemCommand item : items) {
             stocksByProductId.put(item.productId(), item.stock());

@@ -43,7 +43,9 @@ public class Payment {
                 .paymentAmount(Money.of(state.getPaymentAmount()))
                 .successYn(state.getSuccessYn())
                 .refundedYn(state.getRefundedYn())
-                .refundAmount(FormatValidator.hasValue(state.getRefundAmount()) ? Money.of(state.getRefundAmount()) : Money.zero())
+                .refundAmount(
+                        FormatValidator.hasValue(state.getRefundAmount()) ? Money.of(state.getRefundAmount()) : Money.zero()
+                )
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();

@@ -85,7 +85,8 @@ public class RewardServiceClient implements ModifyUserPointPort {
             } catch (Exception e) {
                 lastError = e;
                 log.warn("포인트 잔액 조회 실패 - userId: {}, attempt: {}, error: {}",
-                        userId, attempt, e.getMessage(), e);
+                        userId, attempt, e.getMessage(), e
+                );
             }
 
             sleep(sleepMillis);
@@ -127,7 +128,9 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(userId);
-        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(amount, orderId, PRODUCT_ACCUMULATION_REASON);
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(
+                amount, orderId, PRODUCT_ACCUMULATION_REASON
+        );
         sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, userId, "포인트 변경");
     }
 
@@ -167,11 +170,15 @@ public class RewardServiceClient implements ModifyUserPointPort {
         ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingDeduction(
                 amount, orderId, PARTIAL_CANCEL_PRODUCT_ACCUMULATION_REASON
         );
-        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, userId, "부분 취소 적립 예정 포인트 차감");
+        sendRequestWithRetry(
+                uri, requestBody, HttpMethod.PATCH, userId, "부분 취소 적립 예정 포인트 차감"
+        );
     }
 
     @Override
-    public void reducePartialPendingSharedPurchasePoints(List<UUID> sharerKeys, Long paymentAmount, Long cancelAmount, Long orderId) {
+    public void reducePartialPendingSharedPurchasePoints(
+            List<UUID> sharerKeys, Long paymentAmount, Long cancelAmount, Long orderId
+    ) {
         if (FormatValidator.hasNoValue(sharerKeys)
                 || FormatValidator.hasNoValue(paymentAmount) || paymentAmount <= 0
                 || FormatValidator.hasNoValue(cancelAmount) || cancelAmount <= 0) {
@@ -200,7 +207,9 @@ public class RewardServiceClient implements ModifyUserPointPort {
         ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingDeduction(
                 amount, orderId, PARTIAL_CANCEL_SHARED_PURCHASE_REASON
         );
-        sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerKey, "부분 취소 공유 적립 예정 포인트 차감");
+        sendRequestWithRetry(
+                uri, requestBody, HttpMethod.PATCH, sharerKey, "부분 취소 공유 적립 예정 포인트 차감"
+        );
     }
 
     @Override
@@ -241,7 +250,9 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
         URI uri = buildPendingPointUri(sharerKey);
         long sharePointAmount = Math.round(totalAmount * sharePointRate);
-        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(sharePointAmount, orderId, SHARE_PURCHASE_REASON);
+        ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(
+                sharePointAmount, orderId, SHARE_PURCHASE_REASON
+        );
         sendRequestWithRetry(uri, requestBody, HttpMethod.PATCH, sharerKey, "포인트 변경");
     }
 
@@ -304,18 +315,22 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
     }
 
-    private <T> void sendRequestWithRetry(URI uri, T requestBody, HttpMethod method,
-                                          UUID userKey, String operationName) {
+    private <T> void sendRequestWithRetry(
+            URI uri, T requestBody, HttpMethod method, UUID userKey, String operationName
+    ) {
         sendRequestWithRetry(uri, requestBody, method, userKey.toString(), operationName);
     }
 
-    private <T> void sendRequestWithRetry(URI uri, T requestBody, HttpMethod method,
-                                          Long userId, String operationName) {
+    private <T> void sendRequestWithRetry(
+            URI uri, T requestBody, HttpMethod method, Long userId, String operationName
+    ) {
         sendRequestWithRetry(uri, requestBody, method, userId.toString(), operationName);
     }
 
-    private <T> void sendRequestWithRetry(URI uri, T requestBody, HttpMethod method,
-                                          String userIdentifier, String operationName) {
+    private <T> void sendRequestWithRetry(
+            URI uri, T requestBody, HttpMethod method,
+            String userIdentifier, String operationName
+    ) {
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
 
         for (int i = 0; i < INTER_SERVER_MAX_REQUEST_COUNT; i++) {
@@ -323,7 +338,9 @@ public class RewardServiceClient implements ModifyUserPointPort {
             try {
                 ResponseEntity<Void> responseEntity = restClient.method(method)
                         .uri(uri)
-                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, method.name(), uri.getPath()))
+                        .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(
+                                headers, method.name(), uri.getPath()
+                        ))
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(requestBody)
                         .retrieve()
@@ -339,10 +356,12 @@ public class RewardServiceClient implements ModifyUserPointPort {
                 }
 
                 log.warn("{} 비정상 응답 - userIdentifier: {}, attempt: {}, status: {}",
-                        operationName, userIdentifier, attempt, responseEntity.getStatusCode());
+                        operationName, userIdentifier, attempt, responseEntity.getStatusCode()
+                );
             } catch (Exception e) {
                 log.warn("{} 요청 실패 - userIdentifier: {}, attempt: {}, error: {}",
-                        operationName, userIdentifier, attempt, e.getMessage(), e);
+                        operationName, userIdentifier, attempt, e.getMessage(), e
+                );
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     log.error("{} 최종 실패 - userIdentifier: {}", operationName, userIdentifier);
                     throw new RewardServiceRequestFailedException(new IOException(e));

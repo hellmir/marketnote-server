@@ -130,8 +130,10 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             List<OrderProduct> pgSkipCancelProducts = resolveCancelProducts(isFullCancel, command);
             publishPaymentCancelledEvent(
                     order.getId(), command.orderKey(), order.getBuyerId(), 0L,
-                    payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(), isFullCancel, alreadyRefunded,
-                    UUID.randomUUID().toString(), order.getOrderProducts(), pgSkipCancelProducts, pgSkipDeduction);
+                    payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(),
+                    isFullCancel, alreadyRefunded,
+                    UUID.randomUUID().toString(), order.getOrderProducts(), pgSkipCancelProducts, pgSkipDeduction
+            );
             return;
         }
 
@@ -176,9 +178,11 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         // Outbox 이벤트 저장 (트랜잭션 내)
         publishPaymentCancelledEvent(
                 order.getId(), command.orderKey(), order.getBuyerId(), cancelAmount,
-                payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(), isFullCancel, alreadyRefunded,
+                payment.getPaymentAmount().getValue(), order.getAmount().getPointAmount().getValue(),
+                isFullCancel, alreadyRefunded,
                 cancelId, order.getOrderProducts(), cancelTargetProducts,
-                partialProductPendingDeduction);
+                partialProductPendingDeduction
+        );
     }
 
     private Long computeCancelAmount(boolean isFullCancel, Long partialCancelAmount, Long refundableAmount) {
@@ -270,14 +274,18 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             Map<Long, Long> sellerTotalAmounts = order.getOrderProducts().stream()
                     .collect(Collectors.groupingBy(
                             OrderProduct::getSellerId,
-                            Collectors.summingLong(op -> op.getUnitAmount().multiply(op.getQuantity().getValue()).getValue())
+                            Collectors.summingLong(
+                                    op -> op.getUnitAmount().multiply(op.getQuantity().getValue()).getValue()
+                            )
                     ));
 
             Map<Long, Long> sellerCancelAmounts = command.cancelProducts().stream()
                     .collect(Collectors.groupingBy(
                             item -> resolveSellerIdForCancelProduct(order, item.pricePolicyId()),
                             Collectors.summingLong(item -> {
-                                OrderProduct orderProduct = findOrderProductByPricePolicyId(order, item.pricePolicyId());
+                                OrderProduct orderProduct = findOrderProductByPricePolicyId(
+                                        order, item.pricePolicyId()
+                                );
                                 return orderProduct.getUnitAmount().multiply(item.quantity().longValue()).getValue();
                             })
                     ));
@@ -307,7 +315,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
                 long remainingAmount = Math.subtractExact(sellerTotal, sellerCancel);
 
                 ShippingFeeContext context = ShippingFeeContext.of(
-                        Money.of(remainingAmount), Money.of(policy.shippingFee()), Money.of(policy.freeShippingThreshold())
+                        Money.of(remainingAmount), Money.of(policy.shippingFee()),
+                        Money.of(policy.freeShippingThreshold())
                 );
                 long baseFee = ShippingFeeCalculator.calculateBaseFee(context).getValue();
                 totalDeduction = Math.addExact(totalDeduction, baseFee);
@@ -410,7 +419,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
 
         Map<Long, Integer> orderQuantityByPricePolicyId = order.getOrderProducts().stream()
-                .collect(Collectors.toMap(OrderProduct::getPricePolicyId, op -> op.getQuantity().getValue(), Integer::sum));
+                .collect(Collectors.toMap(
+                        OrderProduct::getPricePolicyId, op -> op.getQuantity().getValue(), Integer::sum
+                ));
 
         for (CancelPaymentCommand.CancelProductItem item : cancelProducts) {
             if (FormatValidator.hasNoValue(item.quantity()) || item.quantity() <= 0) {
@@ -474,7 +485,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         if (allHaveSnapshot) {
             long total = 0L;
             for (OrderProduct orderProduct : orderProducts) {
-                total = Math.addExact(total, orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue());
+                total = Math.addExact(total,
+                        orderProduct.getAccumulatedPoint().multiply(orderProduct.getQuantity().getValue()).getValue()
+                );
             }
             return total;
         }
@@ -494,7 +507,9 @@ public class CancelPaymentService implements CancelPaymentUseCase {
             if (FormatValidator.hasNoValue(productInfo.accumulatedPoint())) {
                 continue;
             }
-            total = Math.addExact(total, Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue()));
+            total = Math.addExact(total,
+                    Math.multiplyExact(productInfo.accumulatedPoint(), (long) orderProduct.getQuantity().getValue())
+            );
         }
         return total;
     }
@@ -558,9 +573,7 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         }
     }
 
-    private Long calculateSnapshotDeductionPoint(
-            List<OrderProduct> orderProducts, CancelPaymentCommand command
-    ) {
+    private Long calculateSnapshotDeductionPoint(List<OrderProduct> orderProducts, CancelPaymentCommand command) {
         if (!command.hasCancelProducts()) {
             return null;
         }
@@ -597,13 +610,15 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         return proportionalPoint;
     }
 
-    private void publishPaymentCancelledEvent(Long orderId, String orderKey, Long buyerId,
-                                              Long cancelAmount, Long paymentAmount, Long pointAmount,
-                                              boolean isFullCancel, Long alreadyRefunded,
-                                              String cancelId,
-                                              List<OrderProduct> orderProducts,
-                                              List<OrderProduct> cancelProducts,
-                                              Long partialProductPendingDeduction) {
+    private void publishPaymentCancelledEvent(
+            Long orderId, String orderKey, Long buyerId,
+            Long cancelAmount, Long paymentAmount, Long pointAmount,
+            boolean isFullCancel, Long alreadyRefunded,
+            String cancelId,
+            List<OrderProduct> orderProducts,
+            List<OrderProduct> cancelProducts,
+            Long partialProductPendingDeduction
+    ) {
         try {
             publishPaymentEventPort.publishPaymentCancelledEvent(
                     orderId, orderKey, buyerId, cancelAmount, paymentAmount,

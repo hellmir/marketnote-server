@@ -587,7 +587,9 @@ class ChangeOrderStatusUseCaseTest {
         return createOrder(orderId, buyerId, status, pricePolicyId, 0L);
     }
 
-    private Order createOrder(Long orderId, Long buyerId, OrderStatus status, Long pricePolicyId, Long accumulatedPoint) {
+    private Order createOrder(
+            Long orderId, Long buyerId, OrderStatus status, Long pricePolicyId, Long accumulatedPoint
+    ) {
         List<OrderProductSnapshotState> productStates = List.of(
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)

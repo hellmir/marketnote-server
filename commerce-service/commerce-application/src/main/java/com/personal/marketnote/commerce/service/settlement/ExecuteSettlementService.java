@@ -48,7 +48,8 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
     @Transactional(isolation = READ_COMMITTED)
     public void executeSettlement(ExecuteSettlementCommand command) {
         List<PaymentAllocation> unsettledAllocations = findPaymentAllocationPort.findUnsettledAllocations(
-                command.year(), command.month());
+                command.year(), command.month()
+        );
 
         if (unsettledAllocations.isEmpty()) {
             throw new NoUnsettledAllocationException();
@@ -69,16 +70,20 @@ public class ExecuteSettlementService implements ExecuteSettlementUseCase {
             List<PaymentAllocation> sellerAllocations = entry.getValue();
 
             SettlementPolicy policy = policyMap.get(sellerId);
-            Integer pgFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPgFeeRate().getValue() : defaultPgFeeRate;
-            Integer platformFeeRate = (FormatValidator.hasValue(policy)) ? policy.getPlatformFeeRate().getValue() : defaultPlatformFeeRate;
+            Integer pgFeeRate =
+                    (FormatValidator.hasValue(policy)) ? policy.getPgFeeRate().getValue() : defaultPgFeeRate;
+            Integer platformFeeRate =
+                    (FormatValidator.hasValue(policy)) ? policy.getPlatformFeeRate().getValue() : defaultPlatformFeeRate;
 
             try {
                 processSellerSettlementService.process(
-                        command, sellerId, sellerAllocations, pgFeeRate, platformFeeRate);
+                        command, sellerId, sellerAllocations, pgFeeRate, platformFeeRate
+                );
             } catch (Exception e) {
                 failedCount++;
                 log.error("판매자 정산 실패 - sellerId: {}, year: {}, month: {}, pgFeeRate: {}, platformFeeRate: {}, error: {}",
-                        sellerId, command.year(), command.month(), pgFeeRate, platformFeeRate, e.getMessage(), e);
+                        sellerId, command.year(), command.month(), pgFeeRate, platformFeeRate, e.getMessage(), e
+                );
             }
         }
 

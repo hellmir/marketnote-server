@@ -42,7 +42,10 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long shippingAddressId, Long userId, String recipientName, String recipientPhoneNumber, String address, String addressDetail, String regionType) {
+    public void upsert(
+            Long shippingAddressId, Long userId, String recipientName,
+            String recipientPhoneNumber, String address, String addressDetail, String regionType
+    ) {
         Optional<ShippingAddressReadModelJpaEntity> existing =
                 shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId);
 
@@ -59,7 +62,9 @@ public class ShippingAddressReadModelPersistenceAdapter implements FindUserShipp
         } catch (DataIntegrityViolationException e) {
             log.info("배송지 Read Model 중복 저장 (멱등 처리). shippingAddressId={}", shippingAddressId);
             shippingAddressReadModelJpaRepository.findByShippingAddressId(shippingAddressId)
-                    .ifPresent(entity -> entity.updateFrom(recipientName, recipientPhoneNumber, address, addressDetail, regionType));
+                    .ifPresent(entity -> entity.updateFrom(
+                            recipientName, recipientPhoneNumber, address, addressDetail, regionType
+                    ));
         }
     }
 

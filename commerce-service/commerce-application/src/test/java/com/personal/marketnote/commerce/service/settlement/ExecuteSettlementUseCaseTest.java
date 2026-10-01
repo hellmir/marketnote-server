@@ -182,7 +182,9 @@ class ExecuteSettlementUseCaseTest {
             executeSettlementService.executeSettlement(command);
 
             // then
-            verify(processSellerSettlementService, times(2)).process(eq(command), anyLong(), anyList(), anyInt(), anyInt());
+            verify(processSellerSettlementService, times(2)).process(
+                    eq(command), anyLong(), anyList(), anyInt(), anyInt()
+            );
         }
 
         @Test

@@ -57,11 +57,15 @@ class CancelSettlementUseCaseTest {
 
     @BeforeEach
     void setUpAccounts() {
-        lenient().when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.of(createAccount(PG_RECEIVABLE_ID, "매출채권_PG")));
-        lenient().when(findAccountPort.findByName("미지급금_판매자")).thenReturn(Optional.of(createAccount(SELLER_PAYABLE_ID, "미지급금_판매자")));
+        lenient().when(findAccountPort.findByName("매출채권_PG"))
+                .thenReturn(Optional.of(createAccount(PG_RECEIVABLE_ID, "매출채권_PG")));
+        lenient().when(findAccountPort.findByName("미지급금_판매자"))
+                .thenReturn(Optional.of(createAccount(SELLER_PAYABLE_ID, "미지급금_판매자")));
         lenient().when(findAccountPort.findByName("보통예금")).thenReturn(Optional.of(createAccount(CASH_ID, "보통예금")));
-        lenient().when(findAccountPort.findByName("PG수수료비용")).thenReturn(Optional.of(createAccount(PG_FEE_ID, "PG수수료비용")));
-        lenient().when(findAccountPort.findByName("플랫폼수수료수익")).thenReturn(Optional.of(createAccount(PLATFORM_FEE_ID, "플랫폼수수료수익")));
+        lenient().when(findAccountPort.findByName("PG수수료비용"))
+                .thenReturn(Optional.of(createAccount(PG_FEE_ID, "PG수수료비용")));
+        lenient().when(findAccountPort.findByName("플랫폼수수료수익"))
+                .thenReturn(Optional.of(createAccount(PLATFORM_FEE_ID, "플랫폼수수료수익")));
     }
 
     private Account createAccount(Long id, String name) {

@@ -54,7 +54,8 @@ class ApprovePaymentUseCaseTest {
 
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class))).thenReturn(expectedResult);
+            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class)))
+                    .thenReturn(expectedResult);
 
             ApprovePaymentResult result = approvePaymentService.approve(command);
 
@@ -201,7 +202,8 @@ class ApprovePaymentUseCaseTest {
 
             when(txHelper.prepareExecution(command)).thenReturn(context);
             when(paymentVendorPort.approvePayment(any())).thenReturn(vendorResult);
-            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class))).thenReturn(expectedResult);
+            when(txHelper.commitSuccess(eq(context), eq(vendorResult), any(Installment.class)))
+                    .thenReturn(expectedResult);
 
             approvePaymentService.approve(command);
 

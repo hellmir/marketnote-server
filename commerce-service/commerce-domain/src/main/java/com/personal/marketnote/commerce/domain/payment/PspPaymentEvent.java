@@ -203,7 +203,9 @@ public class PspPaymentEvent {
 
     public void partialRefund(String pgCancelApprovalResult) {
         if (!poStatus.isRefundable()) {
-            throw new InvalidPaymentStatusTransitionException("COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 부분 환불할 수 있습니다.", poStatus);
+            throw new InvalidPaymentStatusTransitionException(
+                    "COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 부분 환불할 수 있습니다.", poStatus
+            );
         }
         poStatus = PaymentEventStatus.PARTIALLY_REFUNDED;
         this.pgCancelApprovalResult = pgCancelApprovalResult;
@@ -211,7 +213,9 @@ public class PspPaymentEvent {
 
     public void refund(String pgCancelApprovalResult) {
         if (!poStatus.isRefundable()) {
-            throw new InvalidPaymentStatusTransitionException("COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 환불할 수 있습니다.", poStatus);
+            throw new InvalidPaymentStatusTransitionException(
+                    "COMPLETE 또는 PARTIALLY_REFUNDED 상태에서만 환불할 수 있습니다.", poStatus
+            );
         }
         poStatus = PaymentEventStatus.REFUNDED;
         this.pgCancelApprovalResult = pgCancelApprovalResult;

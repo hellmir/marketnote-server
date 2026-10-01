@@ -31,8 +31,7 @@ public class GetSettlementService implements GetSettlementUseCase {
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetSettlementsResult getSettlements(GetSettlementsQuery query) {
-        List<Settlement> settlements = findSettlementPort.findAllByYearAndMonth(
-                query.year(), query.month());
+        List<Settlement> settlements = findSettlementPort.findAllByYearAndMonth(query.year(), query.month());
         return GetSettlementsResult.from(settlements);
     }
 }

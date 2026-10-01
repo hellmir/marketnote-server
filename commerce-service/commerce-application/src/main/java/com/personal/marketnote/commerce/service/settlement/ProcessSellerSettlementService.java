@@ -57,9 +57,11 @@ public class ProcessSellerSettlementService {
      * @param platformFeeRate   플랫폼 수수료율 (basis point)
      */
     @Transactional(isolation = READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
-    public void process(ExecuteSettlementCommand command, Long sellerId,
-                        List<PaymentAllocation> sellerAllocations,
-                        Integer pgFeeRate, Integer platformFeeRate) {
+    public void process(
+            ExecuteSettlementCommand command, Long sellerId,
+            List<PaymentAllocation> sellerAllocations,
+            Integer pgFeeRate, Integer platformFeeRate
+    ) {
         Integer year = command.year();
         Integer month = command.month();
 
@@ -67,10 +69,14 @@ public class ProcessSellerSettlementService {
             throw new SettlementAlreadyExistsException(sellerId, year, month);
         }
 
-        long totalAllocatedAmount = calculateNetAmount(sellerAllocations, allocation -> allocation.getAllocatedAmount().getValue());
+        long totalAllocatedAmount = calculateNetAmount(
+                sellerAllocations, allocation -> allocation.getAllocatedAmount().getValue()
+        );
 
-        long totalShippingFee = calculateNetAmount(sellerAllocations,
-                allocation -> allocation.getShippingFee() != null ? allocation.getShippingFee().getValue() : 0L);
+        long totalShippingFee = calculateNetAmount(
+                sellerAllocations,
+                allocation -> allocation.getShippingFee() != null ? allocation.getShippingFee().getValue() : 0L
+        );
 
         long feeBase = Math.addExact(totalAllocatedAmount, totalShippingFee);
         long pgFeeAmount = Math.multiplyExact(feeBase, pgFeeRate) / BASIS_POINT_DENOMINATOR;
@@ -100,29 +106,39 @@ public class ProcessSellerSettlementService {
         savedSettlement.complete();
         updateSettlementPort.update(savedSettlement);
 
-        publishSettlementExecutedEvent(settlementId, sellerId, totalAllocatedAmount,
-                totalShippingFee, pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
+        publishSettlementExecutedEvent(
+                settlementId, sellerId, totalAllocatedAmount,
+                totalShippingFee, pgFeeAmount, platformFeeAmount, sellerPayoutAmount
+        );
 
         log.info("정산 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}, total: {}, pgFee: {}, platformFee: {}, sellerPayout: {}",
-                settlementId, sellerId, year, month, totalAllocatedAmount, pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
+                settlementId, sellerId, year, month,
+                totalAllocatedAmount, pgFeeAmount, platformFeeAmount, sellerPayoutAmount
+        );
     }
 
-    private void publishSettlementExecutedEvent(Long settlementId, Long sellerId,
-                                                Long totalAllocatedAmount, Long shippingFee,
-                                                Long pgFeeAmount, Long platformFeeAmount,
-                                                Long sellerPayoutAmount) {
+    private void publishSettlementExecutedEvent(
+            Long settlementId, Long sellerId,
+            Long totalAllocatedAmount, Long shippingFee,
+            Long pgFeeAmount, Long platformFeeAmount,
+            Long sellerPayoutAmount
+    ) {
         try {
             publishSettlementEventPort.publishSettlementExecutedEvent(
                     settlementId, sellerId, totalAllocatedAmount, shippingFee,
-                    pgFeeAmount, platformFeeAmount, sellerPayoutAmount);
+                    pgFeeAmount, platformFeeAmount, sellerPayoutAmount
+            );
         } catch (Exception e) {
             log.error("정산 실행 이벤트 발행 실패 - settlementId: {}, sellerId: {}, error: {}",
-                    settlementId, sellerId, e.getMessage(), e);
+                    settlementId, sellerId, e.getMessage(), e
+            );
         }
     }
 
-    private long calculateNetAmount(List<PaymentAllocation> allocations,
-                                    java.util.function.ToLongFunction<PaymentAllocation> amountExtractor) {
+    private long calculateNetAmount(
+            List<PaymentAllocation> allocations,
+            java.util.function.ToLongFunction<PaymentAllocation> amountExtractor
+    ) {
         long positiveSum = 0L;
         long negativeSum = 0L;
         for (PaymentAllocation allocation : allocations) {

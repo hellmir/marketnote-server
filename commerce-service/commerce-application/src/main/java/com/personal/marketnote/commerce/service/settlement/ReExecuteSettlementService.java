@@ -65,7 +65,9 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
             recordPgSettlementReExecution(settlementId, totalAllocatedAmount, pgFeeAmount);
 
             long sellerSettlementDebit = sellerPayoutAmount + platformFeeAmount;
-            recordSellerSettlementReExecution(settlementId, sellerSettlementDebit, sellerPayoutAmount, platformFeeAmount);
+            recordSellerSettlementReExecution(
+                    settlementId, sellerSettlementDebit, sellerPayoutAmount, platformFeeAmount
+            );
 
             settlement.complete();
         } catch (Exception e) {
@@ -78,7 +80,8 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
         updateSettlementPort.update(settlement);
 
         log.info("정산 재실행 완료 - settlementId: {}, sellerId: {}, year: {}, month: {}",
-                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth());
+                settlementId, settlement.getSellerId(), settlement.getYear(), settlement.getMonth()
+        );
     }
 
     /**
@@ -146,7 +149,9 @@ public class ReExecuteSettlementService implements ReExecuteSettlementUseCase {
      * </pre>
      * </p>
      */
-    private void recordSellerSettlementReExecution(Long settlementId, Long totalAmount, Long sellerPayoutAmount, Long platformFeeAmount) {
+    private void recordSellerSettlementReExecution(
+            Long settlementId, Long totalAmount, Long sellerPayoutAmount, Long platformFeeAmount
+    ) {
         Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
