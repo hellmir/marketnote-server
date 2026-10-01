@@ -73,10 +73,12 @@ public class GetUserPointHistoryService implements GetUserPointHistoryUseCase {
         }
     }
 
-    private Long resolveTotalElements(GetUserPointHistoryCommand command,
-                                      UserPointHistoryFilter filter,
-                                      LocalDate startDate, LocalDate endDate,
-                                      boolean hasNext, int currentSize) {
+    private Long resolveTotalElements(
+            GetUserPointHistoryCommand command,
+            UserPointHistoryFilter filter,
+            LocalDate startDate, LocalDate endDate,
+            boolean hasNext, int currentSize
+    ) {
         if (FormatValidator.hasValue(command.cursor())) {
             return null;
         }

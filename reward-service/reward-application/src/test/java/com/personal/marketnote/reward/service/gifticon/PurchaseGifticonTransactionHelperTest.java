@@ -93,7 +93,8 @@ class PurchaseGifticonTransactionHelperTest {
                     .trId(order.getTrId())
                     .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
-                    .build());
+                    .build()
+            );
         });
 
         // when
@@ -149,7 +150,8 @@ class PurchaseGifticonTransactionHelperTest {
                     .trId(order.getTrId())
                     .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
-                    .build());
+                    .build()
+            );
         });
 
         // when
@@ -180,7 +182,8 @@ class PurchaseGifticonTransactionHelperTest {
                     .trId(order.getTrId())
                     .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
-                    .build());
+                    .build()
+            );
         });
 
         // when
@@ -214,7 +217,8 @@ class PurchaseGifticonTransactionHelperTest {
                     .trId(order.getTrId())
                     .cashPrice(order.getCashPrice().getValue())
                     .orderStatus(order.getOrderStatus())
-                    .build());
+                    .build()
+            );
         });
 
         // when
@@ -360,6 +364,7 @@ class PurchaseGifticonTransactionHelperTest {
                 .trId("NC100_260404210000")
                 .cashPrice(CASH_PRICE)
                 .orderStatus(GifticonOrderStatus.PENDING)
-                .build());
+                .build()
+        );
     }
 }

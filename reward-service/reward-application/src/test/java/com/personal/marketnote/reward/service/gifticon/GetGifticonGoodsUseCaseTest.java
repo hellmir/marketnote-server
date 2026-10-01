@@ -113,6 +113,7 @@ class GetGifticonGoodsUseCaseTest {
                 .orderNum(orderNum)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .build()
+        );
     }
 }

@@ -11,10 +11,7 @@ public record GetAttendanceRelayStatusResponse(
         List<RelaySlotResponse> relaySlots
 ) {
     public record RelaySlotResponse(
-            short day,
-            AttendanceRewardType rewardType,
-            long rewardQuantity,
-            boolean completed
+            short day, AttendanceRewardType rewardType, long rewardQuantity, boolean completed
     ) {
     }
 
@@ -24,8 +21,6 @@ public record GetAttendanceRelayStatusResponse(
                         slot.day(), slot.rewardType(), slot.rewardQuantity(), slot.completed()
                 ))
                 .toList();
-        return new GetAttendanceRelayStatusResponse(
-                result.currentRelayDay(), result.todayChecked(), slots
-        );
+        return new GetAttendanceRelayStatusResponse(result.currentRelayDay(), result.todayChecked(), slots);
     }
 }

@@ -58,7 +58,8 @@ class ModifyUserPointUseCaseTest {
                 .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
     }
 
     private ModifyUserPointCommand createAccrualCommandWithUserId(Long amount) {

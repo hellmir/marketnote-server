@@ -6,11 +6,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.time.LocalDate;
 
-public record GetMonthlyAttendanceQuery(
-        Long userId,
-        Integer year,
-        Integer month
-) {
+public record GetMonthlyAttendanceQuery(Long userId, Integer year, Integer month) {
     public static GetMonthlyAttendanceQuery of(Long userId, Integer year, Integer month) {
         return new GetMonthlyAttendanceQuery(userId, year, month);
     }

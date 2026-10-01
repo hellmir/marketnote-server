@@ -237,7 +237,9 @@ class GetAttendanceRelayStatusUseCaseTest {
                     .thenReturn(Optional.of(createPolicy((short) 4, AttendanceRewardType.BOOSTER, 1L)));
         }
 
-        private AttendancePolicy createPolicy(short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity) {
+        private AttendancePolicy createPolicy(
+                short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity
+        ) {
             return AttendancePolicy.from(
                     AttendancePolicySnapshotState.builder()
                             .id(continuousPeriod)

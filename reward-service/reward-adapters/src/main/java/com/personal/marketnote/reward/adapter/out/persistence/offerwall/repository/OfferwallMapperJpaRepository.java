@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface OfferwallMapperJpaRepository extends JpaRepository<OfferwallMapperJpaEntity, Long> {
-    boolean existsByOfferwallTypeAndRewardKeyAndIsSuccess(OfferwallType offerwallType, String rewardKey, boolean isSuccess);
+    boolean existsByOfferwallTypeAndRewardKeyAndIsSuccess(
+            OfferwallType offerwallType, String rewardKey, boolean isSuccess
+    );
 
     Optional<OfferwallMapperJpaEntity> findTop1ByOfferwallTypeAndRewardKeyAndIsSuccessFalseOrderByFailureCountDesc(
             OfferwallType offerwallType,

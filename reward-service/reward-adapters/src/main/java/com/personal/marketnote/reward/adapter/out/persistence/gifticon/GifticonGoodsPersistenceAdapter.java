@@ -63,7 +63,9 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     }
 
     @Override
-    public FindAllForAdminResult findAllForAdmin(int page, int pageSize, GoodsStatus goodsStatus, Boolean exposed, String keyword) {
+    public FindAllForAdminResult findAllForAdmin(
+            int page, int pageSize, GoodsStatus goodsStatus, Boolean exposed, String keyword
+    ) {
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
         Page<GifticonGoodsJpaEntity> pageResult = fetchAdminGoodsPage(goodsStatus, exposed, keyword, pageRequest);
         List<GifticonGoods> items = pageResult.getContent().stream()
@@ -72,7 +74,9 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
         return new FindAllForAdminResult(items, pageResult.getTotalElements());
     }
 
-    private Page<GifticonGoodsJpaEntity> fetchAdminGoodsPage(GoodsStatus goodsStatus, Boolean exposed, String keyword, PageRequest pageRequest) {
+    private Page<GifticonGoodsJpaEntity> fetchAdminGoodsPage(
+            GoodsStatus goodsStatus, Boolean exposed, String keyword, PageRequest pageRequest
+    ) {
         if (FormatValidator.hasNoValue(goodsStatus)) {
             return repository.findAllForAdminWithoutStatus(exposed, keyword, pageRequest);
         }
@@ -84,7 +88,9 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
         String categoryCodeParam = FormatValidator.hasValue(categoryCode) ? categoryCode : "";
         String brandCodeParam = FormatValidator.hasValue(brandCode) ? brandCode : "";
         Pageable pageable = PageRequest.of(page - 1, pageSize);
-        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable);
+        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(
+                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
+        );
         return result.getContent().stream()
                 .map(GifticonGoodsJpaEntity::toDomain)
                 .toList();
@@ -95,7 +101,9 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
         String categoryCodeParam = FormatValidator.hasValue(categoryCode) ? categoryCode : "";
         String brandCodeParam = FormatValidator.hasValue(brandCode) ? brandCode : "";
         Pageable pageable = PageRequest.of(0, 1);
-        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable);
+        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(
+                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
+        );
         return result.getTotalElements();
     }
 

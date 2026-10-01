@@ -401,7 +401,9 @@ class RegisterAttendanceUseCaseTest {
             );
         }
 
-        private AttendancePolicy createPolicy(short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity) {
+        private AttendancePolicy createPolicy(
+                short continuousPeriod, AttendanceRewardType rewardType, long rewardQuantity
+        ) {
             return AttendancePolicy.from(
                     AttendancePolicySnapshotState.builder()
                             .id(continuousPeriod)

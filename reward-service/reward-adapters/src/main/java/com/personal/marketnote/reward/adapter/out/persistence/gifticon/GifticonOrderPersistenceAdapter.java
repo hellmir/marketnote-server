@@ -56,8 +56,10 @@ public class GifticonOrderPersistenceAdapter
     }
 
     @Override
-    public List<GifticonOrder> findByUserIdAndStatuses(Long userId, List<GifticonOrderStatus> statuses,
-                                                       GifticonOrderSortType sortType, Long cursor, int pageSize) {
+    public List<GifticonOrder> findByUserIdAndStatuses(
+            Long userId, List<GifticonOrderStatus> statuses,
+            GifticonOrderSortType sortType, Long cursor, int pageSize
+    ) {
         if (sortType.isExpirySoonest()) {
             return findByExpirySoonest(userId, statuses, cursor, pageSize);
         }
@@ -75,8 +77,10 @@ public class GifticonOrderPersistenceAdapter
         return gifticonOrderJpaRepository.countByUserIdAndOrderStatusIn(userId, statuses);
     }
 
-    private List<GifticonOrder> findByPurchaseLatest(Long userId, List<GifticonOrderStatus> statuses,
-                                                     Long cursor, int pageSize) {
+    private List<GifticonOrder> findByPurchaseLatest(
+            Long userId, List<GifticonOrderStatus> statuses,
+            Long cursor, int pageSize
+    ) {
         Pageable pageable = PageRequest.of(0, pageSize);
         return gifticonOrderJpaRepository.findByUserIdAndStatusesOrderByCreatedAtDesc(
                         userId, statuses, cursor, pageable)
@@ -93,8 +97,10 @@ public class GifticonOrderPersistenceAdapter
                 .toList();
     }
 
-    private List<GifticonOrder> findByExpirySoonest(Long userId, List<GifticonOrderStatus> statuses,
-                                                    Long cursor, int pageSize) {
+    private List<GifticonOrder> findByExpirySoonest(
+            Long userId, List<GifticonOrderStatus> statuses,
+            Long cursor, int pageSize
+    ) {
         int offset = (cursor <= 0) ? 0 : (int) Math.min(cursor, 10_000);
         int totalFetch = Math.addExact(offset, pageSize);
         Pageable pageable = PageRequest.of(0, totalFetch);

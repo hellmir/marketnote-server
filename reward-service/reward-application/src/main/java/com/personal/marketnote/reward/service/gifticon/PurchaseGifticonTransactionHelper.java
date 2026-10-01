@@ -76,7 +76,8 @@ public class PurchaseGifticonTransactionHelper {
                 .amount(cashPrice)
                 .sourceType(UserPointSourceType.GIFTICON_PURCHASE)
                 .reason("기프티콘 구매: " + goodsName)
-                .build());
+                .build()
+        );
 
         GifticonOrder order = GifticonOrder.from(GifticonOrderCreateState.builder()
                 .userId(userId)
@@ -86,7 +87,8 @@ public class PurchaseGifticonTransactionHelper {
                 .productImageUrl(productImageUrl)
                 .trId(trId)
                 .cashPrice(cashPrice)
-                .build());
+                .build()
+        );
 
         GifticonOrder savedOrder = saveGifticonOrderPort.save(order);
 
@@ -115,7 +117,8 @@ public class PurchaseGifticonTransactionHelper {
                 .amount(context.cashPrice())
                 .sourceType(UserPointSourceType.GIFTICON_REFUND)
                 .reason("기프티콘 구매 실패 환불: " + context.goodsName())
-                .build());
+                .build()
+        );
 
         GifticonOrder order = findGifticonOrderPort.findByTrId(context.trId())
                 .orElseThrow(() -> new GifticonOrderNotFoundException(context.trId()));

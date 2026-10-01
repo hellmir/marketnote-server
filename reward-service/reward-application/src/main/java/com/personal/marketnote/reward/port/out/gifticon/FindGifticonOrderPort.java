@@ -12,8 +12,10 @@ public interface FindGifticonOrderPort {
 
     boolean existsByTrId(String trId);
 
-    List<GifticonOrder> findByUserIdAndStatuses(Long userId, List<GifticonOrderStatus> statuses,
-                                                GifticonOrderSortType sortType, Long cursor, int pageSize);
+    List<GifticonOrder> findByUserIdAndStatuses(
+            Long userId, List<GifticonOrderStatus> statuses,
+            GifticonOrderSortType sortType, Long cursor, int pageSize
+    );
 
     long countByUserIdAndStatuses(Long userId, List<GifticonOrderStatus> statuses);
 

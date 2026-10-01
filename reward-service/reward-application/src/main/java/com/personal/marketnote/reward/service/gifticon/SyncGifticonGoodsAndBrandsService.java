@@ -109,7 +109,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
                 .brandCode(item.brandCode())
                 .brandName(item.brandName())
                 .brandImageUrl(item.brandIconImg())
-                .build());
+                .build()
+        );
         saveGifticonBrandPort.save(brand);
     }
 
@@ -148,7 +149,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
         GifticonCategory category = GifticonCategory.from(GifticonCategoryCreateState.builder()
                 .categoryCode(category1Seq)
                 .categoryName(category1Name)
-                .build());
+                .build()
+        );
         GifticonCategory savedCategory = saveGifticonCategoryPort.save(category);
         saveGifticonCategoryMappingPort.save(category1Seq, savedCategory.getId());
     }
@@ -190,7 +192,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
                     .description(item.content())
                     .validDays(item.limitDay())
                     .goodsStatus(GoodsStatus.from(item.goodsStatus()))
-                    .build());
+                    .build()
+            );
             updateGifticonGoodsPort.update(goods);
             return;
         }
@@ -209,7 +212,8 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
                 .description(item.content())
                 .validDays(item.limitDay())
                 .goodsStatus(GoodsStatus.from(item.goodsStatus()))
-                .build());
+                .build()
+        );
         saveGifticonGoodsPort.save(goods);
     }
 

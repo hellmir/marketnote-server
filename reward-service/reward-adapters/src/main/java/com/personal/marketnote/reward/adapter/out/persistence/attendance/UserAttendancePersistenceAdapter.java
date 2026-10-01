@@ -25,7 +25,9 @@ public class UserAttendancePersistenceAdapter implements SaveUserAttendancePort,
     }
 
     @Override
-    public Optional<UserAttendance> findByUserIdAndYearAndMonth(Long userId, com.personal.marketnote.common.domain.calendar.Year year, com.personal.marketnote.common.domain.calendar.Month month) {
+    public Optional<UserAttendance> findByUserIdAndYearAndMonth(
+            Long userId, com.personal.marketnote.common.domain.calendar.Year year, com.personal.marketnote.common.domain.calendar.Month month
+    ) {
         return repository.findTop1ByUserIdAndYearAndMonth(userId, year, month)
                 .map(UserAttendanceJpaEntity::toDomain);
     }

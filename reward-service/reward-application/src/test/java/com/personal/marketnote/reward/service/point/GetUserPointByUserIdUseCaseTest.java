@@ -40,7 +40,8 @@ class GetUserPointByUserIdUseCaseTest {
                 .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
     }
 
     @Test

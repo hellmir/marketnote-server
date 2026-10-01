@@ -86,6 +86,7 @@ class GetPopularGifticonGoodsUseCaseTest {
                 .orderNum(1)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .build()
+        );
     }
 }

@@ -53,7 +53,8 @@ public class PaymentCancelledPointRefundConsumer {
             );
 
             log.info("결제 취소 이벤트 수신 (포인트 환불). eventId={}, orderId={}, buyerId={}, pointAmount={}, isFullCancel={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullCancel());
+                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullCancel()
+            );
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                     EventPayloadValidator.id("orderId", payload.orderId()))) {

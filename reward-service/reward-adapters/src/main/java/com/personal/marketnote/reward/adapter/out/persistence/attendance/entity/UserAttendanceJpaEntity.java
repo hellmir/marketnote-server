@@ -67,7 +67,8 @@ public class UserAttendanceJpaEntity {
                 .totalRewardQuantity(attendance.getTotalRewardQuantityValue())
                 .histories(FormatValidator.hasNoValue(attendance.getHistories()) ? null : attendance.getHistories().stream()
                         .map(UserAttendanceHistoryJpaEntity::from)
-                        .toList())
+                        .toList()
+                )
                 .build();
     }
 
@@ -82,7 +83,8 @@ public class UserAttendanceJpaEntity {
                         .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
                         .histories(FormatValidator.hasNoValue(histories) ? null : histories.stream()
                                 .map(UserAttendanceHistoryJpaEntity::toDomain)
-                                .toList())
+                                .toList()
+                        )
                         .build()
         );
     }

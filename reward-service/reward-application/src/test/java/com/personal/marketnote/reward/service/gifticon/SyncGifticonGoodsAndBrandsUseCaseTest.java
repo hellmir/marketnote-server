@@ -551,7 +551,8 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .brandImageUrl(brandImageUrl)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .build()
+        );
     }
 
     private GifticonCategory createCategory(Long id, String categoryCode, String categoryName) {
@@ -562,7 +563,8 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .exposed(false)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .build()
+        );
     }
 
     private GifticonGoods createGoods(Long id, String goodsCode, String goodsName,
@@ -585,7 +587,8 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
                 .exposed(false)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
-                .build());
+                .build()
+        );
     }
 
     private static String mapDbGoodsStatusToEnumName(String dbValue) {

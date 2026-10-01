@@ -8,7 +8,9 @@ public class RewardVendorCommunicationHistoryCommandToStateMapper {
     private RewardVendorCommunicationHistoryCommandToStateMapper() {
     }
 
-    public static RewardVendorCommunicationHistoryCreateState mapToCreateState(RewardVendorCommunicationHistoryCommand command) {
+    public static RewardVendorCommunicationHistoryCreateState mapToCreateState(
+            RewardVendorCommunicationHistoryCommand command
+    ) {
         return RewardVendorCommunicationHistoryCreateState.builder()
                 .targetType(command.getTargetType())
                 .targetId(command.getTargetId())

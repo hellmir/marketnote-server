@@ -133,6 +133,7 @@ class ManageGifticonCategoryOrderUseCaseTest {
                 .orderNum(orderNum)
                 .createdAt(LocalDateTime.of(2026, 4, 3, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 3, 10, 0))
-                .build());
+                .build()
+        );
     }
 }

@@ -31,6 +31,8 @@ public interface FindUserAttendanceHistoryPort {
      * @Author 성효빈
      * @Description 회원 출석 식별자와 기간으로 출석 이력 존재 여부를 확인합니다.
      */
-    boolean existsByUserAttendanceIdAndAttendedAtBetween(Long userAttendanceId, LocalDateTime startInclusive, LocalDateTime endExclusive);
+    boolean existsByUserAttendanceIdAndAttendedAtBetween(
+            Long userAttendanceId, LocalDateTime startInclusive, LocalDateTime endExclusive
+    );
 }
 

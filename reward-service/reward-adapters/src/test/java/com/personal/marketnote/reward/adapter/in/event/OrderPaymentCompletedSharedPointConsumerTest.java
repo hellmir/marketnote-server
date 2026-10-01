@@ -82,7 +82,9 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(ModifyPendingSharedPointCommand.class);
+        ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(
+                ModifyPendingSharedPointCommand.class
+        );
         verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(captor.capture());
 
         List<ModifyPendingSharedPointCommand> commands = captor.getAllValues();
@@ -320,7 +322,9 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"))
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"
+                ))
                 .thenReturn(null);
 
         // when
@@ -341,8 +345,12 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         );
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 50000L, orderProducts);
         when(modifyPendingSharedPointUseCase.modifyPending(any(ModifyPendingSharedPointCommand.class)))
-                .thenThrow(new DuplicateUserPointHistoryException(200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"))
-                .thenThrow(new DuplicateUserPointHistoryException(300L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"));
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        200L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"
+                ))
+                .thenThrow(new DuplicateUserPointHistoryException(
+                        300L, UserPointSourceType.ORDER, 1L, "링크 공유 회원 상품 구매"
+                ));
 
         // when
         consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);

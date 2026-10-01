@@ -21,7 +21,8 @@ class UserPointPendingAmountTest {
                 .expireExpectedAmount(PointAmount.zero())
                 .createdAt(LocalDateTime.of(2026, 3, 4, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 3, 4, 10, 0))
-                .build());
+                .build()
+        );
     }
 
     @Nested

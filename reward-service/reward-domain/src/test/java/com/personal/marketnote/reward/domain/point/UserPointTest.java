@@ -27,7 +27,8 @@ class UserPointTest {
                 .expireExpectedAmount(PointAmount.of(100L))
                 .createdAt(CREATED_AT)
                 .modifiedAt(MODIFIED_AT)
-                .build());
+                .build()
+        );
     }
 
     @Nested

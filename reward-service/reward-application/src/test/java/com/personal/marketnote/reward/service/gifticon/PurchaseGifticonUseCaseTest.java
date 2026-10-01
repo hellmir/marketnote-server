@@ -215,7 +215,8 @@ class PurchaseGifticonUseCaseTest {
                 .goodsStatus(GoodsStatus.SALE)
                 .exposed(true)
                 .popular(false)
-                .build());
+                .build()
+        );
         return goods;
     }
 
@@ -233,7 +234,8 @@ class PurchaseGifticonUseCaseTest {
                 .goodsStatus(GoodsStatus.SALE)
                 .exposed(false)
                 .popular(false)
-                .build());
+                .build()
+        );
     }
 
     private GifticonGoods createSuspendedGoods() {
@@ -250,6 +252,7 @@ class PurchaseGifticonUseCaseTest {
                 .goodsStatus(GoodsStatus.SUSPENDED)
                 .exposed(true)
                 .popular(false)
-                .build());
+                .build()
+        );
     }
 }

@@ -51,7 +51,8 @@ class ModifyPendingSharedPointUseCaseTest {
                 .expireExpectedAmount(PointAmount.zero())
                 .createdAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
-                .build());
+                .build()
+        );
     }
 
     private ModifyPendingSharedPointCommand createCommand(Long buyerId, UserPointChangeType changeType, Long amount) {

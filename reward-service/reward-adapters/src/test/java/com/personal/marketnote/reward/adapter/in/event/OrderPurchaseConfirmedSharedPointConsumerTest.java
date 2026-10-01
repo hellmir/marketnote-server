@@ -70,10 +70,12 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
 
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
                 .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+        );
         UserPoint userPoint2 = UserPoint.from(UserPointSnapshotState.builder()
                 .userId(300L).userKey(SHARER_KEY_2.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+        );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         when(findUserPointPort.findByUserKey(SHARER_KEY_2.toString())).thenReturn(Optional.of(userPoint2));
 
@@ -144,7 +146,9 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handleOrderPurchaseConfirmedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2), false);
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
+                1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2), false
+        );
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event
@@ -215,7 +219,8 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, sharerKeys);
         UserPoint userPoint1 = UserPoint.from(UserPointSnapshotState.builder()
                 .userId(200L).userKey(SHARER_KEY_1.toString()).amount(PointAmount.zero())
-                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build());
+                .addExpectedAmount(PointAmount.zero()).expireExpectedAmount(PointAmount.zero()).build()
+        );
         when(findUserPointPort.findByUserKey(SHARER_KEY_1.toString())).thenReturn(Optional.of(userPoint1));
         doThrow(new RuntimeException("DB 연결 실패"))
                 .when(confirmPendingPointUseCase).confirmPending(any(ConfirmPendingPointCommand.class));

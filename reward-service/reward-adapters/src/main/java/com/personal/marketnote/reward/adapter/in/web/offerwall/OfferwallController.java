@@ -123,7 +123,9 @@ public class OfferwallController {
 
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
-            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(true, 1, "success");
+            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(
+                    true, 1, "success"
+            );
             String successPayload = successPayloadJson.toString();
 
             vendorCommunicationRecorder.record(
@@ -148,16 +150,24 @@ public class OfferwallController {
             return ResponseEntity.ok(successPayload);
         } catch (VendorVerificationFailedException e) {
             // 서명 검증 실패
-            return vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value");
+            return vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
+            );
         } catch (UserNotFoundException e) {
             // 회원 포인트 도메인 정보 조회 실패
-            return vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user");
+            return vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
+            );
         } catch (DuplicateOfferwallRewardException e) {
             // 중복 리워드 지급 시도
-            return vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction");
+            return vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
+            );
         } catch (Exception e) {
             // 그 외
-            return vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message");
+            return vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
+            );
         }
     }
 
@@ -226,7 +236,9 @@ public class OfferwallController {
 
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
-            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(true, 1, "success");
+            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(
+                    true, 1, "success"
+            );
             String successPayload = successPayloadJson.toString();
 
             vendorCommunicationRecorder.record(
@@ -257,19 +269,27 @@ public class OfferwallController {
             );
         } catch (VendorVerificationFailedException e) {
             // 서명 검증 실패
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
+            );
             throw e;
         } catch (UserNotFoundException e) {
             // 회원 포인트 도메인 정보 조회 실패
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
+            );
             throw e;
         } catch (DuplicateOfferwallRewardException e) {
             // 중복 리워드 지급 시도
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
+            );
             throw e;
         } catch (Exception e) {
             // 그 외
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
+            );
             throw e;
         }
     }
@@ -348,7 +368,9 @@ public class OfferwallController {
 
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
-            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(true, 1, "success");
+            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(
+                    true, 1, "success"
+            );
             String successPayload = successPayloadJson.toString();
 
             vendorCommunicationRecorder.record(
@@ -379,19 +401,27 @@ public class OfferwallController {
             );
         } catch (VendorVerificationFailedException e) {
             // 서명 검증 실패
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 1100, "invalid signed value"
+            );
             throw e;
         } catch (UserNotFoundException e) {
             // 회원 포인트 도메인 정보 조회 실패
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 3200, "invalid user"
+            );
             throw e;
         } catch (DuplicateOfferwallRewardException e) {
             // 중복 리워드 지급 시도
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 3100, "duplicate transaction"
+            );
             throw e;
         } catch (Exception e) {
             // 그 외
-            vendorCommunicationFailureHandler.handleFailure(targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message");
+            vendorCommunicationFailureHandler.handleFailure(
+                    targetType, vendorName, payloadString, payloadJson, e, 4000, "custom error message"
+            );
             throw e;
         }
     }

@@ -59,7 +59,8 @@ class CancelPendingPointUseCaseTest {
                 .expireExpectedAmount(PointAmount.zero())
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
     }
 
     private CancelPendingPointCommand createCommand() {
@@ -87,7 +88,8 @@ class CancelPendingPointUseCaseTest {
                 .reason("상품 구매 적립")
                 .accumulatedAt(NOW)
                 .createdAt(NOW)
-                .build());
+                .build()
+        );
     }
 
     @Test

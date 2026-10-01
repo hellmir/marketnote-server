@@ -72,6 +72,7 @@ class AttendancePolicyTest {
                 .status(EntityStatus.ACTIVE)
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
     }
 }

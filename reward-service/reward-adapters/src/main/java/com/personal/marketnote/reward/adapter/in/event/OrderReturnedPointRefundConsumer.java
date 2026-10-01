@@ -53,7 +53,8 @@ public class OrderReturnedPointRefundConsumer {
             );
 
             log.info("반품 완료 이벤트 수신 (포인트 환불). eventId={}, orderId={}, buyerId={}, pointAmount={}, isFullReturn={}",
-                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullReturn());
+                    envelope.eventId(), payload.orderId(), payload.buyerId(), payload.pointAmount(), payload.isFullReturn()
+            );
 
             if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                     EventPayloadValidator.id("orderId", payload.orderId()))) {

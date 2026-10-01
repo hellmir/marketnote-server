@@ -37,7 +37,8 @@ class GifticonCategoryTest {
         GifticonCategory category = GifticonCategory.from(GifticonCategoryCreateState.builder()
                 .categoryCode("CAT001")
                 .categoryName("커피/음료")
-                .build());
+                .build()
+        );
         assertThat(category.isExposed()).isFalse();
 
         // when
@@ -58,7 +59,8 @@ class GifticonCategoryTest {
                 .exposed(true)
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
         assertThat(category.isExposed()).isTrue();
 
         // when
@@ -80,7 +82,8 @@ class GifticonCategoryTest {
                 .exposed(true)
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
 
         // when & then
         assertThat(category.getEffectiveDisplayName()).isEqualTo("카페 음료");
@@ -98,7 +101,8 @@ class GifticonCategoryTest {
                 .exposed(true)
                 .createdAt(NOW)
                 .modifiedAt(NOW)
-                .build());
+                .build()
+        );
 
         // when & then
         assertThat(category.getEffectiveDisplayName()).isEqualTo("커피/음료");
