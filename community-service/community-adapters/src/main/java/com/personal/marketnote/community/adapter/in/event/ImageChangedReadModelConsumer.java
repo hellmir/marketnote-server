@@ -49,11 +49,13 @@ public class ImageChangedReadModelConsumer {
 
         log.info("이미지 변경 이벤트 수신. eventId={}, imageId={}, targetId={}, targetType={}, action={}",
                 envelope.eventId(), payload.imageId(), payload.targetId(),
-                payload.targetType(), payload.action());
+                payload.targetType(), payload.action()
+        );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                 EventPayloadValidator.id("imageId", payload.imageId()),
-                EventPayloadValidator.id("targetId", payload.targetId()))) {
+                EventPayloadValidator.id("targetId", payload.targetId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }

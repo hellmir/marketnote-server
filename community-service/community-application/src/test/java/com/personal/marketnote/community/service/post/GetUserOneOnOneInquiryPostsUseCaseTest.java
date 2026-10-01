@@ -53,7 +53,9 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(2L);
 
         // when
-        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
+        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
+                command
+        );
 
         // then
         assertThat(result.page()).isEqualTo(1);
@@ -74,7 +76,9 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(0L);
 
         // when
-        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
+        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
+                command
+        );
 
         // then
         assertThat(result.posts()).isEmpty();
@@ -100,7 +104,9 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(7L);
 
         // when
-        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
+        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
+                command
+        );
 
         // then
         assertThat(result.totalPages()).isEqualTo(3); // ceil(7/3) = 3
@@ -117,7 +123,9 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         when(findPostPort.countUserPosts(1L, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(10L);
 
         // when
-        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
+        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
+                command
+        );
 
         // then
         assertThat(result.page()).isEqualTo(2);
@@ -186,7 +194,9 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
                 .thenReturn(Optional.of(new GetFilesResult(List.of(fileResult))));
 
         // when
-        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
+        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
+                command
+        );
 
         // then
         assertThat(result.posts()).hasSize(1);
@@ -230,7 +240,9 @@ class GetUserOneOnOneInquiryPostsUseCaseTest {
         when(findPostPort.countUserPosts(userId, Board.ONE_ON_ONE_INQUERY, null, null, null, null)).thenReturn(1L);
 
         // when
-        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(command);
+        GetUserOneOnOneInquiryPostsResult result = getUserOneOnOneInquiryPostsService.getUserOneOnOneInquiryPosts(
+                command
+        );
 
         // then
         assertThat(result.posts()).hasSize(1);

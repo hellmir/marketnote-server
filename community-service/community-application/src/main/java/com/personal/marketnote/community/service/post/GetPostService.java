@@ -53,7 +53,9 @@ public class GetPostService implements GetPostUseCase {
                 ? query.sortDirection()
                 : Sort.Direction.DESC;
         PostSortProperty sortProperty = resolveSortProperty(query);
-        Pageable pageable = PageRequest.of(0, query.pageSize() + 1, Sort.by(sortDirection, sortProperty.getSortField()));
+        Pageable pageable = PageRequest.of(
+                0, query.pageSize() + 1, Sort.by(sortDirection, sortProperty.getSortField())
+        );
 
         Posts posts = getBoardPosts(query, pageable, sortProperty);
 

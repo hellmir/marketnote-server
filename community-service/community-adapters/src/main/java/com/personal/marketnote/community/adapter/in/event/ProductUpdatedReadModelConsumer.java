@@ -54,7 +54,8 @@ public class ProductUpdatedReadModelConsumer {
                 envelope.eventId(), payload.productId());
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+                EventPayloadValidator.id("productId", payload.productId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }

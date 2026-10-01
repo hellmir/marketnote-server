@@ -261,7 +261,9 @@ public class PostController {
         );
     }
 
-    private void validateAuthentication(Board board, PostTargetType targetType, OAuth2AuthenticatedPrincipal principal) {
+    private void validateAuthentication(
+            Board board, PostTargetType targetType, OAuth2AuthenticatedPrincipal principal
+    ) {
         // 비회원 전용 게시판이거나 상품 상세 정보의 문의 게시판인 경우 인증 제외
         if (board.isNonMemberViewBoard() || FormatValidator.hasValue(targetType)) {
             return;

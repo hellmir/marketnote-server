@@ -63,8 +63,10 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long pricePolicyId, Long productId, Long sellerId, String name,
-                       String brandName, Long price, Long discountPrice, Long accumulatedPoint) {
+    public void upsert(
+            Long pricePolicyId, Long productId, Long sellerId, String name,
+            String brandName, Long price, Long discountPrice, Long accumulatedPoint
+    ) {
         Optional<ProductReadModelJpaEntity> existing =
                 productReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
 
@@ -81,7 +83,9 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
         } catch (DataIntegrityViolationException e) {
             log.info("상품 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             productReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
-                    .ifPresent(entity -> entity.updateFrom(productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint));
+                    .ifPresent(entity -> entity.updateFrom(
+                            productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint
+                    ));
         }
     }
 

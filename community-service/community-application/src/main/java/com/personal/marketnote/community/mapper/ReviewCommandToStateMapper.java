@@ -24,7 +24,9 @@ public class ReviewCommandToStateMapper {
                 .build();
     }
 
-    public static ReviewVersionHistoryCreateState mapToVersionHistoryState(Long reviewId, RegisterReviewCommand command) {
+    public static ReviewVersionHistoryCreateState mapToVersionHistoryState(
+            Long reviewId, RegisterReviewCommand command
+    ) {
         return ReviewVersionHistoryCreateState.builder()
                 .reviewId(reviewId)
                 .rating(Rating.of(command.rating()))

@@ -833,7 +833,9 @@ class GetPostsUseCaseTest {
                 .build());
     }
 
-    private Post buildProductInqueryPostWithWriterName(Long id, Long userId, Long targetId, String writerName, String maskedWriterName) {
+    private Post buildProductInqueryPostWithWriterName(
+            Long id, Long userId, Long targetId, String writerName, String maskedWriterName
+    ) {
         return Post.from(PostSnapshotState.builder()
                 .id(id)
                 .userId(userId)

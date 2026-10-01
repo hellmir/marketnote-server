@@ -95,12 +95,12 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort, FindOrde
                 // 4xx 클라이언트 에러는 재시도해도 결과가 동일하므로 즉시 실패
                 recordError(targetId, uri, attempt, hce);
                 log.warn("커머스 서비스 주문 소유권 검증 클라이언트 에러 - orderId: {}, status: {}",
-                        orderId, hce.getStatusCode().value(), hce);
+                        orderId, hce.getStatusCode().value(), hce
+                );
                 throw hce;
             } catch (Exception e) {
                 recordError(targetId, uri, attempt, e);
-                log.warn("커머스 서비스 주문 소유권 검증 통신 오류 - orderId: {}, attempt: {}",
-                        orderId, attempt, e);
+                log.warn("커머스 서비스 주문 소유권 검증 통신 오류 - orderId: {}, attempt: {}", orderId, attempt, e);
 
                 if (i == INTER_SERVER_MAX_REQUEST_COUNT - 1) {
                     throw e;
