@@ -22,7 +22,9 @@ public class ReportPersistenceAdapter implements SaveReportPort, FindReportPort 
     }
 
     @Override
-    public boolean existsByTargetTypeAndTargetIdAndReporterId(ReportTargetType targetType, Long targetId, Long reporterId) {
+    public boolean existsByTargetTypeAndTargetIdAndReporterId(
+            ReportTargetType targetType, Long targetId, Long reporterId
+    ) {
         return reportJpaRepository.existsByTargetTypeAndTargetIdAndReporterId(targetType, targetId, reporterId);
     }
 

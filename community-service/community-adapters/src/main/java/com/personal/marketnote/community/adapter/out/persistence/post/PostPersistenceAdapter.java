@@ -234,7 +234,9 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
     public Optional<Post> findByIdWithReplies(Long id) {
         return findById(id)
                 .map(post -> {
-                    List<Post> replies = postJpaRepository.findRepliesByParentIds(List.of(post.getId()), EntityStatus.ACTIVE)
+                    List<Post> replies = postJpaRepository.findRepliesByParentIds(
+                                    List.of(post.getId()), EntityStatus.ACTIVE
+                            )
                             .stream()
                             .map(PostJpaEntityToDomainMapper::mapToDomain)
                             .filter(Optional::isPresent)
@@ -269,7 +271,9 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
                 .map(Post::getId)
                 .toList();
 
-        Map<Long, List<Post>> repliesByParentId = postJpaRepository.findRepliesByParentIds(parentIds, EntityStatus.ACTIVE)
+        Map<Long, List<Post>> repliesByParentId = postJpaRepository.findRepliesByParentIds(
+                        parentIds, EntityStatus.ACTIVE
+                )
                 .stream()
                 .map(PostJpaEntityToDomainMapper::mapToDomain)
                 .filter(Optional::isPresent)

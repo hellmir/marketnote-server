@@ -43,11 +43,13 @@ public class ProductRegisteredReadModelConsumer {
         ProductRegisteredEvent payload = envelope.getPayloadAs(ProductRegisteredEvent.class, objectMapper);
 
         log.info("상품 등록 이벤트 수신 (커뮤니티 Read Model). eventId={}, productId={}, pricePolicyId={}",
-                envelope.eventId(), payload.productId(), payload.pricePolicyId());
+                envelope.eventId(), payload.productId(), payload.pricePolicyId()
+        );
 
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                 EventPayloadValidator.id("productId", payload.productId()),
-                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId())
+        )) {
             acknowledgment.acknowledge();
             return;
         }

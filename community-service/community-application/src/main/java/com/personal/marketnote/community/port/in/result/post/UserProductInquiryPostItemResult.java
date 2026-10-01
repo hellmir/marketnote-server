@@ -35,7 +35,9 @@ public class UserProductInquiryPostItemResult {
     private PostProductInfoResult product;
     private List<UserProductInquiryPostItemResult> replies;
 
-    public static UserProductInquiryPostItemResult from(Post post, PostProductInfoResult productInfo, List<GetFileResult> images) {
+    public static UserProductInquiryPostItemResult from(
+            Post post, PostProductInfoResult productInfo, List<GetFileResult> images
+    ) {
         String categoryCode = null;
         if (FormatValidator.hasValue(post.getCategory())) {
             categoryCode = post.getCategory().getCode();

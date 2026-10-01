@@ -170,7 +170,9 @@ class UpdateReviewUseCaseTest {
         );
     }
 
-    private com.personal.marketnote.community.domain.review.ProductReviewAggregate buildProductReviewAggregate(Long productId) {
+    private com.personal.marketnote.community.domain.review.ProductReviewAggregate buildProductReviewAggregate(
+            Long productId
+    ) {
         return com.personal.marketnote.community.domain.review.ProductReviewAggregate.from(
                 buildReview(1L, 10L, productId, 5.0f)
         );

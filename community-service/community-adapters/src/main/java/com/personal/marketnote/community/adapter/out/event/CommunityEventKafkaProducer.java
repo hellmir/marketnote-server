@@ -24,8 +24,12 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     private final Clock clock;
 
     @Override
-    public void publishReviewRegisteredEvent(Long orderId, Long pricePolicyId, Long productId, Integer totalCount, Float averageRating) {
-        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(orderId, pricePolicyId, productId, totalCount, averageRating);
+    public void publishReviewRegisteredEvent(
+            Long orderId, Long pricePolicyId, Long productId, Integer totalCount, Float averageRating
+    ) {
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
+                orderId, pricePolicyId, productId, totalCount, averageRating
+        );
         String topic = KafkaTopicConstants.REVIEW_REGISTERED;
         EventEnvelope<ReviewRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
@@ -85,11 +89,9 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
                     envelope.eventType(), SOURCE, payloadJson, clock
             );
             saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                    topic, partitionKey, envelope.eventId());
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
         } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e);
+            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}", topic, partitionKey, e.getMessage(), e);
         }
     }
 }
