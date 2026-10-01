@@ -40,9 +40,7 @@ public class RegisterFulfillmentGoodsService implements RegisterFulfillmentGoods
         RegisterFulfillmentGoodsResult result = registerFulfillmentGoodsPort.registerGoods(command);
 
         for (RegisterFulfillmentGoodsItemCommand item : command.goods()) {
-            publishFulfillmentGoodsSyncedEventPort.publish(
-                    FulfillmentGoodsSyncedEventMapper.mapToEvent(item)
-            );
+            publishFulfillmentGoodsSyncedEventPort.publish(FulfillmentGoodsSyncedEventMapper.mapToEvent(item));
         }
 
         return result;

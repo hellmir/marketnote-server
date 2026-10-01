@@ -85,13 +85,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         }
 
         URI uri = buildGoodsUri(query.getCustomerCode());
-        return executeGoodsList(
-                uri,
-                query.getCustomerCode(),
-                query.getAccessToken(),
-                null,
-                false
-        );
+        return executeGoodsList(uri, query.getCustomerCode(), query.getAccessToken(), null, false);
     }
 
     @Override
@@ -103,13 +97,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         }
 
         URI uri = buildGoodsDetailUri(query.getCustomerCode(), query.getGodNm());
-        return executeGoodsList(
-                uri,
-                query.getCustomerCode(),
-                query.getAccessToken(),
-                query.getGodNm(),
-                true
-        );
+        return executeGoodsList(uri, query.getCustomerCode(), query.getAccessToken(), query.getGodNm(), true);
     }
 
     @Override
@@ -947,11 +935,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
     }
 
     private RegisterFulfillmentGoodsItemResult mapGoodsItem(RegisterFulfillmentGoodsItemResponse item) {
-        return RegisterFulfillmentGoodsItemResult.of(
-                item.msg(),
-                item.code(),
-                item.cstGodCd()
-        );
+        return RegisterFulfillmentGoodsItemResult.of(item.msg(), item.code(), item.cstGodCd());
     }
 
     private UpdateFulfillmentGoodsItemResult mapUpdateGoodsItem(UpdateFulfillmentGoodsItemResponse item) {

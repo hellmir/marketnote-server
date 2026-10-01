@@ -26,9 +26,7 @@ public class UpdateFulfillmentGoodsService implements UpdateFulfillmentGoodsUseC
         UpdateFulfillmentGoodsResult result = updateFulfillmentGoodsPort.updateGoods(command);
 
         for (UpdateFulfillmentGoodsItemCommand item : command.goods()) {
-            publishFulfillmentGoodsSyncedEventPort.publish(
-                    FulfillmentGoodsSyncedEventMapper.mapToEvent(item)
-            );
+            publishFulfillmentGoodsSyncedEventPort.publish(FulfillmentGoodsSyncedEventMapper.mapToEvent(item));
         }
 
         return result;

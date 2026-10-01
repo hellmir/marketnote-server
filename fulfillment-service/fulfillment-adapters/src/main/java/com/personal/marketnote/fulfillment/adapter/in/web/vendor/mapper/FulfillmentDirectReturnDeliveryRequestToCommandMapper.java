@@ -48,10 +48,6 @@ public class FulfillmentDirectReturnDeliveryRequestToCommandMapper {
     }
 
     private static RegisterFulfillmentDeliveryGoodsCommand mapGoods(RegisterFulfillmentDeliveryGoodsRequest item) {
-        return RegisterFulfillmentDeliveryGoodsCommand.of(
-                item.getCstGodCd(),
-                item.getDistTermDt(),
-                item.getOrdQty()
-        );
+        return RegisterFulfillmentDeliveryGoodsCommand.of(item.getCstGodCd(), item.getDistTermDt(), item.getOrdQty());
     }
 }

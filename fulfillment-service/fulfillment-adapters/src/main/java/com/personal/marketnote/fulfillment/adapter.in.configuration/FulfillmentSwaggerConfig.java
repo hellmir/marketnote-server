@@ -86,11 +86,7 @@ public class FulfillmentSwaggerConfig {
                 return Integer.compare(p1, p2);
             };
 
-            openApi.setTags(
-                    openApi.getTags().stream()
-                            .sorted(comparator)
-                            .toList()
-            );
+            openApi.setTags(openApi.getTags().stream().sorted(comparator).toList());
         };
     }
 

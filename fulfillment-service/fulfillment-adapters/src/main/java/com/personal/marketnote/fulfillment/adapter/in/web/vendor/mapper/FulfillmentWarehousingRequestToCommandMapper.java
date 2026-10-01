@@ -141,10 +141,6 @@ public class FulfillmentWarehousingRequestToCommandMapper {
     }
 
     private static UpdateFulfillmentWarehousingGoodsCommand mapUpdateGoods(UpdateFulfillmentWarehousingGoodsRequest item) {
-        return UpdateFulfillmentWarehousingGoodsCommand.of(
-                item.getCstGodCd(),
-                item.getDistTermDt(),
-                item.getOrdQty()
-        );
+        return UpdateFulfillmentWarehousingGoodsCommand.of(item.getCstGodCd(), item.getDistTermDt(), item.getOrdQty());
     }
 }

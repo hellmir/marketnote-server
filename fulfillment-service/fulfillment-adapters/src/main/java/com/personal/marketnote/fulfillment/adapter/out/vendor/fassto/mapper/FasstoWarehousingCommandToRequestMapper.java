@@ -11,11 +11,7 @@ public class FasstoWarehousingCommandToRequestMapper {
                 .map(FasstoWarehousingCommandToRequestMapper::mapItem)
                 .toList();
 
-        return FulfillmentWarehousingMapper.register(
-                command.customerCode(),
-                command.accessToken(),
-                requests
-        );
+        return FulfillmentWarehousingMapper.register(command.customerCode(), command.accessToken(), requests);
     }
 
     public static FulfillmentWarehousingQuery mapToQuery(GetFulfillmentWarehousingCommand command) {
@@ -77,11 +73,7 @@ public class FasstoWarehousingCommandToRequestMapper {
                 .map(FasstoWarehousingCommandToRequestMapper::mapUpdateItem)
                 .toList();
 
-        return FulfillmentWarehousingMapper.update(
-                command.customerCode(),
-                command.accessToken(),
-                requests
-        );
+        return FulfillmentWarehousingMapper.update(command.customerCode(), command.accessToken(), requests);
     }
 
     private static FulfillmentWarehousingItemMapper mapItem(RegisterFulfillmentWarehousingItemCommand item) {
@@ -127,18 +119,10 @@ public class FasstoWarehousingCommandToRequestMapper {
     }
 
     private static FulfillmentWarehousingGoodsMapper mapGoods(RegisterFulfillmentWarehousingGoodsCommand item) {
-        return FulfillmentWarehousingGoodsMapper.of(
-                item.productCode(),
-                item.expirationDate(),
-                item.orderQuantity()
-        );
+        return FulfillmentWarehousingGoodsMapper.of(item.productCode(), item.expirationDate(), item.orderQuantity());
     }
 
     private static FulfillmentWarehousingGoodsMapper mapUpdateGoods(UpdateFulfillmentWarehousingGoodsCommand item) {
-        return FulfillmentWarehousingGoodsMapper.of(
-                item.productCode(),
-                item.expirationDate(),
-                item.orderQuantity()
-        );
+        return FulfillmentWarehousingGoodsMapper.of(item.productCode(), item.expirationDate(), item.orderQuantity());
     }
 }

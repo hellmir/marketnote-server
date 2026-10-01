@@ -44,9 +44,7 @@ public class OrderPaymentCompletedOutboundConsumer {
         }
 
         try {
-            OrderPaymentCompletedEvent payload = envelope.getPayloadAs(
-                    OrderPaymentCompletedEvent.class, objectMapper
-            );
+            OrderPaymentCompletedEvent payload = envelope.getPayloadAs(OrderPaymentCompletedEvent.class, objectMapper);
 
             log.info("주문 결제 완료 이벤트 수신 (Fulfillment 출고 요청). eventId={}, orderId={}, orderProducts={}건",
                     envelope.eventId(), payload.orderId(),

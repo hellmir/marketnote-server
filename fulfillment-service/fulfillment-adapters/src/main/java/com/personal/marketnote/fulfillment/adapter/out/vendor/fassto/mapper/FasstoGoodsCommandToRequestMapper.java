@@ -11,33 +11,19 @@ public class FasstoGoodsCommandToRequestMapper {
                 .map(FasstoGoodsCommandToRequestMapper::mapItem)
                 .toList();
 
-        return FulfillmentGoodsMapper.register(
-                command.customerCode(),
-                command.accessToken(),
-                goods
-        );
+        return FulfillmentGoodsMapper.register(command.customerCode(), command.accessToken(), goods);
     }
 
     public static FulfillmentGoodsQuery mapToGoodsQuery(GetFulfillmentGoodsCommand command) {
-        return FulfillmentGoodsQuery.of(
-                command.customerCode(),
-                command.accessToken()
-        );
+        return FulfillmentGoodsQuery.of(command.customerCode(), command.accessToken());
     }
 
     public static FulfillmentGoodsDetailQuery mapToGoodsDetailQuery(GetFulfillmentGoodsDetailCommand command) {
-        return FulfillmentGoodsDetailQuery.of(
-                command.customerCode(),
-                command.accessToken(),
-                command.productName()
-        );
+        return FulfillmentGoodsDetailQuery.of(command.customerCode(), command.accessToken(), command.productName());
     }
 
     public static FulfillmentGoodsElementQuery mapToGoodsElementsQuery(GetFulfillmentGoodsElementsCommand command) {
-        return FulfillmentGoodsElementQuery.of(
-                command.customerCode(),
-                command.accessToken()
-        );
+        return FulfillmentGoodsElementQuery.of(command.customerCode(), command.accessToken());
     }
 
     public static FulfillmentGoodsMapper mapToUpdateRequest(UpdateFulfillmentGoodsCommand command) {
@@ -45,11 +31,7 @@ public class FasstoGoodsCommandToRequestMapper {
                 .map(FasstoGoodsCommandToRequestMapper::mapUpdateItem)
                 .toList();
 
-        return FulfillmentGoodsMapper.register(
-                command.customerCode(),
-                command.accessToken(),
-                goods
-        );
+        return FulfillmentGoodsMapper.register(command.customerCode(), command.accessToken(), goods);
     }
 
     private static FulfillmentGoodsItemMapper mapItem(RegisterFulfillmentGoodsItemCommand item) {

@@ -37,10 +37,7 @@ public class FasstoSupplierCommandToRequestMapper {
     }
 
     public static FulfillmentSupplierQuery mapToSuppliersQuery(GetFulfillmentSuppliersCommand command) {
-        return FulfillmentSupplierQuery.of(
-                command.customerCode(),
-                command.accessToken()
-        );
+        return FulfillmentSupplierQuery.of(command.customerCode(), command.accessToken());
     }
 
     public static FulfillmentSupplierMapper mapToUpdateRequest(UpdateFulfillmentSupplierCommand command) {

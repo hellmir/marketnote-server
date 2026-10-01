@@ -65,10 +65,7 @@ class PollShippingStatusUseCaseTest {
     @Mock
     private SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort;
 
-    private final Clock clock = Clock.fixed(
-            Instant.parse("2026-06-03T10:00:00Z"),
-            ZoneId.of("Asia/Seoul")
-    );
+    private final Clock clock = Clock.fixed(Instant.parse("2026-06-03T10:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @BeforeEach
     void setUp() {
@@ -245,9 +242,7 @@ class PollShippingStatusUseCaseTest {
 
         // then
         LocalDateTime expectedOccurredAt = LocalDateTime.now(clock);
-        verify(sendDeliveryFailureSlackAlertPort).sendDeliveryFailureAlert(
-                100L, "INV001", "CJ", expectedOccurredAt
-        );
+        verify(sendDeliveryFailureSlackAlertPort).sendDeliveryFailureAlert(100L, "INV001", "CJ", expectedOccurredAt);
     }
 
     @Test
@@ -300,9 +295,7 @@ class PollShippingStatusUseCaseTest {
         pollShippingStatusService.pollShippingStatuses(command);
 
         // then
-        verify(sendDeliveryFailureSlackAlertPort).sendDeliveryFailureAlert(
-                100L, "INV001", "CJ", expectedOccurredAt
-        );
+        verify(sendDeliveryFailureSlackAlertPort).sendDeliveryFailureAlert(100L, "INV001", "CJ", expectedOccurredAt);
 
         ArgumentCaptor<ShippingTracker> captor = ArgumentCaptor.forClass(ShippingTracker.class);
         verify(updateShippingTrackerPort).update(captor.capture());

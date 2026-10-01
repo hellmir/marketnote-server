@@ -705,11 +705,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             throw new IllegalArgumentException("Fulfillment delivery detail query is required.");
         }
 
-        URI uri = buildDeliveryDetailUri(
-                query.getCustomerCode(),
-                query.getSlipNo(),
-                query.getOrdNo()
-        );
+        URI uri = buildDeliveryDetailUri(query.getCustomerCode(), query.getSlipNo(), query.getOrdNo());
         Exception error = new Exception();
         String failureMessage = null;
         long sleepMillis = INTER_SERVER_DEFAULT_RETRIAL_PENDING_MILLI_SECOND;
@@ -2629,11 +2625,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private FulfillmentDeliveryOutOrdGoodsItemInfoResult mapOutOrdGoodsDelivered(FulfillmentOutOrdGoodsDeliveredResponse item) {
-        return FulfillmentDeliveryOutOrdGoodsItemInfoResult.of(
-                item.cstGodCd(),
-                item.godNm(),
-                item.packQty()
-        );
+        return FulfillmentDeliveryOutOrdGoodsItemInfoResult.of(item.cstGodCd(), item.godNm(), item.packQty());
     }
 
     private FulfillmentDeliveryOutOrdGoodsByOrdNoInfoResult mapOutOrdGoodsByOrdNo(FulfillmentOutOrdGoodsByOrdNoItemResponse item) {
@@ -2645,11 +2637,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult mapOutOrdGoodsByOrdNoGoods(FulfillmentOutOrdGoodsByOrdNoGoodsResponse item) {
-        return FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult.of(
-                item.cstGodCd(),
-                item.godNm(),
-                item.ordQty()
-        );
+        return FulfillmentDeliveryOutOrdGoodsByOrdNoItemInfoResult.of(item.cstGodCd(), item.godNm(), item.ordQty());
     }
 
     private FulfillmentDeliveryGoodDetailInfoResult mapDeliveryGoodDetailItem(FulfillmentDeliveryGoodDetailItemResponse item) {
@@ -2676,11 +2664,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     }
 
     private CompleteFulfillmentDeliveryIcsItemResult mapDeliveryIcsCompletionItem(FulfillmentDeliveryIcsCompletionItemResponse item) {
-        return CompleteFulfillmentDeliveryIcsItemResult.of(
-                item.code(),
-                item.msg(),
-                item.ordNo()
-        );
+        return CompleteFulfillmentDeliveryIcsItemResult.of(item.code(), item.msg(), item.ordNo());
     }
 
     private String maskValue(String value) {

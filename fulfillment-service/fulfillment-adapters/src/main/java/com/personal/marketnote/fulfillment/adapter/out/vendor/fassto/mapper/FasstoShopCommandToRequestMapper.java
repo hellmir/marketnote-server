@@ -33,10 +33,7 @@ public class FasstoShopCommandToRequestMapper {
     }
 
     public static FulfillmentShopQuery mapToShopsQuery(GetFulfillmentShopsCommand command) {
-        return FulfillmentShopQuery.of(
-                command.customerCode(),
-                command.accessToken()
-        );
+        return FulfillmentShopQuery.of(command.customerCode(), command.accessToken());
     }
 
     public static FulfillmentShopMapper mapToUpdateRequest(UpdateFulfillmentShopCommand command) {

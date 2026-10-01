@@ -20,9 +20,7 @@ public enum ShippingStatus {
 
     private final String description;
 
-    private static final Set<ShippingStatus> POLLING_TARGET_STATUSES = EnumSet.of(
-            PREPARING, SHIPPING, RETURN_SHIPPING
-    );
+    private static final Set<ShippingStatus> POLLING_TARGET_STATUSES = EnumSet.of(PREPARING, SHIPPING, RETURN_SHIPPING);
 
     private static final Set<ShippingStatus> TERMINAL_STATUSES = EnumSet.of(
             DELIVERED, CANCELLED, RETURN_DELIVERED, DELIVERY_FAILED

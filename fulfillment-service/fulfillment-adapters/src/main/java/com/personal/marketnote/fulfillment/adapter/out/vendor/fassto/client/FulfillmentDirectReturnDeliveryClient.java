@@ -361,10 +361,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
                 return null;
             }
             try {
-                FulfillmentErrorResponse parsedResponse = objectMapper.readValue(
-                        body,
-                        FulfillmentErrorResponse.class
-                );
+                FulfillmentErrorResponse parsedResponse = objectMapper.readValue(body, FulfillmentErrorResponse.class);
                 return parsedResponse.resolveErrorMessage();
             } catch (Exception ignored) {
             }
