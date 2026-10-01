@@ -75,11 +75,13 @@ public class SendNotificationService implements SendNotificationUseCase {
 
         LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime scheduledAt = NightTimeNotificationPolicy.resolveScheduledAt(
-                category, now, command.scheduledAt());
+                category, now, command.scheduledAt()
+        );
 
         DeliveryChannel deliveryChannel = DeliveryChannel.valueOf(command.deliveryChannel());
         Notification notification = createAndSaveNotification(
-                command, template, title, body, landingUrl, deliveryChannel, scheduledAt);
+                command, template, title, body, landingUrl, deliveryChannel, scheduledAt
+        );
 
         if (!notification.getSendStatus().isPending()) {
             publishUnreadCountChangedEvent(command.userId());
@@ -102,19 +104,20 @@ public class SendNotificationService implements SendNotificationUseCase {
                 .orElseThrow(() -> new NotificationTemplateNotFoundException(templateCode));
     }
 
-    private boolean shouldSkipByConsent(NotificationCategory category, Long userId,
-                                        NotificationTemplate template) {
+    private boolean shouldSkipByConsent(NotificationCategory category, Long userId, NotificationTemplate template) {
         if (!category.requiresConsent()) {
             return false;
         }
         Optional<NotificationPreference> preference =
                 findNotificationPreferencePort.findByUserIdAndNotificationType(
-                        userId, template.getNotificationType());
+                        userId, template.getNotificationType()
+                );
         return preference.isEmpty() || !preference.get().isEnabled();
     }
 
-    private SendNotificationResult saveSkippedNotification(SendNotificationCommand command,
-                                                           NotificationTemplate template) {
+    private SendNotificationResult saveSkippedNotification(
+            SendNotificationCommand command, NotificationTemplate template
+    ) {
         DeliveryChannel deliveryChannel = DeliveryChannel.valueOf(command.deliveryChannel());
         NotificationCreateState state = NotificationCreateState.builder()
                 .userId(command.userId())
@@ -131,11 +134,11 @@ public class SendNotificationService implements SendNotificationUseCase {
         return toResult(saved, 0, 0);
     }
 
-    private Notification createAndSaveNotification(SendNotificationCommand command,
-                                                   NotificationTemplate template,
-                                                   String title, String body, String landingUrl,
-                                                   DeliveryChannel deliveryChannel,
-                                                   LocalDateTime scheduledAt) {
+    private Notification createAndSaveNotification(
+            SendNotificationCommand command, NotificationTemplate template,
+            String title, String body, String landingUrl,
+            DeliveryChannel deliveryChannel, LocalDateTime scheduledAt
+    ) {
         NotificationCreateState state = NotificationCreateState.builder()
                 .userId(command.userId())
                 .notificationType(template.getNotificationType())
@@ -150,9 +153,9 @@ public class SendNotificationService implements SendNotificationUseCase {
         return saveNotificationPort.save(notification);
     }
 
-    private SendNotificationResult sendPushNotifications(Notification notification,
-                                                         String title, String body, String landingUrl,
-                                                         Long userId) {
+    private SendNotificationResult sendPushNotifications(
+            Notification notification, String title, String body, String landingUrl, Long userId
+    ) {
         List<DeviceToken> deviceTokens = findDeviceTokenPort.findActiveByUserId(userId);
 
         if (deviceTokens.isEmpty()) {
@@ -200,8 +203,7 @@ public class SendNotificationService implements SendNotificationUseCase {
 
     private void publishUnreadCountChangedEvent(Long userId) {
         long unreadCount = findNotificationPort.countUnreadByUserId(userId);
-        publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED",
-                "{\"unreadCount\":" + unreadCount + "}");
+        publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
     }
 
     private void publishNotificationSentEvent(Notification notification, int sentCount, int failedCount) {

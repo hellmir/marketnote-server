@@ -62,7 +62,9 @@ class NoticeRegisteredNotificationConsumerTest {
         consumer.handleNoticeRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(SendBatchNotificationCommand.class);
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
         SendBatchNotificationCommand command = captor.getValue();
@@ -88,7 +90,9 @@ class NoticeRegisteredNotificationConsumerTest {
         consumer.handleNoticeRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(SendBatchNotificationCommand.class);
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
         verify(sendBatchNotificationUseCase, times(2)).sendBatchNotification(captor.capture());
 
         List<SendBatchNotificationCommand> commands = captor.getAllValues();
@@ -205,7 +209,9 @@ class NoticeRegisteredNotificationConsumerTest {
         consumer.handleNoticeRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(SendBatchNotificationCommand.class);
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
         SendBatchNotificationCommand command = captor.getValue();
@@ -227,7 +233,9 @@ class NoticeRegisteredNotificationConsumerTest {
         consumer.handleNoticeRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(SendBatchNotificationCommand.class);
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
         SendBatchNotificationCommand command = captor.getValue();

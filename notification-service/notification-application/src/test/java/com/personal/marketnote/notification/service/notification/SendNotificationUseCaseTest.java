@@ -194,8 +194,9 @@ class SendNotificationUseCaseTest {
             SendNotificationCommand command = createCommand("PUSH_ONLY");
             NotificationTemplate template = createTemplate(NotificationCategory.PROMOTIONAL);
             setupTemplateFound(template);
-            when(findNotificationPreferencePort.findByUserIdAndNotificationType(USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED))
-                    .thenReturn(Optional.empty());
+            when(findNotificationPreferencePort.findByUserIdAndNotificationType(
+                    USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
+            )).thenReturn(Optional.empty());
             when(saveNotificationPort.save(any(Notification.class)))
                     .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
 
@@ -420,8 +421,9 @@ class SendNotificationUseCaseTest {
         return createTemplateWithBody(category, "알림 제목", "알림 본문", "/test");
     }
 
-    private NotificationTemplate createTemplateWithBody(NotificationCategory category,
-                                                        String title, String bodyTemplate, String urlTemplate) {
+    private NotificationTemplate createTemplateWithBody(
+            NotificationCategory category, String title, String bodyTemplate, String urlTemplate
+    ) {
         return NotificationTemplate.from(
                 NotificationTemplateSnapshotState.builder()
                         .id(1L)
@@ -452,15 +454,17 @@ class SendNotificationUseCaseTest {
     private void setupPreferenceEnabled() {
         NotificationPreference preference = mock(NotificationPreference.class);
         when(preference.isEnabled()).thenReturn(true);
-        when(findNotificationPreferencePort.findByUserIdAndNotificationType(USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED))
-                .thenReturn(Optional.of(preference));
+        when(findNotificationPreferencePort.findByUserIdAndNotificationType(
+                USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
+        )).thenReturn(Optional.of(preference));
     }
 
     private void setupPreferenceDisabled() {
         NotificationPreference preference = mock(NotificationPreference.class);
         when(preference.isEnabled()).thenReturn(false);
-        when(findNotificationPreferencePort.findByUserIdAndNotificationType(USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED))
-                .thenReturn(Optional.of(preference));
+        when(findNotificationPreferencePort.findByUserIdAndNotificationType(
+                USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
+        )).thenReturn(Optional.of(preference));
     }
 
     private void setupDeviceTokensAndPush(int count, boolean success) {

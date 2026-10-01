@@ -46,16 +46,22 @@ public class NotificationPreferencePersistenceAdapter implements SaveNotificatio
     }
 
     @Override
-    public Optional<NotificationPreference> findByUserIdAndNotificationType(Long userId, NotificationType notificationType) {
+    public Optional<NotificationPreference> findByUserIdAndNotificationType(
+            Long userId, NotificationType notificationType
+    ) {
         return notificationPreferenceJpaRepository
                 .findByUserIdAndNotificationTypeAndStatus(userId, notificationType, EntityStatus.ACTIVE)
                 .flatMap(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain);
     }
 
     @Override
-    public List<NotificationPreference> findEnabledByUserIdsAndNotificationType(List<Long> userIds, NotificationType notificationType) {
+    public List<NotificationPreference> findEnabledByUserIdsAndNotificationType(
+            List<Long> userIds, NotificationType notificationType
+    ) {
         return notificationPreferenceJpaRepository
-                .findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(userIds, notificationType, EntityStatus.ACTIVE)
+                .findByUserIdInAndNotificationTypeAndStatusAndEnabledTrue(
+                        userIds, notificationType, EntityStatus.ACTIVE
+                )
                 .stream()
                 .map(NotificationPreferenceJpaEntityToDomainMapper::mapToDomain)
                 .flatMap(Optional::stream)

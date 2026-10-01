@@ -56,8 +56,7 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
 
     @Override
     public List<Notification> findScheduledNotificationsDue(LocalDateTime now) {
-        return notificationJpaRepository.findScheduledNotificationsDue(
-                        SendStatus.SCHEDULED, now, EntityStatus.ACTIVE)
+        return notificationJpaRepository.findScheduledNotificationsDue(SendStatus.SCHEDULED, now, EntityStatus.ACTIVE)
                 .stream()
                 .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
                 .toList();
@@ -84,7 +83,11 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public void update(Notification notification) {
         NotificationJpaEntity entity = notificationJpaRepository.findById(notification.getId())
-                .orElseThrow(() -> new com.personal.marketnote.notification.domain.notification.NotificationNotFoundException(notification.getId()));
+                .orElseThrow(
+                        () -> new com.personal.marketnote.notification.domain.notification.NotificationNotFoundException(
+                                notification.getId()
+                        )
+                );
         entity.updateFrom(notification);
     }
 
@@ -105,6 +108,7 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     @Override
     public int deactivateExpiredNotifications(LocalDateTime threshold) {
         return notificationJpaRepository.deactivateExpiredNotifications(
-                threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE);
+                threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE
+        );
     }
 }

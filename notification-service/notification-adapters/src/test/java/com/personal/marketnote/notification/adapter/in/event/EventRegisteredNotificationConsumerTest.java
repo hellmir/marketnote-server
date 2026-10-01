@@ -62,7 +62,9 @@ class EventRegisteredNotificationConsumerTest {
         consumer.handleEventRegisteredEvent(record, acknowledgment);
 
         // then
-        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(SendBatchNotificationCommand.class);
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
         verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
 
         SendBatchNotificationCommand command = captor.getValue();

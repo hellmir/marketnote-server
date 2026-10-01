@@ -66,7 +66,9 @@ class GetNotificationPreferenceUseCaseTest {
                 .thenReturn(List.of(preference1, preference2));
 
         // when
-        List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(userId);
+        List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(
+                userId
+        );
 
         // then
         assertThat(results).hasSize(2);
@@ -96,7 +98,9 @@ class GetNotificationPreferenceUseCaseTest {
                 .thenReturn(List.of());
 
         // when
-        List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(userId);
+        List<GetNotificationPreferenceResult> results = getNotificationPreferenceService.getNotificationPreferences(
+                userId
+        );
 
         // then
         assertThat(results).isEmpty();

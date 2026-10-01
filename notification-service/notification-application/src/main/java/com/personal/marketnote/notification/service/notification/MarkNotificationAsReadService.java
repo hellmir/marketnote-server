@@ -39,7 +39,6 @@ public class MarkNotificationAsReadService implements MarkNotificationAsReadUseC
         updateNotificationPort.update(notification);
 
         long unreadCount = findNotificationPort.countUnreadByUserId(command.userId());
-        publishSseEventPort.publish(command.userId(), "UNREAD_COUNT_CHANGED",
-                "{\"unreadCount\":" + unreadCount + "}");
+        publishSseEventPort.publish(command.userId(), "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
     }
 }

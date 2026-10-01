@@ -22,7 +22,9 @@ public class UpdateNotificationTemplateService implements UpdateNotificationTemp
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public UpdateNotificationTemplateResult updateNotificationTemplate(Long id, UpdateNotificationTemplateCommand command) {
+    public UpdateNotificationTemplateResult updateNotificationTemplate(
+            Long id, UpdateNotificationTemplateCommand command
+    ) {
         NotificationTemplate template = findNotificationTemplate(id);
 
         template.update(command.title(), command.bodyTemplate(), command.urlTemplate());

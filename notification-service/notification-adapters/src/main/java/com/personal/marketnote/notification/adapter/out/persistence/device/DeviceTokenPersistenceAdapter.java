@@ -67,8 +67,7 @@ public class DeviceTokenPersistenceAdapter
 
     @Override
     public int deactivateStaleTokens(LocalDateTime threshold) {
-        return deviceTokenJpaRepository.deactivateStaleTokens(
-                threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE);
+        return deviceTokenJpaRepository.deactivateStaleTokens(threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE);
     }
 
     @Override
