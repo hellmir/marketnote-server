@@ -127,8 +127,10 @@ class ShippingAddressTest {
     void shouldUpdateFieldsSuccessfully() {
         ShippingAddress address = ShippingAddress.from(createHomeAddressState());
 
-        address.update("서울시 서초구", "201호", null, "새 별칭",
-                RecipientName.of("김철수"), PhoneNumber.of("010-9999-8888"), DeliveryRequestType.CUSTOM, "현관 비밀번호 1234");
+        address.update(
+                "서울시 서초구", "201호", null, "새 별칭",
+                RecipientName.of("김철수"), PhoneNumber.of("010-9999-8888"), DeliveryRequestType.CUSTOM, "현관 비밀번호 1234"
+        );
 
         assertThat(address.getAddress()).isEqualTo("서울시 서초구");
         assertThat(address.getRecipientName().getValue()).isEqualTo("김철수");

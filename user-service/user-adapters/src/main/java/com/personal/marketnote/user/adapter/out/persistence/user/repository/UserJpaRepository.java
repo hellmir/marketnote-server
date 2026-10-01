@@ -183,7 +183,8 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             @Param("byEmail") boolean byEmail,
             @Param("byPhone") boolean byPhone,
             @Param("byRefCode") boolean byRefCode,
-            @Param("searchKeyword") String searchKeyword);
+            @Param("searchKeyword") String searchKeyword
+    );
 
     @Query("""
             SELECT u

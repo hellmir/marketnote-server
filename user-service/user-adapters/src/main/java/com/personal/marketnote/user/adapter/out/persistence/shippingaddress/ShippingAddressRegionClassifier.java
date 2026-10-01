@@ -79,8 +79,9 @@ public class ShippingAddressRegionClassifier implements ClassifyShippingAddressR
         return resolveHighestPriority(remoteAreas, village, subarea);
     }
 
-    private ShippingAddressRegionType resolveHighestPriority(List<RemoteAreaJpaEntity> remoteAreas,
-                                                             String village, String subarea) {
+    private ShippingAddressRegionType resolveHighestPriority(
+            List<RemoteAreaJpaEntity> remoteAreas, String village, String subarea
+    ) {
         ShippingAddressRegionType result = null;
 
         for (RemoteAreaJpaEntity remoteArea : remoteAreas) {

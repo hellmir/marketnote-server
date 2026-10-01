@@ -50,11 +50,12 @@ public class UserEventKafkaProducer implements PublishUserEventPort {
                     envelope.eventType(), SOURCE, payloadJson, clock
             );
             saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}",
-                    topic, partitionKey, envelope.eventId());
+            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
         } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e);
+            log.error(
+                    "Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
+                    topic, partitionKey, e.getMessage(), e
+            );
         }
     }
 }

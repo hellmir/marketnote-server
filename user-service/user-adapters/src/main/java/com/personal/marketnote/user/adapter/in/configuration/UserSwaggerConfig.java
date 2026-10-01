@@ -150,8 +150,10 @@ public class UserSwaggerConfig {
                             "401",
                             new ApiResponse().description("Bearer Token is invalid or no bearer token")
                                     .content(
-                                            new Content().addMediaType("*/*",
-                                                    new MediaType().addExamples("Not authenticated",
+                                            new Content().addMediaType(
+                                                    "*/*",
+                                                    new MediaType().addExamples(
+                                                            "Not authenticated",
                                                             new Example().value("""
                                                                     {
                                                                         "statusCode": 401,
@@ -160,7 +162,8 @@ public class UserSwaggerConfig {
                                                                         "errorName": "AUTHENTICATION_FAILED",
                                                                         "message": "Authentication Failed"
                                                                     }
-                                                                    """))
+                                                                    """)
+                                                    )
                                             )
                                     )
                     )
@@ -168,8 +171,10 @@ public class UserSwaggerConfig {
                             "403",
                             new ApiResponse().description("You are authenticated but not allowed authorization")
                                     .content(
-                                            new Content().addMediaType("*/*",
-                                                    new MediaType().addExamples("Not authorized",
+                                            new Content().addMediaType(
+                                                    "*/*",
+                                                    new MediaType().addExamples(
+                                                            "Not authorized",
                                                             new Example().value("""
                                                                     {
                                                                         "statusCode": 403,
@@ -178,7 +183,8 @@ public class UserSwaggerConfig {
                                                                         "errorName": "AUTHORIZATION_FAILED",
                                                                         "message": "Authorization Failed"
                                                                     }
-                                                                    """))
+                                                                    """)
+                                                    )
                                             )
                                     )
                     );

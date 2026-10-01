@@ -143,8 +143,10 @@ public class WebBasedAuthenticationServiceAdapter {
             String redisKey = "refreshToken:" + id;
             String refreshTokenValue = "r" + encodeBySha256Hex(refreshToken);
             stringRedisTemplate.opsForValue()
-                    .set(Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
-                            Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS);
+                    .set(
+                            Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
+                            Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS
+                    );
         }
 
         HttpCookieObject refreshTokenCookie = httpCookieUtils.generateHttpOnlyCookie(
