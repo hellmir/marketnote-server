@@ -56,11 +56,7 @@ public class S3FileStorageAdapter implements UploadFilesPort {
         Path tempFile = null;
         try {
             tempFile = convertMultipartFileToTempFile(multipartFile);
-            s3Client.putObject(PutObjectRequest.builder()
-                            .bucket(s3BucketName)
-                            .key(key)
-                            .build(),
-                    tempFile);
+            s3Client.putObject(PutObjectRequest.builder().bucket(s3BucketName).key(key).build(), tempFile);
         } catch (IOException ie) {
             throw new S3UploadFailedException(FIRST_ERROR_CODE, ie);
         } finally {

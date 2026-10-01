@@ -39,13 +39,13 @@ public class GetFileService implements GetFileUseCase {
         List<ResizedFile> resizedFiles = getResizedFiles(files);
 
         Map<Long, List<String>> fileIdToUrls = resizedFiles.stream()
-                .collect(Collectors.groupingBy(ResizedFile::getFileId,
-                        Collectors.mapping(ResizedFile::getStorageUrl, Collectors.toList())));
+                .collect(Collectors.groupingBy(
+                        ResizedFile::getFileId,
+                        Collectors.mapping(ResizedFile::getStorageUrl, Collectors.toList())
+                ));
 
         List<GetFilesResult.FileItem> items = files.stream()
-                .map(
-                        file -> GetFilesResult.FileItem.from(file, fileIdToUrls)
-                ).toList();
+                .map(file -> GetFilesResult.FileItem.from(file, fileIdToUrls)).toList();
 
         return new GetFilesResult(items);
     }
@@ -59,11 +59,7 @@ public class GetFileService implements GetFileUseCase {
 
     @Override
     public List<ResizedFile> getResizedFiles(List<FileDomain> files) {
-        return findResizedFilesPort.findByFileIds(
-                files.stream()
-                        .map(FileDomain::getId)
-                        .toList()
-        );
+        return findResizedFilesPort.findByFileIds(files.stream().map(FileDomain::getId).toList());
     }
 }
 
