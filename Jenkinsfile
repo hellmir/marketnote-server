@@ -93,7 +93,7 @@ def buildMarketnoteTaskDefinition(env) {
                 interval: 15,
                 timeout: 5,
                 retries: 3,
-                startPeriod: 30
+                startPeriod: 210
             ]
         ]]
     ]
@@ -606,7 +606,7 @@ pipeline {
                               --task-definition "$APP_TASK_DEF_ARN" \
                               --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
                               --desired-count 1 \
-                              --health-check-grace-period-seconds 180 \
+                              --health-check-grace-period-seconds 240 \
                               --region "$AWS_DEFAULT_REGION" \
                               --force-new-deployment
                           else
@@ -621,7 +621,7 @@ pipeline {
                               --region "$AWS_DEFAULT_REGION"
                           fi
 
-                          aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --health-check-grace-period-seconds 180 || true
+                          aws ecs update-service --cluster "$ECS_CLUSTER_NAME" --service "$ECS_SERVICE_NAME" --region "$AWS_DEFAULT_REGION" --health-check-grace-period-seconds 240 || true
 
                           MAX_WAIT_RETRIES=20
                           i=1
