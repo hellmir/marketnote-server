@@ -89,11 +89,11 @@ def buildMarketnoteTaskDefinition(env) {
             ],
             healthCheck: [
                 command: ["CMD-SHELL",
-                    "(curl -fsS http://127.0.0.1:8080/actuator/health || wget -qO- http://127.0.0.1:8080/actuator/health) | grep '\"status\":\"UP\"'"],
+                    "(curl -fsS http://127.0.0.1:8080/actuator/health/liveness || wget -qO- http://127.0.0.1:8080/actuator/health/liveness) | grep '\"status\":\"UP\"'"],
                 interval: 15,
                 timeout: 5,
                 retries: 3,
-                startPeriod: 45
+                startPeriod: 30
             ]
         ]]
     ]
