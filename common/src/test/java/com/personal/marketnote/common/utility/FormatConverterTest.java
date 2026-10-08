@@ -301,6 +301,122 @@ class FormatConverterTest {
     }
 
     @Nested
+    @DisplayName("sanitizeFileName(String) - 경로 순회 방어 경계 케이스")
+    class SanitizeFileNamePathTraversal {
+
+        @Test
+        @DisplayName("상위 디렉토리 참조('../')의 슬래시는 제거되어 경로 구분이 사라진다")
+        void stripsParentDirectorySlash() {
+            assertThat(FormatConverter.sanitizeFileName("../file.txt")).isEqualTo("..file.txt");
+        }
+
+        @Test
+        @DisplayName("연속된 상위 디렉토리 이동('../../etc/passwd')의 모든 슬래시가 제거된다")
+        void stripsMultipleParentDirectorySlashes() {
+            assertThat(FormatConverter.sanitizeFileName("../../etc/passwd")).isEqualTo("....etcpasswd");
+        }
+
+        @Test
+        @DisplayName("유닉스 절대 경로('/etc/passwd')의 슬래시가 모두 제거된다")
+        void stripsUnixAbsolutePathSlashes() {
+            assertThat(FormatConverter.sanitizeFileName("/etc/passwd")).isEqualTo("etcpasswd");
+        }
+
+        @Test
+        @DisplayName("현재 디렉토리 참조('./hidden')의 슬래시가 제거된다")
+        void stripsCurrentDirectorySlash() {
+            assertThat(FormatConverter.sanitizeFileName("./hidden")).isEqualTo(".hidden");
+        }
+
+        @Test
+        @DisplayName("윈도우 백슬래시 경로 구분자가 모두 제거된다")
+        void stripsWindowsBackslashSeparators() {
+            assertThat(FormatConverter.sanitizeFileName("..\\..\\windows\\system32"))
+                    .isEqualTo("....windowssystem32");
+        }
+
+        @Test
+        @DisplayName("UNC 경로('\\\\server\\share\\file')의 백슬래시가 모두 제거된다")
+        void stripsUncPathBackslashes() {
+            assertThat(FormatConverter.sanitizeFileName("\\\\server\\share\\file"))
+                    .isEqualTo("serversharefile");
+        }
+
+        @Test
+        @DisplayName("윈도우 드라이브 경로('C:\\\\Users\\\\file')의 콜론과 백슬래시가 제거된다")
+        void stripsWindowsDriveLetterAndBackslashes() {
+            assertThat(FormatConverter.sanitizeFileName("C:\\Users\\file")).isEqualTo("CUsersfile");
+        }
+
+        @Test
+        @DisplayName("NULL 바이트(\\u0000)는 제거된다")
+        void stripsNullByte() {
+            assertThat(FormatConverter.sanitizeFileName("file\u0000name.txt")).isEqualTo("filename.txt");
+        }
+
+        @Test
+        @DisplayName("개행 문자는 공백 규칙에 포함되어 하이픈으로 치환된다")
+        void replacesNewlineWithHyphen() {
+            assertThat(FormatConverter.sanitizeFileName("file\nname.txt")).isEqualTo("file-name.txt");
+        }
+
+        @Test
+        @DisplayName("탭 문자는 공백 규칙에 포함되어 하이픈으로 치환된다")
+        void replacesTabWithHyphen() {
+            assertThat(FormatConverter.sanitizeFileName("file\tname.txt")).isEqualTo("file-name.txt");
+        }
+
+        @Test
+        @DisplayName("캐리지 리턴과 개행이 섞여도 하나의 하이픈으로 치환된다")
+        void replacesMixedControlWhitespaceWithSingleHyphen() {
+            assertThat(FormatConverter.sanitizeFileName("file\r\nname.txt")).isEqualTo("file-name.txt");
+        }
+
+        @Test
+        @DisplayName("점 두 개('..')는 파일명 허용 문자이므로 그대로 유지된다")
+        void keepsDoubleDot() {
+            assertThat(FormatConverter.sanitizeFileName("..")).isEqualTo("..");
+        }
+
+        @Test
+        @DisplayName("숨김 파일명('.htaccess')은 그대로 유지된다")
+        void keepsHiddenFileName() {
+            assertThat(FormatConverter.sanitizeFileName(".htaccess")).isEqualTo(".htaccess");
+        }
+
+        @Test
+        @DisplayName("URL 인코딩된 경로 순회 문자열은 퍼센트 기호가 제거된 영숫자만 남는다")
+        void stripsUrlEncodedPathTraversalPercent() {
+            assertThat(FormatConverter.sanitizeFileName("%2e%2e%2fpasswd")).isEqualTo("2e2e2fpasswd");
+        }
+
+        @Test
+        @DisplayName("공백만 있는 입력은 하이픈 하나로 치환된다")
+        void replacesWhitespaceOnlyInputWithSingleHyphen() {
+            assertThat(FormatConverter.sanitizeFileName("   ")).isEqualTo("-");
+        }
+
+        @Test
+        @DisplayName("빈 문자열 입력은 빈 문자열을 반환한다")
+        void returnsEmptyForEmptyInput() {
+            assertThat(FormatConverter.sanitizeFileName("")).isEqualTo("");
+        }
+
+        @Test
+        @DisplayName("null 입력 시 NullPointerException이 발생한다 (현재 동작 고정)")
+        void throwsNpeWhenNull() {
+            assertThatThrownBy(() -> FormatConverter.sanitizeFileName(null))
+                    .isInstanceOf(NullPointerException.class);
+        }
+
+        @Test
+        @DisplayName("중간 슬래시가 포함된 파일명의 슬래시가 제거된다")
+        void stripsEmbeddedSlash() {
+            assertThat(FormatConverter.sanitizeFileName("file/../passwd")).isEqualTo("file..passwd");
+        }
+    }
+
+    @Nested
     @DisplayName("parseToNumberTime(LocalDateTime)")
     class ParseToNumberTime {
 
