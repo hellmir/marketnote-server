@@ -44,8 +44,15 @@ public interface ProductJpaRepository extends JpaRepository<ProductJpaEntity, Lo
             SELECT DISTINCT p
             FROM ProductJpaEntity p
               LEFT JOIN FETCH p.productTagJpaEntities tags
+            WHERE p.id IN :productIds
+            """)
+    List<ProductJpaEntity> findAllWithTagsByIdIn(@Param("productIds") List<Long> productIds);
+
+    @Query("""
+            SELECT DISTINCT p
+            FROM ProductJpaEntity p
               LEFT JOIN FETCH p.pricePolicyJpaEntities pricePolicies
             WHERE p.id IN :productIds
             """)
-    List<ProductJpaEntity> findAllWithTagsAndPoliciesByIdIn(@Param("productIds") List<Long> productIds);
+    List<ProductJpaEntity> findAllWithPricePoliciesByIdIn(@Param("productIds") List<Long> productIds);
 }

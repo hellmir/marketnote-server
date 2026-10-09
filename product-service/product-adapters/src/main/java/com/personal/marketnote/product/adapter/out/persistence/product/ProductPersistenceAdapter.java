@@ -106,7 +106,8 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
             return List.of();
         }
 
-        List<ProductJpaEntity> hydrated = productJpaRepository.findAllWithTagsAndPoliciesByIdIn(ids);
+        List<ProductJpaEntity> hydrated = productJpaRepository.findAllWithTagsByIdIn(ids);
+        productJpaRepository.findAllWithPricePoliciesByIdIn(ids);
         if (FormatValidator.hasNoValue(hydrated)) {
             return List.of();
         }
