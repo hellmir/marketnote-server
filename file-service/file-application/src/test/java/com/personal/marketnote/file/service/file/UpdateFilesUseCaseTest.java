@@ -1,5 +1,9 @@
 package com.personal.marketnote.file.service.file;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
@@ -16,18 +20,22 @@ import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
 import com.personal.marketnote.file.port.out.resized.SaveResizedFilesPort;
 import com.personal.marketnote.file.port.out.storage.UploadFilesPort;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -54,6 +62,23 @@ class UpdateFilesUseCaseTest {
 
     @InjectMocks
     private UpdateFilesService updateFilesService;
+
+    private ListAppender<ILoggingEvent> logAppender;
+
+    @BeforeEach
+    void setUpLogAppender() {
+        Logger logger = (Logger) LoggerFactory.getLogger(UpdateFilesService.class);
+        logAppender = new ListAppender<>();
+        logAppender.start();
+        logger.addAppender(logAppender);
+    }
+
+    @AfterEach
+    void tearDownLogAppender() {
+        Logger logger = (Logger) LoggerFactory.getLogger(UpdateFilesService.class);
+        logger.detachAppender(logAppender);
+        logAppender.stop();
+    }
 
     @Test
     @DisplayName("대표 이미지 9개 업로드 시 InvalidFileCountLimitException 예외를 던진다")
@@ -363,6 +388,83 @@ class UpdateFilesUseCaseTest {
                 getFileUseCase, uploadFilesPort, saveFilesPort,
                 saveResizedFilesPort, updateFilesPort, publishImageEventPort
         );
+    }
+
+    @Test
+    @DisplayName("카탈로그 이미지 리사이즈 실패 시 fileId, originalFilename, fileSort, message를 포함한 경고 로그를 남긴다")
+    void updateFiles_catalogImage_resizeFailure_logsWarning() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
+        FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/catalog_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenReturn(new ArrayList<>(List.of(savedFile)));
+
+        updateFilesService.updateFiles(command);
+
+        assertThat(logAppender.list)
+                .anySatisfy(event -> {
+                    assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                    assertThat(event.getFormattedMessage())
+                            .contains("카탈로그 이미지 리사이즈 실패")
+                            .contains("fileId=500")
+                            .contains("originalFilename=test_0.png")
+                            .contains("fileSort=" + FileSort.PRODUCT_CATALOG_IMAGE.name());
+                });
+        verify(saveResizedFilesPort, never()).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("대표 이미지 리사이즈 실패 시 각 width마다 fileId, originalFilename, width, message를 포함한 경고 로그를 남긴다")
+    void updateFiles_representativeImage_resizeFailure_logsWarningPerWidth() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 1, "SELLER");
+        FileDomain savedFile = savedFileDomain(700L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/representative_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenReturn(new ArrayList<>(List.of(savedFile)));
+
+        updateFilesService.updateFiles(command);
+
+        assertThat(logAppender.list)
+                .anySatisfy(event -> {
+                    assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                    assertThat(event.getFormattedMessage())
+                            .contains("대표 이미지 리사이즈 실패")
+                            .contains("fileId=700")
+                            .contains("originalFilename=test_0.png")
+                            .contains("width=600");
+                })
+                .anySatisfy(event -> {
+                    assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                    assertThat(event.getFormattedMessage())
+                            .contains("대표 이미지 리사이즈 실패")
+                            .contains("fileId=700")
+                            .contains("originalFilename=test_0.png")
+                            .contains("width=800");
+                });
+        verify(saveResizedFilesPort, never()).saveAll(anyList());
+    }
+
+    private static FileDomain savedFileDomain(Long id, FileSort sort) {
+        return FileDomain.from(FileDomainSnapshotState.builder()
+                .id(id)
+                .ownerType(OwnerType.PRODUCT)
+                .ownerId(1L)
+                .sort(sort)
+                .extension("png")
+                .name("test_0.png")
+                .storageUrl("https://cdn.example.com/test_0.png")
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+                .status(EntityStatus.ACTIVE)
+                .orderNum(1L)
+                .userId(100L)
+                .ownerKey("test-owner-key")
+                .build());
     }
 
     private static FileDomain snapshotFileDomain(Long userId, String ownerKey) {
