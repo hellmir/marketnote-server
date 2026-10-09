@@ -13,6 +13,8 @@ import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import com.personal.marketnote.product.domain.product.ProductTag;
+import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.DisplayName;
@@ -168,7 +170,64 @@ class ProductJpaRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("findAllWithTagsByIdIn / findAllWithPricePoliciesByIdIn")
+    class FindAllWithTagsAndPricePolicies {
+
+        @Test
+        @DisplayName("상품 ID 목록에 대해 태그와 가격 정책을 각각 fetch 하면 MultipleBagFetchException 없이 조회된다")
+        void returnsProductsWithTagsAndPricePoliciesWithoutMultipleBagFetchException() {
+            ProductJpaEntity product1 = saveProduct("상품1", "브랜드", 1L, List.of("태그A", "태그B"));
+            ProductJpaEntity product2 = saveProduct("상품2", "브랜드", 1L, List.of("태그C"));
+            savePricePolicy(product1);
+            savePricePolicy(product1);
+            savePricePolicy(product2);
+            entityManager.flush();
+            entityManager.clear();
+
+            List<Long> ids = List.of(product1.getId(), product2.getId());
+            List<ProductJpaEntity> withTags = productJpaRepository.findAllWithTagsByIdIn(ids);
+            productJpaRepository.findAllWithPricePoliciesByIdIn(ids);
+
+            assertThat(withTags).hasSize(2);
+            ProductJpaEntity loadedProduct1 = withTags.stream()
+                    .filter(p -> p.getId().equals(product1.getId()))
+                    .findFirst()
+                    .orElseThrow();
+            ProductJpaEntity loadedProduct2 = withTags.stream()
+                    .filter(p -> p.getId().equals(product2.getId()))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(loadedProduct1.getProductTagJpaEntities()).hasSize(2);
+            assertThat(loadedProduct1.getPricePolicyJpaEntities()).hasSize(2);
+            assertThat(loadedProduct2.getProductTagJpaEntities()).hasSize(1);
+            assertThat(loadedProduct2.getPricePolicyJpaEntities()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("주어진 ID 목록이 비어 있으면 빈 목록을 반환한다")
+        void returnsEmptyWhenIdsEmpty() {
+            List<ProductJpaEntity> withTags = productJpaRepository.findAllWithTagsByIdIn(List.of());
+            List<ProductJpaEntity> withPolicies = productJpaRepository.findAllWithPricePoliciesByIdIn(List.of());
+
+            assertThat(withTags).isEmpty();
+            assertThat(withPolicies).isEmpty();
+        }
+    }
+
     private ProductJpaEntity saveProduct(String name, String brandName, Long sellerId) {
+        return saveProduct(name, brandName, sellerId, List.of());
+    }
+
+    private ProductJpaEntity saveProduct(String name, String brandName, Long sellerId, List<String> tagNames) {
+        List<ProductTag> productTags = tagNames.stream()
+                .map(tagName -> ProductTag.from(
+                        ProductTagSnapshotState.builder()
+                                .name(tagName)
+                                .status(EntityStatus.ACTIVE)
+                                .build()
+                ))
+                .toList();
         Product product = Product.from(
                 ProductSnapshotState.builder()
                         .productKey(RandomCodeGenerator.generateProductKey())
@@ -177,7 +236,7 @@ class ProductJpaRepositoryTest {
                         .brandName(brandName)
                         .detail("설명")
                         .findAllOptionsYn(false)
-                        .productTags(List.of())
+                        .productTags(productTags)
                         .status(EntityStatus.ACTIVE)
                         .build()
         );
