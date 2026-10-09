@@ -100,26 +100,31 @@ public class UserPersistenceAdapter
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public Optional<User> findByPhoneNumber(String phoneNumber) {
         return UserJpaEntityToDomainMapper.mapToDomain(userJpaRepository.findByPhoneNumber(phoneNumber).orElse(null));
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public Optional<User> findByEmail(String email) {
         return UserJpaEntityToDomainMapper.mapToDomain(userJpaRepository.findByEmail(email).orElse(null));
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public Optional<User> findByReferenceCode(String referredUserCode) {
         return UserJpaEntityToDomainMapper.mapToDomain(userJpaRepository.findByReferenceCode(referredUserCode).orElse(null));
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public Optional<User> findAllStatusUserById(Long id) {
         return UserJpaEntityToDomainMapper.mapToDomain(userJpaRepository.findAllStatusUserById(id).orElse(null));
     }
 
     @Override
+    @Transactional(isolation = READ_COMMITTED, readOnly = true, timeout = 120)
     public Optional<User> findAllStatusUserByEmail(String email) {
         return UserJpaEntityToDomainMapper.mapToDomain(userJpaRepository.findAllStatusUserByEmail(email).orElse(null));
     }
