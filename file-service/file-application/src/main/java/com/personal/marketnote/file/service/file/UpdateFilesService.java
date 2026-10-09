@@ -21,6 +21,7 @@ import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
 import com.personal.marketnote.file.port.out.resized.SaveResizedFilesPort;
 import com.personal.marketnote.file.port.out.storage.UploadFilesPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
@@ -39,6 +40,7 @@ import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -180,7 +182,11 @@ public class UpdateFilesService implements UpdateFileUseCase {
                         .fileId(savedFile.getId())
                         .size(size + "x" + size)
                         .build()));
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.warn(
+                        "카탈로그 이미지 리사이즈 실패: fileId={}, originalFilename={}, fileSort={}, message={}",
+                        savedFile.getId(), originalFile.getOriginalFilename(), sort, e.getMessage()
+                );
             }
 
             return;
@@ -199,7 +205,11 @@ public class UpdateFilesService implements UpdateFileUseCase {
                             .fileId(savedFile.getId())
                             .size(String.valueOf(width))
                             .build()));
-                } catch (IOException ignored) {
+                } catch (IOException e) {
+                    log.warn(
+                            "대표 이미지 리사이즈 실패: fileId={}, originalFilename={}, width={}, message={}",
+                            savedFile.getId(), originalFile.getOriginalFilename(), width, e.getMessage()
+                    );
                 }
             }
         }
