@@ -192,6 +192,53 @@ class CartJpaRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("existsByUserIdAndPolicyId")
+    class ExistsByUserIdAndPolicyId {
+
+        @Test
+        @DisplayName("유저 ID와 가격 정책 ID에 해당하는 장바구니 항목이 존재하면 true 를 반환한다")
+        void returnsTrueWhenCartItemExists() {
+            ProductJpaEntity product = saveProduct("상품", "브랜드");
+            PricePolicyJpaEntity policy = savePricePolicy(product);
+            saveCartProduct(100L, policy, (short) 1);
+            entityManager.flush();
+            entityManager.clear();
+
+            boolean result = cartJpaRepository.existsByUserIdAndPolicyId(100L, policy.getId());
+
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        @DisplayName("매칭되는 장바구니 항목이 없으면 false 를 반환한다")
+        void returnsFalseWhenCartItemNotExists() {
+            ProductJpaEntity product = saveProduct("상품", "브랜드");
+            PricePolicyJpaEntity policy = savePricePolicy(product);
+            saveCartProduct(100L, policy, (short) 1);
+            entityManager.flush();
+            entityManager.clear();
+
+            boolean result = cartJpaRepository.existsByUserIdAndPolicyId(100L, 999L);
+
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        @DisplayName("다른 유저의 장바구니 항목은 false 를 반환한다")
+        void returnsFalseForOtherUser() {
+            ProductJpaEntity product = saveProduct("상품", "브랜드");
+            PricePolicyJpaEntity policy = savePricePolicy(product);
+            saveCartProduct(100L, policy, (short) 1);
+            entityManager.flush();
+            entityManager.clear();
+
+            boolean result = cartJpaRepository.existsByUserIdAndPolicyId(200L, policy.getId());
+
+            assertThat(result).isFalse();
+        }
+    }
+
     private ProductJpaEntity saveProduct(String name, String brandName) {
         Product product = Product.from(
                 ProductSnapshotState.builder()
