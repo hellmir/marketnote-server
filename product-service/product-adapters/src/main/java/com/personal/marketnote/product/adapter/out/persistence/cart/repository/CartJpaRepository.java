@@ -44,9 +44,10 @@ public interface CartJpaRepository extends JpaRepository<CartProductJpaEntity, L
 
     @Query(
             """
-                    SELECT COUNT(*) FROM CartProductJpaEntity c 
+                    SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END
+                    FROM CartProductJpaEntity c
                     WHERE 1 = 1
-                    AND c.id.userId = :userId 
+                    AND c.id.userId = :userId
                     AND c.id.pricePolicyId = :pricePolicyId
                     """
     )
