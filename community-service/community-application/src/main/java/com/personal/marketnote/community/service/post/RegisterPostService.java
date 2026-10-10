@@ -4,7 +4,6 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.domain.post.NoticePostCategory;
 import com.personal.marketnote.community.domain.post.Post;
-import com.personal.marketnote.community.domain.post.PostTargetType;
 import com.personal.marketnote.community.exception.InvalidPostContentContainsProfanityException;
 import com.personal.marketnote.community.exception.NotProductSellerException;
 import com.personal.marketnote.community.mapper.PostCommandToStateMapper;
@@ -97,17 +96,17 @@ public class RegisterPostService implements RegisterPostUseCase {
     }
 
     private String resolveProductInquiryTitle(Post parentPost) {
-        if (FormatValidator.hasValue(parentPost.getTitle())) {
-            return parentPost.getTitle();
+        if (parentPost.hasNoTitle()) {
+            return resolveTitleFromProduct(parentPost);
         }
-        return resolveTitleFromProduct(parentPost);
+        return parentPost.getTitle();
     }
 
     private String resolveTitleFromProduct(Post parentPost) {
-        if (!PostTargetType.PRICE_POLICY.equals(parentPost.getTargetType())) {
+        if (!parentPost.isPricePolicyTarget()) {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
         }
-        if (FormatValidator.hasNoValue(parentPost.getTargetId())) {
+        if (parentPost.hasNoTargetId()) {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
         }
         // 판매자 답글 경로에서는 상품 소유권 검증용으로 같은 pricePolicyId가 이미 조회됐을 수 있음.

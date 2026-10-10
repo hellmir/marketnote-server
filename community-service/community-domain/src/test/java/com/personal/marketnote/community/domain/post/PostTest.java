@@ -189,6 +189,106 @@ class PostTest {
         assertThat(post.isReply()).isFalse();
     }
 
+    @Test
+    @DisplayName("title이 null이면 hasNoTitle은 true를 반환한다")
+    void shouldReturnTrueWhenTitleIsNull() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title(null)
+                .content("내용")
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        assertThat(post.hasNoTitle()).isTrue();
+    }
+
+    @Test
+    @DisplayName("title이 빈 문자열이면 hasNoTitle은 true를 반환한다")
+    void shouldReturnTrueWhenTitleIsBlank() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("")
+                .content("내용")
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        assertThat(post.hasNoTitle()).isTrue();
+    }
+
+    @Test
+    @DisplayName("title이 존재하면 hasNoTitle은 false를 반환한다")
+    void shouldReturnFalseWhenTitleExists() {
+        Post post = createActivePost();
+
+        assertThat(post.hasNoTitle()).isFalse();
+    }
+
+    @Test
+    @DisplayName("targetType이 PRICE_POLICY이면 isPricePolicyTarget은 true를 반환한다")
+    void shouldReturnTrueWhenTargetTypeIsPricePolicy() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("문의")
+                .content("내용")
+                .targetType(PostTargetType.PRICE_POLICY)
+                .targetId(10L)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        assertThat(post.isPricePolicyTarget()).isTrue();
+    }
+
+    @Test
+    @DisplayName("targetType이 null이면 isPricePolicyTarget은 false를 반환한다")
+    void shouldReturnFalseWhenTargetTypeIsNull() {
+        Post post = createActivePost();
+
+        assertThat(post.isPricePolicyTarget()).isFalse();
+    }
+
+    @Test
+    @DisplayName("targetId가 null이면 hasNoTargetId는 true를 반환한다")
+    void shouldReturnTrueWhenTargetIdIsNull() {
+        Post post = createActivePost();
+
+        assertThat(post.hasNoTargetId()).isTrue();
+    }
+
+    @Test
+    @DisplayName("targetId가 존재하면 hasNoTargetId는 false를 반환한다")
+    void shouldReturnFalseWhenTargetIdExists() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("문의")
+                .content("내용")
+                .targetType(PostTargetType.PRICE_POLICY)
+                .targetId(10L)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        assertThat(post.hasNoTargetId()).isFalse();
+    }
+
     private PostCreateState createPostCreateState(Board board, String category, String writerName) {
         return PostCreateState.builder()
                 .userId(100L)

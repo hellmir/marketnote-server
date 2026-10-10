@@ -152,6 +152,18 @@ public class Post {
         return board.isProductInquery();
     }
 
+    public boolean hasNoTitle() {
+        return FormatValidator.hasNoValue(title);
+    }
+
+    public boolean isPricePolicyTarget() {
+        return PostTargetType.PRICE_POLICY.equals(targetType);
+    }
+
+    public boolean hasNoTargetId() {
+        return FormatValidator.hasNoValue(targetId);
+    }
+
     public boolean isEditable() {
         return board.isEditable();
     }
