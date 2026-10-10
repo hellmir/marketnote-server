@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -176,28 +175,116 @@ class GifticonGoodsPersistenceAdapterTest {
         }
     }
 
-    @Test
-    @DisplayName("findAllExposed는 categoryCode/brandCode가 null이면 빈 문자열로 변환하여 호출한다")
-    void shouldFindAllExposedWithNullParams() {
-        // given
-        Page<GifticonGoodsJpaEntity> page = new PageImpl<>(List.of(buildEntity(1L, "G001")));
-        given(repository.findAllExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class))).willReturn(page);
+    @Nested
+    @DisplayName("findAllExposedByCursor")
+    class FindAllExposedByCursorTest {
 
-        // when
-        List<GifticonGoods> result = adapter.findAllExposed(null, null, 1, 10);
+        @Test
+        @DisplayName("cursor=-1이면 findFirstPageExposed를 호출하고 null 파라미터를 빈 문자열로 변환한다")
+        void shouldUseFirstPageQueryWhenCursorIsFirstPage() {
+            given(repository.findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class)))
+                    .willReturn(List.of(buildEntity(1L, "G001")));
 
-        // then
-        assertThat(result).hasSize(1);
+            List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, -1L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("cursor 아이템의 orderNum이 null이 아니면 findExposedAfterNonNullAnchor를 호출한다")
+        void shouldRouteToNonNullAnchorQuery() {
+            GifticonGoodsJpaEntity anchorEntity = buildEntity(5L, "G005");
+            given(repository.findById(5L)).willReturn(Optional.of(anchorEntity));
+            given(repository.findExposedAfterNonNullAnchor(
+                    eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(6L, "G006")));
+
+            List<GifticonGoods> result = adapter.findAllExposedByCursor("C001", "B001", 5L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findExposedAfterNonNullAnchor(
+                    eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("cursor 아이템의 orderNum이 null이면 findExposedAfterNullAnchor를 호출한다")
+        void shouldRouteToNullAnchorQuery() {
+            GifticonGoodsJpaEntity anchorEntity = buildEntityWithOrderNum(7L, "G007", null);
+            given(repository.findById(7L)).willReturn(Optional.of(anchorEntity));
+            given(repository.findExposedAfterNullAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(7L), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(8L, "G008")));
+
+            List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 7L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findExposedAfterNullAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(7L), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("cursor가 존재하지 않으면 findFirstPageExposed로 폴백한다")
+        void shouldFallbackToFirstPageWhenCursorMissing() {
+            given(repository.findById(99L)).willReturn(Optional.empty());
+            given(repository.findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class)))
+                    .willReturn(List.of(buildEntity(1L, "G001")));
+
+            List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 99L, 10);
+
+            assertThat(result).hasSize(1);
+            verify(repository).findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class));
+        }
+
+        @Test
+        @DisplayName("공백 문자열 카테고리/브랜드는 빈 문자열로 정규화된다")
+        void shouldNormalizeBlankFiltersToEmpty() {
+            given(repository.findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class)))
+                    .willReturn(List.of());
+
+            adapter.findAllExposedByCursor("   ", "", -1L, 10);
+
+            verify(repository).findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class));
+        }
     }
 
     @Test
     @DisplayName("countAllExposed는 검색 조건으로 총 건수를 반환한다")
     void shouldCountAllExposed() {
-        Page<GifticonGoodsJpaEntity> page = new PageImpl<>(
-                List.of(buildEntity(1L, "G001")), PageRequest.of(0, 1), 42L);
-        given(repository.findAllExposed(eq("C001"), eq("B001"), eq(GoodsStatus.SALE), any(Pageable.class)))
-                .willReturn(page);
+        given(repository.countAllExposed("C001", "B001", GoodsStatus.SALE)).willReturn(42L);
         assertThat(adapter.countAllExposed("C001", "B001")).isEqualTo(42L);
+    }
+
+    @Test
+    @DisplayName("countAllExposed는 null 파라미터를 빈 문자열로 변환하여 호출한다")
+    void shouldCountAllExposedWithNullParams() {
+        given(repository.countAllExposed("", "", GoodsStatus.SALE)).willReturn(10L);
+        assertThat(adapter.countAllExposed(null, null)).isEqualTo(10L);
+    }
+
+    private GifticonGoodsJpaEntity buildEntityWithOrderNum(Long id, String goodsCode, Integer orderNum) {
+        GifticonGoods restored = GifticonGoods.from(GifticonGoodsSnapshotState.builder()
+                .id(id)
+                .goodsCode(goodsCode)
+                .goodsName("테스트 상품")
+                .brandCode("B001")
+                .brandName("스타벅스")
+                .brandImageUrl("http://img.test.com/brand.jpg")
+                .categoryCode("C001")
+                .realPrice(12_000L)
+                .salePrice(10_000L)
+                .cashPrice(10_000L)
+                .imageUrl("http://img.test.com/goods.jpg")
+                .description("테스트 상품 설명")
+                .validDays(30)
+                .goodsStatus(GoodsStatus.SALE)
+                .exposed(true)
+                .popular(false)
+                .orderNum(orderNum)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+        return GifticonGoodsJpaEntity.from(restored);
     }
 
     @Test

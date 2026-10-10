@@ -21,7 +21,7 @@ public interface FindGifticonGoodsPort {
 
     List<GifticonGoodsBrandProjection> findDistinctBrandsByCategoryCode(String categoryCode);
 
-    List<GifticonGoods> findAllExposed(String categoryCode, String brandCode, int page, int pageSize);
+    List<GifticonGoods> findAllExposedByCursor(String categoryCode, String brandCode, Long cursor, int limit);
 
     long countAllExposed(String categoryCode, String brandCode);
 

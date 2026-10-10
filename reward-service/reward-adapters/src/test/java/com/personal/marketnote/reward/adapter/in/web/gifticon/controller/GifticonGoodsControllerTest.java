@@ -61,13 +61,13 @@ class GifticonGoodsControllerTest {
     class GetGoods {
 
         @Test
-        @DisplayName("카테고리/브랜드/페이지 파라미터를 UseCase Command에 그대로 전달하고 OK를 반환한다")
+        @DisplayName("카테고리/브랜드/커서/페이지크기 파라미터를 UseCase Command에 그대로 전달하고 OK를 반환한다")
         void returnsOkAndPassesParams() {
             given(getGifticonGoodsUseCase.getGoods(any(GetGifticonGoodsCommand.class)))
-                    .willReturn(new GetGifticonGoodsResult(1, 20, 0L, 0, List.of()));
+                    .willReturn(GetGifticonGoodsResult.from(null, false, null, List.of()));
 
             ResponseEntity<BaseResponse<GetGifticonGoodsResponse>> response =
-                    controller.getGoods("CAT-01", "BRAND-01", 2, 10);
+                    controller.getGoods("CAT-01", "BRAND-01", 5L, 10);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent()).isNotNull();
@@ -75,20 +75,23 @@ class GifticonGoodsControllerTest {
             verify(getGifticonGoodsUseCase).getGoods(captor.capture());
             assertThat(captor.getValue().categoryCode()).isEqualTo("CAT-01");
             assertThat(captor.getValue().brandCode()).isEqualTo("BRAND-01");
-            assertThat(captor.getValue().page()).isEqualTo(2);
+            assertThat(captor.getValue().cursor()).isEqualTo(5L);
             assertThat(captor.getValue().pageSize()).isEqualTo(10);
         }
 
         @Test
-        @DisplayName("카테고리/브랜드가 null이어도 OK를 반환한다")
-        void returnsOkWhenFiltersNull() {
+        @DisplayName("카테고리/브랜드가 null이고 커서가 -1(첫 페이지)이어도 OK를 반환한다")
+        void returnsOkWhenFiltersNullAndFirstPageCursor() {
             given(getGifticonGoodsUseCase.getGoods(any(GetGifticonGoodsCommand.class)))
-                    .willReturn(new GetGifticonGoodsResult(1, 20, 0L, 0, List.of()));
+                    .willReturn(GetGifticonGoodsResult.from(0L, false, null, List.of()));
 
             ResponseEntity<BaseResponse<GetGifticonGoodsResponse>> response =
-                    controller.getGoods(null, null, 1, 20);
+                    controller.getGoods(null, null, -1L, 20);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            ArgumentCaptor<GetGifticonGoodsCommand> captor = ArgumentCaptor.forClass(GetGifticonGoodsCommand.class);
+            verify(getGifticonGoodsUseCase).getGoods(captor.capture());
+            assertThat(captor.getValue().cursor()).isEqualTo(-1L);
         }
     }
 

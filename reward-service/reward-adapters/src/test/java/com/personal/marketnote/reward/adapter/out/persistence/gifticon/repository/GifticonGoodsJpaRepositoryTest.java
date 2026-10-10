@@ -106,22 +106,25 @@ class GifticonGoodsJpaRepositoryTest {
     }
 
     @Test
-    @DisplayName("findAllExposed는 노출된 SALE 상품 중 카테고리/브랜드 필터를 적용한다")
-    void shouldFindAllExposed() {
+    @DisplayName("findFirstPageExposed는 노출된 SALE 상품 중 카테고리/브랜드 필터를 적용한다")
+    void shouldFindFirstPageExposed() {
         persistGoods("G-E-1", "B001", "C001", GoodsStatus.SALE, true, false, 1);
         persistGoods("G-E-2", "B002", "C001", GoodsStatus.SALE, true, false, 2);
         persistGoods("G-E-3", "B001", "C002", GoodsStatus.SALE, true, false, 3);
         persistGoods("G-E-4", "B001", "C001", GoodsStatus.SALE, false, false, 4);
         em.clear();
 
-        Page<GifticonGoodsJpaEntity> all = repository.findAllExposed("", "", GoodsStatus.SALE, PageRequest.of(0, 10));
-        assertThat(all.getTotalElements()).isEqualTo(3L);
+        List<GifticonGoodsJpaEntity> all = repository.findFirstPageExposed(
+                "", "", GoodsStatus.SALE, PageRequest.of(0, 10));
+        assertThat(all).hasSize(3);
 
-        Page<GifticonGoodsJpaEntity> byCategory = repository.findAllExposed("C001", "", GoodsStatus.SALE, PageRequest.of(0, 10));
-        assertThat(byCategory.getTotalElements()).isEqualTo(2L);
+        List<GifticonGoodsJpaEntity> byCategory = repository.findFirstPageExposed(
+                "C001", "", GoodsStatus.SALE, PageRequest.of(0, 10));
+        assertThat(byCategory).hasSize(2);
 
-        Page<GifticonGoodsJpaEntity> byBrand = repository.findAllExposed("", "B001", GoodsStatus.SALE, PageRequest.of(0, 10));
-        assertThat(byBrand.getTotalElements()).isEqualTo(2L);
+        List<GifticonGoodsJpaEntity> byBrand = repository.findFirstPageExposed(
+                "", "B001", GoodsStatus.SALE, PageRequest.of(0, 10));
+        assertThat(byBrand).hasSize(2);
     }
 
     @Test

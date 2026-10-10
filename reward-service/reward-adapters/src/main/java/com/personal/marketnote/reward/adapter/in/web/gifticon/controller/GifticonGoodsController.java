@@ -17,20 +17,24 @@ import com.personal.marketnote.reward.port.in.usecase.gifticon.GetGifticonGoodsD
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetGifticonGoodsUseCase;
 import com.personal.marketnote.reward.port.in.usecase.gifticon.GetPopularGifticonGoodsUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
-import static com.personal.marketnote.common.utility.ApiConstant.DEFAULT_PAGE_NUMBER;
 
 @RestController
 @RequestMapping("/api/v1/gifticon")
 @Tag(name = "기프티콘 상품 API", description = "기프티콘 상품 관련 API")
 @RequiredArgsConstructor
+@Validated
 public class GifticonGoodsController {
 
     private final GetGifticonGoodsUseCase getGifticonGoodsUseCase;
@@ -42,23 +46,23 @@ public class GifticonGoodsController {
      *
      * @param categoryCode 카테고리 코드 (선택)
      * @param brandCode    브랜드 코드 (선택)
-     * @param page         페이지 번호 (기본: 1)
+     * @param cursor       이전 페이지의 nextCursor, 첫 조회 시 -1
      * @param pageSize     페이지 크기 (기본: 20)
      * @return 상품 목록 응답 {@link GetGifticonGoodsResponse}
      * @Author 성효빈
-     * @Date 2026-04-05
-     * @Description 노출 설정 및 판매 중인 기프티콘 상품 목록을 페이징으로 조회합니다.
+     * @Date 2026-10-07
+     * @Description 노출 설정 및 판매 중인 기프티콘 상품 목록을 cursor 기반 무한 스크롤로 조회합니다.
      */
     @GetMapping("/goods")
     @GetGifticonGoodsApiDocs
     public ResponseEntity<BaseResponse<GetGifticonGoodsResponse>> getGoods(
-            @RequestParam(name = "category-code", required = false) String categoryCode,
-            @RequestParam(name = "brand-code", required = false) String brandCode,
-            @RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE_NUMBER) int page,
-            @RequestParam(name = "page-size", required = false, defaultValue = "20") int pageSize
+            @RequestParam(name = "category-code", required = false) @Size(max = 50) String categoryCode,
+            @RequestParam(name = "brand-code", required = false) @Size(max = 50) String brandCode,
+            @RequestParam(name = "cursor", required = false, defaultValue = "-1") @Min(-1) Long cursor,
+            @RequestParam(name = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
     ) {
         GetGifticonGoodsResult result = getGifticonGoodsUseCase.getGoods(
-                new GetGifticonGoodsCommand(categoryCode, brandCode, page, pageSize)
+                new GetGifticonGoodsCommand(categoryCode, brandCode, cursor, pageSize)
         );
 
         return ResponseEntity.ok(
