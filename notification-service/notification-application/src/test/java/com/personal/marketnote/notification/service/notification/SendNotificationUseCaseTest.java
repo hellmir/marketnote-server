@@ -2,6 +2,7 @@ package com.personal.marketnote.notification.service.notification;
 
 import com.personal.marketnote.notification.domain.device.DeviceToken;
 import com.personal.marketnote.notification.domain.device.Platform;
+import com.personal.marketnote.notification.domain.notification.FcmSendFailedException;
 import com.personal.marketnote.notification.domain.notification.Notification;
 import com.personal.marketnote.notification.domain.notification.NotificationSnapshotState;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
@@ -41,6 +42,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -372,6 +375,132 @@ class SendNotificationUseCaseTest {
             assertThat(result.sendStatus()).isEqualTo("PENDING");
             verifyNoInteractions(findDeviceTokenPort);
             verifyNoInteractions(sendPushNotificationPort);
+        }
+    }
+
+    @Nested
+    @DisplayName("FCM 벤더 통신 이력 기록")
+    class VendorCommunicationRecording {
+
+        @Test
+        @DisplayName("푸시 발송 성공 시 디바이스 토큰 수만큼 recordFcmSendResult가 호출된다")
+        void shouldRecordPerDeviceTokenOnSuccess() {
+            SendNotificationCommand command = createCommand("PUSH_ONLY");
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateAndSave(template);
+            setupDeviceTokensAndPush(3, true);
+
+            sendNotificationService.sendNotification(command);
+
+            verify(vendorCommunicationRecorder, times(3)).recordFcmSendResult(
+                    any(Notification.class), any(DeviceToken.class),
+                    anyString(), anyString(), anyString(),
+                    argThat(SendPushNotificationResult::success)
+            );
+            verify(vendorCommunicationRecorder, never()).recordFcmSendException(
+                    any(), any(), any(), any(), any(), any()
+            );
+        }
+
+        @Test
+        @DisplayName("푸시 발송 실패 시 recordFcmSendResult가 failure 결과로 호출된다")
+        void shouldRecordFailureAsSendResult() {
+            SendNotificationCommand command = createCommand("PUSH_ONLY");
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateAndSave(template);
+            List<DeviceToken> tokens = List.of(createDeviceToken(1L, "token1", Platform.ANDROID));
+            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
+            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
+                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
+
+            sendNotificationService.sendNotification(command);
+
+            verify(vendorCommunicationRecorder).recordFcmSendResult(
+                    any(Notification.class), any(DeviceToken.class),
+                    anyString(), anyString(), anyString(),
+                    argThat(r -> !r.success() && "INTERNAL".equals(r.errorCode()) && !r.tokenInvalid())
+            );
+        }
+
+        @Test
+        @DisplayName("FCM 예외 발생 시 recordFcmSendException이 호출되고 다음 디바이스 토큰 발송을 계속한다")
+        void shouldRecordAndContinueOnFcmException() {
+            SendNotificationCommand command = createCommand("PUSH_ONLY");
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateAndSave(template);
+            List<DeviceToken> tokens = List.of(
+                    createDeviceToken(1L, "token1", Platform.ANDROID),
+                    createDeviceToken(2L, "token2", Platform.IOS)
+            );
+            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
+            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
+                    .thenThrow(new FcmSendFailedException("타임아웃"))
+                    .thenReturn(SendPushNotificationResult.success("msg2"));
+
+            SendNotificationResult result = sendNotificationService.sendNotification(command);
+
+            assertThat(result.sentDeviceCount()).isEqualTo(1);
+            assertThat(result.failedDeviceCount()).isEqualTo(1);
+            verify(vendorCommunicationRecorder).recordFcmSendException(
+                    any(Notification.class),
+                    argThat(dt -> dt.getId().equals(1L)),
+                    anyString(), anyString(), anyString(),
+                    any(FcmSendFailedException.class)
+            );
+            verify(vendorCommunicationRecorder).recordFcmSendResult(
+                    any(Notification.class),
+                    argThat(dt -> dt.getId().equals(2L)),
+                    anyString(), anyString(), anyString(),
+                    argThat(SendPushNotificationResult::success)
+            );
+        }
+
+        @Test
+        @DisplayName("tokenInvalid 응답 시 device_token 삭제와 함께 tokenInvalid=true 결과로 기록된다")
+        void shouldRecordTokenInvalidWithDeletion() {
+            SendNotificationCommand command = createCommand("PUSH_ONLY");
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateAndSave(template);
+            List<DeviceToken> tokens = List.of(createDeviceToken(1L, "invalid-token", Platform.ANDROID));
+            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
+            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
+                    .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
+
+            sendNotificationService.sendNotification(command);
+
+            verify(deleteDeviceTokenPort).deleteById(1L);
+            verify(vendorCommunicationRecorder).recordFcmSendResult(
+                    any(Notification.class), any(DeviceToken.class),
+                    anyString(), anyString(), anyString(),
+                    argThat(r -> !r.success() && r.tokenInvalid() && "UNREGISTERED".equals(r.errorCode()))
+            );
+        }
+
+        @Test
+        @DisplayName("디바이스 토큰이 없으면 VendorCommunicationRecorder가 호출되지 않는다")
+        void shouldNotRecordWhenNoDeviceTokens() {
+            SendNotificationCommand command = createCommand("PUSH_ONLY");
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateAndSave(template);
+            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(List.of());
+
+            sendNotificationService.sendNotification(command);
+
+            verifyNoInteractions(vendorCommunicationRecorder);
+        }
+
+        @Test
+        @DisplayName("IN_APP_ONLY 알림은 FCM 호출이 없으므로 VendorCommunicationRecorder가 호출되지 않는다")
+        void shouldNotRecordForInAppOnly() {
+            SendNotificationCommand command = createCommand("IN_APP_ONLY");
+            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
+            setupTemplateFound(template);
+            when(saveNotificationPort.save(any(Notification.class)))
+                    .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
+
+            sendNotificationService.sendNotification(command);
+
+            verifyNoInteractions(vendorCommunicationRecorder);
         }
     }
 
