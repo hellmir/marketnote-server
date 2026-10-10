@@ -600,6 +600,19 @@ class PostPersistenceAdapterTest {
             assertThat(result).isPresent();
             assertThat(result.get().isImportant()).isFalse();
         }
+
+        @Test
+        @DisplayName("엔티티의 targetGroupType/targetGroupId가 도메인으로 매핑된다")
+        void mapsTargetGroupTypeAndTargetGroupId() {
+            PostJpaEntity entity = newPersistedEntity(40L, samplePost, "PRODUCT_QUESTION");
+            when(postJpaRepository.findById(40L)).thenReturn(Optional.of(entity));
+
+            Optional<Post> result = adapter.findById(40L);
+
+            assertThat(result).isPresent();
+            assertThat(result.get().getTargetGroupType()).isEqualTo(PostTargetGroupType.PRODUCT);
+            assertThat(result.get().getTargetGroupId()).isEqualTo(100L);
+        }
     }
 
     @Nested
