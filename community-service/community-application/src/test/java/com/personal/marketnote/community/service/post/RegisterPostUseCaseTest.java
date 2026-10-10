@@ -841,6 +841,37 @@ class RegisterPostUseCaseTest {
         verify(publishPostEventPort).publishInquiryAnsweredEvent(
                 parentOwnerId, parentId, "판매자상품", "PRODUCT_INQUERY"
         );
+        verify(findProductByPricePolicyPort, times(1))
+                .findByPricePolicyIds(List.of(pricePolicyId));
+    }
+
+    @Test
+    @DisplayName("판매자 답글 등록 시 부모 post targetId가 판매자 검증 pricePolicyId와 다르면 신규 조회한다")
+    void registerPost_sellerProductInquiryReply_parentTargetIdDiffers_performsSecondLookup() {
+        Long sellerId = 62L;
+        Long parentId = 2030L;
+        Long parentOwnerId = 63L;
+        Long sellerPricePolicyId = 530L;
+        Long parentPricePolicyId = 531L;
+        RegisterPostCommand command = buildReplyCommand(sellerId, parentId, sellerPricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, parentPricePolicyId);
+        Post savedPost = buildSavedPost(1700L, command);
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(sellerPricePolicyId)))
+                .thenReturn(Map.of(sellerPricePolicyId, buildProductInfo(sellerId, "판매자상품")));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(parentPricePolicyId)))
+                .thenReturn(Map.of(parentPricePolicyId, buildProductInfo(999L, "부모상품")));
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(true, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "부모상품", "PRODUCT_INQUERY"
+        );
+        verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(sellerPricePolicyId));
+        verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(parentPricePolicyId));
     }
 
     private RegisterPostCommand buildCommand(

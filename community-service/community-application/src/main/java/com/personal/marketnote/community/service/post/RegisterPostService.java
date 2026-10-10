@@ -45,15 +45,17 @@ public class RegisterPostService implements RegisterPostUseCase {
             validateProfanity(command.title(), command.content());
         }
 
+        ProductInfoResult preFetchedProductInfo = null;
+        Long preFetchedPricePolicyId = null;
         // 판매자의 상품 문의 답글인 경우 본인 판매 상품인지 여부 검증
         if (isSeller && command.isReply()) {
-            Long pricePolicyId = command.targetId();
-            ProductInfoResult productInfoResult
-                    = findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId))
-                    .get(pricePolicyId);
+            preFetchedPricePolicyId = command.targetId();
+            preFetchedProductInfo = findProductByPricePolicyPort
+                    .findByPricePolicyIds(List.of(preFetchedPricePolicyId))
+                    .get(preFetchedPricePolicyId);
 
-            if (!isProductSeller(command.userId(), productInfoResult)) {
-                throw new NotProductSellerException(pricePolicyId);
+            if (!isProductSeller(command.userId(), preFetchedProductInfo)) {
+                throw new NotProductSellerException(preFetchedPricePolicyId);
             }
         }
 
@@ -74,7 +76,10 @@ public class RegisterPostService implements RegisterPostUseCase {
         }
 
         if (command.board().isProductInquery() && command.isReply()) {
-            publishProductInquiryAnsweredEvent(command.parentId(), command.board().name());
+            publishProductInquiryAnsweredEvent(
+                    command.parentId(), command.board().name(),
+                    preFetchedProductInfo, preFetchedPricePolicyId
+            );
         }
 
         return RegisterPostResult.from(savedPost);
@@ -95,7 +100,10 @@ public class RegisterPostService implements RegisterPostUseCase {
         });
     }
 
-    private void publishProductInquiryAnsweredEvent(Long parentPostId, String board) {
+    private void publishProductInquiryAnsweredEvent(
+            Long parentPostId, String board,
+            ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+    ) {
         findPostPort.findById(parentPostId).ifPresent(parentPost -> {
             if (!parentPost.isProductInquiryPost()) {
                 log.warn(
@@ -104,32 +112,36 @@ public class RegisterPostService implements RegisterPostUseCase {
                 );
                 return;
             }
-            String resolvedTitle = resolveProductInquiryTitle(parentPost);
+            String resolvedTitle = resolveProductInquiryTitle(
+                    parentPost, preFetchedProductInfo, preFetchedPricePolicyId
+            );
             publishPostEventPort.publishInquiryAnsweredEvent(
                     parentPost.getUserId(), parentPost.getId(), resolvedTitle, board
             );
         });
     }
 
-    private String resolveProductInquiryTitle(Post parentPost) {
+    private String resolveProductInquiryTitle(
+            Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+    ) {
         if (parentPost.hasNoTitle()) {
-            return resolveTitleFromProduct(parentPost);
+            return resolveTitleFromProduct(parentPost, preFetchedProductInfo, preFetchedPricePolicyId);
         }
         return parentPost.getTitle();
     }
 
-    private String resolveTitleFromProduct(Post parentPost) {
+    private String resolveTitleFromProduct(
+            Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+    ) {
         if (!parentPost.isPricePolicyTarget()) {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
         }
         if (parentPost.hasNoTargetId()) {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
         }
-        // 판매자 답글 경로에서는 상품 소유권 검증용으로 같은 pricePolicyId가 이미 조회됐을 수 있음.
-        // 단순성 우선으로 중복 조회를 허용하고, 캐시/1차 캐시에 의존. 최적화는 후속 리팩토링 이슈로 분리.
-        ProductInfoResult productInfo = findProductByPricePolicyPort
-                .findByPricePolicyIds(List.of(parentPost.getTargetId()))
-                .get(parentPost.getTargetId());
+        ProductInfoResult productInfo = resolveProductInfoForTitle(
+                parentPost, preFetchedProductInfo, preFetchedPricePolicyId
+        );
         if (FormatValidator.hasNoValue(productInfo)) {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
         }
@@ -137,6 +149,18 @@ public class RegisterPostService implements RegisterPostUseCase {
             return DEFAULT_PRODUCT_INQUIRY_TITLE;
         }
         return sanitizeProductNameForTitle(productInfo.name());
+    }
+
+    private ProductInfoResult resolveProductInfoForTitle(
+            Post parentPost, ProductInfoResult preFetchedProductInfo, Long preFetchedPricePolicyId
+    ) {
+        if (FormatValidator.hasValue(preFetchedProductInfo)
+                && parentPost.getTargetId().equals(preFetchedPricePolicyId)) {
+            return preFetchedProductInfo;
+        }
+        return findProductByPricePolicyPort
+                .findByPricePolicyIds(List.of(parentPost.getTargetId()))
+                .get(parentPost.getTargetId());
     }
 
     // 판매자 입력 상품명을 이벤트 title로 주입하기 전 완화:
