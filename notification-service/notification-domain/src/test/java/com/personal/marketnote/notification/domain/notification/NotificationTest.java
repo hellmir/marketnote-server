@@ -119,6 +119,110 @@ class NotificationTest {
             assertThatThrownBy(() -> Notification.from(state))
                     .isInstanceOf(InvalidNotificationException.class);
         }
+
+        @Test
+        @DisplayName("title이 200자를 초과하면 앞 200자로 잘린다")
+        void shouldTruncateTitleWhenExceedsMaxLength() {
+            // given
+            String longTitle = "가".repeat(250);
+            String expectedTitle = "가".repeat(200);
+            NotificationCreateState state = NotificationCreateState.builder()
+                    .userId(1L)
+                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                    .title(longTitle)
+                    .body("본문")
+                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                    .build();
+
+            // when
+            Notification notification = Notification.from(state);
+
+            // then
+            assertThat(notification.getTitle()).isEqualTo(expectedTitle);
+            assertThat(notification.getTitle().length()).isEqualTo(200);
+        }
+
+        @Test
+        @DisplayName("title이 정확히 200자면 그대로 유지된다")
+        void shouldKeepTitleWhenExactlyMaxLength() {
+            // given
+            String exactTitle = "나".repeat(200);
+            NotificationCreateState state = NotificationCreateState.builder()
+                    .userId(1L)
+                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                    .title(exactTitle)
+                    .body("본문")
+                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                    .build();
+
+            // when
+            Notification notification = Notification.from(state);
+
+            // then
+            assertThat(notification.getTitle()).isEqualTo(exactTitle);
+        }
+
+        @Test
+        @DisplayName("body가 500자를 초과하면 앞 500자로 잘린다")
+        void shouldTruncateBodyWhenExceedsMaxLength() {
+            // given
+            String longBody = "다".repeat(600);
+            String expectedBody = "다".repeat(500);
+            NotificationCreateState state = NotificationCreateState.builder()
+                    .userId(1L)
+                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                    .title("제목")
+                    .body(longBody)
+                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                    .build();
+
+            // when
+            Notification notification = Notification.from(state);
+
+            // then
+            assertThat(notification.getBody()).isEqualTo(expectedBody);
+            assertThat(notification.getBody().length()).isEqualTo(500);
+        }
+
+        @Test
+        @DisplayName("body가 정확히 500자면 그대로 유지된다")
+        void shouldKeepBodyWhenExactlyMaxLength() {
+            // given
+            String exactBody = "라".repeat(500);
+            NotificationCreateState state = NotificationCreateState.builder()
+                    .userId(1L)
+                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                    .title("제목")
+                    .body(exactBody)
+                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                    .build();
+
+            // when
+            Notification notification = Notification.from(state);
+
+            // then
+            assertThat(notification.getBody()).isEqualTo(exactBody);
+        }
+
+        @Test
+        @DisplayName("title과 body가 null이어도 자르기 처리에서 예외가 발생하지 않는다")
+        void shouldNotThrowWhenTitleAndBodyAreNull() {
+            // given
+            NotificationCreateState state = NotificationCreateState.builder()
+                    .userId(1L)
+                    .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
+                    .title(null)
+                    .body(null)
+                    .deliveryChannel(DeliveryChannel.PUSH_AND_IN_APP)
+                    .build();
+
+            // when
+            Notification notification = Notification.from(state);
+
+            // then
+            assertThat(notification.getTitle()).isNull();
+            assertThat(notification.getBody()).isNull();
+        }
     }
 
     @Nested
