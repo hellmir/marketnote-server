@@ -15,6 +15,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -65,9 +67,10 @@ public class ImageChangedReadModelConsumer {
         }
 
         if (payload.action() == ImageChangeAction.CREATED) {
+            List<SaveImageReadModelPort.ResizedImageInput> resizedInputs = toResizedInputs(payload);
             saveImageReadModelPort.upsert(
                     payload.imageId(), payload.targetId(), payload.targetType(),
-                    payload.fileSort(), payload.imageUrl(), payload.sortOrder()
+                    payload.fileSort(), payload.imageUrl(), payload.sortOrder(), resizedInputs
             );
             log.info("이미지 Read Model 저장 완료. imageId={}, targetId={}", payload.imageId(), payload.targetId());
         }
@@ -78,5 +81,14 @@ public class ImageChangedReadModelConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private List<SaveImageReadModelPort.ResizedImageInput> toResizedInputs(ImageChangedEvent payload) {
+        if (FormatValidator.hasNoValue(payload.resizedImages())) {
+            return List.of();
+        }
+        return payload.resizedImages().stream()
+                .map(resized -> new SaveImageReadModelPort.ResizedImageInput(resized.size(), resized.storageUrl()))
+                .toList();
     }
 }
