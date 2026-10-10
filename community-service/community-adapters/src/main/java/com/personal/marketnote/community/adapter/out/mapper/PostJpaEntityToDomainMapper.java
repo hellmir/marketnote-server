@@ -31,6 +31,7 @@ public class PostJpaEntityToDomainMapper {
                                 .content(entity.getContent())
                                 .isPrivate(entity.isPrivate())
                                 .isPhoto(entity.isPhoto())
+                                .isImportant(entity.isImportant())
                                 .status(entity.getStatus())
                                 .createdAt(entity.getCreatedAt())
                                 .modifiedAt(entity.getModifiedAt())

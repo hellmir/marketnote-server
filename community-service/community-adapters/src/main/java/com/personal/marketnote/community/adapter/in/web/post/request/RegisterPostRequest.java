@@ -120,6 +120,14 @@ public class RegisterPostRequest {
     @NotNull(message = "포토 리뷰 여부는 필수값입니다.")
     private Boolean isPhoto;
 
+    @Schema(
+            name = "isImportant",
+            description = "중요 공지 여부 (NOTICE + ANNOUNCEMENT 게시글에만 유효)",
+            defaultValue = "false",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    private Boolean isImportant = false;
+
     public void validate(boolean isAdmin, boolean isSeller) {
         if (isAdminRequired() && !isAdmin) {
             throw new AccessDeniedException("관리자만 작성할 수 있습니다.");

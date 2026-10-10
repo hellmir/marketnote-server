@@ -21,7 +21,8 @@ public record RegisterPostCommand(
         String title,
         String content,
         boolean isPrivate,
-        boolean isPhoto
+        boolean isPhoto,
+        boolean isImportant
 ) {
     public boolean isReply() {
         return FormatValidator.hasValue(parentId);

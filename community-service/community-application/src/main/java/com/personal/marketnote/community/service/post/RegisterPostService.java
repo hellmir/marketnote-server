@@ -64,7 +64,9 @@ public class RegisterPostService implements RegisterPostUseCase {
         );
 
         if (command.board().isNotice() && NoticePostCategory.ANNOUNCEMENT.isMe(command.category())) {
-            publishPostEventPort.publishNoticeRegisteredEvent(savedPost.getId(), command.title());
+            publishPostEventPort.publishNoticeRegisteredEvent(
+                    savedPost.getId(), command.title(), savedPost.isImportant()
+            );
         }
 
         if (command.board().isNotice() && NoticePostCategory.EVENT.isMe(command.category())) {
