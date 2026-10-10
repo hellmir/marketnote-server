@@ -247,4 +247,114 @@ class NoticeRegisteredNotificationConsumerTest {
 
         verify(acknowledgment).acknowledge();
     }
+
+    @Test
+    @DisplayName("isImportant=true 이벤트 수신 시 deliveryChannel이 PUSH_AND_IN_APP으로 전달된다")
+    void shouldSendPushAndInAppWhenIsImportantTrue() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(300L, "중요 공지", true);
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L, 2L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
+        verify(sendBatchNotificationUseCase, times(1)).sendBatchNotification(captor.capture());
+
+        SendBatchNotificationCommand command = captor.getValue();
+        assertThat(command.deliveryChannel()).isEqualTo("PUSH_AND_IN_APP");
+        assertThat(command.templateCode()).isEqualTo("NOTICE_REGISTERED");
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("isImportant=false 이벤트 수신 시 deliveryChannel이 IN_APP_ONLY로 전달된다")
+    void shouldSendInAppOnlyWhenIsImportantFalse() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(301L, "일반 공지", false);
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L, 2L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
+        verify(sendBatchNotificationUseCase, times(1)).sendBatchNotification(captor.capture());
+
+        SendBatchNotificationCommand command = captor.getValue();
+        assertThat(command.deliveryChannel()).isEqualTo("IN_APP_ONLY");
+        assertThat(command.templateCode()).isEqualTo("NOTICE_REGISTERED");
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("isImportant=true 이벤트 수신 시 sendBatchNotification이 정확히 1회 호출된다")
+    void shouldCallSendBatchNotificationExactlyOnceWhenImportant() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(302L, "중요 공지", true);
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        verify(sendBatchNotificationUseCase, times(1)).sendBatchNotification(any());
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("isImportant=false 이벤트 수신 시 sendBatchNotification이 정확히 1회 호출된다 (인앱 저장용)")
+    void shouldCallSendBatchNotificationExactlyOnceWhenNotImportant() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(303L, "일반 공지", false);
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        verify(sendBatchNotificationUseCase, times(1)).sendBatchNotification(any());
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("레거시 이벤트(isImportant 필드 없음)는 기본값 false로 IN_APP_ONLY 발송된다")
+    void shouldFallbackToInAppOnlyForLegacyEvent() {
+        // given — buildRecord 기본 호출은 isImportant=false를 사용하여 레거시 이벤트 역직렬화 동작을 재현
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(304L, "레거시 공지");
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
+        verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
+        assertThat(captor.getValue().deliveryChannel()).isEqualTo("IN_APP_ONLY");
+    }
+
+    @Test
+    @DisplayName("발송 시 templateCode는 NOTICE_REGISTERED 고정값으로 전달된다")
+    void shouldAlwaysPassTemplateCodeNoticeRegistered() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(305L, "공지", true);
+        when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L));
+
+        // when
+        consumer.handleNoticeRegisteredEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<SendBatchNotificationCommand> captor = ArgumentCaptor.forClass(
+                SendBatchNotificationCommand.class
+        );
+        verify(sendBatchNotificationUseCase).sendBatchNotification(captor.capture());
+        assertThat(captor.getValue().templateCode()).isEqualTo("NOTICE_REGISTERED");
+    }
 }
