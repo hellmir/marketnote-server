@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -451,6 +452,348 @@ class RegisterPostUseCaseTest {
         verifyNoInteractions(findProfanityWordPort);
     }
 
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 부모 게시글 title이 존재하면 그대로 이벤트 title로 발행된다")
+    void registerPost_productInquiryReply_parentHasTitle_publishesParentTitle() {
+        Long parentId = 2000L;
+        Long parentOwnerId = 50L;
+        Long pricePolicyId = 500L;
+        RegisterPostCommand command = buildReplyCommand(20L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                "재입고 문의합니다", PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1400L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "재입고 문의합니다", "PRODUCT_INQUERY"
+        );
+        verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 부모 title이 null이면 상품명으로 대체되어 이벤트가 발행된다")
+    void registerPost_productInquiryReply_parentTitleNull_substitutesWithProductName() {
+        Long parentId = 2001L;
+        Long parentOwnerId = 51L;
+        Long pricePolicyId = 501L;
+        RegisterPostCommand command = buildReplyCommand(21L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1401L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "유기농 사과 1kg")));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "유기농 사과 1kg", "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 부모 title이 빈 문자열이면 상품명으로 대체되어 이벤트가 발행된다")
+    void registerPost_productInquiryReply_parentTitleBlank_substitutesWithProductName() {
+        Long parentId = 2002L;
+        Long parentOwnerId = 52L;
+        Long pricePolicyId = 502L;
+        RegisterPostCommand command = buildReplyCommand(22L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                "   ", PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1402L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "테스트 상품")));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "테스트 상품", "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 부모 title이 null이고 상품 조회 결과가 비어 있으면 '상품 문의' 고정값으로 이벤트가 발행된다")
+    void registerPost_productInquiryReply_parentTitleNullAndProductNotFound_fallbacksToDefault() {
+        Long parentId = 2003L;
+        Long parentOwnerId = 53L;
+        Long pricePolicyId = 503L;
+        RegisterPostCommand command = buildReplyCommand(23L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1403L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of());
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 조회된 상품명이 null이면 '상품 문의' 고정값으로 이벤트가 발행된다")
+    void registerPost_productInquiryReply_productNameNull_fallbacksToDefault() {
+        Long parentId = 2004L;
+        Long parentOwnerId = 54L;
+        Long pricePolicyId = 504L;
+        RegisterPostCommand command = buildReplyCommand(24L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1404L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, null)));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 조회된 상품명이 빈 문자열이면 '상품 문의' 고정값으로 이벤트가 발행된다")
+    void registerPost_productInquiryReply_productNameBlank_fallbacksToDefault() {
+        Long parentId = 2005L;
+        Long parentOwnerId = 55L;
+        Long pricePolicyId = 505L;
+        RegisterPostCommand command = buildReplyCommand(25L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1405L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "  ")));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 부모 게시글 targetId가 null이면 상품 조회 없이 '상품 문의' 고정값으로 이벤트가 발행된다")
+    void registerPost_productInquiryReply_parentTargetIdNull_fallbacksWithoutProductLookup() {
+        Long parentId = 2006L;
+        Long parentOwnerId = 56L;
+        Long pricePolicyId = 506L;
+        RegisterPostCommand command = buildReplyCommand(26L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, null);
+        Post savedPost = buildSavedPost(1406L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+        );
+        verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 부모 게시글 targetType이 null이면 상품 조회 없이 '상품 문의' 고정값으로 이벤트가 발행된다")
+    void registerPost_productInquiryReply_parentTargetTypeNull_fallbacksWithoutProductLookup() {
+        Long parentId = 2007L;
+        Long parentOwnerId = 57L;
+        Long pricePolicyId = 507L;
+        RegisterPostCommand command = buildReplyCommand(27L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, null, pricePolicyId);
+        Post savedPost = buildSavedPost(1407L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "상품 문의", "PRODUCT_INQUERY"
+        );
+        verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
+    @DisplayName("1:1 문의 답글 등록 시 부모 title이 null이어도 title 그대로 이벤트가 발행된다")
+    void registerPost_oneOnOneInquiryReply_parentTitleNull_publishesNullTitle() {
+        Long parentId = 2008L;
+        Long parentOwnerId = 58L;
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(28L)
+                .parentId(parentId)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("작성자")
+                .content("답변 내용입니다")
+                .build();
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.ONE_ON_ONE_INQUERY,
+                null, null, null);
+        Post savedPost = buildSavedPost(1408L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, null, "ONE_ON_ONE_INQUERY"
+        );
+        verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 이벤트의 board 인자는 PRODUCT_INQUERY 문자열로 전달된다")
+    void registerPost_productInquiryReply_passesProductInqueryBoardName() {
+        Long parentId = 2009L;
+        Long parentOwnerId = 59L;
+        Long pricePolicyId = 509L;
+        RegisterPostCommand command = buildReplyCommand(29L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                "정상 제목", PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1409L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "정상 제목", "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("부모 게시글 조회 실패 시 상품 문의 답글 이벤트는 발행되지 않는다")
+    void registerPost_productInquiryReply_parentNotFound_doesNotPublishEvent() {
+        Long parentId = 2010L;
+        Long pricePolicyId = 510L;
+        RegisterPostCommand command = buildReplyCommand(30L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post savedPost = buildSavedPost(1410L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.empty());
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verifyNoInteractions(publishPostEventPort);
+        verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 조회된 상품명에 중괄호가 포함되면 제거한 후 이벤트 title로 발행된다")
+    void registerPost_productInquiryReply_productNameContainsBraces_removesBraces() {
+        Long parentId = 2020L;
+        Long parentOwnerId = 70L;
+        Long pricePolicyId = 520L;
+        RegisterPostCommand command = buildReplyCommand(40L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1500L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, "유기농 사과 {post_id}")));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "유기농 사과 post_id", "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 조회된 상품명이 200자를 초과하면 앞 200자로 잘려 이벤트 title로 발행된다")
+    void registerPost_productInquiryReply_productNameExceedsMaxLength_truncatesTo200Chars() {
+        Long parentId = 2021L;
+        Long parentOwnerId = 71L;
+        Long pricePolicyId = 521L;
+        RegisterPostCommand command = buildReplyCommand(41L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1501L, command);
+        String longName = "가".repeat(250);
+        String expectedTitle = "가".repeat(200);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, longName)));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, expectedTitle, "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("상품 문의 답글 등록 시 조회된 상품명이 정확히 200자면 그대로 이벤트 title로 발행된다")
+    void registerPost_productInquiryReply_productNameExactly200Chars_keepsOriginal() {
+        Long parentId = 2022L;
+        Long parentOwnerId = 72L;
+        Long pricePolicyId = 522L;
+        RegisterPostCommand command = buildReplyCommand(42L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1502L, command);
+        String exactName = "나".repeat(200);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(999L, exactName)));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, exactName, "PRODUCT_INQUERY"
+        );
+    }
+
+    @Test
+    @DisplayName("판매자 답글 등록 시 부모 title이 null이면 상품명으로 대체되어 이벤트가 발행된다")
+    void registerPost_sellerProductInquiryReply_parentTitleNull_substitutesWithProductName() {
+        Long sellerId = 60L;
+        Long parentId = 2011L;
+        Long parentOwnerId = 61L;
+        Long pricePolicyId = 511L;
+        RegisterPostCommand command = buildReplyCommand(sellerId, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                null, PostTargetType.PRICE_POLICY, pricePolicyId);
+        Post savedPost = buildSavedPost(1411L, command);
+        when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
+                .thenReturn(Map.of(pricePolicyId, buildProductInfo(sellerId, "판매자상품")));
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(true, command);
+
+        verify(publishPostEventPort).publishInquiryAnsweredEvent(
+                parentOwnerId, parentId, "판매자상품", "PRODUCT_INQUERY"
+        );
+    }
+
     private RegisterPostCommand buildCommand(
             Long userId, Long parentId, Board board, String category
     ) {
@@ -518,5 +861,37 @@ class RegisterPostUseCaseTest {
 
     private ProductInfoResult buildProductInfo(Long sellerId) {
         return new ProductInfoResult(sellerId, "상품명", "브랜드명", null, List.of(), null);
+    }
+
+    private ProductInfoResult buildProductInfo(Long sellerId, String name) {
+        return new ProductInfoResult(sellerId, name, "브랜드명", null, List.of(), null);
+    }
+
+    private Post buildParentPost(
+            Long id, Long userId, Board board, String title,
+            PostTargetType targetType, Long targetId
+    ) {
+        String category = board.isOneOnOneInquery() ? "ORDER_PAYMENT" : "PRODUCT_QUESTION";
+        return Post.from(
+                PostSnapshotState.builder()
+                        .id(id)
+                        .userId(userId)
+                        .postKey(UUID.randomUUID())
+                        .board(board)
+                        .category(category)
+                        .targetType(targetType)
+                        .targetId(targetId)
+                        .writerName("부모작성자")
+                        .maskedWriterName("부모작성자")
+                        .title(title)
+                        .content("부모 게시글 내용")
+                        .isPrivate(false)
+                        .isPhoto(false)
+                        .status(EntityStatus.ACTIVE)
+                        .createdAt(LocalDateTime.now())
+                        .modifiedAt(LocalDateTime.now())
+                        .orderNum(id)
+                        .build()
+        );
     }
 }
