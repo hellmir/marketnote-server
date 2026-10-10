@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,7 @@ public class VendorIdTokenVerifier {
                 issuer -> config.issuers().contains(String.valueOf(issuer))
         );
 
+        Set<String> allowedAudiences = config.allowedAudiences();
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<>(
                 JwtClaimNames.AUD,
                 audience -> {
@@ -69,9 +71,12 @@ public class VendorIdTokenVerifier {
                         return false;
                     }
                     if (audience instanceof List<?> audList) {
-                        return audList.contains(config.audience());
+                        return audList.stream()
+                                .filter(element -> element instanceof String)
+                                .map(element -> (String) element)
+                                .anyMatch(allowedAudiences::contains);
                     }
-                    return config.audience().equals(String.valueOf(audience));
+                    return allowedAudiences.contains(String.valueOf(audience));
                 }
         );
 

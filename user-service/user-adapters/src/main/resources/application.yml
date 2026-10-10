@@ -126,12 +126,18 @@ oauth2:
   google:
     client-id: ${GOOGLE_CLIENT_ID:abc}
     client-secret: ${GOOGLE_CLIENT_SECRET:def}
+    allowed-audiences: ${GOOGLE_ALLOWED_AUDIENCES:${GOOGLE_CLIENT_ID:abc}}
   kakao:
     client-id: ${KAKAO_CLIENT_ID:abc}
     client-secret: ${KAKAO_CLIENT_SECRET:def}
     admin-key: ${KAKAO_ADMIN_KEY:ghi}
+    allowed-audiences: ${KAKAO_ALLOWED_AUDIENCES:${KAKAO_CLIENT_ID:abc}}
   apple:
-    audience: ${APPLE_CLIENT_ID:abc}
+    allowed-audiences: ${APPLE_ALLOWED_AUDIENCES:${APPLE_CLIENT_ID:abc}}
+
+security:
+  validation:
+    oauth2-allowed-audiences-enabled: true
 
 management:
   endpoints:

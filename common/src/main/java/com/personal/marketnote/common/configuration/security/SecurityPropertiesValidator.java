@@ -61,6 +61,18 @@ public class SecurityPropertiesValidator {
     @Value("${gifticon.pin.encrypt-key:}")
     private String gifticonPinEncryptKey;
 
+    @Value("${security.validation.oauth2-allowed-audiences-enabled:false}")
+    private boolean oauth2AllowedAudiencesValidationEnabled;
+
+    @Value("${oauth2.kakao.allowed-audiences:}")
+    private List<String> kakaoAllowedAudiences;
+
+    @Value("${oauth2.google.allowed-audiences:}")
+    private List<String> googleAllowedAudiences;
+
+    @Value("${oauth2.apple.allowed-audiences:}")
+    private List<String> appleAllowedAudiences;
+
     @PostConstruct
     public void validateSecurityProperties() {
         List<String> violations = new ArrayList<>();
@@ -74,6 +86,18 @@ public class SecurityPropertiesValidator {
 
         if (gifticonPinValidationEnabled) {
             validateRequired(violations, "gifticon.pin.encrypt-key (GIFTICON_PIN_ENCRYPT_KEY)", gifticonPinEncryptKey);
+        }
+
+        if (oauth2AllowedAudiencesValidationEnabled) {
+            validateAllowedAudiences(
+                    violations, "oauth2.kakao.allowed-audiences (KAKAO_ALLOWED_AUDIENCES)", kakaoAllowedAudiences
+            );
+            validateAllowedAudiences(
+                    violations, "oauth2.google.allowed-audiences (GOOGLE_ALLOWED_AUDIENCES)", googleAllowedAudiences
+            );
+            validateAllowedAudiences(
+                    violations, "oauth2.apple.allowed-audiences (APPLE_ALLOWED_AUDIENCES)", appleAllowedAudiences
+            );
         }
 
         if (!violations.isEmpty()) {
@@ -91,6 +115,31 @@ public class SecurityPropertiesValidator {
         }
         if (WEAK_DEFAULTS.contains(value.toLowerCase())) {
             violations.add(propertyName + " 값이 기본 플레이스홀더입니다. 강력한 값으로 변경하세요.");
+        }
+    }
+
+    private void validateAllowedAudiences(List<String> violations, String propertyName, List<String> values) {
+        if (values == null || values.isEmpty()) {
+            violations.add(propertyName + " 값이 설정되지 않았습니다.");
+            return;
+        }
+        boolean allEmpty = values.stream().allMatch(FormatValidator::hasNoValue);
+        if (allEmpty) {
+            violations.add(propertyName + " 값이 모두 비어있습니다.");
+            return;
+        }
+        for (String value : values) {
+            if (FormatValidator.hasNoValue(value)) {
+                violations.add(propertyName + " 목록에 빈 값이 포함되어 있습니다.");
+                continue;
+            }
+            String trimmed = value.trim();
+            if (WEAK_DEFAULTS.contains(trimmed.toLowerCase())) {
+                violations.add(propertyName + " 값에 기본 플레이스홀더('" + trimmed + "')가 포함되어 있습니다.");
+            }
+            if ("*".equals(trimmed)) {
+                violations.add(propertyName + " 값에 와일드카드 '*'는 허용되지 않습니다.");
+            }
         }
     }
 
