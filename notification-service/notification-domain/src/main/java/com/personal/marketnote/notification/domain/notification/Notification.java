@@ -12,6 +12,10 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class Notification extends BaseDomain {
+
+    public static final int TITLE_MAX_LENGTH = 200;
+    public static final int BODY_MAX_LENGTH = 500;
+
     private Long id;
     private Long userId;
     private NotificationType notificationType;
@@ -36,8 +40,8 @@ public class Notification extends BaseDomain {
         Notification notification = Notification.builder()
                 .userId(state.getUserId())
                 .notificationType(state.getNotificationType())
-                .title(state.getTitle())
-                .body(state.getBody())
+                .title(truncateIfExceeds(state.getTitle(), TITLE_MAX_LENGTH))
+                .body(truncateIfExceeds(state.getBody(), BODY_MAX_LENGTH))
                 .data(state.getData())
                 .deliveryChannel(state.getDeliveryChannel())
                 .isRead(false)
@@ -47,6 +51,16 @@ public class Notification extends BaseDomain {
                 .build();
         notification.activate();
         return notification;
+    }
+
+    private static String truncateIfExceeds(String value, int maxLength) {
+        if (FormatValidator.hasNoValue(value)) {
+            return value;
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
     }
 
     public static Notification from(NotificationSnapshotState state) {
