@@ -2,6 +2,8 @@ package com.personal.marketnote.common.domain.exception;
 
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,7 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("GlobalExceptionHandler 테스트")
 class GlobalExceptionHandlerTest {
 
-    private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
+    private final MeterRegistry meterRegistry = new SimpleMeterRegistry();
+    private final GlobalExceptionHandler handler = new GlobalExceptionHandler(meterRegistry);
 
     @Nested
     @DisplayName("에러 메시지 파싱")

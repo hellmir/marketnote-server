@@ -3,6 +3,8 @@ package com.personal.marketnote.common.domain.exception;
 import com.personal.marketnote.common.utility.FormatValidator;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,6 +37,15 @@ public class GlobalExceptionHandler {
     private static final String LOG_ERROR_MESSAGE = "Error exception occurred: {}";
     private static final String LOG_WARN_MESSAGE = "Warning exception occurred: {}";
     private static final String LOG_INFO_MESSAGE = "Exception occurred: {}";
+
+    private final Counter sseAsyncUnusableCounter;
+
+    // MeterRegistry는 Spring actuator 빈으로 항상 존재하며 ControllerAdvice는 컨텍스트 외 인스턴스화가 없으므로 null 가드 불필요.
+    public GlobalExceptionHandler(MeterRegistry meterRegistry) {
+        this.sseAsyncUnusableCounter = Counter.builder("sse.async.unusable.total")
+                .description("SSE 비동기 요청 사용 불가 예외 총 건수 (클라이언트 커넥션 종료 등)")
+                .register(meterRegistry);
+    }
 
     private record ParsedMessage(String code, String message) {
         static ParsedMessage from(String errorMessage, HttpStatus httpStatus) {
@@ -255,6 +266,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AsyncRequestNotUsableException.class)
     ResponseEntity<Void> handleAsyncRequestNotUsableException(AsyncRequestNotUsableException e) {
         log.debug("비동기 요청 사용 불가 (클라이언트 커넥션 종료): {}", e.getMessage());
+        sseAsyncUnusableCounter.increment();
         return ResponseEntity.noContent().build();
     }
 
