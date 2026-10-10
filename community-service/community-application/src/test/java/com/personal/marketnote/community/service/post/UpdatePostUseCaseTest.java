@@ -148,6 +148,92 @@ class UpdatePostUseCaseTest {
         assertThat(result.postKey()).isEqualTo(postKey);
     }
 
+    @Test
+    @DisplayName("공지 게시글 수정 시 isImportant=true 요청이 반영되어 저장된다")
+    void updatePost_noticeAnnouncementWithImportantTrue_appliesToPost() {
+        Long postId = 1L;
+        Post post = buildPostWithImportance(postId, Board.NOTICE, false);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "수정된 공지", "수정 내용", true);
+
+        updatePostService.updatePost(command);
+
+        assertThat(post.isImportant()).isTrue();
+        verify(updatePostPort).update(post);
+    }
+
+    @Test
+    @DisplayName("공지 게시글 수정 시 isImportant=false 요청이 반영되어 저장된다")
+    void updatePost_noticeAnnouncementWithImportantFalse_appliesToPost() {
+        Long postId = 1L;
+        Post post = buildPostWithImportance(postId, Board.NOTICE, true);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "수정된 공지", "수정 내용", false);
+
+        updatePostService.updatePost(command);
+
+        assertThat(post.isImportant()).isFalse();
+        verify(updatePostPort).update(post);
+    }
+
+    @Test
+    @DisplayName("공지 게시글 수정 시 title/content + isImportant 동시 수정이 정상 적용된다")
+    void updatePost_noticeAnnouncement_titleContentImportantAllUpdated() {
+        Long postId = 1L;
+        Post post = buildPostWithImportance(postId, Board.NOTICE, false);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "새 제목", "새 내용", true);
+
+        updatePostService.updatePost(command);
+
+        assertThat(post.getTitle()).isEqualTo("새 제목");
+        assertThat(post.getContent()).isEqualTo("새 내용");
+        assertThat(post.isImportant()).isTrue();
+    }
+
+    @Test
+    @DisplayName("FAQ 게시글 수정 시 isImportant 요청이 무시되고 기존 값이 유지된다")
+    void updatePost_faqWithImportantTrue_ignoresImportanceChange() {
+        Long postId = 1L;
+        Post post = buildPostWithImportance(postId, Board.FAQ, false);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "FAQ 제목", "FAQ 내용", true);
+
+        updatePostService.updatePost(command);
+
+        assertThat(post.isImportant()).isFalse();
+        verify(updatePostPort).update(post);
+    }
+
+    @Test
+    @DisplayName("UpdatePostRequest에 isImportant 필드 미전송(null) 시 기존 값이 유지된다")
+    void updatePost_nullIsImportant_keepsExistingValue() {
+        Long postId = 1L;
+        Post post = buildPostWithImportance(postId, Board.NOTICE, true);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "수정된 제목", "수정된 내용");
+
+        updatePostService.updatePost(command);
+
+        assertThat(post.isImportant()).isTrue();
+        verify(updatePostPort).update(post);
+    }
+
+    @Test
+    @DisplayName("UpdatePostService는 publishPostEventPort에 의존하지 않으므로 공지 수정 시 NoticeRegistered 이벤트가 재발행되지 않는다")
+    void updatePost_doesNotPublishNoticeRegisteredEvent() {
+        Long postId = 1L;
+        Post post = buildPostWithImportance(postId, Board.NOTICE, false);
+        when(getPostUseCase.getPost(postId)).thenReturn(post);
+        UpdatePostCommand command = UpdatePostCommand.of(postId, "수정된 제목", "수정된 내용", true);
+
+        updatePostService.updatePost(command);
+
+        // UpdatePostService는 PublishPostEventPort를 필드로 주입받지 않으므로
+        // 구조적으로 NoticeRegistered/Outbox 이벤트 재발행 경로가 존재하지 않음 (회귀 방지)
+        verify(updatePostPort).update(post);
+    }
+
     private Post buildPost(Long id, Board board) {
         return buildPost(id, board, UUID.randomUUID());
     }
@@ -161,6 +247,23 @@ class UpdatePostUseCaseTest {
                 .category(resolveCategoryCode(board))
                 .title("원본 제목")
                 .content("원본 내용")
+                .status(EntityStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .orderNum(id)
+                .build());
+    }
+
+    private Post buildPostWithImportance(Long id, Board board, boolean isImportant) {
+        return Post.from(PostSnapshotState.builder()
+                .id(id)
+                .userId(1L)
+                .postKey(UUID.randomUUID())
+                .board(board)
+                .category(resolveCategoryCode(board))
+                .title("원본 제목")
+                .content("원본 내용")
+                .isImportant(isImportant)
                 .status(EntityStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())

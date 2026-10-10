@@ -658,6 +658,84 @@ class PostPersistenceAdapterTest {
     }
 
     @Nested
+    @DisplayName("update - isImportant")
+    class UpdateIsImportant {
+
+        @Test
+        @DisplayName("공지 게시글의 isImportant를 true로 변경하면 엔티티의 is_important가 true로 업데이트된다")
+        void updatesIsImportantTrue() {
+            Post existing = Post.from(PostCreateState.builder()
+                    .userId(10L)
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .title("공지")
+                    .content("내용")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .isImportant(false)
+                    .build());
+            PostJpaEntity entity = newPersistedEntity(60L, existing, "ANNOUNCEMENT");
+            when(postJpaRepository.findById(60L)).thenReturn(Optional.of(entity));
+
+            existing.updateImportance(Boolean.TRUE);
+            Post updated = Post.from(PostSnapshotState.builder()
+                    .id(60L)
+                    .userId(10L)
+                    .postKey(existing.getPostKey())
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .maskedWriterName("관*자")
+                    .title("공지")
+                    .content("내용")
+                    .isImportant(true)
+                    .status(EntityStatus.ACTIVE)
+                    .build());
+
+            adapter.update(updated);
+
+            assertThat(entity.isImportant()).isTrue();
+        }
+
+        @Test
+        @DisplayName("공지 게시글의 isImportant를 false로 변경하면 엔티티의 is_important가 false로 업데이트된다")
+        void updatesIsImportantFalse() {
+            Post existing = Post.from(PostCreateState.builder()
+                    .userId(10L)
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .title("공지")
+                    .content("내용")
+                    .isPrivate(false)
+                    .isPhoto(false)
+                    .isImportant(true)
+                    .build());
+            PostJpaEntity entity = newPersistedEntity(61L, existing, "ANNOUNCEMENT");
+            when(postJpaRepository.findById(61L)).thenReturn(Optional.of(entity));
+
+            Post updated = Post.from(PostSnapshotState.builder()
+                    .id(61L)
+                    .userId(10L)
+                    .postKey(existing.getPostKey())
+                    .board(Board.NOTICE)
+                    .category("ANNOUNCEMENT")
+                    .writerName("관리자")
+                    .maskedWriterName("관*자")
+                    .title("공지")
+                    .content("내용")
+                    .isImportant(false)
+                    .status(EntityStatus.ACTIVE)
+                    .build());
+
+            adapter.update(updated);
+
+            assertThat(entity.isImportant()).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("update")
     class Update {
 
