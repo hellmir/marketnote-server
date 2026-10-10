@@ -52,7 +52,7 @@ class ImageEventKafkaProducerTest {
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ImageEventCommand command = new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/image.png", 1);
+        ImageEventCommand command = new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/image.png", 1, List.of());
         List<ImageEventCommand> commands = List.of(command);
 
         // when
@@ -77,7 +77,7 @@ class ImageEventKafkaProducerTest {
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ImageEventCommand command = new ImageEventCommand(10L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE", "https://cdn.example.com/image.png", 2);
+        ImageEventCommand command = new ImageEventCommand(10L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE", "https://cdn.example.com/image.png", 2, List.of());
         List<ImageEventCommand> commands = List.of(command);
 
         // when
@@ -109,7 +109,7 @@ class ImageEventKafkaProducerTest {
         setUpClock("2026-03-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ImageEventCommand command = new ImageEventCommand(5L, 300L, "POST", "POST_IMAGE", "https://cdn.example.com/post.png", 0);
+        ImageEventCommand command = new ImageEventCommand(5L, 300L, "POST", "POST_IMAGE", "https://cdn.example.com/post.png", 0, List.of());
         List<ImageEventCommand> commands = List.of(command);
 
         // when
@@ -135,9 +135,9 @@ class ImageEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         List<ImageEventCommand> commands = List.of(
-                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1),
-                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2),
-                new ImageEventCommand(3L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/3.png", 3)
+                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of()),
+                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of()),
+                new ImageEventCommand(3L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/3.png", 3, List.of())
         );
 
         // when
@@ -170,8 +170,8 @@ class ImageEventKafkaProducerTest {
                 .thenReturn("{}");
 
         List<ImageEventCommand> commands = List.of(
-                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1),
-                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2)
+                new ImageEventCommand(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of()),
+                new ImageEventCommand(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of())
         );
 
         // when

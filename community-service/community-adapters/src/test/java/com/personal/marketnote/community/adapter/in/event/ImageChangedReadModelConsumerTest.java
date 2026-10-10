@@ -20,6 +20,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -60,7 +61,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 1L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, ImageChangeAction.CREATED
+                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -82,7 +83,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 2L, 200L, "REVIEW", "REVIEW_IMAGE",
-                "https://cdn.example.com/review.png", 1, ImageChangeAction.CREATED
+                "https://cdn.example.com/review.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -104,7 +105,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 3L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, ImageChangeAction.DELETED
+                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.DELETED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -124,7 +125,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 4L, 200L, "REVIEW", "REVIEW_IMAGE",
-                "https://cdn.example.com/review.png", 1, ImageChangeAction.DELETED
+                "https://cdn.example.com/review.png", 1, List.of(), ImageChangeAction.DELETED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -144,7 +145,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 5L, 300L, "PRODUCT", "PRODUCT_CATALOG_IMAGE",
-                "https://cdn.example.com/product.png", 1, ImageChangeAction.CREATED
+                "https://cdn.example.com/product.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -179,7 +180,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 6L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, ImageChangeAction.CREATED
+                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
@@ -204,7 +205,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 -1L, 100L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, ImageChangeAction.CREATED
+                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -223,7 +224,7 @@ class ImageChangedReadModelConsumerTest {
         // given
         ImageChangedEvent payload = new ImageChangedEvent(
                 7L, 0L, "POST", "POST_IMAGE",
-                "https://cdn.example.com/post.png", 1, ImageChangeAction.CREATED
+                "https://cdn.example.com/post.png", 1, List.of(), ImageChangeAction.CREATED
         );
         EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
