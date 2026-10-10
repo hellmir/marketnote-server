@@ -152,6 +152,10 @@ public class Post {
         return board.isProductInquery();
     }
 
+    public boolean isOneOnOneInquiryPost() {
+        return board.isOneOnOneInquery();
+    }
+
     public boolean hasNoTitle() {
         return FormatValidator.hasNoValue(title);
     }

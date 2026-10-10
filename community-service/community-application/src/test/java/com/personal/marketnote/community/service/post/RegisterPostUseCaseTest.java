@@ -682,6 +682,55 @@ class RegisterPostUseCaseTest {
     }
 
     @Test
+    @DisplayName("상품 문의 답글 등록 시 부모 게시글 board가 PRODUCT_INQUERY가 아니면 이벤트 발행을 skip한다")
+    void registerPost_productInquiryReply_parentBoardMismatch_skipsEventPublish() {
+        Long parentId = 3000L;
+        Long parentOwnerId = 80L;
+        Long pricePolicyId = 600L;
+        RegisterPostCommand command = buildReplyCommand(45L, parentId, pricePolicyId,
+                Board.PRODUCT_INQUERY, "PRODUCT_QUESTION");
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.ONE_ON_ONE_INQUERY,
+                "1:1 문의 제목", null, null);
+        Post savedPost = buildSavedPost(1600L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort, never()).publishInquiryAnsweredEvent(
+                any(), any(), any(), any()
+        );
+        verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
+    @DisplayName("1:1 문의 답글 등록 시 부모 게시글 board가 ONE_ON_ONE_INQUERY가 아니면 이벤트 발행을 skip한다")
+    void registerPost_oneOnOneInquiryReply_parentBoardMismatch_skipsEventPublish() {
+        Long parentId = 3001L;
+        Long parentOwnerId = 81L;
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(46L)
+                .parentId(parentId)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("작성자")
+                .content("답변 내용")
+                .build();
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.PRODUCT_INQUERY,
+                "상품 문의 제목", PostTargetType.PRICE_POLICY, 700L);
+        Post savedPost = buildSavedPost(1601L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort, never()).publishInquiryAnsweredEvent(
+                any(), any(), any(), any()
+        );
+        verifyNoInteractions(findProductByPricePolicyPort);
+    }
+
+    @Test
     @DisplayName("부모 게시글 조회 실패 시 상품 문의 답글 이벤트는 발행되지 않는다")
     void registerPost_productInquiryReply_parentNotFound_doesNotPublishEvent() {
         Long parentId = 2010L;

@@ -17,12 +17,14 @@ import com.personal.marketnote.community.port.out.product.FindProductByPricePoli
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -79,15 +81,29 @@ public class RegisterPostService implements RegisterPostUseCase {
     }
 
     private void publishOneOnOneInquiryAnsweredEvent(Long parentPostId, String board) {
-        findPostPort.findById(parentPostId).ifPresent(parentPost ->
-                publishPostEventPort.publishInquiryAnsweredEvent(
-                        parentPost.getUserId(), parentPost.getId(), parentPost.getTitle(), board
-                )
-        );
+        findPostPort.findById(parentPostId).ifPresent(parentPost -> {
+            if (!parentPost.isOneOnOneInquiryPost()) {
+                log.warn(
+                        "1:1 문의 답변 이벤트 발행 skip - 부모 post board 불일치: parentPostId={}, parentBoard={}",
+                        parentPostId, parentPost.getBoard()
+                );
+                return;
+            }
+            publishPostEventPort.publishInquiryAnsweredEvent(
+                    parentPost.getUserId(), parentPost.getId(), parentPost.getTitle(), board
+            );
+        });
     }
 
     private void publishProductInquiryAnsweredEvent(Long parentPostId, String board) {
         findPostPort.findById(parentPostId).ifPresent(parentPost -> {
+            if (!parentPost.isProductInquiryPost()) {
+                log.warn(
+                        "상품 문의 답변 이벤트 발행 skip - 부모 post board 불일치: parentPostId={}, parentBoard={}",
+                        parentPostId, parentPost.getBoard()
+                );
+                return;
+            }
             String resolvedTitle = resolveProductInquiryTitle(parentPost);
             publishPostEventPort.publishInquiryAnsweredEvent(
                     parentPost.getUserId(), parentPost.getId(), resolvedTitle, board
