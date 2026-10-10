@@ -20,6 +20,7 @@ import com.personal.marketnote.notification.port.out.preference.FindNotification
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
+import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -77,6 +78,9 @@ class SendNotificationUseCaseTest {
 
     @Mock
     private com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort publishNotificationSentEventPort;
+
+    @Mock
+    private VendorCommunicationRecorder vendorCommunicationRecorder;
 
     @Spy
     private Clock clock = Clock.fixed(

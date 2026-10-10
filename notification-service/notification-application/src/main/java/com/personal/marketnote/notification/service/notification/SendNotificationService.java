@@ -24,6 +24,7 @@ import com.personal.marketnote.notification.port.out.preference.FindNotification
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
+import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,7 @@ public class SendNotificationService implements SendNotificationUseCase {
     private final FindNotificationPort findNotificationPort;
     private final PublishSseEventPort publishSseEventPort;
     private final PublishNotificationSentEventPort publishNotificationSentEventPort;
+    private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final Clock clock;
 
     @Override
@@ -172,6 +174,9 @@ public class SendNotificationService implements SendNotificationUseCase {
                     deviceToken.getToken(), title, body, landingUrl, deviceToken.getPlatform());
             try {
                 SendPushNotificationResult pushResult = sendPushNotificationPort.send(pushCommand);
+                vendorCommunicationRecorder.recordFcmSendResult(
+                        notification, deviceToken, title, body, landingUrl, pushResult
+                );
                 if (pushResult.success()) {
                     sentCount++;
                     continue;
@@ -182,6 +187,9 @@ public class SendNotificationService implements SendNotificationUseCase {
                 }
             } catch (FcmSendFailedException fsfe) {
                 log.error("FCM 발송 중 예외 발생: userId={}, deviceId={}", userId, deviceToken.getDeviceId());
+                vendorCommunicationRecorder.recordFcmSendException(
+                        notification, deviceToken, title, body, landingUrl, fsfe
+                );
                 failedCount++;
             }
         }
