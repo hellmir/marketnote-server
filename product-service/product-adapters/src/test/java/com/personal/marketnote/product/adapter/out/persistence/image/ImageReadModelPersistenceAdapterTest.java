@@ -281,9 +281,9 @@ class ImageReadModelPersistenceAdapterTest {
         }
 
         @Test
-        @DisplayName("같은 imageId에 대해 재수신 시 기존 자식 row가 orphanRemoval로 교체된다")
-        void upsertReplacesResizedFilesOnReceivedAgain() {
-            // given — 서로 다른 size로 재수신하여 orphanRemoval 동작만 검증 (Hibernate insert-before-delete UNIQUE 충돌 회피)
+        @DisplayName("같은 imageId에 동일한 size 조합으로 리사이즈 URL을 재수신하면 UNIQUE 제약 충돌 없이 upsert 가 성공한다")
+        void upsertReplacesResizedFilesOnReceivedAgainWithSameSizes() {
+            // given
             adapter.upsert(
                     12L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
                     "https://cdn.example.com/12_old.png", 1,
@@ -295,25 +295,28 @@ class ImageReadModelPersistenceAdapterTest {
             entityManager.flush();
             entityManager.clear();
 
-            // when
+            // when — 동일 size(600/800)로 재수신 → 과거 insert-before-delete UNIQUE 충돌 회귀 검증
             adapter.upsert(
                     12L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
                     "https://cdn.example.com/12_new.png", 2,
-                    List.of(new ResizedImageInput("900", "https://cdn.example.com/12_new_900.png"))
+                    List.of(
+                            new ResizedImageInput("600", "https://cdn.example.com/12_new_600.png"),
+                            new ResizedImageInput("800", "https://cdn.example.com/12_new_800.png")
+                    )
             );
             entityManager.flush();
             entityManager.clear();
 
-            // then
+            // then — 이전 URL 사라지고 새 URL만 남는다 (storageUrl 변경 검증)
             Optional<ImageReadModelJpaEntity> entity = repository.findByImageId(12L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getImageUrl()).isEqualTo("https://cdn.example.com/12_new.png");
             assertThat(entity.get().getResizedFiles())
-                    .singleElement()
-                    .satisfies(rf -> {
-                        assertThat(rf.getSize()).isEqualTo("900");
-                        assertThat(rf.getStorageUrl()).isEqualTo("https://cdn.example.com/12_new_900.png");
-                    });
+                    .extracting(rf -> rf.getSize(), rf -> rf.getStorageUrl())
+                    .containsExactlyInAnyOrder(
+                            org.assertj.core.api.Assertions.tuple("600", "https://cdn.example.com/12_new_600.png"),
+                            org.assertj.core.api.Assertions.tuple("800", "https://cdn.example.com/12_new_800.png")
+                    );
         }
 
         @Test
