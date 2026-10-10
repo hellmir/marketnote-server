@@ -2,6 +2,7 @@ package com.personal.marketnote.common.domain.exception;
 
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
@@ -513,6 +514,36 @@ class GlobalExceptionHandlerTest {
                 logger.detachAppender(appender);
                 logger.setLevel(originalLevel);
             }
+        }
+
+        @Test
+        @DisplayName("AsyncRequestNotUsableException 핸들러는 sse.async.unusable.total 카운터를 1 증가시킨다")
+        void shouldIncrementSseAsyncUnusableCounter() {
+            Counter counter = meterRegistry.find("sse.async.unusable.total").counter();
+            assertThat(counter).isNotNull();
+            double before = counter.count();
+
+            handler.handleAsyncRequestNotUsableException(
+                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
+            );
+
+            assertThat(counter.count()).isEqualTo(before + 1.0);
+        }
+
+        @Test
+        @DisplayName("AsyncRequestNotUsableException 여러 번 발생 시 sse.async.unusable.total 카운터가 누적된다")
+        void shouldAccumulateSseAsyncUnusableCounterOnMultipleInvocations() {
+            Counter counter = meterRegistry.find("sse.async.unusable.total").counter();
+            assertThat(counter).isNotNull();
+            double before = counter.count();
+
+            for (int i = 0; i < 3; i++) {
+                handler.handleAsyncRequestNotUsableException(
+                        new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
+                );
+            }
+
+            assertThat(counter.count()).isEqualTo(before + 3.0);
         }
     }
 
