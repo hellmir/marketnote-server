@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @UseCase
@@ -25,35 +26,32 @@ public class GetGifticonGoodsService implements GetGifticonGoodsUseCase {
 
     @Override
     public GetGifticonGoodsResult getGoods(GetGifticonGoodsCommand command) {
-        long totalElements = findGifticonGoodsPort.countAllExposed(
-                command.categoryCode(), command.brandCode()
+        Long cursor = command.cursor();
+        int pageSize = command.pageSize();
+        boolean isFirstPage = FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE);
+
+        List<GifticonGoods> fetched = findGifticonGoodsPort.findAllExposedByCursor(
+                command.categoryCode(), command.brandCode(), cursor, pageSize + 1
         );
 
-        List<GifticonGoods> goods = findGifticonGoodsPort.findAllExposed(
-                command.categoryCode(), command.brandCode(),
-                command.page(), command.pageSize()
-        );
+        boolean hasNext = fetched.size() > pageSize;
+        List<GifticonGoods> paged = hasNext ? fetched.subList(0, pageSize) : fetched;
 
-        int totalPages = calculateTotalPages(totalElements, command.pageSize());
+        Long nextCursor = null;
+        if (FormatValidator.hasValue(paged)) {
+            nextCursor = paged.getLast().getId();
+        }
 
-        List<GifticonGoodsItem> items = goods.stream()
+        Long totalElements = null;
+        if (isFirstPage) {
+            totalElements = findGifticonGoodsPort.countAllExposed(command.categoryCode(), command.brandCode());
+        }
+
+        List<GifticonGoodsItem> items = paged.stream()
                 .map(this::mapToItem)
                 .toList();
 
-        return new GetGifticonGoodsResult(
-                command.page(),
-                command.pageSize(),
-                totalElements,
-                totalPages,
-                items
-        );
-    }
-
-    private int calculateTotalPages(long totalElements, int pageSize) {
-        if (totalElements == 0) {
-            return 0;
-        }
-        return (int) Math.ceil((double) totalElements / pageSize);
+        return GetGifticonGoodsResult.from(totalElements, hasNext, nextCursor, items);
     }
 
     private GifticonGoodsItem mapToItem(GifticonGoods goods) {

@@ -20,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
+import static com.personal.marketnote.common.utility.ApiConstant.FIRST_PAGE_CURSOR_VALUE;
+
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, SaveGifticonGoodsPort, UpdateGifticonGoodsPort, EvictGifticonGoodsCachePort {
@@ -84,27 +86,54 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
     }
 
     @Override
-    public List<GifticonGoods> findAllExposed(String categoryCode, String brandCode, int page, int pageSize) {
-        String categoryCodeParam = FormatValidator.hasValue(categoryCode) ? categoryCode : "";
-        String brandCodeParam = FormatValidator.hasValue(brandCode) ? brandCode : "";
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
-        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(
-                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
+    public List<GifticonGoods> findAllExposedByCursor(String categoryCode, String brandCode, Long cursor, int limit) {
+        String categoryCodeParam = normalizeFilter(categoryCode);
+        String brandCodeParam = normalizeFilter(brandCode);
+        Pageable pageable = PageRequest.of(0, limit);
+
+        List<GifticonGoodsJpaEntity> entities = fetchExposed(
+                categoryCodeParam, brandCodeParam, cursor, pageable
         );
-        return result.getContent().stream()
+        return entities.stream()
                 .map(GifticonGoodsJpaEntity::toDomain)
                 .toList();
     }
 
+    private List<GifticonGoodsJpaEntity> fetchExposed(
+            String categoryCodeParam, String brandCodeParam, Long cursor, Pageable pageable
+    ) {
+        if (FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE)) {
+            return repository.findFirstPageExposed(
+                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
+            );
+        }
+        Optional<GifticonGoodsJpaEntity> anchor = repository.findById(cursor);
+        if (anchor.isEmpty()) {
+            return repository.findFirstPageExposed(
+                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
+            );
+        }
+        Integer anchorOrderNum = anchor.get().getOrderNum();
+        if (FormatValidator.hasValue(anchorOrderNum)) {
+            return repository.findExposedAfterNonNullAnchor(
+                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, anchorOrderNum, cursor, pageable
+            );
+        }
+        return repository.findExposedAfterNullAnchor(
+                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, cursor, pageable
+        );
+    }
+
     @Override
     public long countAllExposed(String categoryCode, String brandCode) {
-        String categoryCodeParam = FormatValidator.hasValue(categoryCode) ? categoryCode : "";
-        String brandCodeParam = FormatValidator.hasValue(brandCode) ? brandCode : "";
-        Pageable pageable = PageRequest.of(0, 1);
-        Page<GifticonGoodsJpaEntity> result = repository.findAllExposed(
-                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
-        );
-        return result.getTotalElements();
+        return repository.countAllExposed(normalizeFilter(categoryCode), normalizeFilter(brandCode), GoodsStatus.SALE);
+    }
+
+    private String normalizeFilter(String value) {
+        if (FormatValidator.hasNoValue(value) || value.isBlank()) {
+            return "";
+        }
+        return value;
     }
 
     @Override

@@ -1,17 +1,16 @@
 package com.personal.marketnote.reward.adapter.in.web.gifticon.response;
 
-import com.personal.marketnote.common.adapter.in.response.OffsetResponse;
+import com.personal.marketnote.common.adapter.in.response.CursorResponse;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetGifticonGoodsResult;
 
-public record GetGifticonGoodsResponse(OffsetResponse<GifticonGoodsItemResponse> goods) {
+public record GetGifticonGoodsResponse(CursorResponse<GifticonGoodsItemResponse> goods) {
 
     public static GetGifticonGoodsResponse from(GetGifticonGoodsResult result) {
         return new GetGifticonGoodsResponse(
-                new OffsetResponse<>(
-                        result.page(),
-                        result.pageSize(),
+                new CursorResponse<>(
                         result.totalElements(),
-                        result.totalPages(),
+                        result.hasNext(),
+                        result.nextCursor(),
                         result.items().stream()
                                 .map(item -> new GifticonGoodsItemResponse(
                                         item.goodsCode(),

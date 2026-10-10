@@ -3,12 +3,20 @@ package com.personal.marketnote.reward.port.in.result.gifticon;
 import java.util.List;
 
 public record GetGifticonGoodsResult(
-        int page,
-        int pageSize,
-        long totalElements,
-        int totalPages,
+        Long totalElements,
+        boolean hasNext,
+        Long nextCursor,
         List<GifticonGoodsItem> items
 ) {
+
+    public static GetGifticonGoodsResult from(
+            Long totalElements,
+            boolean hasNext,
+            Long nextCursor,
+            List<GifticonGoodsItem> items
+    ) {
+        return new GetGifticonGoodsResult(totalElements, hasNext, nextCursor, items);
+    }
 
     public record GifticonGoodsItem(
             String goodsCode,
