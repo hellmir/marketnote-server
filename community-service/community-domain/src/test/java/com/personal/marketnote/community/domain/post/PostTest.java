@@ -289,6 +289,171 @@ class PostTest {
         assertThat(post.hasNoTargetId()).isFalse();
     }
 
+    @Test
+    @DisplayName("PostCreateState에 isImportant=true 전달 시 공지 게시글이면 isImportant가 true로 저장된다")
+    void shouldSetIsImportantTrueWhenNoticeAnnouncementWithImportantTrue() {
+        PostCreateState state = PostCreateState.builder()
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("홍길동")
+                .title("중요 공지")
+                .content("내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(true)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isTrue();
+    }
+
+    @Test
+    @DisplayName("PostCreateState에 isImportant=false 전달 시 isImportant는 false로 저장된다")
+    void shouldSetIsImportantFalseWhenRequestedFalse() {
+        PostCreateState state = PostCreateState.builder()
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("홍길동")
+                .title("일반 공지")
+                .content("내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(false)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("NOTICE 게시판이지만 ANNOUNCEMENT 카테고리가 아닌 게시글은 isImportant 요청이 true여도 false로 저장된다")
+    void shouldForceIsImportantFalseWhenNoticeButNotAnnouncement() {
+        PostCreateState state = PostCreateState.builder()
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("EVENT")
+                .writerName("홍길동")
+                .title("이벤트")
+                .content("이벤트 내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(true)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("공지 게시판이 아닌 게시글(PRODUCT_INQUERY)은 isImportant 요청이 true여도 false로 저장된다")
+    void shouldForceIsImportantFalseWhenProductInqueryBoard() {
+        PostCreateState state = PostCreateState.builder()
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("홍길동")
+                .title("상품 문의")
+                .content("내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(true)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("공지 게시판이 아닌 게시글(ONE_ON_ONE_INQUERY)은 isImportant 요청이 true여도 false로 저장된다")
+    void shouldForceIsImportantFalseWhenOneOnOneInqueryBoard() {
+        PostCreateState state = PostCreateState.builder()
+                .userId(100L)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("홍길동")
+                .content("1:1 문의")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(true)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("공지 게시판이 아닌 게시글(FAQ)은 isImportant 요청이 true여도 false로 저장된다")
+    void shouldForceIsImportantFalseWhenFaqBoard() {
+        PostCreateState state = PostCreateState.builder()
+                .userId(100L)
+                .board(Board.FAQ)
+                .category("ORDER_PAYMENT")
+                .writerName("관리자")
+                .title("자주 묻는 질문")
+                .content("FAQ 내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(true)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("PostSnapshotState로 복원 시 isImportant=true가 그대로 복원된다")
+    void shouldRestoreIsImportantTrueFromSnapshotState() {
+        PostSnapshotState state = PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("중요 공지")
+                .content("내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(true)
+                .status(EntityStatus.ACTIVE)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isTrue();
+    }
+
+    @Test
+    @DisplayName("PostSnapshotState로 복원 시 isImportant=false가 그대로 복원된다")
+    void shouldRestoreIsImportantFalseFromSnapshotState() {
+        PostSnapshotState state = PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("일반 공지")
+                .content("내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .isImportant(false)
+                .status(EntityStatus.ACTIVE)
+                .build();
+
+        Post post = Post.from(state);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
     private PostCreateState createPostCreateState(Board board, String category, String writerName) {
         return PostCreateState.builder()
                 .userId(100L)

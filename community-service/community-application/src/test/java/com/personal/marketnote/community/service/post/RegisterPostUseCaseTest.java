@@ -30,6 +30,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -874,6 +875,138 @@ class RegisterPostUseCaseTest {
         verify(findProductByPricePolicyPort).findByPricePolicyIds(List.of(parentPricePolicyId));
     }
 
+    @Test
+    @DisplayName("공지 게시글 등록 시 isImportant=true 요청이 이벤트 payload에 그대로 포함된다")
+    void registerPost_noticeAnnouncementWithImportantTrue_publishesEventWithIsImportantTrue() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(50L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .title("중요 공지")
+                .content("중요 공지 내용")
+                .isImportant(true)
+                .build();
+        Post savedPost = buildSavedPost(3000L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishNoticeRegisteredEvent(3000L, "중요 공지", true);
+    }
+
+    @Test
+    @DisplayName("공지 게시글 등록 시 isImportant=false 요청이 이벤트 payload에 그대로 포함된다")
+    void registerPost_noticeAnnouncementWithImportantFalse_publishesEventWithIsImportantFalse() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(51L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .title("일반 공지")
+                .content("일반 공지 내용")
+                .isImportant(false)
+                .build();
+        Post savedPost = buildSavedPost(3001L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(publishPostEventPort).publishNoticeRegisteredEvent(3001L, "일반 공지", false);
+    }
+
+    @Test
+    @DisplayName("PRODUCT_INQUERY 게시글 등록 시 isImportant=true 요청은 무시되고 Post의 isImportant가 false로 저장된다")
+    void registerPost_productInqueryWithImportantTrue_forcesIsImportantFalse() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(52L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("작성자")
+                .title("상품 문의")
+                .content("상품 문의 내용")
+                .isImportant(true)
+                .build();
+        Post savedPost = buildSavedPost(3002L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(savePostPort).save(postCaptor.capture());
+        assertThat(postCaptor.getValue().isImportant()).isFalse();
+        verify(publishPostEventPort, never()).publishNoticeRegisteredEvent(any(), any(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("ONE_ON_ONE_INQUERY 게시글 등록 시 isImportant=true 요청은 무시되고 false로 저장된다")
+    void registerPost_oneOnOneInqueryWithImportantTrue_forcesIsImportantFalse() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(53L)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("작성자")
+                .content("1:1 문의")
+                .isImportant(true)
+                .build();
+        Post savedPost = buildSavedPost(3003L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(savePostPort).save(postCaptor.capture());
+        assertThat(postCaptor.getValue().isImportant()).isFalse();
+        verify(publishPostEventPort, never()).publishNoticeRegisteredEvent(any(), any(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("FAQ 게시글 등록 시 isImportant=true 요청은 무시되고 false로 저장된다")
+    void registerPost_faqWithImportantTrue_forcesIsImportantFalse() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(54L)
+                .board(Board.FAQ)
+                .category("ORDER_PAYMENT")
+                .writerName("관리자")
+                .title("FAQ 제목")
+                .content("FAQ 내용")
+                .isImportant(true)
+                .build();
+        Post savedPost = buildSavedPost(3004L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(savePostPort).save(postCaptor.capture());
+        assertThat(postCaptor.getValue().isImportant()).isFalse();
+        verify(publishPostEventPort, never()).publishNoticeRegisteredEvent(any(), any(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("NOTICE + EVENT 카테고리 게시글 등록 시 isImportant=true 요청은 무시되고 NoticeRegisteredEvent는 발행되지 않는다")
+    void registerPost_noticeEventWithImportantTrue_doesNotPublishNoticeRegisteredEvent() {
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(55L)
+                .board(Board.NOTICE)
+                .category("EVENT")
+                .writerName("관리자")
+                .title("이벤트")
+                .content("이벤트 내용")
+                .isImportant(true)
+                .build();
+        Post savedPost = buildSavedPost(3005L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        ArgumentCaptor<Post> postCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(savePostPort).save(postCaptor.capture());
+        assertThat(postCaptor.getValue().isImportant()).isFalse();
+        verify(publishPostEventPort, never()).publishNoticeRegisteredEvent(any(), any(), anyBoolean());
+        verify(publishPostEventPort).publishEventRegisteredEvent(3005L, "이벤트");
+    }
+
     private RegisterPostCommand buildCommand(
             Long userId, Long parentId, Board board, String category
     ) {
@@ -912,6 +1045,9 @@ class RegisterPostUseCaseTest {
         String maskedName = command.board().requiresWriterMasking()
                 ? ValueMasker.mask(command.writerName())
                 : command.writerName();
+        boolean effectiveIsImportant = command.board().isNotice()
+                && NoticePostCategory.ANNOUNCEMENT.isMe(command.category())
+                && command.isImportant();
         return Post.from(
                 PostSnapshotState.builder()
                         .id(id)
@@ -931,6 +1067,7 @@ class RegisterPostUseCaseTest {
                         .content(command.content())
                         .isPrivate(command.isPrivate())
                         .isPhoto(command.isPhoto())
+                        .isImportant(effectiveIsImportant)
                         .status(EntityStatus.ACTIVE)
                         .createdAt(LocalDateTime.now())
                         .modifiedAt(LocalDateTime.now())
