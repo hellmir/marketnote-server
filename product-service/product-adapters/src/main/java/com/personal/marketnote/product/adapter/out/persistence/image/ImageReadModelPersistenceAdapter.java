@@ -7,6 +7,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.persistence.image.entity.ImageReadModelJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.image.entity.ImageReadModelResizedFileJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.image.repository.ImageReadModelJpaRepository;
 import com.personal.marketnote.product.port.out.file.FindProductImagesPort;
 import com.personal.marketnote.product.port.out.file.SaveImageReadModelPort;
@@ -44,7 +45,9 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
                         null,
                         null,
                         entity.getImageUrl(),
-                        List.of(),
+                        entity.getResizedFiles().stream()
+                                .map(ImageReadModelResizedFileJpaEntity::getStorageUrl)
+                                .toList(),
                         entity.getSortOrder().longValue()
                 ))
                 .toList();
@@ -55,13 +58,14 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long imageId, Long targetId, String targetType,
-            String fileSort, String imageUrl, Integer sortOrder
+            Long imageId, Long targetId, String targetType, String fileSort,
+            String imageUrl, Integer sortOrder, List<ResizedImageInput> resizedImages
     ) {
+        List<ImageReadModelJpaEntity.ResizedFileInput> resizedInputs = toEntityInputs(resizedImages);
         Optional<ImageReadModelJpaEntity> existing = imageReadModelJpaRepository.findByImageId(imageId);
 
         if (existing.isPresent()) {
-            existing.get().updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder);
+            existing.get().updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs);
             return;
         }
 
@@ -69,11 +73,14 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
             ImageReadModelJpaEntity entity = ImageReadModelJpaEntity.of(
                     imageId, targetId, targetType, fileSort, imageUrl, sortOrder
             );
+            entity.replaceResizedFiles(resizedInputs);
             imageReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
             log.info("이미지 Read Model 중복 저장 (멱등 처리). imageId={}", imageId);
             imageReadModelJpaRepository.findByImageId(imageId)
-                    .ifPresent(entity -> entity.updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder));
+                    .ifPresent(entity -> entity.updateFrom(
+                            targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs
+                    ));
         }
     }
 
@@ -82,5 +89,14 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
     public void deactivateByImageId(Long imageId) {
         imageReadModelJpaRepository.findByImageId(imageId)
                 .ifPresent(ImageReadModelJpaEntity::markInactive);
+    }
+
+    private List<ImageReadModelJpaEntity.ResizedFileInput> toEntityInputs(List<ResizedImageInput> resizedImages) {
+        if (FormatValidator.hasNoValue(resizedImages)) {
+            return List.of();
+        }
+        return resizedImages.stream()
+                .map(input -> new ImageReadModelJpaEntity.ResizedFileInput(input.size(), input.storageUrl()))
+                .toList();
     }
 }

@@ -72,7 +72,7 @@ class ImageChangedReadModelConsumerTest {
         // then
         verify(saveImageReadModelPort).upsert(
                 1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE",
-                "https://cdn.example.com/image.png", 1
+                "https://cdn.example.com/image.png", 1, List.of()
         );
         verify(acknowledgment).acknowledge();
     }

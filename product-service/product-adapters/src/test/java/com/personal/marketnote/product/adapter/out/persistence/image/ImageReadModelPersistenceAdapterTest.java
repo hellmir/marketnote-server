@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,9 +45,9 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("ACTIVE 상태의 이미지를 sortOrder 오름차순으로 조회한다")
         void returnsActiveImagesSortedBySortOrder() {
             // given
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2);
-            adapter.upsert(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1);
-            adapter.upsert(3L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/3.png", 3);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/2.png", 2, List.of());
+            adapter.upsert(2L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
+            adapter.upsert(3L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/3.png", 3, List.of());
 
             // when
             Optional<GetFilesResult> result = adapter.findImagesByProductIdAndSort(100L, FileSort.PRODUCT_CATALOG_IMAGE);
@@ -63,7 +64,7 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("INACTIVE 상태의 이미지는 조회하지 않는다")
         void excludesInactiveImages() {
             // given
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
             adapter.deactivateByImageId(1L);
 
             // when
@@ -77,8 +78,8 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("다른 fileSort의 이미지는 조회하지 않는다")
         void excludesDifferentFileSort() {
             // given
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1);
-            adapter.upsert(2L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE", "https://cdn.example.com/2.png", 1);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
+            adapter.upsert(2L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE", "https://cdn.example.com/2.png", 1, List.of());
 
             // when
             Optional<GetFilesResult> result = adapter.findImagesByProductIdAndSort(100L, FileSort.PRODUCT_CATALOG_IMAGE);
@@ -103,7 +104,7 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("조회 결과에 imageUrl과 fileSort가 올바르게 매핑된다")
         void mapsFieldsCorrectly() {
             // given
-            adapter.upsert(10L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE", "https://cdn.example.com/rep.png", 5);
+            adapter.upsert(10L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE", "https://cdn.example.com/rep.png", 5, List.of());
 
             // when
             Optional<GetFilesResult> result = adapter.findImagesByProductIdAndSort(200L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE);
@@ -127,7 +128,7 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("신규 이미지를 저장한다")
         void insertsNewImage() {
             // when
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
 
             // then
             Optional<ImageReadModelJpaEntity> entity = repository.findByImageId(1L);
@@ -141,10 +142,10 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("동일한 imageId로 upsert 시 기존 데이터를 업데이트한다")
         void updatesExistingImage() {
             // given
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/old.png", 1);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/old.png", 1, List.of());
 
             // when
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/new.png", 2);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/new.png", 2, List.of());
 
             // then
             Optional<ImageReadModelJpaEntity> entity = repository.findByImageId(1L);
@@ -157,11 +158,11 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("비활성화된 이미지에 대해 upsert 시 다시 활성화된다")
         void reactivatesInactiveImage() {
             // given
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
             adapter.deactivateByImageId(1L);
 
             // when
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
 
             // then
             Optional<ImageReadModelJpaEntity> entity = repository.findByImageId(1L);
@@ -178,7 +179,7 @@ class ImageReadModelPersistenceAdapterTest {
         @DisplayName("이미지를 비활성화한다")
         void deactivatesImage() {
             // given
-            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1);
+            adapter.upsert(1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE", "https://cdn.example.com/1.png", 1, List.of());
 
             // when
             adapter.deactivateByImageId(1L);
