@@ -9,12 +9,15 @@ import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.FileDomainSnapshotState;
+import com.personal.marketnote.file.domain.file.ResizedFile;
+import com.personal.marketnote.file.domain.file.ResizedFileSnapshotState;
 import com.personal.marketnote.file.domain.file.exception.InvalidFileOwnerException;
 import com.personal.marketnote.file.domain.file.exception.InvalidFileRoleException;
 import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
 import com.personal.marketnote.file.port.in.command.UpdateFilesCommand;
 import com.personal.marketnote.file.port.in.usecase.file.GetFileUseCase;
+import com.personal.marketnote.file.port.out.event.ImageEventCommand;
 import com.personal.marketnote.file.port.out.event.PublishImageEventPort;
 import com.personal.marketnote.file.port.out.file.SaveFilesPort;
 import com.personal.marketnote.file.port.out.file.UpdateFilesPort;
@@ -25,12 +28,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +46,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -448,6 +457,194 @@ class UpdateFilesUseCaseTest {
                             .contains("width=800");
                 });
         verify(saveResizedFilesPort, never()).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("카탈로그 이미지 업로드 시 발행되는 ImageChangedEvent 페이로드에 500x500 리사이즈 URL이 포함된다")
+    void updateFiles_catalogImage_publishesResizedUrlInPayload() throws IOException {
+        UpdateFilesCommand command = buildPngCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
+        FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/catalog_0.png"))
+                .thenReturn(List.of("https://cdn.example.com/catalog_0_500x500.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenReturn(new ArrayList<>(List.of(savedFile)));
+
+        updateFilesService.updateFiles(command);
+
+        List<ImageEventCommand> published = captureCreatedEvents();
+        assertThat(published).hasSize(1);
+        assertThat(published.getFirst().resizedImages())
+                .singleElement()
+                .satisfies(resized -> {
+                    assertThat(resized.size()).isEqualTo("500x500");
+                    assertThat(resized.storageUrl()).isEqualTo("https://cdn.example.com/catalog_0_500x500.png");
+                });
+    }
+
+    @Test
+    @DisplayName("대표 이미지 업로드 시 발행되는 ImageChangedEvent 페이로드에 600px, 800px 리사이즈 URL이 모두 포함된다")
+    void updateFiles_representativeImage_publishesBothResizedUrlsInPayload() throws IOException {
+        UpdateFilesCommand command = buildPngCommand(FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(), 1, "SELLER");
+        FileDomain savedFile = savedFileDomain(700L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/representative_0.png"))
+                .thenReturn(List.of(
+                        "https://cdn.example.com/representative_0_600.png",
+                        "https://cdn.example.com/representative_0_800.png"
+                ));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenReturn(new ArrayList<>(List.of(savedFile)));
+
+        updateFilesService.updateFiles(command);
+
+        List<ImageEventCommand> published = captureCreatedEvents();
+        assertThat(published).hasSize(1);
+        assertThat(published.getFirst().resizedImages())
+                .extracting(ImageEventCommand.ResizedImageCommand::size, ImageEventCommand.ResizedImageCommand::storageUrl)
+                .containsExactly(
+                        tuple("600", "https://cdn.example.com/representative_0_600.png"),
+                        tuple("800", "https://cdn.example.com/representative_0_800.png")
+                );
+    }
+
+    @Test
+    @DisplayName("본문 이미지 업로드 시 발행되는 ImageChangedEvent 페이로드의 리사이즈 URL 필드는 빈 배열이다")
+    void updateFiles_contentImage_publishesEmptyResizedUrls() throws IOException {
+        UpdateFilesCommand command = buildPngCommand(FileSort.PRODUCT_CONTENT_IMAGE.name(), 1, "SELLER");
+        FileDomain savedFile = savedFileDomain(900L, FileSort.PRODUCT_CONTENT_IMAGE);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CONTENT_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/content_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenReturn(new ArrayList<>(List.of(savedFile)));
+
+        updateFilesService.updateFiles(command);
+
+        List<ImageEventCommand> published = captureCreatedEvents();
+        assertThat(published).hasSize(1);
+        assertThat(published.getFirst().resizedImages()).isEmpty();
+        verify(saveResizedFilesPort, never()).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("리사이즈 실패(IOException)가 발생해도 원본 이벤트는 정상 발행되며 리사이즈 URL 필드는 빈 배열이다")
+    void updateFiles_resizeFailure_publishesEmptyResizedUrls() {
+        UpdateFilesCommand command = buildCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
+        FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
+                .thenReturn(new ArrayList<>());
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/catalog_0.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenReturn(new ArrayList<>(List.of(savedFile)));
+
+        updateFilesService.updateFiles(command);
+
+        List<ImageEventCommand> published = captureCreatedEvents();
+        assertThat(published).hasSize(1);
+        assertThat(published.getFirst().resizedImages()).isEmpty();
+        verify(saveResizedFilesPort, never()).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("재업로드 시 기존 파일에 대한 삭제 이벤트 페이로드에도 리사이즈 URL이 포함된다")
+    void updateFiles_reupload_publishesResizedUrlInDeletedEventPayload() throws IOException {
+        UpdateFilesCommand command = buildPngCommand(FileSort.PRODUCT_CATALOG_IMAGE.name(), 1, "SELLER");
+        FileDomain existing = snapshotCatalogFileDomain(10L, 100L, "test-owner-key");
+        ResizedFile existingResized = activeResizedFile(99L, 10L, "500x500", "https://cdn.example.com/existing_500x500.png");
+        FileDomain savedFile = savedFileDomain(500L, FileSort.PRODUCT_CATALOG_IMAGE);
+        when(getFileUseCase.getFiles(OwnerType.PRODUCT, 1L, FileSort.PRODUCT_CATALOG_IMAGE.name()))
+                .thenReturn(new ArrayList<>(List.of(existing)));
+        when(getFileUseCase.getResizedFiles(anyList()))
+                .thenReturn(new ArrayList<>(List.of(existingResized)));
+        when(uploadFilesPort.uploadFiles(anyList(), eq(OwnerType.PRODUCT), eq(1L)))
+                .thenReturn(List.of("https://cdn.example.com/new_catalog_0.png"))
+                .thenReturn(List.of("https://cdn.example.com/new_catalog_0_500x500.png"));
+        when(saveFilesPort.saveAll(anyList(), anyList()))
+                .thenReturn(new ArrayList<>(List.of(savedFile)));
+
+        updateFilesService.updateFiles(command);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<ImageEventCommand>> deletedCaptor = ArgumentCaptor.forClass(List.class);
+        verify(publishImageEventPort).publishImageDeletedEvents(deletedCaptor.capture());
+        List<ImageEventCommand> deleted = deletedCaptor.getValue();
+        assertThat(deleted).hasSize(1);
+        assertThat(deleted.getFirst().imageId()).isEqualTo(10L);
+        assertThat(deleted.getFirst().resizedImages())
+                .singleElement()
+                .satisfies(resized -> {
+                    assertThat(resized.size()).isEqualTo("500x500");
+                    assertThat(resized.storageUrl()).isEqualTo("https://cdn.example.com/existing_500x500.png");
+                });
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ImageEventCommand> captureCreatedEvents() {
+        ArgumentCaptor<List<ImageEventCommand>> captor = ArgumentCaptor.forClass(List.class);
+        verify(publishImageEventPort).publishImageCreatedEvents(captor.capture());
+        return captor.getValue();
+    }
+
+    private UpdateFilesCommand buildPngCommand(String sort, int fileCount, String role) throws IOException {
+        List<UpdateFileCommand> fileCommands = new ArrayList<>();
+        for (int i = 0; i < fileCount; i++) {
+            fileCommands.add(buildPngFileCommand(sort, i));
+        }
+        return buildFilesCommand(fileCommands, role);
+    }
+
+    private UpdateFileCommand buildPngFileCommand(String sort, int index) throws IOException {
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "file", "test_" + index + ".png", "image/png", createPngBytes()
+        );
+        return UpdateFileCommand.builder()
+                .file(mockFile)
+                .sort(sort)
+                .extension("png")
+                .name("test_" + index + ".png")
+                .build();
+    }
+
+    private static byte[] createPngBytes() throws IOException {
+        BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        return baos.toByteArray();
+    }
+
+    private static FileDomain snapshotCatalogFileDomain(Long id, Long userId, String ownerKey) {
+        return FileDomain.from(FileDomainSnapshotState.builder()
+                .id(id)
+                .ownerType(OwnerType.PRODUCT)
+                .ownerId(1L)
+                .sort(FileSort.PRODUCT_CATALOG_IMAGE)
+                .extension("png")
+                .name("existing.png")
+                .storageUrl("https://cdn.example.com/existing.png")
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+                .status(EntityStatus.ACTIVE)
+                .orderNum(1L)
+                .userId(userId)
+                .ownerKey(ownerKey)
+                .build());
+    }
+
+    private static ResizedFile activeResizedFile(Long id, Long fileId, String size, String storageUrl) {
+        return ResizedFile.from(ResizedFileSnapshotState.builder()
+                .id(id)
+                .fileId(fileId)
+                .size(size)
+                .storageUrl(storageUrl)
+                .createdAt(LocalDateTime.of(2026, 1, 1, 0, 0, 0))
+                .status(EntityStatus.ACTIVE)
+                .build());
     }
 
     private static FileDomain savedFileDomain(Long id, FileSort sort) {
