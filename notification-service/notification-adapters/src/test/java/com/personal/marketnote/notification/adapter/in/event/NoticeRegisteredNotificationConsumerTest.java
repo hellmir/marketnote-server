@@ -43,7 +43,11 @@ class NoticeRegisteredNotificationConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long postId, String title) {
-        NoticeRegisteredEvent event = new NoticeRegisteredEvent(postId, title, false);
+        return buildRecord(postId, title, false);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long postId, String title, boolean isImportant) {
+        NoticeRegisteredEvent event = new NoticeRegisteredEvent(postId, title, isImportant);
         EventEnvelope<NoticeRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "community.notice.registered", "community-service",
                 LocalDateTime.of(2026, 4, 10, 10, 0), event
@@ -52,10 +56,10 @@ class NoticeRegisteredNotificationConsumerTest {
     }
 
     @Test
-    @DisplayName("공지사항 등록 이벤트 수신 시 전체 사용자에게 배치 알림을 발송하고 acknowledge한다")
+    @DisplayName("중요 공지 등록 이벤트 수신 시 전체 사용자에게 배치 알림을 발송하고 acknowledge한다")
     void shouldSendBatchNotificationAndAcknowledge() {
         // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, "시스템 점검 안내");
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, "시스템 점검 안내", true);
         when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(1L, 2L, 3L));
 
         // when
@@ -199,10 +203,10 @@ class NoticeRegisteredNotificationConsumerTest {
     }
 
     @Test
-    @DisplayName("공지사항 등록 시 인앱 알림이 포함된 PUSH_AND_IN_APP 채널로 발송한다")
+    @DisplayName("중요 공지 등록 시 인앱 알림이 포함된 PUSH_AND_IN_APP 채널로 발송한다")
     void shouldSendWithPushAndInAppDeliveryChannel() {
         // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(200L, "서비스 업데이트 안내");
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(200L, "서비스 업데이트 안내", true);
         when(findNotificationPreferencePort.findAllDistinctUserIds()).thenReturn(List.of(10L, 20L));
 
         // when

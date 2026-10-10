@@ -25,6 +25,8 @@ import java.util.Map;
 public class NoticeRegisteredNotificationConsumer {
 
     private static final int MAX_BATCH_SIZE = 10_000;
+    private static final String DELIVERY_CHANNEL_IMPORTANT = "PUSH_AND_IN_APP";
+    private static final String DELIVERY_CHANNEL_REGULAR = "IN_APP_ONLY";
 
     private final SendBatchNotificationUseCase sendBatchNotificationUseCase;
     private final FindNotificationPreferencePort findNotificationPreferencePort;
@@ -75,6 +77,8 @@ public class NoticeRegisteredNotificationConsumer {
                     "notice_title", payload.title()
             );
 
+            String deliveryChannel = resolveDeliveryChannel(payload.isImportant());
+
             for (int i = 0; i < allUserIds.size(); i += MAX_BATCH_SIZE) {
                 List<Long> batchUserIds = allUserIds.subList(i, Math.min(i + MAX_BATCH_SIZE, allUserIds.size()));
 
@@ -82,7 +86,7 @@ public class NoticeRegisteredNotificationConsumer {
                         batchUserIds,
                         "NOTICE_REGISTERED",
                         variables,
-                        "PUSH_AND_IN_APP",
+                        deliveryChannel,
                         null
                 );
                 sendBatchNotificationUseCase.sendBatchNotification(command);
@@ -98,5 +102,12 @@ public class NoticeRegisteredNotificationConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private String resolveDeliveryChannel(boolean isImportant) {
+        if (isImportant) {
+            return DELIVERY_CHANNEL_IMPORTANT;
+        }
+        return DELIVERY_CHANNEL_REGULAR;
     }
 }
