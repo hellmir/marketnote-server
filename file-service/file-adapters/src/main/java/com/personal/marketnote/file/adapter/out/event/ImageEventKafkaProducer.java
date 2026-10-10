@@ -38,9 +38,12 @@ public class ImageEventKafkaProducer implements PublishImageEventPort {
 
     private void publishEvents(List<ImageEventCommand> events, ImageChangeAction action) {
         for (ImageEventCommand event : events) {
+            List<ImageChangedEvent.ResizedImageInfo> resizedImages = event.resizedImages().stream()
+                    .map(resized -> new ImageChangedEvent.ResizedImageInfo(resized.size(), resized.storageUrl()))
+                    .toList();
             ImageChangedEvent payload = new ImageChangedEvent(
                     event.imageId(), event.targetId(), event.targetType(),
-                    event.fileSort(), event.imageUrl(), event.sortOrder(), action
+                    event.fileSort(), event.imageUrl(), event.sortOrder(), resizedImages, action
             );
             String topic = KafkaTopicConstants.FILE_IMAGE_CHANGED;
             EventEnvelope<ImageChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);

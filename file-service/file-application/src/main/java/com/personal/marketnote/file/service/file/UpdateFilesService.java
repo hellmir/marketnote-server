@@ -77,11 +77,14 @@ public class UpdateFilesService implements UpdateFileUseCase {
         List<FileDomain> currentFiles = getFileUseCase.getFiles(OwnerType.from(ownerType), ownerId, sort);
         if (FormatValidator.hasValue(currentFiles)) {
             currentFiles.forEach(file -> file.validateOwner(requesterId, ownerKey));
-            List<ImageEventCommand> deletedEvents = buildImageEventCommands(currentFiles);
+            List<ResizedFile> existingResizedFiles = getFileUseCase.getResizedFiles(currentFiles);
+            List<ResizedFile> activeResizedFiles = existingResizedFiles.stream()
+                    .filter(ResizedFile::isActive)
+                    .toList();
+            List<ImageEventCommand> deletedEvents = buildImageEventCommands(currentFiles, activeResizedFiles);
             currentFiles.forEach(FileDomain::delete);
-            List<ResizedFile> resizedFiles = getFileUseCase.getResizedFiles(currentFiles);
-            resizedFiles.forEach(ResizedFile::delete);
-            updateFilesPort.update(currentFiles, resizedFiles);
+            existingResizedFiles.forEach(ResizedFile::delete);
+            updateFilesPort.update(currentFiles, existingResizedFiles);
             publishImageEventPort.publishImageDeletedEvents(deletedEvents);
         }
 
@@ -107,6 +110,8 @@ public class UpdateFilesService implements UpdateFileUseCase {
             resize(savedFiles.get(i), originals.get(i), resizedToUpload, resizedToSave);
         }
 
+        List<ResizedFile> savedResizedFiles = new ArrayList<>();
+
         if (FormatValidator.hasValue(resizedToUpload)) {
             List<String> resizedStorageUrls = uploadFilesPort.uploadFiles(
                     resizedToUpload,
@@ -125,16 +130,17 @@ public class UpdateFilesService implements UpdateFileUseCase {
                             .build()));
                 }
                 saveResizedFilesPort.saveAll(resizedWithUrls);
+                savedResizedFiles.addAll(resizedWithUrls);
             }
         }
 
-        List<ImageEventCommand> createdEvents = buildImageEventCommands(savedFiles);
+        List<ImageEventCommand> createdEvents = buildImageEventCommands(savedFiles, savedResizedFiles);
         publishImageEventPort.publishImageCreatedEvents(createdEvents);
     }
 
-    private List<ImageEventCommand> buildImageEventCommands(List<FileDomain> files) {
+    private List<ImageEventCommand> buildImageEventCommands(List<FileDomain> files, List<ResizedFile> resizedFiles) {
         return files.stream()
-                .map(ImageEventCommand::from)
+                .map(file -> ImageEventCommand.from(file, resizedFiles))
                 .toList();
     }
 

@@ -2,6 +2,7 @@ package com.personal.marketnote.file.service.file;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.file.domain.file.FileDomain;
+import com.personal.marketnote.file.domain.file.ResizedFile;
 import com.personal.marketnote.file.port.in.usecase.file.DeleteFileUseCase;
 import com.personal.marketnote.file.port.in.usecase.file.GetFileUseCase;
 import com.personal.marketnote.file.port.out.event.ImageEventCommand;
@@ -25,9 +26,12 @@ public class DeleteFileService implements DeleteFileUseCase {
     @Override
     public void delete(Long id) {
         FileDomain file = getFileUseCase.getFile(id);
+        List<ResizedFile> activeResizedFiles = getFileUseCase.getResizedFiles(List.of(file)).stream()
+                .filter(ResizedFile::isActive)
+                .toList();
         file.delete();
         updateFilePort.update(file);
 
-        publishImageEventPort.publishImageDeletedEvents(List.of(ImageEventCommand.from(file)));
+        publishImageEventPort.publishImageDeletedEvents(List.of(ImageEventCommand.from(file, activeResizedFiles)));
     }
 }
