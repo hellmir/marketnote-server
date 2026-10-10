@@ -18,6 +18,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -247,6 +248,14 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.CONFLICT;
         log.error(LOG_ERROR_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, httpStatus.name(), "데이터 무결성 제약 조건을 위반했습니다.");
+    }
+
+    // AsyncRequestNotUsableException은 IOException 하위 — 더 구체적이라 handleIOException보다 우선 매칭된다.
+    // 응답 채널이 이미 unusable 상태이므로 ErrorResponse 본문 직렬화를 피하기 위해 Void를 반환한다.
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    ResponseEntity<Void> handleAsyncRequestNotUsableException(AsyncRequestNotUsableException e) {
+        log.debug("비동기 요청 사용 불가 (클라이언트 커넥션 종료): {}", e.getMessage());
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(Exception.class)
