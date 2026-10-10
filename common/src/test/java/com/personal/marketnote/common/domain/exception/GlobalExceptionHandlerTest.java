@@ -11,6 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -450,6 +456,60 @@ class GlobalExceptionHandlerTest {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getMessage()).isEqualTo("서버 내부 오류가 발생했습니다.");
             assertThat(response.getBody().getMessage()).doesNotContain("Custom domain exception");
+        }
+    }
+
+    @Nested
+    @DisplayName("AsyncRequestNotUsableException 핸들러 (SSE 클라이언트 종료 로그 노이즈 제거)")
+    class AsyncRequestNotUsableExceptionHandlerTest {
+
+        @Test
+        @DisplayName("AsyncRequestNotUsableException 핸들러는 204 No Content를 반환한다")
+        void shouldReturn204ForAsyncRequestNotUsableException() {
+            AsyncRequestNotUsableException exception =
+                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush: java.io.IOException: Broken pipe");
+
+            ResponseEntity<Void> response = handler.handleAsyncRequestNotUsableException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        }
+
+        @Test
+        @DisplayName("AsyncRequestNotUsableException 핸들러는 응답 본문 없이 반환한다")
+        void shouldReturnEmptyBodyForAsyncRequestNotUsableException() {
+            AsyncRequestNotUsableException exception =
+                    new AsyncRequestNotUsableException("ServletOutputStream failed to flush");
+
+            ResponseEntity<Void> response = handler.handleAsyncRequestNotUsableException(exception);
+
+            assertThat(response.getBody()).isNull();
+        }
+
+        @Test
+        @DisplayName("AsyncRequestNotUsableException 핸들러는 DEBUG 레벨로만 로그를 남기고 ERROR 스택트레이스를 기록하지 않는다")
+        void shouldLogAtDebugLevelOnly() {
+            Logger logger = (Logger) LoggerFactory.getLogger(GlobalExceptionHandler.class);
+            Level originalLevel = logger.getLevel();
+            ListAppender<ILoggingEvent> appender = new ListAppender<>();
+            appender.start();
+            logger.addAppender(appender);
+            logger.setLevel(Level.DEBUG);
+
+            try {
+                handler.handleAsyncRequestNotUsableException(
+                        new AsyncRequestNotUsableException("ServletOutputStream failed to flush")
+                );
+
+                assertThat(appender.list)
+                        .hasSize(1)
+                        .allSatisfy(event -> {
+                            assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                            assertThat(event.getThrowableProxy()).isNull();
+                        });
+            } finally {
+                logger.detachAppender(appender);
+                logger.setLevel(originalLevel);
+            }
         }
     }
 
