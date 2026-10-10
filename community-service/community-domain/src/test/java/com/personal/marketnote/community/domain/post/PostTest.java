@@ -454,6 +454,134 @@ class PostTest {
         assertThat(post.isImportant()).isFalse();
     }
 
+    @Test
+    @DisplayName("공지 게시글에서 updateImportance(true) 호출 시 isImportant가 true로 전이된다")
+    void shouldUpdateImportanceToTrueForNoticeAnnouncement() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("공지 제목")
+                .content("공지 내용")
+                .isImportant(false)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        post.updateImportance(Boolean.TRUE);
+
+        assertThat(post.isImportant()).isTrue();
+    }
+
+    @Test
+    @DisplayName("공지 게시글에서 updateImportance(false) 호출 시 isImportant가 false로 전이된다")
+    void shouldUpdateImportanceToFalseForNoticeAnnouncement() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("공지 제목")
+                .content("공지 내용")
+                .isImportant(true)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        post.updateImportance(Boolean.FALSE);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("updateImportance(null) 호출 시 기존 isImportant 값이 유지된다")
+    void shouldKeepIsImportantWhenRequestedIsNull() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("공지 제목")
+                .content("공지 내용")
+                .isImportant(true)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        post.updateImportance(null);
+
+        assertThat(post.isImportant()).isTrue();
+    }
+
+    @Test
+    @DisplayName("NOTICE+EVENT 게시글에서 updateImportance(true) 호출 시 isImportant 변경이 무시된다")
+    void shouldIgnoreUpdateImportanceForNoticeEvent() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("EVENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("이벤트")
+                .content("이벤트 내용")
+                .isImportant(false)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        post.updateImportance(Boolean.TRUE);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("FAQ 게시글에서 updateImportance(true) 호출 시 isImportant 변경이 무시된다")
+    void shouldIgnoreUpdateImportanceForFaq() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.FAQ)
+                .category("ORDER_PAYMENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("FAQ 제목")
+                .content("FAQ 내용")
+                .isImportant(false)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        post.updateImportance(Boolean.TRUE);
+
+        assertThat(post.isImportant()).isFalse();
+    }
+
+    @Test
+    @DisplayName("updateImportance 호출이 title과 content에 영향을 주지 않는다")
+    void shouldNotAffectTitleAndContentWhenUpdatingImportance() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.NOTICE)
+                .category("ANNOUNCEMENT")
+                .writerName("관리자")
+                .maskedWriterName("관*자")
+                .title("원본 제목")
+                .content("원본 내용")
+                .isImportant(false)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        post.updateImportance(Boolean.TRUE);
+
+        assertThat(post.getTitle()).isEqualTo("원본 제목");
+        assertThat(post.getContent()).isEqualTo("원본 내용");
+        assertThat(post.isImportant()).isTrue();
+    }
+
     private PostCreateState createPostCreateState(Board board, String category, String writerName) {
         return PostCreateState.builder()
                 .userId(100L)
