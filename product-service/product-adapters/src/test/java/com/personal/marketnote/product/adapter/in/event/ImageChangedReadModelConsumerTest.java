@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,6 +75,63 @@ class ImageChangedReadModelConsumerTest {
         verify(saveImageReadModelPort).upsert(
                 1L, 100L, "PRODUCT", "PRODUCT_CATALOG_IMAGE",
                 "https://cdn.example.com/image.png", 1, List.of()
+        );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ImageChangedEvent 수신 시 리사이즈 URL 목록이 image_read_model_resized_files 테이블에 함께 저장된다")
+    void handleImageChangedEvent_withResizedImages_passesResizedInputsToUpsert() {
+        // given
+        ImageChangedEvent payload = new ImageChangedEvent(
+                10L, 200L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
+                "https://cdn.example.com/rep.png", 1,
+                List.of(
+                        new ImageChangedEvent.ResizedImageInfo("600", "https://cdn.example.com/rep_600.png"),
+                        new ImageChangedEvent.ResizedImageInfo("800", "https://cdn.example.com/rep_800.png")
+                ),
+                ImageChangeAction.CREATED
+        );
+        EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
+        ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
+
+        // when
+        consumer.handleImageChangedEvent(record, acknowledgment);
+
+        // then
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<SaveImageReadModelPort.ResizedImageInput>> captor = ArgumentCaptor.forClass(List.class);
+        verify(saveImageReadModelPort).upsert(
+                eq(10L), eq(200L), eq("PRODUCT"), eq("PRODUCT_REPRESENTATIVE_IMAGE"),
+                eq("https://cdn.example.com/rep.png"), eq(1), captor.capture()
+        );
+        List<SaveImageReadModelPort.ResizedImageInput> captured = captor.getValue();
+        assertThat(captured).hasSize(2);
+        assertThat(captured.get(0).size()).isEqualTo("600");
+        assertThat(captured.get(0).storageUrl()).isEqualTo("https://cdn.example.com/rep_600.png");
+        assertThat(captured.get(1).size()).isEqualTo("800");
+        assertThat(captured.get(1).storageUrl()).isEqualTo("https://cdn.example.com/rep_800.png");
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("리사이즈 URL이 비어 있는 이벤트 수신 시 upsert에 빈 리스트를 전달한다")
+    void handleImageChangedEvent_withEmptyResizedImages_passesEmptyListToUpsert() {
+        // given
+        ImageChangedEvent payload = new ImageChangedEvent(
+                11L, 300L, "PRODUCT", "PRODUCT_CONTENT_IMAGE",
+                "https://cdn.example.com/content.png", 1, List.of(), ImageChangeAction.CREATED
+        );
+        EventEnvelope<ImageChangedEvent> envelope = createEnvelope(payload);
+        ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
+
+        // when
+        consumer.handleImageChangedEvent(record, acknowledgment);
+
+        // then
+        verify(saveImageReadModelPort).upsert(
+                11L, 300L, "PRODUCT", "PRODUCT_CONTENT_IMAGE",
+                "https://cdn.example.com/content.png", 1, List.of()
         );
         verify(acknowledgment).acknowledge();
     }
