@@ -1,5 +1,6 @@
 package com.personal.marketnote.community.adapter.in.web.post.mapper;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.adapter.in.web.post.request.RegisterPostRequest;
 import com.personal.marketnote.community.adapter.in.web.post.request.UpdatePostRequest;
 import com.personal.marketnote.community.port.in.command.post.RegisterPostCommand;
@@ -22,6 +23,7 @@ public class PostRequestToCommandMapper {
                 .content(request.getContent())
                 .isPrivate(request.getIsPrivate())
                 .isPhoto(request.getIsPhoto())
+                .isImportant(FormatValidator.hasValue(request.getIsImportant()) && request.getIsImportant())
                 .build();
     }
 

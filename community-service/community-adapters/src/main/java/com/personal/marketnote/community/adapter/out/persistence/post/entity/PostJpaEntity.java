@@ -70,6 +70,9 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "is_photo", nullable = false)
     private boolean isPhoto;
 
+    @Column(name = "is_important", nullable = false)
+    private boolean isImportant;
+
     public static PostJpaEntity from(Post post) {
         PostCategory category = post.getCategory();
 
@@ -90,6 +93,7 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
                 .content(post.getContent())
                 .isPrivate(post.isPrivate())
                 .isPhoto(post.isPhoto())
+                .isImportant(post.isImportant())
                 .build();
     }
 

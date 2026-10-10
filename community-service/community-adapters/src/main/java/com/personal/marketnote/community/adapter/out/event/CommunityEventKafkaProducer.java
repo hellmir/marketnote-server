@@ -55,8 +55,8 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     }
 
     @Override
-    public void publishNoticeRegisteredEvent(Long postId, String title) {
-        NoticeRegisteredEvent payload = new NoticeRegisteredEvent(postId, title);
+    public void publishNoticeRegisteredEvent(Long postId, String title, boolean isImportant) {
+        NoticeRegisteredEvent payload = new NoticeRegisteredEvent(postId, title, isImportant);
         String topic = KafkaTopicConstants.NOTICE_REGISTERED;
         EventEnvelope<NoticeRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 

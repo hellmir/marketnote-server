@@ -30,6 +30,7 @@ public class PostSnapshotState {
     private final String content;
     private final boolean isPrivate;
     private final boolean isPhoto;
+    private final boolean isImportant;
     private final EntityStatus status;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;

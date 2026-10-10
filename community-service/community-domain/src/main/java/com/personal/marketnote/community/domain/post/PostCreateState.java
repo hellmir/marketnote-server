@@ -23,4 +23,5 @@ public class PostCreateState {
     private final String content;
     private final boolean isPrivate;
     private final boolean isPhoto;
+    private final boolean isImportant;
 }

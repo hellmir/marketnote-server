@@ -43,7 +43,7 @@ class NoticeRegisteredNotificationConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long postId, String title) {
-        NoticeRegisteredEvent event = new NoticeRegisteredEvent(postId, title);
+        NoticeRegisteredEvent event = new NoticeRegisteredEvent(postId, title, false);
         EventEnvelope<NoticeRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "community.notice.registered", "community-service",
                 LocalDateTime.of(2026, 4, 10, 10, 0), event
@@ -122,7 +122,7 @@ class NoticeRegisteredNotificationConsumerTest {
     @DisplayName("eventType이 불일치하면 알림을 발송하지 않고 acknowledge한다")
     void shouldSkipWhenEventTypeMismatch() {
         // given
-        NoticeRegisteredEvent event = new NoticeRegisteredEvent(100L, "공지사항");
+        NoticeRegisteredEvent event = new NoticeRegisteredEvent(100L, "공지사항", false);
         EventEnvelope<NoticeRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "community-service",
                 LocalDateTime.of(2026, 4, 10, 10, 0), event

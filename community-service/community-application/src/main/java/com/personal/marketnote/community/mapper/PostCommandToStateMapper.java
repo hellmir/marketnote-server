@@ -20,6 +20,7 @@ public class PostCommandToStateMapper {
                 .content(command.content())
                 .isPrivate(command.isPrivate())
                 .isPhoto(command.isPhoto())
+                .isImportant(command.isImportant())
                 .build();
     }
 }

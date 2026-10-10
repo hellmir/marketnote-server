@@ -39,6 +39,7 @@ public class Post {
     private String content;
     private boolean isPrivate;
     private boolean isPhoto;
+    private boolean isImportant;
     private boolean isAnswered;
     private EntityStatus status;
 
@@ -73,8 +74,16 @@ public class Post {
                 .content(state.getContent())
                 .isPrivate(state.isPrivate())
                 .isPhoto(state.isPhoto())
+                .isImportant(resolveIsImportant(state.getBoard(), state.getCategory(), state.isImportant()))
                 .status(EntityStatus.ACTIVE)
                 .build();
+    }
+
+    private static boolean resolveIsImportant(Board board, String category, boolean requested) {
+        if (board.isNotice() && NoticePostCategory.ANNOUNCEMENT.isMe(category)) {
+            return requested;
+        }
+        return false;
     }
 
     private static String resolveMaskedWriterName(PostCreateState state) {
@@ -103,6 +112,7 @@ public class Post {
                 .content(state.getContent())
                 .isPrivate(state.isPrivate())
                 .isPhoto(state.isPhoto())
+                .isImportant(state.isImportant())
                 .status(state.getStatus())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
