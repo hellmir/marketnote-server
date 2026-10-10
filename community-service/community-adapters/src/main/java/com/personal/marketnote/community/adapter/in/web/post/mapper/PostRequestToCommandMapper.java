@@ -28,6 +28,6 @@ public class PostRequestToCommandMapper {
     }
 
     public static UpdatePostCommand mapToCommand(Long id, UpdatePostRequest request) {
-        return UpdatePostCommand.of(id, request.getTitle(), request.getContent());
+        return UpdatePostCommand.of(id, request.getTitle(), request.getContent(), request.getIsImportant());
     }
 }

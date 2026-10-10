@@ -23,4 +23,11 @@ public class UpdatePostRequest {
     @NotNull(message = "게시글 내용은 필수값입니다.")
     @Size(min = 1, max = 5000, message = "게시글 내용은 1자 이상 5,000자 이하로 입력해야 합니다.")
     private String content;
+
+    @Schema(
+            name = "isImportant",
+            description = "중요 공지 여부 (NOTICE + ANNOUNCEMENT 게시글에만 유효, 미전송 시 기존 값 유지)",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    private Boolean isImportant;
 }

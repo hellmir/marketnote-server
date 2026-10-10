@@ -154,6 +154,21 @@ public class Post {
         this.content = content;
     }
 
+    public void updateImportance(Boolean requested) {
+        if (FormatValidator.hasNoValue(requested)) {
+            return;
+        }
+        if (!isAnnouncementNotice()) {
+            return;
+        }
+        this.isImportant = requested;
+    }
+
+    private boolean isAnnouncementNotice() {
+        return board.isNotice() && category instanceof NoticePostCategory noticeCategory
+                && NoticePostCategory.ANNOUNCEMENT.equals(noticeCategory);
+    }
+
     public boolean isReply() {
         return FormatValidator.hasValue(parentId);
     }

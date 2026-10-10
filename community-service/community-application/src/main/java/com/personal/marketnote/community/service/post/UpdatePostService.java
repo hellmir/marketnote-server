@@ -38,6 +38,7 @@ public class UpdatePostService implements UpdatePostUseCase {
         }
 
         post.update(command.title(), command.content());
+        post.updateImportance(command.isImportant());
         updatePostPort.update(post);
 
         return UpdatePostResult.from(post);
