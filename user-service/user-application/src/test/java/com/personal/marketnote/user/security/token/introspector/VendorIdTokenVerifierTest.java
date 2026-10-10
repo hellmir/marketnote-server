@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class VendorIdTokenVerifierTest {
     private static final String KAKAO_ISSUER = "https://kauth.kakao.com";
-    private static final String KAKAO_AUDIENCE = "kakao-client-id";
+    private static final String KAKAO_REST_AUDIENCE = "kakao-rest-api-key";
+    private static final String KAKAO_NATIVE_AUDIENCE = "kakao-native-app-key";
     private static final String APPLE_ISSUER = "https://appleid.apple.com";
     private static final String APPLE_AUDIENCE = "apple-client-id";
 
@@ -69,10 +71,10 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), KAKAO_AUDIENCE
+                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
-        String token = buildRs256Token(KAKAO_ISSUER, KAKAO_AUDIENCE, "kakao-subject-123", rsaKey);
+        String token = buildRs256Token(KAKAO_ISSUER, KAKAO_REST_AUDIENCE, "kakao-subject-123", rsaKey);
 
         // when
         String subject = verifier.verifyAndExtractSubject(token, AuthVendor.KAKAO);
@@ -90,7 +92,7 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.APPLE, jwksUri, List.of(APPLE_ISSUER), APPLE_AUDIENCE
+                AuthVendor.APPLE, jwksUri, List.of(APPLE_ISSUER), List.of(APPLE_AUDIENCE)
         );
 
         String token = buildEs256Token(APPLE_ISSUER, APPLE_AUDIENCE, "apple-subject-456");
@@ -111,11 +113,11 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), KAKAO_AUDIENCE
+                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         RSAKey differentKey = new RSAKeyGenerator(2048).keyID("test-rsa-key").generate();
-        String forgedToken = buildRs256Token(KAKAO_ISSUER, KAKAO_AUDIENCE, "victim-subject", differentKey);
+        String forgedToken = buildRs256Token(KAKAO_ISSUER, KAKAO_REST_AUDIENCE, "victim-subject", differentKey);
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(forgedToken, AuthVendor.KAKAO))
@@ -131,11 +133,11 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), KAKAO_AUDIENCE
+                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         String expiredToken = buildRs256TokenWithExpiry(
-                KAKAO_ISSUER, KAKAO_AUDIENCE, "kakao-subject",
+                KAKAO_ISSUER, KAKAO_REST_AUDIENCE, "kakao-subject",
                 Date.from(Instant.now().minusSeconds(3600))
         );
 
@@ -153,10 +155,10 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), KAKAO_AUDIENCE
+                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
-        String wrongIssuerToken = buildRs256Token("https://evil.com", KAKAO_AUDIENCE, "subject", rsaKey);
+        String wrongIssuerToken = buildRs256Token("https://evil.com", KAKAO_REST_AUDIENCE, "subject", rsaKey);
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(wrongIssuerToken, AuthVendor.KAKAO))
@@ -172,7 +174,7 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), KAKAO_AUDIENCE
+                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
         String wrongAudienceToken = buildRs256Token(KAKAO_ISSUER, "wrong-audience", "subject", rsaKey);
@@ -191,15 +193,95 @@ class VendorIdTokenVerifierTest {
         String jwksUri = mockWebServer.url("/jwks").toString();
 
         VendorIdTokenVerifier verifier = buildVerifier(
-                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), KAKAO_AUDIENCE
+                AuthVendor.KAKAO, jwksUri, List.of(KAKAO_ISSUER), List.of(KAKAO_REST_AUDIENCE)
         );
 
-        String noSubToken = buildRs256TokenWithoutSubject(KAKAO_ISSUER, KAKAO_AUDIENCE);
+        String noSubToken = buildRs256TokenWithoutSubject(KAKAO_ISSUER, KAKAO_REST_AUDIENCE);
 
         // when & then
         assertThatThrownBy(() -> verifier.verifyAndExtractSubject(noSubToken, AuthVendor.KAKAO))
                 .isInstanceOf(JwtException.class)
                 .hasMessageContaining("sub claim");
+    }
+
+    @Test
+    @DisplayName("허용 audience 목록 중 하나와 매칭되는 모바일 SDK 발급 토큰은 검증을 통과한다")
+    void verifyTokenMatchingOneOfAllowedAudiencesReturnsSubject() throws Exception {
+        // given
+        setDispatcher(new JWKSet(rsaKey.toPublicJWK()));
+        mockWebServer.start();
+        String jwksUri = mockWebServer.url("/jwks").toString();
+
+        VendorIdTokenVerifier verifier = buildVerifier(
+                AuthVendor.KAKAO,
+                jwksUri,
+                List.of(KAKAO_ISSUER),
+                List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
+        );
+
+        String nativeToken = buildRs256Token(
+                KAKAO_ISSUER, KAKAO_NATIVE_AUDIENCE, "kakao-native-subject", rsaKey
+        );
+
+        // when
+        String subject = verifier.verifyAndExtractSubject(nativeToken, AuthVendor.KAKAO);
+
+        // then
+        assertThat(subject).isEqualTo("kakao-native-subject");
+    }
+
+    @Test
+    @DisplayName("JWT aud claim이 JSON 배열이고 허용 목록과 교집합이 있으면 검증을 통과한다")
+    void verifyTokenWithArrayAudienceMatchingAllowedListReturnsSubject() throws Exception {
+        // given
+        setDispatcher(new JWKSet(rsaKey.toPublicJWK()));
+        mockWebServer.start();
+        String jwksUri = mockWebServer.url("/jwks").toString();
+
+        VendorIdTokenVerifier verifier = buildVerifier(
+                AuthVendor.KAKAO,
+                jwksUri,
+                List.of(KAKAO_ISSUER),
+                List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
+        );
+
+        String arrayAudienceToken = buildRs256TokenWithAudienceList(
+                KAKAO_ISSUER,
+                List.of("other-aud", KAKAO_NATIVE_AUDIENCE),
+                "kakao-array-subject"
+        );
+
+        // when
+        String subject = verifier.verifyAndExtractSubject(arrayAudienceToken, AuthVendor.KAKAO);
+
+        // then
+        assertThat(subject).isEqualTo("kakao-array-subject");
+    }
+
+    @Test
+    @DisplayName("JWT aud claim이 JSON 배열이고 허용 목록과 교집합이 없으면 JwtException을 발생시킨다")
+    void verifyTokenWithArrayAudienceMissingAllowedListThrowsJwtException() throws Exception {
+        // given
+        setDispatcher(new JWKSet(rsaKey.toPublicJWK()));
+        mockWebServer.start();
+        String jwksUri = mockWebServer.url("/jwks").toString();
+
+        VendorIdTokenVerifier verifier = buildVerifier(
+                AuthVendor.KAKAO,
+                jwksUri,
+                List.of(KAKAO_ISSUER),
+                List.of(KAKAO_REST_AUDIENCE, KAKAO_NATIVE_AUDIENCE)
+        );
+
+        String arrayAudienceToken = buildRs256TokenWithAudienceList(
+                KAKAO_ISSUER,
+                List.of("foreign-aud-1", "foreign-aud-2"),
+                "kakao-subject"
+        );
+
+        // when & then
+        assertThatThrownBy(() -> verifier.verifyAndExtractSubject(arrayAudienceToken, AuthVendor.KAKAO))
+                .isInstanceOf(JwtException.class);
     }
 
     @Test
@@ -214,9 +296,11 @@ class VendorIdTokenVerifierTest {
     }
 
     private VendorIdTokenVerifier buildVerifier(
-            AuthVendor vendor, String jwksUri, List<String> issuers, String audience
+            AuthVendor vendor, String jwksUri, List<String> issuers, List<String> allowedAudiences
     ) {
-        VendorJwtConfig config = new VendorJwtConfig(jwksUri, issuers, audience);
+        VendorJwtConfig config = new VendorJwtConfig(
+                jwksUri, issuers, new LinkedHashSet<>(allowedAudiences)
+        );
         return new VendorIdTokenVerifier(Map.of(vendor, config));
     }
 
@@ -246,6 +330,26 @@ class VendorIdTokenVerifierTest {
 
         SignedJWT signedJWT = new SignedJWT(
                 new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(signingKey.getKeyID()).build(),
+                claims
+        );
+        signedJWT.sign(signer);
+        return signedJWT.serialize();
+    }
+
+    private String buildRs256TokenWithAudienceList(
+            String issuer, List<String> audiences, String subject
+    ) throws Exception {
+        JWSSigner signer = new RSASSASigner(rsaKey);
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .issuer(issuer)
+                .audience(audiences)
+                .subject(subject)
+                .expirationTime(Date.from(Instant.now().plusSeconds(3600)))
+                .issueTime(new Date())
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(
+                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
                 claims
         );
         signedJWT.sign(signer);
