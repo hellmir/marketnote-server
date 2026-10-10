@@ -18,21 +18,24 @@ public class TemplateRenderer {
             return null;
         }
 
+        validateAllTemplateKeysResolved(template, variables);
+
         String rendered = template;
         if (FormatValidator.hasValue(variables)) {
             for (Map.Entry<String, String> entry : variables.entrySet()) {
                 rendered = rendered.replace("{" + entry.getKey() + "}", entry.getValue());
             }
         }
-
-        validateNoUnresolvedVariables(rendered);
         return rendered;
     }
 
-    private static void validateNoUnresolvedVariables(String rendered) {
-        Matcher matcher = VARIABLE_PATTERN.matcher(rendered);
-        if (matcher.find()) {
-            throw new InvalidTemplateVariableException(matcher.group(0));
+    private static void validateAllTemplateKeysResolved(String template, Map<String, String> variables) {
+        Matcher matcher = VARIABLE_PATTERN.matcher(template);
+        while (matcher.find()) {
+            String key = matcher.group(1);
+            if (FormatValidator.hasNoValue(variables) || !variables.containsKey(key)) {
+                throw new InvalidTemplateVariableException(matcher.group(0));
+            }
         }
     }
 }
