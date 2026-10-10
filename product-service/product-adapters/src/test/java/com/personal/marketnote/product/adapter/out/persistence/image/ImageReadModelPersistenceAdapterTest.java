@@ -324,7 +324,7 @@ class ImageReadModelPersistenceAdapterTest {
                     13L, 100L, "PRODUCT", "PRODUCT_REPRESENTATIVE_IMAGE",
                     "https://cdn.example.com/13.png", 1
             );
-            entity.replaceResizedFiles(List.of(
+            entity.addResizedFiles(List.of(
                     new ImageReadModelJpaEntity.ResizedFileInput("600", "https://cdn.example.com/a.png"),
                     new ImageReadModelJpaEntity.ResizedFileInput("600", "https://cdn.example.com/b.png")
             ));

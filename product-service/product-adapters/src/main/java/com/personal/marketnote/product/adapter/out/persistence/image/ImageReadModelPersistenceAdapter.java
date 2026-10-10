@@ -65,7 +65,7 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
         Optional<ImageReadModelJpaEntity> existing = imageReadModelJpaRepository.findByImageId(imageId);
 
         if (existing.isPresent()) {
-            existing.get().updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs);
+            replaceExistingResizedFiles(existing.get(), targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs);
             return;
         }
 
@@ -73,15 +73,24 @@ public class ImageReadModelPersistenceAdapter implements FindProductImagesPort, 
             ImageReadModelJpaEntity entity = ImageReadModelJpaEntity.of(
                     imageId, targetId, targetType, fileSort, imageUrl, sortOrder
             );
-            entity.replaceResizedFiles(resizedInputs);
+            entity.addResizedFiles(resizedInputs);
             imageReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
             log.info("이미지 Read Model 중복 저장 (멱등 처리). imageId={}", imageId);
-            imageReadModelJpaRepository.findByImageId(imageId)
-                    .ifPresent(entity -> entity.updateFrom(
-                            targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs
-                    ));
+            imageReadModelJpaRepository.findByImageId(imageId).ifPresent(entity -> replaceExistingResizedFiles(
+                    entity, targetId, targetType, fileSort, imageUrl, sortOrder, resizedInputs
+            ));
         }
+    }
+
+    private void replaceExistingResizedFiles(
+            ImageReadModelJpaEntity entity, Long targetId, String targetType, String fileSort,
+            String imageUrl, Integer sortOrder, List<ImageReadModelJpaEntity.ResizedFileInput> resizedInputs
+    ) {
+        entity.updateFrom(targetId, targetType, fileSort, imageUrl, sortOrder);
+        entity.clearResizedFiles();
+        imageReadModelJpaRepository.flush();
+        entity.addResizedFiles(resizedInputs);
     }
 
     @Override
