@@ -77,19 +77,21 @@ public class ImageReadModelJpaEntity extends BaseGeneralEntity {
 
     public void updateFrom(
             Long targetId, String targetType, String fileSort,
-            String imageUrl, Integer sortOrder, List<ResizedFileInput> resizedInputs
+            String imageUrl, Integer sortOrder
     ) {
         this.targetId = targetId;
         this.targetType = targetType;
         this.fileSort = fileSort;
         this.imageUrl = imageUrl;
         this.sortOrder = sortOrder;
-        replaceResizedFiles(resizedInputs);
         activate();
     }
 
-    public void replaceResizedFiles(List<ResizedFileInput> resizedInputs) {
+    public void clearResizedFiles() {
         resizedFiles.clear();
+    }
+
+    public void addResizedFiles(List<ResizedFileInput> resizedInputs) {
         if (FormatValidator.hasNoValue(resizedInputs)) {
             return;
         }
