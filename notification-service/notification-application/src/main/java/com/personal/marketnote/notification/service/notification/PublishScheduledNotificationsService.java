@@ -13,6 +13,7 @@ import com.personal.marketnote.notification.port.out.notification.SendPushNotifi
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +32,7 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
     private final UpdateNotificationPort updateNotificationPort;
     private final DeleteDeviceTokenPort deleteDeviceTokenPort;
     private final PublishSseEventPort publishSseEventPort;
+    private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final Clock clock;
 
     @Override
@@ -96,6 +98,11 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
                     notification.getLandingUrl(), deviceToken.getPlatform());
             try {
                 SendPushNotificationResult pushResult = sendPushNotificationPort.send(pushCommand);
+                vendorCommunicationRecorder.recordFcmSendResult(
+                        notification, deviceToken,
+                        notification.getTitle(), notification.getBody(), notification.getLandingUrl(),
+                        pushResult
+                );
                 if (pushResult.success()) {
                     sentCount++;
                     continue;
@@ -107,6 +114,11 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
             } catch (FcmSendFailedException fsfe) {
                 log.error("FCM 발송 중 예외 발생: notificationId={}, deviceId={}",
                         notification.getId(), deviceToken.getDeviceId());
+                vendorCommunicationRecorder.recordFcmSendException(
+                        notification, deviceToken,
+                        notification.getTitle(), notification.getBody(), notification.getLandingUrl(),
+                        fsfe
+                );
                 failedCount++;
             }
         }

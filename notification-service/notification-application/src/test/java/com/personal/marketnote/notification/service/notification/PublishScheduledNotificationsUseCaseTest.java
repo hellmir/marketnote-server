@@ -17,6 +17,7 @@ import com.personal.marketnote.notification.port.out.notification.SendPushNotifi
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,9 @@ class PublishScheduledNotificationsUseCaseTest {
 
     @Mock
     private PublishSseEventPort publishSseEventPort;
+
+    @Mock
+    private VendorCommunicationRecorder vendorCommunicationRecorder;
 
     @Spy
     private Clock clock = Clock.fixed(
