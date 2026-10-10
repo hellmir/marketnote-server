@@ -3,6 +3,7 @@ package com.personal.marketnote.community.adapter.out.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.NoticeRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
@@ -187,5 +188,71 @@ class CommunityEventKafkaProducerTest {
         assertThat(payload.productId()).isEqualTo(50L);
         assertThat(payload.totalCount()).isEqualTo(7);
         assertThat(payload.averageRating()).isEqualTo(3.8f);
+    }
+
+    @Test
+    @DisplayName("공지 등록 이벤트 발행 시 올바른 토픽과 파티션 키(postId)로 Outbox에 저장된다")
+    void publishNoticeRegisteredEvent_savesToOutboxWithCorrectTopicAndPartitionKey() throws Exception {
+        // given
+        setUpClock("2026-03-02T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        communityEventKafkaProducer.publishNoticeRegisteredEvent(500L, "중요 공지", true);
+
+        // then
+        ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+        verify(saveOutboxEventPort).save(outboxCaptor.capture());
+
+        OutboxEvent captured = outboxCaptor.getValue();
+        assertThat(captured.getTopic()).isEqualTo(KafkaTopicConstants.NOTICE_REGISTERED);
+        assertThat(captured.getPartitionKey()).isEqualTo("500");
+        assertThat(captured.getSource()).isEqualTo("community-service");
+        assertThat(captured.getEventId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("공지 등록 이벤트 발행 시 EventEnvelope payload에 isImportant=true가 포함된다")
+    @SuppressWarnings("unchecked")
+    void publishNoticeRegisteredEvent_envelopeContainsIsImportantTrue() throws Exception {
+        // given
+        setUpClock("2026-03-02T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        communityEventKafkaProducer.publishNoticeRegisteredEvent(501L, "중요 공지", true);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+        assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.NOTICE_REGISTERED);
+
+        NoticeRegisteredEvent payload = (NoticeRegisteredEvent) capturedEnvelope.payload();
+        assertThat(payload.postId()).isEqualTo(501L);
+        assertThat(payload.title()).isEqualTo("중요 공지");
+        assertThat(payload.isImportant()).isTrue();
+    }
+
+    @Test
+    @DisplayName("공지 등록 이벤트 발행 시 EventEnvelope payload에 isImportant=false가 포함된다")
+    @SuppressWarnings("unchecked")
+    void publishNoticeRegisteredEvent_envelopeContainsIsImportantFalse() throws Exception {
+        // given
+        setUpClock("2026-03-02T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        communityEventKafkaProducer.publishNoticeRegisteredEvent(502L, "일반 공지", false);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        NoticeRegisteredEvent payload = (NoticeRegisteredEvent) envelopeCaptor.getValue().payload();
+        assertThat(payload.postId()).isEqualTo(502L);
+        assertThat(payload.title()).isEqualTo("일반 공지");
+        assertThat(payload.isImportant()).isFalse();
     }
 }

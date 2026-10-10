@@ -550,6 +550,111 @@ class PostPersistenceAdapterTest {
 
             assertThat(adapter.findById(2L)).isEmpty();
         }
+
+        @Test
+        @DisplayName("중요 공지 엔티티를 조회하면 isImportant=true로 매핑된다")
+        void mapsIsImportantTrue() {
+            Post importantNotice = Post.from(
+                    PostCreateState.builder()
+                            .userId(10L)
+                            .board(Board.NOTICE)
+                            .category("ANNOUNCEMENT")
+                            .writerName("관리자")
+                            .title("중요 공지")
+                            .content("내용")
+                            .isPrivate(false)
+                            .isPhoto(false)
+                            .isImportant(true)
+                            .build()
+            );
+            PostJpaEntity entity = newPersistedEntity(30L, importantNotice, "ANNOUNCEMENT");
+            when(postJpaRepository.findById(30L)).thenReturn(Optional.of(entity));
+
+            Optional<Post> result = adapter.findById(30L);
+
+            assertThat(result).isPresent();
+            assertThat(result.get().isImportant()).isTrue();
+        }
+
+        @Test
+        @DisplayName("일반 공지 엔티티를 조회하면 isImportant=false로 매핑된다")
+        void mapsIsImportantFalseForRegularNotice() {
+            Post regularNotice = Post.from(
+                    PostCreateState.builder()
+                            .userId(10L)
+                            .board(Board.NOTICE)
+                            .category("ANNOUNCEMENT")
+                            .writerName("관리자")
+                            .title("일반 공지")
+                            .content("내용")
+                            .isPrivate(false)
+                            .isPhoto(false)
+                            .isImportant(false)
+                            .build()
+            );
+            PostJpaEntity entity = newPersistedEntity(31L, regularNotice, "ANNOUNCEMENT");
+            when(postJpaRepository.findById(31L)).thenReturn(Optional.of(entity));
+
+            Optional<Post> result = adapter.findById(31L);
+
+            assertThat(result).isPresent();
+            assertThat(result.get().isImportant()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("save - isImportant")
+    class SaveIsImportant {
+
+        @Test
+        @DisplayName("중요 공지 Post를 저장하면 엔티티에 isImportant=true가 매핑된다")
+        void savesIsImportantTrueIntoEntity() {
+            Post importantNotice = Post.from(
+                    PostCreateState.builder()
+                            .userId(10L)
+                            .board(Board.NOTICE)
+                            .category("ANNOUNCEMENT")
+                            .writerName("관리자")
+                            .title("중요 공지")
+                            .content("내용")
+                            .isPrivate(false)
+                            .isPhoto(false)
+                            .isImportant(true)
+                            .build()
+            );
+            ArgumentCaptor<PostJpaEntity> entityCaptor = ArgumentCaptor.forClass(PostJpaEntity.class);
+            PostJpaEntity savedEntity = newPersistedEntity(50L, importantNotice, "ANNOUNCEMENT");
+            when(postJpaRepository.save(entityCaptor.capture())).thenReturn(savedEntity);
+
+            adapter.save(importantNotice);
+
+            assertThat(entityCaptor.getValue().isImportant()).isTrue();
+        }
+
+        @Test
+        @DisplayName("일반 공지 Post를 저장하면 엔티티에 isImportant=false가 매핑된다")
+        void savesIsImportantFalseIntoEntity() {
+            Post regularNotice = Post.from(
+                    PostCreateState.builder()
+                            .userId(10L)
+                            .board(Board.NOTICE)
+                            .category("ANNOUNCEMENT")
+                            .writerName("관리자")
+                            .title("일반 공지")
+                            .content("내용")
+                            .isPrivate(false)
+                            .isPhoto(false)
+                            .isImportant(false)
+                            .build()
+            );
+            ArgumentCaptor<PostJpaEntity> entityCaptor = ArgumentCaptor.forClass(PostJpaEntity.class);
+            PostJpaEntity savedEntity = newPersistedEntity(51L, regularNotice, "ANNOUNCEMENT");
+            when(postJpaRepository.save(entityCaptor.capture())).thenReturn(savedEntity);
+
+            adapter.save(regularNotice);
+
+            assertThat(entityCaptor.getValue().isImportant()).isFalse();
+        }
     }
 
     @Nested
