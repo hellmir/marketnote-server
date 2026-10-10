@@ -22,6 +22,8 @@ public class PostJpaEntityToDomainMapper {
                                 .parentId(entity.getParentId())
                                 .board(entity.getBoard())
                                 .category(entity.getCategory())
+                                .targetGroupType(entity.getTargetGroupType())
+                                .targetGroupId(entity.getTargetGroupId())
                                 .targetType(entity.getTargetType())
                                 .targetId(entity.getTargetId())
                                 .writerName(entity.getWriterName())
