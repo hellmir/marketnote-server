@@ -83,6 +83,72 @@ class OrderProductTest {
     }
 
     @Nested
+    @DisplayName("상품 식별자 매핑 (productId)")
+    class ProductIdTest {
+
+        @Test
+        @DisplayName("CreateState에 productId를 설정하면 OrderProduct 도메인에 productId가 매핑된다")
+        void shouldMapProductIdFromCreateState() {
+            // given
+            OrderProductCreateState state = OrderProductCreateState.builder()
+                    .productId(42L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getProductId()).isEqualTo(42L);
+        }
+
+        @Test
+        @DisplayName("SnapshotState에 productId를 설정하면 OrderProduct 도메인에 productId가 매핑된다")
+        void shouldMapProductIdFromSnapshotState() {
+            // given
+            OrderProductSnapshotState state = OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .productId(42L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.PAYMENT_PENDING)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getProductId()).isEqualTo(42L);
+        }
+
+        @Test
+        @DisplayName("CreateState에 productId가 null이면 OrderProduct 도메인에 null로 매핑된다")
+        void shouldMapNullProductIdFromCreateState() {
+            // given
+            OrderProductCreateState state = OrderProductCreateState.builder()
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getProductId()).isNull();
+        }
+    }
+
+    @Nested
     @DisplayName("배송 완료 일시 설정 (deliveredAt)")
     class DeliveredAtTest {
 
