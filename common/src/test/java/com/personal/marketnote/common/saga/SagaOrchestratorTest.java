@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Clock;
@@ -395,6 +396,129 @@ class SagaOrchestratorTest {
             verifyNoInteractions(updateSagaPort);
             verifyNoInteractions(saveOutboxEventPort);
             verify(findSagaPort, never()).findStepsBySagaInstanceId(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("SAGA 실패 알림")
+    class SagaFailureAlert {
+
+        @Test
+        @DisplayName("처리 타임아웃 시 afterCommit 콜백으로 실패 알림이 등록된다")
+        void shouldRegisterAlertOnProcessingTimeout() throws Exception {
+            // given
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createProcessingInstance(0);
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+                );
+
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
+
+                // when
+                sagaOrchestrator.handleProcessingTimeout(SAGA_ID);
+
+                // then — afterCommit 콜백 수동 실행
+                List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(synchronizations).hasSize(1);
+                synchronizations.forEach(TransactionSynchronization::afterCommit);
+
+                verify(sendSagaFailureAlertPort).sendFailureAlert(
+                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("TIMEOUT"), any(LocalDateTime.class)
+                );
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
+        }
+
+        @Test
+        @DisplayName("보상 타임아웃 시 afterCommit 콜백으로 실패 알림이 등록된다")
+        void shouldRegisterAlertOnCompensationTimeout() throws Exception {
+            // given
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createCompensatingInstance();
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
+                        "{\"rollback\":true}", null
+                );
+
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
+
+                // when
+                sagaOrchestrator.handleCompensationTimeout(SAGA_ID);
+
+                // then
+                List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(synchronizations).hasSize(1);
+                synchronizations.forEach(TransactionSynchronization::afterCommit);
+
+                verify(sendSagaFailureAlertPort).sendFailureAlert(
+                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("COMPENSATION_TIMEOUT"), any(LocalDateTime.class)
+                );
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
+        }
+
+        @Test
+        @DisplayName("보상 실패 시 afterCommit 콜백으로 실패 알림이 등록된다")
+        void shouldRegisterAlertOnCompensationFailure() throws Exception {
+            // given
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createCompensatingInstance();
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
+                        "{\"rollback\":true}", null
+                );
+
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
+
+                // when
+                sagaOrchestrator.handleCompensationResponse(SAGA_ID, STEP_1_NAME, false, "{\"error\":\"rollback failed\"}");
+
+                // then
+                List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(synchronizations).hasSize(1);
+                synchronizations.forEach(TransactionSynchronization::afterCommit);
+
+                verify(sendSagaFailureAlertPort).sendFailureAlert(
+                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME), eq("{\"error\":\"rollback failed\"}"), any(LocalDateTime.class)
+                );
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
+        }
+
+        @Test
+        @DisplayName("SAGA 정상 완료 시 실패 알림이 등록되지 않는다")
+        void shouldNotRegisterAlertOnSuccessfulCompletion() throws Exception {
+            // given
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createProcessingInstance(2);
+                SagaStep step2 = createSagaStep(30L, 1L, STEP_3_NAME, 2,
+                        SagaStepStatus.PROCESSING, "{\"message\":\"test\"}", null, null, null
+                );
+
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step2));
+
+                // when
+                sagaOrchestrator.handleStepResponse(SAGA_ID, STEP_3_NAME, true, "{\"sent\":true}");
+
+                // then
+                List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(synchronizations).isEmpty();
+                verifyNoInteractions(sendSagaFailureAlertPort);
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
         }
     }
 
