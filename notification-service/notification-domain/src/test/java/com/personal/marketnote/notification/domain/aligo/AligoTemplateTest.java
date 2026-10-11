@@ -146,6 +146,81 @@ class AligoTemplateTest {
                 .isInstanceOf(InvalidAligoTemplateDeletionException.class);
     }
 
+    @Test
+    @DisplayName("markAsRequested는 REG 상태에서만 허용된다")
+    void markAsRequestedShouldOnlyAllowFromReg() {
+        // given
+        AligoTemplate template = createTemplateWithInspStatus("REG");
+
+        // when
+        template.markAsRequested();
+
+        // then
+        assertThat(template.getInspStatus()).isEqualTo("REQ");
+    }
+
+    @Test
+    @DisplayName("markAsApproved는 REQ 상태에서만 허용된다")
+    void markAsApprovedShouldOnlyAllowFromReq() {
+        // given
+        AligoTemplate template = createTemplateWithInspStatus("REQ");
+
+        // when
+        template.markAsApproved();
+
+        // then
+        assertThat(template.getInspStatus()).isEqualTo("APR");
+    }
+
+    @Test
+    @DisplayName("markAsRejected는 REQ 상태에서만 허용되며 comments를 저장한다")
+    void markAsRejectedShouldOnlyAllowFromReqAndSaveComments() {
+        // given
+        AligoTemplate template = createTemplateWithInspStatus("REQ");
+
+        // when
+        template.markAsRejected("변수명 오류");
+
+        // then
+        assertThat(template.getInspStatus()).isEqualTo("REJ");
+        assertThat(template.getComments()).isEqualTo("변수명 오류");
+    }
+
+    @Test
+    @DisplayName("resetToRegistered는 REJ 상태에서만 허용된다")
+    void resetToRegisteredShouldOnlyAllowFromRej() {
+        // given
+        AligoTemplate template = createTemplateWithInspStatus("REJ");
+
+        // when
+        template.resetToRegistered();
+
+        // then
+        assertThat(template.getInspStatus()).isEqualTo("REG");
+    }
+
+    @Test
+    @DisplayName("APR 상태에서 markAsRequested 호출 시 예외가 발생한다")
+    void shouldThrowExceptionWhenMarkAsRequestedFromApr() {
+        // given
+        AligoTemplate template = createTemplateWithInspStatus("APR");
+
+        // when & then
+        assertThatThrownBy(() -> template.markAsRequested())
+                .isInstanceOf(InvalidAligoTemplateTransitionException.class);
+    }
+
+    @Test
+    @DisplayName("REG 상태에서 markAsApproved 호출 시 예외가 발생한다")
+    void shouldThrowExceptionWhenMarkAsApprovedFromReg() {
+        // given
+        AligoTemplate template = createTemplateWithInspStatus("REG");
+
+        // when & then
+        assertThatThrownBy(() -> template.markAsApproved())
+                .isInstanceOf(InvalidAligoTemplateTransitionException.class);
+    }
+
     private AligoTemplate createTemplateWithInspStatus(String inspStatus) {
         return AligoTemplate.from(
                 AligoTemplateSnapshotState.builder()
