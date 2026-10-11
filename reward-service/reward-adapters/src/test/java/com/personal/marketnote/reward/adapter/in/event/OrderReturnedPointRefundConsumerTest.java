@@ -44,8 +44,15 @@ class OrderReturnedPointRefundConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId,
                                                                  Long pointAmount, boolean isFullReturn) {
+        return buildRecord(orderId, buyerId, pointAmount, isFullReturn, 50000L, 80000L);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
+            Long orderId, Long buyerId, Long pointAmount, boolean isFullReturn,
+            Long returnAmount, Long paymentAmount
+    ) {
         OrderReturnedEvent event = new OrderReturnedEvent(
-                orderId, "order-key-1", buyerId, 50000L, 80000L, pointAmount, 3000L,
+                orderId, "order-key-1", buyerId, returnAmount, paymentAmount, pointAmount, 3000L,
                 isFullReturn, 2500L, List.of()
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
@@ -79,16 +86,26 @@ class OrderReturnedPointRefundConsumerTest {
     }
 
     @Test
-    @DisplayName("부분 반품 이벤트이면 포인트 환불 없이 acknowledge한다")
-    void handleOrderReturnedEvent_partialReturn_skipsAndAcknowledges() {
-        // given
+    @DisplayName("부분 반품 시 반품 금액 비율에 따라 비례 포인트를 환불한다")
+    void handleOrderReturnedEvent_partialReturn_refundsProportionalPoints() {
+        // given — pointAmount=1000, returnAmount=50000, paymentAmount=80000 → 1000*50000/80000=625
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false);
 
         // when
         consumer.handleOrderReturnedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(modifyUserPointUseCase);
+        ArgumentCaptor<ModifyUserPointCommand> captor = ArgumentCaptor.forClass(ModifyUserPointCommand.class);
+        verify(modifyUserPointUseCase).modify(captor.capture());
+        ModifyUserPointCommand command = captor.getValue();
+
+        assertThat(command.userId()).isEqualTo(100L);
+        assertThat(command.changeType()).isEqualTo(UserPointChangeType.ACCRUAL);
+        assertThat(command.amount()).isEqualTo(625L);
+        assertThat(command.sourceType()).isEqualTo(UserPointSourceType.ORDER);
+        assertThat(command.sourceId()).isEqualTo(1L);
+        assertThat(command.reason()).contains("부분 반품 포인트 환불");
+        assertThat(command.reason()).contains("test-event-id");
         verify(acknowledgment).acknowledge();
     }
 
