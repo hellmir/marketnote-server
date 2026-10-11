@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "true")
-@EnableConfigurationProperties(SagaProperties.class)
+@EnableConfigurationProperties({SagaProperties.class, SagaSlackProperties.class})
 @EnableScheduling
 public class SagaConfiguration {
 }

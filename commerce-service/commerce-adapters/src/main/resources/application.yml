@@ -131,6 +131,8 @@ saga:
   timeout-ms: ${SAGA_TIMEOUT_MS:60000}
   compensation-timeout-ms: ${SAGA_COMPENSATION_TIMEOUT_MS:120000}
   check-interval-ms: ${SAGA_CHECK_INTERVAL_MS:30000}
+  slack:
+    webhook-url: ${SAGA_SLACK_WEBHOOK_URL:}
 
 settlement:
   scheduler:

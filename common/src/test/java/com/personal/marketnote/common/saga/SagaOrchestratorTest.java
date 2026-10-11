@@ -6,6 +6,7 @@ import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import com.personal.marketnote.common.saga.exception.SagaInstanceNotFoundException;
 import com.personal.marketnote.common.saga.port.FindSagaPort;
 import com.personal.marketnote.common.saga.port.SaveSagaPort;
+import com.personal.marketnote.common.saga.port.SendSagaFailureAlertPort;
 import com.personal.marketnote.common.saga.port.UpdateSagaPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -58,6 +61,9 @@ class SagaOrchestratorTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private SendSagaFailureAlertPort sendSagaFailureAlertPort;
+
     private Clock clock;
     private SagaOrchestrator sagaOrchestrator;
     private TestSagaDefinition testDefinition;
@@ -74,7 +80,7 @@ class SagaOrchestratorTest {
         sagaOrchestrator = new SagaOrchestrator(
                 saveSagaPort, findSagaPort, updateSagaPort,
                 saveOutboxEventPort, objectMapper, clock,
-                List.of(testDefinition)
+                List.of(testDefinition), sendSagaFailureAlertPort
         );
 
         lenient().when(objectMapper.writeValueAsString(any())).thenReturn(PAYLOAD_JSON);
@@ -327,24 +333,29 @@ class SagaOrchestratorTest {
         @DisplayName("보상 실패 시 SagaInstance가 FAILED 상태로 전환된다")
         void shouldFailSagaOnCompensationFailure() throws Exception {
             // given
-            SagaInstance instance = createCompensatingInstance();
-            SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
-                    "{\"rollback\":true}", null
-            );
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createCompensatingInstance();
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.COMPENSATING, "{\"productId\":10}", "{\"success\":true}",
+                        "{\"rollback\":true}", null
+                );
 
-            when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
-            when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
 
-            // when
-            sagaOrchestrator.handleCompensationResponse(SAGA_ID, STEP_1_NAME, false, "{\"error\":\"rollback failed\"}");
+                // when
+                sagaOrchestrator.handleCompensationResponse(SAGA_ID, STEP_1_NAME, false, "{\"error\":\"rollback failed\"}");
 
-            // then
-            assertThat(step0.getStatus()).isEqualTo(SagaStepStatus.FAILED);
-            assertThat(instance.getStatus()).isEqualTo(SagaStatus.FAILED);
+                // then
+                assertThat(step0.getStatus()).isEqualTo(SagaStepStatus.FAILED);
+                assertThat(instance.getStatus()).isEqualTo(SagaStatus.FAILED);
 
-            verify(updateSagaPort).updateStep(step0);
-            verify(updateSagaPort).update(instance);
+                verify(updateSagaPort).updateStep(step0);
+                verify(updateSagaPort).update(instance);
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
         }
     }
 
