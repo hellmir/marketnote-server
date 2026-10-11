@@ -236,6 +236,108 @@ class OrderReturnedPointRefundConsumerTest {
     }
 
     @Test
+    @DisplayName("부분 반품 시 paymentAmount가 null이면 환불 없이 acknowledge한다")
+    void handleOrderReturnedEvent_partialReturn_nullPaymentAmount_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false, 50000L, null);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 반품 시 paymentAmount가 0이면 환불 없이 acknowledge한다")
+    void handleOrderReturnedEvent_partialReturn_zeroPaymentAmount_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false, 50000L, 0L);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 반품 시 returnAmount가 null이면 환불 없이 acknowledge한다")
+    void handleOrderReturnedEvent_partialReturn_nullReturnAmount_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false, null, 80000L);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 반품 시 비례 계산 결과가 0이면 환불 없이 acknowledge한다")
+    void handleOrderReturnedEvent_partialReturn_zeroProportionalAmount_skipsAndAcknowledges() {
+        // given — pointAmount=1, returnAmount=1, paymentAmount=100 → 1*1/100=0
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1L, false, 1L, 100L);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 반품 시 returnAmount가 paymentAmount를 초과하면 전액 환불한다")
+    void handleOrderReturnedEvent_partialReturn_returnAmountExceedsPayment_refundsFullPoints() {
+        // given — returnAmount=100000 > paymentAmount=80000 → pointAmount 전액 환불
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false, 100000L, 80000L);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<ModifyUserPointCommand> captor = ArgumentCaptor.forClass(ModifyUserPointCommand.class);
+        verify(modifyUserPointUseCase).modify(captor.capture());
+        assertThat(captor.getValue().amount()).isEqualTo(1000L);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 반품 시 returnAmount가 음수이면 환불 없이 acknowledge한다")
+    void handleOrderReturnedEvent_partialReturn_negativeReturnAmount_skipsAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false, -5000L, 80000L);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(modifyUserPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 반품 중복 이벤트 수신 시 멱등 처리하고 acknowledge한다")
+    void handleOrderReturnedEvent_partialReturn_duplicateEvent_idempotentAndAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, 1000L, false);
+        doThrow(new DuplicateUserPointHistoryException(100L, UserPointSourceType.ORDER, 1L, "부분 반품 포인트 환불"))
+                .when(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("UseCase에서 예상치 못한 예외 발생 시 acknowledge하지 않고 예외를 전파한다")
     void handleOrderReturnedEvent_useCaseUnexpectedException_propagatesWithoutAcknowledge() {
         // given
