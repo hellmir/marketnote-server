@@ -40,7 +40,9 @@ class OrderPaymentCompletedNotificationConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, 0L, List.of(), 0L
+                orderId, buyerId, 50000L, 0L,
+                null, null, null, null, null, null,
+                List.of(), 0L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.payment-completed", "commerce-service",
@@ -93,7 +95,9 @@ class OrderPaymentCompletedNotificationConsumerTest {
     void shouldSkipWhenEventTypeMismatch() {
         // given
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                100L, 1L, 50000L, 0L, List.of(), 0L
+                100L, 1L, 50000L, 0L,
+                null, null, null, null, null, null,
+                List.of(), 0L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

@@ -77,7 +77,7 @@ public class OrderPaymentCompletedSagaConsumer {
 
             publishOrderEventPort.publishOrderPaymentCompletedEvent(
                     payload.orderId(), payload.buyerId(), payload.totalAmount(),
-                    payload.pointAmount(), orderProducts, payload.totalAccumulatedPoint()
+                    payload.pointAmount(), null, orderProducts, payload.totalAccumulatedPoint()
             );
 
             sagaResponsePublisher.publishSuccess(

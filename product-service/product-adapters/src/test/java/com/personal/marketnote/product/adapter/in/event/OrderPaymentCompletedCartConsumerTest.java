@@ -40,7 +40,9 @@ class OrderPaymentCompletedCartConsumerTest {
             List<OrderProductItem> orderProducts
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, pointAmount, orderProducts, null
+                orderId, buyerId, totalAmount, pointAmount,
+                null, null, null, null, null, null,
+                orderProducts, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.payment-completed", "commerce-service",
@@ -51,8 +53,8 @@ class OrderPaymentCompletedCartConsumerTest {
 
     private List<OrderProductItem> createOrderProductItems() {
         return List.of(
-                new OrderProductItem(100L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
-                new OrderProductItem(101L, null, 1, 20000L)
+                new OrderProductItem(100L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
+                new OrderProductItem(101L, null, null, 1, 20000L)
         );
     }
 
@@ -143,7 +145,9 @@ class OrderPaymentCompletedCartConsumerTest {
         // given
         List<OrderProductItem> items = createOrderProductItems();
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 50L, 80000L, 5000L, items, null
+                1L, 50L, 80000L, 5000L,
+                null, null, null, null, null, null,
+                items, null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

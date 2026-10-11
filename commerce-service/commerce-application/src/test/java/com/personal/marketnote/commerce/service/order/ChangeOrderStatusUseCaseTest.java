@@ -274,7 +274,7 @@ class ChangeOrderStatusUseCaseTest {
             verify(findProductByPricePolicyPort, never()).findByPricePolicyIds(anyList());
             verify(modifyUserPointPort, never()).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
             verify(publishOrderEventPort, never()).publishOrderPaymentCompletedEvent(
-                    anyLong(), anyLong(), anyLong(), anyLong(), anyList(), anyLong());
+                    anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
         }
 
         @Test
@@ -296,7 +296,7 @@ class ChangeOrderStatusUseCaseTest {
 
             // then
             verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                    eq(orderId), eq(100L), eq(50000L), eq(0L), eq(order.getOrderProducts()), eq(500L));
+                    eq(orderId), eq(100L), eq(50000L), eq(0L), any(), eq(order.getOrderProducts()), eq(500L));
             verify(modifyUserPointPort).addPendingProductAccumulationPoints(100L, 500L, orderId);
         }
     }
@@ -417,7 +417,7 @@ class ChangeOrderStatusUseCaseTest {
 
             // then
             verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                    eq(orderId), eq(buyerId), eq(50000L), eq(0L), eq(order.getOrderProducts()), eq(500L));
+                    eq(orderId), eq(buyerId), eq(50000L), eq(0L), any(), eq(order.getOrderProducts()), eq(500L));
         }
 
         @Test
@@ -429,7 +429,7 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             doThrow(new RuntimeException("Outbox 저장 실패"))
                     .when(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                            anyLong(), anyLong(), anyLong(), anyLong(), anyList(), anyLong());
+                            anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)

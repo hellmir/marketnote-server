@@ -192,6 +192,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                     order.getBuyerId(),
                     order.getAmount().getTotalAmount().getValue(),
                     order.getAmount().getPointAmount().getValue(),
+                    order.getShippingAddress(),
                     order.getOrderProducts(),
                     totalAccumulatedPoint
             );
