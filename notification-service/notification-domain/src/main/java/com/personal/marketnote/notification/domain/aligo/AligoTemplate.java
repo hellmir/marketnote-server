@@ -13,9 +13,6 @@ import java.util.List;
 @Getter
 public class AligoTemplate extends BaseDomain {
 
-    private static final String INSP_STATUS_REG = "REG";
-    private static final String INSP_STATUS_REJ = "REJ";
-
     private Long id;
     private String senderKey;
     private String templateCode;
@@ -51,7 +48,7 @@ public class AligoTemplate extends BaseDomain {
                 .templateAdvert(state.isTemplateAdvert())
                 .imageUrl(state.getImageUrl())
                 .imageName(state.getImageName())
-                .inspStatus(INSP_STATUS_REG)
+                .inspStatus(AligoTemplateInspectionStatus.REG.name())
                 .templateStatus(AligoTemplateStatus.R)
                 .buttons(state.getButtons() != null ? state.getButtons() : List.of())
                 .build();
@@ -86,12 +83,54 @@ public class AligoTemplate extends BaseDomain {
     }
 
     public boolean canModify() {
-        return FormatValidator.hasValue(inspStatus)
-                && (inspStatus.equals(INSP_STATUS_REG) || inspStatus.equals(INSP_STATUS_REJ));
+        if (FormatValidator.hasNoValue(inspStatus)) {
+            return false;
+        }
+        return AligoTemplateInspectionStatus.from(inspStatus).canModify();
     }
 
     public boolean canDelete() {
         return canModify();
+    }
+
+    public boolean canRequestInspection() {
+        if (FormatValidator.hasNoValue(inspStatus)) {
+            return false;
+        }
+        return AligoTemplateInspectionStatus.from(inspStatus).canRequestInspection();
+    }
+
+    public void markAsRequested() {
+        AligoTemplateInspectionStatus current = AligoTemplateInspectionStatus.from(inspStatus);
+        if (!current.canTransitionTo(AligoTemplateInspectionStatus.REQ)) {
+            throw new InvalidAligoTemplateTransitionException(inspStatus, AligoTemplateInspectionStatus.REQ.name());
+        }
+        inspStatus = AligoTemplateInspectionStatus.REQ.name();
+    }
+
+    public void markAsApproved() {
+        AligoTemplateInspectionStatus current = AligoTemplateInspectionStatus.from(inspStatus);
+        if (!current.canTransitionTo(AligoTemplateInspectionStatus.APR)) {
+            throw new InvalidAligoTemplateTransitionException(inspStatus, AligoTemplateInspectionStatus.APR.name());
+        }
+        inspStatus = AligoTemplateInspectionStatus.APR.name();
+    }
+
+    public void markAsRejected(String comments) {
+        AligoTemplateInspectionStatus current = AligoTemplateInspectionStatus.from(inspStatus);
+        if (!current.canTransitionTo(AligoTemplateInspectionStatus.REJ)) {
+            throw new InvalidAligoTemplateTransitionException(inspStatus, AligoTemplateInspectionStatus.REJ.name());
+        }
+        inspStatus = AligoTemplateInspectionStatus.REJ.name();
+        this.comments = comments;
+    }
+
+    public void resetToRegistered() {
+        AligoTemplateInspectionStatus current = AligoTemplateInspectionStatus.from(inspStatus);
+        if (!current.canTransitionTo(AligoTemplateInspectionStatus.REG)) {
+            throw new InvalidAligoTemplateTransitionException(inspStatus, AligoTemplateInspectionStatus.REG.name());
+        }
+        inspStatus = AligoTemplateInspectionStatus.REG.name();
     }
 
     public void updateContent(
