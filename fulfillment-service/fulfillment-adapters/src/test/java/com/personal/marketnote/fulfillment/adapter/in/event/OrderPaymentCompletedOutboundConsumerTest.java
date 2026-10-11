@@ -51,7 +51,9 @@ class OrderPaymentCompletedOutboundConsumerTest {
             Long orderId, Long buyerId, List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, 1000L, orderProducts, 500L
+                orderId, buyerId, 50000L, 1000L,
+                null, null, null, null, null, null,
+                orderProducts, 500L
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
@@ -67,8 +69,8 @@ class OrderPaymentCompletedOutboundConsumerTest {
 
     private List<OrderPaymentCompletedEvent.OrderProductItem> buildOrderProducts() {
         return List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(1L, UUID.randomUUID(), 2, 10000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(2L, UUID.randomUUID(), 1, 30000L)
+                new OrderPaymentCompletedEvent.OrderProductItem(1L, null, UUID.randomUUID(), 2, 10000L),
+                new OrderPaymentCompletedEvent.OrderProductItem(2L, null, UUID.randomUUID(), 1, 30000L)
         );
     }
 
@@ -121,7 +123,9 @@ class OrderPaymentCompletedOutboundConsumerTest {
         void shouldAcknowledgeWhenEventTypeMismatch() {
             // given
             OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                    1L, 1L, 50000L, 1000L, buildOrderProducts(), 500L
+                    1L, 1L, 50000L, 1000L,
+                    null, null, null, null, null, null,
+                    buildOrderProducts(), 500L
             );
             EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                     "test-event-id", "wrong.event.type", "commerce-service",

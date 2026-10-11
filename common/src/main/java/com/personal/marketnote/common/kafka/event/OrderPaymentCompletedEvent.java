@@ -8,12 +8,19 @@ public record OrderPaymentCompletedEvent(
         Long buyerId,
         Long totalAmount,
         Long pointAmount,
+        String recipientName,
+        String recipientPhoneNumber,
+        String zipCode,
+        String address,
+        String addressDetail,
+        String deliveryRequestMessage,
         List<OrderProductItem> orderProducts,
         Long totalAccumulatedPoint
 ) {
 
     public record OrderProductItem(
             Long pricePolicyId,
+            Long productId,
             UUID sharerKey,
             Integer quantity,
             Long unitAmount

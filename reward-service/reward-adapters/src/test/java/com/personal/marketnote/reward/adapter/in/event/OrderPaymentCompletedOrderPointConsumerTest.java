@@ -46,7 +46,9 @@ class OrderPaymentCompletedOrderPointConsumerTest {
             Long orderId, Long buyerId, Long pointAmount
     ) {
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                orderId, buyerId, 50000L, pointAmount, List.of(), null
+                orderId, buyerId, 50000L, pointAmount,
+                null, null, null, null, null, null,
+                List.of(), null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.payment-completed", "commerce-service",
@@ -186,7 +188,9 @@ class OrderPaymentCompletedOrderPointConsumerTest {
     void handleOrderPaymentCompletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
-                1L, 100L, 50000L, 5000L, List.of(), null
+                1L, 100L, 50000L, 5000L,
+                null, null, null, null, null, null,
+                List.of(), null
         );
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

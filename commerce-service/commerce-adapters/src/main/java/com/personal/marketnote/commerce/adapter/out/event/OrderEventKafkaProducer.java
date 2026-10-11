@@ -2,13 +2,16 @@ package com.personal.marketnote.commerce.adapter.out.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.*;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
+import com.personal.marketnote.common.domain.deliveryrequestmessage.DeliveryRequestMessage;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -31,12 +34,13 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     @Override
     public void publishOrderPaymentCompletedEvent(
             Long orderId, Long buyerId, Long totalAmount,
-            Long pointAmount, List<OrderProduct> orderProducts,
-            Long totalAccumulatedPoint
+            Long pointAmount, ShippingAddress shippingAddress,
+            List<OrderProduct> orderProducts, Long totalAccumulatedPoint
     ) {
         List<OrderProductItem> items = orderProducts.stream()
                 .map(op -> new OrderProductItem(
                         op.getPricePolicyId(),
+                        op.getProductId(),
                         op.getSharerKey(),
                         op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()
@@ -44,7 +48,14 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 .toList();
 
         OrderPaymentCompletedEvent payload = new OrderPaymentCompletedEvent(
-                orderId, buyerId, totalAmount, pointAmount, items, totalAccumulatedPoint
+                orderId, buyerId, totalAmount, pointAmount,
+                resolveRecipientName(shippingAddress),
+                resolveRecipientPhoneNumber(shippingAddress),
+                FormatValidator.hasValue(shippingAddress) ? shippingAddress.getZipCode() : null,
+                FormatValidator.hasValue(shippingAddress) ? shippingAddress.getAddress() : null,
+                FormatValidator.hasValue(shippingAddress) ? shippingAddress.getAddressDetail() : null,
+                resolveDeliveryRequestMessage(shippingAddress),
+                items, totalAccumulatedPoint
         );
         String topic = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED;
         EventEnvelope<OrderPaymentCompletedEvent> envelope = EventEnvelope.of(
@@ -175,6 +186,31 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                     topic, orderId, e.getMessage(), e
             );
         }
+    }
+
+    private String resolveRecipientName(ShippingAddress shippingAddress) {
+        if (FormatValidator.hasNoValue(shippingAddress) || FormatValidator.hasNoValue(shippingAddress.getRecipientName())) {
+            return null;
+        }
+        return shippingAddress.getRecipientName().getValue();
+    }
+
+    private String resolveRecipientPhoneNumber(ShippingAddress shippingAddress) {
+        if (FormatValidator.hasNoValue(shippingAddress) || FormatValidator.hasNoValue(shippingAddress.getRecipientPhoneNumber())) {
+            return null;
+        }
+        return shippingAddress.getRecipientPhoneNumber().getValue();
+    }
+
+    private String resolveDeliveryRequestMessage(ShippingAddress shippingAddress) {
+        if (FormatValidator.hasNoValue(shippingAddress)) {
+            return null;
+        }
+        DeliveryRequestMessage message = shippingAddress.getDeliveryRequestMessage();
+        if (FormatValidator.hasNoValue(message)) {
+            return null;
+        }
+        return message.getValue();
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {

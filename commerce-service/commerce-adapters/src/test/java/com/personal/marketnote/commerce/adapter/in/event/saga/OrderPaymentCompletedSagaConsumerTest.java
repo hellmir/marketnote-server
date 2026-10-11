@@ -87,7 +87,7 @@ class OrderPaymentCompletedSagaConsumerTest {
 
             // then
             verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                    eq(1L), eq(100L), eq(60000L), eq(10000L), anyList(), eq(500L));
+                    eq(1L), eq(100L), eq(60000L), eq(10000L), any(), anyList(), eq(500L));
             verify(sagaResponsePublisher).publishSuccess(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
@@ -103,7 +103,7 @@ class OrderPaymentCompletedSagaConsumerTest {
 
             doThrow(new RuntimeException("이벤트 발행 실패"))
                     .when(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                            anyLong(), anyLong(), anyLong(), anyLong(), anyList(), anyLong());
+                            anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
 
             // when
             consumer.handlePaymentCompletedStep(record, acknowledgment);

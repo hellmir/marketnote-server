@@ -85,7 +85,7 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                1L, 50L, 80000L, 5000L, orderProducts, 1500L
+                1L, 50L, 80000L, 5000L, null, orderProducts, 1500L
         );
 
         // then
@@ -111,7 +111,7 @@ class OrderEventKafkaProducerTest {
 
         // when
         orderEventKafkaProducer.publishOrderPaymentCompletedEvent(
-                10L, 50L, 80000L, 5000L, orderProducts, 1500L
+                10L, 50L, 80000L, 5000L, null, orderProducts, 1500L
         );
 
         // then

@@ -732,9 +732,13 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
     private OrderPaymentCompletedEvent buildSampleOrderPaymentCompletedEvent() {
         List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts = List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(100L, SHARER_KEY_1, 2, 25000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(200L, null, 1, 20000L)
+                new OrderPaymentCompletedEvent.OrderProductItem(100L, 1L, SHARER_KEY_1, 2, 25000L),
+                new OrderPaymentCompletedEvent.OrderProductItem(200L, 2L, null, 1, 20000L)
         );
-        return new OrderPaymentCompletedEvent(1L, 10L, 50000L, 5000L, orderProducts, 500L);
+        return new OrderPaymentCompletedEvent(
+                1L, 10L, 50000L, 5000L,
+                "홍길동", "01012345678", "12345", "서울시 강남구", "101호", "문 앞에 놓아주세요",
+                orderProducts, 500L
+        );
     }
 }
