@@ -44,18 +44,21 @@ public class CompleteReturnService implements CompleteReturnUseCase {
 
         validateReturnableStatus(order);
 
+        List<Long> returnPricePolicyIds = collectReturnTargetPricePolicyIds(order);
+
         LocalDateTime now = LocalDateTime.now(clock);
-        transitionToReturned(order, now);
+        transitionToReturned(order, returnPricePolicyIds, now);
 
         OrderStatusHistory orderStatusHistory = createReturnedHistory(command.orderId(), order);
         updateOrderPort.update(order, orderStatusHistory);
 
-        long returnShippingFee = calculateReturnShippingFee(order);
+        long returnShippingFee = calculateReturnShippingFee(order, returnPricePolicyIds);
         boolean isFullReturn = resolveIsFullReturn(order);
 
-        publishReturnedEvent(order, returnShippingFee, isFullReturn);
+        List<OrderProduct> returnProducts = filterReturnedProducts(order, returnPricePolicyIds);
+        publishReturnedEvent(order, returnProducts, returnShippingFee, isFullReturn);
 
-        log.info("반품 완료 처리. orderId={}", command.orderId());
+        log.info("반품 완료 처리. orderId={}, isFullReturn={}", command.orderId(), isFullReturn);
     }
 
     private void validateReturnableStatus(Order order) {
@@ -65,32 +68,34 @@ public class CompleteReturnService implements CompleteReturnUseCase {
         }
     }
 
-    private void transitionToReturned(Order order, LocalDateTime now) {
-        if (order.getOrderStatus().isReturnRequested()) {
-            order.changeAllProductsStatus(OrderStatus.RETURN_IN_PROGRESS, now);
-        }
-        order.changeAllProductsStatus(OrderStatus.RETURNED, now);
+    private List<Long> collectReturnTargetPricePolicyIds(Order order) {
+        return order.getOrderProducts().stream()
+                .filter(p -> p.getOrderStatus().isReturnRequested()
+                        || p.getOrderStatus().canTransitionTo(OrderStatus.RETURNED))
+                .map(OrderProduct::getPricePolicyId)
+                .toList();
+    }
+
+    private void transitionToReturned(Order order, List<Long> returnPricePolicyIds, LocalDateTime now) {
+        order.changeProductsStatus(returnPricePolicyIds, OrderStatus.RETURN_IN_PROGRESS, now);
+        order.changeProductsStatus(returnPricePolicyIds, OrderStatus.RETURNED, now);
     }
 
     private OrderStatusHistory createReturnedHistory(Long orderId, Order order) {
         return OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()
                         .orderId(orderId)
-                        .orderStatus(OrderStatus.RETURNED)
+                        .orderStatus(order.getOrderStatus())
                         .reasonCategory(order.getStatusChangeReasonCategory())
                         .build()
         );
     }
 
-    private long calculateReturnShippingFee(Order order) {
-        List<Long> pricePolicyIds = order.getOrderProducts().stream()
-                .map(OrderProduct::getPricePolicyId)
-                .toList();
-
+    private long calculateReturnShippingFee(Order order, List<Long> returnPricePolicyIds) {
         CalculateReturnShippingFeeCommand feeCommand = CalculateReturnShippingFeeCommand.builder()
                 .orderId(order.getId())
                 .reasonCategory(order.getStatusChangeReasonCategory())
-                .returnPricePolicyIds(pricePolicyIds)
+                .returnPricePolicyIds(returnPricePolicyIds)
                 .build();
 
         CalculateReturnShippingFeeResult feeResult =
@@ -104,9 +109,18 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 .allMatch(product -> product.getOrderStatus().isReturned());
     }
 
-    private void publishReturnedEvent(Order order, long returnShippingFee, boolean isFullReturn) {
+    private List<OrderProduct> filterReturnedProducts(Order order, List<Long> returnPricePolicyIds) {
+        return order.getOrderProducts().stream()
+                .filter(p -> returnPricePolicyIds.contains(p.getPricePolicyId()))
+                .toList();
+    }
+
+    private void publishReturnedEvent(
+            Order order, List<OrderProduct> returnProducts,
+            long returnShippingFee, boolean isFullReturn
+    ) {
         OrderAmount amount = order.getAmount();
-        long returnAmount = order.getOrderProducts().stream()
+        long returnAmount = returnProducts.stream()
                 .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
                 .reduce(0L, Math::addExact);
 
@@ -120,7 +134,7 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 amount.getShippingFee().getValue(),
                 isFullReturn,
                 returnShippingFee,
-                order.getOrderProducts()
+                returnProducts
         );
     }
 }
