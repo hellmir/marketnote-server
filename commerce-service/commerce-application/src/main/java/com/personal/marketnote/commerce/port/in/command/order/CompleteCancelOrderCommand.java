@@ -2,6 +2,9 @@ package com.personal.marketnote.commerce.port.in.command.order;
 
 import lombok.Builder;
 
+import java.util.List;
+import java.util.UUID;
+
 @Builder
 public record CompleteCancelOrderCommand(
         Long orderId,
@@ -14,6 +17,14 @@ public record CompleteCancelOrderCommand(
         boolean isFullCancel,
         Long alreadyRefunded,
         String reasonCategory,
-        String reason
+        String reason,
+        List<CancelProductItemCommand> cancelProducts
 ) {
+    public record CancelProductItemCommand(
+            Long pricePolicyId,
+            UUID sharerKey,
+            Integer quantity,
+            Long unitAmount
+    ) {
+    }
 }

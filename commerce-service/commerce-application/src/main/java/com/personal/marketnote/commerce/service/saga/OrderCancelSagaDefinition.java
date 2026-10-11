@@ -96,7 +96,8 @@ public class OrderCancelSagaDefinition implements SagaDefinition<OrderCancelSaga
                 entry("alreadyRefunded", context.alreadyRefunded()),
                 entry("reasonCategory", context.reasonCategory()),
                 entry("reason", context.reason()),
-                entry("orderProducts", context.orderProducts())
+                entry("orderProducts", context.orderProducts()),
+                entry("cancelProducts", context.cancelProducts())
         ));
     }
 

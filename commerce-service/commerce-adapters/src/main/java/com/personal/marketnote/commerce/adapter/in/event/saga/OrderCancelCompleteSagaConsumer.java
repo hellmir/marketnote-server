@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.event.saga;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.in.event.saga.payload.CompleteCancellationSagaPayload;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand;
+import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand.CancelProductItemCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.CompleteCancelOrderUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
@@ -10,6 +11,7 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
 import com.personal.marketnote.common.utility.FormatValidator;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -91,6 +93,7 @@ public class OrderCancelCompleteSagaConsumer {
                     .alreadyRefunded(payload.alreadyRefunded())
                     .reasonCategory(payload.reasonCategory())
                     .reason(payload.reason())
+                    .cancelProducts(mapToCancelProductItemCommands(payload.cancelProducts()))
                     .build();
 
             completeCancelOrderUseCase.completeCancellation(command);
@@ -110,6 +113,19 @@ public class OrderCancelCompleteSagaConsumer {
                     stepMessage.messageType(), "주문 취소 완료 처리 실패"
             );
         }
+    }
+
+    private List<CancelProductItemCommand> mapToCancelProductItemCommands(
+            List<CompleteCancellationSagaPayload.OrderProductItem> items
+    ) {
+        if (FormatValidator.hasNoValue(items)) {
+            return List.of();
+        }
+        return items.stream()
+                .map(item -> new CancelProductItemCommand(
+                        item.pricePolicyId(), item.sharerKey(), item.quantity(), item.unitAmount()
+                ))
+                .toList();
     }
 
     private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
