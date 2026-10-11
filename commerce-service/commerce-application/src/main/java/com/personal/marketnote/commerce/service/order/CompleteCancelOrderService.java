@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.order;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand;
+import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand.CancelProductItemCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.CompleteCancelOrderUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @UseCase
 @RequiredArgsConstructor
@@ -50,6 +52,8 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
 
         updateOrderPort.update(order, orderStatusHistory);
 
+        List<OrderProduct> cancelProducts = mapToOrderProducts(command.cancelProducts());
+
         publishOrderEventPort.publishOrderCancelledEvent(
                 command.orderId(),
                 command.orderKey(),
@@ -61,7 +65,7 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
                 command.isFullCancel(),
                 command.alreadyRefunded(),
                 order.getOrderProducts(),
-                order.getOrderProducts()
+                cancelProducts
         );
 
         log.info("주문 취소 완료 처리. orderId={}, orderKey={}", command.orderId(), command.orderKey());
@@ -71,6 +75,23 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
         if (!order.getOrderStatus().isCancelRequested()) {
             throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), OrderStatus.CANCELLED);
         }
+    }
+
+    private List<OrderProduct> mapToOrderProducts(List<CancelProductItemCommand> items) {
+        if (FormatValidator.hasNoValue(items)) {
+            return List.of();
+        }
+        return items.stream()
+                .map(item -> OrderProduct.from(
+                        OrderProductSnapshotState.builder()
+                                .pricePolicyId(item.pricePolicyId())
+                                .sharerKey(item.sharerKey())
+                                .quantity(item.quantity())
+                                .unitAmount(item.unitAmount())
+                                .accumulatedPoint(0L)
+                                .build()
+                ))
+                .toList();
     }
 
     private OrderStatusReasonCategory resolveReasonCategory(String reasonCategoryStr) {

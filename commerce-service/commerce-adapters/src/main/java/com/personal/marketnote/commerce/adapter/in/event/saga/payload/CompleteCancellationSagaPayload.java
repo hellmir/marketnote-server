@@ -15,7 +15,8 @@ public record CompleteCancellationSagaPayload(
         Long alreadyRefunded,
         String reasonCategory,
         String reason,
-        List<OrderProductItem> orderProducts
+        List<OrderProductItem> orderProducts,
+        List<OrderProductItem> cancelProducts
 ) {
     public record OrderProductItem(
             Long pricePolicyId,

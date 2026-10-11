@@ -89,6 +89,7 @@ public class CancelOrderService implements CancelOrderUseCase {
                 originalStatus.name(),
                 resolveReasonCategoryName(command.reasonCategory()),
                 command.reason(),
+                orderProductItems,
                 orderProductItems
         );
 

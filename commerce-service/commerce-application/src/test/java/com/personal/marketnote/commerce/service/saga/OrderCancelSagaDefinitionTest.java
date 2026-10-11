@@ -104,17 +104,18 @@ class OrderCancelSagaDefinitionTest {
 
         @BeforeEach
         void setUp() {
+            List<OrderProductItem> orderProducts = List.of(
+                    new OrderProductItem(
+                            10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L
+                    ),
+                    new OrderProductItem(20L, null, 1, 10000L)
+            );
             context = new OrderCancelSagaContext(
                     1L, "order-key-1", 100L,
                     50000L, 50000L, 0L, 3000L,
                     true, 0L,
                     "PREPARING", "CANCEL_ORDER", "구매 의사 취소",
-                    List.of(
-                            new OrderProductItem(
-                                    10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L
-                            ),
-                            new OrderProductItem(20L, null, 1, 10000L)
-                    )
+                    orderProducts, orderProducts
             );
         }
 
