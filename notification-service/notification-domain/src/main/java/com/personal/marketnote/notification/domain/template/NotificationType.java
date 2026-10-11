@@ -18,7 +18,8 @@ public enum NotificationType {
     EVENT("이벤트"),
     ONE_ON_ONE_INQUIRY_REPLY("1:1 문의 답변"),
     PRODUCT_INQUIRY_REPLY("상품 문의 답변"),
-    POINT_ACCRUAL("포인트 적립");
+    POINT_ACCRUAL("포인트 적립"),
+    CONSENT_REMINDER("수신 동의 재고지");
 
     private final String description;
 
