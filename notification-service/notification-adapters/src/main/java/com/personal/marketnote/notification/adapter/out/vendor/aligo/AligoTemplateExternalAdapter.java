@@ -9,6 +9,7 @@ import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.DeleteAligoTemplateExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoTemplateListExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.RegisterAligoTemplateExternalPort;
+import com.personal.marketnote.notification.port.out.aligo.RequestAligoTemplateInspectionExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoTemplateExternalPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AligoTemplateExternalAdapter
         implements RegisterAligoTemplateExternalPort, UpdateAligoTemplateExternalPort,
-        DeleteAligoTemplateExternalPort, GetAligoTemplateListExternalPort {
+        DeleteAligoTemplateExternalPort, GetAligoTemplateListExternalPort,
+        RequestAligoTemplateInspectionExternalPort {
 
     private final AligoHttpClient aligoHttpClient;
     private final ObjectMapper objectMapper;
@@ -56,6 +58,14 @@ public class AligoTemplateExternalAdapter
         return response.list().stream()
                 .map(this::toTemplateDomain)
                 .toList();
+    }
+
+    @Override
+    public void requestInspection(String senderKey, String templateCode) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("senderkey", senderKey);
+        params.add("tpl_code", templateCode);
+        aligoHttpClient.post("/akv10/template/request/", params, AligoApiResponse.class);
     }
 
     @Override

@@ -15,11 +15,13 @@ import com.personal.marketnote.notification.port.in.command.UpdateAligoTemplateC
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoTemplateDetailResult;
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoTemplateListResult;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterAligoTemplateResult;
+import com.personal.marketnote.notification.port.in.result.aligo.RequestAligoTemplateInspectionResult;
 import com.personal.marketnote.notification.port.in.result.aligo.UpdateAligoTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.DeleteAligoTemplateUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoTemplateByCodeUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoTemplateListUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterAligoTemplateUseCase;
+import com.personal.marketnote.notification.port.in.usecase.aligo.RequestAligoTemplateInspectionUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.UpdateAligoTemplateUseCase;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,6 +49,7 @@ public class AligoTemplateController {
     private final DeleteAligoTemplateUseCase deleteAligoTemplateUseCase;
     private final GetAligoTemplateListUseCase getAligoTemplateListUseCase;
     private final GetAligoTemplateByCodeUseCase getAligoTemplateByCodeUseCase;
+    private final RequestAligoTemplateInspectionUseCase requestAligoTemplateInspectionUseCase;
 
     @GetMapping
     @PreAuthorize(ADMIN_POINTCUT)
@@ -126,6 +129,19 @@ public class AligoTemplateController {
                         UpdateAligoTemplateResponse.from(result),
                         HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 수정 성공"
                 ),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/{templateCode}/inspection")
+    @PreAuthorize(ADMIN_POINTCUT)
+    public ResponseEntity<BaseResponse<RequestAligoTemplateInspectionResult>> requestInspection(
+            @PathVariable String templateCode
+    ) {
+        RequestAligoTemplateInspectionResult result = requestAligoTemplateInspectionUseCase.requestInspection(templateCode);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(result, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 검수요청 성공"),
                 HttpStatus.OK
         );
     }
