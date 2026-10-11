@@ -17,6 +17,7 @@ public class OrderProduct {
     private static final long REVIEW_DEADLINE_DAYS = 30;
 
     private Long orderId;
+    private Long productId;
     private Long sellerId;
     private Long pricePolicyId;
     private UUID orderProductKey;
@@ -32,6 +33,7 @@ public class OrderProduct {
 
     public static OrderProduct from(OrderProductCreateState state) {
         return OrderProduct.builder()
+                .productId(state.getProductId())
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
                 .orderProductKey(RandomCodeGenerator.generateOrderProductKey())
@@ -47,6 +49,7 @@ public class OrderProduct {
     public static OrderProduct from(OrderProductSnapshotState state) {
         return OrderProduct.builder()
                 .orderId(state.getOrderId())
+                .productId(state.getProductId())
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
                 .orderProductKey(state.getOrderProductKey())

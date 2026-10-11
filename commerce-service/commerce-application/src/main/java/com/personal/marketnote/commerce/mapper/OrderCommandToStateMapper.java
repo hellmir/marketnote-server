@@ -37,6 +37,7 @@ public class OrderCommandToStateMapper {
                 .map(item -> {
                     Long accumulatedPoint = resolveAccumulatedPoint(item.pricePolicyId(), productInfoMap);
                     return OrderProductCreateState.builder()
+                            .productId(item.productId())
                             .sellerId(item.sellerId())
                             .pricePolicyId(item.pricePolicyId())
                             .sharerKey(item.sharerKey())
