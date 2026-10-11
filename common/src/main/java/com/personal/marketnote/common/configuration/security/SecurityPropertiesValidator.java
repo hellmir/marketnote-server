@@ -21,6 +21,7 @@ public class SecurityPropertiesValidator {
     private static final Set<String> WEAK_DEFAULTS = Set.of(
             "dev-secret-change-me", "dev-hmac-secret-change-me",
             "dev-pin-key-change-me",
+            "dev-aligo-api-key-change-me", "dev-aligo-user-id-change-me",
             "abc", "def", "ghi",
             "change-me", "password", "root", "secret", "test",
             "0000", "1234567890123456"
@@ -55,6 +56,15 @@ public class SecurityPropertiesValidator {
     @Value("${spring.kafka.sasl.password:}")
     private String kafkaSaslPassword;
 
+    @Value("${security.validation.aligo-enabled:false}")
+    private boolean aligoValidationEnabled;
+
+    @Value("${aligo.api-key:}")
+    private String aligoApiKey;
+
+    @Value("${aligo.user-id:}")
+    private String aligoUserId;
+
     @Value("${security.validation.gifticon-pin-enabled:false}")
     private boolean gifticonPinValidationEnabled;
 
@@ -83,6 +93,11 @@ public class SecurityPropertiesValidator {
         validateRequired(violations, "spring.hmac.secret-key (HMAC_SECRET_KEY)", hmacSecretKey);
 
         validateKafkaSasl(violations);
+
+        if (aligoValidationEnabled) {
+            validateRequired(violations, "aligo.api-key (ALIGO_API_KEY)", aligoApiKey);
+            validateRequired(violations, "aligo.user-id (ALIGO_USER_ID)", aligoUserId);
+        }
 
         if (gifticonPinValidationEnabled) {
             validateRequired(violations, "gifticon.pin.encrypt-key (GIFTICON_PIN_ENCRYPT_KEY)", gifticonPinEncryptKey);

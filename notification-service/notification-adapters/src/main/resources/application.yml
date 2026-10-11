@@ -95,6 +95,16 @@ sse:
   heartbeat:
     interval-ms: ${SSE_HEARTBEAT_INTERVAL_MS:30000}
 
+aligo:
+  base-url: ${ALIGO_BASE_URL:https://apis.aligo.in}
+  api-key: ${ALIGO_API_KEY:dev-aligo-api-key-change-me}
+  user-id: ${ALIGO_USER_ID:dev-aligo-user-id-change-me}
+  timeout: ${ALIGO_TIMEOUT:10000}
+  test-mode: ${ALIGO_TEST_MODE:true}
+  retry:
+    max-attempts: ${ALIGO_RETRY_MAX_ATTEMPTS:3}
+    initial-backoff-ms: ${ALIGO_RETRY_INITIAL_BACKOFF_MS:1000}
+
 management:
   endpoints:
     web:
