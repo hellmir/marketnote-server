@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
+import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
+import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.exception.ShippingTrackerAlreadyExistsException;
 import com.personal.marketnote.fulfillment.port.in.command.CreateShippingTrackerCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.CreateShippingTrackerUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentDeliveryUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,7 +23,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -40,6 +48,18 @@ class OrderPaymentCompletedOutboundConsumerTest {
 
     @Mock
     private CreateShippingTrackerUseCase createShippingTrackerUseCase;
+
+    @Mock
+    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+
+    @Mock
+    private RegisterFulfillmentDeliveryUseCase registerFulfillmentDeliveryUseCase;
+
+    @Mock
+    private FulfillmentAuthProperties fasstoAuthProperties;
+
+    @Spy
+    private Clock clock = Clock.fixed(Instant.parse("2026-10-11T10:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -82,6 +102,10 @@ class OrderPaymentCompletedOutboundConsumerTest {
         @DisplayName("정상 이벤트 수신 시 배송 추적을 생성하고 acknowledge한다")
         void shouldCreateShippingTrackerAndAcknowledge() {
             // given
+            FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20260416200000");
+            lenient().when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
+            lenient().when(fasstoAuthProperties.getCustomerCode()).thenReturn("TEST_CODE");
+
             ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(100L, 1L, buildOrderProducts());
 
             // when
@@ -175,6 +199,10 @@ class OrderPaymentCompletedOutboundConsumerTest {
         @DisplayName("ShippingTrackerAlreadyExistsException 발생 시 acknowledge한다")
         void shouldAcknowledgeWhenShippingTrackerAlreadyExists() {
             // given
+            FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20260416200000");
+            lenient().when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
+            lenient().when(fasstoAuthProperties.getCustomerCode()).thenReturn("TEST_CODE");
+
             ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 1L, buildOrderProducts());
             doThrow(new ShippingTrackerAlreadyExistsException(1L))
                     .when(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
@@ -191,6 +219,10 @@ class OrderPaymentCompletedOutboundConsumerTest {
         @DisplayName("기타 예외 발생 시 예외를 전파하고 acknowledge하지 않는다")
         void shouldPropagateExceptionAndNotAcknowledge() {
             // given
+            FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20260416200000");
+            lenient().when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
+            lenient().when(fasstoAuthProperties.getCustomerCode()).thenReturn("TEST_CODE");
+
             ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 1L, buildOrderProducts());
             doThrow(new RuntimeException("네트워크 오류"))
                     .when(createShippingTrackerUseCase).createShippingTracker(any(CreateShippingTrackerCommand.class));
