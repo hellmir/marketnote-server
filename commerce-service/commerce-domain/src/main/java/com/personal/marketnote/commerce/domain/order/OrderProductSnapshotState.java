@@ -13,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderProductSnapshotState {
     private final Long orderId;
+    private final Long productId;
     private final Long sellerId;
     private final Long pricePolicyId;
     private final UUID orderProductKey;

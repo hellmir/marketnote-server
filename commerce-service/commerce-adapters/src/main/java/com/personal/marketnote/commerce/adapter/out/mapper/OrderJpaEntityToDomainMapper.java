@@ -74,6 +74,7 @@ public class OrderJpaEntityToDomainMapper {
         return Optional.ofNullable(orderProductJpaEntity)
                 .map(entity -> OrderProductSnapshotState.builder()
                         .orderId(entity.getId().getOrderId())
+                        .productId(entity.getProductId())
                         .sellerId(entity.getSellerId())
                         .pricePolicyId(entity.getId().getPricePolicyId())
                         .orderProductKey(entity.getOrderProductKey())
@@ -147,6 +148,7 @@ public class OrderJpaEntityToDomainMapper {
                 .map(entity -> OrderProduct.from(
                         OrderProductSnapshotState.builder()
                                 .orderId(entity.getId().getOrderId())
+                                .productId(entity.getProductId())
                                 .sellerId(entity.getSellerId())
                                 .pricePolicyId(entity.getId().getPricePolicyId())
                                 .orderProductKey(entity.getOrderProductKey())
