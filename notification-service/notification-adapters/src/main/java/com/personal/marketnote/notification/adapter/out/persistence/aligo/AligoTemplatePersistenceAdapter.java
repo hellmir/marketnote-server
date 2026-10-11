@@ -8,6 +8,7 @@ import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateNotFoundException;
 import com.personal.marketnote.notification.port.out.aligo.DeleteAligoTemplatePort;
+import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplateListPort;
 import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplatePort;
 import com.personal.marketnote.notification.port.out.aligo.SaveAligoTemplatePort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoTemplatePort;
@@ -21,7 +22,8 @@ import java.util.Optional;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class AligoTemplatePersistenceAdapter
-        implements SaveAligoTemplatePort, UpdateAligoTemplatePort, DeleteAligoTemplatePort, FindAligoTemplatePort {
+        implements SaveAligoTemplatePort, UpdateAligoTemplatePort, DeleteAligoTemplatePort,
+        FindAligoTemplatePort, FindAligoTemplateListPort {
 
     private final AligoTemplateJpaRepository aligoTemplateJpaRepository;
 
@@ -70,6 +72,13 @@ public class AligoTemplatePersistenceAdapter
     public Optional<AligoTemplate> findByTemplateCode(String templateCode) {
         return aligoTemplateJpaRepository.findByTemplateCodeWithButtons(templateCode)
                 .map(AligoTemplateJpaEntityToDomainMapper::mapToDomain);
+    }
+
+    @Override
+    public List<AligoTemplate> findAllBySenderKey(String senderKey) {
+        return aligoTemplateJpaRepository.findAllBySenderKeyAndStatus(senderKey).stream()
+                .map(AligoTemplateJpaEntityToDomainMapper::mapToDomain)
+                .toList();
     }
 
     private List<AligoTemplateButtonJpaEntity> mapButtonsToEntities(List<AligoTemplateButton> buttons) {
