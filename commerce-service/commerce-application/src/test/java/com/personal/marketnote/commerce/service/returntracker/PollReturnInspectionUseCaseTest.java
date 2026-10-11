@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -40,6 +41,9 @@ class PollReturnInspectionUseCaseTest {
     @Mock
     private CompleteReturnInspectionService completeReturnInspectionService;
 
+    @Mock
+    private FailReturnInspectionService failReturnInspectionService;
+
     private final Clock clock = Clock.fixed(Instant.parse("2026-09-17T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 
     @InjectMocks
@@ -49,7 +53,9 @@ class PollReturnInspectionUseCaseTest {
     void setUp() {
         pollReturnInspectionService = new PollReturnInspectionService(
                 findReturnTrackerPort, updateReturnTrackerPort,
-                getReturnInspectionResultPort, completeReturnInspectionService, clock);
+                getReturnInspectionResultPort, completeReturnInspectionService,
+                failReturnInspectionService, clock
+        );
     }
 
     @Nested
@@ -178,8 +184,8 @@ class PollReturnInspectionUseCaseTest {
     class InspectionFailedOrOnHoldTest {
 
         @Test
-        @DisplayName("상품 중 검수 실패(02)가 있으면 tracker를 FAILED로 업데이트한다")
-        void shouldUpdateTrackerToFailedWhenProductInspectionFailed() {
+        @DisplayName("상품 중 검수 실패(02)가 있으면 failReturnInspectionService에 위임한다")
+        void shouldDelegateToFailReturnInspectionServiceWhenProductInspectionFailed() {
             // given
             ReturnTracker tracker = createTracker(1L, "RS-001");
             when(findReturnTrackerPort.findByInspectionStatus(ReturnInspectionStatus.PENDING))
@@ -194,9 +200,9 @@ class PollReturnInspectionUseCaseTest {
             pollReturnInspectionService.pollPendingInspections();
 
             // then
-            assertThat(tracker.isInspectionFailed()).isTrue();
-            verify(updateReturnTrackerPort).update(tracker);
+            verify(failReturnInspectionService).failInspection(eq(tracker), any(LocalDateTime.class));
             verifyNoInteractions(completeReturnInspectionService);
+            verifyNoInteractions(updateReturnTrackerPort);
         }
 
         @Test
@@ -238,8 +244,8 @@ class PollReturnInspectionUseCaseTest {
             pollReturnInspectionService.pollPendingInspections();
 
             // then
-            assertThat(tracker.isInspectionFailed()).isTrue();
-            verify(updateReturnTrackerPort).update(tracker);
+            verify(failReturnInspectionService).failInspection(eq(tracker), any(LocalDateTime.class));
+            verifyNoInteractions(updateReturnTrackerPort);
         }
     }
 
@@ -332,7 +338,7 @@ class PollReturnInspectionUseCaseTest {
                     .doesNotThrowAnyException();
 
             // then
-            verify(updateReturnTrackerPort).update(tracker2);
+            verify(failReturnInspectionService).failInspection(eq(tracker2), any(LocalDateTime.class));
         }
 
         @Test
@@ -353,8 +359,7 @@ class PollReturnInspectionUseCaseTest {
             pollReturnInspectionService.pollPendingInspections();
 
             // then
-            assertThat(tracker1.isInspectionFailed()).isTrue();
-            verify(updateReturnTrackerPort).update(tracker1);
+            verify(failReturnInspectionService).failInspection(eq(tracker1), any(LocalDateTime.class));
         }
     }
 
