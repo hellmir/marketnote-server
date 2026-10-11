@@ -174,11 +174,11 @@ class RejectReturnUseCaseTest {
         }
 
         @Test
-        @DisplayName("반품 진행 중 상태의 주문을 반품 불가 판정하면 InvalidOrderStatusTransitionException이 발생한다")
-        void rejectReturn_fromReturnInProgress_throwsException() {
+        @DisplayName("배송중 상태의 주문을 반품 불가 판정하면 InvalidOrderStatusTransitionException이 발생한다")
+        void rejectReturn_fromShipping_throwsException() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.RETURN_IN_PROGRESS);
+            Order order = createOrder(orderId, buyerId, OrderStatus.SHIPPING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RejectReturnCommand command = RejectReturnCommand.builder()
@@ -229,7 +229,7 @@ class RejectReturnUseCaseTest {
         void rejectReturn_invalidTransition_doesNotCallPublishPort() {
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.RETURN_IN_PROGRESS);
+            Order order = createOrder(orderId, buyerId, OrderStatus.SHIPPING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             RejectReturnCommand command = RejectReturnCommand.builder()
