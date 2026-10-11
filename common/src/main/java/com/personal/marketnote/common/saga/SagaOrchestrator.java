@@ -11,6 +11,7 @@ import com.personal.marketnote.common.saga.exception.SagaSerializationException;
 import com.personal.marketnote.common.saga.exception.SagaStepNotFoundException;
 import com.personal.marketnote.common.saga.port.FindSagaPort;
 import com.personal.marketnote.common.saga.port.SaveSagaPort;
+import com.personal.marketnote.common.saga.port.SendSagaFailureAlertPort;
 import com.personal.marketnote.common.saga.port.UpdateSagaPort;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +21,15 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Component
 @ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "true")
@@ -39,6 +44,7 @@ public class SagaOrchestrator {
     private final SaveOutboxEventPort saveOutboxEventPort;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final SendSagaFailureAlertPort sendSagaFailureAlertPort;
     private final Map<String, SagaDefinition<?>> definitionRegistry;
 
     public SagaOrchestrator(
@@ -48,7 +54,8 @@ public class SagaOrchestrator {
             SaveOutboxEventPort saveOutboxEventPort,
             ObjectMapper objectMapper,
             Clock clock,
-            List<SagaDefinition<?>> definitions
+            List<SagaDefinition<?>> definitions,
+            SendSagaFailureAlertPort sendSagaFailureAlertPort
     ) {
         this.saveSagaPort = saveSagaPort;
         this.findSagaPort = findSagaPort;
@@ -56,6 +63,7 @@ public class SagaOrchestrator {
         this.saveOutboxEventPort = saveOutboxEventPort;
         this.objectMapper = objectMapper;
         this.clock = clock;
+        this.sendSagaFailureAlertPort = sendSagaFailureAlertPort;
         this.definitionRegistry = new ConcurrentHashMap<>();
         definitions.forEach(d -> this.definitionRegistry.put(d.getSagaType(), d));
     }
@@ -145,6 +153,8 @@ public class SagaOrchestrator {
         currentStep.fail("TIMEOUT");
         updateSagaPort.updateStep(currentStep);
 
+        sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), currentStep.getStepName(), "TIMEOUT");
+
         startCompensation(instance, steps);
     }
 
@@ -175,6 +185,11 @@ public class SagaOrchestrator {
         log.warn("SAGA COMPENSATING 타임아웃 처리. sagaId={}, sagaType={}, 관리자 개입이 필요합니다.",
                 instance.getSagaId(), instance.getSagaType()
         );
+
+        String failedStepNames = compensatingSteps.stream()
+                .map(SagaStep::getStepName)
+                .collect(Collectors.joining(", "));
+        sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), failedStepNames, "COMPENSATION_TIMEOUT");
     }
 
     private void handleStepSuccess(SagaInstance instance, SagaStep currentStep, String response) {
@@ -211,6 +226,8 @@ public class SagaOrchestrator {
 
         instance.failCompensation();
         updateSagaPort.update(instance);
+
+        sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), step.getStepName(), response);
     }
 
     private <T> void processStep(SagaDefinition<T> definition, SagaInstance instance, T context, int stepIndex) {
@@ -338,6 +355,20 @@ public class SagaOrchestrator {
                 .filter(step -> step.stepName().equals(stepName))
                 .findFirst()
                 .orElseThrow(() -> new SagaStepNotFoundException(stepName));
+    }
+
+    private void sendFailureAlertAfterCommit(String sagaId, String sagaType, String stepName, String reason) {
+        LocalDateTime occurredAt = LocalDateTime.now(clock);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    sendSagaFailureAlertPort.sendFailureAlert(sagaId, sagaType, stepName, reason, occurredAt);
+                } catch (Exception e) {
+                    log.error("SAGA 실패 알림 전송 실패. sagaId={}, sagaType={}", sagaId, sagaType, e);
+                }
+            }
+        });
     }
 
     private String serialize(Object value) {
