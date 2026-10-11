@@ -4,15 +4,21 @@ import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.DeleteAligoTemplateRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.RegisterAligoTemplateRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.UpdateAligoTemplateRequest;
+import com.personal.marketnote.notification.adapter.in.web.aligo.response.GetAligoTemplateDetailResponse;
+import com.personal.marketnote.notification.adapter.in.web.aligo.response.GetAligoTemplateListResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.RegisterAligoTemplateResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.UpdateAligoTemplateResponse;
 import com.personal.marketnote.notification.port.in.command.AligoTemplateButtonCommand;
 import com.personal.marketnote.notification.port.in.command.DeleteAligoTemplateCommand;
 import com.personal.marketnote.notification.port.in.command.RegisterAligoTemplateCommand;
 import com.personal.marketnote.notification.port.in.command.UpdateAligoTemplateCommand;
+import com.personal.marketnote.notification.port.in.result.aligo.GetAligoTemplateDetailResult;
+import com.personal.marketnote.notification.port.in.result.aligo.GetAligoTemplateListResult;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterAligoTemplateResult;
 import com.personal.marketnote.notification.port.in.result.aligo.UpdateAligoTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.DeleteAligoTemplateUseCase;
+import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoTemplateByCodeUseCase;
+import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoTemplateListUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterAligoTemplateUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.UpdateAligoTemplateUseCase;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,6 +45,40 @@ public class AligoTemplateController {
     private final RegisterAligoTemplateUseCase registerAligoTemplateUseCase;
     private final UpdateAligoTemplateUseCase updateAligoTemplateUseCase;
     private final DeleteAligoTemplateUseCase deleteAligoTemplateUseCase;
+    private final GetAligoTemplateListUseCase getAligoTemplateListUseCase;
+    private final GetAligoTemplateByCodeUseCase getAligoTemplateByCodeUseCase;
+
+    @GetMapping
+    @PreAuthorize(ADMIN_POINTCUT)
+    public ResponseEntity<BaseResponse<GetAligoTemplateListResponse>> getTemplateList(
+            @RequestParam("sender-key") String senderKey
+    ) {
+        GetAligoTemplateListResult result = getAligoTemplateListUseCase.getTemplateList(senderKey);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetAligoTemplateListResponse.from(result),
+                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 목록 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/{templateCode}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    public ResponseEntity<BaseResponse<GetAligoTemplateDetailResponse>> getTemplateDetail(
+            @PathVariable String templateCode
+    ) {
+        GetAligoTemplateDetailResult result = getAligoTemplateByCodeUseCase.getTemplateByCode(templateCode);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        GetAligoTemplateDetailResponse.from(result),
+                        HttpStatus.OK, DEFAULT_SUCCESS_CODE, "템플릿 상세 조회 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
 
     @PostMapping
     @PreAuthorize(ADMIN_POINTCUT)

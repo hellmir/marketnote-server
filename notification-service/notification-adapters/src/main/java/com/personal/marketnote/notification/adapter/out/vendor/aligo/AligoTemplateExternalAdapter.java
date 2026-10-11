@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.notification.domain.aligo.AligoApiRequestFailedException;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
+import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.DeleteAligoTemplateExternalPort;
+import com.personal.marketnote.notification.port.out.aligo.GetAligoTemplateListExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.RegisterAligoTemplateExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoTemplateExternalPort;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,8 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class AligoTemplateExternalAdapter
-        implements RegisterAligoTemplateExternalPort, UpdateAligoTemplateExternalPort, DeleteAligoTemplateExternalPort {
+        implements RegisterAligoTemplateExternalPort, UpdateAligoTemplateExternalPort,
+        DeleteAligoTemplateExternalPort, GetAligoTemplateListExternalPort {
 
     private final AligoHttpClient aligoHttpClient;
     private final ObjectMapper objectMapper;
@@ -35,6 +38,24 @@ public class AligoTemplateExternalAdapter
     public void updateTemplate(AligoTemplate template) {
         MultiValueMap<String, String> params = buildTemplateParams(template);
         aligoHttpClient.post("/akv10/template/modify/", params, AligoApiResponse.class);
+    }
+
+    @Override
+    public List<AligoTemplate> getTemplateList(String senderKey) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("senderkey", senderKey);
+
+        AligoTemplateListApiResponse response = aligoHttpClient.post(
+                "/akv10/template/list/", params, AligoTemplateListApiResponse.class
+        );
+
+        if (response.list() == null) {
+            return List.of();
+        }
+
+        return response.list().stream()
+                .map(this::toTemplateDomain)
+                .toList();
     }
 
     @Override
@@ -88,6 +109,23 @@ public class AligoTemplateExternalAdapter
         } catch (JsonProcessingException e) {
             throw new AligoApiRequestFailedException("버튼 직렬화 실패: " + e.getMessage(), e);
         }
+    }
+
+    private AligoTemplate toTemplateDomain(AligoTemplateListApiResponse.TemplateItem item) {
+        return AligoTemplate.from(
+                AligoTemplateSnapshotState.builder()
+                        .senderKey(item.senderkey())
+                        .templateCode(item.templtCode())
+                        .templateName(item.templtName())
+                        .templateContent(item.templtContent() != null ? item.templtContent() : "")
+                        .templateType(AligoTemplateType.from(item.templateType()))
+                        .templateEmType(AligoTemplateEmType.from(item.templateEmphasizeType() != null ? item.templateEmphasizeType() : "NONE"))
+                        .inspStatus(item.inspStatus())
+                        .templateStatus(AligoTemplateStatus.from(item.status()))
+                        .comments(item.comments())
+                        .buttons(List.of())
+                        .build()
+        );
     }
 
     private Map<String, String> buttonToMap(AligoTemplateButton button) {
