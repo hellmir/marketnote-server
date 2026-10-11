@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +30,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CompleteReturnUseCase 테스트")
@@ -59,70 +61,81 @@ class CompleteReturnUseCaseTest {
         @Test
         @DisplayName("RETURN_REQUESTED 상태의 주문을 RETURNED로 전이하고 OrderReturnedEvent를 발행한다")
         void shouldTransitionFromReturnRequestedToReturnedAndPublishEvent() {
-            Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED);
+            OrderProduct product = mock(OrderProduct.class);
+            Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED, product);
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+
+            simulateReturnTransition(order, product, OrderStatus.RETURNED);
+
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
                     any(CalculateReturnShippingFeeCommand.class)
-            ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
 
-            CompleteReturnCommand command = new CompleteReturnCommand(1L);
+            service.completeReturn(new CompleteReturnCommand(1L));
 
-            service.completeReturn(command);
-
-            verify(order).changeAllProductsStatus(eq(OrderStatus.RETURN_IN_PROGRESS), any());
-            verify(order).changeAllProductsStatus(eq(OrderStatus.RETURNED), any());
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURN_IN_PROGRESS), any(LocalDateTime.class));
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURNED), any(LocalDateTime.class));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
             verify(publishOrderEventPort).publishOrderReturnedEvent(
                     eq(1L), anyString(), eq(100L),
                     eq(30000L), eq(49000L), eq(1000L), eq(3000L),
-                    eq(true), eq(3000L), anyList());
+                    eq(true), eq(3000L), anyList()
+            );
         }
 
         @Test
         @DisplayName("RETURN_IN_PROGRESS 상태의 주문을 RETURNED로 바로 전이한다")
         void shouldTransitionFromReturnInProgressToReturned() {
-            Order order = createReturnableOrder(OrderStatus.RETURN_IN_PROGRESS);
+            OrderProduct product = mock(OrderProduct.class);
+            Order order = createReturnableOrder(OrderStatus.RETURN_IN_PROGRESS, product);
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_IN_PROGRESS);
+
+            simulateReturnTransition(order, product, OrderStatus.RETURNED);
+
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
                     any(CalculateReturnShippingFeeCommand.class)
-            ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(0L).build());
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(0L).build());
 
-            CompleteReturnCommand command = new CompleteReturnCommand(1L);
+            service.completeReturn(new CompleteReturnCommand(1L));
 
-            service.completeReturn(command);
-
-            verify(order, never()).changeAllProductsStatus(eq(OrderStatus.RETURN_IN_PROGRESS), any());
-            verify(order).changeAllProductsStatus(eq(OrderStatus.RETURNED), any());
+            verify(order, times(2)).changeProductsStatus(eq(List.of(10L)), any(OrderStatus.class), any(LocalDateTime.class));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
             verify(publishOrderEventPort).publishOrderReturnedEvent(
                     eq(1L), anyString(), eq(100L),
                     eq(30000L), eq(49000L), eq(1000L), eq(3000L),
-                    eq(true), eq(0L), anyList());
+                    eq(true), eq(0L), anyList()
+            );
         }
 
         @Test
         @DisplayName("반품 배송비를 CalculateReturnShippingFeeUseCase로 계산하여 이벤트에 포함한다")
         void shouldCalculateReturnShippingFeeAndIncludeInEvent() {
-            Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED);
+            OrderProduct product = mock(OrderProduct.class);
+            Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED, product);
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+
+            simulateReturnTransition(order, product, OrderStatus.RETURNED);
+
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
             when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
                     any(CalculateReturnShippingFeeCommand.class)
-            ))
-                    .thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(5000L).build());
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(5000L).build());
 
-            CompleteReturnCommand command = new CompleteReturnCommand(1L);
-
-            service.completeReturn(command);
+            service.completeReturn(new CompleteReturnCommand(1L));
 
             verify(calculateReturnShippingFeeUseCase).calculateReturnShippingFee(
                     argThat(cmd -> cmd.orderId().equals(1L)
-                            && cmd.reasonCategory() == OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND));
+                            && cmd.reasonCategory() == OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND
+                            && cmd.returnPricePolicyIds().equals(List.of(10L))
+                    )
+            );
             verify(publishOrderEventPort).publishOrderReturnedEvent(
                     eq(1L), anyString(), eq(100L),
                     eq(30000L), eq(49000L), eq(1000L), eq(3000L),
-                    eq(true), eq(5000L), anyList());
+                    eq(true), eq(5000L), anyList()
+            );
         }
     }
 
@@ -137,9 +150,7 @@ class CompleteReturnUseCaseTest {
             when(order.getOrderStatus()).thenReturn(OrderStatus.PAID);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
-            CompleteReturnCommand command = new CompleteReturnCommand(1L);
-
-            assertThatThrownBy(() -> service.completeReturn(command))
+            assertThatThrownBy(() -> service.completeReturn(new CompleteReturnCommand(1L)))
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
@@ -159,9 +170,7 @@ class CompleteReturnUseCaseTest {
             when(order.getOrderStatus()).thenReturn(OrderStatus.RETURNED);
             when(getOrderUseCase.getOrder(1L)).thenReturn(order);
 
-            CompleteReturnCommand command = new CompleteReturnCommand(1L);
-
-            service.completeReturn(command);
+            service.completeReturn(new CompleteReturnCommand(1L));
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
@@ -169,7 +178,7 @@ class CompleteReturnUseCaseTest {
         }
     }
 
-    private Order createReturnableOrder(OrderStatus status) {
+    private Order createReturnableOrder(OrderStatus status, OrderProduct product) {
         Order order = mock(Order.class);
         when(order.getId()).thenReturn(1L);
         when(order.getBuyerId()).thenReturn(100L);
@@ -180,13 +189,19 @@ class CompleteReturnUseCaseTest {
         OrderAmount amount = OrderAmount.of(50000L, 49000L, 0L, 1000L, 3000L);
         when(order.getAmount()).thenReturn(amount);
 
-        OrderProduct product = mock(OrderProduct.class);
         when(product.getPricePolicyId()).thenReturn(10L);
         when(product.getQuantity()).thenReturn(Quantity.of(3));
         when(product.getUnitAmount()).thenReturn(Money.of(10000L));
-        when(product.getOrderStatus()).thenReturn(OrderStatus.RETURNED);
         when(order.getOrderProducts()).thenReturn(List.of(product));
 
         return order;
+    }
+
+    private void simulateReturnTransition(Order order, OrderProduct product, OrderStatus targetStatus) {
+        lenient().doAnswer(invocation -> {
+            when(product.getOrderStatus()).thenReturn(targetStatus);
+            when(order.getOrderStatus()).thenReturn(targetStatus);
+            return null;
+        }).when(order).changeProductsStatus(anyList(), eq(targetStatus), any(LocalDateTime.class));
     }
 }
