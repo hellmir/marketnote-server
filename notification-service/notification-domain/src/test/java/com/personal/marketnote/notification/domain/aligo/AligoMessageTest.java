@@ -302,6 +302,85 @@ class AligoMessageTest {
             }
         }
 
+        @Test
+        @DisplayName("FAILOVERED는 종착 상태로 어디로도 전이할 수 없다")
+        void shouldNotAllowTransitionsFromFailovered() {
+            for (AligoMessageStatus target : AligoMessageStatus.values()) {
+                assertThat(AligoMessageStatus.FAILOVERED.canTransitionTo(target)).isFalse();
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("markAsFailovered")
+    class MarkAsFailovered {
+
+        @Test
+        @DisplayName("REQUESTED 상태에서 markAsFailovered 호출 시 FAILOVERED로 전이하고 smid를 recipients에 기록한다")
+        void shouldTransitionToFailoveredFromRequested() {
+            // given
+            AligoMessage message = createRequestedMessageWithRecipients();
+            LocalDateTime sentAt = LocalDateTime.of(2026, 4, 16, 10, 0, 0);
+
+            // when
+            message.markAsFailovered("MID_001", "SMID_001", 3, 2, sentAt);
+
+            // then
+            assertThat(message.isFailovered()).isTrue();
+            assertThat(message.getAligoMid()).isEqualTo("MID_001");
+            assertThat(message.getSuccessCount()).isEqualTo(3);
+            assertThat(message.getFailCount()).isEqualTo(2);
+            assertThat(message.getSentAt()).isEqualTo(sentAt);
+            assertThat(message.isFailoverUsed()).isTrue();
+            assertThat(message.getRecipients()).allSatisfy(recipient ->
+                    assertThat(recipient.getSmid()).isEqualTo("SMID_001")
+            );
+        }
+
+        @Test
+        @DisplayName("SENT 상태에서 markAsFailovered 호출 시 InvalidAligoMessageStatusTransitionException을 던진다")
+        void shouldThrowExceptionWhenMarkAsFailoveredFromSent() {
+            // given
+            AligoMessage message = createSentMessage();
+
+            // when & then
+            assertThatThrownBy(() -> message.markAsFailovered("MID_002", "SMID_002", 1, 0, LocalDateTime.now()))
+                    .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+        }
+
+        @Test
+        @DisplayName("FAILED 상태에서 markAsFailovered 호출 시 InvalidAligoMessageStatusTransitionException을 던진다")
+        void shouldThrowExceptionWhenMarkAsFailoveredFromFailed() {
+            // given
+            AligoMessage message = createFailedMessage();
+
+            // when & then
+            assertThatThrownBy(() -> message.markAsFailovered("MID_003", "SMID_003", 1, 0, LocalDateTime.now()))
+                    .isInstanceOf(InvalidAligoMessageStatusTransitionException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("AligoMessageRecipient.updateSmid")
+    class UpdateSmid {
+
+        @Test
+        @DisplayName("updateSmid 호출 시 smid가 저장된다")
+        void shouldStoreSmid() {
+            // given
+            AligoMessageRecipient recipient = AligoMessageRecipient.from(
+                    AligoMessageRecipientCreateState.builder()
+                            .receiver("01098765432")
+                            .recvName("홍길동")
+                            .build()
+            );
+
+            // when
+            recipient.updateSmid("SMID_TEST_001");
+
+            // then
+            assertThat(recipient.getSmid()).isEqualTo("SMID_TEST_001");
+        }
     }
 
     @Nested
@@ -347,6 +426,32 @@ class AligoMessageTest {
                 .receiver(receiver)
                 .recvName(recvName)
                 .build();
+    }
+
+    private AligoMessage createRequestedMessageWithRecipients() {
+        List<AligoMessageRecipientSnapshotState> recipientStates = List.of(
+                AligoMessageRecipientSnapshotState.builder()
+                        .id(10L).receiver("01098765432").recvName("수신자1")
+                        .recipientStatus(AligoMessageRecipientStatus.PENDING).build(),
+                AligoMessageRecipientSnapshotState.builder()
+                        .id(11L).receiver("01087654321").recvName("수신자2")
+                        .recipientStatus(AligoMessageRecipientStatus.PENDING).build()
+        );
+        return AligoMessage.from(AligoMessageSnapshotState.builder()
+                .id(10L)
+                .senderKey("test-sender-key")
+                .templateCode("TPL001")
+                .sender("01012345678")
+                .messageType(AligoMessageType.AT)
+                .content("테스트")
+                .title("제목")
+                .messageStatus(AligoMessageStatus.REQUESTED)
+                .successCount(0)
+                .failCount(0)
+                .requestedAt(LocalDateTime.now())
+                .recipients(recipientStates)
+                .status(EntityStatus.ACTIVE)
+                .build());
     }
 
     private AligoMessage createRequestedMessage() {
