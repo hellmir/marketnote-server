@@ -3,6 +3,8 @@ package com.personal.marketnote.commerce.adapter.in.web.order.controller;
 import com.personal.marketnote.commerce.adapter.in.web.order.response.InternalOrderProductResponse;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.domain.order.OrderStatus;
+import com.personal.marketnote.commerce.exception.InvalidOrderStatusForReviewException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
@@ -56,6 +58,23 @@ class InternalOrderControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getOrderUseCase).getOrder(orderId);
             verify(order).isBuyer(buyerId);
+        }
+
+        @Test
+        @DisplayName("주문 소유자는 일치하지만 리뷰 불가 상태이면 InvalidOrderStatusForReviewException을 던진다")
+        void shouldThrowExceptionWhenOrderStatusNotReviewable() {
+            // given
+            Long orderId = 1L;
+            Long buyerId = 200L;
+            Order order = mock(Order.class);
+            when(order.isBuyer(buyerId)).thenReturn(true);
+            when(order.isReviewable()).thenReturn(false);
+            when(order.getOrderStatus()).thenReturn(OrderStatus.SHIPPING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            // when & then
+            assertThatThrownBy(() -> internalOrderController.verifyOrderOwnership(orderId, buyerId))
+                    .isInstanceOf(InvalidOrderStatusForReviewException.class);
         }
 
         @Test
