@@ -11,7 +11,8 @@ public enum UserPointSourceType {
     PRODUCT("PRODUCT"),
     ORDER("ORDER"),
     GIFTICON_PURCHASE("GIFTICON_PURCHASE"),
-    GIFTICON_REFUND("GIFTICON_REFUND");
+    GIFTICON_REFUND("GIFTICON_REFUND"),
+    REVIEW("REVIEW");
 
     private final String description;
 }

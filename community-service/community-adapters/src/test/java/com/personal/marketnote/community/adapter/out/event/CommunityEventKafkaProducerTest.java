@@ -54,7 +54,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewRegisteredEvent(1L, 2L, 50L, 10, 4.5f);
+        communityEventKafkaProducer.publishReviewRegisteredEvent(1L, 2L, 50L, 10, 4.5f, 100L, 200L);
 
         // then
         ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -76,7 +76,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewRegisteredEvent(10L, 20L, 50L, 5, 4.2f);
+        communityEventKafkaProducer.publishReviewRegisteredEvent(10L, 20L, 50L, 5, 4.2f, 100L, 300L);
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);

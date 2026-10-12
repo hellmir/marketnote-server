@@ -25,10 +25,13 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
 
     @Override
     public void publishReviewRegisteredEvent(
-            Long orderId, Long pricePolicyId, Long productId, Integer totalCount, Float averageRating
+            Long orderId, Long pricePolicyId, Long productId,
+            Integer totalCount, Float averageRating,
+            Long reviewerId, Long reviewId
     ) {
         ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
-                orderId, pricePolicyId, productId, totalCount, averageRating
+                orderId, pricePolicyId, productId, totalCount, averageRating,
+                reviewerId, reviewId
         );
         String topic = KafkaTopicConstants.REVIEW_REGISTERED;
         EventEnvelope<ReviewRegisteredEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);

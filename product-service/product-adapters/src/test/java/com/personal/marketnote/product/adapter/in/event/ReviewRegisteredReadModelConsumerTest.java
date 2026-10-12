@@ -58,7 +58,7 @@ class ReviewRegisteredReadModelConsumerTest {
     @DisplayName("정상 이벤트 수신 시 Read Model을 upsert한다")
     void handleReviewRegisteredEvent_validEvent_upsertsReadModel() {
         // given
-        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, 10, 4.5f);
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, 10, 4.5f, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -90,7 +90,7 @@ class ReviewRegisteredReadModelConsumerTest {
     @DisplayName("이벤트 타입이 불일치하면 즉시 acknowledge한다")
     void handleReviewRegisteredEvent_eventTypeMismatch_acknowledges() {
         // given
-        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, 10, 4.5f);
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, 10, 4.5f, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
                 "wrong.event.type",
@@ -112,7 +112,7 @@ class ReviewRegisteredReadModelConsumerTest {
     @DisplayName("productId가 null이면 기존 이벤트로 간주하고 무시한다")
     void handleReviewRegisteredEvent_nullProductId_acknowledges() {
         // given
-        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, null, 10, 4.5f);
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, null, 10, 4.5f, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -128,7 +128,7 @@ class ReviewRegisteredReadModelConsumerTest {
     @DisplayName("productId가 0 이하이면 무시한다")
     void handleReviewRegisteredEvent_invalidProductId_acknowledges() {
         // given
-        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 0L, 10, 4.5f);
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 0L, 10, 4.5f, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -144,7 +144,7 @@ class ReviewRegisteredReadModelConsumerTest {
     @DisplayName("totalCount가 null이면 무시한다")
     void handleReviewRegisteredEvent_nullTotalCount_acknowledges() {
         // given
-        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, null, 4.5f);
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, null, 4.5f, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -160,7 +160,7 @@ class ReviewRegisteredReadModelConsumerTest {
     @DisplayName("averageRating이 null이면 무시한다")
     void handleReviewRegisteredEvent_nullAverageRating_acknowledges() {
         // given
-        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, 10, null);
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(1L, 2L, 50L, 10, null, null, null);
         EventEnvelope<ReviewRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

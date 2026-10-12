@@ -3,7 +3,9 @@ package com.personal.marketnote.community.port.out.event;
 public interface PublishReviewEventPort {
 
     void publishReviewRegisteredEvent(
-            Long orderId, Long pricePolicyId, Long productId, Integer totalCount, Float averageRating
+            Long orderId, Long pricePolicyId, Long productId,
+            Integer totalCount, Float averageRating,
+            Long reviewerId, Long reviewId
     );
 
     void publishReviewUpdatedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating);

@@ -5,6 +5,8 @@ public record ReviewRegisteredEvent(
         Long pricePolicyId,
         Long productId,
         Integer totalCount,
-        Float averageRating
+        Float averageRating,
+        Long reviewerId,
+        Long reviewId
 ) {
 }
