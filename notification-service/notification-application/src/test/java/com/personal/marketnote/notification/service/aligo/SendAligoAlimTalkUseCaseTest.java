@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.command.AligoAlimTalkRecipientCommand;
+import com.personal.marketnote.notification.port.in.command.AligoFailoverCommand;
 import com.personal.marketnote.notification.port.in.command.SendAligoAlimTalkCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.SendAligoAlimTalkResult;
 import com.personal.marketnote.notification.port.out.aligo.FindAligoTemplatePort;
@@ -351,6 +352,155 @@ class SendAligoAlimTalkUseCaseTest {
         // then
         assertThat(result.aligoMid()).isEqualTo("MID_BTN");
         verify(saveAligoMessagePort).save(any(AligoMessage.class));
+    }
+
+    @Test
+    @DisplayName("failover 활성 + 알림톡 일부 거부 시 markAsFailovered로 상태 전이한다")
+    void shouldMarkAsFailoveredWhenFailoverEnabledAndSmidReturned() {
+        // given
+        String templateCode = "TPL_FAILOVER";
+        AligoTemplate template = createApprovedTemplate(templateCode, "대체문자 테스트 내용입니다.");
+
+        AligoFailoverCommand failover = new AligoFailoverCommand(true, "대체문자 제목", "대체문자 본문");
+        SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
+                templateCode,
+                "01012345678",
+                Map.of(),
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+                failover
+        );
+
+        when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
+        when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
+            AligoMessage msg = invocation.getArgument(0);
+            return AligoMessage.from(AligoMessageSnapshotState.builder()
+                    .id(500L)
+                    .senderKey(msg.getSenderKey())
+                    .templateCode(msg.getTemplateCode())
+                    .sender(msg.getSender())
+                    .messageType(msg.getMessageType())
+                    .content(msg.getContent())
+                    .title(msg.getTitle())
+                    .failoverSubject(msg.getFailoverSubject())
+                    .failoverMessageBody(msg.getFailoverMessageBody())
+                    .messageStatus(AligoMessageStatus.REQUESTED)
+                    .successCount(0)
+                    .failCount(0)
+                    .requestedAt(msg.getRequestedAt())
+                    .recipients(List.of(
+                            AligoMessageRecipientSnapshotState.builder()
+                                    .id(50L).receiver("01098765432").recvName("홍길동")
+                                    .recipientStatus(AligoMessageRecipientStatus.PENDING).build()
+                    ))
+                    .status(EntityStatus.ACTIVE)
+                    .build());
+        });
+        when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
+                .thenReturn(new AligoAlimTalkSendResponse("MID_FO_001", 0, 1, "SMID_001"));
+
+        // when
+        SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
+
+        // then
+        assertThat(result.messageId()).isEqualTo(500L);
+        assertThat(result.aligoMid()).isEqualTo("MID_FO_001");
+        assertThat(result.failCount()).isEqualTo(1);
+
+        verify(updateAligoMessagePort).update(any(AligoMessage.class));
+    }
+
+    @Test
+    @DisplayName("failover 비활성 + 알림톡 API 에러 시 markAsFailed로 상태 전이한다")
+    void shouldMarkAsFailedWhenFailoverDisabledAndApiError() {
+        // given
+        String templateCode = "TPL_NO_FO";
+        AligoTemplate template = createApprovedTemplate(templateCode, "대체문자 없는 발송입니다.");
+
+        SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
+                templateCode,
+                "01012345678",
+                Map.of(),
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+                null
+        );
+
+        when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
+        when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
+            AligoMessage msg = invocation.getArgument(0);
+            return AligoMessage.from(AligoMessageSnapshotState.builder()
+                    .id(600L)
+                    .senderKey(msg.getSenderKey())
+                    .templateCode(msg.getTemplateCode())
+                    .sender(msg.getSender())
+                    .messageType(msg.getMessageType())
+                    .content(msg.getContent())
+                    .title(msg.getTitle())
+                    .messageStatus(AligoMessageStatus.REQUESTED)
+                    .successCount(0)
+                    .failCount(0)
+                    .requestedAt(msg.getRequestedAt())
+                    .status(EntityStatus.ACTIVE)
+                    .build());
+        });
+        when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
+                .thenThrow(new AligoApiRequestFailedException("발송 실패"));
+
+        // when & then
+        assertThatThrownBy(() -> sendAligoAlimTalkService.sendAlimTalk(command))
+                .isInstanceOf(AligoApiRequestFailedException.class);
+
+        verify(updateAligoMessagePort).update(any(AligoMessage.class));
+    }
+
+    @Test
+    @DisplayName("failover 활성 + 정상 발송(smid 없음) 시 markAsSent로 상태 전이한다")
+    void shouldMarkAsSentWhenFailoverEnabledButNoSmid() {
+        // given
+        String templateCode = "TPL_FO_OK";
+        AligoTemplate template = createApprovedTemplate(templateCode, "대체문자 필요 없는 경우입니다.");
+
+        AligoFailoverCommand failover = new AligoFailoverCommand(true, "대체 제목", "대체 본문");
+        SendAligoAlimTalkCommand command = new SendAligoAlimTalkCommand(
+                templateCode,
+                "01012345678",
+                Map.of(),
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+                failover
+        );
+
+        when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
+        when(saveAligoMessagePort.save(any(AligoMessage.class))).thenAnswer(invocation -> {
+            AligoMessage msg = invocation.getArgument(0);
+            return AligoMessage.from(AligoMessageSnapshotState.builder()
+                    .id(700L)
+                    .senderKey(msg.getSenderKey())
+                    .templateCode(msg.getTemplateCode())
+                    .sender(msg.getSender())
+                    .messageType(msg.getMessageType())
+                    .content(msg.getContent())
+                    .title(msg.getTitle())
+                    .failoverSubject(msg.getFailoverSubject())
+                    .failoverMessageBody(msg.getFailoverMessageBody())
+                    .messageStatus(AligoMessageStatus.REQUESTED)
+                    .successCount(0)
+                    .failCount(0)
+                    .requestedAt(msg.getRequestedAt())
+                    .status(EntityStatus.ACTIVE)
+                    .build());
+        });
+        when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
+                .thenReturn(new AligoAlimTalkSendResponse("MID_FO_OK", 1, 0, null));
+
+        // when
+        SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
+
+        // then
+        assertThat(result.messageId()).isEqualTo(700L);
+        assertThat(result.aligoMid()).isEqualTo("MID_FO_OK");
+        assertThat(result.successCount()).isEqualTo(1);
+        assertThat(result.failCount()).isZero();
+
+        verify(updateAligoMessagePort).update(any(AligoMessage.class));
     }
 
     private AligoTemplate createApprovedTemplate(String templateCode, String content) {
