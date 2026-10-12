@@ -31,6 +31,9 @@ public class AligoMessageRecipientJpaEntity {
     @Column(length = 100)
     private String msgId;
 
+    @Column(length = 100)
+    private String smid;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private AligoMessageRecipientStatus recipientStatus;
@@ -56,6 +59,10 @@ public class AligoMessageRecipientJpaEntity {
         this.msgId = msgId;
         this.rslt = rslt;
         this.rsltMessage = rsltMessage;
+    }
+
+    public void updateSmid(String smid) {
+        this.smid = smid;
     }
 
     public static AligoMessageRecipientJpaEntity create(String receiver, String recvName) {

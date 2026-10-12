@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.SendAligoAlimTalkRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.SendAligoAlimTalkResponse;
 import com.personal.marketnote.notification.port.in.command.AligoAlimTalkRecipientCommand;
+import com.personal.marketnote.notification.port.in.command.AligoFailoverCommand;
 import com.personal.marketnote.notification.port.in.command.SendAligoAlimTalkCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.SendAligoAlimTalkResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.SendAligoAlimTalkUseCase;
@@ -45,7 +46,8 @@ public class AligoAlimTalkController {
                         request.templateCode(),
                         request.sender(),
                         FormatValidator.hasValue(request.variables()) ? request.variables() : Map.of(),
-                        mapRecipients(request.recipients())
+                        mapRecipients(request.recipients()),
+                        mapFailover(request.failover())
                 )
         );
 
@@ -62,5 +64,12 @@ public class AligoAlimTalkController {
         return recipients.stream()
                 .map(r -> new AligoAlimTalkRecipientCommand(r.receiver(), r.recvName()))
                 .toList();
+    }
+
+    private AligoFailoverCommand mapFailover(SendAligoAlimTalkRequest.FailoverRequest failover) {
+        if (FormatValidator.hasNoValue(failover)) {
+            return null;
+        }
+        return new AligoFailoverCommand(failover.enabled(), failover.subject(), failover.body());
     }
 }

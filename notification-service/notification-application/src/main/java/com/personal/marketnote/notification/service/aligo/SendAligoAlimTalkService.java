@@ -6,6 +6,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.command.AligoAlimTalkRecipientCommand;
+import com.personal.marketnote.notification.port.in.command.AligoFailoverCommand;
 import com.personal.marketnote.notification.port.in.command.SendAligoAlimTalkCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.SendAligoAlimTalkResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.SendAligoAlimTalkUseCase;
@@ -49,7 +50,7 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
             throw e;
         }
 
-        updateMessageAsSent(message, response);
+        updateMessageAfterSend(message, response);
 
         return new SendAligoAlimTalkResult(
                 message.getId(), response.mid(), response.successCount(), response.failCount()
@@ -78,31 +79,46 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
                 .map(this::toRecipientCreateState)
                 .toList();
 
-        AligoMessage message = AligoMessage.from(
-                AligoMessageCreateState.builder()
-                        .senderKey(template.getSenderKey())
-                        .templateCode(template.getTemplateCode())
-                        .sender(command.sender())
-                        .messageType(AligoMessageType.AT)
-                        .content(renderedContent)
-                        .title(template.getTemplateName())
-                        .buttons(buttonsJson)
-                        .requestedAt(LocalDateTime.now())
-                        .recipients(recipientStates)
-                        .build()
-        );
+        AligoMessageCreateState.AligoMessageCreateStateBuilder builder = AligoMessageCreateState.builder()
+                .senderKey(template.getSenderKey())
+                .templateCode(template.getTemplateCode())
+                .sender(command.sender())
+                .messageType(AligoMessageType.AT)
+                .content(renderedContent)
+                .title(template.getTemplateName())
+                .buttons(buttonsJson)
+                .requestedAt(LocalDateTime.now())
+                .recipients(recipientStates);
+
+        if (isFailoverEnabled(command.failover())) {
+            builder.failoverSubject(command.failover().subject())
+                    .failoverMessageBody(command.failover().body());
+        }
+
+        AligoMessage message = AligoMessage.from(builder.build());
 
         return saveAligoMessagePort.save(message);
     }
 
-    private void updateMessageAsSent(AligoMessage message, AligoAlimTalkSendResponse response) {
-        message.markAsSent(response.mid(), response.successCount(), response.failCount(), LocalDateTime.now());
+    private void updateMessageAfterSend(AligoMessage message, AligoAlimTalkSendResponse response) {
+        if (FormatValidator.hasValue(response.smid())) {
+            message.markAsFailovered(
+                    response.mid(), response.smid(),
+                    response.successCount(), response.failCount(), LocalDateTime.now()
+            );
+        } else {
+            message.markAsSent(response.mid(), response.successCount(), response.failCount(), LocalDateTime.now());
+        }
         updateAligoMessagePort.update(message);
     }
 
     private void markMessageFailed(AligoMessage message) {
         message.markAsFailed();
         updateAligoMessagePort.update(message);
+    }
+
+    private boolean isFailoverEnabled(AligoFailoverCommand failover) {
+        return FormatValidator.hasValue(failover) && failover.enabled();
     }
 
     private String renderContent(String templateContent, Map<String, String> variables) {

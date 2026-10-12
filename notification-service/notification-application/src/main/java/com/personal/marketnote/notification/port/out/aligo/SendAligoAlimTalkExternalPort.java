@@ -6,6 +6,6 @@ public interface SendAligoAlimTalkExternalPort {
 
     AligoAlimTalkSendResponse send(AligoMessage message);
 
-    record AligoAlimTalkSendResponse(String mid, int successCount, int failCount) {
+    record AligoAlimTalkSendResponse(String mid, int successCount, int failCount, String smid) {
     }
 }

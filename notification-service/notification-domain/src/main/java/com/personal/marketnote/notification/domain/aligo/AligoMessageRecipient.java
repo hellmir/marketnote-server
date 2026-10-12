@@ -22,6 +22,7 @@ public class AligoMessageRecipient {
     private String receiver;
     private String recvName;
     private String msgId;
+    private String smid;
     private AligoMessageRecipientStatus recipientStatus;
     private String rslt;
     private String rsltMessage;
@@ -49,6 +50,7 @@ public class AligoMessageRecipient {
                 .receiver(state.getReceiver())
                 .recvName(state.getRecvName())
                 .msgId(state.getMsgId())
+                .smid(state.getSmid())
                 .recipientStatus(state.getRecipientStatus())
                 .rslt(state.getRslt())
                 .rsltMessage(state.getRsltMessage())
@@ -79,5 +81,9 @@ public class AligoMessageRecipient {
         this.rslt = rslt;
         this.rsltMessage = rsltMessage;
         this.recipientStatus = AligoMessageRecipientStatus.FAILED;
+    }
+
+    public void updateSmid(String smid) {
+        this.smid = smid;
     }
 }

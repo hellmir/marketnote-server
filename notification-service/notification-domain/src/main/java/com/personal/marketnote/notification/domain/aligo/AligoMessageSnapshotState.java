@@ -28,6 +28,9 @@ public class AligoMessageSnapshotState {
     private String aligoMid;
     private int successCount;
     private int failCount;
+    private boolean failoverUsed;
+    private String failoverSubject;
+    private String failoverMessageBody;
     private LocalDateTime requestedAt;
     private LocalDateTime sentAt;
     private List<AligoMessageRecipientSnapshotState> recipients;

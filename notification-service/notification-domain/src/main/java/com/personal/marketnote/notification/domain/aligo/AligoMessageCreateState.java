@@ -22,6 +22,8 @@ public class AligoMessageCreateState {
     private String content;
     private String title;
     private String buttons;
+    private String failoverSubject;
+    private String failoverMessageBody;
     private LocalDateTime requestedAt;
     private List<AligoMessageRecipientCreateState> recipients;
 }
