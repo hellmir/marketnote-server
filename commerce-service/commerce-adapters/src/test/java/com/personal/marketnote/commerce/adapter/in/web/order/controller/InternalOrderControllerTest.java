@@ -45,6 +45,7 @@ class InternalOrderControllerTest {
             Long buyerId = 200L;
             Order order = mock(Order.class);
             when(order.isBuyer(buyerId)).thenReturn(true);
+            when(order.isReviewable()).thenReturn(true);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             // when

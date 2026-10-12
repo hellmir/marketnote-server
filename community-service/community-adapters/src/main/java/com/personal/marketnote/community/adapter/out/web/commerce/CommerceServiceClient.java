@@ -6,6 +6,7 @@ import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationSenderType;
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationTargetType;
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationType;
+import com.personal.marketnote.community.exception.InvalidOrderStatusForReviewException;
 import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.community.port.out.order.FindOrderProductPort;
 import com.personal.marketnote.community.port.out.order.VerifyOrderOwnershipPort;
@@ -90,6 +91,9 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort, FindOrde
             } catch (HttpClientErrorException hce) {
                 if (hce.getStatusCode().value() == 403) {
                     throw new UnauthorizedOrderAccessException();
+                }
+                if (hce.getStatusCode().value() == 409) {
+                    throw new InvalidOrderStatusForReviewException();
                 }
 
                 // 4xx 클라이언트 에러는 재시도해도 결과가 동일하므로 즉시 실패

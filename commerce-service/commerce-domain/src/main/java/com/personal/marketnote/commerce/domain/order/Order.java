@@ -86,6 +86,10 @@ public class Order {
         return this.orderStatus.isFailed();
     }
 
+    public boolean isReviewable() {
+        return orderStatus.isReviewable();
+    }
+
     public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))

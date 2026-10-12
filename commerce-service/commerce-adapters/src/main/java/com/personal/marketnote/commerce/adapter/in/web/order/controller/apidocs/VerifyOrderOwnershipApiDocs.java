@@ -42,8 +42,8 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **예시** |
                 | --- | --- | --- | --- |
-                | statusCode | number | 상태 코드 | 200: 소유권 확인 성공 / 403: 소유권 불일치 / 404: 주문 미존재 |
-                | code | string | 응답 코드 | "SUC01" / "FORBIDDEN" / "NOT_FOUND" |
+                | statusCode | number | 상태 코드 | 200: 소유권 확인 성공 / 403: 소유권 불일치 / 404: 주문 미존재 / 409: 리뷰 불가 주문 상태 |
+                | code | string | 응답 코드 | "SUC01" / "FORBIDDEN" / "NOT_FOUND" / "CONFLICT" |
                 | timestamp | string(datetime) | 응답 일시 | "2026-04-05T12:00:00.000" |
                 | content | null | 응답 본문 | null |
                 | message | string | 처리 결과 | "주문 소유권 확인 성공" |
@@ -91,6 +91,21 @@ import java.lang.annotation.*;
                                           "timestamp": "2026-04-05T12:00:00.000",
                                           "content": null,
                                           "message": "해당 주문에 대한 접근 권한이 없습니다."
+                                        }
+                                        """)
+                        )
+                ),
+                @ApiResponse(
+                        responseCode = "409",
+                        description = "리뷰 작성 불가능한 주문 상태",
+                        content = @Content(
+                                examples = @ExampleObject("""
+                                        {
+                                          "statusCode": 409,
+                                          "code": "CONFLICT",
+                                          "timestamp": "2026-04-05T12:00:00.000",
+                                          "content": null,
+                                          "message": "리뷰 작성이 불가능한 주문 상태입니다. 현재 주문 상태: 배송중"
                                         }
                                         """)
                         )

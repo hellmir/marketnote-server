@@ -128,4 +128,12 @@ public enum OrderStatus {
     public boolean isNotPartialChanged() {
         return this != PARTIALLY_CONFIRMED && this != PARTIALLY_RETURNED;
     }
+
+    public boolean isReviewable() {
+        return this == DELIVERED
+                || this == PARTIALLY_CONFIRMED
+                || this == CONFIRMED
+                || this == PARTIALLY_RETURNED
+                || this == RETURNED;
+    }
 }

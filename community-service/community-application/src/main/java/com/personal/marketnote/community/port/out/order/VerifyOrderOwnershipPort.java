@@ -12,6 +12,7 @@ public interface VerifyOrderOwnershipPort {
      * @param orderId 주문 ID
      * @param buyerId 구매자 ID
      * @throws com.personal.marketnote.community.exception.UnauthorizedOrderAccessException 소유권 검증 실패 시
+     * @throws com.personal.marketnote.community.exception.InvalidOrderStatusForReviewException 리뷰 작성 불가능한 주문 상태 시
      */
     void verifyOrderOwnership(Long orderId, Long buyerId);
 }
