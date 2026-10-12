@@ -7,6 +7,7 @@ public record SendAligoAlimTalkCommand(
         String templateCode,
         String sender,
         Map<String, String> variables,
-        List<AligoAlimTalkRecipientCommand> recipients
+        List<AligoAlimTalkRecipientCommand> recipients,
+        AligoFailoverCommand failover
 ) {
 }

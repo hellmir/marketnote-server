@@ -3,7 +3,6 @@ package com.personal.marketnote.notification.adapter.out.persistence.aligo;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoMessageJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoMessageRecipientJpaEntity;
 import com.personal.marketnote.notification.domain.aligo.AligoMessage;
-import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipient;
 import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipientSnapshotState;
 import com.personal.marketnote.notification.domain.aligo.AligoMessageSnapshotState;
 
@@ -33,6 +32,9 @@ public final class AligoMessageJpaEntityToDomainMapper {
                         .aligoMid(entity.getAligoMid())
                         .successCount(entity.getSuccessCount())
                         .failCount(entity.getFailCount())
+                        .failoverUsed(entity.isFailoverUsed())
+                        .failoverSubject(entity.getFailoverSubject())
+                        .failoverMessageBody(entity.getFailoverMessageBody())
                         .requestedAt(entity.getRequestedAt())
                         .sentAt(entity.getSentAt())
                         .recipients(recipientStates)
@@ -49,6 +51,7 @@ public final class AligoMessageJpaEntityToDomainMapper {
                 .receiver(entity.getReceiver())
                 .recvName(entity.getRecvName())
                 .msgId(entity.getMsgId())
+                .smid(entity.getSmid())
                 .recipientStatus(entity.getRecipientStatus())
                 .rslt(entity.getRslt())
                 .rsltMessage(entity.getRsltMessage())

@@ -18,6 +18,7 @@ public class AligoMessageRecipientSnapshotState {
     private String receiver;
     private String recvName;
     private String msgId;
+    private String smid;
     private AligoMessageRecipientStatus recipientStatus;
     private String rslt;
     private String rsltMessage;

@@ -9,14 +9,16 @@ public enum AligoMessageStatus {
     SENT("발송완료"),
     DELIVERED("수신확인"),
     FAILED("발송실패"),
-    CANCELLED("취소");
+    CANCELLED("취소"),
+    FAILOVERED("대체문자전환");
 
     private static final Map<AligoMessageStatus, Set<AligoMessageStatus>> ALLOWED_TRANSITIONS = Map.of(
-            REQUESTED, Set.of(SENT, FAILED, CANCELLED),
+            REQUESTED, Set.of(SENT, FAILED, CANCELLED, FAILOVERED),
             SENT, Set.of(DELIVERED, FAILED),
             DELIVERED, Set.of(),
             FAILED, Set.of(),
-            CANCELLED, Set.of()
+            CANCELLED, Set.of(),
+            FAILOVERED, Set.of()
     );
 
     private final String description;
@@ -53,8 +55,12 @@ public enum AligoMessageStatus {
         return this == CANCELLED;
     }
 
+    public boolean isFailovered() {
+        return this == FAILOVERED;
+    }
+
     public boolean isTerminal() {
-        return this == DELIVERED || this == FAILED || this == CANCELLED;
+        return this == DELIVERED || this == FAILED || this == CANCELLED || this == FAILOVERED;
     }
 
     public boolean isCancellable() {

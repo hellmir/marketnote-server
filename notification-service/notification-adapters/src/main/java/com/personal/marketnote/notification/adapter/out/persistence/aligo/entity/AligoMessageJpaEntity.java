@@ -54,6 +54,15 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
     private int failCount;
 
     @Column(nullable = false)
+    private boolean failoverUsed;
+
+    @Column(length = 100)
+    private String failoverSubject;
+
+    @Column(columnDefinition = "TEXT")
+    private String failoverMessageBody;
+
+    @Column(nullable = false)
     private LocalDateTime requestedAt;
 
     private LocalDateTime sentAt;
@@ -72,6 +81,21 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
         this.sentAt = sentAt;
     }
 
+    public void updateFailoverResult(
+            AligoMessageStatus messageStatus, String aligoMid, String smid,
+            int successCount, int failCount, LocalDateTime sentAt
+    ) {
+        this.messageStatus = messageStatus;
+        this.aligoMid = aligoMid;
+        this.successCount = successCount;
+        this.failCount = failCount;
+        this.sentAt = sentAt;
+        this.failoverUsed = true;
+        for (AligoMessageRecipientJpaEntity recipient : recipients) {
+            recipient.updateSmid(smid);
+        }
+    }
+
     public void updateStatus(AligoMessageStatus messageStatus) {
         this.messageStatus = messageStatus;
     }
@@ -80,6 +104,7 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
             String senderKey, String templateCode, String sender,
             AligoMessageType messageType, String content, String title,
             String buttons, AligoMessageStatus messageStatus,
+            String failoverSubject, String failoverMessageBody,
             LocalDateTime requestedAt,
             List<AligoMessageRecipientJpaEntity> recipientEntities
     ) {
@@ -94,6 +119,9 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
         entity.messageStatus = messageStatus;
         entity.successCount = 0;
         entity.failCount = 0;
+        entity.failoverUsed = false;
+        entity.failoverSubject = failoverSubject;
+        entity.failoverMessageBody = failoverMessageBody;
         entity.requestedAt = requestedAt;
         if (FormatValidator.hasValue(recipientEntities)) {
             for (AligoMessageRecipientJpaEntity recipient : recipientEntities) {

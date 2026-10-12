@@ -34,6 +34,7 @@ public class AligoMessagePersistenceAdapter
                 message.getSenderKey(), message.getTemplateCode(), message.getSender(),
                 message.getMessageType(), message.getContent(), message.getTitle(),
                 message.getButtons(), message.getMessageStatus(),
+                message.getFailoverSubject(), message.getFailoverMessageBody(),
                 message.getRequestedAt(), recipientEntities
         );
 
@@ -50,6 +51,15 @@ public class AligoMessagePersistenceAdapter
         if (message.isSent()) {
             entity.updateSendResult(
                     message.getMessageStatus(), message.getAligoMid(),
+                    message.getSuccessCount(), message.getFailCount(), message.getSentAt()
+            );
+            return;
+        }
+        if (message.isFailovered()) {
+            List<AligoMessageRecipient> recipients = message.getRecipients();
+            String smid = recipients.isEmpty() ? null : recipients.get(0).getSmid();
+            entity.updateFailoverResult(
+                    message.getMessageStatus(), message.getAligoMid(), smid,
                     message.getSuccessCount(), message.getFailCount(), message.getSentAt()
             );
             return;

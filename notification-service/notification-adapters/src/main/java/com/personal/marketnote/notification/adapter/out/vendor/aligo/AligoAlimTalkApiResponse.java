@@ -14,7 +14,8 @@ record AligoAlimTalkApiResponse(
             @JsonProperty("mid") String mid,
             @JsonProperty("scnt") int scnt,
             @JsonProperty("fcnt") int fcnt,
-            @JsonProperty("mdid") String mdid
+            @JsonProperty("mdid") String mdid,
+            @JsonProperty("smid") String smid
     ) {
     }
 }

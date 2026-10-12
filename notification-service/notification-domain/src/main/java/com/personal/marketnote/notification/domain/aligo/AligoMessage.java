@@ -34,6 +34,9 @@ public class AligoMessage extends BaseDomain {
     private String aligoMid;
     private int successCount;
     private int failCount;
+    private boolean failoverUsed;
+    private String failoverSubject;
+    private String failoverMessageBody;
     private LocalDateTime requestedAt;
     private LocalDateTime sentAt;
     private List<AligoMessageRecipient> recipients;
@@ -57,6 +60,9 @@ public class AligoMessage extends BaseDomain {
                 .messageStatus(AligoMessageStatus.REQUESTED)
                 .successCount(0)
                 .failCount(0)
+                .failoverUsed(false)
+                .failoverSubject(state.getFailoverSubject())
+                .failoverMessageBody(state.getFailoverMessageBody())
                 .requestedAt(state.getRequestedAt())
                 .recipients(recipients)
                 .build();
@@ -85,6 +91,9 @@ public class AligoMessage extends BaseDomain {
                 .aligoMid(state.getAligoMid())
                 .successCount(state.getSuccessCount())
                 .failCount(state.getFailCount())
+                .failoverUsed(state.isFailoverUsed())
+                .failoverSubject(state.getFailoverSubject())
+                .failoverMessageBody(state.getFailoverMessageBody())
                 .requestedAt(state.getRequestedAt())
                 .sentAt(state.getSentAt())
                 .recipients(recipients)
@@ -111,8 +120,16 @@ public class AligoMessage extends BaseDomain {
         return messageStatus.isCancelled();
     }
 
+    public boolean isFailovered() {
+        return messageStatus.isFailovered();
+    }
+
     public boolean isCancellable() {
         return messageStatus.isCancellable();
+    }
+
+    public boolean hasFailoverContent() {
+        return FormatValidator.hasValue(failoverSubject) || FormatValidator.hasValue(failoverMessageBody);
     }
 
     public void markAsSent(String aligoMid, int successCount, int failCount, LocalDateTime sentAt) {
@@ -131,6 +148,23 @@ public class AligoMessage extends BaseDomain {
             throw new InvalidAligoMessageStatusTransitionException(messageStatus, AligoMessageStatus.FAILED);
         }
         this.messageStatus = AligoMessageStatus.FAILED;
+    }
+
+    public void markAsFailovered(String aligoMid, String smid, int successCount, int failCount, LocalDateTime sentAt) {
+        if (!messageStatus.canTransitionTo(AligoMessageStatus.FAILOVERED)) {
+            throw new InvalidAligoMessageStatusTransitionException(messageStatus, AligoMessageStatus.FAILOVERED);
+        }
+        this.aligoMid = aligoMid;
+        this.successCount = successCount;
+        this.failCount = failCount;
+        this.messageStatus = AligoMessageStatus.FAILOVERED;
+        this.sentAt = sentAt;
+        this.failoverUsed = true;
+        if (FormatValidator.hasValue(recipients)) {
+            for (AligoMessageRecipient recipient : recipients) {
+                recipient.updateSmid(smid);
+            }
+        }
     }
 
     public void cancel() {

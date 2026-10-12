@@ -62,7 +62,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of("이름", "홍길동", "상품명", "운동화"),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동"))
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -85,7 +86,7 @@ class SendAligoAlimTalkUseCaseTest {
                     .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_001", 1, 0));
+                .thenReturn(new AligoAlimTalkSendResponse("MID_001", 1, 0, null));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
@@ -112,7 +113,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트"))
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -137,7 +139,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of("이름", "홍길동"),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동"))
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -161,7 +164,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트"))
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -207,7 +211,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of(),
-                recipients
+                recipients,
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -229,7 +234,7 @@ class SendAligoAlimTalkUseCaseTest {
                     .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_MASS", 500, 0));
+                .thenReturn(new AligoAlimTalkSendResponse("MID_MASS", 500, 0, null));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);
@@ -257,7 +262,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of(),
-                recipients
+                recipients,
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -279,7 +285,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트"))
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "테스트")),
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.empty());
@@ -311,7 +318,8 @@ class SendAligoAlimTalkUseCaseTest {
                 templateCode,
                 "01012345678",
                 Map.of(),
-                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동"))
+                List.of(new AligoAlimTalkRecipientCommand("01098765432", "홍길동")),
+                null
         );
 
         when(findAligoTemplatePort.findByTemplateCode(templateCode)).thenReturn(Optional.of(template));
@@ -335,7 +343,7 @@ class SendAligoAlimTalkUseCaseTest {
                     .build());
         });
         when(sendAligoAlimTalkExternalPort.send(any(AligoMessage.class)))
-                .thenReturn(new AligoAlimTalkSendResponse("MID_BTN", 1, 0));
+                .thenReturn(new AligoAlimTalkSendResponse("MID_BTN", 1, 0, null));
 
         // when
         SendAligoAlimTalkResult result = sendAligoAlimTalkService.sendAlimTalk(command);

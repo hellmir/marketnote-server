@@ -20,13 +20,22 @@ public record SendAligoAlimTalkRequest(
         @NotNull(message = "수신자 목록은 필수입니다")
         @Size(min = 1, max = 500, message = "수신자는 1명 이상 500명 이하여야 합니다")
         @Valid
-        List<RecipientRequest> recipients
+        List<RecipientRequest> recipients,
+
+        FailoverRequest failover
 ) {
 
     public record RecipientRequest(
             @NotBlank(message = "수신자 전화번호는 필수입니다")
             String receiver,
             String recvName
+    ) {
+    }
+
+    public record FailoverRequest(
+            boolean enabled,
+            String subject,
+            String body
     ) {
     }
 }

@@ -260,11 +260,12 @@ class AligoMessageTest {
     class StatusTransition {
 
         @Test
-        @DisplayName("REQUESTED에서 SENT, FAILED, CANCELLED로 전이할 수 있다")
+        @DisplayName("REQUESTED에서 SENT, FAILED, CANCELLED, FAILOVERED로 전이할 수 있다")
         void shouldAllowTransitionsFromRequested() {
             assertThat(AligoMessageStatus.REQUESTED.canTransitionTo(AligoMessageStatus.SENT)).isTrue();
             assertThat(AligoMessageStatus.REQUESTED.canTransitionTo(AligoMessageStatus.FAILED)).isTrue();
             assertThat(AligoMessageStatus.REQUESTED.canTransitionTo(AligoMessageStatus.CANCELLED)).isTrue();
+            assertThat(AligoMessageStatus.REQUESTED.canTransitionTo(AligoMessageStatus.FAILOVERED)).isTrue();
             assertThat(AligoMessageStatus.REQUESTED.canTransitionTo(AligoMessageStatus.DELIVERED)).isFalse();
         }
 
@@ -300,6 +301,7 @@ class AligoMessageTest {
                 assertThat(AligoMessageStatus.CANCELLED.canTransitionTo(target)).isFalse();
             }
         }
+
     }
 
     @Nested
@@ -307,11 +309,12 @@ class AligoMessageTest {
     class IsTerminal {
 
         @Test
-        @DisplayName("DELIVERED, FAILED, CANCELLED는 종착 상태이다")
+        @DisplayName("DELIVERED, FAILED, CANCELLED, FAILOVERED는 종착 상태이다")
         void shouldReturnTrueForTerminalStatuses() {
             assertThat(AligoMessageStatus.DELIVERED.isTerminal()).isTrue();
             assertThat(AligoMessageStatus.FAILED.isTerminal()).isTrue();
             assertThat(AligoMessageStatus.CANCELLED.isTerminal()).isTrue();
+            assertThat(AligoMessageStatus.FAILOVERED.isTerminal()).isTrue();
         }
 
         @Test

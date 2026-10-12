@@ -37,7 +37,8 @@ public class AligoAlimTalkExternalAdapter implements SendAligoAlimTalkExternalPo
         return new AligoAlimTalkSendResponse(
                 response.info().mid(),
                 response.info().scnt(),
-                response.info().fcnt()
+                response.info().fcnt(),
+                response.info().smid()
         );
     }
 
@@ -46,6 +47,10 @@ public class AligoAlimTalkExternalAdapter implements SendAligoAlimTalkExternalPo
         params.add("senderkey", message.getSenderKey());
         params.add("tpl_code", message.getTemplateCode());
         params.add("sender", message.getSender());
+
+        if (message.hasFailoverContent()) {
+            params.add("failover", "Y");
+        }
 
         List<AligoMessageRecipient> recipients = message.getRecipients();
         for (int i = 0; i < recipients.size(); i++) {
@@ -59,6 +64,14 @@ public class AligoAlimTalkExternalAdapter implements SendAligoAlimTalkExternalPo
             params.add("message_" + index, message.getContent());
             if (FormatValidator.hasValue(message.getButtons())) {
                 params.add("button_" + index, message.getButtons());
+            }
+            if (message.hasFailoverContent()) {
+                if (FormatValidator.hasValue(message.getFailoverSubject())) {
+                    params.add("fsubject_" + index, message.getFailoverSubject());
+                }
+                if (FormatValidator.hasValue(message.getFailoverMessageBody())) {
+                    params.add("fmessage_" + index, message.getFailoverMessageBody());
+                }
             }
         }
 
