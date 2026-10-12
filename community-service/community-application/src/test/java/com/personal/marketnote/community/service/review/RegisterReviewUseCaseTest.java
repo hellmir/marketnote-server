@@ -8,6 +8,7 @@ import com.personal.marketnote.community.domain.review.ReviewSnapshotState;
 import com.personal.marketnote.community.exception.InvalidReviewContentContainsProfanityException;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
 import com.personal.marketnote.community.exception.ReviewAlreadyExistsException;
+import com.personal.marketnote.community.exception.InvalidOrderStatusForReviewException;
 import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.community.port.in.command.review.RegisterReviewCommand;
 import com.personal.marketnote.community.port.in.result.review.RegisterReviewResult;
@@ -189,6 +190,34 @@ class RegisterReviewUseCaseTest {
 
         verifyNoInteractions(verifyOrderOwnershipPort);
         verifyNoInteractions(saveReviewPort);
+    }
+
+    @Test
+    @DisplayName("리뷰 등록 시 주문 상태가 리뷰 불가능하면 InvalidOrderStatusForReviewException이 발생한다")
+    void registerReview_orderStatusNotReviewable_throwsException() {
+        RegisterReviewCommand command = buildCommand("테스트유저");
+        doThrow(new InvalidOrderStatusForReviewException())
+                .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
+
+        assertThatThrownBy(() -> registerReviewService.registerReview(command))
+                .isInstanceOf(InvalidOrderStatusForReviewException.class);
+
+        verifyNoInteractions(saveReviewPort);
+    }
+
+    @Test
+    @DisplayName("주문 상태 검증 실패 시 리뷰 저장 및 이벤트 발행을 수행하지 않는다")
+    void registerReview_orderStatusNotReviewable_skipsSubsequentOperations() {
+        RegisterReviewCommand command = buildCommand("테스트유저");
+        doThrow(new InvalidOrderStatusForReviewException())
+                .when(verifyOrderOwnershipPort).verifyOrderOwnership(command.orderId(), command.reviewerId());
+
+        assertThatThrownBy(() -> registerReviewService.registerReview(command))
+                .isInstanceOf(InvalidOrderStatusForReviewException.class);
+
+        verifyNoInteractions(saveReviewPort);
+        verifyNoInteractions(updateReviewPort);
+        verifyNoInteractions(publishReviewEventPort);
     }
 
     @Test
