@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.mapper;
 
 import com.personal.marketnote.commerce.domain.ledger.IdempotencyKey;
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreateState;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
@@ -71,14 +72,18 @@ public class OrderCommandToStateMapper {
                 .build();
     }
 
-    public static OrderCreateState mapToOrderState(Long buyerId,
-                                                   OrderAmount orderAmount,
-                                                   ShippingAddress shippingAddress,
-                                                   List<OrderProductCreateState> orderProductStates) {
+    public static OrderCreateState mapToOrderState(
+            Long buyerId,
+            OrderAmount orderAmount,
+            ShippingAddress shippingAddress,
+            ShippingRegionType shippingRegionType,
+            List<OrderProductCreateState> orderProductStates
+    ) {
         return OrderCreateState.builder()
                 .buyerId(buyerId)
                 .amount(orderAmount)
                 .shippingAddress(shippingAddress)
+                .shippingRegionType(shippingRegionType)
                 .orderProductStates(orderProductStates)
                 .build();
     }

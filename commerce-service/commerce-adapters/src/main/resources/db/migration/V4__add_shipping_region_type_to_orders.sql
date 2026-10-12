@@ -1,0 +1,1 @@
+ALTER TABLE orders ADD COLUMN shipping_region_type VARCHAR(20) NOT NULL DEFAULT 'NORMAL';

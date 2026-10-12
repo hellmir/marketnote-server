@@ -22,7 +22,7 @@ import com.personal.marketnote.commerce.port.out.payment.SavePaymentPort;
 import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
-import com.personal.marketnote.commerce.port.out.result.shipping.ShippingRegionType;
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
@@ -128,7 +128,8 @@ public class RegisterOrderService implements RegisterOrderUseCase {
         Order savedOrder = saveOrderPort.save(
                 Order.from(
                         OrderCommandToStateMapper.mapToOrderState(
-                                command.buyerId(), orderAmount, shippingAddress, orderProductStates)
+                                command.buyerId(), orderAmount, shippingAddress, regionType, orderProductStates
+                        )
                 )
         );
 

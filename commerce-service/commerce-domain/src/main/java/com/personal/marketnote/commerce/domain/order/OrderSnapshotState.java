@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,8 @@ public class OrderSnapshotState {
     private final OrderAmount amount;
     private final ShippingAddress shippingAddress;
     private final ShippingAddress pickupAddress;
+    @Builder.Default
+    private final ShippingRegionType shippingRegionType = ShippingRegionType.NORMAL;
     private final List<OrderProductSnapshotState> orderProductStates;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;

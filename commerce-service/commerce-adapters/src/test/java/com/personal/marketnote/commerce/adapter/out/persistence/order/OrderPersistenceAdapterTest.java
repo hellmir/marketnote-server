@@ -67,13 +67,13 @@ class OrderPersistenceAdapterTest {
                     delivery_recipient_name, delivery_recipient_phone_number,
                     delivery_zip_code, delivery_address, delivery_address_detail,
                     delivery_request_type, delivery_request_message,
-                    created_at, modified_at)
+                    shipping_region_type, created_at, modified_at)
                 VALUES (:buyerId, :orderKey, :orderNumber, :orderStatus,
                     50000, 45000, 0, 0, 3000,
                     '홍길동', '010-1234-5678',
                     '06000', '서울시 강남구', '101호',
                     'LEAVE_AT_DOOR', '문 앞에 놔주세요',
-                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    'NORMAL', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 """)
                 .setParameter("buyerId", buyerId)
                 .setParameter("orderKey", UUID.randomUUID().toString())
