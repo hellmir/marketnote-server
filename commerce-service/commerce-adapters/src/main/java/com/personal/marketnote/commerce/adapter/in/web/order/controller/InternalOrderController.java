@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.adapter.in.web.order.controller.apidocs.
 import com.personal.marketnote.commerce.adapter.in.web.order.response.InternalOrderProductResponse;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
+import com.personal.marketnote.commerce.exception.InvalidOrderStatusForReviewException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
@@ -52,6 +53,11 @@ public class InternalOrderController {
         if (!order.isBuyer(buyerId)) {
             log.warn("주문 소유자 불일치 - orderId: {}, 요청자: {}", orderId, buyerId);
             throw new UnauthorizedOrderAccessException();
+        }
+
+        if (!order.isReviewable()) {
+            log.warn("리뷰 작성 불가 주문 상태 - orderId: {}, status: {}", orderId, order.getOrderStatus());
+            throw new InvalidOrderStatusForReviewException(order.getOrderStatus());
         }
 
         return new ResponseEntity<>(
