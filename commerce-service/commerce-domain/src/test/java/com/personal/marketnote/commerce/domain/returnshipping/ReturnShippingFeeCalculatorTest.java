@@ -141,4 +141,101 @@ class ReturnShippingFeeCalculatorTest {
             assertThat(result).isEqualTo(ONE_WAY_SHIPPING_FEE);
         }
     }
+
+    @Nested
+    @DisplayName("제주/도서산간 추가 배송비")
+    class RegionSurchargeTest {
+        private static final Money JEJU_SURCHARGE = Money.of(3000L);
+        private static final Money ISLAND_SURCHARGE = Money.of(5000L);
+
+        @Test
+        @DisplayName("고객 귀책 + 유료 배송 + 제주 → 편도 배송비 + 제주 추가 배송비 1회")
+        void shouldAddJejuSurchargeForPaidShippingOneWay() {
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
+                    FaultType.BUYER,
+                    InitialShippingType.PAID_SHIPPING,
+                    ReturnType.FULL_RETURN,
+                    Money.zero(),
+                    FREE_SHIPPING_THRESHOLD,
+                    ONE_WAY_SHIPPING_FEE,
+                    JEJU_SURCHARGE
+            );
+
+            Money result = ReturnShippingFeeCalculator.calculate(context);
+
+            assertThat(result).isEqualTo(Money.of(6000L));
+        }
+
+        @Test
+        @DisplayName("고객 귀책 + 무료 배송 + 전체 반품 + 도서산간 → 왕복 배송비 + 도서산간 추가 배송비 2회")
+        void shouldAddIslandSurchargeForRoundTrip() {
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
+                    FaultType.BUYER,
+                    InitialShippingType.FREE_SHIPPING,
+                    ReturnType.FULL_RETURN,
+                    Money.zero(),
+                    FREE_SHIPPING_THRESHOLD,
+                    ONE_WAY_SHIPPING_FEE,
+                    ISLAND_SURCHARGE
+            );
+
+            Money result = ReturnShippingFeeCalculator.calculate(context);
+
+            assertThat(result).isEqualTo(Money.of(16000L));
+        }
+
+        @Test
+        @DisplayName("고객 귀책 + 무료 배송 + 기준 미달 + 제주 → 왕복 배송비 + 제주 추가 배송비 2회")
+        void shouldAddJejuSurchargeForBelowThresholdRoundTrip() {
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
+                    FaultType.BUYER,
+                    InitialShippingType.FREE_SHIPPING,
+                    ReturnType.PARTIAL_RETURN,
+                    Money.of(20000L),
+                    FREE_SHIPPING_THRESHOLD,
+                    ONE_WAY_SHIPPING_FEE,
+                    JEJU_SURCHARGE
+            );
+
+            Money result = ReturnShippingFeeCalculator.calculate(context);
+
+            assertThat(result).isEqualTo(Money.of(12000L));
+        }
+
+        @Test
+        @DisplayName("판매자 귀책 + 제주 → 추가 배송비 포함 전액 면제 (0원)")
+        void shouldReturnZeroForSellerFaultWithSurcharge() {
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
+                    FaultType.SELLER,
+                    InitialShippingType.FREE_SHIPPING,
+                    ReturnType.FULL_RETURN,
+                    Money.zero(),
+                    FREE_SHIPPING_THRESHOLD,
+                    ONE_WAY_SHIPPING_FEE,
+                    JEJU_SURCHARGE
+            );
+
+            Money result = ReturnShippingFeeCalculator.calculate(context);
+
+            assertThat(result).isEqualTo(Money.zero());
+        }
+
+        @Test
+        @DisplayName("고객 귀책 + 무료 배송 + 기준 유지 + 도서산간 → 편도 배송비 + 도서산간 추가 배송비 1회")
+        void shouldAddIslandSurchargeForAboveThresholdOneWay() {
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
+                    FaultType.BUYER,
+                    InitialShippingType.FREE_SHIPPING,
+                    ReturnType.PARTIAL_RETURN,
+                    Money.of(35000L),
+                    FREE_SHIPPING_THRESHOLD,
+                    ONE_WAY_SHIPPING_FEE,
+                    ISLAND_SURCHARGE
+            );
+
+            Money result = ReturnShippingFeeCalculator.calculate(context);
+
+            assertThat(result).isEqualTo(Money.of(8000L));
+        }
+    }
 }
