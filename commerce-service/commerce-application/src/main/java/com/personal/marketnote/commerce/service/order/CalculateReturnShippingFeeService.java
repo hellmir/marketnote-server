@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.order;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.returnshipping.*;
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
@@ -54,9 +55,11 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
                 sellerIds
         );
 
+        ShippingRegionType regionType = order.getShippingRegionType();
+
         long totalReturnShippingFee = calculateTotalReturnShippingFee(
                 faultType, returnType, orderProducts, returnPricePolicyIdSet,
-                initialShippingFeeBySellerIdMap, shippingPolicyMap
+                initialShippingFeeBySellerIdMap, shippingPolicyMap, regionType
         );
 
         return CalculateReturnShippingFeeResult.builder()
@@ -119,7 +122,8 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
             List<OrderProduct> orderProducts,
             Set<Long> returnPricePolicyIdSet,
             Map<Long, Long> initialShippingFeeBySellerIdMap,
-            Map<Long, ShippingPolicyInfoResult> shippingPolicyMap
+            Map<Long, ShippingPolicyInfoResult> shippingPolicyMap,
+            ShippingRegionType regionType
     ) {
         Map<Long, List<OrderProduct>> productsBySeller = orderProducts.stream()
                 .collect(Collectors.groupingBy(OrderProduct::getSellerId));
@@ -144,13 +148,15 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
             }
             long oneWayFee = policy.shippingFee();
             long freeShippingThreshold = policy.freeShippingThreshold();
+            long surcharge = resolveSurcharge(policy, regionType);
 
             ReturnType sellerReturnType = resolveSellerReturnType(sellerProducts, returnPricePolicyIdSet, returnType);
             long remainingAmount = calculateRemainingAmount(sellerProducts, returnPricePolicyIdSet);
 
             ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
                     faultType, initialShippingType, sellerReturnType,
-                    Money.of(remainingAmount), Money.of(freeShippingThreshold), Money.of(oneWayFee)
+                    Money.of(remainingAmount), Money.of(freeShippingThreshold),
+                    Money.of(oneWayFee), Money.of(surcharge)
             );
 
             totalFee = Math.addExact(totalFee, ReturnShippingFeeCalculator.calculate(context).getValue());
@@ -180,5 +186,19 @@ public class CalculateReturnShippingFeeService implements CalculateReturnShippin
                 .filter(product -> !returnPricePolicyIdSet.contains(product.getPricePolicyId()))
                 .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
                 .reduce(0L, Math::addExact);
+    }
+
+    private long resolveSurcharge(ShippingPolicyInfoResult policy, ShippingRegionType regionType) {
+        if (regionType.isJeju()) {
+            return resolveAmount(policy.jejuSurcharge());
+        }
+        if (regionType.isIsland()) {
+            return resolveAmount(policy.islandSurcharge());
+        }
+        return 0L;
+    }
+
+    private long resolveAmount(Long amount) {
+        return FormatValidator.hasValue(amount) ? amount : 0L;
     }
 }

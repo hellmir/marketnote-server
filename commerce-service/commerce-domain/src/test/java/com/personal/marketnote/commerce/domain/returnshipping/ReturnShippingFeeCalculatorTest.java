@@ -27,7 +27,8 @@ class ReturnShippingFeeCalculatorTest {
                     ReturnType.FULL_RETURN,
                     Money.zero(),
                     FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE
+                    ONE_WAY_SHIPPING_FEE,
+                    Money.zero()
             );
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
@@ -49,7 +50,8 @@ class ReturnShippingFeeCalculatorTest {
                     ReturnType.FULL_RETURN,
                     Money.zero(),
                     FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE
+                    ONE_WAY_SHIPPING_FEE,
+                    Money.zero()
             );
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
@@ -71,7 +73,8 @@ class ReturnShippingFeeCalculatorTest {
                     ReturnType.FULL_RETURN,
                     Money.zero(),
                     FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE
+                    ONE_WAY_SHIPPING_FEE,
+                    Money.zero()
             );
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
@@ -93,7 +96,8 @@ class ReturnShippingFeeCalculatorTest {
                     ReturnType.PARTIAL_RETURN,
                     Money.of(29999L),
                     FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE
+                    ONE_WAY_SHIPPING_FEE,
+                    Money.zero()
             );
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
@@ -110,7 +114,8 @@ class ReturnShippingFeeCalculatorTest {
                     ReturnType.PARTIAL_RETURN,
                     Money.of(35000L),
                     FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE
+                    ONE_WAY_SHIPPING_FEE,
+                    Money.zero()
             );
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
@@ -127,7 +132,8 @@ class ReturnShippingFeeCalculatorTest {
                     ReturnType.PARTIAL_RETURN,
                     FREE_SHIPPING_THRESHOLD,
                     FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE
+                    ONE_WAY_SHIPPING_FEE,
+                    Money.zero()
             );
 
             Money result = ReturnShippingFeeCalculator.calculate(context);

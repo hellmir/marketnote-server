@@ -14,6 +14,7 @@ public class ReturnShippingFeeContext {
     private Money remainingAmount;
     private Money freeShippingThreshold;
     private Money shippingFee;
+    private Money regionSurcharge;
 
     public static ReturnShippingFeeContext of(
             FaultType faultType,
@@ -21,7 +22,8 @@ public class ReturnShippingFeeContext {
             ReturnType returnType,
             Money remainingAmount,
             Money freeShippingThreshold,
-            Money shippingFee
+            Money shippingFee,
+            Money regionSurcharge
     ) {
         return ReturnShippingFeeContext.builder()
                 .faultType(faultType)
@@ -30,6 +32,7 @@ public class ReturnShippingFeeContext {
                 .remainingAmount(remainingAmount)
                 .freeShippingThreshold(freeShippingThreshold)
                 .shippingFee(shippingFee)
+                .regionSurcharge(regionSurcharge)
                 .build();
     }
 

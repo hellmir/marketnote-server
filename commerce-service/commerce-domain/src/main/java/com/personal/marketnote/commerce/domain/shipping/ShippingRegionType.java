@@ -1,4 +1,4 @@
-package com.personal.marketnote.commerce.port.out.result.shipping;
+package com.personal.marketnote.commerce.domain.shipping;
 
 import com.personal.marketnote.common.utility.FormatValidator;
 

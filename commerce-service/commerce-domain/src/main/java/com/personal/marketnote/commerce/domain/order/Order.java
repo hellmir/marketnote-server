@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.domain.order;
 
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import lombok.*;
@@ -23,6 +24,7 @@ public class Order {
     private OrderAmount amount;
     private ShippingAddress shippingAddress;
     private ShippingAddress pickupAddress;
+    private ShippingRegionType shippingRegionType;
     private List<OrderProduct> orderProducts;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -41,6 +43,7 @@ public class Order {
                 .orderStatus(OrderStatus.PAYMENT_PENDING)
                 .amount(state.getAmount())
                 .shippingAddress(state.getShippingAddress())
+                .shippingRegionType(state.getShippingRegionType())
                 .orderProducts(orderProducts)
                 .build();
     }
@@ -63,6 +66,7 @@ public class Order {
                 .amount(state.getAmount())
                 .shippingAddress(state.getShippingAddress())
                 .pickupAddress(state.getPickupAddress())
+                .shippingRegionType(state.getShippingRegionType())
                 .orderProducts(orderProducts)
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())

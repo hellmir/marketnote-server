@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseEntity;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.delivery.PickupRequestType;
@@ -113,6 +114,10 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "pickup_request_message", length = 60)
     private String pickupDeliveryRequestMessage;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "shipping_region_type", nullable = false, length = 20)
+    private ShippingRegionType shippingRegionType;
+
     @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     @Builder.Default
     private List<OrderProductJpaEntity> orderProductJpaEntities = new ArrayList<>();
@@ -148,6 +153,7 @@ public class OrderJpaEntity extends BaseEntity {
                 .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(
                         resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
                 ))
+                .shippingRegionType(order.getShippingRegionType())
                 .build();
     }
 
