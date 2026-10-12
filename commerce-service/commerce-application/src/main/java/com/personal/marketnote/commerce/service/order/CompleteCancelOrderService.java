@@ -37,14 +37,14 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
         validateCancelRequestedStatus(order);
 
         LocalDateTime now = LocalDateTime.now(clock);
-        order.changeAllProductsStatus(OrderStatus.CANCELLED, now);
+        applyCancelStatusToProducts(command, order, now);
 
         OrderStatusReasonCategory reasonCategory = resolveReasonCategory(command.reasonCategory());
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()
                         .orderId(command.orderId())
-                        .orderStatus(OrderStatus.CANCELLED)
+                        .orderStatus(order.getOrderStatus())
                         .reasonCategory(reasonCategory)
                         .reason(command.reason())
                         .build()
@@ -68,13 +68,33 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
                 cancelProducts
         );
 
-        log.info("주문 취소 완료 처리. orderId={}, orderKey={}", command.orderId(), command.orderKey());
+        log.info("주문 취소 완료 처리. orderId={}, orderKey={}, isFullCancel={}",
+                command.orderId(), command.orderKey(), command.isFullCancel()
+        );
     }
 
     private void validateCancelRequestedStatus(Order order) {
         if (!order.getOrderStatus().isCancelRequested()) {
             throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), OrderStatus.CANCELLED);
         }
+    }
+
+    private void applyCancelStatusToProducts(CompleteCancelOrderCommand command, Order order, LocalDateTime now) {
+        if (command.isFullCancel()) {
+            order.changeAllProductsStatus(OrderStatus.CANCELLED, now);
+            return;
+        }
+        List<Long> cancelPricePolicyIds = extractCancelPricePolicyIds(command.cancelProducts());
+        order.changeProductsStatus(cancelPricePolicyIds, OrderStatus.CANCELLED, now);
+    }
+
+    private List<Long> extractCancelPricePolicyIds(List<CancelProductItemCommand> items) {
+        if (FormatValidator.hasNoValue(items)) {
+            return List.of();
+        }
+        return items.stream()
+                .map(CancelProductItemCommand::pricePolicyId)
+                .toList();
     }
 
     private List<OrderProduct> mapToOrderProducts(List<CancelProductItemCommand> items) {

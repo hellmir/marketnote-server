@@ -69,6 +69,18 @@ public class OrderRequestToCommandMapper {
                 .build();
     }
 
+    public static PartialCancelOrderCommand mapToPartialCancelCommand(
+            Long id, PartialCancelOrderRequest request, Long buyerId
+    ) {
+        return PartialCancelOrderCommand.builder()
+                .id(id)
+                .reasonCategory(request.getReasonCategory())
+                .reason(request.getReason())
+                .buyerId(buyerId)
+                .cancelPricePolicyIds(request.getCancelPricePolicyIds())
+                .build();
+    }
+
     public static ChangeOrderStatusCommand mapToCommand(Long id, ChangeOrderStatusRequest request) {
         return ChangeOrderStatusCommand.builder()
                 .id(id)

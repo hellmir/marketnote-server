@@ -24,6 +24,7 @@ public enum OrderStatus {
     RETURN_REQUESTED("반품 요청됨"),
     RETURN_REJECTED("반품 불가"),
     RETURN_IN_PROGRESS("반품 진행 중"),
+    PARTIALLY_CANCELLED("부분 취소"),
     PARTIALLY_RETURNED("부분 반품됨"),
     RETURNED("반품 완료");
 
@@ -32,11 +33,12 @@ public enum OrderStatus {
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
 
     static {
-        ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCELLED));
-        ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED));
+        ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCELLED, PARTIALLY_CANCELLED));
+        ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(FAILED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCEL_REQUESTED));
+        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCEL_REQUESTED, EnumSet.of(CANCELLED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_CANCELLED, EnumSet.of(CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED, RETURN_REQUESTED));
         ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
@@ -125,8 +127,20 @@ public enum OrderStatus {
         return this == PAID || this == PREPARING;
     }
 
+    public boolean isPartiallyCancelled() {
+        return this == PARTIALLY_CANCELLED;
+    }
+
+    public static OrderStatus getPartiallyCancelled() {
+        return PARTIALLY_CANCELLED;
+    }
+
+    public boolean canPartiallyCancel() {
+        return this == PAYMENT_PENDING || this == PAID || this == PREPARING || this == PARTIALLY_CANCELLED;
+    }
+
     public boolean isNotPartialChanged() {
-        return this != PARTIALLY_CONFIRMED && this != PARTIALLY_RETURNED;
+        return this != PARTIALLY_CONFIRMED && this != PARTIALLY_RETURNED && this != PARTIALLY_CANCELLED;
     }
 
     public boolean isReviewable() {

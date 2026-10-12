@@ -96,6 +96,18 @@ public class Order {
                 .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
 
         if (
+                orderStatus.isCancelled()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isCancelled())
+        ) {
+            if (!this.orderStatus.canPartiallyCancel()) {
+                throw new InvalidOrderProductStatusTransitionException(this.orderStatus, OrderStatus.PARTIALLY_CANCELLED);
+            }
+            this.orderStatus = OrderStatus.getPartiallyCancelled();
+            return;
+        }
+
+        if (
                 orderStatus.isReturned()
                         && orderProducts.stream()
                         .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturned())
