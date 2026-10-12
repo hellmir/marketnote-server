@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -135,6 +136,142 @@ class CompleteReturnUseCaseTest {
                     eq(1L), anyString(), eq(100L),
                     eq(30000L), eq(49000L), eq(1000L), eq(3000L),
                     eq(true), eq(5000L), anyList()
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("부분 반품 처리")
+    class PartialReturnTest {
+
+        @Test
+        @DisplayName("전체 반품 완료 시 주문 상태가 RETURNED로 전이된다")
+        void shouldTransitionToReturnedWhenAllProductsReturned() {
+            OrderProduct product = mock(OrderProduct.class);
+            Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED, product);
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+
+            simulateReturnTransition(order, product, OrderStatus.RETURNED);
+
+            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+
+            service.completeReturn(new CompleteReturnCommand(1L));
+
+            verify(publishOrderEventPort).publishOrderReturnedEvent(
+                    eq(1L), anyString(), eq(100L),
+                    eq(30000L), eq(49000L), eq(1000L), eq(3000L),
+                    eq(true), eq(3000L), anyList()
+            );
+        }
+
+        @Test
+        @DisplayName("부분 반품 완료 시 주문 상태가 PARTIALLY_RETURNED로 전이된다")
+        void shouldTransitionToPartiallyReturnedWhenPartialReturn() {
+            // given
+            OrderProduct returnProduct = mock(OrderProduct.class);
+            OrderProduct confirmedProduct = mock(OrderProduct.class);
+
+            Order order = mock(Order.class);
+            when(order.getId()).thenReturn(1L);
+            when(order.getBuyerId()).thenReturn(100L);
+            when(order.getOrderKey()).thenReturn(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+            when(order.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+            when(order.getStatusChangeReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
+
+            OrderAmount amount = OrderAmount.of(80000L, 79000L, 0L, 1000L, 3000L);
+            when(order.getAmount()).thenReturn(amount);
+
+            when(returnProduct.getPricePolicyId()).thenReturn(10L);
+            when(returnProduct.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+            when(returnProduct.getQuantity()).thenReturn(Quantity.of(2));
+            when(returnProduct.getUnitAmount()).thenReturn(Money.of(15000L));
+
+            when(confirmedProduct.getPricePolicyId()).thenReturn(20L);
+            when(confirmedProduct.getOrderStatus()).thenReturn(OrderStatus.CONFIRMED);
+
+            when(order.getOrderProducts()).thenReturn(List.of(returnProduct, confirmedProduct));
+
+            lenient().doAnswer(invocation -> {
+                when(returnProduct.getOrderStatus()).thenReturn(OrderStatus.RETURNED);
+                when(order.getOrderStatus()).thenReturn(OrderStatus.PARTIALLY_RETURNED);
+                return null;
+            }).when(order).changeProductsStatus(anyList(), eq(OrderStatus.RETURNED), any(LocalDateTime.class));
+
+            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+
+            // when
+            service.completeReturn(new CompleteReturnCommand(1L));
+
+            // then
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURN_IN_PROGRESS), any(LocalDateTime.class));
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURNED), any(LocalDateTime.class));
+            verify(publishOrderEventPort).publishOrderReturnedEvent(
+                    eq(1L), anyString(), eq(100L),
+                    eq(30000L), eq(79000L), eq(1000L), eq(3000L),
+                    eq(false), eq(3000L), anyList()
+            );
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURNED 상태에서 추가 반품 요청이 가능하다")
+        void shouldAllowReturnRequestFromPartiallyReturned() {
+            assertThat(OrderStatus.PARTIALLY_RETURNED.canTransitionTo(OrderStatus.RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("모든 상품 반품 완료 시 PARTIALLY_RETURNED에서 RETURNED로 전이된다")
+        void shouldTransitionToReturnedFromPartiallyReturnedWhenAllProductsReturned() {
+            // given
+            OrderProduct alreadyReturnedProduct = mock(OrderProduct.class);
+            OrderProduct newReturnProduct = mock(OrderProduct.class);
+
+            Order order = mock(Order.class);
+            when(order.getId()).thenReturn(1L);
+            when(order.getBuyerId()).thenReturn(100L);
+            when(order.getOrderKey()).thenReturn(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+            when(order.getOrderStatus()).thenReturn(OrderStatus.PARTIALLY_RETURNED);
+            when(order.getStatusChangeReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
+
+            OrderAmount amount = OrderAmount.of(80000L, 79000L, 0L, 1000L, 3000L);
+            when(order.getAmount()).thenReturn(amount);
+
+            when(alreadyReturnedProduct.getPricePolicyId()).thenReturn(10L);
+            when(alreadyReturnedProduct.getOrderStatus()).thenReturn(OrderStatus.RETURNED);
+
+            when(newReturnProduct.getPricePolicyId()).thenReturn(20L);
+            when(newReturnProduct.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+            when(newReturnProduct.getQuantity()).thenReturn(Quantity.of(1));
+            when(newReturnProduct.getUnitAmount()).thenReturn(Money.of(20000L));
+
+            when(order.getOrderProducts()).thenReturn(List.of(alreadyReturnedProduct, newReturnProduct));
+
+            lenient().doAnswer(invocation -> {
+                when(newReturnProduct.getOrderStatus()).thenReturn(OrderStatus.RETURNED);
+                when(order.getOrderStatus()).thenReturn(OrderStatus.RETURNED);
+                return null;
+            }).when(order).changeProductsStatus(anyList(), eq(OrderStatus.RETURNED), any(LocalDateTime.class));
+
+            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+
+            // when
+            service.completeReturn(new CompleteReturnCommand(1L));
+
+            // then
+            verify(order).changeProductsStatus(eq(List.of(20L)), eq(OrderStatus.RETURN_IN_PROGRESS), any(LocalDateTime.class));
+            verify(order).changeProductsStatus(eq(List.of(20L)), eq(OrderStatus.RETURNED), any(LocalDateTime.class));
+            verify(publishOrderEventPort).publishOrderReturnedEvent(
+                    eq(1L), anyString(), eq(100L),
+                    eq(20000L), eq(79000L), eq(1000L), eq(3000L),
+                    eq(true), eq(3000L), anyList()
             );
         }
     }
