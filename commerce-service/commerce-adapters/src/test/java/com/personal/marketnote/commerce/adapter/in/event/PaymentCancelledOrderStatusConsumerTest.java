@@ -19,6 +19,7 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.personal.marketnote.commerce.domain.order.OrderStatus.CANCELLED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +55,21 @@ class PaymentCancelledOrderStatusConsumerTest {
         return new ConsumerRecord<>("commerce.payment.cancelled", 0, 0L, String.valueOf(orderId), envelope);
     }
 
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecordWithCancelProducts(
+            Long orderId, String orderKey, boolean isFullCancel, Long cancelAmount,
+            List<PaymentCancelledEvent.OrderProductItem> cancelProducts
+    ) {
+        PaymentCancelledEvent event = new PaymentCancelledEvent(
+                orderId, orderKey, 100L, cancelAmount, 50000L, 1000L,
+                isFullCancel, 0L, null, List.of(), cancelProducts, null
+        );
+        EventEnvelope<PaymentCancelledEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "commerce.payment.cancelled", "commerce-service",
+                LocalDateTime.of(2026, 3, 6, 10, 0), event
+        );
+        return new ConsumerRecord<>("commerce.payment.cancelled", 0, 0L, String.valueOf(orderId), envelope);
+    }
+
     @Test
     @DisplayName("전체 취소 이벤트 수신 시 주문 상태를 CANCELLED로 변경하고 acknowledge한다")
     void handlePaymentCancelledEvent_fullCancel_changesOrderStatusToCancelledAndAcknowledges() {
@@ -75,16 +91,29 @@ class PaymentCancelledOrderStatusConsumerTest {
     }
 
     @Test
-    @DisplayName("부분 취소 이벤트(isFullCancel=false) 수신 시 상태 변경 없이 acknowledge한다")
-    void handlePaymentCancelledEvent_partialCancel_skipsAndAcknowledges() {
+    @DisplayName("부분 취소 이벤트(isFullCancel=false) 수신 시 취소 대상 상품의 상태를 CANCELLED로 변경하고 acknowledge한다")
+    void handlePaymentCancelledEvent_partialCancel_changesTargetProductsAndAcknowledges() {
         // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "order-key-1", false, 10000L);
+        List<PaymentCancelledEvent.OrderProductItem> cancelProducts = List.of(
+                new PaymentCancelledEvent.OrderProductItem(100L, UUID.randomUUID(), 1, 30000L)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecordWithCancelProducts(
+                1L, "order-key-1", false, 30000L, cancelProducts
+        );
 
         // when
         consumer.handlePaymentCancelledEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(changeOrderStatusUseCase);
+        ArgumentCaptor<ChangeOrderStatusCommand> captor = ArgumentCaptor.forClass(ChangeOrderStatusCommand.class);
+        verify(changeOrderStatusUseCase).changeOrderStatus(captor.capture());
+
+        ChangeOrderStatusCommand command = captor.getValue();
+        assertThat(command.id()).isEqualTo(1L);
+        assertThat(command.orderStatus()).isEqualTo(CANCELLED);
+        assertThat(command.pricePolicyIds()).containsExactly(100L);
+        assertThat(command.isPartialProductChange()).isTrue();
+
         verify(acknowledgment).acknowledge();
     }
 

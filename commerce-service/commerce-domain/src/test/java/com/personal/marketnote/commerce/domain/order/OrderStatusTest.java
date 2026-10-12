@@ -49,9 +49,9 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("PAID에서 CANCELLED로 직접 전이할 수 없다")
-        void paid_cannotTransitionTo_cancelled() {
-            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.CANCELLED)).isFalse();
+        @DisplayName("PAID에서 CANCELLED로 전이할 수 있다 (부분 취소)")
+        void paid_canTransitionTo_cancelled() {
+            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
         }
 
         @Test
@@ -73,9 +73,9 @@ class OrderStatusTest {
         }
 
         @Test
-        @DisplayName("PREPARING에서 CANCELLED로 직접 전이할 수 없다")
-        void preparing_cannotTransitionTo_cancelled() {
-            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.CANCELLED)).isFalse();
+        @DisplayName("PREPARING에서 CANCELLED로 전이할 수 있다 (부분 취소)")
+        void preparing_canTransitionTo_cancelled() {
+            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
         }
 
         @Test

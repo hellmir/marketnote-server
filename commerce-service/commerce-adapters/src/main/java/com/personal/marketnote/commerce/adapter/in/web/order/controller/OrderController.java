@@ -53,6 +53,7 @@ public class OrderController {
     private final UpdateUserShippingAddressDeliveryRequestPort updateUserShippingAddressDeliveryRequestPort;
     private final GetOrderUseCase getOrderUseCase;
     private final CancelOrderUseCase cancelOrderUseCase;
+    private final PartialCancelOrderUseCase partialCancelOrderUseCase;
     private final RequestReturnUseCase requestReturnUseCase;
     private final ConfirmOrderUseCase confirmOrderUseCase;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
@@ -309,6 +310,40 @@ public class OrderController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "주문 취소 요청 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    /**
+     * 주문 부분 취소 요청
+     *
+     * @param id        주문 ID
+     * @param request   주문 부분 취소 요청
+     * @param principal 인증된 사용자 정보
+     * @Author 성효빈
+     * @Date 2026-10-11
+     * @Description 구매자가 주문 내 일부 상품에 대한 부분 취소를 요청합니다.
+     */
+    @PostMapping("/api/v1/orders/{id}/partial-cancel")
+    @PartialCancelOrderApiDocs
+    public ResponseEntity<BaseResponse<Void>> partialCancelOrder(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody PartialCancelOrderRequest request,
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        Long buyerId = ElementExtractor.extractUserId(principal);
+
+        partialCancelOrderUseCase.partialCancelOrder(
+                OrderRequestToCommandMapper.mapToPartialCancelCommand(id, request, buyerId)
+        );
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "주문 부분 취소 요청 성공"
                 ),
                 HttpStatus.OK
         );

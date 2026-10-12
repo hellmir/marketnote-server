@@ -16,6 +16,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -57,21 +59,17 @@ public class PaymentCancelledOrderStatusConsumer {
                 return;
             }
 
-            if (!payload.isFullCancel()) {
-                log.info("부분 취소 이벤트 — 주문 상태 변경 불필요. eventId={}, orderId={}",
-                        envelope.eventId(), payload.orderId());
+            ChangeOrderStatusCommand command = buildCancelStatusCommand(payload);
+
+            if (command == null) {
                 acknowledgment.acknowledge();
                 return;
             }
 
-            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
-                    .id(payload.orderId())
-                    .orderStatus(OrderStatus.CANCELLED)
-                    .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 
-            log.info("Kafka 이벤트로 주문 상태 CANCELLED 변경 완료. orderId={}",
-                    payload.orderId());
+            log.info("Kafka 이벤트로 주문 상태 변경 완료. orderId={}, isFullCancel={}",
+                    payload.orderId(), payload.isFullCancel());
         } catch (OrderStatusAlreadyChangedException e) {
             log.warn("멱등 처리: 이미 주문 상태가 변경됨. eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage());
@@ -82,5 +80,36 @@ public class PaymentCancelledOrderStatusConsumer {
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private ChangeOrderStatusCommand buildCancelStatusCommand(PaymentCancelledEvent payload) {
+        if (payload.isFullCancel()) {
+            return ChangeOrderStatusCommand.builder()
+                    .id(payload.orderId())
+                    .orderStatus(OrderStatus.CANCELLED)
+                    .build();
+        }
+
+        List<Long> cancelPricePolicyIds = extractCancelPricePolicyIds(payload);
+
+        if (cancelPricePolicyIds.isEmpty()) {
+            log.warn("부분 취소 이벤트에 cancelProducts가 비어있음. orderId={}", payload.orderId());
+            return null;
+        }
+
+        return ChangeOrderStatusCommand.builder()
+                .id(payload.orderId())
+                .pricePolicyIds(cancelPricePolicyIds)
+                .orderStatus(OrderStatus.CANCELLED)
+                .build();
+    }
+
+    private List<Long> extractCancelPricePolicyIds(PaymentCancelledEvent payload) {
+        if (payload.cancelProducts() == null) {
+            return List.of();
+        }
+        return payload.cancelProducts().stream()
+                .map(PaymentCancelledEvent.OrderProductItem::pricePolicyId)
+                .toList();
     }
 }
