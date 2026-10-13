@@ -475,6 +475,108 @@ class SignUpUseCaseTest {
         verify(saveUserPort).save(any(User.class));
     }
 
+    @Test
+    @DisplayName("신규 회원 가입 시 SaveRefreshTokenPort.saveByUserId()가 올바른 인자로 호출된다")
+    void signUp_newUser_savesRefreshTokenWithCorrectArgs() {
+        // given
+        String email = "token@test.com";
+        String password = "password1!";
+        SignUpCommand command = createCommand(email, password, "123456", "tester", "홍길동", null);
+
+        when(findUserPort.existsByEmail(email)).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity("tester")).thenReturn(false);
+        when(findUserPort.existsByNickname("tester")).thenReturn(false);
+        when(verifyCodePort.verify(email, "123456")).thenReturn(true);
+        when(findTermsPort.findAll()).thenReturn(List.of(mock(Terms.class)));
+        when(passwordEncoder.encode(password)).thenReturn("encoded");
+
+        User savedUser = mock(User.class);
+        when(savedUser.getId()).thenReturn(50L);
+        when(savedUser.getUserKey()).thenReturn(UUID.randomUUID());
+        when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("test-access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("test-refresh-token");
+
+        // when
+        signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        verify(saveRefreshTokenPort).saveByUserId(50L, "test-refresh-token", 1209600000L);
+        verify(generateTokenPort).generateAccessToken("50", 50L, List.of("ROLE_BUYER"), AuthVendor.NATIVE);
+        verify(generateTokenPort).generateRefreshToken("50", 50L, List.of("ROLE_BUYER"), AuthVendor.NATIVE);
+    }
+
+    @Test
+    @DisplayName("기존 회원 통합(addLoginAccountInfo) 시에도 토큰 발급 및 화이트리스트 저장이 수행된다")
+    void signUp_existingUser_addLoginAccount_generatesTokensAndSavesRefreshToken() {
+        // given
+        String email = "existing@test.com";
+        SignUpCommand command = createCommand(email, null, "999999", "tester", "홍길동", null);
+
+        when(findUserPort.existsByEmail(email)).thenReturn(true);
+        when(findUserPort.existsByAuthVendorAndOidcId(any(), anyString())).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity(anyString())).thenReturn(false);
+        when(findUserPort.existsByNickname(anyString())).thenReturn(false);
+        when(verifyCodePort.verify(eq(email), anyString())).thenReturn(true);
+
+        User existingUser = mock(User.class);
+        when(existingUser.isWithdrawn()).thenReturn(false);
+        when(existingUser.isActive()).thenReturn(true);
+        when(existingUser.getId()).thenReturn(77L);
+        when(existingUser.getRole()).thenReturn(Role.getBuyer());
+        when(getUserUseCase.getAllStatusUser(email)).thenReturn(existingUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("existing-access");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("existing-refresh");
+
+        // when
+        SignUpResult result = signUpService.signUp(command, AuthVendor.KAKAO, "oidc-existing", "127.0.0.1");
+
+        // then
+        assertThat(result.accessToken()).isEqualTo("existing-access");
+        assertThat(result.refreshToken()).isEqualTo("existing-refresh");
+
+        verify(saveRefreshTokenPort).saveByUserId(77L, "existing-refresh", 1209600000L);
+        verify(generateTokenPort).generateAccessToken("77", 77L, List.of("ROLE_BUYER"), AuthVendor.KAKAO);
+        verify(generateTokenPort).generateRefreshToken("77", 77L, List.of("ROLE_BUYER"), AuthVendor.KAKAO);
+    }
+
+    @Test
+    @DisplayName("회원가입 성공 시 accessToken과 refreshToken이 SignUpResult에 포함된다")
+    void signUp_success_resultContainsTokens() {
+        // given
+        String email = "result@test.com";
+        String password = "password1!";
+        SignUpCommand command = createCommand(email, password, "123456", "tester", "홍길동", null);
+
+        when(findUserPort.existsByEmail(email)).thenReturn(false);
+        when(findProfanityWordPort.containsProfanity("tester")).thenReturn(false);
+        when(findUserPort.existsByNickname("tester")).thenReturn(false);
+        when(verifyCodePort.verify(email, "123456")).thenReturn(true);
+        when(findTermsPort.findAll()).thenReturn(List.of(mock(Terms.class)));
+        when(passwordEncoder.encode(password)).thenReturn("encoded");
+
+        User savedUser = mock(User.class);
+        when(savedUser.getId()).thenReturn(99L);
+        when(savedUser.getUserKey()).thenReturn(UUID.randomUUID());
+        when(savedUser.getRole()).thenReturn(Role.getBuyer());
+        when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("my-access");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("my-refresh");
+
+        // when
+        SignUpResult result = signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        assertThat(result.accessToken()).isNotNull();
+        assertThat(result.refreshToken()).isNotNull();
+        assertThat(result.accessToken()).isEqualTo("my-access");
+        assertThat(result.refreshToken()).isEqualTo("my-refresh");
+    }
+
     private SignUpCommand createCommand(
             String email,
             String password,
