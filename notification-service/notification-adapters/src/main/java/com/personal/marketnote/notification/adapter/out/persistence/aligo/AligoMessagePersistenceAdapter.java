@@ -45,7 +45,7 @@ public class AligoMessagePersistenceAdapter
                 message.getMessageType(), message.getContent(), message.getTitle(),
                 message.getButtons(), message.getMessageStatus(),
                 message.getFailoverSubject(), message.getFailoverMessageBody(),
-                message.getRequestedAt(), recipientEntities
+                message.getRequestedAt(), message.getSendDate(), recipientEntities
         );
 
         AligoMessageJpaEntity saved = aligoMessageJpaRepository.save(entity);

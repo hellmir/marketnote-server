@@ -25,5 +25,6 @@ public class AligoMessageCreateState {
     private String failoverSubject;
     private String failoverMessageBody;
     private LocalDateTime requestedAt;
+    private LocalDateTime sendDate;
     private List<AligoMessageRecipientCreateState> recipients;
 }
