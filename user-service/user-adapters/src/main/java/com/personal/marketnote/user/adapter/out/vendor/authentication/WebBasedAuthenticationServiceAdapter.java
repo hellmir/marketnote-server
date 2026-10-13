@@ -7,7 +7,6 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieName;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieObject;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieUtils;
-import com.personal.marketnote.user.adapter.exception.HashAlgorithmNotAvailableException;
 import com.personal.marketnote.user.adapter.in.web.authentication.request.OAuth2LoginRequest;
 import com.personal.marketnote.user.adapter.in.web.authentication.response.OAuth2LoginResponse;
 import com.personal.marketnote.user.adapter.in.web.authentication.response.RefreshedAccessTokenResponse;
@@ -15,6 +14,7 @@ import com.personal.marketnote.user.adapter.in.web.authentication.response.WebBa
 import com.personal.marketnote.user.port.in.result.LoginResult;
 import com.personal.marketnote.user.port.in.usecase.authentication.Oauth2LoginUseCase;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
+import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
 import com.personal.marketnote.user.security.token.support.TokenSupport;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.utility.OAuth2WebUtils;
@@ -27,9 +27,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -141,7 +138,7 @@ public class WebBasedAuthenticationServiceAdapter {
             refreshToken = newRefreshToken;
             Long id = FormatConverter.parseToLong(grantedTokenInfo.id());
             String redisKey = "refreshToken:" + id;
-            String refreshTokenValue = "r" + encodeBySha256Hex(refreshToken);
+            String refreshTokenValue = "r" + Sha256HashUtils.encode(refreshToken);
             stringRedisTemplate.opsForValue()
                     .set(
                             Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
@@ -163,21 +160,4 @@ public class WebBasedAuthenticationServiceAdapter {
         return new WebBasedTokenRefreshResponse(headers, new RefreshedAccessTokenResponse(newAccessToken));
     }
 
-    private String encodeBySha256Hex(String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder(hash.length * 2);
-            for (byte b : hash) {
-                String hex = Integer.toHexString(b & 0xff);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new HashAlgorithmNotAvailableException(e);
-        }
-    }
 }

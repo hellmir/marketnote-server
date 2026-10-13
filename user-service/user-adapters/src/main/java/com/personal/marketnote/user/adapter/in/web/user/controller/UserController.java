@@ -5,8 +5,8 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RegularExpressionConstant;
-import com.personal.marketnote.user.adapter.exception.HashAlgorithmNotAvailableException;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.*;
+import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
@@ -37,9 +37,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +114,7 @@ public class UserController {
         String refreshToken = jwtUtil.generateRefreshToken(subject, id, roleIds, authVendor);
 
         String redisKey = "userId:" + id;
-        String refreshTokenValue = "r" + encodeBySha256Hex(refreshToken);
+        String refreshTokenValue = "r" + Sha256HashUtils.encode(refreshToken);
         stringRedisTemplate.opsForValue()
                 .set(
                         Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
@@ -219,7 +216,7 @@ public class UserController {
         String refreshToken = jwtUtil.generateRefreshToken(subject, id, roleIds, authVendor);
 
         String redisKey = "refreshToken:" + id;
-        String refreshTokenValue = "r" + encodeBySha256Hex(refreshToken);
+        String refreshTokenValue = "r" + Sha256HashUtils.encode(refreshToken);
         stringRedisTemplate.opsForValue()
                 .set(
                         Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
@@ -246,24 +243,6 @@ public class UserController {
                                 "회원 로그인 성공"
                         )
                 );
-    }
-
-    private String encodeBySha256Hex(String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder(hash.length * 2);
-            for (byte b : hash) {
-                String hex = Integer.toHexString(b & 0xff);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new HashAlgorithmNotAvailableException(e);
-        }
     }
 
     private String extractClientIp(HttpServletRequest request) {
