@@ -96,16 +96,9 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("192.168.1.1");
 
-            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.NATIVE), isNull(), eq("192.168.1.1")))
                     .thenReturn(signUpResult);
-
-            when(jwtUtil.generateAccessToken("1", 1L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE))
-                    .thenReturn("access-token-value");
-            when(jwtUtil.generateRefreshToken("1", 1L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE))
-                    .thenReturn("refresh-token-value");
-
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             ResponseEntity<?> response = userController.signUpUser(signUpRequest, null, httpServletRequest);
@@ -116,13 +109,6 @@ class UserControllerTest {
             assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("HttpOnly");
             assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("Secure");
             assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("SameSite=Strict");
-
-            verify(valueOperations).set(
-                    eq("userId:1"),
-                    argThat(value -> value.startsWith("r")),
-                    eq(1209600000L),
-                    eq(TimeUnit.MILLISECONDS)
-            );
         }
 
         @Test
@@ -140,16 +126,9 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
 
-            SignUpResult signUpResult = new SignUpResult(2L, "ROLE_BUYER", false);
+            SignUpResult signUpResult = new SignUpResult(2L, "ROLE_BUYER", false, "access-token-existing", "refresh-token-existing");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.NATIVE), isNull(), eq("10.0.0.1")))
                     .thenReturn(signUpResult);
-
-            when(jwtUtil.generateAccessToken("2", 2L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE))
-                    .thenReturn("access-token-existing");
-            when(jwtUtil.generateRefreshToken("2", 2L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE))
-                    .thenReturn("refresh-token-existing");
-
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             ResponseEntity<?> response = userController.signUpUser(signUpRequest, null, httpServletRequest);
@@ -177,28 +156,20 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
 
-            SignUpResult signUpResult = new SignUpResult(3L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(3L, "ROLE_BUYER", true, "access-token-kakao", "refresh-token-kakao");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.KAKAO), eq("kakao-oidc-123"), eq("10.0.0.1")))
                     .thenReturn(signUpResult);
-
-            when(jwtUtil.generateAccessToken("3", 3L, java.util.List.of("ROLE_BUYER"), AuthVendor.KAKAO))
-                    .thenReturn("access-token-kakao");
-            when(jwtUtil.generateRefreshToken("3", 3L, java.util.List.of("ROLE_BUYER"), AuthVendor.KAKAO))
-                    .thenReturn("refresh-token-kakao");
-
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             userController.signUpUser(signUpRequest, principal, httpServletRequest);
 
             // then
             verify(signUpUseCase).signUp(any(), eq(AuthVendor.KAKAO), eq("kakao-oidc-123"), eq("10.0.0.1"));
-            verify(jwtUtil).generateAccessToken("3", 3L, java.util.List.of("ROLE_BUYER"), AuthVendor.KAKAO);
         }
 
         @Test
-        @DisplayName("리프레시 토큰을 SHA-256 해시하여 Redis에 저장한다")
-        void shouldStoreHashedRefreshTokenInRedis() {
+        @DisplayName("회원가입 시 SignUpResult의 토큰을 응답에 사용한다")
+        void shouldUseTokensFromSignUpResult() {
             // given
             SignUpRequest signUpRequest = mock(SignUpRequest.class);
             when(signUpRequest.getEmail()).thenReturn("test@example.com");
@@ -211,23 +182,16 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
 
-            SignUpResult signUpResult = new SignUpResult(5L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(5L, "ROLE_BUYER", true, "my-access-token", "my-refresh-token");
             when(signUpUseCase.signUp(any(), any(), any(), any())).thenReturn(signUpResult);
-            when(jwtUtil.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
-            when(jwtUtil.generateRefreshToken(anyString(), any(Long.class), any(), any())).thenReturn("refresh-token");
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
-
-            ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
-            ArgumentCaptor<String> valueCaptor = ArgumentCaptor.forClass(String.class);
 
             // when
-            userController.signUpUser(signUpRequest, null, httpServletRequest);
+            ResponseEntity<?> response = userController.signUpUser(signUpRequest, null, httpServletRequest);
 
             // then
-            verify(valueOperations).set(keyCaptor.capture(), valueCaptor.capture(), eq(1209600000L), eq(TimeUnit.MILLISECONDS));
-            assertThat(keyCaptor.getValue()).isEqualTo("userId:5");
-            assertThat(valueCaptor.getValue()).startsWith("r");
-            assertThat(valueCaptor.getValue()).hasSize(65); // "r" + 64 hex chars (SHA-256)
+            assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("refresh_token=my-refresh-token");
+            verifyNoInteractions(jwtUtil);
+            verifyNoInteractions(stringRedisTemplate);
         }
     }
 
@@ -314,11 +278,8 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("192.168.1.1, 10.0.0.1, 172.16.0.1");
 
-            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), any(), any(), eq("192.168.1.1"))).thenReturn(signUpResult);
-            when(jwtUtil.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
-            when(jwtUtil.generateRefreshToken(anyString(), any(Long.class), any(), any())).thenReturn("refresh");
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             userController.signUpUser(signUpRequest, null, httpServletRequest);
@@ -343,11 +304,8 @@ class UserControllerTest {
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn(null);
             when(httpServletRequest.getHeader("X-Real-IP")).thenReturn("10.0.0.5");
 
-            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), any(), any(), eq("10.0.0.5"))).thenReturn(signUpResult);
-            when(jwtUtil.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
-            when(jwtUtil.generateRefreshToken(anyString(), any(Long.class), any(), any())).thenReturn("refresh");
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             userController.signUpUser(signUpRequest, null, httpServletRequest);
@@ -373,11 +331,8 @@ class UserControllerTest {
             when(httpServletRequest.getHeader("X-Real-IP")).thenReturn(null);
             when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
 
-            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), any(), any(), eq("127.0.0.1"))).thenReturn(signUpResult);
-            when(jwtUtil.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
-            when(jwtUtil.generateRefreshToken(anyString(), any(Long.class), any(), any())).thenReturn("refresh");
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             userController.signUpUser(signUpRequest, null, httpServletRequest);
@@ -410,12 +365,9 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
 
-            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.GOOGLE), eq("google-sub-123"), any()))
                     .thenReturn(signUpResult);
-            when(jwtUtil.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
-            when(jwtUtil.generateRefreshToken(anyString(), any(Long.class), any(), any())).thenReturn("refresh");
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             userController.signUpUser(signUpRequest, principal, httpServletRequest);
@@ -443,12 +395,9 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
 
-            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true);
+            SignUpResult signUpResult = new SignUpResult(1L, "ROLE_BUYER", true, "access-token-value", "refresh-token-value");
             when(signUpUseCase.signUp(any(), eq(AuthVendor.APPLE), eq("apple-sub-456"), any()))
                     .thenReturn(signUpResult);
-            when(jwtUtil.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
-            when(jwtUtil.generateRefreshToken(anyString(), any(Long.class), any(), any())).thenReturn("refresh");
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             userController.signUpUser(signUpRequest, principal, httpServletRequest);

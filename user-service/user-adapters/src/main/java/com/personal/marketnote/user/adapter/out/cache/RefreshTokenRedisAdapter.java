@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.adapter.out.cache;
 
+import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
 import com.personal.marketnote.user.port.out.authentication.DeleteRefreshTokenPort;
 import com.personal.marketnote.user.port.out.authentication.FindRefreshTokenPort;
 import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RefreshTokenRedisAdapter implements DeleteRefreshTokenPort, SaveRefreshTokenPort, FindRefreshTokenPort {
     private static final String KEY_PREFIX = "refreshToken:";
+    private static final String VALUE_PREFIX = "r";
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -22,8 +24,9 @@ public class RefreshTokenRedisAdapter implements DeleteRefreshTokenPort, SaveRef
     }
 
     @Override
-    public void saveByUserId(Long userId, String hashedRefreshToken, long ttlMillis) {
-        stringRedisTemplate.opsForValue().set(KEY_PREFIX + userId, hashedRefreshToken, ttlMillis, TimeUnit.MILLISECONDS);
+    public void saveByUserId(Long userId, String refreshToken, long ttlMillis) {
+        String hashedValue = VALUE_PREFIX + Sha256HashUtils.encode(refreshToken);
+        stringRedisTemplate.opsForValue().set(KEY_PREFIX + userId, hashedValue, ttlMillis, TimeUnit.MILLISECONDS);
     }
 
     @Override
