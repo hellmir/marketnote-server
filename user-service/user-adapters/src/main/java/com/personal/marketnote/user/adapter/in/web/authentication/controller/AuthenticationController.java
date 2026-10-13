@@ -3,7 +3,6 @@ package com.personal.marketnote.user.adapter.in.web.authentication.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.user.adapter.exception.HashAlgorithmNotAvailableException;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.Oauth2LoginApiDocs;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.RefreshAccessTokenApiDocs;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.SendEmailVerificationApiDocs;
@@ -16,6 +15,7 @@ import com.personal.marketnote.user.adapter.in.web.authentication.response.verif
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.VerifyCodeRequest;
 import com.personal.marketnote.user.adapter.out.vendor.authentication.WebBasedAuthenticationServiceAdapter;
+import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.port.in.result.VerifyCodeResult;
 import com.personal.marketnote.user.port.in.usecase.authentication.SendEmailVerificationUseCase;
@@ -37,9 +37,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
@@ -119,7 +116,7 @@ public class AuthenticationController {
         }
 
         String redisKey = "refreshToken:" + userId;
-        String expected = "r" + sha256Hex(refreshToken);
+        String expected = "r" + Sha256HashUtils.encode(refreshToken);
         String stored = stringRedisTemplate.opsForValue().get(redisKey);
 
         if (FormatValidator.notEquals(expected, stored)) {
@@ -152,24 +149,6 @@ public class AuthenticationController {
                 FIRST_ERROR_CODE,
                 "유효하지 않은 리프레시 토큰"
         );
-    }
-
-    private String sha256Hex(String input) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder(hash.length * 2);
-            for (byte b : hash) {
-                String hex = Integer.toHexString(b & 0xff);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new HashAlgorithmNotAvailableException(e);
-        }
     }
 
     /**
