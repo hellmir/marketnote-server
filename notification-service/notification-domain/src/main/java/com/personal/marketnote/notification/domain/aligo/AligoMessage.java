@@ -20,6 +20,7 @@ public class AligoMessage extends BaseDomain {
 
     private static final int MIN_RECIPIENTS = 1;
     private static final int MAX_RECIPIENTS = 500;
+    private static final long CANCEL_DEADLINE_MINUTES = 5;
     private static final Pattern PHONE_PATTERN = Pattern.compile("^\\d{10,11}$");
 
     private Long id;
@@ -38,6 +39,7 @@ public class AligoMessage extends BaseDomain {
     private String failoverSubject;
     private String failoverMessageBody;
     private LocalDateTime requestedAt;
+    private LocalDateTime sendDate;
     private LocalDateTime sentAt;
     private List<AligoMessageRecipient> recipients;
     private LocalDateTime createdAt;
@@ -64,6 +66,7 @@ public class AligoMessage extends BaseDomain {
                 .failoverSubject(state.getFailoverSubject())
                 .failoverMessageBody(state.getFailoverMessageBody())
                 .requestedAt(state.getRequestedAt())
+                .sendDate(state.getSendDate())
                 .recipients(recipients)
                 .build();
         message.activate();
@@ -95,6 +98,7 @@ public class AligoMessage extends BaseDomain {
                 .failoverSubject(state.getFailoverSubject())
                 .failoverMessageBody(state.getFailoverMessageBody())
                 .requestedAt(state.getRequestedAt())
+                .sendDate(state.getSendDate())
                 .sentAt(state.getSentAt())
                 .recipients(recipients)
                 .createdAt(state.getCreatedAt())
@@ -126,6 +130,25 @@ public class AligoMessage extends BaseDomain {
 
     public boolean isCancellable() {
         return messageStatus.isCancellable();
+    }
+
+    public boolean isCancellable(LocalDateTime now) {
+        if (!messageStatus.isCancellable()) {
+            return false;
+        }
+        if (FormatValidator.hasNoValue(sendDate)) {
+            return true;
+        }
+        return sendDate.minusMinutes(CANCEL_DEADLINE_MINUTES).isAfter(now);
+    }
+
+    public void validateCancellable(LocalDateTime now) {
+        if (!messageStatus.isCancellable()) {
+            throw new InvalidAligoMessageStatusTransitionException(messageStatus, AligoMessageStatus.CANCELLED);
+        }
+        if (FormatValidator.hasValue(sendDate) && !sendDate.minusMinutes(CANCEL_DEADLINE_MINUTES).isAfter(now)) {
+            throw new AligoCancelDeadlineExceededException();
+        }
     }
 
     public boolean hasFailoverContent() {

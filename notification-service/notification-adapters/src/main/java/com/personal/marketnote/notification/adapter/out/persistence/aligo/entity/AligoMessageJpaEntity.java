@@ -65,6 +65,8 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private LocalDateTime requestedAt;
 
+    private LocalDateTime sendDate;
+
     private LocalDateTime sentAt;
 
     @OneToMany(mappedBy = "aligoMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -105,7 +107,7 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
             AligoMessageType messageType, String content, String title,
             String buttons, AligoMessageStatus messageStatus,
             String failoverSubject, String failoverMessageBody,
-            LocalDateTime requestedAt,
+            LocalDateTime requestedAt, LocalDateTime sendDate,
             List<AligoMessageRecipientJpaEntity> recipientEntities
     ) {
         AligoMessageJpaEntity entity = new AligoMessageJpaEntity();
@@ -123,6 +125,7 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
         entity.failoverSubject = failoverSubject;
         entity.failoverMessageBody = failoverMessageBody;
         entity.requestedAt = requestedAt;
+        entity.sendDate = sendDate;
         if (FormatValidator.hasValue(recipientEntities)) {
             for (AligoMessageRecipientJpaEntity recipient : recipientEntities) {
                 recipient.assignMessage(entity);

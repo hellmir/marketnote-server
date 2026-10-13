@@ -32,6 +32,7 @@ public class AligoMessageSnapshotState {
     private String failoverSubject;
     private String failoverMessageBody;
     private LocalDateTime requestedAt;
+    private LocalDateTime sendDate;
     private LocalDateTime sentAt;
     private List<AligoMessageRecipientSnapshotState> recipients;
     private EntityStatus status;

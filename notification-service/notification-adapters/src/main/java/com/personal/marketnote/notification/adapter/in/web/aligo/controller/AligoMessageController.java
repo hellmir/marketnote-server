@@ -6,6 +6,7 @@ import com.personal.marketnote.notification.adapter.in.web.aligo.response.GetAli
 import com.personal.marketnote.notification.port.in.command.GetAligoMessageListCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoMessageListResult;
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoMessageRecipientListResult;
+import com.personal.marketnote.notification.port.in.usecase.aligo.CancelAligoMessageUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoMessageListUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.GetAligoMessageRecipientListUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,6 +38,7 @@ public class AligoMessageController {
 
     private final GetAligoMessageListUseCase getAligoMessageListUseCase;
     private final GetAligoMessageRecipientListUseCase getAligoMessageRecipientListUseCase;
+    private final CancelAligoMessageUseCase cancelAligoMessageUseCase;
 
     @GetMapping
     @PreAuthorize(ADMIN_POINTCUT)
@@ -73,6 +76,18 @@ public class AligoMessageController {
                         GetAligoMessageRecipientListResponse.from(result),
                         HttpStatus.OK, DEFAULT_SUCCESS_CODE, "수신자 목록 조회 성공"
                 ),
+                HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/{messageId}")
+    @PreAuthorize(ADMIN_POINTCUT)
+    @Operation(summary = "예약 발송 취소", description = "알리고 예약 발송 메시지를 취소한다. 발송 예정시각 5분 전까지만 취소 가능하다.")
+    public ResponseEntity<BaseResponse<Void>> cancelMessage(@PathVariable Long messageId) {
+        cancelAligoMessageUseCase.cancelMessage(messageId);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(null, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "예약 발송 취소 성공"),
                 HttpStatus.OK
         );
     }
