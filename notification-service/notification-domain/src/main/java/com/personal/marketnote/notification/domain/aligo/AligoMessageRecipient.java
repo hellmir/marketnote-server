@@ -86,4 +86,34 @@ public class AligoMessageRecipient {
     public void updateSmid(String smid) {
         this.smid = smid;
     }
+
+    public boolean isResolved() {
+        return !isPending();
+    }
+
+    public void updateResult(
+            AligoMessageRecipientStatus targetStatus, String msgId,
+            String rslt, String rsltMessage,
+            LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
+    ) {
+        if (!isPending()) {
+            return;
+        }
+        this.recipientStatus = targetStatus;
+        this.msgId = msgId;
+        this.rslt = rslt;
+        this.rsltMessage = rsltMessage;
+        this.sentAt = sentAt;
+        this.resultAt = resultAt;
+        this.reportAt = reportAt;
+    }
+
+    public void forceResolveFailed() {
+        if (!isPending()) {
+            return;
+        }
+        this.recipientStatus = AligoMessageRecipientStatus.FAILED;
+        this.rslt = "TIMEOUT";
+        this.rsltMessage = "24시간 내 결과 미수신으로 강제 실패 처리";
+    }
 }

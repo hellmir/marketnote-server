@@ -174,6 +174,74 @@ public class AligoMessage extends BaseDomain {
         this.messageStatus = AligoMessageStatus.CANCELLED;
     }
 
+    public boolean isDelivered() {
+        return messageStatus.isDelivered();
+    }
+
+    public void markAsDelivered() {
+        if (!messageStatus.canTransitionTo(AligoMessageStatus.DELIVERED)) {
+            throw new InvalidAligoMessageStatusTransitionException(messageStatus, AligoMessageStatus.DELIVERED);
+        }
+        this.messageStatus = AligoMessageStatus.DELIVERED;
+    }
+
+    public void updateRecipientResult(
+            String receiver, AligoMessageRecipientStatus targetStatus,
+            String msgId, String rslt, String rsltMessage,
+            LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
+    ) {
+        if (FormatValidator.hasNoValue(recipients)) {
+            return;
+        }
+        for (AligoMessageRecipient recipient : recipients) {
+            if (recipient.getReceiver().equals(receiver) && recipient.isPending()) {
+                recipient.updateResult(targetStatus, msgId, rslt, rsltMessage, sentAt, resultAt, reportAt);
+                return;
+            }
+        }
+    }
+
+    public boolean isAllRecipientsResolved() {
+        if (FormatValidator.hasNoValue(recipients)) {
+            return true;
+        }
+        return recipients.stream().allMatch(AligoMessageRecipient::isResolved);
+    }
+
+    public boolean hasAnySuccessfulRecipient() {
+        if (FormatValidator.hasNoValue(recipients)) {
+            return false;
+        }
+        return recipients.stream().anyMatch(AligoMessageRecipient::isSuccess);
+    }
+
+    public void resolveAfterPolling() {
+        if (!isAllRecipientsResolved()) {
+            return;
+        }
+        if (!isSent()) {
+            return;
+        }
+        if (hasAnySuccessfulRecipient()) {
+            markAsDelivered();
+            return;
+        }
+        markAsFailed();
+    }
+
+    public void forceResolveExpiredRecipients() {
+        if (FormatValidator.hasNoValue(recipients)) {
+            return;
+        }
+        for (AligoMessageRecipient recipient : recipients) {
+            recipient.forceResolveFailed();
+        }
+    }
+
+    public boolean isPendingPolling() {
+        return isSent();
+    }
+
     private static void validate(AligoMessageCreateState state) {
         if (FormatValidator.hasNoValue(state.getSenderKey())) {
             throw new InvalidAligoTemplateException("senderKey는 필수입니다.");
