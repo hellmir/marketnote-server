@@ -11,11 +11,16 @@ import com.personal.marketnote.user.port.in.command.SignInCommand;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.SignInUseCase;
+import com.personal.marketnote.user.port.out.authentication.GenerateTokenPort;
+import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
 import com.personal.marketnote.user.port.out.user.SaveLoginHistoryPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.SECOND_ERROR_CODE;
@@ -29,6 +34,11 @@ public class SignInService implements SignInUseCase {
     private final GetUserUseCase getUserUseCase;
     private final PasswordEncoder passwordEncoder;
     private final SaveLoginHistoryPort saveLoginHistoryPort;
+    private final GenerateTokenPort generateTokenPort;
+    private final SaveRefreshTokenPort saveRefreshTokenPort;
+
+    @Value("${spring.jwt.refresh-token.ttl:1209600000}")
+    private long refreshTokenTtlMillis;
 
     @Override
     public SignInResult signIn(SignInCommand signInCommand, AuthVendor authVendor, String oidcId, String ipAddress) {
@@ -43,7 +53,20 @@ public class SignInService implements SignInUseCase {
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)
         );
 
-        return SignInResult.from(signedUpUser);
+        return generateTokensAndBuildResult(signedUpUser, authVendor);
+    }
+
+    private SignInResult generateTokensAndBuildResult(User user, AuthVendor authVendor) {
+        Long userId = user.getId();
+        String subject = String.valueOf(userId);
+        List<String> roleIds = List.of(user.getRole().getId());
+
+        String accessToken = generateTokenPort.generateAccessToken(subject, userId, roleIds, authVendor);
+        String refreshToken = generateTokenPort.generateRefreshToken(subject, userId, roleIds, authVendor);
+
+        saveRefreshTokenPort.saveByUserId(userId, refreshToken, refreshTokenTtlMillis);
+
+        return SignInResult.of(user, accessToken, refreshToken);
     }
 
     private User getSignedUpUser(SignInCommand signInCommand, AuthVendor authVendor, String oidcId) {

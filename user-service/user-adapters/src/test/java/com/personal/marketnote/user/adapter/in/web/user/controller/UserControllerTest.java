@@ -6,26 +6,17 @@ import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
-import com.personal.marketnote.user.utility.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.concurrent.TimeUnit;
 
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.ISS_CLAIM_KEY;
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.SUB_CLAIM_KEY;
@@ -62,20 +53,6 @@ class UserControllerTest {
 
     @Mock
     private WithdrawUseCase withdrawUseCase;
-
-    @Mock
-    private JwtUtil jwtUtil;
-
-    @Mock
-    private StringRedisTemplate stringRedisTemplate;
-
-    @Mock
-    private ValueOperations<String, String> valueOperations;
-
-    @BeforeEach
-    void setUp() {
-        ReflectionTestUtils.setField(userController, "refreshTokenTtlMillis", 1209600000L);
-    }
 
     @Nested
     @DisplayName("signUpUser - 회원가입 토큰 및 쿠키")
@@ -190,8 +167,6 @@ class UserControllerTest {
 
             // then
             assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("refresh_token=my-refresh-token");
-            verifyNoInteractions(jwtUtil);
-            verifyNoInteractions(stringRedisTemplate);
         }
     }
 
@@ -210,16 +185,9 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
 
-            SignInResult signInResult = new SignInResult(1L, "ROLE_BUYER", true);
+            SignInResult signInResult = new SignInResult(1L, "ROLE_BUYER", true, "access-token-signin", "refresh-token-signin");
             when(signInUseCase.signIn(any(), eq(AuthVendor.NATIVE), isNull(), eq("10.0.0.1")))
                     .thenReturn(signInResult);
-
-            when(jwtUtil.generateAccessToken("1", 1L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE))
-                    .thenReturn("access-token-signin");
-            when(jwtUtil.generateRefreshToken("1", 1L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE))
-                    .thenReturn("refresh-token-signin");
-
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
 
             // when
             ResponseEntity<?> response = userController.signInUser(signInRequest, null, httpServletRequest);
@@ -232,8 +200,8 @@ class UserControllerTest {
         }
 
         @Test
-        @DisplayName("로그인 시 Redis 키를 refreshToken 접두사로 저장한다")
-        void shouldStoreRefreshTokenWithCorrectRedisKeyPrefix() {
+        @DisplayName("로그인 시 SignInResult의 토큰을 응답에 사용한다")
+        void shouldUseTokensFromSignInResult() {
             // given
             SignInRequest signInRequest = mock(SignInRequest.class);
             when(signInRequest.getEmail()).thenReturn("test@example.com");
@@ -242,20 +210,14 @@ class UserControllerTest {
             HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
             when(httpServletRequest.getHeader("X-Forwarded-For")).thenReturn("10.0.0.1");
 
-            SignInResult signInResult = new SignInResult(10L, "ROLE_BUYER", true);
+            SignInResult signInResult = new SignInResult(10L, "ROLE_BUYER", true, "my-access", "my-refresh");
             when(signInUseCase.signIn(any(), any(), any(), any())).thenReturn(signInResult);
-            when(jwtUtil.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
-            when(jwtUtil.generateRefreshToken(anyString(), any(Long.class), any(), any())).thenReturn("refresh");
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
-
-            ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
 
             // when
-            userController.signInUser(signInRequest, null, httpServletRequest);
+            ResponseEntity<?> response = userController.signInUser(signInRequest, null, httpServletRequest);
 
             // then
-            verify(valueOperations).set(keyCaptor.capture(), any(), eq(1209600000L), eq(TimeUnit.MILLISECONDS));
-            assertThat(keyCaptor.getValue()).isEqualTo("refreshToken:10");
+            assertThat(response.getHeaders().getFirst("Set-Cookie")).contains("refresh_token=my-refresh");
         }
     }
 

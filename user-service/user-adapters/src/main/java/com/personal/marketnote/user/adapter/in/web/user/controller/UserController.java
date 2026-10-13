@@ -6,7 +6,6 @@ import com.personal.marketnote.common.utility.FormatConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RegularExpressionConstant;
 import com.personal.marketnote.user.adapter.in.web.user.controller.apidocs.*;
-import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignInRequest;
 import com.personal.marketnote.user.adapter.in.web.user.request.SignUpRequest;
@@ -18,7 +17,6 @@ import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.result.WithdrawResult;
 import com.personal.marketnote.user.port.in.usecase.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
-import com.personal.marketnote.user.utility.jwt.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -26,8 +24,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -38,10 +34,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.ISS_CLAIM_KEY;
@@ -71,11 +64,6 @@ public class UserController {
     private final RegisterReferredUserCodeUseCase registerReferredUserCodeUseCase;
     private final SignOutUseCase signOutUseCase;
     private final WithdrawUseCase withdrawUseCase;
-    private final JwtUtil jwtUtil;
-    private final StringRedisTemplate stringRedisTemplate;
-
-    @Value("${spring.jwt.refresh-token.ttl:1209600000}")
-    private Long refreshTokenTtlMillis;
 
     /**
      * 회원 가입
@@ -191,23 +179,7 @@ public class UserController {
                 UserRequestToCommandMapper.mapToCommand(signInRequest), authVendor, oidcId, clientIp
         );
 
-        List<String> roleIds = List.of(signInResult.roleId());
-        Long id = signInResult.id();
-        String subject = String.valueOf(signInResult.id());
-        String accessToken = jwtUtil.generateAccessToken(subject, id, roleIds, authVendor);
-        String refreshToken = jwtUtil.generateRefreshToken(subject, id, roleIds, authVendor);
-
-        String redisKey = "refreshToken:" + id;
-        String refreshTokenValue = "r" + Sha256HashUtils.encode(refreshToken);
-        stringRedisTemplate.opsForValue()
-                .set(
-                        Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
-                        Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS
-                );
-
-        HttpStatus httpStatus = HttpStatus.OK;
-
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", refreshToken)
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", signInResult.refreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -215,11 +187,11 @@ public class UserController {
                 .build();
 
         return ResponseEntity
-                .status(httpStatus)
+                .status(HttpStatus.OK)
                 .header("Set-Cookie", refreshTokenCookie.toString())
                 .body(
                         BaseResponse.of(
-                                SignInResponse.of(accessToken, signInResult.isRequiredTermsAgreed()),
+                                SignInResponse.of(signInResult.accessToken(), signInResult.isRequiredTermsAgreed()),
                                 HttpStatus.OK,
                                 DEFAULT_SUCCESS_CODE,
                                 "회원 로그인 성공"
