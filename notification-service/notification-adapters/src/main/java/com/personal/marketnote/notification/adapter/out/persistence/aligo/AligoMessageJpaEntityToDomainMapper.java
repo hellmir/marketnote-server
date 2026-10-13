@@ -13,6 +13,33 @@ public final class AligoMessageJpaEntityToDomainMapper {
     private AligoMessageJpaEntityToDomainMapper() {
     }
 
+    public static AligoMessage mapToDomainSummary(AligoMessageJpaEntity entity) {
+        return AligoMessage.from(
+                AligoMessageSnapshotState.builder()
+                        .id(entity.getId())
+                        .senderKey(entity.getSenderKey())
+                        .templateCode(entity.getTemplateCode())
+                        .sender(entity.getSender())
+                        .messageType(entity.getMessageType())
+                        .content(entity.getContent())
+                        .title(entity.getTitle())
+                        .buttons(entity.getButtons())
+                        .messageStatus(entity.getMessageStatus())
+                        .aligoMid(entity.getAligoMid())
+                        .successCount(entity.getSuccessCount())
+                        .failCount(entity.getFailCount())
+                        .failoverUsed(entity.isFailoverUsed())
+                        .failoverSubject(entity.getFailoverSubject())
+                        .failoverMessageBody(entity.getFailoverMessageBody())
+                        .requestedAt(entity.getRequestedAt())
+                        .sentAt(entity.getSentAt())
+                        .status(entity.getStatus())
+                        .createdAt(entity.getCreatedAt())
+                        .modifiedAt(entity.getModifiedAt())
+                        .build()
+        );
+    }
+
     public static AligoMessage mapToDomain(AligoMessageJpaEntity entity) {
         List<AligoMessageRecipientSnapshotState> recipientStates = entity.getRecipients().stream()
                 .map(AligoMessageJpaEntityToDomainMapper::mapRecipientToSnapshotState)

@@ -65,6 +65,20 @@ public class AligoMessageRecipientJpaEntity {
         this.smid = smid;
     }
 
+    public void updatePollingResult(
+            AligoMessageRecipientStatus recipientStatus, String msgId,
+            String rslt, String rsltMessage,
+            LocalDateTime sentAt, LocalDateTime resultAt, LocalDateTime reportAt
+    ) {
+        this.recipientStatus = recipientStatus;
+        this.msgId = msgId;
+        this.rslt = rslt;
+        this.rsltMessage = rsltMessage;
+        this.sentAt = sentAt;
+        this.resultAt = resultAt;
+        this.reportAt = reportAt;
+    }
+
     public static AligoMessageRecipientJpaEntity create(String receiver, String recvName) {
         AligoMessageRecipientJpaEntity entity = new AligoMessageRecipientJpaEntity();
         entity.receiver = receiver;
