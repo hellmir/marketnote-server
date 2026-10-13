@@ -16,12 +16,15 @@ import com.personal.marketnote.user.port.in.mapper.UserCommandToStateMapper;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.SignUpUseCase;
+import com.personal.marketnote.user.port.out.authentication.GenerateTokenPort;
+import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +51,12 @@ public class SignUpService implements SignUpUseCase {
     private final SaveLoginHistoryPort saveLoginHistoryPort;
     private final PublishUserEventPort publishUserEventPort;
     private final FindProfanityWordPort findProfanityWordPort;
+    private final GenerateTokenPort generateTokenPort;
+    private final SaveRefreshTokenPort saveRefreshTokenPort;
     private final Clock clock;
+
+    @Value("${spring.jwt.refresh-token.ttl:1209600000}")
+    private long refreshTokenTtlMillis;
 
     @Override
     public SignUpResult signUp(SignUpCommand signUpCommand, AuthVendor authVendor, String oidcId, String ipAddress) {
@@ -62,7 +70,7 @@ public class SignUpService implements SignUpUseCase {
             AtomicBoolean isNewUser = new AtomicBoolean(false);
             User signedUpUser = addLoginAccountInfo(email, password, authVendor, oidcId, ipAddress, isNewUser);
 
-            return SignUpResult.from(signedUpUser, isNewUser.get());
+            return generateTokensAndBuildResult(signedUpUser, isNewUser.get(), authVendor);
         }
 
         List<Terms> terms = findTermsPort.findAll();
@@ -91,7 +99,20 @@ public class SignUpService implements SignUpUseCase {
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)
         );
 
-        return SignUpResult.from(signedUpUser, true);
+        return generateTokensAndBuildResult(signedUpUser, true, authVendor);
+    }
+
+    private SignUpResult generateTokensAndBuildResult(User user, boolean isNewUser, AuthVendor authVendor) {
+        Long userId = user.getId();
+        String subject = String.valueOf(userId);
+        List<String> roleIds = List.of(user.getRole().getId());
+
+        String accessToken = generateTokenPort.generateAccessToken(subject, userId, roleIds, authVendor);
+        String refreshToken = generateTokenPort.generateRefreshToken(subject, userId, roleIds, authVendor);
+
+        saveRefreshTokenPort.saveByUserId(userId, refreshToken, refreshTokenTtlMillis);
+
+        return SignUpResult.of(user, isNewUser, accessToken, refreshToken);
     }
 
     private void validate(SignUpCommand signUpCommand, AuthVendor authVendor, String oidcId) {

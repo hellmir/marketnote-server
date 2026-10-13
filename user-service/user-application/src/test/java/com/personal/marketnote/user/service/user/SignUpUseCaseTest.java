@@ -9,11 +9,14 @@ import com.personal.marketnote.user.exception.*;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.out.authentication.GenerateTokenPort;
+import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
 import com.personal.marketnote.user.port.out.authentication.VerifyCodePort;
 import com.personal.marketnote.user.port.out.event.PublishUserEventPort;
 import com.personal.marketnote.user.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,10 +60,19 @@ class SignUpUseCaseTest {
     @Mock
     private FindProfanityWordPort findProfanityWordPort;
     @Mock
+    private GenerateTokenPort generateTokenPort;
+    @Mock
+    private SaveRefreshTokenPort saveRefreshTokenPort;
+    @Mock
     private Clock clock;
 
     @InjectMocks
     private SignUpService signUpService;
+
+    @BeforeEach
+    void setUp() {
+        org.springframework.test.util.ReflectionTestUtils.setField(signUpService, "refreshTokenTtlMillis", 1209600000L);
+    }
 
     @Test
     @DisplayName("신규 회원 가입 시 포인트 도메인 및 로그인 내역을 생성한다")
@@ -86,6 +98,9 @@ class SignUpUseCaseTest {
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
 
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
+
         // when
         SignUpResult result = signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
 
@@ -93,6 +108,8 @@ class SignUpUseCaseTest {
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.isNewUser()).isTrue();
         assertThat(result.roleId()).isEqualTo("ROLE_BUYER");
+        assertThat(result.accessToken()).isEqualTo("access-token");
+        assertThat(result.refreshToken()).isEqualTo("refresh-token");
 
         verify(saveUserPort).save(any(User.class));
         verify(publishUserEventPort).publishUserSignupCompletedEvent(1L, userKey.toString());
@@ -121,6 +138,9 @@ class SignUpUseCaseTest {
         when(existingUser.getRole()).thenReturn(Role.getBuyer());
 
         when(getUserUseCase.getAllStatusUser(email)).thenReturn(existingUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
 
         // when
         SignUpResult result = signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1");
@@ -332,6 +352,9 @@ class SignUpUseCaseTest {
         when(clock.instant()).thenReturn(fixedInstant);
         when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
 
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
+
         // when
         SignUpResult result = signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1");
 
@@ -369,6 +392,9 @@ class SignUpUseCaseTest {
         when(clock.instant()).thenReturn(fixedInstant);
         when(clock.getZone()).thenReturn(ZoneId.of("Asia/Seoul"));
 
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
+
         // when
         SignUpResult result = signUpService.signUp(command, AuthVendor.KAKAO, "oidc-123", "127.0.0.1");
 
@@ -399,6 +425,9 @@ class SignUpUseCaseTest {
         when(savedUser.getUserKey()).thenReturn(userKey);
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
 
         // when
         SignUpResult result = signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");
@@ -431,6 +460,9 @@ class SignUpUseCaseTest {
         when(savedUser.getUserKey()).thenReturn(userKey);
         when(savedUser.getRole()).thenReturn(Role.getBuyer());
         when(saveUserPort.save(any(User.class))).thenReturn(savedUser);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
 
         // when
         SignUpResult result = signUpService.signUp(command, AuthVendor.NATIVE, null, "127.0.0.1");

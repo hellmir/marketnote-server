@@ -107,27 +107,9 @@ public class UserController {
                 UserRequestToCommandMapper.mapToCommand(signUpRequest), authVendor, oidcId, extractClientIp(request)
         );
 
-        List<String> roleIds = List.of(signUpResult.roleId());
-        Long id = signUpResult.id();
-        String subject = String.valueOf(signUpResult.id());
-        String accessToken = jwtUtil.generateAccessToken(subject, id, roleIds, authVendor);
-        String refreshToken = jwtUtil.generateRefreshToken(subject, id, roleIds, authVendor);
+        HttpStatus httpStatus = signUpResult.isNewUser() ? HttpStatus.CREATED : HttpStatus.OK;
 
-        String redisKey = "userId:" + id;
-        String refreshTokenValue = "r" + Sha256HashUtils.encode(refreshToken);
-        stringRedisTemplate.opsForValue()
-                .set(
-                        Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
-                        Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS
-                );
-
-        HttpStatus httpStatus = HttpStatus.CREATED;
-        boolean isNewUser = signUpResult.isNewUser();
-        if (!isNewUser) {
-            httpStatus = HttpStatus.OK;
-        }
-
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", refreshToken)
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", signUpResult.refreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -139,7 +121,7 @@ public class UserController {
                 .header("Set-Cookie", refreshTokenCookie.toString())
                 .body(
                         BaseResponse.of(
-                                SignUpResponse.of(accessToken, isNewUser),
+                                SignUpResponse.of(signUpResult.accessToken(), signUpResult.isNewUser()),
                                 httpStatus,
                                 DEFAULT_SUCCESS_CODE,
                                 "회원 가입 성공"
