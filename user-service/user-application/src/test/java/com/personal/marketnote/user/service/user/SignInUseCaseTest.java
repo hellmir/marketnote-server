@@ -236,6 +236,74 @@ class SignInUseCaseTest {
         verifyNoInteractions(saveLoginHistoryPort);
     }
 
+    @Test
+    @DisplayName("이메일+비밀번호 로그인 성공 시 accessToken, refreshToken이 SignInResult에 포함된다")
+    void signIn_nativeUser_resultContainsTokens() {
+        // given
+        String email = "token@test.com";
+        String password = "password1!";
+        SignInCommand command = SignInCommand.of(email, password);
+
+        User user = mockUserForResult(20L, true, Role.getBuyer());
+        when(getUserUseCase.getAllStatusUser(email)).thenReturn(user);
+        when(user.isValidPassword(passwordEncoder, password)).thenReturn(true);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("native-access");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("native-refresh");
+
+        // when
+        SignInResult result = signInService.signIn(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        assertThat(result.accessToken()).isEqualTo("native-access");
+        assertThat(result.refreshToken()).isEqualTo("native-refresh");
+    }
+
+    @Test
+    @DisplayName("OIDC 로그인 성공 시 accessToken, refreshToken이 SignInResult에 포함된다")
+    void signIn_socialUser_resultContainsTokens() {
+        // given
+        String oidcId = "oidc-token-test";
+        SignInCommand command = SignInCommand.of(null, null);
+
+        User user = mockUserForResult(30L, false, Role.getBuyer());
+        when(getUserUseCase.getAllStatusUser(AuthVendor.GOOGLE, oidcId)).thenReturn(user);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("social-access");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("social-refresh");
+
+        // when
+        SignInResult result = signInService.signIn(command, AuthVendor.GOOGLE, oidcId, "10.0.0.1");
+
+        // then
+        assertThat(result.accessToken()).isEqualTo("social-access");
+        assertThat(result.refreshToken()).isEqualTo("social-refresh");
+    }
+
+    @Test
+    @DisplayName("로그인 성공 시 SaveRefreshTokenPort.saveByUserId()가 올바른 인자로 호출된다")
+    void signIn_success_savesRefreshTokenWithCorrectArgs() {
+        // given
+        String email = "save@test.com";
+        String password = "password1!";
+        SignInCommand command = SignInCommand.of(email, password);
+
+        User user = mockUserForResult(40L, true, Role.getBuyer());
+        when(getUserUseCase.getAllStatusUser(email)).thenReturn(user);
+        when(user.isValidPassword(passwordEncoder, password)).thenReturn(true);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("test-refresh-token");
+
+        // when
+        signInService.signIn(command, AuthVendor.NATIVE, null, "127.0.0.1");
+
+        // then
+        verify(saveRefreshTokenPort).saveByUserId(40L, "test-refresh-token", 1209600000L);
+        verify(generateTokenPort).generateAccessToken("40", 40L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE);
+        verify(generateTokenPort).generateRefreshToken("40", 40L, java.util.List.of("ROLE_BUYER"), AuthVendor.NATIVE);
+    }
+
     private User mockUserForResult(Long id, boolean requiredTermsAgreed, Role role) {
         User user = mock(User.class);
         when(user.isActive()).thenReturn(true);
