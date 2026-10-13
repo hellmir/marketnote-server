@@ -5,9 +5,11 @@ import com.personal.marketnote.user.domain.user.User;
 public record SignInResult(
         Long id,
         String roleId,
-        boolean isRequiredTermsAgreed
+        boolean isRequiredTermsAgreed,
+        String accessToken,
+        String refreshToken
 ) {
-    public static SignInResult from(User user) {
-        return new SignInResult(user.getId(), user.getRole().getId(), user.isRequiredTermsAgreed());
+    public static SignInResult of(User user, String accessToken, String refreshToken) {
+        return new SignInResult(user.getId(), user.getRole().getId(), user.isRequiredTermsAgreed(), accessToken, refreshToken);
     }
 }

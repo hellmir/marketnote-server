@@ -9,8 +9,11 @@ import com.personal.marketnote.user.exception.UserNotActiveException;
 import com.personal.marketnote.user.port.in.command.SignInCommand;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
+import com.personal.marketnote.user.port.out.authentication.GenerateTokenPort;
+import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
 import com.personal.marketnote.user.port.out.user.SaveLoginHistoryPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +37,18 @@ class SignInUseCaseTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private SaveLoginHistoryPort saveLoginHistoryPort;
+    @Mock
+    private GenerateTokenPort generateTokenPort;
+    @Mock
+    private SaveRefreshTokenPort saveRefreshTokenPort;
 
     @InjectMocks
     private SignInService signInService;
+
+    @BeforeEach
+    void setUp() {
+        org.springframework.test.util.ReflectionTestUtils.setField(signInService, "refreshTokenTtlMillis", 1209600000L);
+    }
 
     @Test
     @DisplayName("네이티브 로그인 후, 로그인 내역을 저장하고 결과를 반환한다")
@@ -51,6 +63,9 @@ class SignInUseCaseTest {
         when(getUserUseCase.getAllStatusUser(email)).thenReturn(user);
         when(user.isValidPassword(passwordEncoder, password)).thenReturn(true);
 
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
+
         // when
         SignInResult result = signInService.signIn(command, AuthVendor.NATIVE, null, ipAddress);
 
@@ -58,6 +73,8 @@ class SignInUseCaseTest {
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.roleId()).isEqualTo("ROLE_BUYER");
         assertThat(result.isRequiredTermsAgreed()).isTrue();
+        assertThat(result.accessToken()).isEqualTo("access-token");
+        assertThat(result.refreshToken()).isEqualTo("refresh-token");
         assertLoginHistorySaved(user, AuthVendor.NATIVE, ipAddress);
     }
 
@@ -72,6 +89,9 @@ class SignInUseCaseTest {
 
         User user = mockUserForResult(2L, false, Role.getBuyer());
         when(getUserUseCase.getAllStatusUser(AuthVendor.KAKAO, oidcId)).thenReturn(user);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
 
         // when
         SignInResult result = signInService.signIn(command, AuthVendor.KAKAO, oidcId, ipAddress);
@@ -184,6 +204,9 @@ class SignInUseCaseTest {
         User user = mockUserForResult(3L, true, Role.getBuyer());
         when(getUserUseCase.getAllStatusUser(email)).thenReturn(user);
         when(user.isValidPassword(passwordEncoder, password)).thenReturn(true);
+
+        when(generateTokenPort.generateAccessToken(any(), any(), any(), any())).thenReturn("access-token");
+        when(generateTokenPort.generateRefreshToken(any(), any(), any(), any())).thenReturn("refresh-token");
 
         // when
         SignInResult result = signInService.signIn(command, AuthVendor.KAKAO, oidcId, ipAddress);
