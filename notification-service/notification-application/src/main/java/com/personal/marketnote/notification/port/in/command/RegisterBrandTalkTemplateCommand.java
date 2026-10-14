@@ -12,6 +12,9 @@ public record RegisterBrandTalkTemplateCommand(
         String imageLink,
         List<BrandTalkButtonCommand> buttons,
         BrandTalkCouponCommand coupon,
+        String templateHeader,
+        BrandTalkWideItemCommand mainWideItem,
+        List<BrandTalkWideItemCommand> subWideItems,
         byte[] imageFile,
         String imageFileName
 ) {

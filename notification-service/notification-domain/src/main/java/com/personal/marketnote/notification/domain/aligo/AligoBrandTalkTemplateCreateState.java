@@ -19,4 +19,7 @@ public class AligoBrandTalkTemplateCreateState {
     private String imageLink;
     private List<BrandTalkButton> buttons;
     private BrandTalkCoupon coupon;
+    private String templateHeader;
+    private BrandTalkWideItem mainWideItem;
+    private List<BrandTalkWideItem> subWideItems;
 }

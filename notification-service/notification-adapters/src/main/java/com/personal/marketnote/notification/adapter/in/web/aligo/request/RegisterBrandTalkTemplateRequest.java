@@ -28,7 +28,15 @@ public record RegisterBrandTalkTemplateRequest(
         @Size(max = 5, message = "버튼은 최대 5개까지 등록할 수 있습니다")
         List<ButtonRequest> buttons,
 
-        CouponRequest coupon
+        CouponRequest coupon,
+
+        @Size(max = 20, message = "templateHeader는 최대 20자까지 입력할 수 있습니다")
+        String templateHeader,
+
+        WideItemRequest mainWideItem,
+
+        @Size(min = 2, max = 3, message = "subWideItems는 최소 2개, 최대 3개입니다")
+        List<WideItemRequest> subWideItems
 ) {
     public record ButtonRequest(
             String name,
@@ -43,6 +51,16 @@ public record RegisterBrandTalkTemplateRequest(
     public record CouponRequest(
             String title,
             String description,
+            String linkM,
+            String linkP,
+            String linkI,
+            String linkA
+    ) {
+    }
+
+    public record WideItemRequest(
+            String title,
+            String imageUrl,
             String linkM,
             String linkP,
             String linkI,

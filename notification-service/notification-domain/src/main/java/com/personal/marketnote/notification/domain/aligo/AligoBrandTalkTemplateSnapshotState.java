@@ -22,6 +22,9 @@ public class AligoBrandTalkTemplateSnapshotState {
     private String imageLink;
     private List<BrandTalkButton> buttons;
     private BrandTalkCoupon coupon;
+    private String templateHeader;
+    private BrandTalkWideItem mainWideItem;
+    private List<BrandTalkWideItem> subWideItems;
     private EntityStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;

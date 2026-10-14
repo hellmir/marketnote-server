@@ -40,7 +40,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
         // given
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
                 "sender-key", "BT_TEXT_001", "텍스트 템플릿", "TEXT",
-                "안녕하세요", false, null, List.of(), null, null, null
+                "안녕하세요", false, null, List.of(), null, null, null, List.of(), null, null
         );
 
         when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
@@ -79,7 +79,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
                 "sender-key", "BT_IMAGE_001", "이미지 템플릿", "IMAGE",
                 "이미지 내용", false, "https://example.com",
-                List.of(), null, imageFile, "test.jpg"
+                List.of(), null, null, null, List.of(), imageFile, "test.jpg"
         );
 
         when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
@@ -119,7 +119,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 "sender-key", "BT_WIDE_001", "와이드 템플릿", "WIDE",
                 "와이드 내용", false, "https://example.com",
                 List.of(new BrandTalkButtonCommand("버튼", "WL", "https://m.ex.com", "https://www.ex.com", null, null)),
-                null, imageFile, "wide.jpg"
+                null, null, null, List.of(), imageFile, "wide.jpg"
         );
 
         when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
@@ -154,7 +154,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
         // given
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
                 "sender-key", "BT_TEXT_002", "실패 템플릿", "TEXT",
-                "내용", false, null, List.of(), null, null, null
+                "내용", false, null, List.of(), null, null, null, List.of(), null, null
         );
 
         doThrow(new RuntimeException("API 실패"))
