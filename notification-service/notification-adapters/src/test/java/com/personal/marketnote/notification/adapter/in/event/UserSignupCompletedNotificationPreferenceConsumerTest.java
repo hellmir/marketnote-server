@@ -40,7 +40,7 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long userId, String userKey) {
-        UserSignupCompletedEvent event = new UserSignupCompletedEvent(userId, userKey);
+        UserSignupCompletedEvent event = new UserSignupCompletedEvent(userId, userKey, null, null);
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "user.user.signup-completed", "user-service",
                 LocalDateTime.of(2026, 4, 9, 10, 0), event
@@ -89,7 +89,7 @@ class UserSignupCompletedNotificationPreferenceConsumerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void shouldSkipWhenEventTypeMismatch() {
         // given
-        UserSignupCompletedEvent event = new UserSignupCompletedEvent(1L, "user-key-123");
+        UserSignupCompletedEvent event = new UserSignupCompletedEvent(1L, "user-key-123", null, null);
         EventEnvelope<UserSignupCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "user-service",
                 LocalDateTime.of(2026, 4, 9, 10, 0), event

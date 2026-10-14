@@ -8,6 +8,8 @@ public record ShippingStatusChangedEvent(
         String shippingStatus,
         String trackingNumber,
         String carrierCode,
-        LocalDateTime occurredAt
+        LocalDateTime occurredAt,
+        String buyerPhoneNumber,
+        String buyerName
 ) {
 }

@@ -53,7 +53,9 @@ class ShippingStatusEventOutboxAdapterTest {
                 "SHIPPING",
                 "INV001",
                 "CJ",
-                LocalDateTime.of(2026, 4, 9, 10, 0)
+                LocalDateTime.of(2026, 4, 9, 10, 0),
+                null,
+                null
         );
 
         // when
@@ -85,7 +87,9 @@ class ShippingStatusEventOutboxAdapterTest {
                 "DELIVERED",
                 "INV002",
                 "HANJIN",
-                LocalDateTime.of(2026, 4, 9, 12, 0)
+                LocalDateTime.of(2026, 4, 9, 12, 0),
+                null,
+                null
         );
 
         // when
@@ -112,7 +116,9 @@ class ShippingStatusEventOutboxAdapterTest {
                 "DELIVERY_FAILED",
                 "INV003",
                 "CJ",
-                LocalDateTime.of(2026, 4, 9, 14, 0)
+                LocalDateTime.of(2026, 4, 9, 14, 0),
+                null,
+                null
         );
         when(objectMapper.writeValueAsString(event))
                 .thenThrow(new JsonProcessingException("test failure") {

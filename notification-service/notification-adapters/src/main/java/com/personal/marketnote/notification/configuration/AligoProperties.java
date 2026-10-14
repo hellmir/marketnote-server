@@ -12,6 +12,7 @@ public class AligoProperties {
     private String baseUrl = "https://apis.aligo.in";
     private String apiKey = "dev-aligo-api-key-change-me";
     private String userId = "dev-aligo-user-id-change-me";
+    private String sender = "dev-aligo-sender-change-me";
     private int timeout = 10000;
     private boolean testMode = true;
     private Retry retry = new Retry();

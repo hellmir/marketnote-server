@@ -40,7 +40,7 @@ class ShippingStartedNotificationConsumerTest {
             Long orderId, Long buyerId, String shippingStatus) {
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
                 orderId, buyerId, shippingStatus, "TRACK-001", "CJ",
-                LocalDateTime.of(2026, 4, 10, 15, 0)
+                LocalDateTime.of(2026, 4, 10, 15, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
@@ -124,7 +124,7 @@ class ShippingStartedNotificationConsumerTest {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
                 100L, 1L, "SHIPPING", "TRACK-001", "CJ",
-                LocalDateTime.of(2026, 4, 10, 15, 0)
+                LocalDateTime.of(2026, 4, 10, 15, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "fulfillment-service",
