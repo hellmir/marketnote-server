@@ -6,6 +6,7 @@ import com.personal.marketnote.common.utility.http.cookie.HttpCookieObject;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieUtils;
 import com.personal.marketnote.user.adapter.in.web.authentication.response.WebBasedTokenRefreshResponse;
 import com.personal.marketnote.user.port.in.usecase.authentication.Oauth2LoginUseCase;
+import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.support.TokenSupport;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
@@ -18,13 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,10 +47,7 @@ class WebBasedAuthenticationServiceAdapterTest {
     private JwtUtil jwtUtil;
 
     @Mock
-    private StringRedisTemplate stringRedisTemplate;
-
-    @Mock
-    private ValueOperations<String, String> valueOperations;
+    private SaveRefreshTokenPort saveRefreshTokenPort;
 
     @BeforeEach
     void setUp() {
@@ -63,7 +58,7 @@ class WebBasedAuthenticationServiceAdapterTest {
                 List.of("https://www.example.com"),
                 httpCookieUtils,
                 jwtUtil,
-                stringRedisTemplate
+                saveRefreshTokenPort
         );
         ReflectionTestUtils.setField(adapter, "refreshTokenTtlMillis", 1209600000L);
     }
@@ -100,8 +95,8 @@ class WebBasedAuthenticationServiceAdapterTest {
         }
 
         @Test
-        @DisplayName("리프레시 토큰 TTL이 1일 미만이면 Redis에 새 토큰을 저장한다")
-        void shouldStoreNewRefreshTokenInRedisWhenTtlLessThanOneDay() {
+        @DisplayName("리프레시 토큰 TTL이 1일 미만이면 SaveRefreshTokenPort로 새 토큰을 저장한다")
+        void shouldSaveNewRefreshTokenViaSaveRefreshTokenPortWhenTtlLessThanOneDay() {
             // given
             String refreshToken = "expiring-refresh-token";
             GrantedTokenInfo grantedTokenInfo = new GrantedTokenInfo(
@@ -113,8 +108,6 @@ class WebBasedAuthenticationServiceAdapterTest {
             when(claims.getExpirationAt()).thenReturn(LocalDateTime.now().plusHours(12));
             when(jwtUtil.parseRefreshToken(refreshToken)).thenReturn(claims);
 
-            when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
-
             HttpCookieObject cookieObject = mock(HttpCookieObject.class);
             when(cookieObject.asSetCookieHeaderValue()).thenReturn("refresh_token=new-refresh-token; HttpOnly; Secure");
             when(httpCookieUtils.generateHttpOnlyCookie(eq(HttpCookieName.REFRESH_TOKEN), anyString(), anyLong()))
@@ -124,17 +117,12 @@ class WebBasedAuthenticationServiceAdapterTest {
             adapter.issueNewAccessToken(refreshToken);
 
             // then
-            verify(valueOperations).set(
-                    eq("refreshToken:5"),
-                    argThat(value -> value.startsWith("r")),
-                    eq(1209600000L),
-                    eq(TimeUnit.MILLISECONDS)
-            );
+            verify(saveRefreshTokenPort).saveByUserId(5L, "new-refresh-token", 1209600000L);
         }
 
         @Test
-        @DisplayName("리프레시 토큰 TTL이 1일 이상이면 Redis에 저장하지 않는다")
-        void shouldNotStoreInRedisWhenTtlMoreThanOneDay() {
+        @DisplayName("리프레시 토큰 TTL이 1일 이상이면 저장하지 않는다")
+        void shouldNotSaveWhenTtlMoreThanOneDay() {
             // given
             String refreshToken = "fresh-refresh-token";
             GrantedTokenInfo grantedTokenInfo = new GrantedTokenInfo(
@@ -155,7 +143,7 @@ class WebBasedAuthenticationServiceAdapterTest {
             adapter.issueNewAccessToken(refreshToken);
 
             // then
-            verifyNoInteractions(stringRedisTemplate);
+            verifyNoInteractions(saveRefreshTokenPort);
         }
 
         @Test
