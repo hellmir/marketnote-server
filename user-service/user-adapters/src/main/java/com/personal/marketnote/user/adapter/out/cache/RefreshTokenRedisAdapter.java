@@ -34,4 +34,14 @@ public class RefreshTokenRedisAdapter implements DeleteRefreshTokenPort, SaveRef
         String value = stringRedisTemplate.opsForValue().get(KEY_PREFIX + userId);
         return Optional.ofNullable(value);
     }
+
+    @Override
+    public boolean matchesByUserId(Long userId, String rawRefreshToken) {
+        String stored = stringRedisTemplate.opsForValue().get(KEY_PREFIX + userId);
+        if (stored == null) {
+            return false;
+        }
+        String expected = VALUE_PREFIX + Sha256HashUtils.encode(rawRefreshToken);
+        return expected.equals(stored);
+    }
 }

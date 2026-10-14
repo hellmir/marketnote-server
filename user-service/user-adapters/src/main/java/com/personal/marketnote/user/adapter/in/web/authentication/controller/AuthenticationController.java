@@ -2,7 +2,6 @@ package com.personal.marketnote.user.adapter.in.web.authentication.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
-import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.Oauth2LoginApiDocs;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.RefreshAccessTokenApiDocs;
 import com.personal.marketnote.user.adapter.in.web.authentication.controller.apidocs.SendEmailVerificationApiDocs;
@@ -15,16 +14,13 @@ import com.personal.marketnote.user.adapter.in.web.authentication.response.verif
 import com.personal.marketnote.user.adapter.in.web.user.mapper.UserRequestToCommandMapper;
 import com.personal.marketnote.user.adapter.in.web.user.request.VerifyCodeRequest;
 import com.personal.marketnote.user.adapter.out.vendor.authentication.WebBasedAuthenticationServiceAdapter;
-import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
-import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.port.in.result.VerifyCodeResult;
+import com.personal.marketnote.user.port.in.usecase.authentication.RefreshAccessTokenUseCase;
 import com.personal.marketnote.user.port.in.usecase.authentication.SendEmailVerificationUseCase;
 import com.personal.marketnote.user.port.in.usecase.authentication.VerifyCodeUseCase;
-import com.personal.marketnote.user.port.out.user.FindUserPort;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.utility.jwt.JwtUtil;
-import com.personal.marketnote.user.utility.jwt.claims.TokenClaims;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -32,7 +28,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +35,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
-import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
 import static com.personal.marketnote.common.domain.exception.ExceptionMessage.INVALID_EMAIL_EXCEPTION_MESSAGE;
 import static com.personal.marketnote.common.utility.RegularExpressionConstant.EMAIL_PATTERN;
 
@@ -63,9 +57,8 @@ public class AuthenticationController {
     private final WebBasedAuthenticationServiceAdapter authServiceAdapter;
     private final SendEmailVerificationUseCase sendEmailVerificationUseCase;
     private final VerifyCodeUseCase verifyCodeUseCase;
+    private final RefreshAccessTokenUseCase refreshAccessTokenUseCase;
     private final JwtUtil jwtUtil;
-    private final StringRedisTemplate stringRedisTemplate;
-    private final FindUserPort findUserPort;
 
     /**
      * OAuth2 로그인
@@ -108,25 +101,7 @@ public class AuthenticationController {
     public ResponseEntity<BaseResponse<RefreshedAccessTokenResponse>> refreshAccessToken(
             @CookieValue(value = "refresh_token") String refreshToken
     ) {
-        TokenClaims claims = jwtUtil.parseRefreshToken(refreshToken);
-        Long userId = claims.getUserId();
-
-        if (FormatValidator.hasNoValue(userId)) {
-            return new ResponseEntity<>(respondError(), HttpStatus.UNAUTHORIZED);
-        }
-
-        String redisKey = "refreshToken:" + userId;
-        String expected = "r" + Sha256HashUtils.encode(refreshToken);
-        String stored = stringRedisTemplate.opsForValue().get(redisKey);
-
-        if (FormatValidator.notEquals(expected, stored)) {
-            return new ResponseEntity<>(respondError(), HttpStatus.UNAUTHORIZED);
-        }
-
-        User user = findUserPort.findAllStatusUserById(userId).orElse(null);
-        if (FormatValidator.hasNoValue(user) || !user.isActive()) {
-            return new ResponseEntity<>(respondError(), HttpStatus.UNAUTHORIZED);
-        }
+        refreshAccessTokenUseCase.validateRefreshToken(refreshToken);
 
         WebBasedTokenRefreshResponse response = authServiceAdapter.issueNewAccessToken(refreshToken);
 
@@ -139,15 +114,6 @@ public class AuthenticationController {
                 ),
                 response.headers(),
                 HttpStatus.CREATED
-        );
-    }
-
-    private BaseResponse respondError() {
-        return BaseResponse.of(
-                null,
-                HttpStatus.UNAUTHORIZED,
-                FIRST_ERROR_CODE,
-                "유효하지 않은 리프레시 토큰"
         );
     }
 
