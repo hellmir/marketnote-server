@@ -31,6 +31,9 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                         .imageLink(entity.getImageLink())
                         .buttons(buttons)
                         .coupon(coupon)
+                        .templateHeader(entity.getTemplateHeader())
+                        .mainWideItem(deserializeWideItem(entity.getMainWideItemJson(), objectMapper))
+                        .subWideItems(deserializeWideItems(entity.getSubWideItemsJson(), objectMapper))
                         .status(entity.getStatus())
                         .createdAt(entity.getCreatedAt())
                         .modifiedAt(entity.getModifiedAt())
@@ -70,7 +73,35 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         }
     }
 
+    private static BrandTalkWideItem deserializeWideItem(String json, ObjectMapper objectMapper) {
+        if (FormatValidator.hasNoValue(json)) {
+            return null;
+        }
+        try {
+            WideItemDto dto = objectMapper.readValue(json, WideItemDto.class);
+            return BrandTalkWideItem.of(dto.title(), dto.imageUrl(), dto.linkM(), dto.linkP(), dto.linkI(), dto.linkA());
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
+    private static List<BrandTalkWideItem> deserializeWideItems(String json, ObjectMapper objectMapper) {
+        if (FormatValidator.hasNoValue(json)) {
+            return List.of();
+        }
+        try {
+            List<WideItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
+            return dtos.stream()
+                    .map(dto -> BrandTalkWideItem.of(dto.title(), dto.imageUrl(), dto.linkM(), dto.linkP(), dto.linkI(), dto.linkA()))
+                    .toList();
+        } catch (JsonProcessingException e) {
+            return List.of();
+        }
+    }
+
     private record ButtonDto(String name, String linkType, String linkM, String linkP, String linkI, String linkA) {}
 
     private record CouponDto(String title, String description, String linkM, String linkP, String linkI, String linkA) {}
+
+    private record WideItemDto(String title, String imageUrl, String linkM, String linkP, String linkI, String linkA) {}
 }

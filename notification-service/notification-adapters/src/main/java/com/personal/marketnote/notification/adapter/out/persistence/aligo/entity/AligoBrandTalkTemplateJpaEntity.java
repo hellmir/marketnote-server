@@ -42,11 +42,20 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
     @Column(columnDefinition = "TEXT")
     private String couponJson;
 
+    private String templateHeader;
+
+    @Column(columnDefinition = "TEXT")
+    private String mainWideItemJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String subWideItemsJson;
+
     public static AligoBrandTalkTemplateJpaEntity create(
             String senderKey, String templateCode, String templateName,
             BrandTalkTemplateType templateType, String templateContent,
             boolean adult, String imageUrl, String imageLink,
-            String buttonsJson, String couponJson
+            String buttonsJson, String couponJson,
+            String templateHeader, String mainWideItemJson, String subWideItemsJson
     ) {
         AligoBrandTalkTemplateJpaEntity entity = new AligoBrandTalkTemplateJpaEntity();
         entity.senderKey = senderKey;
@@ -59,6 +68,9 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
         entity.imageLink = imageLink;
         entity.buttonsJson = buttonsJson;
         entity.couponJson = couponJson;
+        entity.templateHeader = templateHeader;
+        entity.mainWideItemJson = mainWideItemJson;
+        entity.subWideItemsJson = subWideItemsJson;
         return entity;
     }
 }

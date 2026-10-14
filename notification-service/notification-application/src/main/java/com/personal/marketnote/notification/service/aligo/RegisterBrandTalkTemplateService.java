@@ -4,6 +4,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.command.BrandTalkButtonCommand;
 import com.personal.marketnote.notification.port.in.command.BrandTalkCouponCommand;
+import com.personal.marketnote.notification.port.in.command.BrandTalkWideItemCommand;
 import com.personal.marketnote.notification.port.in.command.RegisterBrandTalkTemplateCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterBrandTalkTemplateUseCase;
@@ -52,6 +53,9 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
                         .imageLink(command.imageLink())
                         .buttons(buttons)
                         .coupon(coupon)
+                        .templateHeader(command.templateHeader())
+                        .mainWideItem(mapWideItem(command.mainWideItem()))
+                        .subWideItems(mapWideItems(command.subWideItems()))
                         .build()
         );
     }
@@ -77,5 +81,24 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
                 couponCommand.linkM(), couponCommand.linkP(),
                 couponCommand.linkI(), couponCommand.linkA()
         );
+    }
+
+    private BrandTalkWideItem mapWideItem(BrandTalkWideItemCommand command) {
+        if (command == null) {
+            return null;
+        }
+        return BrandTalkWideItem.of(
+                command.title(), command.imageUrl(),
+                command.linkM(), command.linkP(), command.linkI(), command.linkA()
+        );
+    }
+
+    private List<BrandTalkWideItem> mapWideItems(List<BrandTalkWideItemCommand> commands) {
+        if (commands == null) {
+            return List.of();
+        }
+        return commands.stream()
+                .map(this::mapWideItem)
+                .toList();
     }
 }

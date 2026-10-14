@@ -5,6 +5,7 @@ import com.personal.marketnote.notification.adapter.in.web.aligo.request.Registe
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.RegisterBrandTalkTemplateResponse;
 import com.personal.marketnote.notification.port.in.command.BrandTalkButtonCommand;
 import com.personal.marketnote.notification.port.in.command.BrandTalkCouponCommand;
+import com.personal.marketnote.notification.port.in.command.BrandTalkWideItemCommand;
 import com.personal.marketnote.notification.port.in.command.RegisterBrandTalkTemplateCommand;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterBrandTalkTemplateUseCase;
@@ -50,6 +51,9 @@ public class AligoBrandTalkTemplateController {
                 request.senderKey(), request.templateCode(), request.templateName(),
                 request.templateType(), request.templateContent(), request.adult(),
                 request.imageLink(), buttonCommands, couponCommand,
+                request.templateHeader(),
+                mapWideItem(request.mainWideItem()),
+                mapWideItems(request.subWideItems()),
                 imageFile, imageFileName
         );
 
@@ -83,5 +87,21 @@ public class AligoBrandTalkTemplateController {
                 coupon.title(), coupon.description(),
                 coupon.linkM(), coupon.linkP(), coupon.linkI(), coupon.linkA()
         );
+    }
+
+    private BrandTalkWideItemCommand mapWideItem(RegisterBrandTalkTemplateRequest.WideItemRequest item) {
+        if (item == null) {
+            return null;
+        }
+        return new BrandTalkWideItemCommand(
+                item.title(), item.imageUrl(), item.linkM(), item.linkP(), item.linkI(), item.linkA()
+        );
+    }
+
+    private List<BrandTalkWideItemCommand> mapWideItems(List<RegisterBrandTalkTemplateRequest.WideItemRequest> items) {
+        if (items == null) {
+            return List.of();
+        }
+        return items.stream().map(this::mapWideItem).toList();
     }
 }

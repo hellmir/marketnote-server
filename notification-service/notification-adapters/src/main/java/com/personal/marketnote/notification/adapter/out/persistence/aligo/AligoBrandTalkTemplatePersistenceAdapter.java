@@ -26,12 +26,15 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
     public AligoBrandTalkTemplate save(AligoBrandTalkTemplate template) {
         String buttonsJson = serializeButtons(template.getButtons());
         String couponJson = serializeCoupon(template.getCoupon());
+        String mainWideItemJson = serializeWideItem(template.getMainWideItem());
+        String subWideItemsJson = serializeWideItems(template.getSubWideItems());
 
         AligoBrandTalkTemplateJpaEntity entity = AligoBrandTalkTemplateJpaEntity.create(
                 template.getSenderKey(), template.getTemplateCode(), template.getTemplateName(),
                 template.getTemplateType(), template.getTemplateContent(),
                 template.isAdult(), template.getImageUrl(), template.getImageLink(),
-                buttonsJson, couponJson
+                buttonsJson, couponJson,
+                template.getTemplateHeader(), mainWideItemJson, subWideItemsJson
         );
 
         AligoBrandTalkTemplateJpaEntity saved = repository.save(entity);
@@ -84,6 +87,41 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
         map.put("linkP", button.getLinkP());
         map.put("linkI", button.getLinkI());
         map.put("linkA", button.getLinkA());
+        return map;
+    }
+
+    private String serializeWideItem(BrandTalkWideItem item) {
+        if (item == null) {
+            return null;
+        }
+        Map<String, String> map = wideItemToMap(item);
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
+    private String serializeWideItems(List<BrandTalkWideItem> items) {
+        if (items == null || items.isEmpty()) {
+            return null;
+        }
+        List<Map<String, String>> list = items.stream().map(this::wideItemToMap).toList();
+        try {
+            return objectMapper.writeValueAsString(list);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
+    private Map<String, String> wideItemToMap(BrandTalkWideItem item) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", item.getTitle());
+        map.put("imageUrl", item.getImageUrl());
+        map.put("linkM", item.getLinkM());
+        map.put("linkP", item.getLinkP());
+        map.put("linkI", item.getLinkI());
+        map.put("linkA", item.getLinkA());
         return map;
     }
 }

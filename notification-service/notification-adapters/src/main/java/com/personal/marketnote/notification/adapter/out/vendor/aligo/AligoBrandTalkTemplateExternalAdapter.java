@@ -27,6 +27,10 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
     public void registerTemplate(AligoBrandTalkTemplate template, byte[] imageFile, String imageFileName) {
         MultiValueMap<String, Object> params = buildTemplateParams(template);
 
+        if (template.isWideItemList()) {
+            addWideItemListParams(params, template, imageFile, imageFileName);
+        }
+
         if (template.requiresImage() && imageFile != null) {
             Resource resource = new ByteArrayResource(imageFile) {
                 @Override
@@ -119,5 +123,56 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
             map.put("linkA", button.getLinkA());
         }
         return map;
+    }
+
+    private void addWideItemListParams(
+            MultiValueMap<String, Object> params, AligoBrandTalkTemplate template,
+            byte[] imageFile, String imageFileName
+    ) {
+        if (FormatValidator.hasValue(template.getTemplateHeader())) {
+            params.add("template_header", template.getTemplateHeader());
+        }
+        if (template.getMainWideItem() != null) {
+            params.add("main_wide_item", serializeWideItem(template.getMainWideItem()));
+        }
+        if (template.getSubWideItems() != null && !template.getSubWideItems().isEmpty()) {
+            for (int i = 0; i < template.getSubWideItems().size(); i++) {
+                params.add("sub_wide_item" + (i + 1), serializeWideItem(template.getSubWideItems().get(i)));
+            }
+        }
+        if (imageFile != null) {
+            Resource mainImageResource = new ByteArrayResource(imageFile) {
+                @Override
+                public String getFilename() {
+                    return imageFileName;
+                }
+            };
+            params.add("main_wide_item_image", mainImageResource);
+        }
+    }
+
+    private String serializeWideItem(BrandTalkWideItem item) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", item.getTitle());
+        if (FormatValidator.hasValue(item.getImageUrl())) {
+            map.put("imageUrl", item.getImageUrl());
+        }
+        if (FormatValidator.hasValue(item.getLinkM())) {
+            map.put("linkM", item.getLinkM());
+        }
+        if (FormatValidator.hasValue(item.getLinkP())) {
+            map.put("linkP", item.getLinkP());
+        }
+        if (FormatValidator.hasValue(item.getLinkI())) {
+            map.put("linkI", item.getLinkI());
+        }
+        if (FormatValidator.hasValue(item.getLinkA())) {
+            map.put("linkA", item.getLinkA());
+        }
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new AligoApiRequestFailedException("와이드 아이템 직렬화 실패: " + e.getMessage(), e);
+        }
     }
 }
