@@ -13,8 +13,8 @@ import com.personal.marketnote.user.adapter.in.web.authentication.response.Refre
 import com.personal.marketnote.user.adapter.in.web.authentication.response.WebBasedTokenRefreshResponse;
 import com.personal.marketnote.user.port.in.result.LoginResult;
 import com.personal.marketnote.user.port.in.usecase.authentication.Oauth2LoginUseCase;
+import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
 import com.personal.marketnote.user.security.token.dto.GrantedTokenInfo;
-import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
 import com.personal.marketnote.user.security.token.support.TokenSupport;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.utility.OAuth2WebUtils;
@@ -23,15 +23,12 @@ import com.personal.marketnote.user.utility.jwt.claims.TokenClaims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static com.personal.marketnote.common.security.token.utility.TokenConstant.ONE_DAY_MILLIS;
@@ -48,7 +45,7 @@ public class WebBasedAuthenticationServiceAdapter {
     private final String clientOrigin;
     private final HttpCookieUtils httpCookieUtils;
     private final JwtUtil jwtUtil;
-    private final StringRedisTemplate stringRedisTemplate;
+    private final SaveRefreshTokenPort saveRefreshTokenPort;
 
     @Value("${spring.jwt.refresh-token.ttl:1209600000}")
     private Long refreshTokenTtlMillis;
@@ -60,7 +57,7 @@ public class WebBasedAuthenticationServiceAdapter {
             @Value("${client.origin}") List<String> clientOrigins,
             HttpCookieUtils httpCookieUtils,
             JwtUtil jwtUtil,
-            StringRedisTemplate stringRedisTemplate
+            SaveRefreshTokenPort saveRefreshTokenPort
     ) {
         this.oauth2LoginUseCase = oauth2LoginUseCase;
         this.tokenSupport = tokenSupport;
@@ -68,7 +65,7 @@ public class WebBasedAuthenticationServiceAdapter {
         this.clientOrigin = clientOrigins.getFirst();
         this.httpCookieUtils = httpCookieUtils;
         this.jwtUtil = jwtUtil;
-        this.stringRedisTemplate = stringRedisTemplate;
+        this.saveRefreshTokenPort = saveRefreshTokenPort;
     }
 
     public OAuth2LoginResponse loginByOAuth2(OAuth2LoginRequest oAuth2LoginRequest) {
@@ -137,13 +134,7 @@ public class WebBasedAuthenticationServiceAdapter {
         if (millisLeft < ONE_DAY_MILLIS && FormatValidator.hasValue(newRefreshToken)) {
             refreshToken = newRefreshToken;
             Long id = FormatConverter.parseToLong(grantedTokenInfo.id());
-            String redisKey = "refreshToken:" + id;
-            String refreshTokenValue = "r" + Sha256HashUtils.encode(refreshToken);
-            stringRedisTemplate.opsForValue()
-                    .set(
-                            Objects.requireNonNull(redisKey), Objects.requireNonNull(refreshTokenValue),
-                            Objects.requireNonNull(refreshTokenTtlMillis), TimeUnit.MILLISECONDS
-                    );
+            saveRefreshTokenPort.saveByUserId(id, refreshToken, refreshTokenTtlMillis);
         }
 
         HttpCookieObject refreshTokenCookie = httpCookieUtils.generateHttpOnlyCookie(
