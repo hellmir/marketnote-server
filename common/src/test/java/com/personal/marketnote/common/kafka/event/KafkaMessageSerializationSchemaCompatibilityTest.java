@@ -160,7 +160,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("UserSignupCompletedEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void userSignupCompletedEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            UserSignupCompletedEvent event = new UserSignupCompletedEvent(100L, "user-key-abc");
+            UserSignupCompletedEvent event = new UserSignupCompletedEvent(100L, "user-key-abc", null, null);
             EventEnvelope<UserSignupCompletedEvent> envelope = EventEnvelope.of(
                     "user.user.signup-completed", "user-service", event, FIXED_CLOCK);
 

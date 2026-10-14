@@ -26,7 +26,7 @@ public class UserEventKafkaProducer implements PublishUserEventPort {
 
     @Override
     public void publishUserSignupCompletedEvent(Long userId, String userKey) {
-        UserSignupCompletedEvent payload = new UserSignupCompletedEvent(userId, userKey);
+        UserSignupCompletedEvent payload = new UserSignupCompletedEvent(userId, userKey, null, null);
         String topic = KafkaTopicConstants.USER_SIGNUP_COMPLETED;
         EventEnvelope<UserSignupCompletedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 

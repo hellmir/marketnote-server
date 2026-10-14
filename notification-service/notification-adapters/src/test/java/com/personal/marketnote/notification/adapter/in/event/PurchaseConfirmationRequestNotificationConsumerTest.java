@@ -40,7 +40,7 @@ class PurchaseConfirmationRequestNotificationConsumerTest {
             Long orderId, Long buyerId, String shippingStatus) {
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
                 orderId, buyerId, shippingStatus, "TRACK-001", "CJ",
-                LocalDateTime.of(2026, 4, 10, 15, 0)
+                LocalDateTime.of(2026, 4, 10, 15, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",
@@ -123,7 +123,7 @@ class PurchaseConfirmationRequestNotificationConsumerTest {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
                 100L, 1L, "DELIVERED", "TRACK-001", "CJ",
-                LocalDateTime.of(2026, 4, 10, 15, 0)
+                LocalDateTime.of(2026, 4, 10, 15, 0), null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "fulfillment-service",
@@ -174,7 +174,7 @@ class PurchaseConfirmationRequestNotificationConsumerTest {
     void shouldSkipWhenOccurredAtIsNull() {
         // given
         ShippingStatusChangedEvent event = new ShippingStatusChangedEvent(
-                100L, 1L, "DELIVERED", "TRACK-001", "CJ", null
+                100L, 1L, "DELIVERED", "TRACK-001", "CJ", null, null, null
         );
         EventEnvelope<ShippingStatusChangedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "fulfillment.shipping.status-changed", "fulfillment-service",

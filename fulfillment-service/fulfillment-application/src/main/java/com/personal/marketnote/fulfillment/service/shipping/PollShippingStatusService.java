@@ -192,7 +192,9 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
                 tracker.getShippingStatus().name(),
                 tracker.getTrackingNumberValue(),
                 tracker.getCarrierCodeValue(),
-                LocalDateTime.now(clock)
+                LocalDateTime.now(clock),
+                null,
+                null
         ));
     }
 
