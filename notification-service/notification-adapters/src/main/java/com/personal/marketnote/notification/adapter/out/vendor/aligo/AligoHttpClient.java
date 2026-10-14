@@ -12,6 +12,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 
 public class AligoHttpClient {
 
@@ -29,12 +30,21 @@ public class AligoHttpClient {
 
     public <T> T post(String path, MultiValueMap<String, String> params, Class<T> responseType) {
         MultiValueMap<String, String> mergedParams = mergeCommonParams(params);
+        return executeWithRetry(() -> executeRequest(path, mergedParams, responseType, MediaType.APPLICATION_FORM_URLENCODED));
+    }
+
+    public <T> T postMultipart(String path, MultiValueMap<String, Object> params, Class<T> responseType) {
+        MultiValueMap<String, Object> mergedParams = mergeCommonParams(params);
+        return executeWithRetry(() -> executeRequest(path, mergedParams, responseType, MediaType.MULTIPART_FORM_DATA));
+    }
+
+    private <T> T executeWithRetry(Supplier<T> action) {
         int maxAttempts = properties.getRetry().getMaxAttempts();
         long backoffMs = properties.getRetry().getInitialBackoffMs();
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                return executePost(path, mergedParams, responseType);
+                return action.get();
             } catch (AligoApiRequestFailedException e) {
                 if (attempt == maxAttempts) {
                     throw e;
@@ -48,12 +58,12 @@ public class AligoHttpClient {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T executePost(String path, MultiValueMap<String, String> mergedParams, Class<T> responseType) {
+    private <T> T executeRequest(String path, Object body, Class<T> responseType, MediaType contentType) {
         try {
             String responseBody = restClient.post()
                     .uri(path)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(mergedParams)
+                    .contentType(contentType)
+                    .body(body)
                     .retrieve()
                     .body(String.class);
 
@@ -71,12 +81,18 @@ public class AligoHttpClient {
         }
     }
 
-    private MultiValueMap<String, String> mergeCommonParams(MultiValueMap<String, String> params) {
-        MultiValueMap<String, String> merged = new LinkedMultiValueMap<>(params);
-        merged.add("apikey", properties.getApiKey());
-        merged.add("userid", properties.getUserId());
+    private <V> MultiValueMap<String, V> mergeCommonParams(MultiValueMap<String, V> params) {
+        MultiValueMap<String, V> merged = new LinkedMultiValueMap<>(params);
+        @SuppressWarnings("unchecked")
+        V apiKey = (V) properties.getApiKey();
+        @SuppressWarnings("unchecked")
+        V userId = (V) properties.getUserId();
+        merged.add("apikey", apiKey);
+        merged.add("userid", userId);
         if (properties.isTestMode()) {
-            merged.add("testmode_yn", "Y");
+            @SuppressWarnings("unchecked")
+            V testModeYn = (V) "Y";
+            merged.add("testmode_yn", testModeYn);
         }
         return merged;
     }
