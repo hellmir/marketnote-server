@@ -60,6 +60,8 @@ public class AligoBrandTalkTemplateController {
                 mapCarouselItems(request.carouselItems()),
                 mapCarouselCommerces(request.carouselCommerces()),
                 mapCarouselTail(request.carouselTail()),
+                request.videoUrl(), request.videoThumbnailUrl(),
+                mapCommerceInfo(request.commerceInfo()),
                 imageFile, imageFileName,
                 carouselItemImageFiles, carouselItemImageFileNames
         );
@@ -145,6 +147,16 @@ public class AligoBrandTalkTemplateController {
             return null;
         }
         return new BrandTalkCarouselTailCommand(tail.linkM());
+    }
+
+    private BrandTalkCommerceInfoCommand mapCommerceInfo(RegisterBrandTalkTemplateRequest.CommerceInfoRequest commerceInfo) {
+        if (commerceInfo == null) {
+            return null;
+        }
+        return new BrandTalkCommerceInfoCommand(
+                commerceInfo.title(), commerceInfo.regularPrice(),
+                commerceInfo.discountPrice(), commerceInfo.discountRate(), commerceInfo.discountFixed()
+        );
     }
 
     private List<byte[]> mapCarouselItemImageFiles(List<MultipartFile> files) throws IOException {

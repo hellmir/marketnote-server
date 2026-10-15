@@ -38,6 +38,9 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                         .carouselItems(deserializeCarouselItems(entity.getCarouselItemsJson(), objectMapper))
                         .carouselCommerces(deserializeCarouselCommerces(entity.getCarouselCommercesJson(), objectMapper))
                         .carouselTail(deserializeCarouselTail(entity.getCarouselTailJson(), objectMapper))
+                        .videoUrl(entity.getVideoUrl())
+                        .videoThumbnailUrl(entity.getVideoThumbnailUrl())
+                        .commerceInfo(deserializeCommerceInfo(entity.getCommerceInfoJson(), objectMapper))
                         .status(entity.getStatus())
                         .createdAt(entity.getCreatedAt())
                         .modifiedAt(entity.getModifiedAt())
@@ -183,4 +186,24 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
     ) {}
 
     private record CarouselTailDto(String linkM) {}
+
+    private record CommerceInfoDto(
+            String title, String regularPrice, String discountPrice,
+            String discountRate, String discountFixed
+    ) {}
+
+    private static BrandTalkCommerceInfo deserializeCommerceInfo(String json, ObjectMapper objectMapper) {
+        if (FormatValidator.hasNoValue(json)) {
+            return null;
+        }
+        try {
+            CommerceInfoDto dto = objectMapper.readValue(json, CommerceInfoDto.class);
+            return BrandTalkCommerceInfo.of(
+                    dto.title(), dto.regularPrice(),
+                    dto.discountPrice(), dto.discountRate(), dto.discountFixed()
+            );
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
 }

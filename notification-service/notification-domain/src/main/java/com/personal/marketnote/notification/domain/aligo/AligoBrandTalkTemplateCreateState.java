@@ -26,4 +26,7 @@ public class AligoBrandTalkTemplateCreateState {
     private List<BrandTalkCarouselItem> carouselItems;
     private List<BrandTalkCarouselCommerce> carouselCommerces;
     private BrandTalkCarouselTail carouselTail;
+    private String videoUrl;
+    private String videoThumbnailUrl;
+    private BrandTalkCommerceInfo commerceInfo;
 }

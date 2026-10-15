@@ -41,6 +41,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 "sender-key", "BT_TEXT_001", "텍스트 템플릿", "TEXT",
                 "안녕하세요", false, null, List.of(), null, null, null, List.of(),
                 null, List.of(), List.of(), null,
+                null, null, null,
                 null, null, List.of(), List.of()
         );
 
@@ -82,6 +83,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 "이미지 내용", false, "https://example.com",
                 List.of(), null, null, null, List.of(),
                 null, List.of(), List.of(), null,
+                null, null, null,
                 imageFile, "test.jpg", List.of(), List.of()
         );
 
@@ -124,6 +126,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 List.of(new BrandTalkButtonCommand("버튼", "WL", "https://m.ex.com", "https://www.ex.com", null, null)),
                 null, null, null, List.of(),
                 null, List.of(), List.of(), null,
+                null, null, null,
                 imageFile, "wide.jpg", List.of(), List.of()
         );
 
@@ -161,6 +164,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 "sender-key", "BT_TEXT_002", "실패 템플릿", "TEXT",
                 "내용", false, null, List.of(), null, null, null, List.of(),
                 null, List.of(), List.of(), null,
+                null, null, null,
                 null, null, List.of(), List.of()
         );
 
@@ -194,6 +198,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 "sender-key", "BT_CF_001", "캐러셀 피드", "CAROUSEL_FEED",
                 "캐러셀 내용", false, null, List.of(), null, null, null, List.of(),
                 "인트로 헤더", carouselItems, List.of(), null,
+                null, null, null,
                 null, null, List.of(), List.of()
         );
 
@@ -244,6 +249,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 "sender-key", "BT_CC_001", "캐러셀 커머스", "CAROUSEL_COMMERCE",
                 "캐러셀 커머스 내용", false, null, List.of(), null, null, null, List.of(),
                 null, carouselItems, carouselCommerces, new BrandTalkCarouselTailCommand("https://m.ex.com/more"),
+                null, null, null,
                 null, null, List.of(), List.of()
         );
 

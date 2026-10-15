@@ -58,6 +58,9 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
                         .carouselItems(mapCarouselItems(command.carouselItems()))
                         .carouselCommerces(mapCarouselCommerces(command.carouselCommerces()))
                         .carouselTail(mapCarouselTail(command.carouselTail()))
+                        .videoUrl(command.videoUrl())
+                        .videoThumbnailUrl(command.videoThumbnailUrl())
+                        .commerceInfo(mapCommerceInfo(command.commerceInfo()))
                         .build()
         );
     }
@@ -133,5 +136,15 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
             return null;
         }
         return BrandTalkCarouselTail.of(command.linkM());
+    }
+
+    private BrandTalkCommerceInfo mapCommerceInfo(BrandTalkCommerceInfoCommand command) {
+        if (command == null) {
+            return null;
+        }
+        return BrandTalkCommerceInfo.of(
+                command.title(), command.regularPrice(),
+                command.discountPrice(), command.discountRate(), command.discountFixed()
+        );
     }
 }
