@@ -49,8 +49,8 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     }
 
     @Override
-    public void publishReviewDeletedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating) {
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(reviewId, productId, totalCount, averageRating);
+    public void publishReviewDeletedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating, Long reviewerId) {
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(reviewId, productId, totalCount, averageRating, reviewerId);
         String topic = KafkaTopicConstants.REVIEW_DELETED;
         EventEnvelope<ReviewDeletedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 

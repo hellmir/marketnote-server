@@ -4,6 +4,7 @@ public record ReviewDeletedEvent(
         Long reviewId,
         Long productId,
         Integer totalCount,
-        Float averageRating
+        Float averageRating,
+        Long reviewerId
 ) {
 }

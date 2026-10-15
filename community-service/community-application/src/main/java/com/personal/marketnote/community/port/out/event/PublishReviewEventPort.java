@@ -10,5 +10,5 @@ public interface PublishReviewEventPort {
 
     void publishReviewUpdatedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating);
 
-    void publishReviewDeletedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating);
+    void publishReviewDeletedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating, Long reviewerId);
 }
