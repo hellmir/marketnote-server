@@ -2,13 +2,19 @@ package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.RegisterBrandTalkTemplateRequest;
+import com.personal.marketnote.notification.adapter.in.web.aligo.response.GetBrandTalkTemplateListResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.RegisterBrandTalkTemplateResponse;
 import com.personal.marketnote.notification.port.in.command.*;
+import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
+import com.personal.marketnote.notification.port.in.usecase.aligo.GetBrandTalkTemplateListUseCase;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterBrandTalkTemplateUseCase;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +38,25 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 public class AligoBrandTalkTemplateController {
 
     private final RegisterBrandTalkTemplateUseCase registerBrandTalkTemplateUseCase;
+    private final GetBrandTalkTemplateListUseCase getBrandTalkTemplateListUseCase;
+
+    @GetMapping
+    @PreAuthorize(ADMIN_POINTCUT)
+    public ResponseEntity<BaseResponse<GetBrandTalkTemplateListResponse>> getTemplateList(
+            @RequestParam("sender-key") @NotBlank @Size(max = 40) String senderKey,
+            @RequestParam(value = "page", defaultValue = "1") @Min(1) int page,
+            @RequestParam(value = "page-size", defaultValue = "10") @Min(1) int pageSize
+    ) {
+        GetBrandTalkTemplateListResult result =
+                getBrandTalkTemplateListUseCase.getTemplateList(senderKey, page, pageSize);
+
+        GetBrandTalkTemplateListResponse response = GetBrandTalkTemplateListResponse.from(result);
+
+        return new ResponseEntity<>(
+                BaseResponse.of(response, HttpStatus.OK, DEFAULT_SUCCESS_CODE, "브랜드메시지 템플릿 목록 조회 성공"),
+                HttpStatus.OK
+        );
+    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize(ADMIN_POINTCUT)

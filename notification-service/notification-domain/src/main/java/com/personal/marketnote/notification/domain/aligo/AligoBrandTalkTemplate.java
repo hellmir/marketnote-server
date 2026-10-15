@@ -33,6 +33,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
     private BrandTalkCarouselTail carouselTail;
     private String videoUrl;
     private String videoThumbnailUrl;
+    private BrandTalkTemplateStatus templateStatus;
     private BrandTalkCommerceInfo commerceInfo;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
@@ -60,6 +61,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .videoUrl(state.getVideoUrl())
                 .videoThumbnailUrl(state.getVideoThumbnailUrl())
                 .commerceInfo(state.getCommerceInfo())
+                .templateStatus(state.getTemplateStatus())
                 .build();
         template.activate();
         return template;
@@ -87,6 +89,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .carouselTail(state.getCarouselTail())
                 .videoUrl(state.getVideoUrl())
                 .videoThumbnailUrl(state.getVideoThumbnailUrl())
+                .templateStatus(state.getTemplateStatus())
                 .commerceInfo(state.getCommerceInfo())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
@@ -111,6 +114,14 @@ public class AligoBrandTalkTemplate extends BaseDomain {
 
     public boolean isCarousel() {
         return templateType.isCarousel();
+    }
+
+    public boolean hasTemplateStatus(BrandTalkTemplateStatus templateStatus) {
+        return this.templateStatus == templateStatus;
+    }
+
+    public void updateTemplateStatus(BrandTalkTemplateStatus templateStatus) {
+        this.templateStatus = templateStatus;
     }
 
     private static final int MAX_TEMPLATE_HEADER_LENGTH = 20;

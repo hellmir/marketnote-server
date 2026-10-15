@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
+import com.personal.marketnote.notification.port.out.aligo.GetBrandTalkTemplateListExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.RegisterBrandTalkTemplateExternalPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
@@ -18,7 +20,8 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkTemplateExternalPort {
+public class AligoBrandTalkTemplateExternalAdapter
+        implements RegisterBrandTalkTemplateExternalPort, GetBrandTalkTemplateListExternalPort {
 
     private final AligoHttpClient aligoHttpClient;
     private final ObjectMapper objectMapper;
@@ -52,6 +55,36 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
         }
 
         aligoHttpClient.postMultipart("/brandtalk/template/create/", params, AligoApiResponse.class);
+    }
+
+    @Override
+    public GetBrandTalkTemplateListResult.ExternalListResponse getTemplateList(
+            String senderKey, int page, int pageSize
+    ) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("senderkey", senderKey);
+        params.add("page", String.valueOf(page));
+        params.add("pagesize", String.valueOf(pageSize));
+
+        AligoBrandTalkTemplateListApiResponse response =
+                aligoHttpClient.post("/brandtalk/template/list/", params, AligoBrandTalkTemplateListApiResponse.class);
+
+        GetBrandTalkTemplateListResult.PageInfo pageInfo = new GetBrandTalkTemplateListResult.PageInfo(
+                response.info().currentPage(), response.info().pageSize(), response.info().total()
+        );
+
+        List<AligoBrandTalkTemplateListApiResponse.TemplateItem> items =
+                FormatValidator.hasValue(response.list()) ? response.list() : List.of();
+
+        List<GetBrandTalkTemplateListResult.ExternalTemplateItem> templates = items.stream()
+                .map(item -> new GetBrandTalkTemplateListResult.ExternalTemplateItem(
+                        item.tplCode(), item.tplName(), item.tplType(), item.tplStatus(),
+                        FormatValidator.hasValue(item.sendVariable()) ? item.sendVariable() : List.of(),
+                        item.createAt()
+                ))
+                .toList();
+
+        return new GetBrandTalkTemplateListResult.ExternalListResponse(pageInfo, templates);
     }
 
     private MultiValueMap<String, Object> buildTemplateParams(AligoBrandTalkTemplate template) {
