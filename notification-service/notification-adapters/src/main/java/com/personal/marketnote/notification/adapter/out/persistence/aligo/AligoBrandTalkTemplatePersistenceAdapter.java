@@ -31,6 +31,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
         String carouselItemsJson = serializeCarouselItems(template.getCarouselItems());
         String carouselCommercesJson = serializeCarouselCommerces(template.getCarouselCommerces());
         String carouselTailJson = serializeCarouselTail(template.getCarouselTail());
+        String commerceInfoJson = serializeCommerceInfo(template.getCommerceInfo());
 
         AligoBrandTalkTemplateJpaEntity entity = AligoBrandTalkTemplateJpaEntity.create(
                 template.getSenderKey(), template.getTemplateCode(), template.getTemplateName(),
@@ -39,7 +40,8 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
                 buttonsJson, couponJson,
                 template.getTemplateHeader(), mainWideItemJson, subWideItemsJson,
                 template.getCarouselHeader(), carouselItemsJson,
-                carouselCommercesJson, carouselTailJson
+                carouselCommercesJson, carouselTailJson,
+                template.getVideoUrl(), template.getVideoThumbnailUrl(), commerceInfoJson
         );
 
         AligoBrandTalkTemplateJpaEntity saved = repository.save(entity);
@@ -187,6 +189,23 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
         }
         Map<String, String> map = new LinkedHashMap<>();
         map.put("linkM", tail.getLinkM());
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
+    private String serializeCommerceInfo(BrandTalkCommerceInfo commerceInfo) {
+        if (commerceInfo == null) {
+            return null;
+        }
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", commerceInfo.getTitle());
+        map.put("regularPrice", commerceInfo.getRegularPrice());
+        map.put("discountPrice", commerceInfo.getDiscountPrice());
+        map.put("discountRate", commerceInfo.getDiscountRate());
+        map.put("discountFixed", commerceInfo.getDiscountFixed());
         try {
             return objectMapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {

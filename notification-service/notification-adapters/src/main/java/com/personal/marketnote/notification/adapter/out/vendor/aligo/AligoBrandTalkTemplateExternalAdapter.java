@@ -38,6 +38,14 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
             addCarouselParams(params, template, imageFile, imageFileName, carouselItemImageFiles, carouselItemImageFileNames);
         }
 
+        if (template.isPremiumVideo()) {
+            addPremiumVideoParams(params, template);
+        }
+
+        if (template.getTemplateType().isCommerce()) {
+            addCommerceParams(params, template);
+        }
+
         if (template.requiresImage() && imageFile != null) {
             Resource resource = createResource(imageFile, imageFileName);
             params.add("image", resource);
@@ -259,6 +267,41 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
             return objectMapper.writeValueAsString(map);
         } catch (JsonProcessingException e) {
             throw new AligoApiRequestFailedException("캐러셀 tail 직렬화 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private void addPremiumVideoParams(MultiValueMap<String, Object> params, AligoBrandTalkTemplate template) {
+        if (FormatValidator.hasValue(template.getVideoUrl())) {
+            params.add("template_video", template.getVideoUrl());
+        }
+        if (FormatValidator.hasValue(template.getVideoThumbnailUrl())) {
+            params.add("template_video_thumb", template.getVideoThumbnailUrl());
+        }
+    }
+
+    private void addCommerceParams(MultiValueMap<String, Object> params, AligoBrandTalkTemplate template) {
+        if (template.getCommerceInfo() != null) {
+            params.add("template_commerce", serializeCommerceInfoForApi(template.getCommerceInfo()));
+        }
+    }
+
+    private String serializeCommerceInfoForApi(BrandTalkCommerceInfo commerceInfo) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", commerceInfo.getTitle());
+        map.put("regularPrice", commerceInfo.getRegularPrice());
+        if (FormatValidator.hasValue(commerceInfo.getDiscountPrice())) {
+            map.put("discountPrice", commerceInfo.getDiscountPrice());
+        }
+        if (FormatValidator.hasValue(commerceInfo.getDiscountRate())) {
+            map.put("discountRate", commerceInfo.getDiscountRate());
+        }
+        if (FormatValidator.hasValue(commerceInfo.getDiscountFixed())) {
+            map.put("discountFixed", commerceInfo.getDiscountFixed());
+        }
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new AligoApiRequestFailedException("커머스 정보 직렬화 실패: " + e.getMessage(), e);
         }
     }
 

@@ -45,7 +45,13 @@ public record RegisterBrandTalkTemplateRequest(
 
         List<CarouselCommerceRequest> carouselCommerces,
 
-        CarouselTailRequest carouselTail
+        CarouselTailRequest carouselTail,
+
+        String videoUrl,
+
+        String videoThumbnailUrl,
+
+        CommerceInfoRequest commerceInfo
 ) {
     public record ButtonRequest(
             String name,
@@ -96,6 +102,15 @@ public record RegisterBrandTalkTemplateRequest(
 
     public record CarouselTailRequest(
             String linkM
+    ) {
+    }
+
+    public record CommerceInfoRequest(
+            String title,
+            String regularPrice,
+            String discountPrice,
+            String discountRate,
+            String discountFixed
     ) {
     }
 }

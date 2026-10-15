@@ -31,6 +31,9 @@ public class AligoBrandTalkTemplate extends BaseDomain {
     private List<BrandTalkCarouselItem> carouselItems;
     private List<BrandTalkCarouselCommerce> carouselCommerces;
     private BrandTalkCarouselTail carouselTail;
+    private String videoUrl;
+    private String videoThumbnailUrl;
+    private BrandTalkCommerceInfo commerceInfo;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -54,6 +57,9 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .carouselItems(state.getCarouselItems() != null ? state.getCarouselItems() : List.of())
                 .carouselCommerces(state.getCarouselCommerces() != null ? state.getCarouselCommerces() : List.of())
                 .carouselTail(state.getCarouselTail())
+                .videoUrl(state.getVideoUrl())
+                .videoThumbnailUrl(state.getVideoThumbnailUrl())
+                .commerceInfo(state.getCommerceInfo())
                 .build();
         template.activate();
         return template;
@@ -79,6 +85,9 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .carouselItems(state.getCarouselItems() != null ? state.getCarouselItems() : List.of())
                 .carouselCommerces(state.getCarouselCommerces() != null ? state.getCarouselCommerces() : List.of())
                 .carouselTail(state.getCarouselTail())
+                .videoUrl(state.getVideoUrl())
+                .videoThumbnailUrl(state.getVideoThumbnailUrl())
+                .commerceInfo(state.getCommerceInfo())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -88,7 +97,12 @@ public class AligoBrandTalkTemplate extends BaseDomain {
 
     public boolean requiresImage() {
         return templateType == BrandTalkTemplateType.IMAGE
-                || templateType == BrandTalkTemplateType.WIDE;
+                || templateType == BrandTalkTemplateType.WIDE
+                || templateType.isCommerce();
+    }
+
+    public boolean isPremiumVideo() {
+        return templateType.isPremiumVideo();
     }
 
     public boolean isWideItemList() {
@@ -122,6 +136,12 @@ public class AligoBrandTalkTemplate extends BaseDomain {
         }
         if (state.getTemplateType().isCarousel()) {
             validateCarousel(state);
+        }
+        if (state.getTemplateType().isPremiumVideo()) {
+            validatePremiumVideo(state);
+        }
+        if (state.getTemplateType().isCommerce()) {
+            validateCommerce(state);
         }
     }
 
@@ -163,6 +183,18 @@ public class AligoBrandTalkTemplate extends BaseDomain {
     private static void validateCarouselCommerce(AligoBrandTalkTemplateCreateState state) {
         if (state.getCarouselCommerces() == null || state.getCarouselCommerces().isEmpty()) {
             throw new InvalidBrandTalkTemplateException("CAROUSEL_COMMERCE 타입에는 carouselCommerces가 필수입니다.");
+        }
+    }
+
+    private static void validatePremiumVideo(AligoBrandTalkTemplateCreateState state) {
+        if (FormatValidator.hasNoValue(state.getVideoUrl())) {
+            throw new InvalidBrandTalkTemplateException("PREMIUM_VIDEO 타입에는 videoUrl이 필수입니다.");
+        }
+    }
+
+    private static void validateCommerce(AligoBrandTalkTemplateCreateState state) {
+        if (state.getCommerceInfo() == null) {
+            throw new InvalidBrandTalkTemplateException("COMMERCE 타입에는 commerceInfo가 필수입니다.");
         }
     }
 }
