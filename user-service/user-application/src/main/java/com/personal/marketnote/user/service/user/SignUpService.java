@@ -11,7 +11,9 @@ import com.personal.marketnote.user.domain.user.ReferenceCode;
 import com.personal.marketnote.user.domain.user.Terms;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.*;
+import com.personal.marketnote.user.domain.user.FingerprintSource;
 import com.personal.marketnote.user.port.in.command.SignUpCommand;
+import com.personal.marketnote.user.port.in.event.UserFingerprintSavedEvent;
 import com.personal.marketnote.user.port.in.mapper.UserCommandToStateMapper;
 import com.personal.marketnote.user.port.in.result.SignUpResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
@@ -25,6 +27,7 @@ import com.personal.marketnote.user.port.out.user.*;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +56,7 @@ public class SignUpService implements SignUpUseCase {
     private final FindProfanityWordPort findProfanityWordPort;
     private final GenerateTokenPort generateTokenPort;
     private final SaveRefreshTokenPort saveRefreshTokenPort;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final Clock clock;
 
     @Value("${spring.jwt.refresh-token.ttl:1209600000}")
@@ -70,6 +74,7 @@ public class SignUpService implements SignUpUseCase {
             AtomicBoolean isNewUser = new AtomicBoolean(false);
             User signedUpUser = addLoginAccountInfo(email, password, authVendor, oidcId, ipAddress, isNewUser);
 
+            publishFingerprintEvent(signedUpUser.getId(), signUpCommand.fingerprint());
             return generateTokensAndBuildResult(signedUpUser, isNewUser.get(), authVendor);
         }
 
@@ -99,6 +104,7 @@ public class SignUpService implements SignUpUseCase {
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)
         );
 
+        publishFingerprintEvent(signedUpUser.getId(), signUpCommand.fingerprint());
         return generateTokensAndBuildResult(signedUpUser, true, authVendor);
     }
 
@@ -187,4 +193,13 @@ public class SignUpService implements SignUpUseCase {
         throw new UserNotActiveException(SIXTH_ERROR_CODE, email);
     }
 
+    private void publishFingerprintEvent(Long userId, String fingerprint) {
+        if (FormatValidator.hasNoValue(fingerprint)) {
+            return;
+        }
+
+        applicationEventPublisher.publishEvent(
+                new UserFingerprintSavedEvent(userId, fingerprint, FingerprintSource.SIGNUP)
+        );
+    }
 }
