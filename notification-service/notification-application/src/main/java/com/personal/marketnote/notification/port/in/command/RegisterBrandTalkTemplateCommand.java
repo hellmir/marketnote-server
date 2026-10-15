@@ -15,7 +15,13 @@ public record RegisterBrandTalkTemplateCommand(
         String templateHeader,
         BrandTalkWideItemCommand mainWideItem,
         List<BrandTalkWideItemCommand> subWideItems,
+        String carouselHeader,
+        List<BrandTalkCarouselItemCommand> carouselItems,
+        List<BrandTalkCarouselCommerceCommand> carouselCommerces,
+        BrandTalkCarouselTailCommand carouselTail,
         byte[] imageFile,
-        String imageFileName
+        String imageFileName,
+        List<byte[]> carouselItemImageFiles,
+        List<String> carouselItemImageFileNames
 ) {
 }

@@ -25,6 +25,10 @@ public class AligoBrandTalkTemplateSnapshotState {
     private String templateHeader;
     private BrandTalkWideItem mainWideItem;
     private List<BrandTalkWideItem> subWideItems;
+    private String carouselHeader;
+    private List<BrandTalkCarouselItem> carouselItems;
+    private List<BrandTalkCarouselCommerce> carouselCommerces;
+    private BrandTalkCarouselTail carouselTail;
     private EntityStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;

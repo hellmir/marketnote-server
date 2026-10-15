@@ -28,13 +28,18 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
         String couponJson = serializeCoupon(template.getCoupon());
         String mainWideItemJson = serializeWideItem(template.getMainWideItem());
         String subWideItemsJson = serializeWideItems(template.getSubWideItems());
+        String carouselItemsJson = serializeCarouselItems(template.getCarouselItems());
+        String carouselCommercesJson = serializeCarouselCommerces(template.getCarouselCommerces());
+        String carouselTailJson = serializeCarouselTail(template.getCarouselTail());
 
         AligoBrandTalkTemplateJpaEntity entity = AligoBrandTalkTemplateJpaEntity.create(
                 template.getSenderKey(), template.getTemplateCode(), template.getTemplateName(),
                 template.getTemplateType(), template.getTemplateContent(),
                 template.isAdult(), template.getImageUrl(), template.getImageLink(),
                 buttonsJson, couponJson,
-                template.getTemplateHeader(), mainWideItemJson, subWideItemsJson
+                template.getTemplateHeader(), mainWideItemJson, subWideItemsJson,
+                template.getCarouselHeader(), carouselItemsJson,
+                carouselCommercesJson, carouselTailJson
         );
 
         AligoBrandTalkTemplateJpaEntity saved = repository.save(entity);
@@ -123,5 +128,69 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
         map.put("linkI", item.getLinkI());
         map.put("linkA", item.getLinkA());
         return map;
+    }
+
+    private String serializeCarouselItems(List<BrandTalkCarouselItem> items) {
+        if (items == null || items.isEmpty()) {
+            return null;
+        }
+        List<Map<String, Object>> list = items.stream().map(this::carouselItemToMap).toList();
+        try {
+            return objectMapper.writeValueAsString(list);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
+    private Map<String, Object> carouselItemToMap(BrandTalkCarouselItem item) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("header", item.getHeader());
+        map.put("content", item.getContent());
+        map.put("imageUrl", item.getImageUrl());
+        if (item.getButtons() != null && !item.getButtons().isEmpty()) {
+            map.put("buttons", item.getButtons().stream().map(this::buttonToMap).toList());
+        }
+        if (item.getCoupon() != null) {
+            Map<String, String> couponMap = new LinkedHashMap<>();
+            couponMap.put("title", item.getCoupon().getTitle());
+            couponMap.put("description", item.getCoupon().getDescription());
+            map.put("coupon", couponMap);
+        }
+        return map;
+    }
+
+    private String serializeCarouselCommerces(List<BrandTalkCarouselCommerce> commerces) {
+        if (commerces == null || commerces.isEmpty()) {
+            return null;
+        }
+        List<Map<String, String>> list = commerces.stream().map(this::carouselCommerceToMap).toList();
+        try {
+            return objectMapper.writeValueAsString(list);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
+    private Map<String, String> carouselCommerceToMap(BrandTalkCarouselCommerce commerce) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", commerce.getTitle());
+        map.put("regularPrice", commerce.getRegularPrice());
+        map.put("discountPrice", commerce.getDiscountPrice());
+        map.put("discountRate", commerce.getDiscountRate());
+        map.put("discountFixed", commerce.getDiscountFixed());
+        return map;
+    }
+
+    private String serializeCarouselTail(BrandTalkCarouselTail tail) {
+        if (tail == null) {
+            return null;
+        }
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("linkM", tail.getLinkM());
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            return null;
+        }
     }
 }

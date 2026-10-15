@@ -36,7 +36,16 @@ public record RegisterBrandTalkTemplateRequest(
         WideItemRequest mainWideItem,
 
         @Size(min = 2, max = 3, message = "subWideItems는 최소 2개, 최대 3개입니다")
-        List<WideItemRequest> subWideItems
+        List<WideItemRequest> subWideItems,
+
+        @Size(max = 20, message = "carouselHeader는 최대 20자까지 입력할 수 있습니다")
+        String carouselHeader,
+
+        List<CarouselItemRequest> carouselItems,
+
+        List<CarouselCommerceRequest> carouselCommerces,
+
+        CarouselTailRequest carouselTail
 ) {
     public record ButtonRequest(
             String name,
@@ -65,6 +74,28 @@ public record RegisterBrandTalkTemplateRequest(
             String linkP,
             String linkI,
             String linkA
+    ) {
+    }
+
+    public record CarouselItemRequest(
+            String header,
+            String content,
+            List<ButtonRequest> buttons,
+            CouponRequest coupon
+    ) {
+    }
+
+    public record CarouselCommerceRequest(
+            String title,
+            String regularPrice,
+            String discountPrice,
+            String discountRate,
+            String discountFixed
+    ) {
+    }
+
+    public record CarouselTailRequest(
+            String linkM
     ) {
     }
 }

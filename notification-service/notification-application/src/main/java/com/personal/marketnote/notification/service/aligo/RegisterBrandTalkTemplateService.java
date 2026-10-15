@@ -2,10 +2,7 @@ package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.notification.domain.aligo.*;
-import com.personal.marketnote.notification.port.in.command.BrandTalkButtonCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkCouponCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkWideItemCommand;
-import com.personal.marketnote.notification.port.in.command.RegisterBrandTalkTemplateCommand;
+import com.personal.marketnote.notification.port.in.command.*;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterBrandTalkTemplateUseCase;
 import com.personal.marketnote.notification.port.out.aligo.RegisterBrandTalkTemplateExternalPort;
@@ -26,7 +23,8 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
         AligoBrandTalkTemplate template = createTemplate(command);
 
         registerBrandTalkTemplateExternalPort.registerTemplate(
-                template, command.imageFile(), command.imageFileName()
+                template, command.imageFile(), command.imageFileName(),
+                command.carouselItemImageFiles(), command.carouselItemImageFileNames()
         );
 
         AligoBrandTalkTemplate saved = saveBrandTalkTemplatePort.save(template);
@@ -56,6 +54,10 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
                         .templateHeader(command.templateHeader())
                         .mainWideItem(mapWideItem(command.mainWideItem()))
                         .subWideItems(mapWideItems(command.subWideItems()))
+                        .carouselHeader(command.carouselHeader())
+                        .carouselItems(mapCarouselItems(command.carouselItems()))
+                        .carouselCommerces(mapCarouselCommerces(command.carouselCommerces()))
+                        .carouselTail(mapCarouselTail(command.carouselTail()))
                         .build()
         );
     }
@@ -100,5 +102,36 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
         return commands.stream()
                 .map(this::mapWideItem)
                 .toList();
+    }
+
+    private List<BrandTalkCarouselItem> mapCarouselItems(List<BrandTalkCarouselItemCommand> commands) {
+        if (commands == null) {
+            return List.of();
+        }
+        return commands.stream()
+                .map(cmd -> BrandTalkCarouselItem.of(
+                        cmd.header(), cmd.content(), null,
+                        mapButtons(cmd.buttons()), mapCoupon(cmd.coupon())
+                ))
+                .toList();
+    }
+
+    private List<BrandTalkCarouselCommerce> mapCarouselCommerces(List<BrandTalkCarouselCommerceCommand> commands) {
+        if (commands == null) {
+            return List.of();
+        }
+        return commands.stream()
+                .map(cmd -> BrandTalkCarouselCommerce.of(
+                        cmd.title(), cmd.regularPrice(),
+                        cmd.discountPrice(), cmd.discountRate(), cmd.discountFixed()
+                ))
+                .toList();
+    }
+
+    private BrandTalkCarouselTail mapCarouselTail(BrandTalkCarouselTailCommand command) {
+        if (command == null) {
+            return null;
+        }
+        return BrandTalkCarouselTail.of(command.linkM());
     }
 }

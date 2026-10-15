@@ -50,12 +50,25 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
     @Column(columnDefinition = "TEXT")
     private String subWideItemsJson;
 
+    private String carouselHeader;
+
+    @Column(columnDefinition = "TEXT")
+    private String carouselItemsJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String carouselCommercesJson;
+
+    @Column(columnDefinition = "TEXT")
+    private String carouselTailJson;
+
     public static AligoBrandTalkTemplateJpaEntity create(
             String senderKey, String templateCode, String templateName,
             BrandTalkTemplateType templateType, String templateContent,
             boolean adult, String imageUrl, String imageLink,
             String buttonsJson, String couponJson,
-            String templateHeader, String mainWideItemJson, String subWideItemsJson
+            String templateHeader, String mainWideItemJson, String subWideItemsJson,
+            String carouselHeader, String carouselItemsJson,
+            String carouselCommercesJson, String carouselTailJson
     ) {
         AligoBrandTalkTemplateJpaEntity entity = new AligoBrandTalkTemplateJpaEntity();
         entity.senderKey = senderKey;
@@ -71,6 +84,10 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
         entity.templateHeader = templateHeader;
         entity.mainWideItemJson = mainWideItemJson;
         entity.subWideItemsJson = subWideItemsJson;
+        entity.carouselHeader = carouselHeader;
+        entity.carouselItemsJson = carouselItemsJson;
+        entity.carouselCommercesJson = carouselCommercesJson;
+        entity.carouselTailJson = carouselTailJson;
         return entity;
     }
 }

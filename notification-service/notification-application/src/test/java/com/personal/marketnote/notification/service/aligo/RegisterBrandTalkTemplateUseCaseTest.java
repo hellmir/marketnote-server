@@ -40,7 +40,9 @@ class RegisterBrandTalkTemplateUseCaseTest {
         // given
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
                 "sender-key", "BT_TEXT_001", "텍스트 템플릿", "TEXT",
-                "안녕하세요", false, null, List.of(), null, null, null, List.of(), null, null
+                "안녕하세요", false, null, List.of(), null, null, null, List.of(),
+                null, List.of(), List.of(), null,
+                null, null, List.of(), List.of()
         );
 
         when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
@@ -67,7 +69,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
         assertThat(result.id()).isEqualTo(1L);
         assertThat(result.templateCode()).isEqualTo("BT_TEXT_001");
         assertThat(result.templateType()).isEqualTo("TEXT");
-        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(null), eq(null));
+        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(null), eq(null), eq(List.of()), eq(List.of()));
         verify(saveBrandTalkTemplatePort).save(any());
     }
 
@@ -79,7 +81,9 @@ class RegisterBrandTalkTemplateUseCaseTest {
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
                 "sender-key", "BT_IMAGE_001", "이미지 템플릿", "IMAGE",
                 "이미지 내용", false, "https://example.com",
-                List.of(), null, null, null, List.of(), imageFile, "test.jpg"
+                List.of(), null, null, null, List.of(),
+                null, List.of(), List.of(), null,
+                imageFile, "test.jpg", List.of(), List.of()
         );
 
         when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
@@ -106,7 +110,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
         // then
         assertThat(result.id()).isEqualTo(2L);
         assertThat(result.templateType()).isEqualTo("IMAGE");
-        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(imageFile), eq("test.jpg"));
+        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(imageFile), eq("test.jpg"), eq(List.of()), eq(List.of()));
         verify(saveBrandTalkTemplatePort).save(any());
     }
 
@@ -119,7 +123,9 @@ class RegisterBrandTalkTemplateUseCaseTest {
                 "sender-key", "BT_WIDE_001", "와이드 템플릿", "WIDE",
                 "와이드 내용", false, "https://example.com",
                 List.of(new BrandTalkButtonCommand("버튼", "WL", "https://m.ex.com", "https://www.ex.com", null, null)),
-                null, null, null, List.of(), imageFile, "wide.jpg"
+                null, null, null, List.of(),
+                null, List.of(), List.of(), null,
+                imageFile, "wide.jpg", List.of(), List.of()
         );
 
         when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
@@ -145,7 +151,7 @@ class RegisterBrandTalkTemplateUseCaseTest {
         // then
         assertThat(result.id()).isEqualTo(3L);
         assertThat(result.templateType()).isEqualTo("WIDE");
-        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(imageFile), eq("wide.jpg"));
+        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(imageFile), eq("wide.jpg"), eq(List.of()), eq(List.of()));
     }
 
     @Test
@@ -154,11 +160,13 @@ class RegisterBrandTalkTemplateUseCaseTest {
         // given
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
                 "sender-key", "BT_TEXT_002", "실패 템플릿", "TEXT",
-                "내용", false, null, List.of(), null, null, null, List.of(), null, null
+                "내용", false, null, List.of(), null, null, null, List.of(),
+                null, List.of(), List.of(), null,
+                null, null, List.of(), List.of()
         );
 
         doThrow(new RuntimeException("API 실패"))
-                .when(registerBrandTalkTemplateExternalPort).registerTemplate(any(), any(), any());
+                .when(registerBrandTalkTemplateExternalPort).registerTemplate(any(), any(), any(), any(), any());
 
         // when & then
         assertThatThrownBy(() -> registerBrandTalkTemplateService.registerTemplate(command))

@@ -24,20 +24,22 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
     private final ObjectMapper objectMapper;
 
     @Override
-    public void registerTemplate(AligoBrandTalkTemplate template, byte[] imageFile, String imageFileName) {
+    public void registerTemplate(
+            AligoBrandTalkTemplate template, byte[] imageFile, String imageFileName,
+            List<byte[]> carouselItemImageFiles, List<String> carouselItemImageFileNames
+    ) {
         MultiValueMap<String, Object> params = buildTemplateParams(template);
 
         if (template.isWideItemList()) {
             addWideItemListParams(params, template, imageFile, imageFileName);
         }
 
+        if (template.isCarousel()) {
+            addCarouselParams(params, template, imageFile, imageFileName, carouselItemImageFiles, carouselItemImageFileNames);
+        }
+
         if (template.requiresImage() && imageFile != null) {
-            Resource resource = new ByteArrayResource(imageFile) {
-                @Override
-                public String getFilename() {
-                    return imageFileName;
-                }
-            };
+            Resource resource = createResource(imageFile, imageFileName);
             params.add("image", resource);
         }
 
@@ -141,12 +143,7 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
             }
         }
         if (imageFile != null) {
-            Resource mainImageResource = new ByteArrayResource(imageFile) {
-                @Override
-                public String getFilename() {
-                    return imageFileName;
-                }
-            };
+            Resource mainImageResource = createResource(imageFile, imageFileName);
             params.add("main_wide_item_image", mainImageResource);
         }
     }
@@ -174,5 +171,103 @@ public class AligoBrandTalkTemplateExternalAdapter implements RegisterBrandTalkT
         } catch (JsonProcessingException e) {
             throw new AligoApiRequestFailedException("와이드 아이템 직렬화 실패: " + e.getMessage(), e);
         }
+    }
+
+    private void addCarouselParams(
+            MultiValueMap<String, Object> params, AligoBrandTalkTemplate template,
+            byte[] headerImageFile, String headerImageFileName,
+            List<byte[]> itemImageFiles, List<String> itemImageFileNames
+    ) {
+        if (FormatValidator.hasValue(template.getCarouselHeader())) {
+            params.add("carousel_header", template.getCarouselHeader());
+        }
+        if (headerImageFile != null) {
+            params.add("carousel_header_image", createResource(headerImageFile, headerImageFileName));
+        }
+
+        List<BrandTalkCarouselItem> items = template.getCarouselItems();
+        for (int i = 0; i < items.size(); i++) {
+            BrandTalkCarouselItem item = items.get(i);
+            int index = i + 1;
+
+            params.add("carousel_list" + index, serializeCarouselListItem(item));
+
+            if (itemImageFiles != null && i < itemImageFiles.size() && itemImageFiles.get(i) != null) {
+                params.add("carousel_list_image" + index, createResource(itemImageFiles.get(i), itemImageFileNames.get(i)));
+            }
+
+            if (item.getButtons() != null && !item.getButtons().isEmpty()) {
+                params.add("carousel_list_button" + index, serializeButtons(item.getButtons()));
+            }
+
+            if (item.getCoupon() != null) {
+                params.add("carousel_list_coupon" + index, serializeCoupon(item.getCoupon()));
+            }
+        }
+
+        if (template.getTemplateType().isCarouselCommerce()) {
+            List<BrandTalkCarouselCommerce> commerces = template.getCarouselCommerces();
+            for (int i = 0; i < commerces.size(); i++) {
+                params.add("carousel_list_commerce" + (i + 1), serializeCarouselCommerce(commerces.get(i)));
+            }
+        }
+
+        if (template.getCarouselTail() != null) {
+            params.add("carousel_tail", serializeCarouselTail(template.getCarouselTail()));
+        }
+    }
+
+    private String serializeCarouselListItem(BrandTalkCarouselItem item) {
+        Map<String, String> map = new LinkedHashMap<>();
+        if (FormatValidator.hasValue(item.getHeader())) {
+            map.put("header", item.getHeader());
+        }
+        if (FormatValidator.hasValue(item.getContent())) {
+            map.put("content", item.getContent());
+        }
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new AligoApiRequestFailedException("캐러셀 아이템 직렬화 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private String serializeCarouselCommerce(BrandTalkCarouselCommerce commerce) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("title", commerce.getTitle());
+        map.put("regularPrice", commerce.getRegularPrice());
+        if (FormatValidator.hasValue(commerce.getDiscountPrice())) {
+            map.put("discountPrice", commerce.getDiscountPrice());
+        }
+        if (FormatValidator.hasValue(commerce.getDiscountRate())) {
+            map.put("discountRate", commerce.getDiscountRate());
+        }
+        if (FormatValidator.hasValue(commerce.getDiscountFixed())) {
+            map.put("discountFixed", commerce.getDiscountFixed());
+        }
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new AligoApiRequestFailedException("캐러셀 커머스 직렬화 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private String serializeCarouselTail(BrandTalkCarouselTail tail) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("linkM", tail.getLinkM());
+        try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new AligoApiRequestFailedException("캐러셀 tail 직렬화 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private Resource createResource(byte[] data, String filename) {
+        return new ByteArrayResource(data) {
+            @Override
+            public String getFilename() {
+                return filename;
+            }
+        };
     }
 }
