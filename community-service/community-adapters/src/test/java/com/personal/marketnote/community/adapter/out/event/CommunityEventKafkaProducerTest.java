@@ -188,6 +188,7 @@ class CommunityEventKafkaProducerTest {
         assertThat(payload.productId()).isEqualTo(50L);
         assertThat(payload.totalCount()).isEqualTo(7);
         assertThat(payload.averageRating()).isEqualTo(3.8f);
+        assertThat(payload.reviewerId()).isEqualTo(100L);
     }
 
     @Test
