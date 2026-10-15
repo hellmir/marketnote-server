@@ -27,6 +27,10 @@ public class AligoBrandTalkTemplate extends BaseDomain {
     private String templateHeader;
     private BrandTalkWideItem mainWideItem;
     private List<BrandTalkWideItem> subWideItems;
+    private String carouselHeader;
+    private List<BrandTalkCarouselItem> carouselItems;
+    private List<BrandTalkCarouselCommerce> carouselCommerces;
+    private BrandTalkCarouselTail carouselTail;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -46,6 +50,10 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .templateHeader(state.getTemplateHeader())
                 .mainWideItem(state.getMainWideItem())
                 .subWideItems(state.getSubWideItems() != null ? state.getSubWideItems() : List.of())
+                .carouselHeader(state.getCarouselHeader())
+                .carouselItems(state.getCarouselItems() != null ? state.getCarouselItems() : List.of())
+                .carouselCommerces(state.getCarouselCommerces() != null ? state.getCarouselCommerces() : List.of())
+                .carouselTail(state.getCarouselTail())
                 .build();
         template.activate();
         return template;
@@ -67,6 +75,10 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .templateHeader(state.getTemplateHeader())
                 .mainWideItem(state.getMainWideItem())
                 .subWideItems(state.getSubWideItems() != null ? state.getSubWideItems() : List.of())
+                .carouselHeader(state.getCarouselHeader())
+                .carouselItems(state.getCarouselItems() != null ? state.getCarouselItems() : List.of())
+                .carouselCommerces(state.getCarouselCommerces() != null ? state.getCarouselCommerces() : List.of())
+                .carouselTail(state.getCarouselTail())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -83,7 +95,14 @@ public class AligoBrandTalkTemplate extends BaseDomain {
         return templateType.isWideItemList();
     }
 
+    public boolean isCarousel() {
+        return templateType.isCarousel();
+    }
+
     private static final int MAX_TEMPLATE_HEADER_LENGTH = 20;
+    private static final int MAX_CAROUSEL_HEADER_LENGTH = 20;
+    private static final int MAX_CAROUSEL_ITEMS_WITH_INTRO = 5;
+    private static final int MAX_CAROUSEL_ITEMS_WITHOUT_INTRO = 6;
 
     private static void validate(AligoBrandTalkTemplateCreateState state) {
         if (FormatValidator.hasNoValue(state.getSenderKey())) {
@@ -101,6 +120,9 @@ public class AligoBrandTalkTemplate extends BaseDomain {
         if (state.getTemplateType().isWideItemList()) {
             validateWideItemList(state);
         }
+        if (state.getTemplateType().isCarousel()) {
+            validateCarousel(state);
+        }
     }
 
     private static void validateWideItemList(AligoBrandTalkTemplateCreateState state) {
@@ -112,6 +134,35 @@ public class AligoBrandTalkTemplate extends BaseDomain {
         }
         if (state.getSubWideItems() != null && (state.getSubWideItems().size() < 2 || state.getSubWideItems().size() > 3)) {
             throw new InvalidBrandTalkTemplateException("WIDE_ITEM_LIST의 subWideItems는 최소 2개, 최대 3개입니다.");
+        }
+    }
+
+    private static void validateCarousel(AligoBrandTalkTemplateCreateState state) {
+        if (FormatValidator.hasValue(state.getCarouselHeader())
+                && state.getCarouselHeader().length() > MAX_CAROUSEL_HEADER_LENGTH) {
+            throw new InvalidBrandTalkTemplateException(
+                    "carouselHeader는 최대 " + MAX_CAROUSEL_HEADER_LENGTH + "자까지 입력할 수 있습니다."
+            );
+        }
+        if (state.getCarouselItems() == null || state.getCarouselItems().isEmpty()) {
+            throw new InvalidBrandTalkTemplateException("CAROUSEL 타입에는 carouselItems가 필수입니다.");
+        }
+        boolean hasIntro = FormatValidator.hasValue(state.getCarouselHeader());
+        int maxItems = hasIntro ? MAX_CAROUSEL_ITEMS_WITH_INTRO : MAX_CAROUSEL_ITEMS_WITHOUT_INTRO;
+        if (state.getCarouselItems().size() > maxItems) {
+            String introLabel = hasIntro ? "인트로 사용 시 " : "인트로 미사용 시 ";
+            throw new InvalidBrandTalkTemplateException(
+                    "CAROUSEL의 carouselItems는 " + introLabel + "최대 " + maxItems + "개입니다."
+            );
+        }
+        if (state.getTemplateType().isCarouselCommerce()) {
+            validateCarouselCommerce(state);
+        }
+    }
+
+    private static void validateCarouselCommerce(AligoBrandTalkTemplateCreateState state) {
+        if (state.getCarouselCommerces() == null || state.getCarouselCommerces().isEmpty()) {
+            throw new InvalidBrandTalkTemplateException("CAROUSEL_COMMERCE 타입에는 carouselCommerces가 필수입니다.");
         }
     }
 }

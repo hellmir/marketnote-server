@@ -3,10 +3,7 @@ package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.RegisterBrandTalkTemplateRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.RegisterBrandTalkTemplateResponse;
-import com.personal.marketnote.notification.port.in.command.BrandTalkButtonCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkCouponCommand;
-import com.personal.marketnote.notification.port.in.command.BrandTalkWideItemCommand;
-import com.personal.marketnote.notification.port.in.command.RegisterBrandTalkTemplateCommand;
+import com.personal.marketnote.notification.port.in.command.*;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
 import com.personal.marketnote.notification.port.in.usecase.aligo.RegisterBrandTalkTemplateUseCase;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -21,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
@@ -39,13 +37,17 @@ public class AligoBrandTalkTemplateController {
     @PreAuthorize(ADMIN_POINTCUT)
     public ResponseEntity<BaseResponse<RegisterBrandTalkTemplateResponse>> registerTemplate(
             @Valid @RequestPart("request") RegisterBrandTalkTemplateRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "carouselItemImages", required = false) List<MultipartFile> carouselItemImages
     ) throws IOException {
         List<BrandTalkButtonCommand> buttonCommands = mapButtons(request.buttons());
         BrandTalkCouponCommand couponCommand = mapCoupon(request.coupon());
 
         byte[] imageFile = image != null ? image.getBytes() : null;
         String imageFileName = image != null ? image.getOriginalFilename() : null;
+
+        List<byte[]> carouselItemImageFiles = mapCarouselItemImageFiles(carouselItemImages);
+        List<String> carouselItemImageFileNames = mapCarouselItemImageFileNames(carouselItemImages);
 
         RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
                 request.senderKey(), request.templateCode(), request.templateName(),
@@ -54,7 +56,12 @@ public class AligoBrandTalkTemplateController {
                 request.templateHeader(),
                 mapWideItem(request.mainWideItem()),
                 mapWideItems(request.subWideItems()),
-                imageFile, imageFileName
+                request.carouselHeader(),
+                mapCarouselItems(request.carouselItems()),
+                mapCarouselCommerces(request.carouselCommerces()),
+                mapCarouselTail(request.carouselTail()),
+                imageFile, imageFileName,
+                carouselItemImageFiles, carouselItemImageFileNames
         );
 
         RegisterBrandTalkTemplateResult result = registerBrandTalkTemplateUseCase.registerTemplate(command);
@@ -103,5 +110,58 @@ public class AligoBrandTalkTemplateController {
             return List.of();
         }
         return items.stream().map(this::mapWideItem).toList();
+    }
+
+    private List<BrandTalkCarouselItemCommand> mapCarouselItems(
+            List<RegisterBrandTalkTemplateRequest.CarouselItemRequest> items
+    ) {
+        if (items == null) {
+            return List.of();
+        }
+        return items.stream()
+                .map(item -> new BrandTalkCarouselItemCommand(
+                        item.header(), item.content(),
+                        mapButtons(item.buttons()), mapCoupon(item.coupon())
+                ))
+                .toList();
+    }
+
+    private List<BrandTalkCarouselCommerceCommand> mapCarouselCommerces(
+            List<RegisterBrandTalkTemplateRequest.CarouselCommerceRequest> commerces
+    ) {
+        if (commerces == null) {
+            return List.of();
+        }
+        return commerces.stream()
+                .map(c -> new BrandTalkCarouselCommerceCommand(
+                        c.title(), c.regularPrice(),
+                        c.discountPrice(), c.discountRate(), c.discountFixed()
+                ))
+                .toList();
+    }
+
+    private BrandTalkCarouselTailCommand mapCarouselTail(RegisterBrandTalkTemplateRequest.CarouselTailRequest tail) {
+        if (tail == null) {
+            return null;
+        }
+        return new BrandTalkCarouselTailCommand(tail.linkM());
+    }
+
+    private List<byte[]> mapCarouselItemImageFiles(List<MultipartFile> files) throws IOException {
+        if (files == null) {
+            return List.of();
+        }
+        List<byte[]> result = new ArrayList<>();
+        for (MultipartFile file : files) {
+            result.add(file.getBytes());
+        }
+        return result;
+    }
+
+    private List<String> mapCarouselItemImageFileNames(List<MultipartFile> files) {
+        if (files == null) {
+            return List.of();
+        }
+        return files.stream().map(MultipartFile::getOriginalFilename).toList();
     }
 }

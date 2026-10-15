@@ -34,6 +34,10 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                         .templateHeader(entity.getTemplateHeader())
                         .mainWideItem(deserializeWideItem(entity.getMainWideItemJson(), objectMapper))
                         .subWideItems(deserializeWideItems(entity.getSubWideItemsJson(), objectMapper))
+                        .carouselHeader(entity.getCarouselHeader())
+                        .carouselItems(deserializeCarouselItems(entity.getCarouselItemsJson(), objectMapper))
+                        .carouselCommerces(deserializeCarouselCommerces(entity.getCarouselCommercesJson(), objectMapper))
+                        .carouselTail(deserializeCarouselTail(entity.getCarouselTailJson(), objectMapper))
                         .status(entity.getStatus())
                         .createdAt(entity.getCreatedAt())
                         .modifiedAt(entity.getModifiedAt())
@@ -99,9 +103,84 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         }
     }
 
+    private static List<BrandTalkCarouselItem> deserializeCarouselItems(String json, ObjectMapper objectMapper) {
+        if (FormatValidator.hasNoValue(json)) {
+            return List.of();
+        }
+        try {
+            List<CarouselItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
+            return dtos.stream()
+                    .map(dto -> {
+                        List<BrandTalkButton> itemButtons = dto.buttons() != null
+                                ? dto.buttons().stream()
+                                .map(b -> BrandTalkButton.of(
+                                        b.name(), AligoTemplateButtonLinkType.from(b.linkType()),
+                                        b.linkM(), b.linkP(), b.linkI(), b.linkA()
+                                ))
+                                .toList()
+                                : List.of();
+                        BrandTalkCoupon itemCoupon = dto.coupon() != null
+                                ? BrandTalkCoupon.of(
+                                dto.coupon().title(), dto.coupon().description(),
+                                dto.coupon().linkM(), dto.coupon().linkP(),
+                                dto.coupon().linkI(), dto.coupon().linkA()
+                        )
+                                : null;
+                        return BrandTalkCarouselItem.of(
+                                dto.header(), dto.content(), dto.imageUrl(),
+                                itemButtons, itemCoupon
+                        );
+                    })
+                    .toList();
+        } catch (JsonProcessingException e) {
+            return List.of();
+        }
+    }
+
+    private static List<BrandTalkCarouselCommerce> deserializeCarouselCommerces(String json, ObjectMapper objectMapper) {
+        if (FormatValidator.hasNoValue(json)) {
+            return List.of();
+        }
+        try {
+            List<CarouselCommerceDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
+            return dtos.stream()
+                    .map(dto -> BrandTalkCarouselCommerce.of(
+                            dto.title(), dto.regularPrice(),
+                            dto.discountPrice(), dto.discountRate(), dto.discountFixed()
+                    ))
+                    .toList();
+        } catch (JsonProcessingException e) {
+            return List.of();
+        }
+    }
+
+    private static BrandTalkCarouselTail deserializeCarouselTail(String json, ObjectMapper objectMapper) {
+        if (FormatValidator.hasNoValue(json)) {
+            return null;
+        }
+        try {
+            CarouselTailDto dto = objectMapper.readValue(json, CarouselTailDto.class);
+            return BrandTalkCarouselTail.of(dto.linkM());
+        } catch (JsonProcessingException e) {
+            return null;
+        }
+    }
+
     private record ButtonDto(String name, String linkType, String linkM, String linkP, String linkI, String linkA) {}
 
     private record CouponDto(String title, String description, String linkM, String linkP, String linkI, String linkA) {}
 
     private record WideItemDto(String title, String imageUrl, String linkM, String linkP, String linkI, String linkA) {}
+
+    private record CarouselItemDto(
+            String header, String content, String imageUrl,
+            List<ButtonDto> buttons, CouponDto coupon
+    ) {}
+
+    private record CarouselCommerceDto(
+            String title, String regularPrice, String discountPrice,
+            String discountRate, String discountFixed
+    ) {}
+
+    private record CarouselTailDto(String linkM) {}
 }

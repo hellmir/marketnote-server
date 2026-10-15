@@ -33,6 +33,14 @@ public enum BrandTalkTemplateType {
         return this == WIDE_ITEM_LIST;
     }
 
+    public boolean isCarouselCommerce() {
+        return this == CAROUSEL_COMMERCE;
+    }
+
+    public boolean isCommerce() {
+        return this == COMMERCE;
+    }
+
     public static BrandTalkTemplateType from(String code) {
         for (BrandTalkTemplateType type : values()) {
             if (type.name().equals(code)) {
