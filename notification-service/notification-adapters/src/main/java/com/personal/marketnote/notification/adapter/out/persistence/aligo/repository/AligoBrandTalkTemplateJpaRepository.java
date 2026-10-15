@@ -3,9 +3,12 @@ package com.personal.marketnote.notification.adapter.out.persistence.aligo.repos
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoBrandTalkTemplateJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AligoBrandTalkTemplateJpaRepository extends JpaRepository<AligoBrandTalkTemplateJpaEntity, Long> {
 
     Optional<AligoBrandTalkTemplateJpaEntity> findByTemplateCode(String templateCode);
+
+    List<AligoBrandTalkTemplateJpaEntity> findAllBySenderKey(String senderKey);
 }

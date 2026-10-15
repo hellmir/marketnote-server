@@ -41,6 +41,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                         .videoUrl(entity.getVideoUrl())
                         .videoThumbnailUrl(entity.getVideoThumbnailUrl())
                         .commerceInfo(deserializeCommerceInfo(entity.getCommerceInfoJson(), objectMapper))
+                        .templateStatus(entity.getTemplateStatus())
                         .status(entity.getStatus())
                         .createdAt(entity.getCreatedAt())
                         .modifiedAt(entity.getModifiedAt())

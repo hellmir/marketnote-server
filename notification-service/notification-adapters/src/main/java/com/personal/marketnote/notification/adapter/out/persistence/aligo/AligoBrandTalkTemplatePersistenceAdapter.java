@@ -6,8 +6,10 @@ import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoBrandTalkTemplateJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.repository.AligoBrandTalkTemplateJpaRepository;
 import com.personal.marketnote.notification.domain.aligo.*;
+import com.personal.marketnote.notification.port.out.aligo.FindBrandTalkTemplateListPort;
 import com.personal.marketnote.notification.port.out.aligo.FindBrandTalkTemplatePort;
 import com.personal.marketnote.notification.port.out.aligo.SaveBrandTalkTemplatePort;
+import com.personal.marketnote.notification.port.out.aligo.UpdateBrandTalkTemplatePort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.LinkedHashMap;
@@ -17,7 +19,9 @@ import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTemplatePort, FindBrandTalkTemplatePort {
+public class AligoBrandTalkTemplatePersistenceAdapter
+        implements SaveBrandTalkTemplatePort, FindBrandTalkTemplatePort,
+        FindBrandTalkTemplateListPort, UpdateBrandTalkTemplatePort {
 
     private final AligoBrandTalkTemplateJpaRepository repository;
     private final ObjectMapper objectMapper;
@@ -41,7 +45,8 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
                 template.getTemplateHeader(), mainWideItemJson, subWideItemsJson,
                 template.getCarouselHeader(), carouselItemsJson,
                 carouselCommercesJson, carouselTailJson,
-                template.getVideoUrl(), template.getVideoThumbnailUrl(), commerceInfoJson
+                template.getVideoUrl(), template.getVideoThumbnailUrl(), commerceInfoJson,
+                template.getTemplateStatus()
         );
 
         AligoBrandTalkTemplateJpaEntity saved = repository.save(entity);
@@ -52,6 +57,19 @@ public class AligoBrandTalkTemplatePersistenceAdapter implements SaveBrandTalkTe
     public Optional<AligoBrandTalkTemplate> findByTemplateCode(String templateCode) {
         return repository.findByTemplateCode(templateCode)
                 .map(entity -> AligoBrandTalkTemplateJpaEntityToDomainMapper.mapToDomain(entity, objectMapper));
+    }
+
+    @Override
+    public List<AligoBrandTalkTemplate> findAllBySenderKey(String senderKey) {
+        return repository.findAllBySenderKey(senderKey).stream()
+                .map(entity -> AligoBrandTalkTemplateJpaEntityToDomainMapper.mapToDomain(entity, objectMapper))
+                .toList();
+    }
+
+    @Override
+    public void update(AligoBrandTalkTemplate template) {
+        repository.findByTemplateCode(template.getTemplateCode())
+                .ifPresent(entity -> entity.updateTemplateStatus(template.getTemplateStatus()));
     }
 
     private String serializeButtons(List<BrandTalkButton> buttons) {

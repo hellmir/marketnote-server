@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.persistence.aligo.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
+import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateStatus;
 import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -70,6 +71,10 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
     @Column(columnDefinition = "TEXT")
     private String commerceInfoJson;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private BrandTalkTemplateStatus templateStatus;
+
     public static AligoBrandTalkTemplateJpaEntity create(
             String senderKey, String templateCode, String templateName,
             BrandTalkTemplateType templateType, String templateContent,
@@ -78,7 +83,8 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
             String templateHeader, String mainWideItemJson, String subWideItemsJson,
             String carouselHeader, String carouselItemsJson,
             String carouselCommercesJson, String carouselTailJson,
-            String videoUrl, String videoThumbnailUrl, String commerceInfoJson
+            String videoUrl, String videoThumbnailUrl, String commerceInfoJson,
+            BrandTalkTemplateStatus templateStatus
     ) {
         AligoBrandTalkTemplateJpaEntity entity = new AligoBrandTalkTemplateJpaEntity();
         entity.senderKey = senderKey;
@@ -101,6 +107,11 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
         entity.videoUrl = videoUrl;
         entity.videoThumbnailUrl = videoThumbnailUrl;
         entity.commerceInfoJson = commerceInfoJson;
+        entity.templateStatus = templateStatus;
         return entity;
+    }
+
+    public void updateTemplateStatus(BrandTalkTemplateStatus templateStatus) {
+        this.templateStatus = templateStatus;
     }
 }
