@@ -18,6 +18,7 @@ public class UserRequestToCommandMapper {
                 .nickname(signUpRequest.getNickname())
                 .fullName(signUpRequest.getFullName())
                 .phoneNumber(signUpRequest.getPhoneNumber())
+                .fingerprint(signUpRequest.getFingerprint())
                 .build();
     }
 
