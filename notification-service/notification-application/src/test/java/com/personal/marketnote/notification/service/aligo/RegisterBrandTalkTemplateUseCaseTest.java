@@ -282,4 +282,84 @@ class RegisterBrandTalkTemplateUseCaseTest {
         verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(null), eq(null), eq(List.of()), eq(List.of()));
         verify(saveBrandTalkTemplatePort).save(any());
     }
+
+    @Test
+    @DisplayName("PREMIUM_VIDEO 타입 브랜드메시지 템플릿을 정상 등록한다")
+    void shouldRegisterPremiumVideoTemplate() {
+        // given
+        RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
+                "sender-key", "BT_PV_001", "프리미엄 동영상", "PREMIUM_VIDEO",
+                "동영상 내용", false, null, List.of(), null, null, null, List.of(),
+                null, List.of(), List.of(), null,
+                "https://tv.kakao.com/v/12345", null, null,
+                null, null, List.of(), List.of()
+        );
+
+        when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
+                .thenAnswer(invocation -> {
+                    AligoBrandTalkTemplate template = invocation.getArgument(0);
+                    return AligoBrandTalkTemplate.from(
+                            com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateSnapshotState.builder()
+                                    .id(20L)
+                                    .senderKey(template.getSenderKey())
+                                    .templateCode(template.getTemplateCode())
+                                    .templateName(template.getTemplateName())
+                                    .templateType(template.getTemplateType())
+                                    .templateContent(template.getTemplateContent())
+                                    .buttons(List.of())
+                                    .videoUrl(template.getVideoUrl())
+                                    .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                                    .build()
+                    );
+                });
+
+        // when
+        RegisterBrandTalkTemplateResult result = registerBrandTalkTemplateService.registerTemplate(command);
+
+        // then
+        assertThat(result.id()).isEqualTo(20L);
+        assertThat(result.templateType()).isEqualTo("PREMIUM_VIDEO");
+        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(null), eq(null), eq(List.of()), eq(List.of()));
+    }
+
+    @Test
+    @DisplayName("COMMERCE 타입 브랜드메시지 템플릿을 정상 등록한다")
+    void shouldRegisterCommerceTemplate() {
+        // given
+        BrandTalkCommerceInfoCommand commerceInfo = new BrandTalkCommerceInfoCommand("상품", "10000", "8000", "20", null);
+        byte[] imageFile = new byte[]{7, 8, 9};
+        RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
+                "sender-key", "BT_CM_001", "커머스", "COMMERCE",
+                "커머스 내용", false, "https://example.com", List.of(), null, null, null, List.of(),
+                null, List.of(), List.of(), null,
+                null, null, commerceInfo,
+                imageFile, "commerce.jpg", List.of(), List.of()
+        );
+
+        when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
+                .thenAnswer(invocation -> {
+                    AligoBrandTalkTemplate template = invocation.getArgument(0);
+                    return AligoBrandTalkTemplate.from(
+                            com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateSnapshotState.builder()
+                                    .id(21L)
+                                    .senderKey(template.getSenderKey())
+                                    .templateCode(template.getTemplateCode())
+                                    .templateName(template.getTemplateName())
+                                    .templateType(template.getTemplateType())
+                                    .templateContent(template.getTemplateContent())
+                                    .buttons(List.of())
+                                    .commerceInfo(template.getCommerceInfo())
+                                    .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                                    .build()
+                    );
+                });
+
+        // when
+        RegisterBrandTalkTemplateResult result = registerBrandTalkTemplateService.registerTemplate(command);
+
+        // then
+        assertThat(result.id()).isEqualTo(21L);
+        assertThat(result.templateType()).isEqualTo("COMMERCE");
+        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(imageFile), eq("commerce.jpg"), eq(List.of()), eq(List.of()));
+    }
 }
