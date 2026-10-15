@@ -116,4 +116,113 @@ class AligoBrandTalkTemplateTest {
         assertThat(template.getTemplateCode()).isEqualTo("BT_TEXT_001");
         assertThat(template.isActive()).isTrue();
     }
+
+    private BrandTalkButton createTestButton() {
+        return BrandTalkButton.of("버튼", AligoTemplateButtonLinkType.WL, "https://m.ex.com", "https://www.ex.com", null, null);
+    }
+
+    private List<BrandTalkCarouselItem> createCarouselItems(int count) {
+        return java.util.stream.IntStream.rangeClosed(1, count)
+                .mapToObj(i -> BrandTalkCarouselItem.of("제목" + i, "내용" + i, null, List.of(createTestButton()), null))
+                .toList();
+    }
+
+    @Test
+    @DisplayName("CAROUSEL_FEED carousel_header 최대 20자 초과 시 예외가 발생한다")
+    void shouldThrowExceptionWhenCarouselHeaderExceedsMaxLength() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_CF_001")
+                .templateName("캐러셀 피드")
+                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+                .templateContent("내용")
+                .carouselHeader("가나다라마바사아자차카타파하가나다라마바사")
+                .carouselItems(createCarouselItems(3))
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
+                .isInstanceOf(InvalidBrandTalkTemplateException.class)
+                .hasMessageContaining("carouselHeader");
+    }
+
+    @Test
+    @DisplayName("CAROUSEL_FEED 인트로(header) 사용 시 carouselItems 최대 5개 검증한다")
+    void shouldValidateMaxCarouselItemsWithIntro() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_CF_002")
+                .templateName("캐러셀 피드")
+                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+                .templateContent("내용")
+                .carouselHeader("인트로 헤더")
+                .carouselItems(createCarouselItems(6))
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
+                .isInstanceOf(InvalidBrandTalkTemplateException.class)
+                .hasMessageContaining("인트로 사용 시");
+    }
+
+    @Test
+    @DisplayName("CAROUSEL_FEED 인트로 미사용 시 carouselItems 최대 6개 허용한다")
+    void shouldAllowMaxSixCarouselItemsWithoutIntro() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_CF_003")
+                .templateName("캐러셀 피드")
+                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+                .templateContent("내용")
+                .carouselItems(createCarouselItems(6))
+                .build();
+
+        // when
+        AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
+
+        // then
+        assertThat(template.getCarouselItems()).hasSize(6);
+        assertThat(template.isCarousel()).isTrue();
+    }
+
+    @Test
+    @DisplayName("CAROUSEL_FEED carouselItems 0개 시 예외가 발생한다")
+    void shouldThrowExceptionWhenCarouselItemsEmpty() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_CF_004")
+                .templateName("캐러셀 피드")
+                .templateType(BrandTalkTemplateType.CAROUSEL_FEED)
+                .templateContent("내용")
+                .carouselItems(List.of())
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
+                .isInstanceOf(InvalidBrandTalkTemplateException.class)
+                .hasMessageContaining("carouselItems가 필수");
+    }
+
+    @Test
+    @DisplayName("CAROUSEL_COMMERCE carousel_list_commerce 누락 시 예외가 발생한다")
+    void shouldThrowExceptionWhenCarouselCommercesMissing() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_CC_001")
+                .templateName("캐러셀 커머스")
+                .templateType(BrandTalkTemplateType.CAROUSEL_COMMERCE)
+                .templateContent("내용")
+                .carouselItems(createCarouselItems(3))
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
+                .isInstanceOf(InvalidBrandTalkTemplateException.class)
+                .hasMessageContaining("carouselCommerces가 필수");
+    }
 }
