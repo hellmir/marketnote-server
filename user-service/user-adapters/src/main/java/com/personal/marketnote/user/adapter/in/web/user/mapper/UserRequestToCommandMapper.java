@@ -23,7 +23,7 @@ public class UserRequestToCommandMapper {
     }
 
     public static SignInCommand mapToCommand(SignInRequest signInRequest) {
-        return SignInCommand.of(signInRequest.getEmail(), signInRequest.getPassword());
+        return SignInCommand.of(signInRequest.getEmail(), signInRequest.getPassword(), signInRequest.getFingerprint());
     }
 
     public static UpdateUserInfoCommand mapToCommand(UpdateUserInfoRequest updateUserInfoRequest) {

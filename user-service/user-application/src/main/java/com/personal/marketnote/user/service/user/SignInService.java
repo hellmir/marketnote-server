@@ -7,7 +7,9 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.exception.UserNotActiveException;
+import com.personal.marketnote.user.domain.user.FingerprintSource;
 import com.personal.marketnote.user.port.in.command.SignInCommand;
+import com.personal.marketnote.user.port.in.event.UserFingerprintSavedEvent;
 import com.personal.marketnote.user.port.in.result.SignInResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
 import com.personal.marketnote.user.port.in.usecase.user.SignInUseCase;
@@ -17,6 +19,7 @@ import com.personal.marketnote.user.port.out.user.SaveLoginHistoryPort;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,7 @@ public class SignInService implements SignInUseCase {
     private final SaveLoginHistoryPort saveLoginHistoryPort;
     private final GenerateTokenPort generateTokenPort;
     private final SaveRefreshTokenPort saveRefreshTokenPort;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Value("${spring.jwt.refresh-token.ttl:1209600000}")
     private long refreshTokenTtlMillis;
@@ -53,6 +57,7 @@ public class SignInService implements SignInUseCase {
                 LoginHistory.of(signedUpUser, authVendor, ipAddress)
         );
 
+        publishFingerprintEvent(signedUpUser.getId(), signInCommand.getFingerprint());
         return generateTokensAndBuildResult(signedUpUser, authVendor);
     }
 
@@ -96,5 +101,15 @@ public class SignInService implements SignInUseCase {
         if (!user.isValidPassword(passwordEncoder, password)) {
             throw new LoginFailedException(String.format(LOGIN_FAILED_EXCEPTION_MESSAGE, FIRST_ERROR_CODE));
         }
+    }
+
+    private void publishFingerprintEvent(Long userId, String fingerprint) {
+        if (FormatValidator.hasNoValue(fingerprint)) {
+            return;
+        }
+
+        applicationEventPublisher.publishEvent(
+                new UserFingerprintSavedEvent(userId, fingerprint, FingerprintSource.LOGIN)
+        );
     }
 }
