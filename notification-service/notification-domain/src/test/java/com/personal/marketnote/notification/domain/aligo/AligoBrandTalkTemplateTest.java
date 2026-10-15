@@ -225,4 +225,83 @@ class AligoBrandTalkTemplateTest {
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("carouselCommerces가 필수");
     }
+
+    @Test
+    @DisplayName("PREMIUM_VIDEO videoUrl 누락 시 예외가 발생한다")
+    void shouldThrowExceptionWhenPremiumVideoUrlMissing() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_PV_001")
+                .templateName("프리미엄 동영상")
+                .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
+                .templateContent("내용")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
+                .isInstanceOf(InvalidBrandTalkTemplateException.class)
+                .hasMessageContaining("videoUrl이 필수");
+    }
+
+    @Test
+    @DisplayName("PREMIUM_VIDEO videoUrl 포함 시 정상 생성된다")
+    void shouldCreatePremiumVideoTemplate() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_PV_002")
+                .templateName("프리미엄 동영상")
+                .templateType(BrandTalkTemplateType.PREMIUM_VIDEO)
+                .templateContent("내용")
+                .videoUrl("https://tv.kakao.com/v/12345")
+                .build();
+
+        // when
+        AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
+
+        // then
+        assertThat(template.isPremiumVideo()).isTrue();
+        assertThat(template.getVideoUrl()).isEqualTo("https://tv.kakao.com/v/12345");
+    }
+
+    @Test
+    @DisplayName("COMMERCE commerceInfo 누락 시 예외가 발생한다")
+    void shouldThrowExceptionWhenCommerceInfoMissing() {
+        // given
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_CM_001")
+                .templateName("커머스")
+                .templateType(BrandTalkTemplateType.COMMERCE)
+                .templateContent("내용")
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> AligoBrandTalkTemplate.from(state))
+                .isInstanceOf(InvalidBrandTalkTemplateException.class)
+                .hasMessageContaining("commerceInfo가 필수");
+    }
+
+    @Test
+    @DisplayName("COMMERCE 정상 생성된다")
+    void shouldCreateCommerceTemplate() {
+        // given
+        BrandTalkCommerceInfo commerceInfo = BrandTalkCommerceInfo.of("상품명", "10000", "8000", "20", null);
+        AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
+                .senderKey("sender")
+                .templateCode("BT_CM_002")
+                .templateName("커머스")
+                .templateType(BrandTalkTemplateType.COMMERCE)
+                .templateContent("내용")
+                .commerceInfo(commerceInfo)
+                .build();
+
+        // when
+        AligoBrandTalkTemplate template = AligoBrandTalkTemplate.from(state);
+
+        // then
+        assertThat(template.requiresImage()).isTrue();
+        assertThat(template.getCommerceInfo().getTitle()).isEqualTo("상품명");
+    }
 }
