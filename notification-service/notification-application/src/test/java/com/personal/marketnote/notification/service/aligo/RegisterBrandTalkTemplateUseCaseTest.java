@@ -2,8 +2,7 @@ package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplate;
 import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateType;
-import com.personal.marketnote.notification.port.in.command.BrandTalkButtonCommand;
-import com.personal.marketnote.notification.port.in.command.RegisterBrandTalkTemplateCommand;
+import com.personal.marketnote.notification.port.in.command.*;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
 import com.personal.marketnote.notification.port.out.aligo.RegisterBrandTalkTemplateExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.SaveBrandTalkTemplatePort;
@@ -172,5 +171,109 @@ class RegisterBrandTalkTemplateUseCaseTest {
         assertThatThrownBy(() -> registerBrandTalkTemplateService.registerTemplate(command))
                 .isInstanceOf(RuntimeException.class);
         verifyNoInteractions(saveBrandTalkTemplatePort);
+    }
+
+    @Test
+    @DisplayName("CAROUSEL_FEED 타입 브랜드메시지 템플릿을 정상 등록한다")
+    void shouldRegisterCarouselFeedTemplate() {
+        // given
+        List<BrandTalkCarouselItemCommand> carouselItems = List.of(
+                new BrandTalkCarouselItemCommand(
+                        "피드1", "내용1",
+                        List.of(new BrandTalkButtonCommand("버튼", "WL", "https://m.ex.com", "https://www.ex.com", null, null)),
+                        null
+                ),
+                new BrandTalkCarouselItemCommand(
+                        "피드2", "내용2",
+                        List.of(new BrandTalkButtonCommand("버튼", "WL", "https://m.ex.com", "https://www.ex.com", null, null)),
+                        null
+                )
+        );
+
+        RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
+                "sender-key", "BT_CF_001", "캐러셀 피드", "CAROUSEL_FEED",
+                "캐러셀 내용", false, null, List.of(), null, null, null, List.of(),
+                "인트로 헤더", carouselItems, List.of(), null,
+                null, null, List.of(), List.of()
+        );
+
+        when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
+                .thenAnswer(invocation -> {
+                    AligoBrandTalkTemplate template = invocation.getArgument(0);
+                    return AligoBrandTalkTemplate.from(
+                            com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateSnapshotState.builder()
+                                    .id(10L)
+                                    .senderKey(template.getSenderKey())
+                                    .templateCode(template.getTemplateCode())
+                                    .templateName(template.getTemplateName())
+                                    .templateType(template.getTemplateType())
+                                    .templateContent(template.getTemplateContent())
+                                    .buttons(List.of())
+                                    .carouselItems(template.getCarouselItems())
+                                    .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                                    .build()
+                    );
+                });
+
+        // when
+        RegisterBrandTalkTemplateResult result = registerBrandTalkTemplateService.registerTemplate(command);
+
+        // then
+        assertThat(result.id()).isEqualTo(10L);
+        assertThat(result.templateType()).isEqualTo("CAROUSEL_FEED");
+        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(null), eq(null), eq(List.of()), eq(List.of()));
+        verify(saveBrandTalkTemplatePort).save(any());
+    }
+
+    @Test
+    @DisplayName("CAROUSEL_COMMERCE 타입 브랜드메시지 템플릿을 정상 등록한다")
+    void shouldRegisterCarouselCommerceTemplate() {
+        // given
+        List<BrandTalkCarouselItemCommand> carouselItems = List.of(
+                new BrandTalkCarouselItemCommand(
+                        "피드1", "내용1",
+                        List.of(new BrandTalkButtonCommand("버튼", "WL", "https://m.ex.com", "https://www.ex.com", null, null)),
+                        null
+                )
+        );
+        List<BrandTalkCarouselCommerceCommand> carouselCommerces = List.of(
+                new BrandTalkCarouselCommerceCommand("상품1", "10000", "8000", "20", null)
+        );
+
+        RegisterBrandTalkTemplateCommand command = new RegisterBrandTalkTemplateCommand(
+                "sender-key", "BT_CC_001", "캐러셀 커머스", "CAROUSEL_COMMERCE",
+                "캐러셀 커머스 내용", false, null, List.of(), null, null, null, List.of(),
+                null, carouselItems, carouselCommerces, new BrandTalkCarouselTailCommand("https://m.ex.com/more"),
+                null, null, List.of(), List.of()
+        );
+
+        when(saveBrandTalkTemplatePort.save(any(AligoBrandTalkTemplate.class)))
+                .thenAnswer(invocation -> {
+                    AligoBrandTalkTemplate template = invocation.getArgument(0);
+                    return AligoBrandTalkTemplate.from(
+                            com.personal.marketnote.notification.domain.aligo.AligoBrandTalkTemplateSnapshotState.builder()
+                                    .id(11L)
+                                    .senderKey(template.getSenderKey())
+                                    .templateCode(template.getTemplateCode())
+                                    .templateName(template.getTemplateName())
+                                    .templateType(template.getTemplateType())
+                                    .templateContent(template.getTemplateContent())
+                                    .buttons(List.of())
+                                    .carouselItems(template.getCarouselItems())
+                                    .carouselCommerces(template.getCarouselCommerces())
+                                    .carouselTail(template.getCarouselTail())
+                                    .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                                    .build()
+                    );
+                });
+
+        // when
+        RegisterBrandTalkTemplateResult result = registerBrandTalkTemplateService.registerTemplate(command);
+
+        // then
+        assertThat(result.id()).isEqualTo(11L);
+        assertThat(result.templateType()).isEqualTo("CAROUSEL_COMMERCE");
+        verify(registerBrandTalkTemplateExternalPort).registerTemplate(any(), eq(null), eq(null), eq(List.of()), eq(List.of()));
+        verify(saveBrandTalkTemplatePort).save(any());
     }
 }
