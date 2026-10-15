@@ -58,7 +58,7 @@ class ReviewDeletedReadModelConsumerTest {
     @DisplayName("정상 이벤트 수신 시 Read Model을 upsert한다")
     void handleReviewDeletedEvent_validEvent_upsertsReadModel() {
         // given
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, 50L, 9, 4.2f);
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, 50L, 9, 4.2f, 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -90,7 +90,7 @@ class ReviewDeletedReadModelConsumerTest {
     @DisplayName("이벤트 타입이 불일치하면 즉시 acknowledge한다")
     void handleReviewDeletedEvent_eventTypeMismatch_acknowledges() {
         // given
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, 50L, 9, 4.2f);
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, 50L, 9, 4.2f, 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
                 "wrong.event.type",
@@ -112,7 +112,7 @@ class ReviewDeletedReadModelConsumerTest {
     @DisplayName("reviewId가 유효하지 않으면 즉시 acknowledge한다")
     void handleReviewDeletedEvent_invalidReviewId_acknowledges() {
         // given
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(-1L, 50L, 9, 4.2f);
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(-1L, 50L, 9, 4.2f, 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -128,7 +128,7 @@ class ReviewDeletedReadModelConsumerTest {
     @DisplayName("productId가 유효하지 않으면 즉시 acknowledge한다")
     void handleReviewDeletedEvent_invalidProductId_acknowledges() {
         // given
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, 0L, 9, 4.2f);
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, 0L, 9, 4.2f, 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -144,7 +144,7 @@ class ReviewDeletedReadModelConsumerTest {
     @DisplayName("reviewId가 null이면 즉시 acknowledge한다")
     void handleReviewDeletedEvent_nullReviewId_acknowledges() {
         // given
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(null, 50L, 9, 4.2f);
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(null, 50L, 9, 4.2f, 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -160,7 +160,7 @@ class ReviewDeletedReadModelConsumerTest {
     @DisplayName("productId가 null이면 즉시 acknowledge한다")
     void handleReviewDeletedEvent_nullProductId_acknowledges() {
         // given
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, null, 9, 4.2f);
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(1L, null, 9, 4.2f, 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
