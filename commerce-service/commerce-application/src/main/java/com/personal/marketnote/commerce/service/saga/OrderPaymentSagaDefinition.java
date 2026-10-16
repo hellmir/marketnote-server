@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,14 +91,20 @@ public class OrderPaymentSagaDefinition implements SagaDefinition<OrderPaymentSa
     }
 
     private String buildPaymentCompletedAction(OrderPaymentSagaContext context) {
-        return serialize(Map.of(
-                "orderId", context.orderId(),
-                "buyerId", context.buyerId(),
-                "totalAmount", context.totalAmount(),
-                "pointAmount", context.pointAmount(),
-                "orderProducts", context.orderProducts(),
-                "totalAccumulatedPoint", context.totalAccumulatedPoint()
-        ));
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("orderId", context.orderId());
+        payload.put("buyerId", context.buyerId());
+        payload.put("totalAmount", context.totalAmount());
+        payload.put("pointAmount", context.pointAmount());
+        payload.put("totalAccumulatedPoint", context.totalAccumulatedPoint());
+        payload.put("recipientName", context.recipientName());
+        payload.put("recipientPhoneNumber", context.recipientPhoneNumber());
+        payload.put("zipCode", context.zipCode());
+        payload.put("address", context.address());
+        payload.put("addressDetail", context.addressDetail());
+        payload.put("deliveryRequestMessage", context.deliveryRequestMessage());
+        payload.put("orderProducts", context.orderProducts());
+        return serialize(payload);
     }
 
     private String serialize(Object value) {

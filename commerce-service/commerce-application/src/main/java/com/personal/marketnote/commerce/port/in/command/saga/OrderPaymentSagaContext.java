@@ -11,10 +11,17 @@ public record OrderPaymentSagaContext(
         Long totalAmount,
         Long pointAmount,
         Long totalAccumulatedPoint,
+        String recipientName,
+        String recipientPhoneNumber,
+        String zipCode,
+        String address,
+        String addressDetail,
+        String deliveryRequestMessage,
         List<OrderProductItem> orderProducts
 ) {
     public record OrderProductItem(
             Long pricePolicyId,
+            Long productId,
             UUID sharerKey,
             Integer quantity,
             Long unitAmount

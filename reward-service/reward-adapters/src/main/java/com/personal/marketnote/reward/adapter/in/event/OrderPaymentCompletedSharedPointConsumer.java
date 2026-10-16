@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "false", matchIfMissing = true)
 @RequiredArgsConstructor
 public class OrderPaymentCompletedSharedPointConsumer {
     private static final String SHARE_PURCHASE_REASON = "링크 공유 회원 상품 구매";

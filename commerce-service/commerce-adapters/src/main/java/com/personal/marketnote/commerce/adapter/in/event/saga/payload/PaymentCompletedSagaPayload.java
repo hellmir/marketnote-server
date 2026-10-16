@@ -8,6 +8,12 @@ public record PaymentCompletedSagaPayload(
         Long totalAmount,
         Long pointAmount,
         Long totalAccumulatedPoint,
+        String recipientName,
+        String recipientPhoneNumber,
+        String zipCode,
+        String address,
+        String addressDetail,
+        String deliveryRequestMessage,
         List<SagaOrderProductItem> orderProducts
 ) {
 }

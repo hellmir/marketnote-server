@@ -1,7 +1,8 @@
 package com.personal.marketnote.commerce.adapter.in.event.saga;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
+import com.personal.marketnote.commerce.adapter.in.event.saga.payload.PaymentCompletedSagaPayload;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentCompletedSagaContext;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
@@ -22,8 +23,11 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("OrderPaymentCompletedSagaConsumer 테스트")
@@ -40,10 +44,10 @@ class OrderPaymentCompletedSagaConsumerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
-    private PublishOrderEventPort publishOrderEventPort;
+    private SagaResponsePublisher sagaResponsePublisher;
 
     @Mock
-    private SagaResponsePublisher sagaResponsePublisher;
+    private OrderPaymentCompletedSagaActionDispatcher actionDispatcher;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -62,6 +66,7 @@ class OrderPaymentCompletedSagaConsumerTest {
                         "orderProducts", List.of(
                                 java.util.Map.of(
                                         "pricePolicyId", 10L,
+                                        "productId", 1000L,
                                         "quantity", 2,
                                         "unitAmount", 25000L
                                 )
@@ -75,40 +80,38 @@ class OrderPaymentCompletedSagaConsumerTest {
     class ActionHandling {
 
         @Test
-        @DisplayName("결제 완료 이벤트 발행 성공 시 성공 응답을 발행한다")
-        void shouldPublishSuccessOnEventPublish() {
-            // given
+        @DisplayName("디스패처 성공 시 성공 응답을 발행한다")
+        void shouldPublishSuccessOnDispatch() {
             SagaStepMessage stepMessage = new SagaStepMessage(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            // when
             consumer.handlePaymentCompletedStep(record, acknowledgment);
 
-            // then
-            verify(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                    eq(1L), eq(100L), eq(60000L), eq(10000L), any(), anyList(), eq(500L));
+            verify(actionDispatcher).dispatch(
+                    any(PaymentCompletedSagaPayload.class), anyList(),
+                    any(OrderPaymentCompletedSagaContext.class)
+            );
             verify(sagaResponsePublisher).publishSuccess(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
         }
 
         @Test
-        @DisplayName("이벤트 발행 실패 시 실패 응답을 발행한다")
-        void shouldPublishFailureOnEventPublishError() {
-            // given
+        @DisplayName("디스패처 실패 시 실패 응답을 발행한다")
+        void shouldPublishFailureOnDispatchError() {
             SagaStepMessage stepMessage = new SagaStepMessage(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
             doThrow(new RuntimeException("이벤트 발행 실패"))
-                    .when(publishOrderEventPort).publishOrderPaymentCompletedEvent(
-                            anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
+                    .when(actionDispatcher).dispatch(
+                            any(PaymentCompletedSagaPayload.class), anyList(),
+                            any(OrderPaymentCompletedSagaContext.class)
+                    );
 
-            // when
             consumer.handlePaymentCompletedStep(record, acknowledgment);
 
-            // then
             verify(sagaResponsePublisher).publishFailure(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "결제 완료 이벤트 발행 실패");
             verify(acknowledgment).acknowledge();
@@ -122,30 +125,26 @@ class OrderPaymentCompletedSagaConsumerTest {
         @Test
         @DisplayName("보상 메시지 수신 시 경고 로그만 출력하고 처리하지 않는다")
         void shouldLogWarningOnCompensationMessage() {
-            // given
             SagaStepMessage stepMessage = new SagaStepMessage(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, "{}");
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            // when
             consumer.handlePaymentCompletedStep(record, acknowledgment);
 
-            // then
-            verifyNoInteractions(publishOrderEventPort);
+            verifyNoInteractions(actionDispatcher);
             verifyNoInteractions(sagaResponsePublisher);
             verify(acknowledgment).acknowledge();
         }
     }
 
+    @SuppressWarnings("unchecked")
     private ConsumerRecord<String, EventEnvelope<?>> createRecord(SagaStepMessage stepMessage) {
         Clock clock = Clock.fixed(Instant.parse("2026-03-27T01:00:00Z"), ZoneId.of("Asia/Seoul"));
         EventEnvelope<SagaStepMessage> envelope = EventEnvelope.of(
                 "saga.ORDER_PAYMENT.PUBLISH_PAYMENT_COMPLETED.action", "saga-orchestrator", stepMessage, clock);
-
-        @SuppressWarnings("unchecked")
-        ConsumerRecord<String, EventEnvelope<?>> record =
-                new ConsumerRecord<>("saga.order-payment.completed", 0, 0, SAGA_ID,
-                        (EventEnvelope<?>) (EventEnvelope) envelope);
-        return record;
+        return new ConsumerRecord<>(
+                "saga.order-payment.completed", 0, 0, SAGA_ID,
+                (EventEnvelope<?>) (EventEnvelope) envelope
+        );
     }
 }
