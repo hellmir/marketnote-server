@@ -16,6 +16,7 @@ public final class SagaOrderProductMapper {
                 .map(item -> OrderProduct.from(
                         OrderProductSnapshotState.builder()
                                 .pricePolicyId(item.pricePolicyId())
+                                .productId(item.productId())
                                 .quantity(item.quantity())
                                 .unitAmount(item.unitAmount())
                                 .sharerKey(item.sharerKey())

@@ -23,7 +23,12 @@ public final class DltTopicRegistry {
             KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED,
             KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT,
             KafkaTopicConstants.SAGA_ORDER_CANCEL_REFUND,
-            KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED
+            KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_CART
     );
 
     private DltTopicRegistry() {

@@ -14,12 +14,14 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCa
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "false", matchIfMissing = true)
 @RequiredArgsConstructor
 public class OrderPaymentCompletedOrderPointConsumer {
     private static final String ORDER_POINT_DEDUCTION_REASON = "주문 포인트 사용";

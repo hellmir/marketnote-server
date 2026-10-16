@@ -2,8 +2,9 @@ package com.personal.marketnote.commerce.adapter.in.event.saga;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.adapter.in.event.saga.payload.PaymentCompletedSagaPayload;
+import com.personal.marketnote.commerce.adapter.in.event.saga.payload.SagaOrderProductItem;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
-import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentCompletedSagaContext;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
@@ -27,8 +28,8 @@ import java.util.List;
 public class OrderPaymentCompletedSagaConsumer {
 
     private final ObjectMapper objectMapper;
-    private final PublishOrderEventPort publishOrderEventPort;
     private final SagaResponsePublisher sagaResponsePublisher;
+    private final OrderPaymentCompletedSagaActionDispatcher actionDispatcher;
 
     @KafkaListener(
             topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED,
@@ -75,17 +76,16 @@ public class OrderPaymentCompletedSagaConsumer {
 
             List<OrderProduct> orderProducts = SagaOrderProductMapper.toOrderProducts(payload.orderProducts());
 
-            publishOrderEventPort.publishOrderPaymentCompletedEvent(
-                    payload.orderId(), payload.buyerId(), payload.totalAmount(),
-                    payload.pointAmount(), null, orderProducts, payload.totalAccumulatedPoint()
-            );
+            actionDispatcher.dispatch(payload, orderProducts, toDownstreamContext(payload));
 
             sagaResponsePublisher.publishSuccess(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                     stepMessage.messageType(), "{\"success\":true}"
             );
 
-            log.info("SAGA 결제 완료 이벤트 발행 성공. sagaId={}, orderId={}", stepMessage.sagaId(), payload.orderId());
+            log.info("SAGA 결제 완료 이벤트 발행 + 다운스트림 SAGA 시작 성공. sagaId={}, orderId={}",
+                    stepMessage.sagaId(), payload.orderId()
+            );
         } catch (Exception e) {
             log.error("SAGA 결제 완료 이벤트 발행 실패. sagaId={}, error={}", stepMessage.sagaId(), e.getMessage(), e);
             sagaResponsePublisher.publishFailure(
@@ -100,6 +100,32 @@ public class OrderPaymentCompletedSagaConsumer {
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                 stepMessage.messageType(), "페이로드 검증 실패: " + reason
+        );
+    }
+
+    private OrderPaymentCompletedSagaContext toDownstreamContext(PaymentCompletedSagaPayload payload) {
+        List<OrderPaymentCompletedSagaContext.OrderProductItem> downstreamProducts = payload.orderProducts().stream()
+                .map(this::toDownstreamProduct)
+                .toList();
+        return OrderPaymentCompletedSagaContext.builder()
+                .orderId(payload.orderId())
+                .buyerId(payload.buyerId())
+                .totalAmount(payload.totalAmount())
+                .pointAmount(payload.pointAmount())
+                .totalAccumulatedPoint(payload.totalAccumulatedPoint())
+                .recipientName(payload.recipientName())
+                .recipientPhoneNumber(payload.recipientPhoneNumber())
+                .zipCode(payload.zipCode())
+                .address(payload.address())
+                .addressDetail(payload.addressDetail())
+                .deliveryRequestMessage(payload.deliveryRequestMessage())
+                .orderProducts(downstreamProducts)
+                .build();
+    }
+
+    private OrderPaymentCompletedSagaContext.OrderProductItem toDownstreamProduct(SagaOrderProductItem item) {
+        return new OrderPaymentCompletedSagaContext.OrderProductItem(
+                item.pricePolicyId(), item.productId(), item.sharerKey(), item.quantity(), item.unitAmount()
         );
     }
 }

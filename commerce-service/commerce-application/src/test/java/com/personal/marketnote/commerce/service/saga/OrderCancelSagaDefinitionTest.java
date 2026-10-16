@@ -106,9 +106,9 @@ class OrderCancelSagaDefinitionTest {
         void setUp() {
             List<OrderProductItem> orderProducts = List.of(
                     new OrderProductItem(
-                            10L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L
+                            10L, 1000L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L
                     ),
-                    new OrderProductItem(20L, null, 1, 10000L)
+                    new OrderProductItem(20L, 2000L, null, 1, 10000L)
             );
             context = new OrderCancelSagaContext(
                     1L, "order-key-1", 100L,

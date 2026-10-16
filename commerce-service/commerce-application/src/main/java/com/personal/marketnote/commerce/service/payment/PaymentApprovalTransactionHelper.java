@@ -270,12 +270,13 @@ public class PaymentApprovalTransactionHelper {
 
         List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
                 .map(op -> new OrderPaymentSagaContext.OrderProductItem(
-                        op.getPricePolicyId(), op.getSharerKey(),
+                        op.getPricePolicyId(), op.getProductId(), op.getSharerKey(),
                         op.getQuantity().getValue(), op.getUnitAmount().getValue()
                 ))
                 .toList();
 
         Long pointAmount = order.getAmount().getPointAmount().getValue();
+        ShippingSnapshot shipping = extractShippingSnapshot(order);
 
         OrderPaymentSagaContext sagaContext = new OrderPaymentSagaContext(
                 order.getId(),
@@ -285,10 +286,47 @@ public class PaymentApprovalTransactionHelper {
                 order.getAmount().getTotalAmount().getValue(),
                 pointAmount,
                 totalAccumulatedPoint,
+                shipping.recipientName(),
+                shipping.recipientPhoneNumber(),
+                shipping.zipCode(),
+                shipping.address(),
+                shipping.addressDetail(),
+                shipping.deliveryRequestMessage(),
                 sagaOrderProducts
         );
 
         orderPaymentSagaStarter.get().start(sagaContext);
+    }
+
+    private ShippingSnapshot extractShippingSnapshot(Order order) {
+        com.personal.marketnote.commerce.domain.order.ShippingAddress shippingAddress = order.getShippingAddress();
+        if (FormatValidator.hasNoValue(shippingAddress)) {
+            return new ShippingSnapshot(null, null, null, null, null, null);
+        }
+        return new ShippingSnapshot(
+                FormatValidator.hasValue(shippingAddress.getRecipientName())
+                        ? shippingAddress.getRecipientName().getValue()
+                        : null,
+                FormatValidator.hasValue(shippingAddress.getRecipientPhoneNumber())
+                        ? shippingAddress.getRecipientPhoneNumber().getValue()
+                        : null,
+                shippingAddress.getZipCode(),
+                shippingAddress.getAddress(),
+                shippingAddress.getAddressDetail(),
+                FormatValidator.hasValue(shippingAddress.getDeliveryRequestMessage())
+                        ? shippingAddress.getDeliveryRequestMessage().getValue()
+                        : null
+        );
+    }
+
+    private record ShippingSnapshot(
+            String recipientName,
+            String recipientPhoneNumber,
+            String zipCode,
+            String address,
+            String addressDetail,
+            String deliveryRequestMessage
+    ) {
     }
 
     private Long calculateTotalAccumulatedPoint(List<OrderProduct> orderProducts, List<Long> pricePolicyIds) {

@@ -34,7 +34,7 @@ class OrderCancelSagaStarterTest {
     @Test
     @DisplayName("SAGA를 시작하면 ORDER_CANCEL:{orderId} 형식의 sagaId로 SagaOrchestrator.start가 호출된다")
     void shouldStartSagaWithCorrectSagaId() {
-        List<OrderProductItem> orderProducts = List.of(new OrderProductItem(10L, null, 2, 25000L));
+        List<OrderProductItem> orderProducts = List.of(new OrderProductItem(10L, 1000L, null, 2, 25000L));
         OrderCancelSagaContext context = new OrderCancelSagaContext(
                 1L, "order-key-1", 100L,
                 50000L, 50000L, 0L, 3000L,
@@ -58,8 +58,8 @@ class OrderCancelSagaStarterTest {
     @DisplayName("SAGA를 시작하면 전달받은 컨텍스트가 그대로 전달된다")
     void shouldPassContextToOrchestrator() {
         List<OrderProductItem> orderProducts = List.of(
-                new OrderProductItem(10L, null, 1, 50000L),
-                new OrderProductItem(20L, null, 2, 25000L)
+                new OrderProductItem(10L, 1000L, null, 1, 50000L),
+                new OrderProductItem(20L, 2000L, null, 2, 25000L)
         );
         OrderCancelSagaContext context = new OrderCancelSagaContext(
                 42L, "order-key-42", 200L,

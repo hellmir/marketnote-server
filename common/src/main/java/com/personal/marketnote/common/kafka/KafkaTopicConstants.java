@@ -64,6 +64,13 @@ public final class KafkaTopicConstants {
     public static final String SAGA_ORDER_RETURN_POINT_REFUND = "saga.order-return.point-refund";
     public static final String SAGA_ORDER_RETURN_COMPLETED = "saga.order-return.completed";
 
+    // OrderPaymentCompleted 다운스트림 SAGA 스텝
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT = "saga.order-payment-downstream.fulfillment";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT = "saga.order-payment-downstream.order-point";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT = "saga.order-payment-downstream.shared-point";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT = "saga.order-payment-downstream.product-point";
+    public static final String SAGA_ORDER_PAYMENT_DOWNSTREAM_CART = "saga.order-payment-downstream.cart";
+
     // Inventory 이벤트
     public static final String INVENTORY_CHANGED = "commerce.inventory.changed";
 
@@ -126,6 +133,11 @@ public final class KafkaTopicConstants {
                 SAGA_ORDER_RETURN_INVENTORY,
                 SAGA_ORDER_RETURN_POINT_REFUND,
                 SAGA_ORDER_RETURN_COMPLETED,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_FULFILLMENT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_ORDER_POINT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT,
+                SAGA_ORDER_PAYMENT_DOWNSTREAM_CART,
                 INVENTORY_CHANGED,
                 SHIPPING_POLICY_CHANGED,
                 SHIPPING_STATUS_CHANGED,
