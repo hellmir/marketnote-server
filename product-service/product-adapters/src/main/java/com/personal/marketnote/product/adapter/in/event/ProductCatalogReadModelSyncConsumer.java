@@ -1,0 +1,216 @@
+package com.personal.marketnote.product.adapter.in.event;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.domain.file.FileSort;
+import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
+import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
+import com.personal.marketnote.common.kafka.event.InventoryChangedEvent;
+import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
+import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class ProductCatalogReadModelSyncConsumer {
+
+    private static final String CONSUMER_GROUP_ID = "product-catalog-read-model";
+
+    private final ObjectMapper objectMapper;
+    private final SaveProductCatalogReadModelPort saveProductCatalogReadModelPort;
+
+    @KafkaListener(topics = KafkaTopicConstants.PRODUCT_REGISTERED, groupId = CONSUMER_GROUP_ID)
+    public void handleProductRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_REGISTERED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ProductRegisteredEvent payload = envelope.getPayloadAs(ProductRegisteredEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId()),
+                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.upsertCatalog(
+                payload.pricePolicyId(),
+                payload.productId(),
+                payload.sellerId(),
+                null,
+                payload.productName(),
+                payload.brandName(),
+                FormatValidator.hasValue(payload.price()) ? payload.price() : 0L,
+                FormatValidator.hasValue(payload.discountPrice()) ? payload.discountPrice() : 0L,
+                FormatValidator.hasValue(payload.accumulatedPoint()) ? payload.accumulatedPoint() : 0L,
+                BigDecimal.ZERO,
+                0L,
+                0L
+        );
+
+        log.info("상품 카탈로그 Read Model 저장 (상품 등록). pricePolicyId={}", payload.pricePolicyId());
+        ack.acknowledge();
+    }
+
+    @KafkaListener(topics = KafkaTopicConstants.INVENTORY_CHANGED, groupId = CONSUMER_GROUP_ID)
+    public void handleInventoryChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.INVENTORY_CHANGED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        InventoryChangedEvent payload = envelope.getPayloadAs(InventoryChangedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.updateStockQuantity(payload.pricePolicyId(), payload.stockQuantity());
+        log.info("상품 카탈로그 Read Model 재고 업데이트. pricePolicyId={}, stock={}",
+                payload.pricePolicyId(), payload.stockQuantity());
+        ack.acknowledge();
+    }
+
+    @KafkaListener(topics = KafkaTopicConstants.FILE_IMAGE_CHANGED, groupId = CONSUMER_GROUP_ID)
+    public void handleImageChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.FILE_IMAGE_CHANGED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ImageChangedEvent payload = envelope.getPayloadAs(ImageChangedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("targetId", payload.targetId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (!isProductCatalogRepresentativeImage(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.updateRepresentativeImageUrl(payload.targetId(), payload.imageUrl());
+        log.info("상품 카탈로그 Read Model 대표 이미지 업데이트. productId={}", payload.targetId());
+        ack.acknowledge();
+    }
+
+    @KafkaListener(topics = KafkaTopicConstants.REVIEW_REGISTERED, groupId = CONSUMER_GROUP_ID)
+    public void handleReviewRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_REGISTERED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ReviewRegisteredEvent payload = envelope.getPayloadAs(ReviewRegisteredEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)
+                || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.updateReviewAggregate(
+                payload.productId(), payload.totalCount(), payload.averageRating()
+        );
+        log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (등록). productId={}", payload.productId());
+        ack.acknowledge();
+    }
+
+    @KafkaListener(topics = KafkaTopicConstants.REVIEW_UPDATED, groupId = CONSUMER_GROUP_ID)
+    public void handleReviewUpdated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_UPDATED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ReviewUpdatedEvent payload = envelope.getPayloadAs(ReviewUpdatedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)
+                || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.updateReviewAggregate(
+                payload.productId(), payload.totalCount(), payload.averageRating()
+        );
+        log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (수정). productId={}", payload.productId());
+        ack.acknowledge();
+    }
+
+    @KafkaListener(topics = KafkaTopicConstants.REVIEW_DELETED, groupId = CONSUMER_GROUP_ID)
+    public void handleReviewDeleted(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.REVIEW_DELETED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ReviewDeletedEvent payload = envelope.getPayloadAs(ReviewDeletedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)
+                || hasInvalidReviewAggregate(payload.productId(), payload.totalCount(), payload.averageRating())) {
+            ack.acknowledge();
+            return;
+        }
+
+        saveProductCatalogReadModelPort.updateReviewAggregate(
+                payload.productId(), payload.totalCount(), payload.averageRating()
+        );
+        log.info("상품 카탈로그 Read Model 리뷰 집계 업데이트 (삭제). productId={}", payload.productId());
+        ack.acknowledge();
+    }
+
+    private boolean isProductCatalogRepresentativeImage(ImageChangedEvent payload) {
+        return FormatValidator.hasValue(payload.fileSort())
+                && FileSort.PRODUCT_CATALOG_IMAGE.name().equals(payload.fileSort())
+                && FormatValidator.hasValue(payload.sortOrder())
+                && payload.sortOrder() == 0;
+    }
+
+    private boolean hasInvalidReviewAggregate(Long productId, Integer totalCount, Float averageRating) {
+        if (FormatValidator.hasNoValue(productId) || productId <= 0) {
+            return true;
+        }
+        return FormatValidator.hasNoValue(totalCount) || FormatValidator.hasNoValue(averageRating);
+    }
+}
