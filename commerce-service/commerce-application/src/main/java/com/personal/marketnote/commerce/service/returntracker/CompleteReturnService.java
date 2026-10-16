@@ -4,20 +4,26 @@ import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.port.in.command.order.CalculateReturnShippingFeeCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.CompleteReturnCommand;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderReturnSagaContext;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderReturnSagaContext.ReturnProductItem;
 import com.personal.marketnote.commerce.port.in.result.order.CalculateReturnShippingFeeResult;
 import com.personal.marketnote.commerce.port.in.usecase.order.CalculateReturnShippingFeeUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.returntracker.CompleteReturnUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.service.saga.OrderReturnSagaStarter;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -31,6 +37,7 @@ public class CompleteReturnService implements CompleteReturnUseCase {
     private final PublishOrderEventPort publishOrderEventPort;
     private final CalculateReturnShippingFeeUseCase calculateReturnShippingFeeUseCase;
     private final Clock clock;
+    private final Optional<OrderReturnSagaStarter> orderReturnSagaStarter;
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
@@ -56,8 +63,14 @@ public class CompleteReturnService implements CompleteReturnUseCase {
         boolean isFullReturn = resolveIsFullReturn(order);
 
         List<OrderProduct> returnProducts = filterReturnedProducts(order, returnPricePolicyIds);
-        publishReturnedEvent(order, returnProducts, returnShippingFee, isFullReturn);
 
+        if (orderReturnSagaStarter.isPresent()) {
+            startReturnSaga(order, returnProducts, returnShippingFee, isFullReturn);
+            log.info("반품 완료 SAGA 시작. orderId={}, isFullReturn={}", command.orderId(), isFullReturn);
+            return;
+        }
+
+        publishReturnedEvent(order, returnProducts, returnShippingFee, isFullReturn);
         log.info("반품 완료 처리. orderId={}, isFullReturn={}", command.orderId(), isFullReturn);
     }
 
@@ -115,14 +128,73 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 .toList();
     }
 
+    private void startReturnSaga(
+            Order order, List<OrderProduct> returnProducts,
+            long returnShippingFee, boolean isFullReturn
+    ) {
+        OrderAmount amount = order.getAmount();
+        long returnAmount = calculateReturnAmount(returnProducts);
+        long refundPointAmount = resolveRefundPointAmount(
+                amount.getPointAmount().getValue(), returnAmount, amount.getPaidAmount(), isFullReturn
+        );
+
+        List<ReturnProductItem> sagaReturnProducts = returnProducts.stream()
+                .map(p -> new ReturnProductItem(
+                        p.getPricePolicyId(),
+                        p.getSharerKey(),
+                        p.getQuantity().getValue(),
+                        p.getUnitAmount().getValue()
+                ))
+                .toList();
+
+        OrderReturnSagaContext context = new OrderReturnSagaContext(
+                order.getId(),
+                order.getOrderKey().toString(),
+                order.getBuyerId(),
+                returnAmount,
+                amount.getPaidAmount(),
+                amount.getPointAmount().getValue(),
+                amount.getShippingFee().getValue(),
+                isFullReturn,
+                returnShippingFee,
+                refundPointAmount,
+                sagaReturnProducts
+        );
+
+        orderReturnSagaStarter.get().start(context);
+    }
+
+    private long calculateReturnAmount(List<OrderProduct> returnProducts) {
+        return returnProducts.stream()
+                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
+                .reduce(0L, Math::addExact);
+    }
+
+    private long resolveRefundPointAmount(long pointAmount, long returnAmount, long paymentAmount, boolean isFullReturn) {
+        if (pointAmount <= 0) {
+            return 0L;
+        }
+        if (isFullReturn) {
+            return pointAmount;
+        }
+        if (paymentAmount <= 0) {
+            return 0L;
+        }
+        if (returnAmount > paymentAmount) {
+            return pointAmount;
+        }
+        return BigDecimal.valueOf(pointAmount)
+                .multiply(BigDecimal.valueOf(returnAmount))
+                .divide(BigDecimal.valueOf(paymentAmount), 0, RoundingMode.DOWN)
+                .longValue();
+    }
+
     private void publishReturnedEvent(
             Order order, List<OrderProduct> returnProducts,
             long returnShippingFee, boolean isFullReturn
     ) {
         OrderAmount amount = order.getAmount();
-        long returnAmount = returnProducts.stream()
-                .mapToLong(product -> product.getUnitAmount().multiply(product.getQuantity().getValue()).getValue())
-                .reduce(0L, Math::addExact);
+        long returnAmount = calculateReturnAmount(returnProducts);
 
         publishOrderEventPort.publishOrderReturnedEvent(
                 order.getId(),
