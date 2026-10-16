@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.port.in.usecase.order.CalculateReturnShi
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.service.saga.OrderReturnSagaStarter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +56,9 @@ class CompleteReturnUseCaseTest {
 
     @Spy
     private Clock clock = Clock.fixed(Instant.parse("2026-06-03T10:00:00Z"), ZoneId.of("Asia/Seoul"));
+
+    @Spy
+    private Optional<OrderReturnSagaStarter> orderReturnSagaStarter = Optional.empty();
 
     @Nested
     @DisplayName("반품 완료 처리 성공")

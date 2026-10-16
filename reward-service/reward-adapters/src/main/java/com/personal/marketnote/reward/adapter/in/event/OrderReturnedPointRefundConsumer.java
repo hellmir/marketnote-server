@@ -18,10 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "false", matchIfMissing = true)
 @RequiredArgsConstructor
 public class OrderReturnedPointRefundConsumer {
     private static final String FULL_RETURN_POINT_REFUND_REASON = "반품 완료 포인트 환불";

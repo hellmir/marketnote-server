@@ -18,12 +18,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "false", matchIfMissing = true)
 @RequiredArgsConstructor
 public class OrderReturnedSettlementConsumer {
     private static final String IDEMPOTENCY_KEY_PREFIX = "ORDER_RETURN_ALLOCATION:";

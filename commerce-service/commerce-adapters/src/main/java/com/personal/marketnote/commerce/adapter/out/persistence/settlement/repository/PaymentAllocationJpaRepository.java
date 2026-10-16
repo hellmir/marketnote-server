@@ -24,4 +24,8 @@ public interface PaymentAllocationJpaRepository extends JpaRepository<PaymentAll
     List<PaymentAllocationJpaEntity> findAllBySettlementId(Long settlementId);
 
     List<PaymentAllocationJpaEntity> findAllByOrderId(Long orderId);
+
+    @Modifying
+    @Query("DELETE FROM PaymentAllocationJpaEntity pa WHERE pa.orderId = :orderId AND pa.transactionType = 'RETURN_REFUND'")
+    int deleteReturnAllocationsByOrderId(@Param("orderId") Long orderId);
 }

@@ -4,18 +4,23 @@ import com.personal.marketnote.commerce.adapter.out.persistence.settlement.entit
 import com.personal.marketnote.commerce.adapter.out.persistence.settlement.mapper.PaymentAllocationEntityToDomainMapper;
 import com.personal.marketnote.commerce.adapter.out.persistence.settlement.repository.PaymentAllocationJpaRepository;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
+import com.personal.marketnote.commerce.port.out.settlement.DeletePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.SavePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdatePaymentAllocationPort;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class PaymentAllocationPersistenceAdapter
-        implements SavePaymentAllocationPort, FindPaymentAllocationPort, UpdatePaymentAllocationPort {
+        implements SavePaymentAllocationPort, FindPaymentAllocationPort, UpdatePaymentAllocationPort,
+        DeletePaymentAllocationPort {
     private final PaymentAllocationJpaRepository paymentAllocationJpaRepository;
 
     @Override
@@ -50,5 +55,11 @@ public class PaymentAllocationPersistenceAdapter
     @Override
     public void assignSettlement(List<Long> allocationIds, Long settlementId) {
         paymentAllocationJpaRepository.bulkAssignSettlement(allocationIds, settlementId);
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED)
+    public void deleteReturnAllocationsByOrderId(Long orderId) {
+        paymentAllocationJpaRepository.deleteReturnAllocationsByOrderId(orderId);
     }
 }

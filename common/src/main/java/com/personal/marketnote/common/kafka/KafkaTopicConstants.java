@@ -56,6 +56,14 @@ public final class KafkaTopicConstants {
     public static final String SAGA_ORDER_CANCEL_REFUND = "saga.order-cancel.refund";
     public static final String SAGA_ORDER_CANCEL_COMPLETED = "saga.order-cancel.completed";
 
+    // OrderReturn SAGA 스텝
+    public static final String SAGA_ORDER_RETURN_REFUND = "saga.order-return.refund";
+    public static final String SAGA_ORDER_RETURN_LEDGER = "saga.order-return.ledger";
+    public static final String SAGA_ORDER_RETURN_SETTLEMENT = "saga.order-return.settlement";
+    public static final String SAGA_ORDER_RETURN_INVENTORY = "saga.order-return.inventory";
+    public static final String SAGA_ORDER_RETURN_POINT_REFUND = "saga.order-return.point-refund";
+    public static final String SAGA_ORDER_RETURN_COMPLETED = "saga.order-return.completed";
+
     // Inventory 이벤트
     public static final String INVENTORY_CHANGED = "commerce.inventory.changed";
 
@@ -112,6 +120,12 @@ public final class KafkaTopicConstants {
                 SAGA_ORDER_CANCEL_FULFILLMENT,
                 SAGA_ORDER_CANCEL_REFUND,
                 SAGA_ORDER_CANCEL_COMPLETED,
+                SAGA_ORDER_RETURN_REFUND,
+                SAGA_ORDER_RETURN_LEDGER,
+                SAGA_ORDER_RETURN_SETTLEMENT,
+                SAGA_ORDER_RETURN_INVENTORY,
+                SAGA_ORDER_RETURN_POINT_REFUND,
+                SAGA_ORDER_RETURN_COMPLETED,
                 INVENTORY_CHANGED,
                 SHIPPING_POLICY_CHANGED,
                 SHIPPING_STATUS_CHANGED,
