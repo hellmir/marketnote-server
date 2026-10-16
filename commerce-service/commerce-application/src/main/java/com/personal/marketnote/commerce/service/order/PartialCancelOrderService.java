@@ -13,10 +13,9 @@ import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.service.saga.OrderCancelSagaStarter;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
-import com.personal.marketnote.common.saga.SagaDefinition;
-import com.personal.marketnote.common.saga.SagaOrchestrator;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +42,7 @@ public class PartialCancelOrderService implements PartialCancelOrderUseCase {
     private final PublishOrderEventPort publishOrderEventPort;
     private final PlatformTransactionManager transactionManager;
     private final Clock clock;
-    private final Optional<SagaOrchestrator> sagaOrchestrator;
-    private final Optional<SagaDefinition<OrderCancelSagaContext>> orderCancelSagaDefinition;
+    private final Optional<OrderCancelSagaStarter> orderCancelSagaStarter;
 
     @Override
     public void partialCancelOrder(PartialCancelOrderCommand command) {
@@ -71,14 +69,13 @@ public class PartialCancelOrderService implements PartialCancelOrderUseCase {
     }
 
     private boolean useSagaMode() {
-        return sagaOrchestrator.isPresent() && orderCancelSagaDefinition.isPresent();
+        return orderCancelSagaStarter.isPresent();
     }
 
     private void partialCancelViaSaga(PartialCancelOrderCommand command, Order order, OrderStatus originalStatus) {
         persistCancelRequestedForTargetProducts(command, order);
 
         OrderAmount amount = order.getAmount();
-        String sagaId = "ORDER_CANCEL:" + order.getId();
 
         List<OrderProductItem> allProductItems = mapToOrderProductItems(order.getOrderProducts());
         List<OrderProductItem> cancelProductItems = order.getOrderProducts().stream()
@@ -108,11 +105,7 @@ public class PartialCancelOrderService implements PartialCancelOrderUseCase {
                 cancelProductItems
         );
 
-        sagaOrchestrator.get().start(orderCancelSagaDefinition.get(), sagaId, context);
-
-        log.info("주문 부분 취소 SAGA 시작. orderId={}, sagaId={}, cancelPricePolicyIds={}",
-                order.getId(), sagaId, command.cancelPricePolicyIds()
-        );
+        orderCancelSagaStarter.get().start(context);
     }
 
     private void partialCancelSync(PartialCancelOrderCommand command, Order order, OrderStatus originalStatus) {

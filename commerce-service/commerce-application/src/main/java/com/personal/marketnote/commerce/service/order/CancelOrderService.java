@@ -11,10 +11,9 @@ import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.service.saga.OrderCancelSagaStarter;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
-import com.personal.marketnote.common.saga.SagaDefinition;
-import com.personal.marketnote.common.saga.SagaOrchestrator;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +36,7 @@ public class CancelOrderService implements CancelOrderUseCase {
     private final PublishOrderEventPort publishOrderEventPort;
     private final PlatformTransactionManager transactionManager;
     private final Clock clock;
-    private final Optional<SagaOrchestrator> sagaOrchestrator;
-    private final Optional<SagaDefinition<OrderCancelSagaContext>> orderCancelSagaDefinition;
+    private final Optional<OrderCancelSagaStarter> orderCancelSagaStarter;
 
     @Override
     public void cancelOrder(CancelOrderCommand command) {
@@ -61,14 +59,13 @@ public class CancelOrderService implements CancelOrderUseCase {
     }
 
     private boolean useSagaMode() {
-        return sagaOrchestrator.isPresent() && orderCancelSagaDefinition.isPresent();
+        return orderCancelSagaStarter.isPresent();
     }
 
     private void cancelOrderViaSaga(CancelOrderCommand command, Order order, OrderStatus originalStatus) {
         persistStatusChange(command, order, OrderStatus.CANCEL_REQUESTED);
 
         OrderAmount amount = order.getAmount();
-        String sagaId = "ORDER_CANCEL:" + order.getId();
 
         List<OrderProductItem> orderProductItems = order.getOrderProducts().stream()
                 .map(op -> new OrderProductItem(
@@ -93,9 +90,7 @@ public class CancelOrderService implements CancelOrderUseCase {
                 orderProductItems
         );
 
-        sagaOrchestrator.get().start(orderCancelSagaDefinition.get(), sagaId, context);
-
-        log.info("주문 취소 SAGA 시작. orderId={}, sagaId={}", order.getId(), sagaId);
+        orderCancelSagaStarter.get().start(context);
     }
 
     private void cancelOrderSync(

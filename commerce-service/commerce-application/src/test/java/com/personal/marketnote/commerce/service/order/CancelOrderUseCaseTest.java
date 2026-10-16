@@ -9,9 +9,8 @@ import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
 import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
+import com.personal.marketnote.commerce.service.saga.OrderCancelSagaStarter;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
-import com.personal.marketnote.common.saga.SagaDefinition;
-import com.personal.marketnote.common.saga.SagaOrchestrator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,7 +34,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,9 +51,7 @@ class CancelOrderUseCaseTest {
     @Spy
     private Clock clock = Clock.fixed(Instant.parse("2026-04-05T00:00:00Z"), ZoneId.of("Asia/Seoul"));
     @Mock
-    private SagaOrchestrator sagaOrchestrator;
-    @Mock
-    private SagaDefinition<OrderCancelSagaContext> orderCancelSagaDefinition;
+    private OrderCancelSagaStarter orderCancelSagaStarter;
 
     private CancelOrderService cancelOrderService;
 
@@ -71,8 +67,7 @@ class CancelOrderUseCaseTest {
                 publishOrderEventPort,
                 transactionManager,
                 clock,
-                Optional.of(sagaOrchestrator),
-                Optional.of(orderCancelSagaDefinition)
+                Optional.of(orderCancelSagaStarter)
         );
     }
 
@@ -99,7 +94,7 @@ class CancelOrderUseCaseTest {
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
             verifyNoInteractions(cancelFulfillmentReleasePort);
             verifyNoInteractions(publishOrderEventPort);
-            verifyNoInteractions(sagaOrchestrator);
+            verifyNoInteractions(orderCancelSagaStarter);
         }
     }
 
@@ -112,7 +107,7 @@ class CancelOrderUseCaseTest {
     class SagaModePaidCancelTest {
 
         @Test
-        @DisplayName("결제 완료 상태의 주문을 취소하면 CANCEL_REQUESTED로 변경 후 SAGA를 시작한다")
+        @DisplayName("결제 완료 상태의 주문을 취소하면 CANCEL_REQUESTED로 변경 후 SAGA Starter를 호출한다")
         void cancelOrder_fromPaid_startsSaga() {
             Long orderId = 1L;
             Long buyerId = 100L;
@@ -124,10 +119,7 @@ class CancelOrderUseCaseTest {
             cancelOrderService.cancelOrder(command);
 
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
-            verify(sagaOrchestrator).start(
-                    eq(orderCancelSagaDefinition),
-                    eq("ORDER_CANCEL:" + orderId),
-                    any(OrderCancelSagaContext.class));
+            verify(orderCancelSagaStarter).start(any(OrderCancelSagaContext.class));
             verifyNoInteractions(cancelFulfillmentReleasePort);
             verifyNoInteractions(publishOrderEventPort);
         }
@@ -142,7 +134,7 @@ class CancelOrderUseCaseTest {
     class SagaModePreparingCancelTest {
 
         @Test
-        @DisplayName("상품 준비중 상태의 주문을 취소하면 CANCEL_REQUESTED로 변경 후 SAGA를 시작한다")
+        @DisplayName("상품 준비중 상태의 주문을 취소하면 CANCEL_REQUESTED로 변경 후 SAGA Starter를 호출한다")
         void cancelOrder_fromPreparing_startsSaga() {
             Long orderId = 1L;
             Long buyerId = 100L;
@@ -154,10 +146,7 @@ class CancelOrderUseCaseTest {
             cancelOrderService.cancelOrder(command);
 
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
-            verify(sagaOrchestrator).start(
-                    eq(orderCancelSagaDefinition),
-                    eq("ORDER_CANCEL:" + orderId),
-                    any(OrderCancelSagaContext.class));
+            verify(orderCancelSagaStarter).start(any(OrderCancelSagaContext.class));
             verifyNoInteractions(cancelFulfillmentReleasePort);
             verifyNoInteractions(publishOrderEventPort);
         }
@@ -190,7 +179,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(InvalidReasonCategoryException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(sagaOrchestrator);
+            verifyNoInteractions(orderCancelSagaStarter);
         }
 
         @Test
@@ -255,7 +244,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(UnauthorizedOrderAccessException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(sagaOrchestrator);
+            verifyNoInteractions(orderCancelSagaStarter);
         }
     }
 
@@ -281,7 +270,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(sagaOrchestrator);
+            verifyNoInteractions(orderCancelSagaStarter);
         }
 
         @Test
@@ -298,7 +287,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(OrderStatusAlreadyChangedException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(sagaOrchestrator);
+            verifyNoInteractions(orderCancelSagaStarter);
         }
 
         @Test
@@ -315,7 +304,7 @@ class CancelOrderUseCaseTest {
                     .isInstanceOf(InvalidOrderStatusTransitionException.class);
 
             verifyNoInteractions(updateOrderPort);
-            verifyNoInteractions(sagaOrchestrator);
+            verifyNoInteractions(orderCancelSagaStarter);
         }
     }
 
@@ -338,7 +327,6 @@ class CancelOrderUseCaseTest {
                     publishOrderEventPort,
                     transactionManager,
                     clock,
-                    Optional.empty(),
                     Optional.empty()
             );
         }
