@@ -506,6 +506,71 @@ class SagaOrchestratorTest {
         }
 
         @Test
+        @DisplayName("스텝 명시적 실패 응답 시 afterCommit 콜백으로 실패 알림이 등록된다")
+        void shouldRegisterAlertOnStepExplicitFailure() throws Exception {
+            // given
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createProcessingInstance(1);
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
+                );
+                SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
+                        SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
+                );
+
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0, step1));
+
+                // when
+                sagaOrchestrator.handleStepResponse(SAGA_ID, STEP_2_NAME, false, "{\"error\":\"insufficient funds\"}");
+
+                // then
+                List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(synchronizations).hasSize(1);
+                synchronizations.forEach(TransactionSynchronization::afterCommit);
+
+                verify(sendSagaFailureAlertPort).sendFailureAlert(
+                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_2_NAME),
+                        eq("{\"error\":\"insufficient funds\"}"), any(LocalDateTime.class)
+                );
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
+        }
+
+        @Test
+        @DisplayName("첫 스텝 실패로 보상 대상이 없어 즉시 COMPENSATED 되어도 실패 알림은 등록된다")
+        void shouldRegisterAlertWhenNoCompensationTargets() throws Exception {
+            // given
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createProcessingInstance(0);
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+                );
+
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
+
+                // when
+                sagaOrchestrator.handleStepResponse(SAGA_ID, STEP_1_NAME, false, "{\"error\":\"out of stock\"}");
+
+                // then
+                List<TransactionSynchronization> synchronizations = TransactionSynchronizationManager.getSynchronizations();
+                assertThat(synchronizations).hasSize(1);
+                synchronizations.forEach(TransactionSynchronization::afterCommit);
+
+                verify(sendSagaFailureAlertPort).sendFailureAlert(
+                        eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_1_NAME),
+                        eq("{\"error\":\"out of stock\"}"), any(LocalDateTime.class)
+                );
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
+        }
+
+        @Test
         @DisplayName("SAGA 정상 완료 시 실패 알림이 등록되지 않는다")
         void shouldNotRegisterAlertOnSuccessfulCompletion() throws Exception {
             // given
