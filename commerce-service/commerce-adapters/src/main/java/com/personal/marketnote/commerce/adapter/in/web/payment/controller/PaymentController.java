@@ -156,7 +156,8 @@ public class PaymentController {
      * @Date 2026-02-25
      * @Description KCP 결제 취소 API를 호출합니다.
      */
-    @PostMapping("/api/v1/payments/{orderKey}/cancel")
+    @PostMapping("/api/v1/admin/payments/{orderKey}/cancel")
+    @PreAuthorize(ADMIN_POINTCUT)
     @CancelPaymentApiDocs
     public ResponseEntity<BaseResponse<Void>> cancelPayment(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,

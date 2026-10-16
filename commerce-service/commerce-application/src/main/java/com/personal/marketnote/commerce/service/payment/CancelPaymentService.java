@@ -365,14 +365,8 @@ public class CancelPaymentService implements CancelPaymentUseCase {
     }
 
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
-        Order order = findOrderPort.findById(orderId)
+        return findOrderPort.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
-        if (!order.getBuyerId().equals(buyerId)) {
-            log.warn("결제 취소 소유자 불일치 - orderId: {}, 주문소유자: {}, 요청자: {}",
-                    orderId, order.getBuyerId(), buyerId);
-            throw new UnauthorizedOrderAccessException();
-        }
-        return order;
     }
 
     private void restoreInventory(Order order) {

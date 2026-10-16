@@ -136,3 +136,6 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+saga:
+  enabled: ${SAGA_ENABLED:true}
