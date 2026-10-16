@@ -10,4 +10,5 @@ public class AccrualPointAmountConstant {
 
     public static final int REVIEW_POINT_AMOUNT = 500;
     public static final String REVIEW_POINT_REASON = "리뷰 등록 적립";
+    public static final String REVIEW_POINT_DEDUCTION_REASON = "리뷰 삭제 차감";
 }
