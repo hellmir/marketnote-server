@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.OrderCancelFailedEvent;
 import com.personal.marketnote.common.kafka.event.OrderCancelledEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.ReturnRejectedEvent;
@@ -293,6 +294,53 @@ class OrderEventKafkaProducerTest {
         assertThat(capturedEnvelope.timestamp()).isNotNull();
 
         ReturnRejectedEvent payload = (ReturnRejectedEvent) capturedEnvelope.payload();
+        assertThat(payload.orderId()).isEqualTo(10L);
+        assertThat(payload.buyerId()).isEqualTo(50L);
+    }
+
+    @Test
+    @DisplayName("주문 취소 실패 이벤트 발행 시 올바른 토픽과 파티션 키로 Outbox에 저장된다")
+    void publishOrderCancelFailedEvent_savesToOutboxWithCorrectTopicAndPartitionKey() throws Exception {
+        // given
+        setUpClock("2026-10-11T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        orderEventKafkaProducer.publishOrderCancelFailedEvent(1L, 50L);
+
+        // then
+        ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+        verify(saveOutboxEventPort).save(outboxCaptor.capture());
+
+        OutboxEvent captured = outboxCaptor.getValue();
+        assertThat(captured.getTopic()).isEqualTo(KafkaTopicConstants.ORDER_CANCEL_FAILED);
+        assertThat(captured.getPartitionKey()).isEqualTo("1");
+        assertThat(captured.getSource()).isEqualTo("commerce-service");
+        assertThat(captured.getEventId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("주문 취소 실패 이벤트 발행 시 EventEnvelope에 올바른 페이로드가 포함된다")
+    @SuppressWarnings("unchecked")
+    void publishOrderCancelFailedEvent_envelopeContainsCorrectPayload() throws Exception {
+        // given
+        setUpClock("2026-10-11T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        orderEventKafkaProducer.publishOrderCancelFailedEvent(10L, 50L);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+        assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.ORDER_CANCEL_FAILED);
+        assertThat(capturedEnvelope.source()).isEqualTo("commerce-service");
+        assertThat(capturedEnvelope.eventId()).isNotNull();
+        assertThat(capturedEnvelope.timestamp()).isNotNull();
+
+        OrderCancelFailedEvent payload = (OrderCancelFailedEvent) capturedEnvelope.payload();
         assertThat(payload.orderId()).isEqualTo(10L);
         assertThat(payload.buyerId()).isEqualTo(50L);
     }
