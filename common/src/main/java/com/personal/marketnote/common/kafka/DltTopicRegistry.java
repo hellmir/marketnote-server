@@ -17,7 +17,13 @@ public final class DltTopicRegistry {
             KafkaTopicConstants.PRODUCT_UPDATED,
             KafkaTopicConstants.USER_SIGNUP_COMPLETED,
             KafkaTopicConstants.USER_REFERRAL_COMPLETED,
-            KafkaTopicConstants.REVIEW_REGISTERED
+            KafkaTopicConstants.REVIEW_REGISTERED,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_INVENTORY,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_LEDGER,
+            KafkaTopicConstants.SAGA_ORDER_PAYMENT_COMPLETED,
+            KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT,
+            KafkaTopicConstants.SAGA_ORDER_CANCEL_REFUND,
+            KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED
     );
 
     private DltTopicRegistry() {

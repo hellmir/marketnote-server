@@ -269,8 +269,8 @@ class OrderCancelRefundSagaConsumerTest {
         }
 
         @Test
-        @DisplayName("SagaStepMessage 역직렬화 실패 시 acknowledge하고 poison pill을 방지한다")
-        void shouldAcknowledgeOnDeserializationFailure() {
+        @DisplayName("SagaStepMessage 역직렬화 실패 시 예외를 전파해 DLT로 라우팅되도록 한다")
+        void shouldPropagateExceptionOnDeserializationFailure() {
             EventEnvelope<String> envelope = EventEnvelope.of(
                     "saga.ORDER_CANCEL.REFUND_PAYMENT.action", "saga-orchestrator",
                     "invalid-json-not-saga-step-message",
@@ -281,10 +281,12 @@ class OrderCancelRefundSagaConsumerTest {
                     new ConsumerRecord<>("saga.order-cancel.refund", 0, 0, SAGA_ID,
                             (EventEnvelope<?>) (EventEnvelope) envelope);
 
-            consumer.handleRefundPaymentStep(record, acknowledgment);
+            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                    consumer.handleRefundPaymentStep(record, acknowledgment)
+            ).isInstanceOf(Exception.class);
 
             verifyNoInteractions(refundPaymentUseCase);
-            verify(acknowledgment).acknowledge();
+            verifyNoInteractions(acknowledgment);
         }
 
         @Test

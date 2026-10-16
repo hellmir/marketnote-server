@@ -203,6 +203,8 @@ public class SagaOrchestrator {
         currentStep.fail(response);
         updateSagaPort.updateStep(currentStep);
 
+        sendFailureAlertAfterCommit(instance.getSagaId(), instance.getSagaType(), currentStep.getStepName(), response);
+
         startCompensation(instance, steps);
     }
 
