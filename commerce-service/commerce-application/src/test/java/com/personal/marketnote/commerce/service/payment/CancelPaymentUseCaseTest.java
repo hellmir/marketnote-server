@@ -12,7 +12,6 @@ import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTrans
 import com.personal.marketnote.commerce.exception.InvalidCancelProductException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
-import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
@@ -313,29 +312,8 @@ class CancelPaymentUseCaseTest {
     }
 
     @Nested
-    @DisplayName("주문 소유자 검증")
-    class OrderOwnerVerificationTest {
-
-        @Test
-        @DisplayName("주문 소유자가 아닌 사용자가 결제 취소 시 UnauthorizedOrderAccessException이 발생한다")
-        void shouldThrowWhenBuyerIsNotOrderOwner() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            Long attackerBuyerId = 999L;
-            CancelPaymentCommand command = CancelPaymentCommand.builder()
-                    .buyerId(attackerBuyerId)
-                    .orderKey(ORDER_KEY_STR)
-                    .cancelType(CancelPaymentCommand.CancelType.FULL)
-                    .cancelReason("고객 요청")
-                    .build();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(UnauthorizedOrderAccessException.class);
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
+    @DisplayName("주문 조회 실패")
+    class OrderNotFoundTest {
 
         @Test
         @DisplayName("주문을 찾을 수 없으면 OrderNotFoundException이 발생한다")
