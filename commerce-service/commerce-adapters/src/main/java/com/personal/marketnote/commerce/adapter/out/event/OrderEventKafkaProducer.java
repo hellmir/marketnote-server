@@ -14,7 +14,6 @@ import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 import java.util.List;
@@ -29,7 +28,6 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     private final SaveOutboxEventPort saveOutboxEventPort;
     private final ObjectMapper objectMapper;
     private final Clock clock;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public void publishOrderPaymentCompletedEvent(
@@ -176,16 +174,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 topic, SOURCE, payload, clock
         );
 
-        try {
-            kafkaTemplate.send(topic, orderId.toString(), envelope).get();
-            log.info("주문 취소 실패 이벤트 발행. topic={}, orderId={}, buyerId={}",
-                    topic, orderId, buyerId
-            );
-        } catch (Exception e) {
-            log.error("주문 취소 실패 이벤트 발행 실패. topic={}, orderId={}, error={}",
-                    topic, orderId, e.getMessage(), e
-            );
-        }
+        saveToOutbox(envelope, topic, orderId.toString());
     }
 
     private String resolveRecipientName(ShippingAddress shippingAddress) {
