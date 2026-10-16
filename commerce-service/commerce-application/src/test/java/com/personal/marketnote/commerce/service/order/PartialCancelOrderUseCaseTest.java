@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -166,6 +167,89 @@ class PartialCancelOrderUseCaseTest {
 
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
             verify(orderCancelSagaStarter).start(any(OrderCancelSagaContext.class));
+        }
+    }
+
+    // ==================================================================================
+    // SAGA 컨텍스트 필드 검증
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("SAGA 컨텍스트 필드 검증")
+    class SagaContextFieldVerificationTest {
+
+        @Test
+        @DisplayName("결제 완료 부분 취소 시 OrderCancelSagaContext의 cancelAmount와 부분 취소 플래그가 설정된다")
+        void partialCancelOrder_fromPaid_contextHasCorrectFields() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            PartialCancelOrderCommand command = createPartialCancelCommand(orderId, buyerId, List.of(100L));
+
+            partialCancelOrderService.partialCancelOrder(command);
+
+            ArgumentCaptor<OrderCancelSagaContext> captor = ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            verify(orderCancelSagaStarter).start(captor.capture());
+            OrderCancelSagaContext context = captor.getValue();
+
+            assertThat(context.orderId()).isEqualTo(orderId);
+            assertThat(context.orderKey()).isEqualTo(order.getOrderKey().toString());
+            assertThat(context.buyerId()).isEqualTo(buyerId);
+            assertThat(context.isFullCancel()).isFalse();
+            assertThat(context.originalStatus()).isEqualTo(OrderStatus.PAID.name());
+            assertThat(context.cancelAmount()).isEqualTo(30000L);
+            assertThat(context.paymentAmount()).isEqualTo(order.getAmount().getPaidAmount());
+            assertThat(context.orderProducts()).hasSize(2);
+            assertThat(context.cancelProducts()).hasSize(1);
+            assertThat(context.cancelProducts().get(0).pricePolicyId()).isEqualTo(100L);
+        }
+
+        @Test
+        @DisplayName("상품 준비중 부분 취소 시 OrderCancelSagaContext의 원본 상태가 PREPARING으로 기록된다")
+        void partialCancelOrder_fromPreparing_contextHasCorrectFields() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PREPARING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            PartialCancelOrderCommand command = createPartialCancelCommand(orderId, buyerId, List.of(100L));
+
+            partialCancelOrderService.partialCancelOrder(command);
+
+            ArgumentCaptor<OrderCancelSagaContext> captor = ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            verify(orderCancelSagaStarter).start(captor.capture());
+            OrderCancelSagaContext context = captor.getValue();
+
+            assertThat(context.originalStatus()).isEqualTo(OrderStatus.PREPARING.name());
+            assertThat(context.isFullCancel()).isFalse();
+            assertThat(context.cancelAmount()).isEqualTo(30000L);
+            assertThat(context.cancelProducts()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CANCELLED 상태에서 추가 부분 취소 시 OrderCancelSagaContext의 원본 상태와 취소 대상이 기록된다")
+        void partialCancelOrder_fromPartiallyCancelled_contextHasCorrectFields() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithPartiallyCancelledProducts(orderId, buyerId);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            PartialCancelOrderCommand command = createPartialCancelCommand(orderId, buyerId, List.of(200L));
+
+            partialCancelOrderService.partialCancelOrder(command);
+
+            ArgumentCaptor<OrderCancelSagaContext> captor = ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            verify(orderCancelSagaStarter).start(captor.capture());
+            OrderCancelSagaContext context = captor.getValue();
+
+            assertThat(context.originalStatus()).isEqualTo(OrderStatus.PARTIALLY_CANCELLED.name());
+            assertThat(context.isFullCancel()).isFalse();
+            assertThat(context.cancelAmount()).isEqualTo(40000L);
+            assertThat(context.orderProducts()).hasSize(3);
+            assertThat(context.cancelProducts()).hasSize(1);
+            assertThat(context.cancelProducts().get(0).pricePolicyId()).isEqualTo(200L);
         }
     }
 
