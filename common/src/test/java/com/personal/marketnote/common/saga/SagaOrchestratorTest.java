@@ -246,55 +246,65 @@ class SagaOrchestratorTest {
         @DisplayName("스텝 실패 시 SagaInstance가 COMPENSATING 상태가 되고 이전 성공 스텝의 보상 메시지가 역순으로 발행된다")
         void shouldStartCompensationOnStepFailure() throws Exception {
             // given
-            SagaInstance instance = createProcessingInstance(1);
-            SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
-            );
-            SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
-                    SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
-            );
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createProcessingInstance(1);
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.SUCCEEDED, "{\"productId\":10}", "{\"success\":true}", null, null
+                );
+                SagaStep step1 = createSagaStep(20L, 1L, STEP_2_NAME, 1,
+                        SagaStepStatus.PROCESSING, "{\"amount\":5000}", null, null, null
+                );
 
-            when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
-            when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0, step1));
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0, step1));
 
-            // when
-            sagaOrchestrator.handleStepResponse(SAGA_ID, STEP_2_NAME, false, "{\"error\":\"insufficient funds\"}");
+                // when
+                sagaOrchestrator.handleStepResponse(SAGA_ID, STEP_2_NAME, false, "{\"error\":\"insufficient funds\"}");
 
-            // then
-            assertThat(step1.getStatus()).isEqualTo(SagaStepStatus.FAILED);
-            assertThat(instance.getStatus()).isEqualTo(SagaStatus.COMPENSATING);
+                // then
+                assertThat(step1.getStatus()).isEqualTo(SagaStepStatus.FAILED);
+                assertThat(instance.getStatus()).isEqualTo(SagaStatus.COMPENSATING);
 
-            assertThat(step0.getStatus()).isEqualTo(SagaStepStatus.COMPENSATING);
-            assertThat(step0.getCompensationRequest()).isNotNull();
+                assertThat(step0.getStatus()).isEqualTo(SagaStepStatus.COMPENSATING);
+                assertThat(step0.getCompensationRequest()).isNotNull();
 
-            ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
-            verify(saveOutboxEventPort).save(outboxCaptor.capture());
-            OutboxEvent compensationEvent = outboxCaptor.getValue();
-            assertThat(compensationEvent.getTopic()).isEqualTo(TOPIC_1);
-            assertThat(compensationEvent.getEventType()).contains("compensation");
+                ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+                verify(saveOutboxEventPort).save(outboxCaptor.capture());
+                OutboxEvent compensationEvent = outboxCaptor.getValue();
+                assertThat(compensationEvent.getTopic()).isEqualTo(TOPIC_1);
+                assertThat(compensationEvent.getEventType()).contains("compensation");
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
         }
 
         @Test
         @DisplayName("첫 스텝 실패 시 보상 대상이 없으면 즉시 COMPENSATED 상태가 된다")
         void shouldCompensateImmediatelyWhenNoStepsToCompensate() throws Exception {
             // given
-            SagaInstance instance = createProcessingInstance(0);
-            SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
-                    SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
-            );
+            TransactionSynchronizationManager.initSynchronization();
+            try {
+                SagaInstance instance = createProcessingInstance(0);
+                SagaStep step0 = createSagaStep(10L, 1L, STEP_1_NAME, 0,
+                        SagaStepStatus.PROCESSING, "{\"productId\":10}", null, null, null
+                );
 
-            when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
-            when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
+                when(findSagaPort.findBySagaId(SAGA_ID)).thenReturn(Optional.of(instance));
+                when(findSagaPort.findStepsBySagaInstanceId(1L)).thenReturn(List.of(step0));
 
-            // when
-            sagaOrchestrator.handleStepResponse(SAGA_ID, STEP_1_NAME, false, "{\"error\":\"out of stock\"}");
+                // when
+                sagaOrchestrator.handleStepResponse(SAGA_ID, STEP_1_NAME, false, "{\"error\":\"out of stock\"}");
 
-            // then
-            assertThat(step0.getStatus()).isEqualTo(SagaStepStatus.FAILED);
-            assertThat(instance.getStatus()).isEqualTo(SagaStatus.COMPENSATED);
-            assertThat(instance.getCompletedAt()).isNotNull();
+                // then
+                assertThat(step0.getStatus()).isEqualTo(SagaStepStatus.FAILED);
+                assertThat(instance.getStatus()).isEqualTo(SagaStatus.COMPENSATED);
+                assertThat(instance.getCompletedAt()).isNotNull();
 
-            verify(saveOutboxEventPort, never()).save(any());
+                verify(saveOutboxEventPort, never()).save(any());
+            } finally {
+                TransactionSynchronizationManager.clearSynchronization();
+            }
         }
     }
 

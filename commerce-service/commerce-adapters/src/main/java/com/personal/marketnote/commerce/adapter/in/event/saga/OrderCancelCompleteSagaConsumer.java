@@ -38,32 +38,27 @@ public class OrderCancelCompleteSagaConsumer {
             ConsumerRecord<String, EventEnvelope<?>> record,
             Acknowledgment acknowledgment
     ) {
-        try {
-            EventEnvelope<?> envelope = record.value();
+        EventEnvelope<?> envelope = record.value();
 
-            if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
-                return;
-            }
-
-            SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
-
-            log.info("SAGA 주문 취소 완료 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
-
-            if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
-                handleAction(stepMessage);
-                return;
-            }
-
-            log.warn("주문 취소 완료 스텝은 보상이 없음. 알 수 없는 messageType. sagaId={}, messageType={}",
-                    stepMessage.sagaId(), stepMessage.messageType()
-            );
-        } catch (Exception e) {
-            log.error("SAGA 주문 취소 완료 스텝 메시지 처리 실패. topic={}, partition={}, offset={}, error={}",
-                    record.topic(), record.partition(), record.offset(), e.getMessage(), e
-            );
-        } finally {
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)) {
             acknowledgment.acknowledge();
+            return;
         }
+
+        SagaStepMessage stepMessage = envelope.getPayloadAs(SagaStepMessage.class, objectMapper);
+
+        log.info("SAGA 주문 취소 완료 스텝 수신. sagaId={}, messageType={}", stepMessage.sagaId(), stepMessage.messageType());
+
+        if (SagaStepMessage.ACTION.equals(stepMessage.messageType())) {
+            handleAction(stepMessage);
+            acknowledgment.acknowledge();
+            return;
+        }
+
+        log.warn("주문 취소 완료 스텝은 보상이 없음. 알 수 없는 messageType. sagaId={}, messageType={}",
+                stepMessage.sagaId(), stepMessage.messageType()
+        );
+        acknowledgment.acknowledge();
     }
 
     private void handleAction(SagaStepMessage stepMessage) {
