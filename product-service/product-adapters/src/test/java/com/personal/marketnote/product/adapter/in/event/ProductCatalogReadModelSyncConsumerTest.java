@@ -1,0 +1,266 @@
+package com.personal.marketnote.product.adapter.in.event;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.domain.file.FileSort;
+import com.personal.marketnote.common.kafka.KafkaTopicConstants;
+import com.personal.marketnote.common.kafka.event.EventEnvelope;
+import com.personal.marketnote.common.kafka.event.ImageChangeAction;
+import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
+import com.personal.marketnote.common.kafka.event.InventoryChangedEvent;
+import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
+import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
+import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
+import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.support.Acknowledgment;
+
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+
+@ExtendWith(MockitoExtension.class)
+class ProductCatalogReadModelSyncConsumerTest {
+
+    @InjectMocks
+    private ProductCatalogReadModelSyncConsumer consumer;
+
+    @Spy
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Mock
+    private SaveProductCatalogReadModelPort saveProductCatalogReadModelPort;
+
+    @Mock
+    private Acknowledgment acknowledgment;
+
+    private static final LocalDateTime FIXED_TIME =
+            LocalDateTime.now(Clock.fixed(Instant.parse("2026-10-17T10:00:00Z"), ZoneId.of("Asia/Seoul")));
+
+    private <T> EventEnvelope<T> envelopeOf(String eventType, String source, T payload) {
+        return new EventEnvelope<>("test-event-id", eventType, source, FIXED_TIME, payload);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> recordOf(String topic, EventEnvelope<?> envelope) {
+        return new ConsumerRecord<>(topic, 0, 0, "1", envelope);
+    }
+
+    @Test
+    @DisplayName("ProductRegistered envelope가 null이면 upsert를 호출하지 않는다")
+    void handleProductRegistered_nullEnvelope_acknowledges() {
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                new ConsumerRecord<>(KafkaTopicConstants.PRODUCT_REGISTERED, 0, 0, "1", null);
+
+        consumer.handleProductRegistered(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductRegistered 이벤트 수신 시 upsertCatalog를 호출한다")
+    void handleProductRegistered_validPayload_upsertsCatalog() {
+        ProductRegisteredEvent payload = new ProductRegisteredEvent(
+                100L, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L
+        );
+        EventEnvelope<ProductRegisteredEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_REGISTERED, envelope);
+
+        consumer.handleProductRegistered(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).upsertCatalog(
+                eq(1L), eq(100L), eq(200L), eq(null),
+                eq("테스트 상품"), eq("테스트 브랜드"),
+                eq(10000L), eq(9000L), eq(100L),
+                eq(BigDecimal.ZERO), eq(0L), eq(0L)
+        );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductRegistered productId가 null이면 upsert를 호출하지 않는다")
+    void handleProductRegistered_nullProductId_acknowledges() {
+        ProductRegisteredEvent payload = new ProductRegisteredEvent(
+                null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L
+        );
+        EventEnvelope<ProductRegisteredEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_REGISTERED, envelope);
+
+        consumer.handleProductRegistered(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("InventoryChanged 이벤트 수신 시 updateStockQuantity를 호출한다")
+    void handleInventoryChanged_validPayload_updatesStock() {
+        InventoryChangedEvent payload = new InventoryChangedEvent(
+                1L, 100L, 50, InventoryChangeAction.UPDATED
+        );
+        EventEnvelope<InventoryChangedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.INVENTORY_CHANGED, "commerce-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.INVENTORY_CHANGED, envelope);
+
+        consumer.handleInventoryChanged(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).updateStockQuantity(1L, 50);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("InventoryChanged pricePolicyId가 null이면 updateStockQuantity를 호출하지 않는다")
+    void handleInventoryChanged_nullPricePolicyId_acknowledges() {
+        InventoryChangedEvent payload = new InventoryChangedEvent(
+                null, 100L, 50, InventoryChangeAction.UPDATED
+        );
+        EventEnvelope<InventoryChangedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.INVENTORY_CHANGED, "commerce-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.INVENTORY_CHANGED, envelope);
+
+        consumer.handleInventoryChanged(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ImageChanged 대표 이미지(sortOrder=0) 이벤트 수신 시 updateRepresentativeImageUrl을 호출한다")
+    void handleImageChanged_representativeImage_updatesImageUrl() {
+        ImageChangedEvent payload = new ImageChangedEvent(
+                10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
+                "https://example.com/catalog.png", 0, List.of(), ImageChangeAction.CREATED
+        );
+        EventEnvelope<ImageChangedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, "file-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, envelope);
+
+        consumer.handleImageChanged(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort)
+                .updateRepresentativeImageUrl(100L, "https://example.com/catalog.png");
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ImageChanged 대표 이미지가 아니면(sortOrder != 0) updateRepresentativeImageUrl을 호출하지 않는다")
+    void handleImageChanged_notRepresentative_acknowledges() {
+        ImageChangedEvent payload = new ImageChangedEvent(
+                10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
+                "https://example.com/catalog2.png", 1, List.of(), ImageChangeAction.CREATED
+        );
+        EventEnvelope<ImageChangedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, "file-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, envelope);
+
+        consumer.handleImageChanged(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ImageChanged fileSort가 PRODUCT_CATALOG_IMAGE가 아니면 updateRepresentativeImageUrl을 호출하지 않는다")
+    void handleImageChanged_wrongFileSort_acknowledges() {
+        ImageChangedEvent payload = new ImageChangedEvent(
+                10L, 100L, "PRODUCT", FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),
+                "https://example.com/repr.png", 0, List.of(), ImageChangeAction.CREATED
+        );
+        EventEnvelope<ImageChangedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, "file-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, envelope);
+
+        consumer.handleImageChanged(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ReviewRegistered 이벤트 수신 시 updateReviewAggregate를 호출한다")
+    void handleReviewRegistered_validPayload_updatesAggregate() {
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
+                700L, 1L, 100L, 10, 4.5f, 300L, 500L
+        );
+        EventEnvelope<ReviewRegisteredEvent> envelope =
+                envelopeOf(KafkaTopicConstants.REVIEW_REGISTERED, "community-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.REVIEW_REGISTERED, envelope);
+
+        consumer.handleReviewRegistered(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 10, 4.5f);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ReviewRegistered totalCount가 null이면 updateReviewAggregate를 호출하지 않는다")
+    void handleReviewRegistered_nullTotalCount_acknowledges() {
+        ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
+                700L, 1L, 100L, null, 4.5f, 300L, 500L
+        );
+        EventEnvelope<ReviewRegisteredEvent> envelope =
+                envelopeOf(KafkaTopicConstants.REVIEW_REGISTERED, "community-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.REVIEW_REGISTERED, envelope);
+
+        consumer.handleReviewRegistered(record, acknowledgment);
+
+        verifyNoInteractions(saveProductCatalogReadModelPort);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ReviewUpdated 이벤트 수신 시 updateReviewAggregate를 호출한다")
+    void handleReviewUpdated_validPayload_updatesAggregate() {
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(500L, 100L, 12, 4.3f);
+        EventEnvelope<ReviewUpdatedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.REVIEW_UPDATED, "community-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.REVIEW_UPDATED, envelope);
+
+        consumer.handleReviewUpdated(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 12, 4.3f);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ReviewDeleted 이벤트 수신 시 updateReviewAggregate를 호출한다")
+    void handleReviewDeleted_validPayload_updatesAggregate() {
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(500L, 100L, 8, 4.2f, 300L);
+        EventEnvelope<ReviewDeletedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.REVIEW_DELETED, "community-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.REVIEW_DELETED, envelope);
+
+        consumer.handleReviewDeleted(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 8, 4.2f);
+        verify(acknowledgment).acknowledge();
+    }
+}
