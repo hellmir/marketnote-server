@@ -21,6 +21,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -63,6 +64,7 @@ public class ProductCatalogReadModelSyncConsumer {
                 payload.brandName(),
                 FormatValidator.hasValue(payload.price()) ? payload.price() : 0L,
                 FormatValidator.hasValue(payload.discountPrice()) ? payload.discountPrice() : 0L,
+                BigDecimal.ZERO,
                 FormatValidator.hasValue(payload.accumulatedPoint()) ? payload.accumulatedPoint() : 0L,
                 BigDecimal.ZERO,
                 0L,
@@ -126,9 +128,23 @@ public class ProductCatalogReadModelSyncConsumer {
             return;
         }
 
-        saveProductCatalogReadModelPort.updateRepresentativeImageUrl(payload.targetId(), payload.imageUrl());
+        saveProductCatalogReadModelPort.updateRepresentativeImage(
+                payload.targetId(),
+                payload.imageUrl(),
+                toResizedImageUrls(payload.resizedImages())
+        );
         log.info("상품 카탈로그 Read Model 대표 이미지 업데이트. productId={}", payload.targetId());
         ack.acknowledge();
+    }
+
+    private List<String> toResizedImageUrls(List<ImageChangedEvent.ResizedImageInfo> resizedImages) {
+        if (FormatValidator.hasNoValue(resizedImages)) {
+            return List.of();
+        }
+        return resizedImages.stream()
+                .map(ImageChangedEvent.ResizedImageInfo::storageUrl)
+                .filter(FormatValidator::hasValue)
+                .toList();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.REVIEW_REGISTERED, groupId = CONSUMER_GROUP_ID)

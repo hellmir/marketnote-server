@@ -3,6 +3,7 @@ package com.personal.marketnote.product.port.in.result.pricepolicy;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.port.in.result.option.ProductOptionItemResult;
+import com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult;
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -25,6 +26,18 @@ public record GetProductPricePolicyResult(
                 .discountPrice(pricePolicy.getDiscountPrice().getValue())
                 .discountRate(pricePolicy.getDiscountRate().getValue())
                 .accumulatedPoint(pricePolicy.getAccumulatedPoint().getValue())
+                .build();
+    }
+
+    public static GetProductPricePolicyResult fromReadModel(ProductCatalogItemResult catalogItem) {
+        return GetProductPricePolicyResult.builder()
+                .id(catalogItem.pricePolicyId())
+                .price(FormatValidator.hasValue(catalogItem.price()) ? catalogItem.price() : 0L)
+                .discountPrice(FormatValidator.hasValue(catalogItem.discountPrice()) ? catalogItem.discountPrice() : 0L)
+                .discountRate(FormatValidator.hasValue(catalogItem.discountRate())
+                        ? catalogItem.discountRate() : BigDecimal.ZERO)
+                .accumulatedPoint(FormatValidator.hasValue(catalogItem.accumulatedPoint())
+                        ? catalogItem.accumulatedPoint() : 0L)
                 .build();
     }
 

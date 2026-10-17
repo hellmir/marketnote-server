@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.port.in.result.product;
 
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
@@ -128,6 +129,45 @@ public class ProductItemResult {
                 .status(productItemResult.getStatus())
                 .orderNum(productItemResult.getOrderNum())
                 .build();
+    }
+
+    public static ProductItemResult fromReadModel(ProductCatalogItemResult catalogItem) {
+        return ProductItemResult.builder()
+                .id(catalogItem.productId())
+                .sellerId(catalogItem.sellerId())
+                .name(catalogItem.name())
+                .brandName(catalogItem.brandName())
+                .pricePolicy(GetProductPricePolicyResult.fromReadModel(catalogItem))
+                .sales(0)
+                .productTags(List.of())
+                .catalogImage(toCatalogImage(catalogItem))
+                .selectedOptions(List.of())
+                .stock(FormatValidator.hasValue(catalogItem.stockQuantity()) ? catalogItem.stockQuantity() : 0)
+                .averageRating(FormatValidator.hasValue(catalogItem.reviewAverageRating())
+                        ? catalogItem.reviewAverageRating() : 0f)
+                .totalCount(FormatValidator.hasValue(catalogItem.reviewCount())
+                        ? catalogItem.reviewCount() : 0)
+                .status(catalogItem.status())
+                .orderNum(catalogItem.orderNum())
+                .build();
+    }
+
+    private static GetFileResult toCatalogImage(ProductCatalogItemResult catalogItem) {
+        if (FormatValidator.hasNoValue(catalogItem.representativeImageUrl())) {
+            return null;
+        }
+        List<String> resizedUrls = FormatValidator.hasValue(catalogItem.resizedImageUrls())
+                ? catalogItem.resizedImageUrls()
+                : List.of();
+        return new GetFileResult(
+                null,
+                null,
+                null,
+                null,
+                catalogItem.representativeImageUrl(),
+                resizedUrls,
+                0L
+        );
     }
 
     public Long getPricePolicyId() {

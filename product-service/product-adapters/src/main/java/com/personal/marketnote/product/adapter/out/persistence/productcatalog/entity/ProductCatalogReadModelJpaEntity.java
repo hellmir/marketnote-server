@@ -51,6 +51,9 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private Long discountPrice;
 
+    @Column(nullable = false, precision = 4, scale = 1)
+    private BigDecimal discountRate;
+
     @Column(nullable = false)
     private Long accumulatedPoint;
 
@@ -65,6 +68,9 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
 
     @Column(length = 511)
     private String representativeImageUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String resizedImageUrls;
 
     @Column(nullable = false)
     private Integer stockQuantity;
@@ -84,6 +90,7 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
             String brandName,
             Long price,
             Long discountPrice,
+            BigDecimal discountRate,
             Long accumulatedPoint,
             BigDecimal accumulatedPointRate,
             Long orderNum,
@@ -98,11 +105,13 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
                 .brandName(brandName)
                 .price(price)
                 .discountPrice(discountPrice)
+                .discountRate(discountRate)
                 .accumulatedPoint(accumulatedPoint)
                 .accumulatedPointRate(accumulatedPointRate)
                 .orderNum(orderNum)
                 .popularity(popularity)
                 .representativeImageUrl(null)
+                .resizedImageUrls(null)
                 .stockQuantity(0)
                 .reviewCount(0)
                 .reviewAverageRating(0f)
@@ -116,9 +125,13 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
         activate();
     }
 
-    public void updatePricing(Long price, Long discountPrice, Long accumulatedPoint, BigDecimal accumulatedPointRate) {
+    public void updatePricing(
+            Long price, Long discountPrice, BigDecimal discountRate,
+            Long accumulatedPoint, BigDecimal accumulatedPointRate
+    ) {
         this.price = price;
         this.discountPrice = discountPrice;
+        this.discountRate = discountRate;
         this.accumulatedPoint = accumulatedPoint;
         this.accumulatedPointRate = accumulatedPointRate;
     }
@@ -135,8 +148,9 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
         this.stockQuantity = stockQuantity;
     }
 
-    public void updateRepresentativeImageUrl(String representativeImageUrl) {
+    public void updateRepresentativeImage(String representativeImageUrl, String resizedImageUrls) {
         this.representativeImageUrl = representativeImageUrl;
+        this.resizedImageUrls = resizedImageUrls;
     }
 
     public void updateReviewAggregate(Integer reviewCount, Float reviewAverageRating) {

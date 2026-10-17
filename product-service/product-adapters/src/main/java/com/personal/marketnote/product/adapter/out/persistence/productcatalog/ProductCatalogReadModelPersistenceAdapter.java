@@ -1,5 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.productcatalog;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.ProductCatalogReadModelJpaEntity;
@@ -28,6 +30,7 @@ public class ProductCatalogReadModelPersistenceAdapter
         implements FindProductCatalogReadModelPort, SaveProductCatalogReadModelPort {
 
     private final ProductCatalogReadModelJpaRepository repository;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
@@ -45,7 +48,7 @@ public class ProductCatalogReadModelPersistenceAdapter
                 categoryId, pricePolicyIds, cursor, pageSize, isAsc, sortProperty, searchTarget, searchKeyword
         );
         return entities.stream()
-                .map(ProductCatalogReadModelJpaEntityToResultMapper::mapToResult)
+                .map(entity -> ProductCatalogReadModelJpaEntityToResultMapper.mapToResult(entity, objectMapper))
                 .toList();
     }
 
@@ -66,6 +69,7 @@ public class ProductCatalogReadModelPersistenceAdapter
             String brandName,
             Long price,
             Long discountPrice,
+            BigDecimal discountRate,
             Long accumulatedPoint,
             BigDecimal accumulatedPointRate,
             Long orderNum,
@@ -76,7 +80,7 @@ public class ProductCatalogReadModelPersistenceAdapter
         if (existing.isPresent()) {
             ProductCatalogReadModelJpaEntity entity = existing.get();
             entity.updateProductInfo(name, brandName, primaryCategoryId);
-            entity.updatePricing(price, discountPrice, accumulatedPoint, accumulatedPointRate);
+            entity.updatePricing(price, discountPrice, discountRate, accumulatedPoint, accumulatedPointRate);
             entity.updateOrderNum(orderNum);
             entity.updatePopularity(popularity);
             return;
@@ -85,7 +89,8 @@ public class ProductCatalogReadModelPersistenceAdapter
         try {
             ProductCatalogReadModelJpaEntity entity = ProductCatalogReadModelJpaEntity.of(
                     pricePolicyId, productId, sellerId, primaryCategoryId,
-                    name, brandName, price, discountPrice, accumulatedPoint, accumulatedPointRate,
+                    name, brandName, price, discountPrice, discountRate,
+                    accumulatedPoint, accumulatedPointRate,
                     orderNum, popularity
             );
             repository.saveAndFlush(entity);
@@ -94,7 +99,7 @@ public class ProductCatalogReadModelPersistenceAdapter
                     .orElseThrow(() -> e);
             log.info("상품 카탈로그 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             entity.updateProductInfo(name, brandName, primaryCategoryId);
-            entity.updatePricing(price, discountPrice, accumulatedPoint, accumulatedPointRate);
+            entity.updatePricing(price, discountPrice, discountRate, accumulatedPoint, accumulatedPointRate);
             entity.updateOrderNum(orderNum);
             entity.updatePopularity(popularity);
         }
@@ -109,12 +114,13 @@ public class ProductCatalogReadModelPersistenceAdapter
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void updateRepresentativeImageUrl(Long productId, String representativeImageUrl) {
+    public void updateRepresentativeImage(Long productId, String representativeImageUrl, List<String> resizedImageUrls) {
         List<ProductCatalogReadModelJpaEntity> entities = repository.findAllByProductId(productId);
         if (FormatValidator.hasNoValue(entities)) {
             return;
         }
-        entities.forEach(entity -> entity.updateRepresentativeImageUrl(representativeImageUrl));
+        String serializedResized = serializeResizedImageUrls(resizedImageUrls);
+        entities.forEach(entity -> entity.updateRepresentativeImage(representativeImageUrl, serializedResized));
     }
 
     @Override
@@ -138,5 +144,17 @@ public class ProductCatalogReadModelPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED)
     public void deleteByProductId(Long productId) {
         repository.deleteByProductId(productId);
+    }
+
+    private String serializeResizedImageUrls(List<String> resizedImageUrls) {
+        if (FormatValidator.hasNoValue(resizedImageUrls)) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(resizedImageUrls);
+        } catch (JsonProcessingException jpe) {
+            log.warn("상품 카탈로그 Read Model resized 이미지 직렬화 실패. urls={}", resizedImageUrls, jpe);
+            return null;
+        }
     }
 }
