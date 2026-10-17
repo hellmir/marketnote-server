@@ -137,6 +137,75 @@ class PostTest {
     }
 
     @Test
+    @DisplayName("PostCreateState로 생성된 게시글의 hasReply 기본값은 false이다")
+    void shouldInitializeHasReplyFalseWhenCreated() {
+        PostCreateState state = createPostCreateState(Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", "홍길동");
+
+        Post post = Post.from(state);
+
+        assertThat(post.hasReply()).isFalse();
+    }
+
+    @Test
+    @DisplayName("markHasReply 호출 시 hasReply가 true로 전이된다")
+    void shouldTransitionHasReplyToTrueWhenMarkHasReplyCalled() {
+        Post post = createActivePost();
+
+        post.markHasReply();
+
+        assertThat(post.hasReply()).isTrue();
+    }
+
+    @Test
+    @DisplayName("unmarkHasReply 호출 시 hasReply가 false로 전이된다")
+    void shouldTransitionHasReplyToFalseWhenUnmarkHasReplyCalled() {
+        Post post = createActivePost();
+        post.markHasReply();
+
+        post.unmarkHasReply();
+
+        assertThat(post.hasReply()).isFalse();
+    }
+
+    @Test
+    @DisplayName("SnapshotState로 복원 시 hasReply=true가 그대로 유지된다")
+    void shouldRestoreHasReplyTrueFromSnapshotState() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("문의")
+                .content("내용")
+                .hasReply(true)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        assertThat(post.hasReply()).isTrue();
+    }
+
+    @Test
+    @DisplayName("SnapshotState로 복원 시 hasReply=false가 그대로 유지된다")
+    void shouldRestoreHasReplyFalseFromSnapshotState() {
+        Post post = Post.from(PostSnapshotState.builder()
+                .id(1L)
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .writerName("홍길동")
+                .maskedWriterName("홍*동")
+                .title("문의")
+                .content("내용")
+                .hasReply(false)
+                .status(EntityStatus.ACTIVE)
+                .build());
+
+        assertThat(post.hasReply()).isFalse();
+    }
+
+    @Test
     @DisplayName("changeExposure를 호출하면 ACTIVE에서 UNEXPOSED로 전환된다")
     void shouldToggleStatusFromActiveToUnexposed() {
         Post post = createActivePost();

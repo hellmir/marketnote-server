@@ -638,6 +638,100 @@ class RegisterPostUseCaseTest {
     }
 
     @Test
+    @DisplayName("답글 등록 시 부모 게시글의 hasReply=false이면 markHasReply 후 update가 호출된다")
+    void registerPost_reply_parentHasReplyFalse_callsMarkHasReplyAndUpdate() {
+        Long parentId = 4000L;
+        Long parentOwnerId = 91L;
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(90L)
+                .parentId(parentId)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("답변자")
+                .content("답변 내용")
+                .build();
+        Post parentPost = buildParentPost(parentId, parentOwnerId, Board.ONE_ON_ONE_INQUERY,
+                "문의 제목", null, null);
+        Post savedPost = buildSavedPost(2001L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        ArgumentCaptor<Post> parentCaptor = ArgumentCaptor.forClass(Post.class);
+        verify(updatePostPort).update(parentCaptor.capture());
+        assertThat(parentCaptor.getValue().hasReply()).isTrue();
+    }
+
+    @Test
+    @DisplayName("답글 등록 시 부모 게시글의 hasReply=true이면 update 호출을 skip한다")
+    void registerPost_reply_parentHasReplyTrue_skipsUpdate() {
+        Long parentId = 4001L;
+        Long parentOwnerId = 92L;
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(91L)
+                .parentId(parentId)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("답변자")
+                .content("두번째 답변 내용")
+                .build();
+        Post parentPost = Post.from(PostSnapshotState.builder()
+                .id(parentId)
+                .userId(parentOwnerId)
+                .postKey(UUID.randomUUID())
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("작성자")
+                .maskedWriterName("작성자")
+                .title("문의 제목")
+                .content("문의 내용")
+                .hasReply(true)
+                .status(EntityStatus.ACTIVE)
+                .build());
+        Post savedPost = buildSavedPost(2002L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.of(parentPost));
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(updatePostPort, never()).update(any(Post.class));
+    }
+
+    @Test
+    @DisplayName("답글 등록 시 부모 게시글을 찾지 못하면 update 호출이 없다")
+    void registerPost_reply_parentNotFound_skipsUpdate() {
+        Long parentId = 4002L;
+        RegisterPostCommand command = RegisterPostCommand.builder()
+                .userId(92L)
+                .parentId(parentId)
+                .board(Board.ONE_ON_ONE_INQUERY)
+                .category("ORDER_PAYMENT")
+                .writerName("답변자")
+                .content("답변 내용")
+                .build();
+        Post savedPost = buildSavedPost(2003L, command);
+        when(findPostPort.findById(parentId)).thenReturn(Optional.empty());
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(updatePostPort, never()).update(any(Post.class));
+    }
+
+    @Test
+    @DisplayName("답글이 아닌 게시글 등록 시 update 호출이 없다")
+    void registerPost_notReply_doesNotCallUpdate() {
+        RegisterPostCommand command = buildCommand(93L, null, Board.NOTICE, "ANNOUNCEMENT");
+        Post savedPost = buildSavedPost(2004L, command);
+        when(savePostPort.save(any(Post.class))).thenReturn(savedPost);
+
+        registerPostService.registerPost(false, command);
+
+        verify(updatePostPort, never()).update(any(Post.class));
+    }
+
+    @Test
     @DisplayName("1:1 문의 답글 등록 시 부모 title이 null이어도 title 그대로 이벤트가 발행된다")
     void registerPost_oneOnOneInquiryReply_parentTitleNull_publishesNullTitle() {
         Long parentId = 2008L;

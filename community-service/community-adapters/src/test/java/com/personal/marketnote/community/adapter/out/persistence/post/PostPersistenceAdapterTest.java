@@ -528,6 +528,28 @@ class PostPersistenceAdapterTest {
     }
 
     @Nested
+    @DisplayName("existsActiveReplyByParentId")
+    class ExistsActiveReplyByParentId {
+
+        @Test
+        @DisplayName("부모 게시글에 ACTIVE 상태 답변이 있으면 true를 반환한다")
+        void returnsTrueWhenActiveReplyExists() {
+            when(postJpaRepository.existsByParentIdAndStatus(10L, EntityStatus.ACTIVE)).thenReturn(true);
+
+            assertThat(adapter.existsActiveReplyByParentId(10L)).isTrue();
+            verify(postJpaRepository).existsByParentIdAndStatus(10L, EntityStatus.ACTIVE);
+        }
+
+        @Test
+        @DisplayName("부모 게시글에 ACTIVE 상태 답변이 없으면 false를 반환한다")
+        void returnsFalseWhenActiveReplyAbsent() {
+            when(postJpaRepository.existsByParentIdAndStatus(11L, EntityStatus.ACTIVE)).thenReturn(false);
+
+            assertThat(adapter.existsActiveReplyByParentId(11L)).isFalse();
+        }
+    }
+
+    @Nested
     @DisplayName("findById")
     class FindById {
 

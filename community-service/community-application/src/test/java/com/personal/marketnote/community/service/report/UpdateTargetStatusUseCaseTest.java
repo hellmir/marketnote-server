@@ -174,4 +174,102 @@ class UpdateTargetStatusUseCaseTest {
                 .build());
     }
 
+    private Post buildReply(Long id, Long parentId, EntityStatus status) {
+        return Post.from(PostSnapshotState.builder()
+                .id(id)
+                .userId(200L)
+                .parentId(parentId)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .title("답변 제목")
+                .content("답변 내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .status(status)
+                .build());
+    }
+
+    private Post buildParent(Long id, boolean hasReply) {
+        return Post.from(PostSnapshotState.builder()
+                .id(id)
+                .userId(100L)
+                .board(Board.PRODUCT_INQUERY)
+                .category("PRODUCT_QUESTION")
+                .title("문의 제목")
+                .content("문의 내용")
+                .isPrivate(false)
+                .isPhoto(false)
+                .hasReply(hasReply)
+                .status(EntityStatus.ACTIVE)
+                .build());
+    }
+
+    @Test
+    @DisplayName("답글을 숨기기 요청해 부모에 활성 답글이 남지 않으면 부모의 hasReply가 false로 재계산된다")
+    void updateTargetStatus_hideReply_recalculatesParentHasReplyToFalse() {
+        Long replyId = 500L;
+        Long parentId = 600L;
+        Post reply = buildReply(replyId, parentId, EntityStatus.ACTIVE);
+        Post parent = buildParent(parentId, true);
+        UpdateTargetStatusCommand command = UpdateTargetStatusCommand.of(ReportTargetType.POST, replyId, false);
+        when(getPostUseCase.getPost(replyId)).thenReturn(reply);
+        when(getPostUseCase.getPost(parentId)).thenReturn(parent);
+        when(findPostPort.existsActiveReplyByParentId(parentId)).thenReturn(false);
+
+        updateTargetStatusService.updateTargetStatus(command);
+
+        verify(updatePostPort).update(reply);
+        verify(updatePostPort).update(parent);
+        org.assertj.core.api.Assertions.assertThat(parent.hasReply()).isFalse();
+    }
+
+    @Test
+    @DisplayName("답글을 숨기기 요청해도 부모에 활성 답글이 남으면 부모의 hasReply가 유지되고 parent update를 skip한다")
+    void updateTargetStatus_hideReply_keepsParentHasReplyWhenOtherActiveRepliesExist() {
+        Long replyId = 501L;
+        Long parentId = 601L;
+        Post reply = buildReply(replyId, parentId, EntityStatus.ACTIVE);
+        Post parent = buildParent(parentId, true);
+        UpdateTargetStatusCommand command = UpdateTargetStatusCommand.of(ReportTargetType.POST, replyId, false);
+        when(getPostUseCase.getPost(replyId)).thenReturn(reply);
+        when(getPostUseCase.getPost(parentId)).thenReturn(parent);
+        when(findPostPort.existsActiveReplyByParentId(parentId)).thenReturn(true);
+
+        updateTargetStatusService.updateTargetStatus(command);
+
+        verify(updatePostPort).update(reply);
+        verify(updatePostPort, never()).update(parent);
+    }
+
+    @Test
+    @DisplayName("비노출 답글을 복구 요청해 부모 활성 답글이 생기면 부모의 hasReply가 true로 재계산된다")
+    void updateTargetStatus_restoreReply_recalculatesParentHasReplyToTrue() {
+        Long replyId = 502L;
+        Long parentId = 602L;
+        Post reply = buildReply(replyId, parentId, EntityStatus.UNEXPOSED);
+        Post parent = buildParent(parentId, false);
+        UpdateTargetStatusCommand command = UpdateTargetStatusCommand.of(ReportTargetType.POST, replyId, true);
+        when(getPostUseCase.getPost(replyId)).thenReturn(reply);
+        when(getPostUseCase.getPost(parentId)).thenReturn(parent);
+        when(findPostPort.existsActiveReplyByParentId(parentId)).thenReturn(true);
+
+        updateTargetStatusService.updateTargetStatus(command);
+
+        verify(updatePostPort).update(reply);
+        verify(updatePostPort).update(parent);
+        org.assertj.core.api.Assertions.assertThat(parent.hasReply()).isTrue();
+    }
+
+    @Test
+    @DisplayName("일반 게시글(답글 아님) status 변경 시 부모 hasReply 재계산 로직이 실행되지 않는다")
+    void updateTargetStatus_nonReplyPost_skipsParentRecalculation() {
+        Post post = buildPost(700L, EntityStatus.ACTIVE);
+        UpdateTargetStatusCommand command = UpdateTargetStatusCommand.of(ReportTargetType.POST, 700L, false);
+        when(getPostUseCase.getPost(700L)).thenReturn(post);
+
+        updateTargetStatusService.updateTargetStatus(command);
+
+        verify(updatePostPort).update(post);
+        verifyNoInteractions(findPostPort);
+    }
 }
