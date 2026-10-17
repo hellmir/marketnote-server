@@ -118,6 +118,11 @@ public class ProductReviewAggregate {
 
     public void computeRating(int point) {
         totalRating += point;
+        if (totalCount == 0) {
+            totalRating = 0.0f;
+            averageRating = 0.0f;
+            return;
+        }
         averageRating = totalRating / totalCount;
     }
 }
