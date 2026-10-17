@@ -8,7 +8,6 @@ import com.personal.marketnote.community.domain.servicecommunication.CommunitySe
 import com.personal.marketnote.community.domain.servicecommunication.CommunityServiceCommunicationType;
 import com.personal.marketnote.community.exception.InvalidOrderStatusForReviewException;
 import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
-import com.personal.marketnote.community.port.out.order.FindOrderProductPort;
 import com.personal.marketnote.community.port.out.order.VerifyOrderOwnershipPort;
 import com.personal.marketnote.community.utility.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.community.utility.ServiceCommunicationRecorder;
@@ -20,7 +19,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.personal.marketnote.common.utility.ApiConstant.*;
@@ -34,7 +32,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.*;
  */
 @ServiceAdapter
 @Slf4j
-public class CommerceServiceClient implements VerifyOrderOwnershipPort, FindOrderProductPort {
+public class CommerceServiceClient implements VerifyOrderOwnershipPort {
     private static final CommunityServiceCommunicationTargetType TARGET_TYPE =
             CommunityServiceCommunicationTargetType.ORDER_OWNERSHIP;
     private static final CommunityServiceCommunicationSenderType REQUEST_SENDER =
@@ -136,69 +134,6 @@ public class CommerceServiceClient implements VerifyOrderOwnershipPort, FindOrde
         );
         serviceCommunicationRecorder.record(
                 TARGET_TYPE,
-                CommunityServiceCommunicationType.RESPONSE,
-                RESPONSE_SENDER,
-                targetId,
-                responsePayloadJson.toString(),
-                responsePayloadJson,
-                exception
-        );
-    }
-
-    @Override
-    public Optional<Long> findUnitAmountByOrderIdAndPricePolicyId(Long orderId, Long pricePolicyId) {
-        URI uri = UriComponentsBuilder
-                .fromUriString(commerceServiceBaseUrl)
-                .path("/api/v1/internal/orders/{orderId}/order-products/{pricePolicyId}")
-                .buildAndExpand(orderId, pricePolicyId)
-                .toUri();
-
-        String targetId = orderId + ":" + pricePolicyId;
-
-        try {
-            JsonNode responseBody = restClient.get()
-                    .uri(uri)
-                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "GET", uri.getPath()))
-                    .retrieve()
-                    .body(JsonNode.class);
-
-            if (responseBody == null || !responseBody.has("content")) {
-                return Optional.empty();
-            }
-
-            JsonNode content = responseBody.get("content");
-            if (content.isNull() || !content.has("unitAmount")) {
-                return Optional.empty();
-            }
-
-            return Optional.of(content.get("unitAmount").asLong());
-        } catch (Exception e) {
-            recordOrderProductError(targetId, uri, e);
-            log.warn("커머스 서비스 주문 상품 조회 실패 - orderId: {}, pricePolicyId: {}", orderId, pricePolicyId, e);
-            return Optional.empty();
-        }
-    }
-
-    private void recordOrderProductError(String targetId, URI uri, Exception e) {
-        String exception = e.getClass().getSimpleName();
-        JsonNode requestPayloadJson = serviceCommunicationPayloadGenerator.buildRequestPayloadJson(
-                HttpMethod.GET, uri, null, 1
-        );
-        JsonNode responsePayloadJson = serviceCommunicationPayloadGenerator.buildErrorPayloadJson(
-                exception, e.getMessage(), 1
-        );
-
-        serviceCommunicationRecorder.record(
-                CommunityServiceCommunicationTargetType.ORDER_PRODUCT,
-                CommunityServiceCommunicationType.REQUEST,
-                REQUEST_SENDER,
-                targetId,
-                requestPayloadJson.toString(),
-                requestPayloadJson,
-                exception
-        );
-        serviceCommunicationRecorder.record(
-                CommunityServiceCommunicationTargetType.ORDER_PRODUCT,
                 CommunityServiceCommunicationType.RESPONSE,
                 RESPONSE_SENDER,
                 targetId,
