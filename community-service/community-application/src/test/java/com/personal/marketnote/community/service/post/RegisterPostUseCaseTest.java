@@ -10,6 +10,7 @@ import com.personal.marketnote.community.port.in.result.post.RegisterPostResult;
 import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
 import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
+import com.personal.marketnote.community.port.out.post.UpdatePostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
@@ -39,6 +40,8 @@ class RegisterPostUseCaseTest {
     private SavePostPort savePostPort;
     @Mock
     private FindPostPort findPostPort;
+    @Mock
+    private UpdatePostPort updatePostPort;
     @Mock
     private FindProductByPricePolicyPort findProductByPricePolicyPort;
     @Mock

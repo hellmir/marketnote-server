@@ -73,6 +73,9 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "is_important", nullable = false)
     private boolean isImportant;
 
+    @Column(name = "has_reply", nullable = false)
+    private boolean hasReply;
+
     public static PostJpaEntity from(Post post) {
         PostCategory category = post.getCategory();
 
@@ -94,6 +97,7 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
                 .isPrivate(post.isPrivate())
                 .isPhoto(post.isPhoto())
                 .isImportant(post.isImportant())
+                .hasReply(post.hasReply())
                 .build();
     }
 
@@ -102,6 +106,7 @@ public class PostJpaEntity extends BaseOrderedGeneralEntity {
         title = post.getTitle();
         content = post.getContent();
         isImportant = post.isImportant();
+        hasReply = post.hasReply();
     }
 
     private void updateActivation(Post post) {

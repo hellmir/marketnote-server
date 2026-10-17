@@ -40,7 +40,10 @@ public class Post {
     private boolean isPrivate;
     private boolean isPhoto;
     private boolean isImportant;
-    private boolean isAnswered;
+
+    @Getter(AccessLevel.NONE)
+    private boolean hasReply;
+
     private EntityStatus status;
 
     @Builder.Default
@@ -75,6 +78,7 @@ public class Post {
                 .isPrivate(state.isPrivate())
                 .isPhoto(state.isPhoto())
                 .isImportant(resolveIsImportant(state.getBoard(), state.getCategory(), state.isImportant()))
+                .hasReply(false)
                 .status(EntityStatus.ACTIVE)
                 .build();
     }
@@ -113,6 +117,7 @@ public class Post {
                 .isPrivate(state.isPrivate())
                 .isPhoto(state.isPhoto())
                 .isImportant(state.isImportant())
+                .hasReply(state.isHasReply())
                 .status(state.getStatus())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
@@ -138,11 +143,30 @@ public class Post {
 
     public void updateReplies(List<Post> replies) {
         this.replies = replies;
-        isAnswered = FormatValidator.hasValue(replies);
     }
 
     public boolean hasReplies() {
         return FormatValidator.hasValue(getReplies());
+    }
+
+    public boolean hasReply() {
+        return hasReply;
+    }
+
+    public void markHasReply() {
+        this.hasReply = true;
+    }
+
+    public void unmarkHasReply() {
+        this.hasReply = false;
+    }
+
+    public boolean isHasReplyChanged(boolean target) {
+        return hasReply != target;
+    }
+
+    public void applyHasReply(boolean target) {
+        this.hasReply = target;
     }
 
     public void changeExposure() {
