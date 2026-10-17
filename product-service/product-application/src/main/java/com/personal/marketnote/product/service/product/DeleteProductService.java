@@ -6,6 +6,7 @@ import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.port.in.command.DeleteProductCommand;
 import com.personal.marketnote.product.port.in.usecase.product.DeleteProductUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductPort;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class DeleteProductService implements DeleteProductUseCase {
     private final GetProductUseCase getProductUseCase;
     private final FindProductPort findProductPort;
     private final UpdateProductPort updateProductPort;
+    private final PublishProductEventPort publishProductEventPort;
 
     @Override
     public void delete(Long userId, boolean isAdmin, DeleteProductCommand command) {
@@ -33,7 +35,6 @@ public class DeleteProductService implements DeleteProductUseCase {
         product.delete();
 
         updateProductPort.update(product);
+        publishProductEventPort.publishProductDeletedEvent(id);
     }
 }
-
-
