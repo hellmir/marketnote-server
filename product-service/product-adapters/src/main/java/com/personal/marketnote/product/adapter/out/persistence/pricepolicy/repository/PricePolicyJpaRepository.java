@@ -112,6 +112,11 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id ASC
             """)
+    /**
+     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
+     * 운영 안정화 이후 제거될 예정이다.
+     */
+    @Deprecated
     List<PricePolicyJpaEntity> findAllActiveByCursorAsc(
             @Param("pricePolicyIds") List<Long> pricePolicyIds,
             @Param("cursor") Long cursor,
@@ -229,6 +234,11 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id DESC
             """)
+    /**
+     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
+     * 운영 안정화 이후 제거될 예정이다.
+     */
+    @Deprecated
     List<PricePolicyJpaEntity> findAllActiveByCursorDesc(
             @Param("pricePolicyIds") List<Long> pricePolicyIds,
             @Param("cursor") Long cursor,
@@ -275,6 +285,11 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id ASC
             """)
+    /**
+     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
+     * 운영 안정화 이후 제거될 예정이다.
+     */
+    @Deprecated
     List<PricePolicyJpaEntity> findAllActiveByOffsetAsc(
             @Param("pricePolicyIds") List<Long> pricePolicyIds,
             Pageable pageable,
@@ -320,6 +335,11 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id DESC
             """)
+    /**
+     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
+     * 운영 안정화 이후 제거될 예정이다.
+     */
+    @Deprecated
     List<PricePolicyJpaEntity> findAllActiveByOffsetDesc(
             @Param("pricePolicyIds") List<Long> pricePolicyIds,
             Pageable pageable,
@@ -350,6 +370,11 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
               )
             """)
+    /**
+     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
+     * 운영 안정화 이후 제거될 예정이다.
+     */
+    @Deprecated
     long countActiveByCategoryId(
             @Param("categoryId") Long categoryId,
             @Param("searchTarget") String searchTarget,
@@ -370,6 +395,11 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
               )
             """)
+    /**
+     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
+     * 운영 안정화 이후 제거될 예정이다.
+     */
+    @Deprecated
     long countActive(@Param("searchTarget") String searchTarget, @Param("pattern") String pattern);
 
     @Query("""

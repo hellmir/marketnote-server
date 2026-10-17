@@ -88,7 +88,7 @@ class ProductCatalogReadModelSyncConsumerTest {
         verify(saveProductCatalogReadModelPort).upsertCatalog(
                 eq(1L), eq(100L), eq(200L), eq(null),
                 eq("테스트 상품"), eq("테스트 브랜드"),
-                eq(10000L), eq(9000L), eq(100L),
+                eq(10000L), eq(9000L), eq(BigDecimal.ZERO), eq(100L),
                 eq(BigDecimal.ZERO), eq(0L), eq(0L)
         );
         verify(acknowledgment).acknowledge();
@@ -146,8 +146,36 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
-    @DisplayName("ImageChanged 대표 이미지(sortOrder=0) 이벤트 수신 시 updateRepresentativeImageUrl을 호출한다")
-    void handleImageChanged_representativeImage_updatesImageUrl() {
+    @DisplayName("ImageChanged 대표 이미지(sortOrder=0) 이벤트 수신 시 updateRepresentativeImage 를 resized URL 과 함께 호출한다")
+    void handleImageChanged_representativeImage_updatesImageWithResized() {
+        ImageChangedEvent payload = new ImageChangedEvent(
+                10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
+                "https://example.com/catalog.png", 0,
+                List.of(
+                        new ImageChangedEvent.ResizedImageInfo("SMALL", "https://example.com/catalog-sm.png"),
+                        new ImageChangedEvent.ResizedImageInfo("MEDIUM", "https://example.com/catalog-md.png")
+                ),
+                ImageChangeAction.CREATED
+        );
+        EventEnvelope<ImageChangedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, "file-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.FILE_IMAGE_CHANGED, envelope);
+
+        consumer.handleImageChanged(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort)
+                .updateRepresentativeImage(
+                        eq(100L),
+                        eq("https://example.com/catalog.png"),
+                        eq(List.of("https://example.com/catalog-sm.png", "https://example.com/catalog-md.png"))
+                );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ImageChanged resized 이미지가 없으면 빈 리스트로 updateRepresentativeImage 를 호출한다")
+    void handleImageChanged_noResizedImages_callsWithEmptyList() {
         ImageChangedEvent payload = new ImageChangedEvent(
                 10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
                 "https://example.com/catalog.png", 0, List.of(), ImageChangeAction.CREATED
@@ -160,12 +188,12 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleImageChanged(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort)
-                .updateRepresentativeImageUrl(100L, "https://example.com/catalog.png");
+                .updateRepresentativeImage(eq(100L), eq("https://example.com/catalog.png"), eq(List.of()));
         verify(acknowledgment).acknowledge();
     }
 
     @Test
-    @DisplayName("ImageChanged 대표 이미지가 아니면(sortOrder != 0) updateRepresentativeImageUrl을 호출하지 않는다")
+    @DisplayName("ImageChanged 대표 이미지가 아니면(sortOrder != 0) updateRepresentativeImage 를 호출하지 않는다")
     void handleImageChanged_notRepresentative_acknowledges() {
         ImageChangedEvent payload = new ImageChangedEvent(
                 10L, 100L, "PRODUCT", FileSort.PRODUCT_CATALOG_IMAGE.name(),
@@ -183,7 +211,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
-    @DisplayName("ImageChanged fileSort가 PRODUCT_CATALOG_IMAGE가 아니면 updateRepresentativeImageUrl을 호출하지 않는다")
+    @DisplayName("ImageChanged fileSort가 PRODUCT_CATALOG_IMAGE가 아니면 updateRepresentativeImage 를 호출하지 않는다")
     void handleImageChanged_wrongFileSort_acknowledges() {
         ImageChangedEvent payload = new ImageChangedEvent(
                 10L, 100L, "PRODUCT", FileSort.PRODUCT_REPRESENTATIVE_IMAGE.name(),

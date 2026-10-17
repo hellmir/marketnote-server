@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.port.out.productcatalog;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface SaveProductCatalogReadModelPort {
 
@@ -13,6 +14,7 @@ public interface SaveProductCatalogReadModelPort {
             String brandName,
             Long price,
             Long discountPrice,
+            BigDecimal discountRate,
             Long accumulatedPoint,
             BigDecimal accumulatedPointRate,
             Long orderNum,
@@ -21,7 +23,7 @@ public interface SaveProductCatalogReadModelPort {
 
     void updateStockQuantity(Long pricePolicyId, Integer stockQuantity);
 
-    void updateRepresentativeImageUrl(Long productId, String representativeImageUrl);
+    void updateRepresentativeImage(Long productId, String representativeImageUrl, List<String> resizedImageUrls);
 
     void updateReviewAggregate(Long productId, Integer reviewCount, Float reviewAverageRating);
 

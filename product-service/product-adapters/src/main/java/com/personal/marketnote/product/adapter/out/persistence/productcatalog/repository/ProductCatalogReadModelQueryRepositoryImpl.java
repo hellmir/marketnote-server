@@ -9,7 +9,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -55,11 +54,11 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
         if (hasCursor) {
             jpql.append("AND (p.").append(sortColumn).append(" ").append(comparator).append(" :cursorSortValue ")
                     .append("OR (p.").append(sortColumn).append(" = :cursorSortValue ")
-                    .append("AND p.id ").append(comparator).append(" :cursor)) ");
+                    .append("AND p.pricePolicyId ").append(comparator).append(" :cursor)) ");
         }
 
         jpql.append("ORDER BY p.").append(sortColumn).append(" ").append(direction);
-        jpql.append(", p.id ").append(direction);
+        jpql.append(", p.pricePolicyId ").append(direction);
 
         TypedQuery<ProductCatalogReadModelJpaEntity> query =
                 entityManager.createQuery(jpql.toString(), ProductCatalogReadModelJpaEntity.class);
@@ -123,12 +122,17 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
         if (FormatValidator.hasNoValue(cursor) || cursor <= 0) {
             return null;
         }
-        ProductCatalogReadModelJpaEntity cursorRow =
-                entityManager.find(ProductCatalogReadModelJpaEntity.class, cursor);
-        if (FormatValidator.hasNoValue(cursorRow)) {
+        TypedQuery<ProductCatalogReadModelJpaEntity> cursorQuery = entityManager.createQuery(
+                "SELECT p FROM ProductCatalogReadModelJpaEntity p WHERE p.pricePolicyId = :pricePolicyId",
+                ProductCatalogReadModelJpaEntity.class
+        );
+        cursorQuery.setParameter("pricePolicyId", cursor);
+        cursorQuery.setMaxResults(1);
+        List<ProductCatalogReadModelJpaEntity> rows = cursorQuery.getResultList();
+        if (FormatValidator.hasNoValue(rows)) {
             return null;
         }
-        return extractSortValue(cursorRow, sortColumn);
+        return extractSortValue(rows.getFirst(), sortColumn);
     }
 
     private Object extractSortValue(ProductCatalogReadModelJpaEntity entity, String sortColumn) {
