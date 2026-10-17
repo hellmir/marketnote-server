@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterProductUseCaseTest {
+    private static final UUID PRODUCT_KEY = UUID.fromString("01900000-0000-7000-8000-000000000001");
+
     @Mock
     private RegisterPricePolicyUseCase registerPricePolicyUseCase;
     @Mock
@@ -82,7 +85,7 @@ class RegisterProductUseCaseTest {
         assertThat(pricePolicyCommand.accumulatedPoint()).isEqualTo(command.accumulatedPoint());
         assertThat(pricePolicyCommand.optionIds()).isNull();
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(10L, 100L, command.sellerId(), "테스트 상품", null, "테스트 브랜드", 10000L, 8000L, 100L);
+        verify(publishProductEventPort).publishProductRegisteredEvent(10L, PRODUCT_KEY, 100L, command.sellerId(), "테스트 상품", null, "테스트 브랜드", 10000L, 8000L, 100L);
 
         verifyNoMoreInteractions(
                 registerPricePolicyUseCase,
@@ -105,7 +108,7 @@ class RegisterProductUseCaseTest {
 
         registerProductService.registerProduct(command);
 
-        verify(publishProductEventPort).publishProductRegisteredEvent(11L, 101L, command.sellerId(), "테스트 상품", "2", "테스트 브랜드", 10000L, 8000L, 100L);
+        verify(publishProductEventPort).publishProductRegisteredEvent(11L, PRODUCT_KEY, 101L, command.sellerId(), "테스트 상품", "2", "테스트 브랜드", 10000L, 8000L, 100L);
     }
 
     @Test
@@ -148,6 +151,7 @@ class RegisterProductUseCaseTest {
         return Product.from(
                 ProductSnapshotState.builder()
                         .id(id)
+                        .productKey(PRODUCT_KEY)
                         .sellerId(command.sellerId())
                         .name(command.name())
                         .brandName(command.brandName())

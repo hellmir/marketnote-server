@@ -475,7 +475,7 @@ class GetBuyerOrderProductsUseCaseTest {
                     .thenReturn(List.of(order));
             when(findProductByPricePolicyPort.findByPricePolicyIds(anyList()))
                     .thenReturn(Map.of(
-                            100L, new ProductInfoResult(100L, null, "상품A", "나이키", null, null, null, List.of())
+                            100L, new ProductInfoResult(100L, null, null, "상품A", "나이키", null, null, null, List.of())
                     ));
 
             GetBuyerOrderProductsResult result = getOrderService.getBuyerOrderProducts(query);
@@ -1455,6 +1455,6 @@ class GetBuyerOrderProductsUseCaseTest {
     }
 
     private ProductInfoResult createProductInfo(Long id, String name) {
-        return new ProductInfoResult(id, null, name, "브랜드", null, null, null, List.of());
+        return new ProductInfoResult(id, null, null, name, "브랜드", null, null, null, List.of());
     }
 }

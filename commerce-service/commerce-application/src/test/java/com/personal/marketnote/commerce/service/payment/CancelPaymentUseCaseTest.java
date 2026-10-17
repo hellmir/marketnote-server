@@ -1530,7 +1530,7 @@ class CancelPaymentUseCaseTest {
     }
 
     private ProductInfoResult createProductInfoWithPoint(Long accumulatedPoint) {
-        return new ProductInfoResult(1L, 10L, "테스트 상품", "테스트 브랜드", 25000L, null, accumulatedPoint, List.of());
+        return new ProductInfoResult(1L, null, 10L, "테스트 상품", "테스트 브랜드", 25000L, null, accumulatedPoint, List.of());
     }
 
     private Payment createSuccessPayment(Long orderId, UUID orderKey, Long amount, String pgPaymentKey) {

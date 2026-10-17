@@ -33,7 +33,7 @@ class GetOrderProductResultTest {
                 .build());
 
         ProductInfoResult productInfo = new ProductInfoResult(
-                1L, null, "테스트 상품", "테스트 브랜드", null, null, null, List.<ProductOptionInfoResult>of()
+                1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.<ProductOptionInfoResult>of()
         );
 
         // when

@@ -76,7 +76,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("ProductRegistered 이벤트 수신 시 upsertCatalog를 호출한다")
     void handleProductRegistered_validPayload_upsertsCatalog() {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                100L, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L
+                100L, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L
         );
         EventEnvelope<ProductRegisteredEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);
@@ -98,7 +98,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("ProductRegistered productId가 null이면 upsert를 호출하지 않는다")
     void handleProductRegistered_nullProductId_acknowledges() {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L
+                null, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드", 10000L, 9000L, 100L
         );
         EventEnvelope<ProductRegisteredEvent> envelope =
                 envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);

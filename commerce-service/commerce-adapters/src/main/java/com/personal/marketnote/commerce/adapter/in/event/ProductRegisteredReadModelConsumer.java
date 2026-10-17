@@ -58,7 +58,7 @@ public class ProductRegisteredReadModelConsumer {
         }
 
         saveProductReadModelPort.upsert(
-                payload.pricePolicyId(), payload.productId(), payload.sellerId(),
+                payload.pricePolicyId(), payload.productId(), payload.productKey(), payload.sellerId(),
                 payload.productName(), payload.brandName(),
                 payload.price(), payload.discountPrice(), payload.accumulatedPoint()
         );

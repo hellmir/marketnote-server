@@ -749,6 +749,6 @@ class ChangeOrderStatusUseCaseTest {
     }
 
     private ProductInfoResult createProductInfoResult(Long accumulatedPoint) {
-        return new ProductInfoResult(1L, 1L, "테스트 상품", "브랜드", 50000L, null, accumulatedPoint, List.of());
+        return new ProductInfoResult(1L, null, 1L, "테스트 상품", "브랜드", 50000L, null, accumulatedPoint, List.of());
     }
 }

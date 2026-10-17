@@ -1012,6 +1012,6 @@ class GetBuyerOrderCountUseCaseTest {
     }
 
     private ProductInfoResult createProductInfo(Long id, String name) {
-        return new ProductInfoResult(id, null, name, "브랜드", null, null, null, List.of());
+        return new ProductInfoResult(id, null, null, name, "브랜드", null, null, null, List.of());
     }
 }

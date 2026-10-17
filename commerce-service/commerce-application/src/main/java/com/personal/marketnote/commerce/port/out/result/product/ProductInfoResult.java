@@ -4,9 +4,11 @@ import com.personal.marketnote.commerce.port.out.product.result.ProductOptionInf
 import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.List;
+import java.util.UUID;
 
 public record ProductInfoResult(
         Long id,
+        UUID productKey,
         Long sellerId,
         String name,
         String brandName,
