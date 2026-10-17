@@ -373,11 +373,9 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
     long countActive(@Param("searchTarget") String searchTarget, @Param("pattern") String pattern);
 
     @Query("""
-            SELECT DISTINCT pp
+            SELECT pp
             FROM PricePolicyJpaEntity pp
               LEFT JOIN FETCH pp.productJpaEntity p
-              LEFT JOIN FETCH pp.productOptionPricePolicyJpaEntities popp
-              LEFT JOIN FETCH popp.productOptionJpaEntity po
             WHERE pp.id IN :pricePolicyIds
             """)
     List<PricePolicyJpaEntity> findAllWithProductAndOptionMappingsByIdIn(

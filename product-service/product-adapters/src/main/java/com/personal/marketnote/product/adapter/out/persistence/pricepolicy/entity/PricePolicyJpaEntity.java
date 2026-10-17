@@ -6,6 +6,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productoption.ent
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -47,6 +48,7 @@ public class PricePolicyJpaEntity extends BaseOrderedGeneralEntity {
     private Long popularity;
 
     @OneToMany(mappedBy = "pricePolicyJpaEntity", cascade = {PERSIST, MERGE})
+    @BatchSize(size = 100)
     private List<ProductOptionPricePolicyJpaEntity> productOptionPricePolicyJpaEntities;
 
     public static PricePolicyJpaEntity from(ProductJpaEntity productRef, PricePolicy pricePolicy) {
