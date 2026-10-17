@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
+import com.personal.marketnote.common.kafka.event.PricePolicyDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -136,6 +137,52 @@ class ProductEventKafkaProducerTest {
         assertThat(capturedEnvelope.timestamp()).isNotNull();
 
         PricePolicyCreatedEvent payload = (PricePolicyCreatedEvent) capturedEnvelope.payload();
+        assertThat(payload.productId()).isEqualTo(10L);
+        assertThat(payload.pricePolicyId()).isEqualTo(20L);
+    }
+
+    @Test
+    @DisplayName("가격 정책 삭제 이벤트 발행 시 올바른 토픽과 파티션 키로 Outbox에 저장된다")
+    void publishPricePolicyDeletedEvent_savesToOutboxWithCorrectTopicAndPartitionKey() throws Exception {
+        // given
+        setUpClock("2026-02-27T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        productEventKafkaProducer.publishPricePolicyDeletedEvent(1L, 2L);
+
+        // then
+        ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+        verify(saveOutboxEventPort).save(outboxCaptor.capture());
+
+        OutboxEvent captured = outboxCaptor.getValue();
+        assertThat(captured.getTopic()).isEqualTo(KafkaTopicConstants.PRICE_POLICY_DELETED);
+        assertThat(captured.getPartitionKey()).isEqualTo("1");
+        assertThat(captured.getSource()).isEqualTo("product-service");
+    }
+
+    @Test
+    @DisplayName("가격 정책 삭제 이벤트 발행 시 EventEnvelope에 올바른 페이로드가 포함된다")
+    @SuppressWarnings("unchecked")
+    void publishPricePolicyDeletedEvent_envelopeContainsCorrectPayload() throws Exception {
+        // given
+        setUpClock("2026-02-27T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        productEventKafkaProducer.publishPricePolicyDeletedEvent(10L, 20L);
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+        assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.PRICE_POLICY_DELETED);
+        assertThat(capturedEnvelope.source()).isEqualTo("product-service");
+        assertThat(capturedEnvelope.eventId()).isNotNull();
+        assertThat(capturedEnvelope.timestamp()).isNotNull();
+
+        PricePolicyDeletedEvent payload = (PricePolicyDeletedEvent) capturedEnvelope.payload();
         assertThat(payload.productId()).isEqualTo(10L);
         assertThat(payload.pricePolicyId()).isEqualTo(20L);
     }
