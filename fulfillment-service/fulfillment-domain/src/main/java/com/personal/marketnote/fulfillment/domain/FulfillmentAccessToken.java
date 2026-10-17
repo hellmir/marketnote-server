@@ -41,6 +41,17 @@ public class FulfillmentAccessToken {
         return now.isAfter(expiresAt);
     }
 
+    public boolean isExpiringSoon(LocalDateTime now, long bufferSeconds) {
+        if (FormatValidator.hasNoValue(expiresAt)) {
+            return true;
+        }
+        if (FormatValidator.hasNoValue(now)) {
+            return true;
+        }
+
+        return !now.isBefore(expiresAt.minusSeconds(bufferSeconds));
+    }
+
     private static LocalDateTime parseExpiration(String expreDatetime) {
         try {
             return LocalDateTime.parse(expreDatetime, EXPIRE_DATETIME_FORMATTER);
