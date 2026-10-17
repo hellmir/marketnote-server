@@ -62,4 +62,44 @@ class FulfillmentAccessTokenTest {
             assertThat(token.isExpired(beforeExpiry)).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("isExpiringSoon() 선제 만료 판정")
+    class IsExpiringSoonTest {
+
+        @Test
+        @DisplayName("now가 expiresAt - buffer 이후이면 isExpiringSoon이 true를 반환한다")
+        void isExpiringSoon_whenWithinBuffer_returnsTrue() {
+            FulfillmentAccessToken token = FulfillmentAccessToken.of("valid-token", "20260101120000");
+            LocalDateTime withinBuffer = LocalDateTime.of(2026, 1, 1, 11, 59, 30);
+
+            assertThat(token.isExpiringSoon(withinBuffer, 60L)).isTrue();
+        }
+
+        @Test
+        @DisplayName("now가 expiresAt 이후이면 isExpiringSoon이 true를 반환한다")
+        void isExpiringSoon_whenAlreadyExpired_returnsTrue() {
+            FulfillmentAccessToken token = FulfillmentAccessToken.of("valid-token", "20260101120000");
+            LocalDateTime afterExpiry = LocalDateTime.of(2026, 1, 1, 13, 0, 0);
+
+            assertThat(token.isExpiringSoon(afterExpiry, 60L)).isTrue();
+        }
+
+        @Test
+        @DisplayName("now가 expiresAt - buffer 이전이면 isExpiringSoon이 false를 반환한다")
+        void isExpiringSoon_whenOutsideBuffer_returnsFalse() {
+            FulfillmentAccessToken token = FulfillmentAccessToken.of("valid-token", "20260101120000");
+            LocalDateTime beforeBuffer = LocalDateTime.of(2026, 1, 1, 11, 58, 0);
+
+            assertThat(token.isExpiringSoon(beforeBuffer, 60L)).isFalse();
+        }
+
+        @Test
+        @DisplayName("now가 null이면 isExpiringSoon이 true를 반환한다")
+        void isExpiringSoon_whenNowIsNull_returnsTrue() {
+            FulfillmentAccessToken token = FulfillmentAccessToken.of("valid-token", "20260101120000");
+
+            assertThat(token.isExpiringSoon(null, 60L)).isTrue();
+        }
+    }
 }
