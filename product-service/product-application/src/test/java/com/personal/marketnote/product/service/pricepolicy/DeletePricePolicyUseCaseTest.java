@@ -1,11 +1,13 @@
 package com.personal.marketnote.product.service.pricepolicy;
 
 import com.personal.marketnote.product.exception.NotProductOwnerException;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.pricepolicy.DeletePricePolicyPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,6 +21,8 @@ class DeletePricePolicyUseCaseTest {
     private FindProductPort findProductPort;
     @Mock
     private DeletePricePolicyPort deletePricePolicyPort;
+    @Mock
+    private PublishProductEventPort publishProductEventPort;
 
     @InjectMocks
     private DeletePricePolicyService deletePricePolicyService;
@@ -38,6 +42,7 @@ class DeletePricePolicyUseCaseTest {
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verifyNoInteractions(deletePricePolicyPort);
+        verifyNoInteractions(publishProductEventPort);
     }
 
     @Test
@@ -50,6 +55,7 @@ class DeletePricePolicyUseCaseTest {
         deletePricePolicyService.delete(userId, true, productId, pricePolicyId);
 
         verify(deletePricePolicyPort).deleteById(pricePolicyId);
+        verify(publishProductEventPort).publishPricePolicyDeletedEvent(productId, pricePolicyId);
         verifyNoInteractions(findProductPort);
     }
 
@@ -66,6 +72,7 @@ class DeletePricePolicyUseCaseTest {
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verify(deletePricePolicyPort).deleteById(pricePolicyId);
+        verify(publishProductEventPort).publishPricePolicyDeletedEvent(productId, pricePolicyId);
     }
 
     @Test
@@ -84,5 +91,22 @@ class DeletePricePolicyUseCaseTest {
 
         verify(findProductPort).existsByIdAndSellerId(productId, userId);
         verify(deletePricePolicyPort).deleteById(pricePolicyId);
+        verifyNoInteractions(publishProductEventPort);
+    }
+
+    @Test
+    @DisplayName("가격 정책 삭제 후 PricePolicyDeletedEvent를 Outbox로 발행한다")
+    void delete_success_publishesPricePolicyDeletedEventAfterDelete() {
+        Long userId = 5L;
+        Long productId = 50L;
+        Long pricePolicyId = 500L;
+
+        when(findProductPort.existsByIdAndSellerId(productId, userId)).thenReturn(true);
+
+        deletePricePolicyService.delete(userId, false, productId, pricePolicyId);
+
+        InOrder inOrder = inOrder(deletePricePolicyPort, publishProductEventPort);
+        inOrder.verify(deletePricePolicyPort).deleteById(pricePolicyId);
+        inOrder.verify(publishProductEventPort).publishPricePolicyDeletedEvent(productId, pricePolicyId);
     }
 }
