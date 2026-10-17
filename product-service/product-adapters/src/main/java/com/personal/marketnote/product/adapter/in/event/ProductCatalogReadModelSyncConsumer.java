@@ -1,5 +1,6 @@
 package com.personal.marketnote.product.adapter.in.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
@@ -68,11 +69,42 @@ public class ProductCatalogReadModelSyncConsumer {
                 FormatValidator.hasValue(payload.accumulatedPoint()) ? payload.accumulatedPoint() : 0L,
                 BigDecimal.ZERO,
                 0L,
-                0L
+                0L,
+                FormatValidator.hasValue(payload.sales()) ? payload.sales() : 0L,
+                serializeProductTags(payload.productTags(), payload.pricePolicyId()),
+                serializeSelectedOptions(payload.selectedOptions(), payload.pricePolicyId())
         );
 
         log.info("상품 카탈로그 Read Model 저장 (상품 등록). pricePolicyId={}", payload.pricePolicyId());
         ack.acknowledge();
+    }
+
+    private String serializeProductTags(
+            List<ProductRegisteredEvent.ProductTagSnapshot> tags, Long pricePolicyId
+    ) {
+        if (FormatValidator.hasNoValue(tags)) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(tags);
+        } catch (JsonProcessingException jpe) {
+            log.warn("상품 카탈로그 Read Model productTags 직렬화 실패. pricePolicyId={}", pricePolicyId, jpe);
+            return null;
+        }
+    }
+
+    private String serializeSelectedOptions(
+            List<ProductRegisteredEvent.ProductOptionSnapshot> options, Long pricePolicyId
+    ) {
+        if (FormatValidator.hasNoValue(options)) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(options);
+        } catch (JsonProcessingException jpe) {
+            log.warn("상품 카탈로그 Read Model selectedOptions 직렬화 실패. pricePolicyId={}", pricePolicyId, jpe);
+            return null;
+        }
     }
 
     @KafkaListener(topics = KafkaTopicConstants.INVENTORY_CHANGED, groupId = CONSUMER_GROUP_ID)

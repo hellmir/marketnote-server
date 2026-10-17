@@ -22,6 +22,9 @@ public record ProductCatalogItemResult(
         Integer stockQuantity,
         Integer reviewCount,
         Float reviewAverageRating,
+        Long sales,
+        List<ProductCatalogTagSnapshot> productTags,
+        List<ProductCatalogOptionSnapshot> selectedOptions,
         String status
 ) {
 }

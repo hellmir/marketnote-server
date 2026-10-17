@@ -73,16 +73,20 @@ public class ProductCatalogReadModelPersistenceAdapter
             Long accumulatedPoint,
             BigDecimal accumulatedPointRate,
             Long orderNum,
-            Long popularity
+            Long popularity,
+            Long sales,
+            String productTagsJson,
+            String selectedOptionsJson
     ) {
+        Long safeSales = FormatValidator.hasValue(sales) ? sales : 0L;
         Optional<ProductCatalogReadModelJpaEntity> existing = repository.findByPricePolicyId(pricePolicyId);
 
         if (existing.isPresent()) {
-            ProductCatalogReadModelJpaEntity entity = existing.get();
-            entity.updateProductInfo(name, brandName, primaryCategoryId);
-            entity.updatePricing(price, discountPrice, discountRate, accumulatedPoint, accumulatedPointRate);
-            entity.updateOrderNum(orderNum);
-            entity.updatePopularity(popularity);
+            applyUpdates(
+                    existing.get(), name, brandName, primaryCategoryId, price, discountPrice, discountRate,
+                    accumulatedPoint, accumulatedPointRate, orderNum, popularity,
+                    safeSales, productTagsJson, selectedOptionsJson
+            );
             return;
         }
 
@@ -91,18 +95,37 @@ public class ProductCatalogReadModelPersistenceAdapter
                     pricePolicyId, productId, sellerId, primaryCategoryId,
                     name, brandName, price, discountPrice, discountRate,
                     accumulatedPoint, accumulatedPointRate,
-                    orderNum, popularity
+                    orderNum, popularity,
+                    safeSales, productTagsJson, selectedOptionsJson
             );
             repository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
             ProductCatalogReadModelJpaEntity entity = repository.findByPricePolicyId(pricePolicyId)
                     .orElseThrow(() -> e);
             log.info("상품 카탈로그 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
-            entity.updateProductInfo(name, brandName, primaryCategoryId);
-            entity.updatePricing(price, discountPrice, discountRate, accumulatedPoint, accumulatedPointRate);
-            entity.updateOrderNum(orderNum);
-            entity.updatePopularity(popularity);
+            applyUpdates(
+                    entity, name, brandName, primaryCategoryId, price, discountPrice, discountRate,
+                    accumulatedPoint, accumulatedPointRate, orderNum, popularity,
+                    safeSales, productTagsJson, selectedOptionsJson
+            );
         }
+    }
+
+    private void applyUpdates(
+            ProductCatalogReadModelJpaEntity entity,
+            String name, String brandName, Long primaryCategoryId,
+            Long price, Long discountPrice, BigDecimal discountRate,
+            Long accumulatedPoint, BigDecimal accumulatedPointRate,
+            Long orderNum, Long popularity,
+            Long safeSales, String productTagsJson, String selectedOptionsJson
+    ) {
+        entity.updateProductInfo(name, brandName, primaryCategoryId);
+        entity.updatePricing(price, discountPrice, discountRate, accumulatedPoint, accumulatedPointRate);
+        entity.updateOrderNum(orderNum);
+        entity.updatePopularity(popularity);
+        entity.updateSales(safeSales);
+        entity.updateProductTags(productTagsJson);
+        entity.updateSelectedOptions(selectedOptionsJson);
     }
 
     @Override

@@ -81,6 +81,15 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private Float reviewAverageRating;
 
+    @Column(nullable = false)
+    private Long sales;
+
+    @Column(columnDefinition = "TEXT")
+    private String productTags;
+
+    @Column(columnDefinition = "TEXT")
+    private String selectedOptions;
+
     public static ProductCatalogReadModelJpaEntity of(
             Long pricePolicyId,
             Long productId,
@@ -94,7 +103,10 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
             Long accumulatedPoint,
             BigDecimal accumulatedPointRate,
             Long orderNum,
-            Long popularity
+            Long popularity,
+            Long sales,
+            String productTags,
+            String selectedOptions
     ) {
         return ProductCatalogReadModelJpaEntity.builder()
                 .pricePolicyId(pricePolicyId)
@@ -115,6 +127,9 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
                 .stockQuantity(0)
                 .reviewCount(0)
                 .reviewAverageRating(0f)
+                .sales(sales)
+                .productTags(productTags)
+                .selectedOptions(selectedOptions)
                 .build();
     }
 
@@ -156,6 +171,22 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     public void updateReviewAggregate(Integer reviewCount, Float reviewAverageRating) {
         this.reviewCount = reviewCount;
         this.reviewAverageRating = reviewAverageRating;
+    }
+
+    public void updateSales(Long sales) {
+        this.sales = sales;
+    }
+
+    public void increaseSales(Long delta) {
+        this.sales = this.sales + delta;
+    }
+
+    public void updateProductTags(String productTags) {
+        this.productTags = productTags;
+    }
+
+    public void updateSelectedOptions(String selectedOptions) {
+        this.selectedOptions = selectedOptions;
     }
 
     public void markInactive() {

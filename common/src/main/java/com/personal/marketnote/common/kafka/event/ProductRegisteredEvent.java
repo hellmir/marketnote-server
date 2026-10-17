@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.kafka.event;
 
+import java.util.List;
 import java.util.UUID;
 
 public record ProductRegisteredEvent(
@@ -12,6 +13,22 @@ public record ProductRegisteredEvent(
         String brandName,
         Long price,
         Long discountPrice,
-        Long accumulatedPoint
+        Long accumulatedPoint,
+        Long sales,
+        List<ProductTagSnapshot> productTags,
+        List<ProductOptionSnapshot> selectedOptions
 ) {
+
+    public record ProductTagSnapshot(
+            Long id,
+            String name,
+            Long orderNum
+    ) {
+    }
+
+    public record ProductOptionSnapshot(
+            Long id,
+            String content
+    ) {
+    }
 }
