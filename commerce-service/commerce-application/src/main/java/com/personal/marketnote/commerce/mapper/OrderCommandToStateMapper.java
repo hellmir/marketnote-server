@@ -37,8 +37,10 @@ public class OrderCommandToStateMapper {
         return orderProducts.stream()
                 .map(item -> {
                     Long accumulatedPoint = resolveAccumulatedPoint(item.pricePolicyId(), productInfoMap);
+                    UUID productKey = resolveProductKey(item.pricePolicyId(), productInfoMap);
                     return OrderProductCreateState.builder()
                             .productId(item.productId())
+                            .productKey(productKey)
                             .sellerId(item.sellerId())
                             .pricePolicyId(item.pricePolicyId())
                             .sharerKey(item.sharerKey())
@@ -61,6 +63,17 @@ public class OrderCommandToStateMapper {
         }
         Long accumulatedPoint = productInfo.accumulatedPoint();
         return FormatValidator.hasValue(accumulatedPoint) ? accumulatedPoint : 0L;
+    }
+
+    private static UUID resolveProductKey(Long pricePolicyId, Map<Long, ProductInfoResult> productInfoMap) {
+        if (FormatValidator.hasNoValue(productInfoMap)) {
+            return null;
+        }
+        ProductInfoResult productInfo = productInfoMap.get(pricePolicyId);
+        if (FormatValidator.hasNoValue(productInfo)) {
+            return null;
+        }
+        return productInfo.productKey();
     }
 
     public static OrderAmountCreateState mapToOrderAmountState(OrderAmountCommand amountCommand) {

@@ -33,6 +33,9 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "product_id")
     private Long productId;
 
+    @Column(name = "product_key")
+    private UUID productKey;
+
     @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
@@ -72,6 +75,7 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
                 .orderJpaEntity(orderJpaEntity)
                 .productId(orderProduct.getProductId())
+                .productKey(orderProduct.getProductKey())
                 .sellerId(orderProduct.getSellerId())
                 .orderProductKey(orderProduct.getOrderProductKey())
                 .sharerKey(orderProduct.getSharerKey())

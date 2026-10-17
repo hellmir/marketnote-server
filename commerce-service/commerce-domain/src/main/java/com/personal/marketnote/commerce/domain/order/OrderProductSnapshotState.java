@@ -14,6 +14,7 @@ import java.util.UUID;
 public class OrderProductSnapshotState {
     private final Long orderId;
     private final Long productId;
+    private final UUID productKey;
     private final Long sellerId;
     private final Long pricePolicyId;
     private final UUID orderProductKey;
