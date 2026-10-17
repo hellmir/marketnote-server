@@ -189,6 +189,63 @@ class ProductReviewAggregateTest {
     }
 
     @Test
+    @DisplayName("마지막 리뷰 삭제로 totalCount가 0이 되면 totalRating과 averageRating을 0으로 초기화한다")
+    void shouldResetRatingsWhenLastReviewDeleted() {
+        ProductReviewAggregate aggregate = ProductReviewAggregate.from(ProductReviewAggregateSnapshotState.builder()
+                .productId(1L)
+                .totalCount(1)
+                .fivePointCount(1)
+                .fourPointCount(0)
+                .threePointCount(0)
+                .twoPointCount(0)
+                .onePointCount(0)
+                .totalRating(5.0f)
+                .averageRating(5.0f)
+                .build());
+
+        aggregate.reducePoint(5);
+        aggregate.computeRating(-5);
+
+        assertThat(aggregate.getTotalCount()).isEqualTo(0);
+        assertThat(aggregate.getTotalRating()).isEqualTo(0.0f);
+        assertThat(aggregate.getAverageRating()).isEqualTo(0.0f);
+        assertThat(Float.isFinite(aggregate.getAverageRating())).isTrue();
+        assertThat(Float.isNaN(aggregate.getAverageRating())).isFalse();
+    }
+
+    @Test
+    @DisplayName("일부 리뷰 삭제 후에도 남은 리뷰의 평균이 정상 계산된다")
+    void shouldRecomputeAverageAfterPartialDeletion() {
+        ProductReviewAggregate aggregate = createAggregateWithAllPoints();
+
+        aggregate.reducePoint(5);
+        aggregate.computeRating(-5);
+
+        assertThat(aggregate.getTotalCount()).isEqualTo(4);
+        assertThat(aggregate.getTotalRating()).isEqualTo(10.0f);
+        assertThat(aggregate.getAverageRating()).isEqualTo(2.5f);
+    }
+
+    @Test
+    @DisplayName("리뷰 추가→삭제→재추가 사이클에서 집계 상태가 일관된다")
+    void shouldStayConsistentAcrossAddDeleteAddCycle() {
+        ProductReviewAggregate aggregate = createEmptyAggregate();
+
+        aggregate.addPoint(4);
+        aggregate.computeRating(4);
+        aggregate.reducePoint(4);
+        aggregate.computeRating(-4);
+        aggregate.addPoint(3);
+        aggregate.computeRating(3);
+
+        assertThat(aggregate.getTotalCount()).isEqualTo(1);
+        assertThat(aggregate.getTotalRating()).isEqualTo(3.0f);
+        assertThat(aggregate.getAverageRating()).isEqualTo(3.0f);
+        assertThat(aggregate.getFourPointCount()).isEqualTo(0);
+        assertThat(aggregate.getThreePointCount()).isEqualTo(1);
+    }
+
+    @Test
     @DisplayName("여러 리뷰 추가 후 평균 별점이 정확하게 계산된다")
     void shouldCalculateCorrectAverageAfterMultipleReviews() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
