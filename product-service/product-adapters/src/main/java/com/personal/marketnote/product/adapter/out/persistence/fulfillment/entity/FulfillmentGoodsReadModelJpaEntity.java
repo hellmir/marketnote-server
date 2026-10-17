@@ -85,7 +85,7 @@ public class FulfillmentGoodsReadModelJpaEntity extends BaseGeneralEntity {
     private String oneDayDeliveryEnabled;
     private String safetyStock;
 
-    @OneToMany(mappedBy = "fulfillmentGoods", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fulfillmentGoods", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<FulfillmentGoodsElementReadModelJpaEntity> elements = new ArrayList<>();
 
