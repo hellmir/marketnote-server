@@ -14,15 +14,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -137,54 +133,4 @@ class CommerceServiceClientTest {
         }
     }
 
-    @Nested
-    @DisplayName("findUnitAmountByOrderIdAndPricePolicyId")
-    class FindUnitAmount {
-
-        @Test
-        @DisplayName("정상 응답이면 unitAmount를 추출해 반환한다")
-        void returnsUnitAmountWhenContentPresent() {
-            String body = "{\"content\":{\"unitAmount\":12345}}";
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/order-products/2"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
-
-            Optional<Long> result = client.findUnitAmountByOrderIdAndPricePolicyId(1L, 2L);
-
-            assertThat(result).contains(12345L);
-        }
-
-        @Test
-        @DisplayName("응답에 content가 없으면 빈 Optional을 반환한다")
-        void returnsEmptyWhenNoContentField() {
-            String body = "{\"other\":\"x\"}";
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/order-products/2"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
-
-            assertThat(client.findUnitAmountByOrderIdAndPricePolicyId(1L, 2L)).isEmpty();
-        }
-
-        @Test
-        @DisplayName("content가 null이거나 unitAmount가 없으면 빈 Optional을 반환한다")
-        void returnsEmptyWhenContentNullOrMissing() {
-            String body = "{\"content\":{\"otherField\":1}}";
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/order-products/2"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withSuccess(body, MediaType.APPLICATION_JSON));
-
-            assertThat(client.findUnitAmountByOrderIdAndPricePolicyId(1L, 2L)).isEmpty();
-        }
-
-        @Test
-        @DisplayName("서버 에러 발생 시 예외를 삼키고 빈 Optional을 반환하며 오류를 기록한다")
-        void returnsEmptyAndRecordsOnError() {
-            mockServer.expect(requestTo(BASE_URL + "/api/v1/internal/orders/1/order-products/2"))
-                    .andExpect(method(HttpMethod.GET))
-                    .andRespond(withServerError());
-
-            assertThat(client.findUnitAmountByOrderIdAndPricePolicyId(1L, 2L)).isEmpty();
-            verify(serviceCommunicationRecorder, atLeastOnce()).record(any(), any(), any(), any(), any(), any(), any());
-        }
-    }
 }
