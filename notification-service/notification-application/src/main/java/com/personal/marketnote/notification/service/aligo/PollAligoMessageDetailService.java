@@ -11,8 +11,7 @@ import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageDetail
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoMessagePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -30,10 +29,10 @@ public class PollAligoMessageDetailService implements PollAligoMessageDetailUseC
     private final FindPendingAligoMessagesPort findPendingAligoMessagesPort;
     private final GetAligoMessageDetailExternalPort getAligoMessageDetailExternalPort;
     private final UpdateAligoMessagePort updateAligoMessagePort;
+    private final TransactionTemplate transactionTemplate;
     private final Clock clock;
 
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
     public int poll() {
         LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime cutoff = now.minusHours(POLLING_WINDOW_HOURS);
@@ -53,10 +52,13 @@ public class PollAligoMessageDetailService implements PollAligoMessageDetailUseC
             List<AligoRecipientDetailResult> details =
                     getAligoMessageDetailExternalPort.getMessageDetail(message.getAligoMid());
 
-            applyRecipientResults(message, details);
-            forceResolveIfExpired(message, now);
-            message.resolveAfterPolling();
-            updateAligoMessagePort.update(message);
+            transactionTemplate.execute(status -> {
+                applyRecipientResults(message, details);
+                forceResolveIfExpired(message, now);
+                message.resolveAfterPolling();
+                updateAligoMessagePort.update(message);
+                return null;
+            });
             return true;
         } catch (Exception e) {
             log.warn("알리고 메시지 폴링 실패: messageId={}, aligoMid={}",

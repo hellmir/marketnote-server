@@ -6,6 +6,7 @@ import com.personal.marketnote.notification.port.out.aligo.FindPendingAligoMessa
 import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageDetailExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageDetailExternalPort.AligoRecipientDetailResult;
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoMessagePort;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -40,10 +43,22 @@ class PollAligoMessageDetailUseCaseTest {
     private UpdateAligoMessagePort updateAligoMessagePort;
 
     @Mock
+    private TransactionTemplate transactionTemplate;
+
+    @Mock
     private Clock clock;
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 4, 16, 12, 0, 0);
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
+
+    @BeforeEach
+    void setUpTransactionTemplate() {
+        lenient().when(transactionTemplate.execute(any()))
+                .thenAnswer(invocation -> {
+                    TransactionCallback<?> callback = invocation.getArgument(0);
+                    return callback.doInTransaction(null);
+                });
+    }
 
     private void setupClock() {
         Instant instant = NOW.atZone(ZONE).toInstant();
