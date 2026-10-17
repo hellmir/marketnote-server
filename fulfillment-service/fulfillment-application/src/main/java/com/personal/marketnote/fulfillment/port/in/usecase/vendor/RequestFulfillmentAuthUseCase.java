@@ -17,4 +17,11 @@ public interface RequestFulfillmentAuthUseCase {
      * @Description Request a Fulfillment access token.
      */
     FulfillmentAccessToken requestAccessToken();
+
+    /**
+     * @Date 2026-10-17
+     * @Author 성효빈
+     * @Description 캐시된 토큰을 무효화한다. INVALID_ACCESS 등 외부 차단 신호를 받았을 때 호출한다.
+     */
+    void invalidateCache();
 }
