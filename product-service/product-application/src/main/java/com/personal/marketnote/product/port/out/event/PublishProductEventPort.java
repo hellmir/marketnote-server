@@ -14,4 +14,6 @@ public interface PublishProductEventPort {
     void publishPricePolicyDeletedEvent(Long productId, Long pricePolicyId);
 
     void publishProductUpdatedEvent(ProductUpdatedEvent event);
+
+    void publishProductDeletedEvent(Long productId);
 }

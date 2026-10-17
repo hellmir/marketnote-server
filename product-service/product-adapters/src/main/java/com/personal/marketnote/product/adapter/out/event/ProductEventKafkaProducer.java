@@ -6,6 +6,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.PricePolicyDeletedEvent;
+import com.personal.marketnote.common.kafka.event.ProductDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
@@ -65,6 +66,15 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
         EventEnvelope<ProductUpdatedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
         saveToOutbox(envelope, topic, payload.productId().toString());
+    }
+
+    @Override
+    public void publishProductDeletedEvent(Long productId) {
+        ProductDeletedEvent payload = new ProductDeletedEvent(productId);
+        String topic = KafkaTopicConstants.PRODUCT_DELETED;
+        EventEnvelope<ProductDeletedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
+
+        saveToOutbox(envelope, topic, productId.toString());
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
