@@ -6,12 +6,15 @@ import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateStatus
 import com.personal.marketnote.notification.domain.aligo.BrandTalkTemplateType;
 import com.personal.marketnote.notification.port.in.result.aligo.GetBrandTalkTemplateListResult;
 import com.personal.marketnote.notification.port.out.aligo.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
@@ -37,7 +40,19 @@ class GetBrandTalkTemplateListUseCaseTest {
     @Mock
     private UpdateBrandTalkTemplatePort updateBrandTalkTemplatePort;
 
+    @Mock
+    private TransactionTemplate transactionTemplate;
+
     private static final String SENDER_KEY = "test-sender-key";
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(transactionTemplate.execute(any()))
+                .thenAnswer(invocation -> {
+                    TransactionCallback<?> callback = invocation.getArgument(0);
+                    return callback.doInTransaction(null);
+                });
+    }
 
     @Test
     @DisplayName("외부 API 호출 후 결과를 반환한다")
