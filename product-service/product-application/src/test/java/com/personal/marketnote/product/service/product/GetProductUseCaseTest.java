@@ -1,16 +1,14 @@
 package com.personal.marketnote.product.service.product;
 
-import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.common.domain.EntityStatus;
-import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategorySnapshotState;
 import com.personal.marketnote.product.domain.option.ProductOptionSnapshotState;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
-import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicySnapshotState;
+import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -21,6 +19,7 @@ import com.personal.marketnote.product.exception.PricePolicyNotFoundException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.in.result.product.GetProductInfoWithOptionsResult;
 import com.personal.marketnote.product.port.in.result.product.GetProductsResult;
+import com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult;
 import com.personal.marketnote.product.port.in.result.product.ProductItemResult;
 import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicyResult;
 import com.personal.marketnote.product.port.in.usecase.pricepolicy.GetPricePoliciesUseCase;
@@ -28,9 +27,8 @@ import com.personal.marketnote.product.port.in.usecase.product.GetProductInvento
 import com.personal.marketnote.product.port.out.file.FindProductImagesPort;
 import com.personal.marketnote.product.port.out.pricepolicy.FindPricePoliciesPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
+import com.personal.marketnote.product.port.out.productcatalog.FindProductCatalogReadModelPort;
 import com.personal.marketnote.product.port.out.productoption.FindProductOptionCategoryPort;
-import com.personal.marketnote.product.port.out.result.ProductReviewAggregateResult;
-import com.personal.marketnote.product.port.out.review.FindProductReviewAggregatesPort;
 import com.personal.marketnote.product.port.out.shipping.FindShippingPolicyPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,8 +46,16 @@ import java.util.concurrent.Executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetProductUseCaseTest {
@@ -66,7 +72,7 @@ class GetProductUseCaseTest {
     @Mock
     private FindProductImagesPort findProductImagesPort;
     @Mock
-    private FindProductReviewAggregatesPort findProductReviewAggregatesPort;
+    private FindProductCatalogReadModelPort findProductCatalogReadModelPort;
     @Mock
     private FindShippingPolicyPort findShippingPolicyPort;
     @Mock
@@ -99,253 +105,38 @@ class GetProductUseCaseTest {
     }
 
     @Test
-    @DisplayName("가격 정책 ID로 상품 상세 정보를 조회할 때 가격 정책이 없으면 예외를 던진다")
+    @DisplayName("가격정책 ID로 상품 상세 조회 시 존재하지 않으면 예외를 던진다")
     void getProductInfo_byPricePolicyId_notFound() {
-        when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(10L))).thenReturn(List.of());
-
-        assertThatThrownBy(() -> getProductService.getProductInfo(10L))
-                .isInstanceOf(PricePolicyNotFoundException.class)
-                .hasMessageContaining("가격 정책을 찾을 수 없습니다");
-
-        verifyNoInteractions(
-                findProductPort,
-                findProductOptionCategoryPort,
-                findPricePoliciesPort,
-                findProductImagesPort,
-                getProductInventoryUseCase,
-                findProductReviewAggregatesPort
-        );
-    }
-
-    @Test
-    @DisplayName("가격 정책 ID로 상품 상세 정보 조회 시 옵션 가격 정책을 선택한다")
-    void getProductInfo_byPricePolicyId_selectsOptionPricePolicy() {
-        stubProductImageExecutor();
-        Product product = buildProduct(1L, true);
-        ProductOption option1 = buildOption(101L, "옵션1");
-        ProductOption option2 = buildOption(102L, "옵션2");
-        List<ProductOption> optionList = List.of(option1, option2);
-
-        PricePolicy policyForLookup = buildPricePolicy(500L, product, null, optionList);
-        when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(500L)))
-                .thenReturn(List.of(policyForLookup));
-
-        when(findProductPort.findActiveById(1L)).thenReturn(Optional.of(product));
-        ProductOptionCategory category = buildOptionCategory(11L, product, optionList);
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(1L))
-                .thenReturn(List.of(category));
-
-        PricePolicy defaultPolicy = buildPricePolicy(400L, product, null, List.of());
-        PricePolicy selectedPolicy = buildPricePolicy(500L, product, List.of(101L, 102L), List.of());
-        when(findPricePoliciesPort.findByProductId(1L)).thenReturn(List.of(defaultPolicy, selectedPolicy));
-
-        when(getProductInventoryUseCase.getProductStocks(List.of(500L)))
-                .thenReturn(Map.of(500L, 12));
-
-        GetFilesResult representativeImages = buildFilesResult(1L, "rep.jpg");
-        GetFilesResult contentImages = buildFilesResult(2L, "content.jpg");
-        when(findProductImagesPort.findImagesByProductIdAndSort(1L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE))
-                .thenReturn(Optional.of(representativeImages));
-        when(findProductImagesPort.findImagesByProductIdAndSort(1L, FileSort.PRODUCT_CONTENT_IMAGE))
-                .thenReturn(Optional.of(contentImages));
-
-        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(500L);
-
-        assertThat(result.productInfo().selectedPricePolicy().id()).isEqualTo(500L);
-        assertThat(result.productInfo().stock()).isEqualTo(12);
-        assertThat(result.categories()).hasSize(1);
-        assertThat(result.categories().getFirst().options())
-                .extracting(option -> option.isSelected())
-                .containsOnly(true);
-        assertThat(result.representativeImages()).isEqualTo(representativeImages);
-        assertThat(result.contentImages()).isEqualTo(contentImages);
-        assertThat(result.pricePolicies())
-                .extracting(pricePolicy -> pricePolicy.id())
-                .containsExactlyInAnyOrder(400L, 500L);
-    }
-
-    @Test
-    @DisplayName("상품 상세 정보 조회 시 기본 가격 정책이 없으면 예외를 던진다")
-    void getProductInfo_missingDefaultPolicy_throws() {
-        stubProductImageExecutor();
-        Product product = buildProduct(2L, false);
-        PricePolicy optionPolicy = buildPricePolicy(900L, product, List.of(1L), List.of());
-
-        when(findProductPort.findActiveById(2L)).thenReturn(Optional.of(product));
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(2L))
+        when(getPricePoliciesUseCase.getPricePoliciesAndOptions(List.of(777L)))
                 .thenReturn(List.of());
-        when(findPricePoliciesPort.findByProductId(2L)).thenReturn(List.of(optionPolicy));
-        when(findProductImagesPort.findImagesByProductIdAndSort(2L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE))
-                .thenReturn(Optional.empty());
-        when(findProductImagesPort.findImagesByProductIdAndSort(2L, FileSort.PRODUCT_CONTENT_IMAGE))
-                .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> getProductService.getProductInfo(2L, List.of()))
-                .isInstanceOf(PricePolicyNotFoundException.class)
-                .hasMessageContaining("가격 정책을 찾을 수 없습니다");
+        assertThatThrownBy(() -> getProductService.getProductInfo(777L))
+                .isInstanceOf(PricePolicyNotFoundException.class);
     }
 
     @Test
-    @DisplayName("상품 상세 정보 조회 시 상품이 없으면 예외를 던진다")
-    void getProductInfo_productNotFound_throws() {
-        when(findProductPort.findActiveById(77L)).thenReturn(Optional.empty());
+    @DisplayName("첫 페이지 상품 목록 조회 시 ReadModel 기반으로 전체 개수와 Next Cursor를 반환한다")
+    void getProducts_firstPage_returnsTotalElementsAndNextCursor() {
+        ProductCatalogItemResult item1 = buildCatalogItem(100L, 10L, "상품10",
+                "https://cdn/c10.jpg", List.of("https://cdn/c10-sm.jpg"), 7, 4.2f, 5);
+        ProductCatalogItemResult item2 = buildCatalogItem(200L, 20L, "상품20",
+                null, null, 0, 0f, 0);
+        ProductCatalogItemResult itemOverflow = buildCatalogItem(300L, 30L, "상품30",
+                null, null, 0, 0f, 0);
 
-        assertThatThrownBy(() -> getProductService.getProductInfo(77L, List.of()))
-                .isInstanceOf(ProductNotFoundException.class)
-                .hasMessageContaining("상품을 찾을 수 없습니다");
+        when(findProductCatalogReadModelPort.findCatalogItems(
+                isNull(), isNull(), eq(-1L), eq(3), eq(false),
+                eq(ProductSortProperty.POPULARITY), eq(ProductSearchTarget.NAME), eq("키워드")
+        )).thenReturn(List.of(item1, item2, itemOverflow));
 
-        verify(findProductPort).findActiveById(77L);
-        verifyNoInteractions(findProductOptionCategoryPort, findPricePoliciesPort, getProductInventoryUseCase);
-    }
-
-    @Test
-    @DisplayName("상품 상세 정보 조회 시 선택된 옵션이 가격 정책과 불일치하면 기본 가격 정책을 사용한다")
-    void getProductInfo_optionMismatch_usesDefaultPolicy() {
-        stubProductImageExecutor();
-        Product product = buildProduct(3L, true);
-        ProductOption option1 = buildOption(201L, "옵션-A");
-        ProductOptionCategory category = buildOptionCategory(21L, product, List.of(option1));
-        PricePolicy defaultPolicy = buildPricePolicy(700L, product, null, List.of());
-        PricePolicy optionPolicy = buildPricePolicy(701L, product, List.of(202L), List.of());
-
-        when(findProductPort.findActiveById(3L)).thenReturn(Optional.of(product));
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(3L))
-                .thenReturn(List.of(category));
-        when(findPricePoliciesPort.findByProductId(3L)).thenReturn(List.of(defaultPolicy, optionPolicy));
-        when(getProductInventoryUseCase.getProductStocks(List.of(700L)))
-                .thenReturn(Map.of(700L, 5));
-        when(findProductImagesPort.findImagesByProductIdAndSort(3L, FileSort.PRODUCT_REPRESENTATIVE_IMAGE))
-                .thenReturn(Optional.empty());
-        when(findProductImagesPort.findImagesByProductIdAndSort(3L, FileSort.PRODUCT_CONTENT_IMAGE))
-                .thenReturn(Optional.empty());
-
-        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(3L, List.of(201L));
-
-        assertThat(result.productInfo().selectedPricePolicy().id()).isEqualTo(700L);
-        assertThat(result.representativeImages()).isNull();
-        assertThat(result.contentImages()).isNull();
-    }
-
-    @Test
-    @DisplayName("상품 상세 정보 조회 시 옵션 개별 노출이 꺼진 상품은 기본 가격 정책을 사용한다")
-    void getProductInfo_findAllOptionsDisabled_usesDefaultPolicy() {
-        stubProductImageExecutor();
-        Product product = buildProduct(4L, false);
-        ProductOption option = buildOption(301L, "옵션");
-        ProductOptionCategory category = buildOptionCategory(41L, product, List.of(option));
-        List<Long> selectedOptionIds = List.of(301L);
-        PricePolicy defaultPolicy = buildPricePolicy(800L, product, null, List.of());
-        PricePolicy optionPolicy = buildPricePolicy(801L, product, selectedOptionIds, List.of());
-
-        when(findProductPort.findActiveById(4L)).thenReturn(Optional.of(product));
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(4L))
-                .thenReturn(List.of(category));
-        when(findPricePoliciesPort.findByProductId(4L)).thenReturn(List.of(defaultPolicy, optionPolicy));
-        when(getProductInventoryUseCase.getProductStocks(List.of(800L)))
-                .thenReturn(Map.of(800L, 9));
-        stubProductImagesEmpty(4L);
-
-        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(4L, selectedOptionIds);
-
-        assertThat(result.productInfo().selectedPricePolicy().id()).isEqualTo(800L);
-        assertThat(result.productInfo().stock()).isEqualTo(9);
-    }
-
-    @Test
-    @DisplayName("상품 상세 정보 조회 시 선택된 옵션이 없으면 기본 가격 정책을 사용한다")
-    void getProductInfo_emptySelectedOptions_usesDefaultPolicy() {
-        stubProductImageExecutor();
-        Product product = buildProduct(5L, true);
-        ProductOption option = buildOption(401L, "옵션");
-        ProductOptionCategory category = buildOptionCategory(51L, product, List.of(option));
-        PricePolicy defaultPolicy = buildPricePolicy(810L, product, null, List.of());
-        PricePolicy optionPolicy = buildPricePolicy(811L, product, List.of(401L), List.of());
-
-        when(findProductPort.findActiveById(5L)).thenReturn(Optional.of(product));
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(5L))
-                .thenReturn(List.of(category));
-        when(findPricePoliciesPort.findByProductId(5L)).thenReturn(List.of(defaultPolicy, optionPolicy));
-        when(getProductInventoryUseCase.getProductStocks(List.of(810L)))
-                .thenReturn(Map.of(810L, 2));
-        stubProductImagesEmpty(5L);
-
-        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(5L, List.of());
-
-        assertThat(result.productInfo().selectedPricePolicy().id()).isEqualTo(810L);
-        assertThat(result.categories().getFirst().options())
-                .extracting(optionItem -> optionItem.isSelected())
-                .containsOnly(false);
-    }
-
-    @Test
-    @DisplayName("상품 상세 정보 조회 시 옵션 카테고리가 없으면 기본 가격 정책을 사용한다")
-    void getProductInfo_emptyCategories_usesDefaultPolicy() {
-        stubProductImageExecutor();
-        Product product = buildProduct(6L, true);
-        List<Long> selectedOptionIds = List.of(501L);
-        PricePolicy defaultPolicy = buildPricePolicy(820L, product, null, List.of());
-        PricePolicy optionPolicy = buildPricePolicy(821L, product, selectedOptionIds, List.of());
-
-        when(findProductPort.findActiveById(6L)).thenReturn(Optional.of(product));
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(6L))
-                .thenReturn(List.of());
-        when(findPricePoliciesPort.findByProductId(6L)).thenReturn(List.of(defaultPolicy, optionPolicy));
-        when(getProductInventoryUseCase.getProductStocks(List.of(820L)))
-                .thenReturn(Map.of(820L, 1));
-        stubProductImagesEmpty(6L);
-
-        GetProductInfoWithOptionsResult result = getProductService.getProductInfo(6L, selectedOptionIds);
-
-        assertThat(result.productInfo().selectedPricePolicy().id()).isEqualTo(820L);
-        assertThat(result.categories()).isEmpty();
-    }
-
-    @Test
-    @DisplayName("첫 페이지 상품 목록 조회 시 전체 개수와 Next Cursor를 포함한다")
-    void getProducts_firstPage_includesTotalElementsAndNextCursor() {
-        stubProductImageExecutor();
-        Product product1 = buildProduct(10L, false);
-        Product product2 = buildProduct(20L, false);
-        Product product3 = buildProduct(30L, false);
-
-        PricePolicy policy1 = buildPricePolicy(100L, product1, null, List.of());
-        PricePolicy policy2 = buildPricePolicy(200L, product2, null, List.of());
-        PricePolicy policy3 = buildPricePolicy(300L, product3, null, List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy1, policy2, policy3));
-
-        when(findProductPort.findById(10L)).thenReturn(Optional.of(product1));
-        when(findProductPort.findById(20L)).thenReturn(Optional.of(product2));
-
-        when(getProductInventoryUseCase.getProductStocks(List.of(100L, 200L)))
-                .thenReturn(Map.of(100L, 7, 200L, 0));
-
-        GetFilesResult catalogImages = buildFilesResult(11L, "catalog.jpg");
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-        when(findProductImagesPort.findImagesByProductIdAndSort(10L, FileSort.PRODUCT_CATALOG_IMAGE))
-                .thenReturn(Optional.of(catalogImages));
-
-        when(findProductReviewAggregatesPort.findByProductIds(List.of(10L, 20L)))
-                .thenReturn(Map.of(
-                        10L, new ProductReviewAggregateResult(10L, 5, 4.2f)
-                ));
-
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
+        when(findProductCatalogReadModelPort.countCatalogItems(
                 isNull(), eq(ProductSearchTarget.NAME), eq("키워드")
         )).thenReturn(100L);
 
         GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                -1L,
-                2,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                "키워드"
+                null, null, -1L, 2,
+                Sort.Direction.DESC, ProductSortProperty.POPULARITY,
+                ProductSearchTarget.NAME, "키워드"
         );
 
         assertThat(result.totalElements()).isEqualTo(100L);
@@ -355,7 +146,8 @@ class GetProductUseCaseTest {
 
         ProductItemResult first = result.products().getFirst();
         assertThat(first.getId()).isEqualTo(10L);
-        assertThat(first.getCatalogImage()).isEqualTo(catalogImages.images().getFirst());
+        assertThat(first.getCatalogImage().storageUrl()).isEqualTo("https://cdn/c10.jpg");
+        assertThat(first.getCatalogImage().resizedStorageUrls()).containsExactly("https://cdn/c10-sm.jpg");
         assertThat(first.getStock()).isEqualTo(7);
         assertThat(first.getAverageRating()).isEqualTo(4.2f);
         assertThat(first.getTotalCount()).isEqualTo(5);
@@ -363,354 +155,133 @@ class GetProductUseCaseTest {
         ProductItemResult second = result.products().get(1);
         assertThat(second.getId()).isEqualTo(20L);
         assertThat(second.getCatalogImage()).isNull();
-        assertThat(second.getStock()).isEqualTo(0);
-        assertThat(second.getAverageRating()).isEqualTo(0f);
-        assertThat(second.getTotalCount()).isEqualTo(0);
+        assertThat(second.getStock()).isZero();
+        assertThat(second.getAverageRating()).isZero();
+        assertThat(second.getTotalCount()).isZero();
     }
 
     @Test
     @DisplayName("첫 페이지가 아니면(Cursor 값 존재) 총 개수 조회를 생략한다")
-    void getProducts_withCategoryAndCursor_skipsTotalElements() {
-        stubProductImageExecutor();
-        Product product = buildProduct(40L, false);
-        PricePolicy policy = buildPricePolicy(400L, product, null, List.of());
+    void getProducts_withCursor_skipsTotalElements() {
+        ProductCatalogItemResult item = buildCatalogItem(400L, 40L, "상품40",
+                null, null, 3, 0f, 0);
 
-        when(findPricePoliciesPort.findPricePoliciesByCategoryId(
-                eq(5L), any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-        when(findProductPort.findById(40L)).thenReturn(Optional.of(product));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-        when(getProductInventoryUseCase.getProductStocks(List.of(400L)))
-                .thenReturn(Map.of(400L, 3));
+        when(findProductCatalogReadModelPort.findCatalogItems(
+                eq(5L), isNull(), eq(100L), eq(3), eq(true),
+                eq(ProductSortProperty.ORDER_NUM), eq(ProductSearchTarget.BRAND_NAME), eq("브랜드")
+        )).thenReturn(List.of(item));
 
         GetProductsResult result = getProductService.getProducts(
-                5L,
-                null,
-                100L,
-                2,
-                Sort.Direction.ASC,
-                ProductSortProperty.ORDER_NUM,
-                ProductSearchTarget.BRAND_NAME,
-                "브랜드"
+                5L, null, 100L, 2,
+                Sort.Direction.ASC, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.BRAND_NAME, "브랜드"
         );
 
         assertThat(result.totalElements()).isNull();
         assertThat(result.hasNext()).isFalse();
         assertThat(result.nextCursor()).isEqualTo(400L);
 
-        verify(findPricePoliciesPort, never())
-                .countActivePricePoliciesByCategoryId(any(), any(), any());
+        verify(findProductCatalogReadModelPort, never())
+                .countCatalogItems(any(), any(), any());
     }
 
     @Test
-    @DisplayName("가격 정책 ID 목록으로 조회 시 재고 조회를 생략한다")
-    void getProducts_withPricePolicyIds_skipsInventoryLookup() {
-        stubProductImageExecutor();
-        Product product = buildProduct(50L, false);
-        PricePolicy policy = buildPricePolicy(500L, product, null, List.of());
+    @DisplayName("가격 정책 ID 목록으로 조회 시 ReadModel Port 로 필터링한다")
+    void getProducts_withPricePolicyIds_passesFilter() {
+        ProductCatalogItemResult item = buildCatalogItem(500L, 50L, "상품50",
+                "https://cdn/c50.jpg", List.of(), 9, 0f, 0);
 
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-        when(findProductPort.findById(50L)).thenReturn(Optional.of(product));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
+        when(findProductCatalogReadModelPort.findCatalogItems(
+                isNull(), eq(List.of(500L)), eq(-1L), eq(2), eq(false),
+                eq(ProductSortProperty.POPULARITY), eq(ProductSearchTarget.NAME), isNull()
+        )).thenReturn(List.of(item));
+
+        when(findProductCatalogReadModelPort.countCatalogItems(
                 isNull(), eq(ProductSearchTarget.NAME), isNull()
         )).thenReturn(1L);
 
         GetProductsResult result = getProductService.getProducts(
-                null,
-                List.of(500L),
-                -1L,
-                1,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                null
-        );
-
-        assertThat(result.products()).hasSize(1);
-        assertThat(result.products().getFirst().getStock()).isNull();
-        verifyNoInteractions(getProductInventoryUseCase);
-    }
-
-    @Test
-    @DisplayName("옵션 개별 노출 상품은 선택된 옵션 정보를 포함한다")
-    void getProducts_findAllOptions_includesSelectedOptions() {
-        stubProductImageExecutor();
-        Product product = buildProduct(60L, true);
-        ProductOption option1 = buildOption(301L, "레드");
-        ProductOption option2 = buildOption(302L, "블루");
-        ProductOptionCategory category = buildOptionCategory(31L, product, List.of(option1, option2));
-        PricePolicy policy = buildPricePolicy(600L, product, List.of(301L, 302L), List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-        when(findProductPort.findById(60L)).thenReturn(Optional.of(product));
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(60L))
-                .thenReturn(List.of(category));
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                isNull(), eq(ProductSearchTarget.NAME), eq("옵션")
-        )).thenReturn(1L);
-        when(getProductInventoryUseCase.getProductStocks(List.of(600L)))
-                .thenReturn(Map.of(600L, 3));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-
-        GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                -1L,
-                1,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                "옵션"
-        );
-
-        assertThat(result.products()).hasSize(1);
-        assertThat(result.products().getFirst().getSelectedOptions())
-                .extracting(option -> option.id())
-                .containsExactlyInAnyOrder(301L, 302L);
-    }
-
-    @Test
-    @DisplayName("상품 목록 조회 결과가 없으면 빈 결과를 반환한다")
-    void getProducts_emptyResult_returnsEmpty() {
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of());
-        when(getProductInventoryUseCase.getProductStocks(List.of()))
-                .thenReturn(Map.of());
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                isNull(), eq(ProductSearchTarget.NAME), eq("키워드")
-        )).thenReturn(0L);
-
-        GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                -1L,
-                10,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                "키워드"
-        );
-
-        assertThat(result.products()).isEmpty();
-        assertThat(result.hasNext()).isFalse();
-        assertThat(result.nextCursor()).isNull();
-        assertThat(result.totalElements()).isEqualTo(0L);
-        verifyNoInteractions(findProductPort, findProductOptionCategoryPort, findProductImagesPort, findProductReviewAggregatesPort);
-    }
-
-    @Test
-    @DisplayName("카테고리 첫 페이지 상품 목록 조회 시 전체 개수를 포함한다")
-    void getProducts_categoryFirstPage_includesTotalElements() {
-        stubProductImageExecutor();
-        Long categoryId = 7L;
-        Product product = buildProduct(70L, false);
-        PricePolicy policy1 = buildPricePolicy(701L, product, null, List.of());
-        PricePolicy policy2 = buildPricePolicy(702L, product, null, List.of());
-
-        when(findPricePoliciesPort.findPricePoliciesByCategoryId(
-                eq(categoryId), any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy1, policy2));
-        when(findProductPort.findById(70L)).thenReturn(Optional.of(product));
-        when(getProductInventoryUseCase.getProductStocks(List.of(701L)))
-                .thenReturn(Map.of(701L, 4));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                eq(categoryId), eq(ProductSearchTarget.NAME), eq("키워드")
-        )).thenReturn(25L);
-
-        GetProductsResult result = getProductService.getProducts(
-                categoryId,
-                null,
-                -1L,
-                1,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                "키워드"
-        );
-
-        assertThat(result.totalElements()).isEqualTo(25L);
-        assertThat(result.hasNext()).isTrue();
-        assertThat(result.nextCursor()).isEqualTo(701L);
-        assertThat(result.products()).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("옵션 ID가 비어 있는 경우 기본 상품 정보를 반환한다")
-    void getProducts_findAllOptionsWithEmptyOptionIds_usesDefaultMapping() {
-        stubProductImageExecutor();
-        Product product = buildProduct(80L, true);
-        PricePolicy policy = buildPricePolicy(801L, product, List.of(), List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-        when(findProductPort.findById(80L)).thenReturn(Optional.of(product));
-        when(getProductInventoryUseCase.getProductStocks(List.of(801L)))
-                .thenReturn(Map.of(801L, 6));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-
-        GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                10L,
-                1,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                null
-        );
-
-        assertThat(result.products()).hasSize(1);
-        assertThat(result.products().getFirst().getSelectedOptions()).isNull();
-        verifyNoInteractions(findProductOptionCategoryPort);
-    }
-
-    @Test
-    @DisplayName("옵션 카테고리가 없으면 기본 상품 정보를 반환한다")
-    void getProducts_findAllOptionsWithEmptyCategories_usesDefaultMapping() {
-        stubProductImageExecutor();
-        Product product = buildProduct(90L, true);
-        PricePolicy policy = buildPricePolicy(901L, product, List.of(1L), List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-        when(findProductPort.findById(90L)).thenReturn(Optional.of(product));
-        when(findProductOptionCategoryPort.findActiveWithOptionsByProductId(90L))
-                .thenReturn(List.of());
-        when(getProductInventoryUseCase.getProductStocks(List.of(901L)))
-                .thenReturn(Map.of(901L, 8));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-
-        GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                10L,
-                1,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                null
-        );
-
-        assertThat(result.products()).hasSize(1);
-        assertThat(result.products().getFirst().getSelectedOptions()).isNull();
-        verify(findProductOptionCategoryPort).findActiveWithOptionsByProductId(90L);
-    }
-
-    @Test
-    @DisplayName("상품 목록 조회 중 상품이 없으면 예외를 던진다")
-    void getProducts_productNotFound_throws() {
-        Product product = buildProduct(100L, false);
-        PricePolicy policy = buildPricePolicy(1001L, product, null, List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-        when(findProductPort.findById(100L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> getProductService.getProducts(
-                null,
-                null,
-                10L,
-                1,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                null
-        ))
-                .isInstanceOf(ProductNotFoundException.class)
-                .hasMessageContaining("상품을 찾을 수 없습니다");
-
-        verifyNoInteractions(findProductOptionCategoryPort, findProductImagesPort, getProductInventoryUseCase);
-    }
-
-    @Test
-    @DisplayName("캐시에서 복원된 가격 정책도 productId가 유지되어 정상 조회된다")
-    void getProducts_cachedPricePolicyWithProductId_worksCorrectly() {
-        stubProductImageExecutor();
-        Product product = buildProduct(10L, false);
-        PricePolicy cachedPolicy = buildPricePolicyWithProductIdOnly(100L, 10L);
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(cachedPolicy));
-        when(findProductPort.findById(10L)).thenReturn(Optional.of(product));
-        when(getProductInventoryUseCase.getProductStocks(List.of(100L)))
-                .thenReturn(Map.of(100L, 5));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-        when(findProductReviewAggregatesPort.findByProductIds(List.of(10L)))
-                .thenReturn(Map.of());
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                isNull(), eq(ProductSearchTarget.NAME), isNull()
-        )).thenReturn(1L);
-
-        GetProductsResult result = getProductService.getProducts(
-                null, null, -1L, 10,
+                null, List.of(500L), -1L, 1,
                 Sort.Direction.DESC, ProductSortProperty.POPULARITY,
                 ProductSearchTarget.NAME, null
         );
 
         assertThat(result.products()).hasSize(1);
-        assertThat(result.products().getFirst().getId()).isEqualTo(10L);
-        assertThat(result.products().getFirst().getStock()).isEqualTo(5);
+        assertThat(result.products().getFirst().getStock()).isEqualTo(9);
     }
 
     @Test
-    @DisplayName("캐시 적립률 높은순 정렬로 첫 페이지 상품 목록을 조회한다")
-    void getProducts_accumulatedPointRateDescFirstPage_includesTotalElements() {
-        stubProductImageExecutor();
-        Product product1 = buildProduct(120L, false);
-        Product product2 = buildProduct(130L, false);
-        Product product3 = buildProduct(140L, false);
+    @DisplayName("ReadModel 조회 결과가 없으면 빈 결과를 반환한다")
+    void getProducts_emptyResult_returnsEmpty() {
+        when(findProductCatalogReadModelPort.findCatalogItems(
+                any(), any(), any(), anyInt(), anyBoolean(), any(), any(), any()
+        )).thenReturn(List.of());
+        when(findProductCatalogReadModelPort.countCatalogItems(
+                isNull(), eq(ProductSearchTarget.NAME), eq("키워드")
+        )).thenReturn(0L);
 
-        PricePolicy policy1 = buildPricePolicy(1201L, product1, null, List.of());
-        PricePolicy policy2 = buildPricePolicy(1301L, product2, null, List.of());
-        PricePolicy policy3 = buildPricePolicy(1401L, product3, null, List.of());
+        GetProductsResult result = getProductService.getProducts(
+                null, null, -1L, 10,
+                Sort.Direction.DESC, ProductSortProperty.POPULARITY,
+                ProductSearchTarget.NAME, "키워드"
+        );
 
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy1, policy2, policy3));
+        assertThat(result.products()).isEmpty();
+        assertThat(result.hasNext()).isFalse();
+        assertThat(result.nextCursor()).isNull();
+        assertThat(result.totalElements()).isZero();
+        verifyNoInteractions(findProductPort, findProductOptionCategoryPort,
+                findProductImagesPort, getProductInventoryUseCase);
+    }
 
-        when(findProductPort.findById(120L)).thenReturn(Optional.of(product1));
-        when(findProductPort.findById(130L)).thenReturn(Optional.of(product2));
+    @Test
+    @DisplayName("카테고리 첫 페이지 조회 시 카테고리 필터를 Port 에 전달한다")
+    void getProducts_categoryFirstPage_passesCategoryFilter() {
+        ProductCatalogItemResult item = buildCatalogItem(701L, 70L, "상품70",
+                null, null, 4, 0f, 0);
 
-        when(getProductInventoryUseCase.getProductStocks(List.of(1201L, 1301L)))
-                .thenReturn(Map.of(1201L, 5, 1301L, 3));
+        when(findProductCatalogReadModelPort.findCatalogItems(
+                eq(7L), any(), eq(-1L), anyInt(), anyBoolean(), any(), any(), any()
+        )).thenReturn(List.of(item));
 
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
+        when(findProductCatalogReadModelPort.countCatalogItems(
+                eq(7L), eq(ProductSearchTarget.NAME), eq("키워드")
+        )).thenReturn(25L);
 
-        when(findProductReviewAggregatesPort.findByProductIds(List.of(120L, 130L)))
-                .thenReturn(Map.of());
+        GetProductsResult result = getProductService.getProducts(
+                7L, null, -1L, 2,
+                Sort.Direction.DESC, ProductSortProperty.POPULARITY,
+                ProductSearchTarget.NAME, "키워드"
+        );
 
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
+        assertThat(result.totalElements()).isEqualTo(25L);
+        assertThat(result.nextCursor()).isEqualTo(701L);
+        assertThat(result.products()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("ACCUMULATED_POINT_RATE 정렬로 첫 페이지 조회 시 정렬 속성을 Port 에 전달한다")
+    void getProducts_accumulatedPointRateDescFirstPage() {
+        ProductCatalogItemResult item1 = buildCatalogItem(1201L, 120L, "상품120",
+                null, null, 5, 0f, 0);
+        ProductCatalogItemResult item2 = buildCatalogItem(1301L, 130L, "상품130",
+                null, null, 3, 0f, 0);
+        ProductCatalogItemResult itemOverflow = buildCatalogItem(1401L, 140L, "상품140",
+                null, null, 0, 0f, 0);
+
+        when(findProductCatalogReadModelPort.findCatalogItems(
+                isNull(), isNull(), eq(-1L), anyInt(), anyBoolean(),
+                eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+        )).thenReturn(List.of(item1, item2, itemOverflow));
+
+        when(findProductCatalogReadModelPort.countCatalogItems(
                 isNull(), eq(ProductSearchTarget.NAME), isNull()
         )).thenReturn(50L);
 
         GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                -1L,
-                2,
-                Sort.Direction.DESC,
-                ProductSortProperty.ACCUMULATED_POINT_RATE,
-                ProductSearchTarget.NAME,
-                null
+                null, null, -1L, 2,
+                Sort.Direction.DESC, ProductSortProperty.ACCUMULATED_POINT_RATE,
+                ProductSearchTarget.NAME, null
         );
 
         assertThat(result.totalElements()).isEqualTo(50L);
@@ -718,167 +289,11 @@ class GetProductUseCaseTest {
         assertThat(result.nextCursor()).isEqualTo(1301L);
         assertThat(result.products()).hasSize(2);
 
-        verify(findPricePoliciesPort).findPricePolicies(
-                isNull(), eq(-1L), anyInt(), anyBoolean(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
+        verify(findProductCatalogReadModelPort).findCatalogItems(
+                isNull(), isNull(), eq(-1L), anyInt(), eq(false),
+                eq(ProductSortProperty.ACCUMULATED_POINT_RATE),
+                eq(ProductSearchTarget.NAME), isNull()
         );
-    }
-
-    @Test
-    @DisplayName("캐시 적립률 낮은순 정렬로 상품 목록을 조회한다")
-    void getProducts_accumulatedPointRateAsc_callsFindPricePolicies() {
-        stubProductImageExecutor();
-        Product product = buildProduct(150L, false);
-        PricePolicy policy = buildPricePolicy(1501L, product, null, List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-
-        when(findProductPort.findById(150L)).thenReturn(Optional.of(product));
-
-        when(getProductInventoryUseCase.getProductStocks(List.of(1501L)))
-                .thenReturn(Map.of(1501L, 2));
-
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                isNull(), eq(ProductSearchTarget.NAME), isNull()
-        )).thenReturn(1L);
-
-        GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                -1L,
-                10,
-                Sort.Direction.ASC,
-                ProductSortProperty.ACCUMULATED_POINT_RATE,
-                ProductSearchTarget.NAME,
-                null
-        );
-
-        assertThat(result.products()).hasSize(1);
-        assertThat(result.hasNext()).isFalse();
-
-        verify(findPricePoliciesPort).findPricePolicies(
-                isNull(), eq(-1L), anyInt(), anyBoolean(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
-        );
-    }
-
-    @Test
-    @DisplayName("카테고리별 캐시 적립률 높은순 정렬로 상품 목록을 조회한다")
-    void getProducts_accumulatedPointRateDescWithCategory_callsFindByCategoryId() {
-        stubProductImageExecutor();
-        Long categoryId = 8L;
-        Product product = buildProduct(160L, false);
-        PricePolicy policy = buildPricePolicy(1601L, product, null, List.of());
-
-        when(findPricePoliciesPort.findPricePoliciesByCategoryId(
-                eq(categoryId), any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-
-        when(findProductPort.findById(160L)).thenReturn(Optional.of(product));
-
-        when(getProductInventoryUseCase.getProductStocks(List.of(1601L)))
-                .thenReturn(Map.of(1601L, 10));
-
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-
-        when(findPricePoliciesPort.countActivePricePoliciesByCategoryId(
-                eq(categoryId), eq(ProductSearchTarget.NAME), isNull()
-        )).thenReturn(15L);
-
-        GetProductsResult result = getProductService.getProducts(
-                categoryId,
-                null,
-                -1L,
-                10,
-                Sort.Direction.DESC,
-                ProductSortProperty.ACCUMULATED_POINT_RATE,
-                ProductSearchTarget.NAME,
-                null
-        );
-
-        assertThat(result.totalElements()).isEqualTo(15L);
-        assertThat(result.products()).hasSize(1);
-
-        verify(findPricePoliciesPort).findPricePoliciesByCategoryId(
-                eq(categoryId), isNull(), eq(-1L), anyInt(), anyBoolean(), eq(ProductSortProperty.ACCUMULATED_POINT_RATE), any(), isNull()
-        );
-        verify(findPricePoliciesPort, never()).findPricePolicies(any(), any(), anyInt(), anyBoolean(), any(), any(), any());
-    }
-
-    @Test
-    @DisplayName("캐시 적립률 높은순 정렬로 다음 페이지 상품 목록을 조회한다")
-    void getProducts_accumulatedPointRateDescWithCursor_skipsTotalElements() {
-        stubProductImageExecutor();
-        Product product = buildProduct(170L, false);
-        PricePolicy policy = buildPricePolicy(1701L, product, null, List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-
-        when(findProductPort.findById(170L)).thenReturn(Optional.of(product));
-
-        when(getProductInventoryUseCase.getProductStocks(List.of(1701L)))
-                .thenReturn(Map.of(1701L, 7));
-
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-
-        GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                500L,
-                10,
-                Sort.Direction.DESC,
-                ProductSortProperty.ACCUMULATED_POINT_RATE,
-                ProductSearchTarget.NAME,
-                null
-        );
-
-        assertThat(result.totalElements()).isNull();
-        assertThat(result.hasNext()).isFalse();
-        assertThat(result.nextCursor()).isEqualTo(1701L);
-        assertThat(result.products()).hasSize(1);
-
-        verify(findPricePoliciesPort, never()).countActivePricePoliciesByCategoryId(any(), any(), any());
-    }
-
-    @Test
-    @DisplayName("리뷰 집계 값이 없으면 평점과 리뷰 수를 0으로 반환한다")
-    void getProducts_reviewAggregateNullValues_returnsZero() {
-        stubProductImageExecutor();
-        Product product = buildProduct(110L, false);
-        PricePolicy policy = buildPricePolicy(1101L, product, null, List.of());
-
-        when(findPricePoliciesPort.findPricePolicies(
-                any(), any(), anyInt(), anyBoolean(), any(), any(), any()
-        )).thenReturn(List.of(policy));
-        when(findProductPort.findById(110L)).thenReturn(Optional.of(product));
-        when(getProductInventoryUseCase.getProductStocks(List.of(1101L)))
-                .thenReturn(Map.of(1101L, 5));
-        when(findProductImagesPort.findImagesByProductIdAndSort(anyLong(), eq(FileSort.PRODUCT_CATALOG_IMAGE)))
-                .thenReturn(Optional.empty());
-        when(findProductReviewAggregatesPort.findByProductIds(List.of(110L)))
-                .thenReturn(Map.of(110L, new ProductReviewAggregateResult(110L, null, null)));
-
-        GetProductsResult result = getProductService.getProducts(
-                null,
-                null,
-                10L,
-                1,
-                Sort.Direction.DESC,
-                ProductSortProperty.POPULARITY,
-                ProductSearchTarget.NAME,
-                null
-        );
-
-        assertThat(result.products()).hasSize(1);
-        assertThat(result.products().getFirst().getAverageRating()).isEqualTo(0f);
-        assertThat(result.products().getFirst().getTotalCount()).isEqualTo(0);
     }
 
     @Test
@@ -970,6 +385,34 @@ class GetProductUseCaseTest {
         assertThat(shippingResult.freeShippingThreshold()).isEqualTo(30000L);
     }
 
+    private ProductCatalogItemResult buildCatalogItem(
+            Long pricePolicyId, Long productId, String name,
+            String representativeImageUrl, List<String> resizedImageUrls,
+            int stockQuantity, float reviewAverageRating, int reviewCount
+    ) {
+        return new ProductCatalogItemResult(
+                pricePolicyId,
+                productId,
+                1L,
+                null,
+                name,
+                "브랜드",
+                10_000L,
+                9_000L,
+                BigDecimal.valueOf(10.0),
+                100L,
+                BigDecimal.ONE,
+                0L,
+                0L,
+                representativeImageUrl,
+                resizedImageUrls,
+                stockQuantity,
+                reviewCount,
+                reviewAverageRating,
+                EntityStatus.ACTIVE.name()
+        );
+    }
+
     private Product buildProduct(Long id, boolean findAllOptions) {
         return Product.from(
                 ProductSnapshotState.builder()
@@ -1029,46 +472,6 @@ class GetProductUseCaseTest {
         );
     }
 
-    private PricePolicy buildPricePolicyWithProductIdOnly(Long id, Long productId) {
-        return PricePolicy.from(
-                PricePolicySnapshotState.builder()
-                        .id(id)
-                        .productId(productId)
-                        .product(null)
-                        .price(10000L)
-                        .discountPrice(9000L)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1)))
-                        .status(EntityStatus.ACTIVE)
-                        .build()
-        );
-    }
-
-    private GetFilesResult buildFilesResult(Long id, String name) {
-        return new GetFilesResult(
-                List.of(
-                        new GetFileResult(
-                                id,
-                                FileSort.PRODUCT_CATALOG_IMAGE.name(),
-                                "jpg",
-                                name,
-                                "https://example.com/" + name,
-                                List.of(),
-                                1L
-                        )
-                )
-        );
-    }
-
-    private void stubProductImageExecutor() {
-        doAnswer(invocation -> {
-            Runnable task = invocation.getArgument(0);
-            task.run();
-            return null;
-        }).when(productImageExecutor).execute(any(Runnable.class));
-    }
-
     private ShippingPolicy buildShippingPolicy(
             Long id, Long sellerId, String deliveryCompany, Long shippingFee, Long freeShippingThreshold
     ) {
@@ -1084,10 +487,20 @@ class GetProductUseCaseTest {
         );
     }
 
+    private void stubProductImageExecutor() {
+        doAnswer(invocation -> {
+            Runnable task = invocation.getArgument(0);
+            task.run();
+            return null;
+        }).when(productImageExecutor).execute(any(Runnable.class));
+    }
+
     private void stubProductImagesEmpty(Long productId) {
-        when(findProductImagesPort.findImagesByProductIdAndSort(productId, FileSort.PRODUCT_REPRESENTATIVE_IMAGE))
+        when(findProductImagesPort.findImagesByProductIdAndSort(productId,
+                com.personal.marketnote.common.domain.file.FileSort.PRODUCT_REPRESENTATIVE_IMAGE))
                 .thenReturn(Optional.empty());
-        when(findProductImagesPort.findImagesByProductIdAndSort(productId, FileSort.PRODUCT_CONTENT_IMAGE))
+        when(findProductImagesPort.findImagesByProductIdAndSort(productId,
+                com.personal.marketnote.common.domain.file.FileSort.PRODUCT_CONTENT_IMAGE))
                 .thenReturn(Optional.empty());
     }
 }

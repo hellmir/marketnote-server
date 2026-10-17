@@ -81,6 +81,91 @@ class ProductItemResultTest {
         assertThat(result.getProductTags()).isEmpty();
     }
 
+    @Test
+    @DisplayName("ReadModel 카탈로그 항목으로부터 상품 항목 결과를 생성한다")
+    void shouldCreateFromReadModelCatalogItem() {
+        // given
+        ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
+                100L,
+                10L,
+                1L,
+                7L,
+                "테스트 상품",
+                "테스트 브랜드",
+                10_000L,
+                9_000L,
+                BigDecimal.valueOf(10.0),
+                100L,
+                BigDecimal.ONE,
+                5L,
+                3L,
+                "https://cdn.example/main.jpg",
+                List.of("https://cdn.example/sm.jpg", "https://cdn.example/md.jpg"),
+                50,
+                12,
+                4.5f,
+                EntityStatus.ACTIVE.name()
+        );
+
+        // when
+        ProductItemResult result = ProductItemResult.fromReadModel(catalogItem);
+
+        // then
+        assertThat(result.getId()).isEqualTo(10L);
+        assertThat(result.getSellerId()).isEqualTo(1L);
+        assertThat(result.getName()).isEqualTo("테스트 상품");
+        assertThat(result.getBrandName()).isEqualTo("테스트 브랜드");
+        assertThat(result.getPricePolicy().id()).isEqualTo(100L);
+        assertThat(result.getPricePolicy().discountPrice()).isEqualTo(9_000L);
+        assertThat(result.getCatalogImage()).isNotNull();
+        assertThat(result.getCatalogImage().storageUrl()).isEqualTo("https://cdn.example/main.jpg");
+        assertThat(result.getCatalogImage().resizedStorageUrls())
+                .containsExactly("https://cdn.example/sm.jpg", "https://cdn.example/md.jpg");
+        assertThat(result.getStock()).isEqualTo(50);
+        assertThat(result.getAverageRating()).isEqualTo(4.5f);
+        assertThat(result.getTotalCount()).isEqualTo(12);
+        assertThat(result.getOrderNum()).isEqualTo(5L);
+        assertThat(result.getStatus()).isEqualTo(EntityStatus.ACTIVE.name());
+        assertThat(result.getProductTags()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("ReadModel 대표 이미지 URL이 없으면 카탈로그 이미지를 null 로 반환한다")
+    void shouldReturnNullCatalogImageWhenRepresentativeImageUrlAbsent() {
+        // given
+        ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
+                200L, 20L, 2L, null, "이미지없음", null,
+                5_000L, 5_000L, BigDecimal.ZERO, 0L, BigDecimal.ZERO, 0L, 0L,
+                null, List.of(), 0, 0, 0f, EntityStatus.ACTIVE.name()
+        );
+
+        // when
+        ProductItemResult result = ProductItemResult.fromReadModel(catalogItem);
+
+        // then
+        assertThat(result.getCatalogImage()).isNull();
+        assertThat(result.getStock()).isZero();
+        assertThat(result.getAverageRating()).isZero();
+        assertThat(result.getTotalCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("ReadModel resized 이미지 목록이 null 이면 빈 리스트로 반환한다")
+    void shouldReturnEmptyResizedUrlsWhenNull() {
+        // given
+        ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
+                300L, 30L, 3L, 9L, "리사이즈 없음", "브랜드",
+                1_000L, 900L, BigDecimal.valueOf(10.0), 10L, BigDecimal.ONE, 1L, 1L,
+                "https://cdn.example/main.jpg", null, 1, 1, 3.0f, EntityStatus.ACTIVE.name()
+        );
+
+        // when
+        ProductItemResult result = ProductItemResult.fromReadModel(catalogItem);
+
+        // then
+        assertThat(result.getCatalogImage().resizedStorageUrls()).isEmpty();
+    }
+
     private ProductTag createTag(Long id, String name, Long orderNum) {
         return ProductTag.from(
                 ProductTagSnapshotState.builder()
