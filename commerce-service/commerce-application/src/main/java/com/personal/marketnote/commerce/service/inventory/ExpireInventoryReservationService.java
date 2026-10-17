@@ -108,6 +108,14 @@ public class ExpireInventoryReservationService implements ExpireInventoryReserva
                             inventory.getStockValue(), InventoryChangeAction.UPDATED
                     )
             );
+
+            inventories.forEach(inventory ->
+                    publishInventoryEventPort.publishStockReleasedEvent(
+                            inventory.getPricePolicyId(), inventory.getProductId(),
+                            quantityByPricePolicyId.get(inventory.getPricePolicyId()),
+                            "RESERVATION_EXPIRED", orderId
+                    )
+            );
         });
     }
 

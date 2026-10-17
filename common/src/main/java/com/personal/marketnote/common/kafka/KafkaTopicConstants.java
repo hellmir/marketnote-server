@@ -75,6 +75,8 @@ public final class KafkaTopicConstants {
 
     // Inventory 이벤트
     public static final String INVENTORY_CHANGED = "commerce.inventory.changed";
+    public static final String STOCK_RESERVED = "commerce.inventory.reserved";
+    public static final String STOCK_RELEASED = "commerce.inventory.released";
 
     // Shipping Policy 이벤트
     public static final String SHIPPING_POLICY_CHANGED = "product.shipping-policy.changed";
@@ -143,6 +145,8 @@ public final class KafkaTopicConstants {
                 SAGA_ORDER_PAYMENT_DOWNSTREAM_PRODUCT_POINT,
                 SAGA_ORDER_PAYMENT_DOWNSTREAM_CART,
                 INVENTORY_CHANGED,
+                STOCK_RESERVED,
+                STOCK_RELEASED,
                 SHIPPING_POLICY_CHANGED,
                 SHIPPING_STATUS_CHANGED,
                 FULFILLMENT_INVENTORY_SYNCED,

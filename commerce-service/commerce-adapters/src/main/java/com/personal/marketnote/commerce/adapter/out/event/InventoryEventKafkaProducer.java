@@ -7,6 +7,8 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import com.personal.marketnote.common.kafka.event.InventoryChangedEvent;
+import com.personal.marketnote.common.kafka.event.StockReleasedEvent;
+import com.personal.marketnote.common.kafka.event.StockReservedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,33 @@ public class InventoryEventKafkaProducer implements PublishInventoryEventPort {
         EventEnvelope<InventoryChangedEvent> envelope = EventEnvelope.of(
                 topic, SOURCE, payload, clock
         );
+
+        saveToOutbox(envelope, topic, pricePolicyId.toString());
+    }
+
+    @Override
+    public void publishStockReservedEvent(
+            Long pricePolicyId, Long productId, Integer reservedQuantity, Long orderId
+    ) {
+        StockReservedEvent payload = new StockReservedEvent(
+                pricePolicyId, productId, reservedQuantity, orderId
+        );
+        String topic = KafkaTopicConstants.STOCK_RESERVED;
+        EventEnvelope<StockReservedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
+
+        saveToOutbox(envelope, topic, pricePolicyId.toString());
+    }
+
+    @Override
+    public void publishStockReleasedEvent(
+            Long pricePolicyId, Long productId, Integer releasedQuantity,
+            String reason, Long orderId
+    ) {
+        StockReleasedEvent payload = new StockReleasedEvent(
+                pricePolicyId, productId, releasedQuantity, reason, orderId
+        );
+        String topic = KafkaTopicConstants.STOCK_RELEASED;
+        EventEnvelope<StockReleasedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
         saveToOutbox(envelope, topic, pricePolicyId.toString());
     }

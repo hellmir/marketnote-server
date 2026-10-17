@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.exception.DuplicateInventoryReservationE
 import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.inventory.ReserveInventoryCommand;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,6 +43,8 @@ class ReserveInventoryUseCaseTest {
     private SaveCacheStockPort saveCacheStockPort;
     @Mock
     private InventoryLockPort inventoryLockPort;
+    @Mock
+    private PublishInventoryEventPort publishInventoryEventPort;
 
     @Spy
     private Clock clock = Clock.fixed(
