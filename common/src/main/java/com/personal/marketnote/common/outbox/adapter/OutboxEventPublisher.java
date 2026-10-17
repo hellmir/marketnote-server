@@ -6,6 +6,7 @@ import com.personal.marketnote.common.outbox.entity.OutboxEventJpaEntity;
 import com.personal.marketnote.common.outbox.repository.OutboxEventJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @ConditionalOnProperty(prefix = "outbox", name = "enabled", havingValue = "true")
@@ -26,6 +28,9 @@ public class OutboxEventPublisher {
     private final Clock clock;
     private final OutboxMetricsCollector outboxMetricsCollector;
     private final OutboxAuditLogger outboxAuditLogger;
+
+    @Value("${outbox.publish-timeout-ms:5000}")
+    private long publishTimeoutMs;
 
     @Scheduled(fixedDelayString = "${outbox.polling-interval-ms:3000}")
     public void publishPendingEvents() {
@@ -40,7 +45,8 @@ public class OutboxEventPublisher {
     private void publishEvent(OutboxEventJpaEntity event) {
         try {
             Object payload = objectMapper.readValue(event.getPayload(), Object.class);
-            kafkaTemplate.send(event.getTopic(), event.getPartitionKey(), payload).get();
+            kafkaTemplate.send(event.getTopic(), event.getPartitionKey(), payload)
+                    .get(publishTimeoutMs, TimeUnit.MILLISECONDS);
 
             event.markPublished(LocalDateTime.now(clock));
             outboxEventJpaRepository.save(event);
