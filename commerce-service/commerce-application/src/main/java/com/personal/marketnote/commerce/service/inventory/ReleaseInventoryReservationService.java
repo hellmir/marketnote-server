@@ -52,14 +52,18 @@ public class ReleaseInventoryReservationService implements ReleaseInventoryReser
 
             Set<Long> reservedPricePolicyIds = reservationByPricePolicyId.keySet();
 
+            Map<Long, Integer> releasedQuantityByPricePolicyId = new HashMap<>();
             inventories.forEach(inventory -> {
                 int quantity = stocksByPricePolicyId.get(inventory.getPricePolicyId());
                 InventoryReservation reservation = reservationByPricePolicyId.get(inventory.getPricePolicyId());
                 if (FormatValidator.hasValue(reservation)) {
-                    inventory.releaseReservation(reservation.getQuantity().getValue());
+                    int released = reservation.getQuantity().getValue();
+                    inventory.releaseReservation(released);
+                    releasedQuantityByPricePolicyId.put(inventory.getPricePolicyId(), released);
                     return;
                 }
                 inventory.restore(quantity);
+                releasedQuantityByPricePolicyId.put(inventory.getPricePolicyId(), quantity);
             });
 
             if (!reservedPricePolicyIds.isEmpty()) {
@@ -84,6 +88,13 @@ public class ReleaseInventoryReservationService implements ReleaseInventoryReser
                     publishInventoryEventPort.publishInventoryChangedEvent(
                             inventory.getPricePolicyId(), inventory.getProductId(),
                             inventory.getStockValue(), InventoryChangeAction.UPDATED
+                    )
+            );
+
+            inventories.forEach(inventory ->
+                    publishInventoryEventPort.publishStockReleasedEvent(
+                            inventory.getPricePolicyId(), inventory.getProductId(),
+                            releasedQuantityByPricePolicyId.get(inventory.getPricePolicyId()), reason, orderId
                     )
             );
         });

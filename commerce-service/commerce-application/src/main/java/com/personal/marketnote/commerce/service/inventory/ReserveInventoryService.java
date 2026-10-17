@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.inventory.InventoryReservationCre
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.inventory.ReserveInventoryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.ReserveInventoryUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishInventoryEventPort;
 import com.personal.marketnote.commerce.port.out.inventory.*;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
     private final SaveInventoryReservationPort saveInventoryReservationPort;
     private final SaveCacheStockPort saveCacheStockPort;
     private final InventoryLockPort inventoryLockPort;
+    private final PublishInventoryEventPort publishInventoryEventPort;
     private final Clock clock;
 
     @Override
@@ -56,6 +58,13 @@ public class ReserveInventoryService implements ReserveInventoryUseCase {
             saveInventoryReservationPort.save(reservations);
 
             saveCacheStockPort.save(inventories);
+
+            inventories.forEach(inventory ->
+                    publishInventoryEventPort.publishStockReservedEvent(
+                            inventory.getPricePolicyId(), inventory.getProductId(),
+                            quantitiesByPricePolicyId.get(inventory.getPricePolicyId()), command.orderId()
+                    )
+            );
         });
     }
 
