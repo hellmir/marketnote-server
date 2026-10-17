@@ -59,7 +59,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_validEvent_upsertsReadModel() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, 100L, 10L, "테스트 상품", "1",
+                1L, null, 100L, 10L, "테스트 상품", "1",
                 "테스트 브랜드", 10000L, 8000L, 100L
         );
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
@@ -96,7 +96,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_eventTypeMismatch_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, 100L, 10L, "테스트 상품", "1",
+                1L, null, 100L, 10L, "테스트 상품", "1",
                 "테스트 브랜드", 10000L, 8000L, 100L
         );
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
@@ -121,7 +121,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_invalidProductId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                -1L, 100L, 10L, "테스트 상품", "1",
+                -1L, null, 100L, 10L, "테스트 상품", "1",
                 "테스트 브랜드", 10000L, 8000L, 100L
         );
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
@@ -140,7 +140,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_invalidPricePolicyId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, 0L, 10L, "테스트 상품", "1",
+                1L, null, 0L, 10L, "테스트 상품", "1",
                 "테스트 브랜드", 10000L, 8000L, 100L
         );
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
@@ -159,7 +159,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_nullableFields_upsertsReadModel() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, 100L, 10L, "테스트 상품", "1",
+                1L, null, 100L, 10L, "테스트 상품", "1",
                 null, null, null, null
         );
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);

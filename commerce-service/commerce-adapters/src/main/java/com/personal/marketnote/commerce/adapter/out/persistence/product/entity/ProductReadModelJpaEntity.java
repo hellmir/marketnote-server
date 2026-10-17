@@ -1,11 +1,14 @@
 package com.personal.marketnote.commerce.adapter.out.persistence.product.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
+import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.*;
+
+import java.util.UUID;
 
 @Entity
 @Table(
@@ -27,6 +30,9 @@ public class ProductReadModelJpaEntity extends BaseGeneralEntity {
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
+    @Column(name = "product_key")
+    private UUID productKey;
+
     @Column(name = "seller_id", nullable = false)
     private Long sellerId;
 
@@ -46,13 +52,14 @@ public class ProductReadModelJpaEntity extends BaseGeneralEntity {
     private Long accumulatedPoint;
 
     public static ProductReadModelJpaEntity of(
-            Long pricePolicyId, Long productId, Long sellerId,
+            Long pricePolicyId, Long productId, UUID productKey, Long sellerId,
             String name, String brandName,
             Long price, Long discountPrice, Long accumulatedPoint
     ) {
         return ProductReadModelJpaEntity.builder()
                 .pricePolicyId(pricePolicyId)
                 .productId(productId)
+                .productKey(productKey)
                 .sellerId(sellerId)
                 .name(name)
                 .brandName(brandName)
@@ -63,9 +70,13 @@ public class ProductReadModelJpaEntity extends BaseGeneralEntity {
     }
 
     public void updateFrom(
+            UUID productKey,
             String name, String brandName,
             Long price, Long discountPrice, Long accumulatedPoint
     ) {
+        if (FormatValidator.hasValue(productKey)) {
+            this.productKey = productKey;
+        }
         this.name = name;
         this.brandName = brandName;
         this.price = price;

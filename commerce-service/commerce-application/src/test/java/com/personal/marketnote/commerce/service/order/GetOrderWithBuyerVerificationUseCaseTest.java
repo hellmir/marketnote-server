@@ -87,7 +87,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
             when(findOrderPort.findById(orderId)).thenReturn(Optional.of(order));
 
             ProductInfoResult productInfo = new ProductInfoResult(
-                    1L, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
+                    1L, null, null, "테스트 상품", "테스트 브랜드", null, null, null, List.of()
             );
             when(findProductByPricePolicyPort.findByPricePolicyIds(List.of(pricePolicyId)))
                     .thenReturn(Map.of(pricePolicyId, productInfo));

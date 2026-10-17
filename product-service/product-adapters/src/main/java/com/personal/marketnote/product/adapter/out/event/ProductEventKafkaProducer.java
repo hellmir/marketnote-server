@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Clock;
+import java.util.UUID;
 
 @Slf4j
 @ServiceAdapter
@@ -29,11 +30,11 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
 
     @Override
     public void publishProductRegisteredEvent(
-            Long productId, Long pricePolicyId, Long sellerId, String productName, String goodsType,
+            Long productId, UUID productKey, Long pricePolicyId, Long sellerId, String productName, String goodsType,
             String brandName, Long price, Long discountPrice, Long accumulatedPoint
     ) {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                productId, pricePolicyId, sellerId, productName, goodsType, brandName,
+                productId, productKey, pricePolicyId, sellerId, productName, goodsType, brandName,
                 price, discountPrice, accumulatedPoint
         );
         String topic = KafkaTopicConstants.PRODUCT_REGISTERED;

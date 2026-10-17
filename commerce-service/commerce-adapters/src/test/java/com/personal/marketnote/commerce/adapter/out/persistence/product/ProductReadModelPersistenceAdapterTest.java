@@ -46,7 +46,7 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("신규 상품을 저장한다")
         void insertsNewProduct() {
             // when
-            adapter.upsert(100L, 1L, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
+            adapter.upsert(100L, 1L, null, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
 
             // then
             Optional<ProductReadModelJpaEntity> entity = repository.findByPricePolicyId(100L);
@@ -66,10 +66,10 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("동일한 pricePolicyId로 upsert 시 기존 데이터를 업데이트한다")
         void updatesExistingProduct() {
             // given
-            adapter.upsert(100L, 1L, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
+            adapter.upsert(100L, 1L, null, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
 
             // when
-            adapter.upsert(100L, 1L, 10L, "수정된 상품", "수정된 브랜드", 20000L, 15000L, 200L);
+            adapter.upsert(100L, 1L, null, 10L, "수정된 상품", "수정된 브랜드", 20000L, 15000L, 200L);
 
             // then
             Optional<ProductReadModelJpaEntity> entity = repository.findByPricePolicyId(100L);
@@ -85,11 +85,11 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("비활성화된 상품에 대해 upsert 시 다시 활성화된다")
         void reactivatesInactiveProduct() {
             // given
-            adapter.upsert(100L, 1L, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
+            adapter.upsert(100L, 1L, null, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
             adapter.deactivateByPricePolicyId(100L);
 
             // when
-            adapter.upsert(100L, 1L, 10L, "수정된 상품", "수정된 브랜드", 20000L, 15000L, 200L);
+            adapter.upsert(100L, 1L, null, 10L, "수정된 상품", "수정된 브랜드", 20000L, 15000L, 200L);
 
             // then
             Optional<ProductReadModelJpaEntity> entity = repository.findByPricePolicyId(100L);
@@ -102,7 +102,7 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("nullable 필드가 null이어도 정상 저장된다")
         void insertsWithNullableFields() {
             // when
-            adapter.upsert(100L, 1L, 10L, "테스트 상품", null, null, null, null);
+            adapter.upsert(100L, 1L, null, 10L, "테스트 상품", null, null, null, null);
 
             // then
             Optional<ProductReadModelJpaEntity> entity = repository.findByPricePolicyId(100L);
@@ -122,7 +122,7 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("상품을 비활성화한다")
         void deactivatesProduct() {
             // given
-            adapter.upsert(100L, 1L, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
+            adapter.upsert(100L, 1L, null, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L);
 
             // when
             adapter.deactivateByPricePolicyId(100L);
@@ -149,8 +149,8 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("ACTIVE 상태의 상품만 조회한다")
         void returnsOnlyActiveProducts() {
             // given
-            adapter.upsert(100L, 1L, 10L, "상품1", "브랜드1", 10000L, 8000L, 100L);
-            adapter.upsert(200L, 2L, 10L, "상품2", "브랜드2", 20000L, 15000L, 200L);
+            adapter.upsert(100L, 1L, null, 10L, "상품1", "브랜드1", 10000L, 8000L, 100L);
+            adapter.upsert(200L, 2L, null, 10L, "상품2", "브랜드2", 20000L, 15000L, 200L);
             adapter.deactivateByPricePolicyId(200L);
 
             // when
@@ -166,8 +166,8 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("pricePolicyId 목록으로 상품 정보를 조회하여 Map으로 반환한다")
         void returnsProductInfoResultMap() {
             // given
-            adapter.upsert(100L, 1L, 10L, "상품1", "브랜드1", 10000L, 8000L, 100L);
-            adapter.upsert(200L, 2L, 20L, "상품2", "브랜드2", 20000L, 15000L, 200L);
+            adapter.upsert(100L, 1L, null, 10L, "상품1", "브랜드1", 10000L, 8000L, 100L);
+            adapter.upsert(200L, 2L, null, 20L, "상품2", "브랜드2", 20000L, 15000L, 200L);
 
             // when
             Map<Long, ProductInfoResult> result = adapter.findByPricePolicyIds(List.of(100L, 200L));
@@ -215,7 +215,7 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("존재하지 않는 pricePolicyId는 결과에 포함되지 않는다")
         void excludesNonExistentPricePolicyIds() {
             // given
-            adapter.upsert(100L, 1L, 10L, "상품1", "브랜드1", 10000L, 8000L, 100L);
+            adapter.upsert(100L, 1L, null, 10L, "상품1", "브랜드1", 10000L, 8000L, 100L);
 
             // when
             Map<Long, ProductInfoResult> result = adapter.findByPricePolicyIds(List.of(100L, 999L));
@@ -235,7 +235,7 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("productId로 조회하여 이름을 업데이트한다")
         void updatesNameByProductId() {
             // given
-            adapter.upsert(100L, 1L, 10L, "원래 상품명", "브랜드", 10000L, 8000L, 100L);
+            adapter.upsert(100L, 1L, null, 10L, "원래 상품명", "브랜드", 10000L, 8000L, 100L);
 
             // when
             adapter.updateNameByProductId(1L, "수정된 상품명");
@@ -250,8 +250,8 @@ class ProductReadModelPersistenceAdapterTest {
         @DisplayName("동일 productId를 가진 여러 Read Model이 있으면 모두 업데이트한다")
         void updatesAllReadModelsWithSameProductId() {
             // given
-            adapter.upsert(100L, 1L, 10L, "상품명", "브랜드", 10000L, 8000L, 100L);
-            adapter.upsert(200L, 1L, 10L, "상품명", "브랜드", 20000L, 15000L, 200L);
+            adapter.upsert(100L, 1L, null, 10L, "상품명", "브랜드", 10000L, 8000L, 100L);
+            adapter.upsert(200L, 1L, null, 10L, "상품명", "브랜드", 20000L, 15000L, 200L);
 
             // when
             adapter.updateNameByProductId(1L, "수정된 상품명");

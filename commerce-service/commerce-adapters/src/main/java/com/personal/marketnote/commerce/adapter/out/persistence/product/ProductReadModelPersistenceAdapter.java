@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -43,6 +44,7 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
                     entity.getPricePolicyId(),
                     new ProductInfoResult(
                             entity.getProductId(),
+                            entity.getProductKey(),
                             entity.getSellerId(),
                             entity.getName(),
                             entity.getBrandName(),
@@ -60,26 +62,29 @@ public class ProductReadModelPersistenceAdapter implements FindProductByPricePol
     @Override
     @Transactional(isolation = READ_COMMITTED)
     public void upsert(
-            Long pricePolicyId, Long productId, Long sellerId,
+            Long pricePolicyId, Long productId, UUID productKey, Long sellerId,
             String name, String brandName, Long price, Long discountPrice, Long accumulatedPoint
     ) {
         Optional<ProductReadModelJpaEntity> existing =
                 productReadModelJpaRepository.findByPricePolicyId(pricePolicyId);
 
         if (existing.isPresent()) {
-            existing.get().updateFrom(name, brandName, price, discountPrice, accumulatedPoint);
+            existing.get().updateFrom(productKey, name, brandName, price, discountPrice, accumulatedPoint);
             return;
         }
 
         try {
             ProductReadModelJpaEntity entity = ProductReadModelJpaEntity.of(
-                    pricePolicyId, productId, sellerId, name, brandName, price, discountPrice, accumulatedPoint
+                    pricePolicyId, productId, productKey, sellerId,
+                    name, brandName, price, discountPrice, accumulatedPoint
             );
             productReadModelJpaRepository.saveAndFlush(entity);
         } catch (DataIntegrityViolationException e) {
             log.info("상품 Read Model 중복 저장 (멱등 처리). pricePolicyId={}", pricePolicyId);
             productReadModelJpaRepository.findByPricePolicyId(pricePolicyId)
-                    .ifPresent(entity -> entity.updateFrom(name, brandName, price, discountPrice, accumulatedPoint));
+                    .ifPresent(entity -> entity.updateFrom(
+                            productKey, name, brandName, price, discountPrice, accumulatedPoint
+                    ));
         }
     }
 
