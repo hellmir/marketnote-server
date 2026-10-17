@@ -18,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,6 +61,47 @@ class ProductReadModelPersistenceAdapterTest {
             assertThat(entity.get().getDiscountPrice()).isEqualTo(8000L);
             assertThat(entity.get().getAccumulatedPoint()).isEqualTo(100L);
             assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);
+        }
+
+        @Test
+        @DisplayName("productKey가 전달되면 신규 저장 시 DB에 보존되고 findByPricePolicyIds 결과에 포함된다")
+        void persistsProductKeyOnInsert() {
+            // given
+            UUID productKey = UUID.fromString("01900000-0000-7000-8000-000000000042");
+
+            // when
+            adapter.upsert(
+                    100L, 1L, productKey, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L
+            );
+
+            // then
+            Optional<ProductReadModelJpaEntity> entity = repository.findByPricePolicyId(100L);
+            assertThat(entity).isPresent();
+            assertThat(entity.get().getProductKey()).isEqualTo(productKey);
+
+            Map<Long, ProductInfoResult> infoMap = adapter.findByPricePolicyIds(List.of(100L));
+            assertThat(infoMap.get(100L).productKey()).isEqualTo(productKey);
+        }
+
+        @Test
+        @DisplayName("updateFrom 호출 시 productKey가 null이면 기존 productKey를 유지한다")
+        void preservesExistingProductKeyWhenNullPassedOnUpdate() {
+            // given
+            UUID originalKey = UUID.fromString("01900000-0000-7000-8000-000000000001");
+            adapter.upsert(
+                    100L, 1L, originalKey, 10L, "원래 상품", "브랜드", 10000L, 8000L, 100L
+            );
+
+            // when — productKey null 전달 (구 버전 페이로드 시뮬레이션)
+            adapter.upsert(
+                    100L, 1L, null, 10L, "업데이트 상품", "브랜드", 20000L, 15000L, 200L
+            );
+
+            // then
+            Optional<ProductReadModelJpaEntity> entity = repository.findByPricePolicyId(100L);
+            assertThat(entity).isPresent();
+            assertThat(entity.get().getProductKey()).isEqualTo(originalKey);
+            assertThat(entity.get().getName()).isEqualTo("업데이트 상품");
         }
 
         @Test

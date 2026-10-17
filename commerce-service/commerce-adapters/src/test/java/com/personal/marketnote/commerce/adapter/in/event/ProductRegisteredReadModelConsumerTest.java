@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -68,6 +69,27 @@ class ProductRegisteredReadModelConsumerTest {
         // then
         verify(saveProductReadModelPort).upsert(
                 100L, 1L, null, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L
+        );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("이벤트 페이로드의 productKey 값이 upsert 호출에 그대로 전달된다")
+    void handleProductRegisteredEvent_propagatesProductKey() {
+        // given
+        UUID productKey = UUID.fromString("01900000-0000-7000-8000-000000000099");
+        ProductRegisteredEvent payload = new ProductRegisteredEvent(
+                1L, productKey, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
+        );
+        EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
+        ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
+
+        // when
+        consumer.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verify(saveProductReadModelPort).upsert(
+                100L, 1L, productKey, 10L, "테스트 상품", "테스트 브랜드", 10000L, 8000L, 100L
         );
         verify(acknowledgment).acknowledge();
     }
