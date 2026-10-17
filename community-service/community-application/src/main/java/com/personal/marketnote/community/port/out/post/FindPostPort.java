@@ -172,4 +172,11 @@ public interface FindPostPort {
      * @Description 게시글을 조회합니다.
      */
     Optional<Post> findById(Long id);
+
+    /**
+     * @param parentId 부모 게시글 ID
+     * @return ACTIVE 상태 답글 존재 여부
+     * @Description 부모 게시글에 활성 상태 답글이 존재하는지 조회합니다.
+     */
+    boolean existsActiveReplyByParentId(Long parentId);
 }

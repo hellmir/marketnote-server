@@ -58,7 +58,7 @@ public class UserProductInquiryPostItemResult {
                 .isPrivate(post.isPrivate())
                 .isPhoto(post.isPhoto())
                 .images(images)
-                .isAnswered(post.isAnswered())
+                .isAnswered(post.hasReply())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
                 .product(productInfo)
@@ -86,7 +86,7 @@ public class UserProductInquiryPostItemResult {
                 .isPrivate(post.isPrivate())
                 .isPhoto(post.isPhoto())
                 .images(images)
-                .isAnswered(post.isAnswered())
+                .isAnswered(post.hasReply())
                 .createdAt(post.getCreatedAt())
                 .modifiedAt(post.getModifiedAt())
                 .build();

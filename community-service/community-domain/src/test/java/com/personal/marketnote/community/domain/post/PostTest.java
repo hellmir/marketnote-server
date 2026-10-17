@@ -116,25 +116,23 @@ class PostTest {
     }
 
     @Test
-    @DisplayName("updateReplies에 답변이 있으면 isAnswered가 true이다")
-    void shouldSetIsAnsweredTrueWhenRepliesExist() {
+    @DisplayName("updateReplies에 답변 리스트가 전달되면 hasReplies()가 true를 반환한다")
+    void shouldReturnHasRepliesTrueWhenUpdateRepliesWithList() {
         Post post = createActivePost();
         Post reply = createActivePost();
 
         post.updateReplies(List.of(reply));
 
-        assertThat(post.isAnswered()).isTrue();
         assertThat(post.hasReplies()).isTrue();
     }
 
     @Test
-    @DisplayName("updateReplies에 빈 리스트이면 isAnswered가 false이다")
-    void shouldSetIsAnsweredFalseWhenRepliesEmpty() {
+    @DisplayName("updateReplies에 빈 리스트가 전달되면 hasReplies()가 false를 반환한다")
+    void shouldReturnHasRepliesFalseWhenUpdateRepliesWithEmpty() {
         Post post = createActivePost();
 
         post.updateReplies(Collections.emptyList());
 
-        assertThat(post.isAnswered()).isFalse();
         assertThat(post.hasReplies()).isFalse();
     }
 

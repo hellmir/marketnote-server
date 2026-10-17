@@ -29,7 +29,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND (:filterUserId IS NULL OR p.userId = :filterUserId)
               AND (
                 :isAnsweredOnly = false
-                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+                OR p.hasReply = true
               )
               AND (
                     :searchKeywordPattern IS NULL
@@ -82,7 +82,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND (:filterUserId IS NULL OR p.userId = :filterUserId)
               AND (
                 :isAnsweredOnly = false
-                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+                OR p.hasReply = true
               )
               AND (
                     :searchKeywordPattern IS NULL
@@ -119,7 +119,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND p.parentId IS NULL
               AND (
                 :isAnsweredOnly = false
-                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+                OR p.hasReply = true
               )
               AND (
                     :searchKeywordPattern IS NULL
@@ -152,7 +152,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND p.parentId IS NULL
               AND (
                 :isAnsweredOnly = false
-                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+                OR p.hasReply = true
               )
               AND (
                     :searchKeywordPattern IS NULL
@@ -201,7 +201,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND (:filterUserId IS NULL OR p.userId = :filterUserId)
               AND (
                 :isAnsweredOnly = false
-                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+                OR p.hasReply = true
               )
               AND (
                     :searchKeywordPattern IS NULL
@@ -220,8 +220,8 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
                     OR (:isDesc = false AND p.id > :cursor)
               )
             ORDER BY
-              CASE WHEN :isDesc = true THEN (CASE WHEN EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status) THEN 1 ELSE 0 END) END DESC,
-              CASE WHEN :isDesc = false THEN (CASE WHEN EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status) THEN 1 ELSE 0 END) END ASC,
+              CASE WHEN :isDesc = true THEN (CASE WHEN p.hasReply = true THEN 1 ELSE 0 END) END DESC,
+              CASE WHEN :isDesc = false THEN (CASE WHEN p.hasReply = true THEN 1 ELSE 0 END) END ASC,
               CASE WHEN :isDesc = true THEN p.id END DESC,
               CASE WHEN :isDesc = false THEN p.id END ASC
             """)
@@ -251,7 +251,7 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
               AND p.parentId IS NULL
               AND (
                 :isAnsweredOnly = false
-                OR EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status)
+                OR p.hasReply = true
               )
               AND (
                     :searchKeywordPattern IS NULL
@@ -270,8 +270,8 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
                     OR (:isDesc = false AND p.id > :cursor)
               )
             ORDER BY
-              CASE WHEN :isDesc = true THEN (CASE WHEN EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status) THEN 1 ELSE 0 END) END DESC,
-              CASE WHEN :isDesc = false THEN (CASE WHEN EXISTS (SELECT 1 FROM PostJpaEntity c WHERE c.parentId = p.id AND c.status = :status) THEN 1 ELSE 0 END) END ASC,
+              CASE WHEN :isDesc = true THEN (CASE WHEN p.hasReply = true THEN 1 ELSE 0 END) END DESC,
+              CASE WHEN :isDesc = false THEN (CASE WHEN p.hasReply = true THEN 1 ELSE 0 END) END ASC,
               CASE WHEN :isDesc = true THEN p.id END DESC,
               CASE WHEN :isDesc = false THEN p.id END ASC
             """)
@@ -319,4 +319,6 @@ public interface PostJpaRepository extends JpaRepository<PostJpaEntity, Long> {
             @Param("parentIds") List<Long> parentIds,
             @Param("status") EntityStatus status
     );
+
+    boolean existsByParentIdAndStatus(Long parentId, EntityStatus status);
 }

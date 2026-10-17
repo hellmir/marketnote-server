@@ -7,6 +7,7 @@ import com.personal.marketnote.community.port.in.command.report.UpdateTargetStat
 import com.personal.marketnote.community.port.in.usecase.post.GetPostUseCase;
 import com.personal.marketnote.community.port.in.usecase.report.UpdateTargetStatusUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
+import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.UpdatePostPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class UpdateTargetStatusService implements UpdateTargetStatusUseCase {
     private final GetReviewUseCase getReviewUseCase;
     private final GetPostUseCase getPostUseCase;
+    private final FindPostPort findPostPort;
     private final UpdateReviewPort updateReviewPort;
     private final UpdatePostPort updatePostPort;
 
@@ -38,9 +40,23 @@ public class UpdateTargetStatusService implements UpdateTargetStatusUseCase {
         }
 
         Post post = getPostUseCase.getPost(command.targetId());
-        if (post.isStatusChanged(isVisible)) {
-            post.changeExposure();
-            updatePostPort.update(post);
+        if (!post.isStatusChanged(isVisible)) {
+            return;
         }
+        post.changeExposure();
+        updatePostPort.update(post);
+        if (post.isReply()) {
+            recalculateParentHasReply(post.getParentId());
+        }
+    }
+
+    private void recalculateParentHasReply(Long parentId) {
+        Post parent = getPostUseCase.getPost(parentId);
+        boolean hasActiveReply = findPostPort.existsActiveReplyByParentId(parentId);
+        if (!parent.isHasReplyChanged(hasActiveReply)) {
+            return;
+        }
+        parent.applyHasReply(hasActiveReply);
+        updatePostPort.update(parent);
     }
 }

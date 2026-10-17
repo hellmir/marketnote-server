@@ -13,6 +13,7 @@ import com.personal.marketnote.community.exception.ReviewNotFoundException;
 import com.personal.marketnote.community.port.in.command.report.UpdateTargetStatusCommand;
 import com.personal.marketnote.community.port.in.usecase.post.GetPostUseCase;
 import com.personal.marketnote.community.port.in.usecase.review.GetReviewUseCase;
+import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.UpdatePostPort;
 import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,8 @@ class UpdateTargetStatusUseCaseTest {
     private GetReviewUseCase getReviewUseCase;
     @Mock
     private GetPostUseCase getPostUseCase;
+    @Mock
+    private FindPostPort findPostPort;
     @Mock
     private UpdateReviewPort updateReviewPort;
     @Mock
@@ -87,7 +90,7 @@ class UpdateTargetStatusUseCaseTest {
         updateTargetStatusService.updateTargetStatus(command);
 
         verify(updatePostPort).update(post);
-        verifyNoInteractions(getReviewUseCase, updateReviewPort);
+        verifyNoInteractions(getReviewUseCase, updateReviewPort, findPostPort);
     }
 
     @Test
@@ -100,7 +103,7 @@ class UpdateTargetStatusUseCaseTest {
         updateTargetStatusService.updateTargetStatus(command);
 
         verify(updatePostPort).update(post);
-        verifyNoInteractions(getReviewUseCase, updateReviewPort);
+        verifyNoInteractions(getReviewUseCase, updateReviewPort, findPostPort);
     }
 
     @Test
@@ -112,7 +115,7 @@ class UpdateTargetStatusUseCaseTest {
 
         updateTargetStatusService.updateTargetStatus(command);
 
-        verifyNoInteractions(updatePostPort, getReviewUseCase, updateReviewPort);
+        verifyNoInteractions(updatePostPort, getReviewUseCase, updateReviewPort, findPostPort);
     }
 
     @Test
@@ -138,7 +141,7 @@ class UpdateTargetStatusUseCaseTest {
                 .isInstanceOf(PostNotFoundException.class)
                 .hasMessageContaining("999");
 
-        verifyNoInteractions(updatePostPort, getReviewUseCase, updateReviewPort);
+        verifyNoInteractions(updatePostPort, getReviewUseCase, updateReviewPort, findPostPort);
     }
 
     private Review buildReview(Long id, EntityStatus status) {
@@ -170,4 +173,5 @@ class UpdateTargetStatusUseCaseTest {
                 .status(status)
                 .build());
     }
+
 }

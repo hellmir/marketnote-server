@@ -13,6 +13,7 @@ import com.personal.marketnote.community.port.in.usecase.post.RegisterPostUseCas
 import com.personal.marketnote.community.port.out.event.PublishPostEventPort;
 import com.personal.marketnote.community.port.out.post.FindPostPort;
 import com.personal.marketnote.community.port.out.post.SavePostPort;
+import com.personal.marketnote.community.port.out.post.UpdatePostPort;
 import com.personal.marketnote.community.port.out.product.FindProductByPricePolicyPort;
 import com.personal.marketnote.community.port.out.profanity.FindProfanityWordPort;
 import com.personal.marketnote.community.port.out.result.product.ProductInfoResult;
@@ -35,6 +36,7 @@ public class RegisterPostService implements RegisterPostUseCase {
 
     private final SavePostPort savePostPort;
     private final FindPostPort findPostPort;
+    private final UpdatePostPort updatePostPort;
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final FindProfanityWordPort findProfanityWordPort;
     private final PublishPostEventPort publishPostEventPort;
@@ -63,6 +65,10 @@ public class RegisterPostService implements RegisterPostUseCase {
                 Post.from(PostCommandToStateMapper.mapToState(command))
         );
 
+        if (command.isReply()) {
+            markParentHasReply(command.parentId());
+        }
+
         if (command.board().isNotice() && NoticePostCategory.ANNOUNCEMENT.isMe(command.category())) {
             publishPostEventPort.publishNoticeRegisteredEvent(
                     savedPost.getId(), command.title(), savedPost.isImportant()
@@ -85,6 +91,16 @@ public class RegisterPostService implements RegisterPostUseCase {
         }
 
         return RegisterPostResult.from(savedPost);
+    }
+
+    private void markParentHasReply(Long parentPostId) {
+        findPostPort.findById(parentPostId).ifPresent(parent -> {
+            if (parent.hasReply()) {
+                return;
+            }
+            parent.markHasReply();
+            updatePostPort.update(parent);
+        });
     }
 
     private void publishOneOnOneInquiryAnsweredEvent(Long parentPostId, String board) {
