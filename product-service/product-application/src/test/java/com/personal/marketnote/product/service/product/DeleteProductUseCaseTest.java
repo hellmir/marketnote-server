@@ -7,12 +7,14 @@ import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.in.command.DeleteProductCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +31,8 @@ class DeleteProductUseCaseTest {
     private FindProductPort findProductPort;
     @Mock
     private UpdateProductPort updateProductPort;
+    @Mock
+    private PublishProductEventPort publishProductEventPort;
 
     @InjectMocks
     private DeleteProductService deleteProductService;
@@ -46,7 +50,7 @@ class DeleteProductUseCaseTest {
                 .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(10L, userId);
-        verifyNoInteractions(getProductUseCase, updateProductPort);
+        verifyNoInteractions(getProductUseCase, updateProductPort, publishProductEventPort);
     }
 
     @Test
@@ -67,6 +71,7 @@ class DeleteProductUseCaseTest {
         assertThat(updated.getStatus()).isEqualTo(EntityStatus.INACTIVE);
 
         verify(getProductUseCase).getProduct(11L);
+        verify(publishProductEventPort).publishProductDeletedEvent(11L);
         verifyNoInteractions(findProductPort);
     }
 
@@ -84,6 +89,7 @@ class DeleteProductUseCaseTest {
 
         verify(findProductPort).existsByIdAndSellerId(20L, userId);
         verify(updateProductPort).update(product);
+        verify(publishProductEventPort).publishProductDeletedEvent(20L);
         assertThat(product.isInactive()).isTrue();
     }
 
@@ -99,7 +105,7 @@ class DeleteProductUseCaseTest {
                 .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(30L);
-        verifyNoInteractions(findProductPort, updateProductPort);
+        verifyNoInteractions(findProductPort, updateProductPort, publishProductEventPort);
     }
 
     @Test
@@ -118,6 +124,24 @@ class DeleteProductUseCaseTest {
                 .isSameAs(exception);
 
         verify(updateProductPort).update(product);
+        verifyNoInteractions(publishProductEventPort);
+    }
+
+    @Test
+    @DisplayName("상품 삭제 후 ProductDeletedEvent를 Outbox로 발행한다")
+    void delete_success_publishesProductDeletedEventAfterUpdate() {
+        Long userId = 4L;
+        DeleteProductCommand command = DeleteProductCommand.of(50L);
+        Product product = buildProduct(50L);
+
+        when(findProductPort.existsByIdAndSellerId(50L, userId)).thenReturn(true);
+        when(getProductUseCase.getProduct(50L)).thenReturn(product);
+
+        deleteProductService.delete(userId, false, command);
+
+        InOrder inOrder = inOrder(updateProductPort, publishProductEventPort);
+        inOrder.verify(updateProductPort).update(product);
+        inOrder.verify(publishProductEventPort).publishProductDeletedEvent(50L);
     }
 
     private Product buildProduct(Long id) {
