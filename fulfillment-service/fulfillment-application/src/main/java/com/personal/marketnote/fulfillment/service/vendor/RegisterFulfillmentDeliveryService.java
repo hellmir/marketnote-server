@@ -18,7 +18,6 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 
 @UseCase
 @RequiredArgsConstructor
-@Transactional(isolation = READ_COMMITTED, readOnly = true)
 public class RegisterFulfillmentDeliveryService implements RegisterFulfillmentDeliveryUseCase {
     private final RegisterFulfillmentDeliveryPort registerFulfillmentDeliveryPort;
     private final SaveFulfillmentDeliveryRegistrationPort saveFulfillmentDeliveryRegistrationPort;
