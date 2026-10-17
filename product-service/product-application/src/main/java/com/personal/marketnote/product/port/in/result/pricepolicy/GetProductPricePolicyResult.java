@@ -1,9 +1,11 @@
 package com.personal.marketnote.product.port.in.result.pricepolicy;
 
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.port.in.result.option.ProductOptionItemResult;
 import com.personal.marketnote.product.port.in.result.product.ProductCatalogItemResult;
+import com.personal.marketnote.product.port.in.result.product.ProductCatalogOptionSnapshot;
 import lombok.AccessLevel;
 import lombok.Builder;
 
@@ -38,7 +40,19 @@ public record GetProductPricePolicyResult(
                         ? catalogItem.discountRate() : BigDecimal.ZERO)
                 .accumulatedPoint(FormatValidator.hasValue(catalogItem.accumulatedPoint())
                         ? catalogItem.accumulatedPoint() : 0L)
+                .options(toOptionItems(catalogItem.selectedOptions()))
                 .build();
+    }
+
+    private static List<ProductOptionItemResult> toOptionItems(List<ProductCatalogOptionSnapshot> snapshots) {
+        if (FormatValidator.hasNoValue(snapshots)) {
+            return List.of();
+        }
+        return snapshots.stream()
+                .map(snapshot -> new ProductOptionItemResult(
+                        snapshot.id(), snapshot.content(), EntityStatus.ACTIVE.name()
+                ))
+                .toList();
     }
 
     public static GetProductPricePolicyResult fromCart(PricePolicy pricePolicy) {

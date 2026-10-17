@@ -59,8 +59,7 @@ class ProductCatalogReadModelPersistenceAdapterTest {
                     "상품", "브랜드",
                     10000L, 9000L, BigDecimal.valueOf(10.0),
                     100L, BigDecimal.valueOf(1.0),
-                    0L, 0L
-            );
+                    0L, 0L, 0L, null, null);
 
             Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
             assertThat(entity).isPresent();
@@ -77,13 +76,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void updatesExistingEntry() {
             adapter.upsertCatalog(
                     1L, 100L, 200L, 10L, "상품A", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.upsertCatalog(
                     1L, 100L, 200L, 20L, "상품B", "브랜드B",
-                    12000L, 10000L, BigDecimal.valueOf(16.6), 200L, BigDecimal.valueOf(2.0), 5L, 10L
-            );
+                    12000L, 10000L, BigDecimal.valueOf(16.6), 200L, BigDecimal.valueOf(2.0), 5L, 10L, 0L, null, null);
 
             Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
             assertThat(entity).isPresent();
@@ -106,8 +103,7 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void updatesStockQuantity() {
             adapter.upsertCatalog(
                     1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateStockQuantity(1L, 77);
 
@@ -134,12 +130,10 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void updatesAllByProductId() {
             adapter.upsertCatalog(
                     1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(
                     2L, 100L, 200L, 10L, "상품", "브랜드",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateRepresentativeImage(
                     100L,
@@ -161,8 +155,7 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void storesNullWhenResizedEmpty() {
             adapter.upsertCatalog(
                     1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateRepresentativeImage(100L, "https://img.example/a.png", List.of());
 
@@ -179,12 +172,10 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void updatesAllByProductId() {
             adapter.upsertCatalog(
                     1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(
                     2L, 100L, 200L, 10L, "상품", "브랜드",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.updateReviewAggregate(100L, 12, 4.5f);
 
@@ -203,8 +194,7 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void deletesByPricePolicyId() {
             adapter.upsertCatalog(
                     1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.deleteByPricePolicyId(1L);
 
@@ -216,12 +206,10 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         void deletesByProductId() {
             adapter.upsertCatalog(
                     1L, 100L, 200L, 10L, "상품", "브랜드",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(
                     2L, 100L, 200L, 10L, "상품", "브랜드",
-                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L
-            );
+                    11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
             adapter.deleteByProductId(100L);
 
@@ -238,11 +226,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("discountPrice 오름차순 정렬을 반환한다")
         void returnsSortedByDiscountPriceAsc() {
             adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L);
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L);
+                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(3L, 102L, 200L, null, "C", null,
-                    15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L);
+                    15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
 
             List<ProductCatalogItemResult> results = adapter.findCatalogItems(
                     null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
@@ -258,11 +246,11 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("카테고리 필터 + 검색어로 조회한다")
         void filtersByCategoryAndSearch() {
             adapter.upsertCatalog(1L, 100L, 200L, 10L, "사과", "브랜드A",
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L);
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, 10L, "배", "브랜드B",
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L);
+                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(3L, 102L, 200L, 20L, "사과파이", "브랜드C",
-                    15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L);
+                    15000L, 12000L, BigDecimal.valueOf(20.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
 
             List<ProductCatalogItemResult> results = adapter.findCatalogItems(
                     10L, null, null, 10, true, ProductSortProperty.ORDER_NUM,
@@ -277,9 +265,9 @@ class ProductCatalogReadModelPersistenceAdapterTest {
         @DisplayName("countCatalogItems는 status=ACTIVE 건수를 반환한다")
         void countsActiveItems() {
             adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
-                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L);
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
             adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
-                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L);
+                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
 
             long count = adapter.countCatalogItems(null, null, null);
 

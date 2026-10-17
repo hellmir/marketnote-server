@@ -408,7 +408,7 @@ class GetProductUseCaseTest {
                 resizedImageUrls,
                 stockQuantity,
                 reviewCount,
-                reviewAverageRating,
+                reviewAverageRating, 0L, java.util.List.of(), java.util.List.of(),
                 EntityStatus.ACTIVE.name()
         );
     }

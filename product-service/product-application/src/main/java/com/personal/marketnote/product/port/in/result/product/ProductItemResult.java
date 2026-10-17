@@ -6,6 +6,7 @@ import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductTag;
+import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
 import com.personal.marketnote.product.port.in.result.option.ProductOptionItemResult;
 import com.personal.marketnote.product.port.in.result.pricepolicy.GetProductPricePolicyResult;
 import lombok.AccessLevel;
@@ -138,10 +139,10 @@ public class ProductItemResult {
                 .name(catalogItem.name())
                 .brandName(catalogItem.brandName())
                 .pricePolicy(GetProductPricePolicyResult.fromReadModel(catalogItem))
-                .sales(0)
-                .productTags(List.of())
+                .sales(toSalesInt(catalogItem.sales()))
+                .productTags(toProductTags(catalogItem.productTags()))
                 .catalogImage(toCatalogImage(catalogItem))
-                .selectedOptions(List.of())
+                .selectedOptions(toSelectedOptions(catalogItem.selectedOptions()))
                 .stock(FormatValidator.hasValue(catalogItem.stockQuantity()) ? catalogItem.stockQuantity() : 0)
                 .averageRating(FormatValidator.hasValue(catalogItem.reviewAverageRating())
                         ? catalogItem.reviewAverageRating() : 0f)
@@ -150,6 +151,45 @@ public class ProductItemResult {
                 .status(catalogItem.status())
                 .orderNum(catalogItem.orderNum())
                 .build();
+    }
+
+    private static Integer toSalesInt(Long sales) {
+        if (FormatValidator.hasNoValue(sales)) {
+            return 0;
+        }
+        if (sales > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return sales.intValue();
+    }
+
+    private static List<ProductTag> toProductTags(List<ProductCatalogTagSnapshot> snapshots) {
+        if (FormatValidator.hasNoValue(snapshots)) {
+            return List.of();
+        }
+        return snapshots.stream()
+                .map(snapshot -> ProductTag.from(
+                        ProductTagSnapshotState.builder()
+                                .id(snapshot.id())
+                                .name(snapshot.name())
+                                .orderNum(snapshot.orderNum())
+                                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                                .build()
+                ))
+                .sorted(Comparator.comparingLong(ProductTag::getOrderNum))
+                .limit(MAX_DISPLAY_TAGS)
+                .toList();
+    }
+
+    private static List<ProductOptionItemResult> toSelectedOptions(List<ProductCatalogOptionSnapshot> snapshots) {
+        if (FormatValidator.hasNoValue(snapshots)) {
+            return List.of();
+        }
+        return snapshots.stream()
+                .map(snapshot -> new ProductOptionItemResult(
+                        snapshot.id(), snapshot.content(), com.personal.marketnote.common.domain.EntityStatus.ACTIVE.name()
+                ))
+                .toList();
     }
 
     private static GetFileResult toCatalogImage(ProductCatalogItemResult catalogItem) {

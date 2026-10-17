@@ -58,8 +58,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_success_upsertsReadModel() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                1L, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -79,8 +78,7 @@ class ProductRegisteredReadModelConsumerTest {
         // given
         UUID productKey = UUID.fromString("01900000-0000-7000-8000-000000000099");
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, productKey, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                1L, productKey, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -115,8 +113,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_eventTypeMismatch_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                1L, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
                 "wrong.event.type",
@@ -139,8 +136,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_nullProductId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                null, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                null, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -157,8 +153,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_nullPricePolicyId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, null, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                1L, null, null, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -175,8 +170,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_nullSellerId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 100L, null, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                1L, null, 100L, null, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -193,8 +187,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_zeroProductId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                0L, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                0L, null, 100L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -211,8 +204,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_negativePricePolicyId_acknowledges() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, -1L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                1L, null, -1L, 10L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -229,8 +221,7 @@ class ProductRegisteredReadModelConsumerTest {
     void handleProductRegisteredEvent_nullableFieldsNull_upsertsSuccessfully() {
         // given
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
-                1L, null, 100L, 10L, "테스트 상품", "1", null, null, null, null
-        );
+                1L, null, 100L, 10L, "테스트 상품", "1", null, null, null, null, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

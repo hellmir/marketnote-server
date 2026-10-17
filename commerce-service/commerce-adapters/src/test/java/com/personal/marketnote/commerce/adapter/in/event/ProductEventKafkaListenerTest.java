@@ -42,8 +42,7 @@ class ProductEventKafkaListenerTest {
             Long productId, Long pricePolicyId, Long sellerId
     ) {
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                productId, null, pricePolicyId, sellerId, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                productId, null, pricePolicyId, sellerId, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.registered", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event
@@ -120,8 +119,7 @@ class ProductEventKafkaListenerTest {
     void handleProductRegisteredEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                1L, null, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L
-        );
+                1L, null, 2L, 3L, "테스트 상품", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event

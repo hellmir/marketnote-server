@@ -18,7 +18,10 @@ public interface SaveProductCatalogReadModelPort {
             Long accumulatedPoint,
             BigDecimal accumulatedPointRate,
             Long orderNum,
-            Long popularity
+            Long popularity,
+            Long sales,
+            String productTagsJson,
+            String selectedOptionsJson
     );
 
     void updateStockQuantity(Long pricePolicyId, Integer stockQuantity);
