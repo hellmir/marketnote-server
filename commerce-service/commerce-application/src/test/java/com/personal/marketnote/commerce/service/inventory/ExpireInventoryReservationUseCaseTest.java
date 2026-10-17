@@ -181,6 +181,29 @@ class ExpireInventoryReservationUseCaseTest {
         }
 
         @Test
+        @DisplayName("만료 예약 해소 시 StockReleasedEvent를 RESERVATION_EXPIRED reason으로 발행한다")
+        void expireTimedOutReservations_publishesStockReleasedEventWithExpiredReason() {
+            // given
+            Inventory inventory = buildInventoryWithReserved(1L, 100L, 10, 3);
+            InventoryReservation reservation = buildReservation(1L, 100L, 3);
+
+            stubTransactionTemplate();
+            stubLockToExecuteTask();
+            when(findExpiredInventoryReservationPort.findExpiredBefore(CUTOFF)).thenReturn(List.of(reservation));
+            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(1L, Set.of(100L)))
+                    .thenReturn(List.of(reservation));
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
+
+            // when
+            expireInventoryReservationService.expireTimedOutReservations(CUTOFF);
+
+            // then
+            verify(publishInventoryEventPort).publishStockReleasedEvent(
+                    100L, 1L, 3, "RESERVATION_EXPIRED", 1L
+            );
+        }
+
+        @Test
         @DisplayName("분산 락 내에서 해소가 실행된다")
         void expireTimedOutReservations_executesWithinDistributedLock() {
             // given

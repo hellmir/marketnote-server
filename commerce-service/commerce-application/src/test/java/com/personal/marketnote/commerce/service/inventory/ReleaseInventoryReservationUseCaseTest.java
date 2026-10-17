@@ -124,6 +124,24 @@ class ReleaseInventoryReservationUseCaseTest {
                     100L, 1L, 10, InventoryChangeAction.UPDATED
             );
         }
+
+        @Test
+        @DisplayName("예약 해소 시 InventoryChangedEvent와 함께 StockReleasedEvent도 전달된 reason으로 발행한다")
+        void release_withReservation_publishesStockReleasedEventWithReason() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+            Inventory inventory = buildInventoryWithReserved(1L, 100L, 10, 3);
+            InventoryReservation reservation = buildReservation(1L, 100L, 3);
+            String reason = "SAGA 보상 - 예약 해소";
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
+                    .thenReturn(List.of(reservation));
+
+            releaseInventoryReservationService.release(orderProducts, 1L, reason);
+
+            verify(publishInventoryEventPort).publishStockReleasedEvent(100L, 1L, 3, reason, 1L);
+        }
     }
 
     // ==================================================================================
@@ -184,6 +202,23 @@ class ReleaseInventoryReservationUseCaseTest {
             verify(publishInventoryEventPort).publishInventoryChangedEvent(
                     100L, 1L, 10, InventoryChangeAction.UPDATED
             );
+        }
+
+        @Test
+        @DisplayName("restore fallback 경로에서도 StockReleasedEvent를 요청 수량과 reason으로 발행한다")
+        void release_withoutReservation_publishesStockReleasedEventWithRequestedQuantity() {
+            List<OrderProduct> orderProducts = List.of(buildOrderProduct(100L, 3));
+            Inventory inventory = buildInventory(1L, 100L, 7);
+            String reason = "SAGA 보상 - 재고 복구";
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(inventory));
+            when(findInventoryReservationPort.findByOrderIdAndPricePolicyIds(eq(1L), any()))
+                    .thenReturn(List.of());
+
+            releaseInventoryReservationService.release(orderProducts, 1L, reason);
+
+            verify(publishInventoryEventPort).publishStockReleasedEvent(100L, 1L, 3, reason, 1L);
         }
     }
 
