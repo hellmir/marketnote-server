@@ -12,6 +12,7 @@ import com.personal.marketnote.reward.domain.attendance.UserAttendance;
 import com.personal.marketnote.reward.domain.attendance.UserAttendanceSnapshotState;
 import jakarta.persistence.*;
 import lombok.*;
+import com.personal.marketnote.reward.domain.attendance.UserAttendanceHistory;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -44,9 +45,6 @@ public class UserAttendanceJpaEntity {
     @Column(name = "total_reward_quantity", nullable = false)
     private long totalRewardQuantity;
 
-    @OneToMany(mappedBy = "userAttendanceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserAttendanceHistoryJpaEntity> histories;
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -65,14 +63,10 @@ public class UserAttendanceJpaEntity {
                 .month(attendance.getMonth())
                 .createdAt(attendance.getCreatedAt())
                 .totalRewardQuantity(attendance.getTotalRewardQuantityValue())
-                .histories(FormatValidator.hasNoValue(attendance.getHistories()) ? null : attendance.getHistories().stream()
-                        .map(UserAttendanceHistoryJpaEntity::from)
-                        .toList()
-                )
                 .build();
     }
 
-    public UserAttendance toDomain() {
+    public UserAttendance toDomain(List<UserAttendanceHistory> histories) {
         return UserAttendance.from(
                 UserAttendanceSnapshotState.builder()
                         .id(id)
@@ -81,10 +75,7 @@ public class UserAttendanceJpaEntity {
                         .month(month)
                         .createdAt(createdAt)
                         .totalRewardQuantity(RewardQuantity.of(totalRewardQuantity))
-                        .histories(FormatValidator.hasNoValue(histories) ? null : histories.stream()
-                                .map(UserAttendanceHistoryJpaEntity::toDomain)
-                                .toList()
-                        )
+                        .histories(histories)
                         .build()
         );
     }

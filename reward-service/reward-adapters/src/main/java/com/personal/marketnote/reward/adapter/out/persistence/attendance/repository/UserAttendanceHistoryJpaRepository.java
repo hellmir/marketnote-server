@@ -4,6 +4,7 @@ import com.personal.marketnote.reward.adapter.out.persistence.attendance.entity.
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserAttendanceHistoryJpaRepository extends JpaRepository<UserAttendanceHistoryJpaEntity, Long> {
@@ -14,5 +15,7 @@ public interface UserAttendanceHistoryJpaRepository extends JpaRepository<UserAt
             LocalDateTime startInclusive,
             LocalDateTime endExclusive
     );
+
+    List<UserAttendanceHistoryJpaEntity> findAllByUserAttendanceIdOrderByAttendedAtAsc(Long userAttendanceId);
 }
 
