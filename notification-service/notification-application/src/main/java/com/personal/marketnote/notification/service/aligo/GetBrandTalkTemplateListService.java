@@ -13,13 +13,11 @@ import com.personal.marketnote.notification.port.out.aligo.GetBrandTalkTemplateL
 import com.personal.marketnote.notification.port.out.aligo.SaveBrandTalkTemplatePort;
 import com.personal.marketnote.notification.port.out.aligo.UpdateBrandTalkTemplatePort;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @UseCase
 @RequiredArgsConstructor
@@ -29,14 +27,17 @@ public class GetBrandTalkTemplateListService implements GetBrandTalkTemplateList
     private final FindBrandTalkTemplateListPort findBrandTalkTemplateListPort;
     private final SaveBrandTalkTemplatePort saveBrandTalkTemplatePort;
     private final UpdateBrandTalkTemplatePort updateBrandTalkTemplatePort;
+    private final TransactionTemplate transactionTemplate;
 
     @Override
-    @Transactional(isolation = READ_COMMITTED)
     public GetBrandTalkTemplateListResult getTemplateList(String senderKey, int page, int pageSize) {
         GetBrandTalkTemplateListResult.ExternalListResponse externalResponse =
                 getTemplateListExternalPort.getTemplateList(senderKey, page, pageSize);
 
-        syncTemplates(senderKey, externalResponse.templates());
+        transactionTemplate.execute(status -> {
+            syncTemplates(senderKey, externalResponse.templates());
+            return null;
+        });
 
         List<GetBrandTalkTemplateListResult.BrandTalkTemplateItem> items = externalResponse.templates().stream()
                 .map(this::toItem)
