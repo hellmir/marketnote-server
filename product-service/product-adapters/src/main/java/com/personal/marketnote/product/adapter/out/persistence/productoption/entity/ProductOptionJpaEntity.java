@@ -4,9 +4,11 @@ import com.personal.marketnote.common.adapter.out.persistence.audit.BaseOrderedG
 import com.personal.marketnote.product.domain.option.ProductOption;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "product_option")
+@BatchSize(size = 100)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
