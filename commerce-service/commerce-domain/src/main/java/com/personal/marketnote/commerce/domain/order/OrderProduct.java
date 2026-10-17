@@ -18,6 +18,7 @@ public class OrderProduct {
 
     private Long orderId;
     private Long productId;
+    private UUID productKey;
     private Long sellerId;
     private Long pricePolicyId;
     private UUID orderProductKey;
@@ -34,6 +35,7 @@ public class OrderProduct {
     public static OrderProduct from(OrderProductCreateState state) {
         return OrderProduct.builder()
                 .productId(state.getProductId())
+                .productKey(state.getProductKey())
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
                 .orderProductKey(RandomCodeGenerator.generateOrderProductKey())
@@ -50,6 +52,7 @@ public class OrderProduct {
         return OrderProduct.builder()
                 .orderId(state.getOrderId())
                 .productId(state.getProductId())
+                .productKey(state.getProductKey())
                 .sellerId(state.getSellerId())
                 .pricePolicyId(state.getPricePolicyId())
                 .orderProductKey(state.getOrderProductKey())
