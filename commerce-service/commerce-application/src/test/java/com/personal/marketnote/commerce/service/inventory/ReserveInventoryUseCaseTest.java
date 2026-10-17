@@ -137,6 +137,85 @@ class ReserveInventoryUseCaseTest {
     }
 
     // ==================================================================================
+    // 이벤트 발행 검증 (StockReservedEvent)
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("재고 예약 이벤트 발행")
+    class StockReservedEventPublicationTest {
+
+        @Test
+        @DisplayName("단일 가격 정책 예약 성공 시 StockReservedEvent를 1회 발행한다")
+        void reserveInventory_singleProduct_publishesStockReservedEventOnce() {
+            ReserveInventoryCommand command = buildCommand(500L, List.of(
+                    buildOrderProductItem(100L, 3)
+            ));
+            Inventory inventory = buildInventory(7L, 100L, 10);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
+
+            reserveInventoryService.reserveInventory(command);
+
+            verify(publishInventoryEventPort).publishStockReservedEvent(100L, 7L, 3, 500L);
+        }
+
+        @Test
+        @DisplayName("복수 가격 정책 예약 성공 시 각 재고별로 StockReservedEvent를 발행한다")
+        void reserveInventory_multiplePolicies_publishesStockReservedEventForEach() {
+            ReserveInventoryCommand command = buildCommand(800L, List.of(
+                    buildOrderProductItem(100L, 2),
+                    buildOrderProductItem(200L, 5)
+            ));
+            Inventory inventory1 = buildInventory(1L, 100L, 10);
+            Inventory inventory2 = buildInventory(2L, 200L, 20);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L, 200L)))
+                    .thenReturn(Set.of(inventory1, inventory2));
+
+            reserveInventoryService.reserveInventory(command);
+
+            verify(publishInventoryEventPort).publishStockReservedEvent(100L, 1L, 2, 800L);
+            verify(publishInventoryEventPort).publishStockReservedEvent(200L, 2L, 5, 800L);
+        }
+
+        @Test
+        @DisplayName("동일 가격 정책 복수 주문 상품은 합산 수량으로 StockReservedEvent를 1회 발행한다")
+        void reserveInventory_samePolicyMultipleItems_publishesOnceWithSummedQuantity() {
+            ReserveInventoryCommand command = buildCommand(500L, List.of(
+                    buildOrderProductItem(100L, 2),
+                    buildOrderProductItem(100L, 3)
+            ));
+            Inventory inventory = buildInventory(7L, 100L, 10);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
+
+            reserveInventoryService.reserveInventory(command);
+
+            verify(publishInventoryEventPort).publishStockReservedEvent(100L, 7L, 5, 500L);
+        }
+
+        @Test
+        @DisplayName("가용재고 부족 시 StockReservedEvent를 발행하지 않는다")
+        void reserveInventory_insufficientStock_doesNotPublishEvent() {
+            ReserveInventoryCommand command = buildCommand(500L, List.of(
+                    buildOrderProductItem(100L, 11)
+            ));
+            Inventory inventory = buildInventory(7L, 100L, 10);
+
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(Set.of(100L))).thenReturn(Set.of(inventory));
+
+            assertThatThrownBy(() -> reserveInventoryService.reserveInventory(command))
+                    .isInstanceOf(InsufficientAvailableStockException.class);
+
+            verifyNoInteractions(publishInventoryEventPort);
+        }
+    }
+
+    // ==================================================================================
     // 분산 락 검증
     // ==================================================================================
 
