@@ -150,6 +150,64 @@ class ProductItemResultTest {
     }
 
     @Test
+    @DisplayName("ReadModel sales/productTags/selectedOptions 스냅샷을 ProductItemResult 에 복원한다")
+    void shouldRestoreSalesTagsAndOptionsFromReadModel() {
+        // given
+        ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
+                100L, 10L, 1L, 7L, "태그 상품", "브랜드",
+                10_000L, 9_000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.ONE, 5L, 3L,
+                null, List.of(), 0, 0, 0f,
+                250L,
+                List.of(
+                        new ProductCatalogTagSnapshot(10L, "NEW", 1L),
+                        new ProductCatalogTagSnapshot(11L, "HOT", 2L),
+                        new ProductCatalogTagSnapshot(12L, "BEST", 3L)
+                ),
+                List.of(
+                        new ProductCatalogOptionSnapshot(100L, "색상: 빨강"),
+                        new ProductCatalogOptionSnapshot(101L, "사이즈: L")
+                ),
+                EntityStatus.ACTIVE.name()
+        );
+
+        // when
+        ProductItemResult result = ProductItemResult.fromReadModel(catalogItem);
+
+        // then
+        assertThat(result.getSales()).isEqualTo(250);
+        assertThat(result.getProductTags()).hasSize(2);
+        assertThat(result.getProductTags())
+                .extracting(ProductTag::getId, ProductTag::getName, ProductTag::getOrderNum)
+                .containsExactly(
+                        org.assertj.core.groups.Tuple.tuple(10L, "NEW", 1L),
+                        org.assertj.core.groups.Tuple.tuple(11L, "HOT", 2L)
+                );
+        assertThat(result.getSelectedOptions()).hasSize(2);
+        assertThat(result.getSelectedOptions().get(0).id()).isEqualTo(100L);
+        assertThat(result.getSelectedOptions().get(0).content()).isEqualTo("색상: 빨강");
+    }
+
+    @Test
+    @DisplayName("ReadModel sales 가 Integer.MAX_VALUE 초과 시 MAX_VALUE 로 cap 한다")
+    void shouldCapSalesAtIntegerMax() {
+        // given
+        ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
+                100L, 10L, 1L, null, "상품", null,
+                1L, 1L, BigDecimal.ZERO, 0L, BigDecimal.ZERO, 0L, 0L,
+                null, List.of(), 0, 0, 0f,
+                ((long) Integer.MAX_VALUE) + 100L,
+                java.util.List.of(), java.util.List.of(),
+                EntityStatus.ACTIVE.name()
+        );
+
+        // when
+        ProductItemResult result = ProductItemResult.fromReadModel(catalogItem);
+
+        // then
+        assertThat(result.getSales()).isEqualTo(Integer.MAX_VALUE);
+    }
+
+    @Test
     @DisplayName("ReadModel resized 이미지 목록이 null 이면 빈 리스트로 반환한다")
     void shouldReturnEmptyResizedUrlsWhenNull() {
         // given

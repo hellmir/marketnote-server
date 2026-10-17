@@ -95,6 +95,40 @@ class ProductCatalogReadModelSyncConsumerTest {
     }
 
     @Test
+    @DisplayName("ProductRegistered 이벤트에 sales/productTags/selectedOptions 가 포함되면 JSON 으로 직렬화하여 upsert 한다")
+    void handleProductRegistered_withSalesTagsOptions_serializesAndUpserts() throws Exception {
+        List<ProductRegisteredEvent.ProductTagSnapshot> tags = List.of(
+                new ProductRegisteredEvent.ProductTagSnapshot(10L, "NEW", 1L),
+                new ProductRegisteredEvent.ProductTagSnapshot(11L, "HOT", 2L)
+        );
+        List<ProductRegisteredEvent.ProductOptionSnapshot> options = List.of(
+                new ProductRegisteredEvent.ProductOptionSnapshot(100L, "색상: 빨강"),
+                new ProductRegisteredEvent.ProductOptionSnapshot(101L, "사이즈: L")
+        );
+        ProductRegisteredEvent payload = new ProductRegisteredEvent(
+                100L, null, 1L, 200L, "테스트 상품", "PRODUCT", "테스트 브랜드",
+                10000L, 9000L, 100L, 50L, tags, options
+        );
+        EventEnvelope<ProductRegisteredEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRODUCT_REGISTERED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_REGISTERED, envelope);
+        String expectedTagsJson = objectMapper.writeValueAsString(tags);
+        String expectedOptionsJson = objectMapper.writeValueAsString(options);
+
+        consumer.handleProductRegistered(record, acknowledgment);
+
+        verify(saveProductCatalogReadModelPort).upsertCatalog(
+                eq(1L), eq(100L), eq(200L), eq(null),
+                eq("테스트 상품"), eq("테스트 브랜드"),
+                eq(10000L), eq(9000L), eq(BigDecimal.ZERO), eq(100L),
+                eq(BigDecimal.ZERO), eq(0L), eq(0L),
+                eq(50L), eq(expectedTagsJson), eq(expectedOptionsJson)
+        );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("ProductRegistered productId가 null이면 upsert를 호출하지 않는다")
     void handleProductRegistered_nullProductId_acknowledges() {
         ProductRegisteredEvent payload = new ProductRegisteredEvent(
