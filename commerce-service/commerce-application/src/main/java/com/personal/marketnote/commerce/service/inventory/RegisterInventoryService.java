@@ -35,7 +35,7 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
             throw new InventoryAlreadyExistsException(pricePolicyId);
         }
 
-        Inventory inventory = Inventory.of(command.productId(), command.pricePolicyId());
+        Inventory inventory = Inventory.of(command.productId(), command.productKey(), command.pricePolicyId());
         saveInventoryPort.save(inventory);
 
         saveCacheStockPort.save(command.pricePolicyId(), 0);
@@ -48,7 +48,7 @@ public class RegisterInventoryService implements RegisterInventoryUseCase {
     @Override
     public Set<Inventory> registerInventories(Set<RegisterInventoryCommand> commands) {
         Set<Inventory> inventories = commands.stream()
-                .map(command -> Inventory.of(command.productId(), command.pricePolicyId()))
+                .map(command -> Inventory.of(command.productId(), command.productKey(), command.pricePolicyId()))
                 .collect(Collectors.toSet());
 
         saveInventoryPort.save(inventories);

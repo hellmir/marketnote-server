@@ -21,4 +21,10 @@ public interface UpdateInventoryPort {
      * @Description 재고 정보를 업데이트합니다.
      */
     void update(Set<Inventory> inventories) throws InventoryNotFoundException;
+
+    /**
+     * @param inventories 재고 도메인 목록
+     * @Description 재고의 productKey만 업데이트합니다 (백필용, 멱등 처리).
+     */
+    void updateProductKey(Set<Inventory> inventories);
 }

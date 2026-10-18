@@ -58,6 +58,13 @@ public class InventoryJpaEntity extends BaseEntity {
         reserved = inventory.getReserved();
     }
 
+    public void assignProductKey(UUID productKey) {
+        if (FormatValidator.hasValue(this.productKey)) {
+            return;
+        }
+        this.productKey = productKey;
+    }
+
     @PostLoad
     private void initVersionAfterLoad() {
         if (FormatValidator.hasNoValue(version)) {
