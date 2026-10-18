@@ -9,10 +9,12 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
 import com.personal.marketnote.common.kafka.event.InventoryChangedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.product.port.in.usecase.tagsync.SyncProductTagChangeUseCase;
 import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -33,6 +36,7 @@ public class ProductCatalogReadModelSyncConsumer {
 
     private final ObjectMapper objectMapper;
     private final SaveProductCatalogReadModelPort saveProductCatalogReadModelPort;
+    private final SyncProductTagChangeUseCase syncProductTagChangeUseCase;
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_REGISTERED, groupId = CONSUMER_GROUP_ID)
     public void handleProductRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
@@ -103,6 +107,46 @@ public class ProductCatalogReadModelSyncConsumer {
             return objectMapper.writeValueAsString(options);
         } catch (JsonProcessingException jpe) {
             log.warn("상품 카탈로그 Read Model selectedOptions 직렬화 실패. pricePolicyId={}", pricePolicyId, jpe);
+            return null;
+        }
+    }
+
+    @KafkaListener(topics = KafkaTopicConstants.PRODUCT_TAG_CHANGED, groupId = CONSUMER_GROUP_ID)
+    public void handleProductTagChanged(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRODUCT_TAG_CHANGED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        ProductTagChangedEvent payload = envelope.getPayloadAs(ProductTagChangedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        UUID eventId = parseEventId(envelope.eventId());
+        if (FormatValidator.hasNoValue(eventId)) {
+            ack.acknowledge();
+            return;
+        }
+
+        syncProductTagChangeUseCase.syncProductTagChange(eventId, payload);
+        ack.acknowledge();
+    }
+
+    private UUID parseEventId(String eventId) {
+        try {
+            return UUID.fromString(eventId);
+        } catch (IllegalArgumentException iae) {
+            log.warn("상품 태그 변경 이벤트 eventId 파싱 실패 — 건너뜀. eventId={}", eventId);
             return null;
         }
     }

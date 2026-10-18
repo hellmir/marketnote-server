@@ -27,6 +27,7 @@ public final class KafkaTopicConstants {
     public static final String PRICE_POLICY_DELETED = "product.price-policy.deleted";
     public static final String PRODUCT_UPDATED = "product.product.updated";
     public static final String PRODUCT_DELETED = "product.product.deleted";
+    public static final String PRODUCT_TAG_CHANGED = "product.product.tag-changed";
 
     // User 이벤트
     public static final String USER_SIGNUP_COMPLETED = "user.user.signup-completed";
@@ -115,6 +116,7 @@ public final class KafkaTopicConstants {
                 PRICE_POLICY_DELETED,
                 PRODUCT_UPDATED,
                 PRODUCT_DELETED,
+                PRODUCT_TAG_CHANGED,
                 USER_SIGNUP_COMPLETED,
                 USER_REFERRAL_COMPLETED,
                 SHIPPING_ADDRESS_CHANGED,

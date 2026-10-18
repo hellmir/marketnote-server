@@ -1,6 +1,8 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductTag;
 import com.personal.marketnote.product.exception.DuplicateProductTagOrderException;
@@ -9,6 +11,7 @@ import com.personal.marketnote.product.exception.ProductTagNotFoundException;
 import com.personal.marketnote.product.port.in.command.ReorderProductTagsCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.ReorderProductTagsUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductTagPort;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +34,7 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
     private final GetProductUseCase getProductUseCase;
     private final FindProductPort findProductPort;
     private final UpdateProductTagPort updateProductTagPort;
+    private final PublishProductEventPort publishProductEventPort;
 
     @Override
     public void reorderProductTags(Long userId, boolean isAdmin, ReorderProductTagsCommand command) {
@@ -44,6 +49,12 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
 
         Map<Long, Long> tagIdToOrderNumMap = buildTagIdToOrderNumMap(command);
         updateProductTagPort.updateOrderNums(productId, tagIdToOrderNumMap);
+
+        publishProductEventPort.publishProductTagChangedEvent(
+                productId,
+                toReorderedSnapshots(product.getProductTags(), tagIdToOrderNumMap),
+                ProductTagChangedEvent.Action.REORDERED
+        );
     }
 
     private void validateOwnership(Long userId, boolean isAdmin, Long productId) {
@@ -86,5 +97,20 @@ public class ReorderProductTagsService implements ReorderProductTagsUseCase {
             map.put(item.tagId(), item.orderNum());
         }
         return map;
+    }
+
+    private List<ProductTagChangedEvent.ProductTagSnapshot> toReorderedSnapshots(
+            List<ProductTag> existingTags, Map<Long, Long> tagIdToOrderNumMap
+    ) {
+        if (FormatValidator.hasNoValue(existingTags)) {
+            return List.of();
+        }
+        return existingTags.stream()
+                .map(tag -> new ProductTagChangedEvent.ProductTagSnapshot(
+                        tag.getId(),
+                        tag.getName(),
+                        tagIdToOrderNumMap.getOrDefault(tag.getId(), tag.getOrderNum())
+                ))
+                .toList();
     }
 }

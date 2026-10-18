@@ -8,6 +8,7 @@ import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.PricePolicyDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ProductDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -79,6 +80,19 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
         ProductDeletedEvent payload = new ProductDeletedEvent(productId);
         String topic = KafkaTopicConstants.PRODUCT_DELETED;
         EventEnvelope<ProductDeletedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
+
+        saveToOutbox(envelope, topic, productId.toString());
+    }
+
+    @Override
+    public void publishProductTagChangedEvent(
+            Long productId,
+            List<ProductTagChangedEvent.ProductTagSnapshot> productTags,
+            ProductTagChangedEvent.Action action
+    ) {
+        ProductTagChangedEvent payload = new ProductTagChangedEvent(productId, productTags, action);
+        String topic = KafkaTopicConstants.PRODUCT_TAG_CHANGED;
+        EventEnvelope<ProductTagChangedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
         saveToOutbox(envelope, topic, productId.toString());
     }

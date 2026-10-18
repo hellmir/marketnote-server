@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.port.out.event;
 
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 
 import java.util.List;
@@ -23,4 +24,10 @@ public interface PublishProductEventPort {
     void publishProductUpdatedEvent(ProductUpdatedEvent event);
 
     void publishProductDeletedEvent(Long productId);
+
+    void publishProductTagChangedEvent(
+            Long productId,
+            List<ProductTagChangedEvent.ProductTagSnapshot> productTags,
+            ProductTagChangedEvent.Action action
+    );
 }
