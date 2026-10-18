@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.security.hmac;
 
 import com.personal.marketnote.common.security.hmac.exception.HmacAuthenticationFailedException;
+import com.personal.marketnote.common.security.hmac.exception.HmacNonceValidationUnavailableException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,9 @@ import java.time.ZoneId;
 import static com.personal.marketnote.common.security.hmac.HmacHeaderConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class HmacAuthenticationFilterTest {
@@ -116,5 +119,28 @@ class HmacAuthenticationFilterTest {
 
         assertThatThrownBy(() -> hmacAuthenticationFilter.doFilter(request, response, filterChain))
                 .isInstanceOf(HmacAuthenticationFailedException.class);
+    }
+
+    @Test
+    @DisplayName("Redis 장애로 Nonce 검증이 불가하면 HmacNonceValidationUnavailableException이 전파되고 인증이 거부된다")
+    void shouldPropagateFailSecureWhenNonceValidationUnavailable() {
+        String timestamp = String.valueOf(FIXED_TIME_MILLIS);
+        String nonce = "550e8400-e29b-41d4-a716-446655440000";
+        String signature = HmacSignatureGenerator.generate(SECRET_KEY, timestamp, nonce, "GET", "/api/v1/internal/users");
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/v1/internal/users");
+        request.addHeader(HEADER_SIGNATURE, signature);
+        request.addHeader(HEADER_TIMESTAMP, timestamp);
+        request.addHeader(HEADER_NONCE, nonce);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        doThrow(new HmacNonceValidationUnavailableException(nonce, new RuntimeException("Redis down")))
+                .when(hmacNonceValidator).validateAndStore(nonce);
+
+        assertThatThrownBy(() -> hmacAuthenticationFilter.doFilter(request, response, filterChain))
+                .isInstanceOf(HmacNonceValidationUnavailableException.class);
+
+        verifyNoInteractions(filterChain);
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 }
