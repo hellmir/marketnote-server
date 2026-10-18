@@ -23,6 +23,7 @@ public record OrderPaymentCompletedSagaContext(
     public record OrderProductItem(
             Long pricePolicyId,
             Long productId,
+            UUID productKey,
             UUID sharerKey,
             Integer quantity,
             Long unitAmount

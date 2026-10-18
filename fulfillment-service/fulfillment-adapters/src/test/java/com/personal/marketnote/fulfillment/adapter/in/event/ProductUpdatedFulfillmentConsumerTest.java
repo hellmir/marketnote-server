@@ -23,6 +23,7 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,7 +54,7 @@ class ProductUpdatedFulfillmentConsumerTest {
             Long productId, String productName, String godType, String giftDiv
     ) {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                productId, productName, godType, giftDiv,
+                productId, UUID.randomUUID(), productName, godType, giftDiv,
                 null, null, null, null, null, null, null, null, null, // godOptCd1 ~ makeYr (9)
                 null, null, null, null, null, null, null, null, null, // godPr ~ distTermMgtYn (9)
                 null, null, null, null, null, null, null, null, null, // useTermDay ~ useYn (9)
@@ -68,7 +69,7 @@ class ProductUpdatedFulfillmentConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecordWithAllFields() {
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                10L, "테스트 상품", "2", "99",
+                10L, UUID.randomUUID(), "테스트 상품", "2", "99",
                 "opt1", "opt2", "Y", "상품명", "SUP", "CATE", "2024", "M", "2024",
                 "12000", "9000", "10000", "ROOM", "A1", "BARCODE", "2.5", "KR", "Y",
                 "30", "7", "7", "BOX", "N", "UP", "COTTON", "Y", "10",
@@ -104,7 +105,8 @@ class ProductUpdatedFulfillmentConsumerTest {
         assertThat(command.customerCode()).isEqualTo("CUST001");
         assertThat(command.accessToken()).isEqualTo("valid-token");
         assertThat(command.goods()).hasSize(1);
-        assertThat(command.goods().get(0).productCode()).isEqualTo("10");
+        assertThat(command.goods().get(0).productId()).isEqualTo(10L);
+        assertThat(command.goods().get(0).productKey()).isNotNull();
         assertThat(command.goods().get(0).productName()).isEqualTo("테스트 상품");
         assertThat(command.goods().get(0).productType()).isEqualTo("1");
         assertThat(command.goods().get(0).giftDivision()).isEqualTo("01");
@@ -128,7 +130,8 @@ class ProductUpdatedFulfillmentConsumerTest {
         verify(updateFulfillmentGoodsUseCase).updateGoods(captor.capture());
 
         UpdateFulfillmentGoodsCommand command = captor.getValue();
-        assertThat(command.goods().get(0).productCode()).isEqualTo("10");
+        assertThat(command.goods().get(0).productId()).isEqualTo(10L);
+        assertThat(command.goods().get(0).productKey()).isNotNull();
         assertThat(command.goods().get(0).productName()).isEqualTo("테스트 상품");
         assertThat(command.goods().get(0).productType()).isEqualTo("2");
         assertThat(command.goods().get(0).giftDivision()).isEqualTo("99");
@@ -227,7 +230,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ProductUpdatedEvent event = new ProductUpdatedEvent(
-                1L, "테스트", "1", "01",
+                1L, UUID.randomUUID(), "테스트", "1", "01",
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null,

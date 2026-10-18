@@ -270,7 +270,7 @@ public class PaymentApprovalTransactionHelper {
 
         List<OrderPaymentSagaContext.OrderProductItem> sagaOrderProducts = orderProducts.stream()
                 .map(op -> new OrderPaymentSagaContext.OrderProductItem(
-                        op.getPricePolicyId(), op.getProductId(), op.getSharerKey(),
+                        op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
                         op.getQuantity().getValue(), op.getUnitAmount().getValue()
                 ))
                 .toList();

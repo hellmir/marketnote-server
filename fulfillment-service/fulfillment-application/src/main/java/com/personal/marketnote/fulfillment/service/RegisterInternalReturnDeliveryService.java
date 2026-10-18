@@ -72,7 +72,7 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
 
         List<RegisterFulfillmentDeliveryGoodsCommand> goods = command.products().stream()
                 .map(product -> RegisterFulfillmentDeliveryGoodsCommand.of(
-                        product.productCode(), product.quantity()
+                        product.productKey(), product.quantity()
                 ))
                 .toList();
 

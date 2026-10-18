@@ -145,7 +145,7 @@ public class OrderPaymentCompletedOutboundConsumer {
     ) {
         return orderProducts.stream()
                 .map(item -> RegisterFulfillmentDeliveryGoodsCommand.of(
-                        String.valueOf(item.productId()),
+                        item.productKey(),
                         item.quantity()
                 ))
                 .toList();

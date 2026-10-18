@@ -704,7 +704,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
     private ProductUpdatedEvent buildSampleProductUpdatedEvent() {
         return new ProductUpdatedEvent(
-                1L, "업데이트 상품", "1", "N", "OPT1", "OPT2",
+                1L, UUID.randomUUID(), "업데이트 상품", "1", "N", "OPT1", "OPT2",
                 "Y", "커스텀상품명", "SUP001", "CATE01",
                 "SS2026", "U", "2026", "50000", "30000",
                 "45000", "NORMAL", "PICK01", "8801234567890",
@@ -732,8 +732,8 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
 
     private OrderPaymentCompletedEvent buildSampleOrderPaymentCompletedEvent() {
         List<OrderPaymentCompletedEvent.OrderProductItem> orderProducts = List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(100L, 1L, SHARER_KEY_1, 2, 25000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(200L, 2L, null, 1, 20000L)
+                new OrderPaymentCompletedEvent.OrderProductItem(100L, 1L, null, SHARER_KEY_1, 2, 25000L),
+                new OrderPaymentCompletedEvent.OrderProductItem(200L, 2L, null, null, 1, 20000L)
         );
         return new OrderPaymentCompletedEvent(
                 1L, 10L, 50000L, 5000L,

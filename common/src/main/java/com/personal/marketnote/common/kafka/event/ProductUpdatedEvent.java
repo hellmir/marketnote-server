@@ -1,7 +1,10 @@
 package com.personal.marketnote.common.kafka.event;
 
+import java.util.UUID;
+
 public record ProductUpdatedEvent(
         Long productId,
+        UUID productKey,
         String productName,
         String goodsType,
         String giftDivision,

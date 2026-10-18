@@ -125,7 +125,7 @@ public class OrderPaymentCompletedSagaConsumer {
 
     private OrderPaymentCompletedSagaContext.OrderProductItem toDownstreamProduct(SagaOrderProductItem item) {
         return new OrderPaymentCompletedSagaContext.OrderProductItem(
-                item.pricePolicyId(), item.productId(), item.sharerKey(), item.quantity(), item.unitAmount()
+                item.pricePolicyId(), item.productId(), item.productKey(), item.sharerKey(), item.quantity(), item.unitAmount()
         );
     }
 }

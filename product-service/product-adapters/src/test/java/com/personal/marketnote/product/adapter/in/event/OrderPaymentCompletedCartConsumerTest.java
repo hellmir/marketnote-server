@@ -53,8 +53,8 @@ class OrderPaymentCompletedCartConsumerTest {
 
     private List<OrderProductItem> createOrderProductItems() {
         return List.of(
-                new OrderProductItem(100L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
-                new OrderProductItem(101L, null, null, 1, 20000L)
+                new OrderProductItem(100L, null, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 30000L),
+                new OrderProductItem(101L, null, null, null, 1, 20000L)
         );
     }
 

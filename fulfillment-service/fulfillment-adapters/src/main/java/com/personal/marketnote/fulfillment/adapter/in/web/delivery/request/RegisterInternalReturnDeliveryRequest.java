@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 public record RegisterInternalReturnDeliveryRequest(
         @NotNull(message = "주문 ID는 필수입니다")
@@ -35,8 +36,8 @@ public record RegisterInternalReturnDeliveryRequest(
         List<ProductItem> products
 ) {
     public record ProductItem(
-            @NotBlank(message = "상품 코드는 필수입니다")
-            String productCode,
+            @NotNull(message = "상품 키는 필수입니다")
+            UUID productKey,
             @NotNull(message = "수량은 필수입니다")
             @Min(value = 1, message = "수량은 1 이상이어야 합니다")
             Integer quantity

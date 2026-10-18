@@ -2,8 +2,12 @@ package com.personal.marketnote.fulfillment.port.in.command.vendor;
 
 import lombok.Builder;
 
+import java.util.UUID;
+
 @Builder
 public record RegisterFulfillmentGoodsItemCommand(
+        Long productId,
+        UUID productKey,
         String productCode,
         String productName,
         String productType,

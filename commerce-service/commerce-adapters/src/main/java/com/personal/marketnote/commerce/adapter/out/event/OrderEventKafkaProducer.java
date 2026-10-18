@@ -39,6 +39,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
                 .map(op -> new OrderProductItem(
                         op.getPricePolicyId(),
                         op.getProductId(),
+                        op.getProductKey(),
                         op.getSharerKey(),
                         op.getQuantity().getValue(),
                         op.getUnitAmount().getValue()

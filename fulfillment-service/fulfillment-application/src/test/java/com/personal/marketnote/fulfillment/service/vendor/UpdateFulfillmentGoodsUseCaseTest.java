@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,7 +38,7 @@ class UpdateFulfillmentGoodsUseCaseTest {
     void shouldReturnUpdateResultFromPort() {
         // given
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
-                "PROD001", "테스트 상품", "1", "01",
+                1L, UUID.randomUUID(), null, "테스트 상품", "1", "01",
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
@@ -66,7 +67,7 @@ class UpdateFulfillmentGoodsUseCaseTest {
     void shouldPublishSyncedEventForEachGoodsItem() {
         // given
         UpdateFulfillmentGoodsItemCommand item1 = UpdateFulfillmentGoodsItemCommand.of(
-                "PROD001", "상품1", "1", "01",
+                1L, UUID.randomUUID(), null, "상품1", "1", "01",
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
@@ -75,7 +76,7 @@ class UpdateFulfillmentGoodsUseCaseTest {
                 null
         );
         UpdateFulfillmentGoodsItemCommand item2 = UpdateFulfillmentGoodsItemCommand.of(
-                "PROD002", "상품2", "1", "01",
+                2L, UUID.randomUUID(), null, "상품2", "1", "01",
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,

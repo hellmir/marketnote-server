@@ -39,7 +39,7 @@ class OrderPaymentSagaStarterTest {
         OrderPaymentSagaContext context = new OrderPaymentSagaContext(
                 1L, "order-key-1", 100L, 50000L, 60000L, 10000L, 500L,
                 null, null, null, null, null, null,
-                List.of(new OrderProductItem(10L, 1000L, null, 2, 25000L))
+                List.of(new OrderProductItem(10L, 1000L, null, null, 2, 25000L))
         );
 
         // when
@@ -64,10 +64,10 @@ class OrderPaymentSagaStarterTest {
                 null, null, null, null, null, null,
                 List.of(
                         new OrderProductItem(
-                                10L, 1000L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
+                                10L, 1000L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
                                 1, 50000L
                         ),
-                        new OrderProductItem(20L, 2000L, null, 2, 25000L)
+                        new OrderProductItem(20L, 2000L, null, null, 2, 25000L)
                 )
         );
 

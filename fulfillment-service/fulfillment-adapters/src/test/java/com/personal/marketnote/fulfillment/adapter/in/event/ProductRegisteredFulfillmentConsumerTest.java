@@ -24,6 +24,7 @@ import org.springframework.kafka.support.Acknowledgment;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,7 +55,7 @@ class ProductRegisteredFulfillmentConsumerTest {
             Long productId, String productName, String godType
     ) {
         ProductRegisteredEvent event = new ProductRegisteredEvent(
-                productId, null, 100L, 1L, productName, godType, "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
+                productId, UUID.randomUUID(), 100L, 1L, productName, godType, "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
         EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.product.registered", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event
@@ -85,7 +86,8 @@ class ProductRegisteredFulfillmentConsumerTest {
         assertThat(command.customerCode()).isEqualTo("CUST001");
         assertThat(command.accessToken()).isEqualTo("valid-token");
         assertThat(command.goods()).hasSize(1);
-        assertThat(command.goods().get(0).productCode()).isEqualTo("10");
+        assertThat(command.goods().get(0).productId()).isEqualTo(10L);
+        assertThat(command.goods().get(0).productKey()).isNotNull();
         assertThat(command.goods().get(0).productName()).isEqualTo("테스트 상품");
         assertThat(command.goods().get(0).productType()).isEqualTo("1");
         assertThat(command.goods().get(0).giftDivision()).isEqualTo("01");

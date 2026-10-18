@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -169,7 +170,7 @@ class RegisterInternalReturnDeliveryUseCaseTest {
                 .returnDetailReason("색상 마음에 안 듦")
                 .returnShippingRequest("문 앞")
                 .products(List.of(
-                        RegisterInternalReturnDeliveryProductCommand.of("PROD001", 1)
+                        RegisterInternalReturnDeliveryProductCommand.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1)
                 ))
                 .build();
     }

@@ -66,8 +66,8 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
     @DisplayName("정상 이벤트 수신 시 주문 상품별 ReadModel을 upsert한다")
     void handleEvent_validEvent_upsertsReadModelPerOrderProduct() {
         // given
-        OrderProductItem item1 = new OrderProductItem(100L, 1L, UUID.randomUUID(), 1, 10000L);
-        OrderProductItem item2 = new OrderProductItem(200L, 2L, UUID.randomUUID(), 2, 20000L);
+        OrderProductItem item1 = new OrderProductItem(100L, 1L, null, UUID.randomUUID(), 1, 10000L);
+        OrderProductItem item2 = new OrderProductItem(200L, 2L, null, UUID.randomUUID(), 2, 20000L);
         OrderPaymentCompletedEvent payload = buildEvent(10L, 1L, List.of(item1, item2));
         EventEnvelope<OrderPaymentCompletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -101,7 +101,7 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
     @DisplayName("이벤트 타입이 불일치하면 즉시 acknowledge한다")
     void handleEvent_eventTypeMismatch_acknowledges() {
         // given
-        OrderProductItem item = new OrderProductItem(100L, 1L, UUID.randomUUID(), 1, 10000L);
+        OrderProductItem item = new OrderProductItem(100L, 1L, null, UUID.randomUUID(), 1, 10000L);
         OrderPaymentCompletedEvent payload = buildEvent(10L, 1L, List.of(item));
         EventEnvelope<OrderPaymentCompletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
@@ -121,7 +121,7 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
     @DisplayName("orderId가 유효하지 않으면 즉시 acknowledge한다")
     void handleEvent_invalidOrderId_acknowledges() {
         // given
-        OrderProductItem item = new OrderProductItem(100L, 1L, UUID.randomUUID(), 1, 10000L);
+        OrderProductItem item = new OrderProductItem(100L, 1L, null, UUID.randomUUID(), 1, 10000L);
         OrderPaymentCompletedEvent payload = buildEvent(0L, 1L, List.of(item));
         EventEnvelope<OrderPaymentCompletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -138,7 +138,7 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
     @DisplayName("buyerId가 유효하지 않으면 즉시 acknowledge한다")
     void handleEvent_invalidBuyerId_acknowledges() {
         // given
-        OrderProductItem item = new OrderProductItem(100L, 1L, UUID.randomUUID(), 1, 10000L);
+        OrderProductItem item = new OrderProductItem(100L, 1L, null, UUID.randomUUID(), 1, 10000L);
         OrderPaymentCompletedEvent payload = buildEvent(10L, -1L, List.of(item));
         EventEnvelope<OrderPaymentCompletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -187,8 +187,8 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
     @DisplayName("orderProducts 중 pricePolicyId가 유효하지 않은 항목은 스킵하고 나머지는 upsert한다")
     void handleEvent_invalidPricePolicyIdItem_skipsAndContinues() {
         // given
-        OrderProductItem invalid = new OrderProductItem(null, 1L, UUID.randomUUID(), 1, 10000L);
-        OrderProductItem valid = new OrderProductItem(200L, 2L, UUID.randomUUID(), 2, 20000L);
+        OrderProductItem invalid = new OrderProductItem(null, 1L, null, UUID.randomUUID(), 1, 10000L);
+        OrderProductItem valid = new OrderProductItem(200L, 2L, null, UUID.randomUUID(), 2, 20000L);
         OrderPaymentCompletedEvent payload = buildEvent(10L, 1L, List.of(invalid, valid));
         EventEnvelope<OrderPaymentCompletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
@@ -205,7 +205,7 @@ class OrderPaymentCompletedOrderProductReadModelConsumerTest {
     @DisplayName("orderProducts 중 unitAmount가 유효하지 않은 항목은 스킵한다")
     void handleEvent_invalidUnitAmountItem_skips() {
         // given
-        OrderProductItem item = new OrderProductItem(100L, 1L, UUID.randomUUID(), 1, null);
+        OrderProductItem item = new OrderProductItem(100L, 1L, null, UUID.randomUUID(), 1, null);
         OrderPaymentCompletedEvent payload = buildEvent(10L, 1L, List.of(item));
         EventEnvelope<OrderPaymentCompletedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);

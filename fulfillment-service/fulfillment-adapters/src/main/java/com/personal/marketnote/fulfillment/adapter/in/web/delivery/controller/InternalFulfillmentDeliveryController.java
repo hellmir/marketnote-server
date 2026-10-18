@@ -189,7 +189,7 @@ public class InternalFulfillmentDeliveryController {
             return List.of();
         }
         return items.stream()
-                .map(item -> RegisterInternalReturnDeliveryProductCommand.of(item.productCode(), item.quantity()))
+                .map(item -> RegisterInternalReturnDeliveryProductCommand.of(item.productKey(), item.quantity()))
                 .toList();
     }
 }

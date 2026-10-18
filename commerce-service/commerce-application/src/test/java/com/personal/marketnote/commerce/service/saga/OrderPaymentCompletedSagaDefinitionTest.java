@@ -136,9 +136,9 @@ class OrderPaymentCompletedSagaDefinitionTest {
                     .addressDetail("101호")
                     .deliveryRequestMessage("부재시 경비실")
                     .orderProducts(List.of(
-                            new OrderProductItem(10L, 1000L,
+                            new OrderProductItem(10L, 1000L, null,
                                     UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L),
-                            new OrderProductItem(20L, 2000L, null, 1, 10000L)
+                            new OrderProductItem(20L, 2000L, null, null, 1, 10000L)
                     ))
                     .build();
         }
@@ -223,7 +223,7 @@ class OrderPaymentCompletedSagaDefinitionTest {
                     .pointAmount(10000L)
                     .totalAccumulatedPoint(500L)
                     .orderProducts(List.of(
-                            new OrderProductItem(10L, 1000L,
+                            new OrderProductItem(10L, 1000L, null,
                                     UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2, 25000L)
                     ))
                     .build();

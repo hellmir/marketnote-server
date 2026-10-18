@@ -23,6 +23,7 @@ public class ProductUpdatedEventMapper {
 
         return new ProductUpdatedEvent(
                 product.getId(),
+                product.getProductKey(),
                 product.getName(),
                 options.goodsType(),
                 options.giftDivision(),
