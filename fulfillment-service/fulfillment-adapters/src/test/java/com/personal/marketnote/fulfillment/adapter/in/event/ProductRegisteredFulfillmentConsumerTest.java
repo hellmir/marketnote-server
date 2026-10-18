@@ -162,6 +162,28 @@ class ProductRegisteredFulfillmentConsumerTest {
     }
 
     @Test
+    @DisplayName("productKey가 null이면 Fassto 상품 등록을 호출하지 않고 acknowledge한다")
+    void handleEvent_nullProductKey_skipsAndAcknowledges() {
+        // given
+        ProductRegisteredEvent event = new ProductRegisteredEvent(
+                1L, null, 100L, 1L, "테스트", "1", "테스트 브랜드", 10000L, 8000L, 100L, 0L, null, null);
+        EventEnvelope<ProductRegisteredEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "product.product.registered", "product-service",
+                LocalDateTime.of(2026, 2, 27, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "product.product.registered", 0, 0L, "key-1", envelope
+        );
+
+        // when
+        consumer.handleProductRegisteredEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("Fulfillment 액세스 토큰이 null이면 FulfillmentAccessTokenIssuanceFailedException을 던진다")
     void handleEvent_nullAccessToken_throwsException() {
         // given
