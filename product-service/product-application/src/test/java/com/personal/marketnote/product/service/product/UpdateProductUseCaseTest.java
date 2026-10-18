@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,6 +66,7 @@ class UpdateProductUseCaseTest {
         Product product = buildProduct(11L, "기존 상품");
 
         when(getProductUseCase.getProduct(11L)).thenReturn(product);
+        when(findProductPort.findById(11L)).thenReturn(Optional.empty());
 
         updateProductService.update(99L, true, command);
 
@@ -87,7 +89,8 @@ class UpdateProductUseCaseTest {
                 .containsOnly(11L);
 
         verify(getProductUseCase).getProduct(11L);
-        verifyNoInteractions(findProductPort, publishProductEventPort);
+        verify(findProductPort).findById(11L);
+        verifyNoInteractions(publishProductEventPort);
     }
 
     @Test
@@ -100,6 +103,7 @@ class UpdateProductUseCaseTest {
 
         when(findProductPort.existsByIdAndSellerId(20L, userId)).thenReturn(true);
         when(getProductUseCase.getProduct(20L)).thenReturn(product);
+        when(findProductPort.findById(20L)).thenReturn(Optional.empty());
 
         updateProductService.update(userId, false, command);
 

@@ -144,6 +144,17 @@ public class ProductCatalogReadModelPersistenceAdapter
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
+    public void updateProductTags(Long productId, String productTagsJson) {
+        List<ProductCatalogReadModelJpaEntity> entities = repository.findAllByProductId(productId);
+        if (FormatValidator.hasNoValue(entities)) {
+            log.warn("상품 카탈로그 Read Model 미존재 — 태그 동기화 누락. productId={}", productId);
+            return;
+        }
+        entities.forEach(entity -> entity.updateProductTags(productTagsJson));
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED)
     public void updateStockQuantity(Long pricePolicyId, Integer stockQuantity) {
         repository.findByPricePolicyId(pricePolicyId)
                 .ifPresent(entity -> entity.updateStockQuantity(stockQuantity));

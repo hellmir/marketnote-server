@@ -12,6 +12,7 @@ import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
+import com.personal.marketnote.product.port.in.usecase.tagsync.SyncProductTagChangeUseCase;
 import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
@@ -45,6 +46,9 @@ class ProductCatalogReadModelSyncConsumerTest {
 
     @Mock
     private SaveProductCatalogReadModelPort saveProductCatalogReadModelPort;
+
+    @Mock
+    private SyncProductTagChangeUseCase syncProductTagChangeUseCase;
 
     @Mock
     private Acknowledgment acknowledgment;

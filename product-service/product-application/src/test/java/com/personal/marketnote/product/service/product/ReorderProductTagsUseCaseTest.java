@@ -11,6 +11,7 @@ import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.exception.ProductTagNotFoundException;
 import com.personal.marketnote.product.port.in.command.ReorderProductTagsCommand;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
+import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
 import com.personal.marketnote.product.port.out.product.UpdateProductTagPort;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,8 @@ class ReorderProductTagsUseCaseTest {
     private FindProductPort findProductPort;
     @Mock
     private UpdateProductTagPort updateProductTagPort;
+    @Mock
+    private PublishProductEventPort publishProductEventPort;
 
     @InjectMocks
     private ReorderProductTagsService reorderProductTagsService;
