@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.service.pricepolicy;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
@@ -13,6 +14,7 @@ import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.pricepolicy.SavePricePolicyPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
+import com.personal.marketnote.product.port.out.productoption.FindProductOptionPort;
 import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,8 @@ class RegisterPricePolicyUseCaseTest {
     @Mock
     private UpdateOptionPricePolicyPort updateOptionPricePolicyPort;
     @Mock
+    private FindProductOptionPort findProductOptionPort;
+    @Mock
     private PublishProductEventPort publishProductEventPort;
 
     @InjectMocks
@@ -64,6 +68,7 @@ class RegisterPricePolicyUseCaseTest {
                 getProductUseCase,
                 savePricePolicyPort,
                 updateOptionPricePolicyPort,
+                findProductOptionPort,
                 publishProductEventPort
         );
     }
@@ -102,7 +107,20 @@ class RegisterPricePolicyUseCaseTest {
                 .isEqualByComparingTo(calculateAccumulationRate(command.accumulatedPoint(), command.discountPrice()));
 
         verify(updateOptionPricePolicyPort).assignPricePolicyToOptions(productId, 100L, optionIds);
-        verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 100L);
+        verify(findProductOptionPort).findByIds(optionIds);
+
+        ArgumentCaptor<PricePolicyCreatedEvent> eventCaptor = ArgumentCaptor.forClass(PricePolicyCreatedEvent.class);
+        verify(publishProductEventPort).publishPricePolicyCreatedEvent(eventCaptor.capture());
+        PricePolicyCreatedEvent publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.productId()).isEqualTo(productId);
+        assertThat(publishedEvent.pricePolicyId()).isEqualTo(100L);
+        assertThat(publishedEvent.sellerId()).isEqualTo(product.getSellerId());
+        assertThat(publishedEvent.productName()).isEqualTo(product.getName());
+        assertThat(publishedEvent.brandName()).isEqualTo(product.getBrandName());
+        assertThat(publishedEvent.price()).isEqualTo(command.price());
+        assertThat(publishedEvent.discountPrice()).isEqualTo(command.discountPrice());
+        assertThat(publishedEvent.accumulatedPoint()).isEqualTo(command.accumulatedPoint());
+        assertThat(publishedEvent.sales()).isEqualTo(0L);
     }
 
     @Test
@@ -119,7 +137,12 @@ class RegisterPricePolicyUseCaseTest {
         RegisterPricePolicyResult result = registerPricePolicyService.registerPricePolicy(userId, true, command);
 
         assertThat(result.id()).isEqualTo(200L);
-        verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 200L);
+        ArgumentCaptor<PricePolicyCreatedEvent> adminEventCaptor = ArgumentCaptor.forClass(PricePolicyCreatedEvent.class);
+        verify(publishProductEventPort).publishPricePolicyCreatedEvent(adminEventCaptor.capture());
+        PricePolicyCreatedEvent adminPublishedEvent = adminEventCaptor.getValue();
+        assertThat(adminPublishedEvent.productId()).isEqualTo(productId);
+        assertThat(adminPublishedEvent.pricePolicyId()).isEqualTo(200L);
+        assertThat(adminPublishedEvent.sellerId()).isEqualTo(product.getSellerId());
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
         verifyNoInteractions(findProductPort);
     }
@@ -139,7 +162,13 @@ class RegisterPricePolicyUseCaseTest {
         registerPricePolicyService.registerPricePolicy(userId, false, command);
 
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
-        verify(publishProductEventPort).publishPricePolicyCreatedEvent(productId, 250L);
+        verify(findProductOptionPort, never()).findByIds(anyList());
+        ArgumentCaptor<PricePolicyCreatedEvent> emptyOptEventCaptor = ArgumentCaptor.forClass(PricePolicyCreatedEvent.class);
+        verify(publishProductEventPort).publishPricePolicyCreatedEvent(emptyOptEventCaptor.capture());
+        PricePolicyCreatedEvent emptyOptEvent = emptyOptEventCaptor.getValue();
+        assertThat(emptyOptEvent.productId()).isEqualTo(productId);
+        assertThat(emptyOptEvent.pricePolicyId()).isEqualTo(250L);
+        assertThat(emptyOptEvent.selectedOptions()).isEmpty();
     }
 
     @Test
@@ -157,7 +186,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isSameAs(exception);
 
         verify(savePricePolicyPort, never()).save(any(PricePolicy.class));
-        verifyNoInteractions(updateOptionPricePolicyPort, publishProductEventPort);
+        verifyNoInteractions(updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
     }
 
     @Test
@@ -177,7 +206,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isSameAs(exception);
 
         verify(updateOptionPricePolicyPort, never()).assignPricePolicyToOptions(anyLong(), anyLong(), anyList());
-        verifyNoInteractions(publishProductEventPort);
+        verifyNoInteractions(findProductOptionPort, publishProductEventPort);
     }
 
     @Test
@@ -298,7 +327,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isInstanceOf(InvalidPricePolicyAccumulatedPointException.class)
                 .hasMessageContaining("적립금이 현재 판매가를 초과할 수 없습니다");
 
-        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort);
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
     }
 
     @Test
@@ -314,7 +343,7 @@ class RegisterPricePolicyUseCaseTest {
                 .isInstanceOf(InvalidPricePolicyPriceException.class)
                 .hasMessageContaining("현재 판매가가 정가를 초과할 수 없습니다");
 
-        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, publishProductEventPort);
+        verifyNoInteractions(getProductUseCase, savePricePolicyPort, updateOptionPricePolicyPort, findProductOptionPort, publishProductEventPort);
     }
 
     private RegisterPricePolicyCommand buildCommand(Long productId, List<Long> optionIds) {

@@ -105,7 +105,13 @@ class ProductEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        productEventKafkaProducer.publishPricePolicyCreatedEvent(1L, 2L);
+        productEventKafkaProducer.publishPricePolicyCreatedEvent(
+                new PricePolicyCreatedEvent(
+                        1L, 2L, 3L, "상품", "브랜드",
+                        10000L, 9000L, 100L, 0L,
+                        java.util.List.of(), java.util.List.of()
+                )
+        );
 
         // then
         ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -118,15 +124,27 @@ class ProductEventKafkaProducerTest {
     }
 
     @Test
-    @DisplayName("가격 정책 생성 이벤트 발행 시 EventEnvelope에 올바른 페이로드가 포함된다")
+    @DisplayName("가격 정책 생성 이벤트 발행 시 EventEnvelope에 확장된 페이로드(상품/태그/옵션 스냅샷)가 포함된다")
     @SuppressWarnings("unchecked")
     void publishPricePolicyCreatedEvent_envelopeContainsCorrectPayload() throws Exception {
         // given
         setUpClock("2026-02-27T10:00:00Z");
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        java.util.List<PricePolicyCreatedEvent.ProductTagSnapshot> tags = java.util.List.of(
+                new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)
+        );
+        java.util.List<PricePolicyCreatedEvent.ProductOptionSnapshot> options = java.util.List.of(
+                new PricePolicyCreatedEvent.ProductOptionSnapshot(500L, "색상: 빨강")
+        );
 
         // when
-        productEventKafkaProducer.publishPricePolicyCreatedEvent(10L, 20L);
+        productEventKafkaProducer.publishPricePolicyCreatedEvent(
+                new PricePolicyCreatedEvent(
+                        10L, 20L, 30L, "상품명", "브랜드명",
+                        20000L, 18000L, 200L, 0L,
+                        tags, options
+                )
+        );
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
@@ -141,6 +159,17 @@ class ProductEventKafkaProducerTest {
         PricePolicyCreatedEvent payload = (PricePolicyCreatedEvent) capturedEnvelope.payload();
         assertThat(payload.productId()).isEqualTo(10L);
         assertThat(payload.pricePolicyId()).isEqualTo(20L);
+        assertThat(payload.sellerId()).isEqualTo(30L);
+        assertThat(payload.productName()).isEqualTo("상품명");
+        assertThat(payload.brandName()).isEqualTo("브랜드명");
+        assertThat(payload.price()).isEqualTo(20000L);
+        assertThat(payload.discountPrice()).isEqualTo(18000L);
+        assertThat(payload.accumulatedPoint()).isEqualTo(200L);
+        assertThat(payload.sales()).isEqualTo(0L);
+        assertThat(payload.productTags()).hasSize(1);
+        assertThat(payload.productTags().get(0).name()).isEqualTo("NEW");
+        assertThat(payload.selectedOptions()).hasSize(1);
+        assertThat(payload.selectedOptions().get(0).content()).isEqualTo("색상: 빨강");
     }
 
     @Test

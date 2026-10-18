@@ -1,5 +1,6 @@
 package com.personal.marketnote.product.port.out.event;
 
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
@@ -17,7 +18,7 @@ public interface PublishProductEventPort {
             List<ProductRegisteredEvent.ProductOptionSnapshot> selectedOptions
     );
 
-    void publishPricePolicyCreatedEvent(Long productId, Long pricePolicyId);
+    void publishPricePolicyCreatedEvent(PricePolicyCreatedEvent event);
 
     void publishPricePolicyDeletedEvent(Long productId, Long pricePolicyId);
 

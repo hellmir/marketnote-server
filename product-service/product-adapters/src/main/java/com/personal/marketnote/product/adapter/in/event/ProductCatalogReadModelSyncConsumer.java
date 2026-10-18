@@ -8,12 +8,14 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
 import com.personal.marketnote.common.kafka.event.InventoryChangedEvent;
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.product.port.in.usecase.pricepolicysync.SyncPricePolicyCreatedUseCase;
 import com.personal.marketnote.product.port.in.usecase.tagsync.SyncProductTagChangeUseCase;
 import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class ProductCatalogReadModelSyncConsumer {
     private final ObjectMapper objectMapper;
     private final SaveProductCatalogReadModelPort saveProductCatalogReadModelPort;
     private final SyncProductTagChangeUseCase syncProductTagChangeUseCase;
+    private final SyncPricePolicyCreatedUseCase syncPricePolicyCreatedUseCase;
 
     @KafkaListener(topics = KafkaTopicConstants.PRODUCT_REGISTERED, groupId = CONSUMER_GROUP_ID)
     public void handleProductRegistered(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
@@ -146,9 +149,41 @@ public class ProductCatalogReadModelSyncConsumer {
         try {
             return UUID.fromString(eventId);
         } catch (IllegalArgumentException iae) {
-            log.warn("상품 태그 변경 이벤트 eventId 파싱 실패 — 건너뜀. eventId={}", eventId);
+            log.warn("이벤트 eventId 파싱 실패 — 건너뜀. eventId={}", eventId);
             return null;
         }
+    }
+
+    @KafkaListener(topics = KafkaTopicConstants.PRICE_POLICY_CREATED, groupId = CONSUMER_GROUP_ID)
+    public void handlePricePolicyCreated(ConsumerRecord<String, EventEnvelope<?>> record, Acknowledgment ack) {
+        EventEnvelope<?> envelope = record.value();
+        if (EventPayloadValidator.hasInvalidEnvelope(envelope, record)
+                || EventPayloadValidator.hasEventTypeMismatch(envelope, KafkaTopicConstants.PRICE_POLICY_CREATED)) {
+            ack.acknowledge();
+            return;
+        }
+
+        PricePolicyCreatedEvent payload = envelope.getPayloadAs(PricePolicyCreatedEvent.class, objectMapper);
+        if (FormatValidator.hasNoValue(payload)) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
+                EventPayloadValidator.id("productId", payload.productId()),
+                EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        UUID eventId = parseEventId(envelope.eventId());
+        if (FormatValidator.hasNoValue(eventId)) {
+            ack.acknowledge();
+            return;
+        }
+
+        syncPricePolicyCreatedUseCase.syncPricePolicyCreated(eventId, payload);
+        ack.acknowledge();
     }
 
     @KafkaListener(topics = KafkaTopicConstants.INVENTORY_CHANGED, groupId = CONSUMER_GROUP_ID)

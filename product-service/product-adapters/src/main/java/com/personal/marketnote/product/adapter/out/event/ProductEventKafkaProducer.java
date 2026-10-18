@@ -50,12 +50,11 @@ public class ProductEventKafkaProducer implements PublishProductEventPort {
     }
 
     @Override
-    public void publishPricePolicyCreatedEvent(Long productId, Long pricePolicyId) {
-        PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(productId, pricePolicyId);
+    public void publishPricePolicyCreatedEvent(PricePolicyCreatedEvent payload) {
         String topic = KafkaTopicConstants.PRICE_POLICY_CREATED;
         EventEnvelope<PricePolicyCreatedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
 
-        saveToOutbox(envelope, topic, productId.toString());
+        saveToOutbox(envelope, topic, payload.productId().toString());
     }
 
     @Override

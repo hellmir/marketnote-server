@@ -8,11 +8,13 @@ import com.personal.marketnote.common.kafka.event.ImageChangeAction;
 import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
 import com.personal.marketnote.common.kafka.event.InventoryChangedEvent;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
+import com.personal.marketnote.product.port.in.usecase.pricepolicysync.SyncPricePolicyCreatedUseCase;
 import com.personal.marketnote.product.port.in.usecase.tagsync.SyncProductTagChangeUseCase;
 import com.personal.marketnote.product.port.out.productcatalog.SaveProductCatalogReadModelPort;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -50,6 +52,9 @@ class ProductCatalogReadModelSyncConsumerTest {
 
     @Mock
     private SyncProductTagChangeUseCase syncProductTagChangeUseCase;
+
+    @Mock
+    private SyncPricePolicyCreatedUseCase syncPricePolicyCreatedUseCase;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -400,4 +405,5 @@ class ProductCatalogReadModelSyncConsumerTest {
         verifyNoInteractions(syncProductTagChangeUseCase);
         verify(acknowledgment).acknowledge();
     }
+
 }
