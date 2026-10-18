@@ -53,6 +53,7 @@ public class OrderRequestToCommandMapper {
                 .reasonCategory(request.getReasonCategory())
                 .reason(request.getReason())
                 .buyerId(buyerId)
+                .pricePolicyIds(request.getPricePolicyIds())
                 .pickupRecipientName(request.getPickupRecipientName())
                 .pickupRecipientPhoneNumber(request.getPickupRecipientPhoneNumber())
                 .pickupZipCode(request.getPickupZipCode())

@@ -45,11 +45,13 @@ import java.lang.annotation.*;
                     - "CONFIRMED": 구매 확정
                 
                     - "RETURN_REQUESTED": 반품 요청됨
-                
+
+                    - "PARTIALLY_RETURN_REQUESTED": 부분 반품 요청
+
                     - "RETURN_IN_PROGRESS": 반품 진행 중
-                
+
                     - "PARTIALLY_RETURNED": 부분 반품됨
-                
+
                     - "RETURNED": 반품 완료
                 
                 ---

@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.returntracker;
 
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
 import com.personal.marketnote.commerce.domain.returntracker.ReturnInspectionStatus;
@@ -20,9 +21,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -52,22 +55,26 @@ class FailReturnInspectionUseCaseTest {
     class InspectionFailedSuccess {
 
         @Test
-        @DisplayName("검수 불합격 시 주문 상태가 RETURN_REJECTED로 전이된다")
+        @DisplayName("검수 불합격 시 반품 요청 상태 상품이 RETURN_REJECTED로 전이된다")
         void shouldTransitionOrderStatusToReturnRejected() {
             // given
             ReturnTracker tracker = createPendingTracker(1L, 100L);
 
             Order order = mock(Order.class);
+            OrderProduct product = mock(OrderProduct.class);
             when(order.getId()).thenReturn(100L);
             when(order.getBuyerId()).thenReturn(200L);
             when(order.getOrderStatus()).thenReturn(OrderStatus.RETURN_IN_PROGRESS);
+            when(order.getOrderProducts()).thenReturn(List.of(product));
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+            when(product.getPricePolicyId()).thenReturn(10L);
             when(getOrderUseCase.getOrder(100L)).thenReturn(order);
 
             // when
             service.failInspection(tracker, NOW);
 
             // then
-            verify(order).changeAllProductsStatus(eq(OrderStatus.RETURN_REJECTED), eq(NOW));
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURN_REJECTED), eq(NOW));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
 
@@ -78,9 +85,11 @@ class FailReturnInspectionUseCaseTest {
             ReturnTracker tracker = createPendingTracker(1L, 100L);
 
             Order order = mock(Order.class);
-            when(order.getId()).thenReturn(100L);
-            when(order.getBuyerId()).thenReturn(200L);
+            OrderProduct product = mock(OrderProduct.class);
             when(order.getOrderStatus()).thenReturn(OrderStatus.RETURN_IN_PROGRESS);
+            when(order.getOrderProducts()).thenReturn(List.of(product));
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+            when(product.getPricePolicyId()).thenReturn(10L);
             when(getOrderUseCase.getOrder(100L)).thenReturn(order);
 
             // when
@@ -99,9 +108,13 @@ class FailReturnInspectionUseCaseTest {
             ReturnTracker tracker = createPendingTracker(1L, 100L);
 
             Order order = mock(Order.class);
+            OrderProduct product = mock(OrderProduct.class);
             when(order.getId()).thenReturn(100L);
             when(order.getBuyerId()).thenReturn(200L);
             when(order.getOrderStatus()).thenReturn(OrderStatus.RETURN_IN_PROGRESS);
+            when(order.getOrderProducts()).thenReturn(List.of(product));
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+            when(product.getPricePolicyId()).thenReturn(10L);
             when(getOrderUseCase.getOrder(100L)).thenReturn(order);
 
             // when
@@ -130,6 +143,30 @@ class FailReturnInspectionUseCaseTest {
             service.failInspection(tracker, NOW);
 
             // then
+            verify(order, never()).changeProductsStatus(anyList(), any(), any());
+            verify(order, never()).changeAllProductsStatus(any(), any());
+            verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(publishOrderEventPort);
+        }
+
+        @Test
+        @DisplayName("반품 요청 상태 상품이 없으면 상태 전이 없이 종료한다")
+        void shouldSkipWhenNoReturnRequestedProducts() {
+            // given
+            ReturnTracker tracker = createPendingTracker(1L, 100L);
+
+            Order order = mock(Order.class);
+            OrderProduct product = mock(OrderProduct.class);
+            when(order.getOrderStatus()).thenReturn(OrderStatus.RETURN_IN_PROGRESS);
+            when(order.getOrderProducts()).thenReturn(List.of(product));
+            when(product.getOrderStatus()).thenReturn(OrderStatus.CONFIRMED);
+            when(getOrderUseCase.getOrder(100L)).thenReturn(order);
+
+            // when
+            service.failInspection(tracker, NOW);
+
+            // then
+            verify(order, never()).changeProductsStatus(anyList(), any(), any());
             verify(order, never()).changeAllProductsStatus(any(), any());
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);

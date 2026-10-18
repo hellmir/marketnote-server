@@ -129,6 +129,23 @@ public class Order {
         }
 
         if (
+                orderStatus.isReturnRequested()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRequested())
+        ) {
+            this.orderStatus = OrderStatus.getPartiallyReturnRequested();
+            return;
+        }
+
+        if (
+                orderStatus.isReturnRejected()
+                        && orderProducts.stream()
+                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isReturnRejected())
+        ) {
+            return;
+        }
+
+        if (
                 orderStatus.isConfirmed()
                         && orderProducts.stream()
                         .anyMatch(orderProduct -> !orderProduct.isConfirmed())

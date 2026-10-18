@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.service.order;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
+import com.personal.marketnote.commerce.exception.InvalidReturnTargetPricePolicyException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
@@ -24,6 +25,9 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -48,16 +52,17 @@ public class RequestReturnService implements RequestReturnUseCase {
 
         validateBuyerOwnership(command, order);
         validateReasonCategory(command);
-        validateStatusTransition(order);
+        validateReturnTargetPricePolicyIds(command, order);
+        validateStatusTransition(command, order);
 
         LocalDateTime now = LocalDateTime.now(clock);
-        order.changeAllProductsStatus(TARGET_STATUS, now);
+        transitionOrderStatus(command, order, now);
         order.applyPickupAddress(buildPickupAddress(command));
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()
                         .orderId(command.id())
-                        .orderStatus(TARGET_STATUS)
+                        .orderStatus(order.getOrderStatus())
                         .reasonCategory(command.reasonCategory())
                         .reason(command.reason())
                         .build()
@@ -90,14 +95,65 @@ public class RequestReturnService implements RequestReturnUseCase {
         }
     }
 
-    private void validateStatusTransition(Order order) {
-        if (TARGET_STATUS.isMe(order.getOrderStatus())) {
+    private void validateReturnTargetPricePolicyIds(RequestReturnCommand command, Order order) {
+        if (!command.isPartialReturn()) {
+            return;
+        }
+
+        Set<Long> orderPricePolicyIds = order.getOrderProducts().stream()
+                .map(OrderProduct::getPricePolicyId)
+                .collect(Collectors.toSet());
+
+        List<Long> invalidIds = command.pricePolicyIds().stream()
+                .filter(id -> !orderPricePolicyIds.contains(id))
+                .toList();
+
+        if (!invalidIds.isEmpty()) {
+            throw new InvalidReturnTargetPricePolicyException(invalidIds);
+        }
+    }
+
+    private void validateStatusTransition(RequestReturnCommand command, Order order) {
+        OrderStatus currentStatus = order.getOrderStatus();
+
+        if (!command.isPartialReturn() && TARGET_STATUS.isMe(currentStatus)) {
             throw new OrderStatusAlreadyChangedException(TARGET_STATUS);
         }
 
-        if (!order.getOrderStatus().canTransitionTo(TARGET_STATUS)) {
-            throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), TARGET_STATUS);
+        if (command.isPartialReturn()) {
+            validatePartialReturnTransition(command, order, currentStatus);
+            return;
         }
+
+        if (!currentStatus.canTransitionTo(TARGET_STATUS)) {
+            throw new InvalidOrderStatusTransitionException(currentStatus, TARGET_STATUS);
+        }
+    }
+
+    private void validatePartialReturnTransition(
+            RequestReturnCommand command,
+            Order order,
+            OrderStatus currentStatus
+    ) {
+        boolean allTargetsAlreadyRequested = order.getOrderProducts().stream()
+                .filter(op -> command.pricePolicyIds().contains(op.getPricePolicyId()))
+                .allMatch(op -> op.getOrderStatus().isReturnRequested());
+        if (allTargetsAlreadyRequested) {
+            throw new OrderStatusAlreadyChangedException(TARGET_STATUS);
+        }
+
+        if (!currentStatus.canTransitionTo(OrderStatus.PARTIALLY_RETURN_REQUESTED)
+                && !currentStatus.canTransitionTo(TARGET_STATUS)) {
+            throw new InvalidOrderStatusTransitionException(currentStatus, OrderStatus.PARTIALLY_RETURN_REQUESTED);
+        }
+    }
+
+    private void transitionOrderStatus(RequestReturnCommand command, Order order, LocalDateTime now) {
+        if (command.isPartialReturn()) {
+            order.changeProductsStatus(command.pricePolicyIds(), TARGET_STATUS, now);
+            return;
+        }
+        order.changeAllProductsStatus(TARGET_STATUS, now);
     }
 
     private ShippingAddress buildPickupAddress(RequestReturnCommand command) {
@@ -123,12 +179,7 @@ public class RequestReturnService implements RequestReturnUseCase {
 
         String fullAddress = buildFullAddress(shippingAddress);
 
-        List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> products = order.getOrderProducts().stream()
-                .map(op -> RegisterFulfillmentReturnDeliveryCommand.ProductItem.of(
-                        String.valueOf(op.getPricePolicyId()),
-                        op.getQuantity().getValue()
-                ))
-                .toList();
+        List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> products = collectReturnDeliveryProducts(command, order);
 
         String reasonCategory = FormatValidator.hasValue(command.reasonCategory())
                 ? command.reasonCategory().getDescription()
@@ -150,6 +201,31 @@ public class RequestReturnService implements RequestReturnUseCase {
                 .returnShippingRequest(command.pickupRequestMessage())
                 .products(products)
                 .build();
+    }
+
+    private List<RegisterFulfillmentReturnDeliveryCommand.ProductItem> collectReturnDeliveryProducts(
+            RequestReturnCommand command,
+            Order order
+    ) {
+        return order.getOrderProducts().stream()
+                .filter(op -> !command.isPartialReturn() || command.pricePolicyIds().contains(op.getPricePolicyId()))
+                .map(this::toProductItem)
+                .filter(FormatValidator::hasValue)
+                .toList();
+    }
+
+    private RegisterFulfillmentReturnDeliveryCommand.ProductItem toProductItem(OrderProduct orderProduct) {
+        UUID productKey = orderProduct.getProductKey();
+        if (FormatValidator.hasNoValue(productKey)) {
+            log.warn("OrderProduct productKey 누락으로 Fassto 회수 품목에서 제외 - pricePolicyId: {}",
+                    orderProduct.getPricePolicyId()
+            );
+            return null;
+        }
+        return RegisterFulfillmentReturnDeliveryCommand.ProductItem.of(
+                productKey.toString(),
+                orderProduct.getQuantity().getValue()
+        );
     }
 
     private String buildFullAddress(ShippingAddress shippingAddress) {

@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.returntracker;
 
 import com.personal.marketnote.commerce.domain.order.Order;
+import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistoryCreateState;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -44,12 +46,17 @@ public class FailReturnInspectionService {
             return;
         }
 
-        order.changeAllProductsStatus(TARGET_STATUS, now);
+        List<Long> returnRequestedPricePolicyIds = collectReturnRequestedPricePolicyIds(order);
+        if (returnRequestedPricePolicyIds.isEmpty()) {
+            log.warn("반품 요청 상태 상품이 없어 반품 불가 전이를 생략합니다. orderId={}", tracker.getOrderId());
+            return;
+        }
+        order.changeProductsStatus(returnRequestedPricePolicyIds, TARGET_STATUS, now);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()
                         .orderId(tracker.getOrderId())
-                        .orderStatus(TARGET_STATUS)
+                        .orderStatus(order.getOrderStatus())
                         .reason("반품 검수 불합격")
                         .build()
         );
@@ -58,5 +65,12 @@ public class FailReturnInspectionService {
         publishOrderEventPort.publishReturnRejectedEvent(order.getId(), order.getBuyerId());
 
         log.info("반품 검수 불합격 처리 완료. orderId={}", tracker.getOrderId());
+    }
+
+    private List<Long> collectReturnRequestedPricePolicyIds(Order order) {
+        return order.getOrderProducts().stream()
+                .filter(op -> op.getOrderStatus().isReturnRequested())
+                .map(OrderProduct::getPricePolicyId)
+                .toList();
     }
 }

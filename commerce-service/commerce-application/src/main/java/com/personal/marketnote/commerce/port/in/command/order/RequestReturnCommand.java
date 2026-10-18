@@ -1,7 +1,10 @@
 package com.personal.marketnote.commerce.port.in.command.order;
 
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.Builder;
+
+import java.util.List;
 
 @Builder
 public record RequestReturnCommand(
@@ -9,6 +12,7 @@ public record RequestReturnCommand(
         OrderStatusReasonCategory reasonCategory,
         String reason,
         Long buyerId,
+        List<Long> pricePolicyIds,
         String pickupRecipientName,
         String pickupRecipientPhoneNumber,
         String pickupZipCode,
@@ -16,4 +20,7 @@ public record RequestReturnCommand(
         String pickupAddressDetail,
         String pickupRequestMessage
 ) {
+    public boolean isPartialReturn() {
+        return FormatValidator.hasValue(pricePolicyIds) && !pricePolicyIds.isEmpty();
+    }
 }

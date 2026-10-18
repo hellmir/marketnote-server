@@ -75,9 +75,13 @@ public class CompleteReturnService implements CompleteReturnUseCase {
     }
 
     private void validateReturnableStatus(Order order) {
-        if (!order.getOrderStatus().isReturnRequested()
-                && !order.getOrderStatus().canTransitionTo(OrderStatus.RETURNED)) {
-            throw new InvalidOrderStatusTransitionException(order.getOrderStatus(), OrderStatus.RETURNED);
+        OrderStatus currentStatus = order.getOrderStatus();
+        if (currentStatus.isReturnRequested()
+                || currentStatus.isPartiallyReturnRequested()) {
+            return;
+        }
+        if (!currentStatus.canTransitionTo(OrderStatus.RETURNED)) {
+            throw new InvalidOrderStatusTransitionException(currentStatus, OrderStatus.RETURNED);
         }
     }
 

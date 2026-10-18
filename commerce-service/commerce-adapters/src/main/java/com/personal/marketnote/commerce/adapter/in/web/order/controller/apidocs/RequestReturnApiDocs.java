@@ -28,11 +28,13 @@ import java.lang.annotation.*;
                 ## Description
                 
                 - 구매자가 반품을 요청합니다.
-                
-                - 주문 상태를 RETURN_REQUESTED(반품 요청됨)로 변경합니다.
-                
-                - 배송 완료, 부분 구매 확정, 부분 반품됨 상태에서만 반품 요청이 가능합니다.
-                
+
+                - pricePolicyIds 미입력 또는 빈 배열이면 전체 반품으로 처리되어 주문 상태가 RETURN_REQUESTED(반품 요청됨)로 변경됩니다.
+
+                - pricePolicyIds 에 반품 대상 품목을 지정하면 해당 품목만 반품 요청되며 주문 상태가 PARTIALLY_RETURN_REQUESTED(부분 반품 요청)로 변경됩니다.
+
+                - 배송중, 배송 완료, 부분 구매 확정, 부분 반품됨 상태에서만 반품 요청이 가능합니다.
+
                 - 회수지 주소를 입력하면 입력값이 적용되고, 미입력 시 배송지가 회수지 기본값으로 적용됩니다.
                 
                 - 반품 사유 카테고리 목록
@@ -53,6 +55,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- | --- |
                 | reasonCategory | string | 반품 사유 카테고리 | N | "ETC" |
                 | reason | string | 반품 사유 | N | "상품 불량" |
+                | pricePolicyIds | array&lt;number&gt; | 반품 대상 가격정책 ID 리스트 (미입력/빈 배열 = 전체 반품) | N | [101, 102] |
                 | pickupRecipientName | string | 회수지 수령인명 | N | "홍길동" |
                 | pickupRecipientPhoneNumber | string | 회수지 연락처 | N | "010-1234-5678" |
                 | pickupZipCode | string | 회수지 우편번호 | N | "12345" |
@@ -89,6 +92,7 @@ import java.lang.annotation.*;
                                 {
                                   "reasonCategory": "ETC",
                                   "reason": "상품 불량",
+                                  "pricePolicyIds": [101, 102],
                                   "pickupRecipientName": "홍길동",
                                   "pickupRecipientPhoneNumber": "010-1234-5678",
                                   "pickupZipCode": "12345",
