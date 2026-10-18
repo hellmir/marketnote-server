@@ -8,7 +8,9 @@ import com.personal.marketnote.product.adapter.out.persistence.product.repositor
 import com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionCategoryJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionCategoryJpaRepository;
+import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionPricePolicyJpaRepository;
+import com.personal.marketnote.product.exception.InvalidProductOptionOwnershipException;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.option.ProductOptionCategoryCreateState;
 import com.personal.marketnote.product.domain.option.ProductOptionCreateState;
@@ -17,6 +19,7 @@ import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,8 +35,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +48,8 @@ class ProductOptionPersistenceAdapterTest {
     private ProductJpaRepository productJpaRepository;
     @Mock
     private ProductOptionCategoryJpaRepository productOptionCategoryJpaRepository;
+    @Mock
+    private ProductOptionJpaRepository productOptionJpaRepository;
     @Mock
     private ProductOptionPricePolicyJpaRepository productOptionPricePolicyJpaRepository;
     @Mock
@@ -135,6 +143,53 @@ class ProductOptionPersistenceAdapterTest {
                 ));
         assertThat(counts).hasSize(expectedPolicies);
         assertThat(counts.values()).allMatch(count -> count == 1L);
+    }
+
+    @Test
+    @DisplayName("assignPricePolicyToOptions: 요청한 옵션이 모두 상품 소유면 매핑을 저장한다")
+    void assignPricePolicyToOptions_allOwned_savesMappings() {
+        long productId = 10L;
+        long pricePolicyId = 100L;
+        List<Long> optionIds = List.of(201L, 202L);
+
+        when(productOptionJpaRepository.countByProductIdAndIds(productId, optionIds)).thenReturn(2L);
+        when(pricePolicyJpaRepository.findByOptionIds(optionIds)).thenReturn(List.of());
+        when(pricePolicyJpaRepository.getReferenceById(pricePolicyId))
+                .thenReturn(org.mockito.Mockito.mock(PricePolicyJpaEntity.class));
+        when(productOptionJpaRepository.getReferenceById(any()))
+                .thenAnswer(invocation -> {
+                    Long optionId = invocation.getArgument(0);
+                    return buildOptionRefMock(optionId);
+                });
+
+        adapter.assignPricePolicyToOptions(productId, pricePolicyId, optionIds);
+
+        verify(productOptionJpaRepository).countByProductIdAndIds(productId, optionIds);
+        verify(productOptionPricePolicyJpaRepository, org.mockito.Mockito.times(2))
+                .save(any(ProductOptionPricePolicyJpaEntity.class));
+    }
+
+    @Test
+    @DisplayName("assignPricePolicyToOptions: 요청한 옵션 중 타 상품 소유가 포함되면 예외를 던지고 저장하지 않는다")
+    void assignPricePolicyToOptions_foreignOption_throwsAndSkipsSave() {
+        long productId = 11L;
+        long pricePolicyId = 110L;
+        List<Long> optionIds = List.of(301L, 302L);
+
+        when(productOptionJpaRepository.countByProductIdAndIds(productId, optionIds)).thenReturn(1L);
+
+        assertThatThrownBy(() -> adapter.assignPricePolicyToOptions(productId, pricePolicyId, optionIds))
+                .isInstanceOf(InvalidProductOptionOwnershipException.class);
+
+        verify(productOptionPricePolicyJpaRepository, never()).save(any());
+        verifyNoInteractions(pricePolicyJpaRepository);
+    }
+
+    private com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionJpaEntity buildOptionRefMock(Long optionId) {
+        com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionJpaEntity mock =
+                org.mockito.Mockito.mock(com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionJpaEntity.class);
+        when(mock.getId()).thenReturn(optionId);
+        return mock;
     }
 
     private Product buildProduct(long id) {
