@@ -82,7 +82,7 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
 
         try {
             publishOrderEventPort.publishOrderPurchaseConfirmedEvent(
-                    order.getId(), order.getBuyerId(), sharerKeys, false
+                    order.getId(), order.getBuyerId(), sharerKeys, false, order.getOrderProducts()
             );
         } catch (Exception e) {
             log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",

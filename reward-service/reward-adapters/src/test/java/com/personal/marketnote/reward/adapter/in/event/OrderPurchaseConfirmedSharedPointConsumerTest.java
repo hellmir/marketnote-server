@@ -53,7 +53,7 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId, List<UUID> sharerKeys) {
-        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, false);
+        OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, false, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.purchase-confirmed", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event
@@ -147,8 +147,7 @@ class OrderPurchaseConfirmedSharedPointConsumerTest {
     void handleOrderPurchaseConfirmedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         OrderPurchaseConfirmedEvent event = new OrderPurchaseConfirmedEvent(
-                1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2), false
-        );
+                1L, 100L, List.of(SHARER_KEY_1, SHARER_KEY_2), false, java.util.List.of());
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
                 LocalDateTime.of(2026, 3, 8, 10, 0), event

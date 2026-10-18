@@ -130,6 +130,20 @@ public class ProductCatalogReadModelPersistenceAdapter
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
+    public void increaseSales(Long pricePolicyId, Long delta) {
+        if (FormatValidator.hasNoValue(delta) || delta <= 0L) {
+            return;
+        }
+        Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(pricePolicyId);
+        if (entity.isEmpty()) {
+            log.warn("상품 카탈로그 Read Model 미존재 — 판매량 증가 누락. pricePolicyId={}, delta={}", pricePolicyId, delta);
+            return;
+        }
+        entity.get().increaseSales(delta);
+    }
+
+    @Override
+    @Transactional(isolation = READ_COMMITTED)
     public void updateStockQuantity(Long pricePolicyId, Integer stockQuantity) {
         repository.findByPricePolicyId(pricePolicyId)
                 .ifPresent(entity -> entity.updateStockQuantity(stockQuantity));

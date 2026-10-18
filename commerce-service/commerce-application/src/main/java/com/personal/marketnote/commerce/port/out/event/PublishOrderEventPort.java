@@ -14,7 +14,10 @@ public interface PublishOrderEventPort {
             List<OrderProduct> orderProducts, Long totalAccumulatedPoint
     );
 
-    void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed);
+    void publishOrderPurchaseConfirmedEvent(
+            Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed,
+            List<OrderProduct> orderProducts
+    );
 
     void publishOrderCancelledEvent(Long orderId, String orderKey, Long buyerId,
                                     Long cancelAmount, Long paymentAmount, Long pointAmount,
