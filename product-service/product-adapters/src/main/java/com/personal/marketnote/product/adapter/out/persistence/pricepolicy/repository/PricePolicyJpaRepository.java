@@ -71,37 +71,6 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                     :pricePolicyIds IS NULL
                     OR pp.id IN (:pricePolicyIds)
               )
-              AND (
-                    :cursor IS NULL
-                 OR NOT EXISTS (SELECT 1 FROM PricePolicyJpaEntity pp0 WHERE pp0.id = :cursor)
-                 OR (
-                        (:sortProperty = 'orderNum' AND (
-                              p.orderNum > (SELECT pp2.productJpaEntity.orderNum FROM PricePolicyJpaEntity pp2 WHERE pp2.id = :cursor)
-                           OR (p.orderNum = (SELECT pp2.productJpaEntity.orderNum FROM PricePolicyJpaEntity pp2 WHERE pp2.id = :cursor)
-                               AND pp.id > :cursor)
-                        ))
-                     OR (:sortProperty = 'popularity' AND (
-                              pp.popularity > (SELECT pp3.popularity FROM PricePolicyJpaEntity pp3 WHERE pp3.id = :cursor)
-                           OR (pp.popularity = (SELECT pp3.popularity FROM PricePolicyJpaEntity pp3 WHERE pp3.id = :cursor)
-                               AND pp.id > :cursor)
-                        ))
-                     OR (:sortProperty = 'discountPrice' AND (
-                              pp.discountPrice > (SELECT pp4.discountPrice FROM PricePolicyJpaEntity pp4 WHERE pp4.id = :cursor)
-                           OR (pp.discountPrice = (SELECT pp4.discountPrice FROM PricePolicyJpaEntity pp4 WHERE pp4.id = :cursor)
-                               AND pp.id > :cursor)
-                        ))
-                     OR (:sortProperty = 'accumulatedPoint' AND (
-                              pp.accumulatedPoint > (SELECT pp5.accumulatedPoint FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor)
-                           OR (pp.accumulatedPoint = (SELECT pp5.accumulatedPoint FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor)
-                               AND p.id < (SELECT pp5.productJpaEntity.id FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor))
-                        ))
-                     OR (:sortProperty = 'accumulatedPointRate' AND (
-                              pp.accumulationRate > (SELECT pp6.accumulationRate FROM PricePolicyJpaEntity pp6 WHERE pp6.id = :cursor)
-                           OR (pp.accumulationRate = (SELECT pp6.accumulationRate FROM PricePolicyJpaEntity pp6 WHERE pp6.id = :cursor)
-                               AND p.id < (SELECT pp6.productJpaEntity.id FROM PricePolicyJpaEntity pp6 WHERE pp6.id = :cursor))
-                        ))
-                 )
-              )
             ORDER BY
                 CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END ASC,
                 CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END ASC,
@@ -112,184 +81,6 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id ASC
             """)
-    /**
-     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
-     * 운영 안정화 이후 제거될 예정이다.
-     */
-    @Deprecated
-    List<PricePolicyJpaEntity> findAllActiveByCursorAsc(
-            @Param("pricePolicyIds") List<Long> pricePolicyIds,
-            @Param("cursor") Long cursor,
-            Pageable pageable,
-            @Param("sortProperty") String sortProperty,
-            @Param("searchTarget") String searchTarget,
-            @Param("pattern") String pattern,
-            @Param("categoryId") Long categoryId
-    );
-
-    @Query("""
-            SELECT pp
-            FROM PricePolicyJpaEntity pp
-              JOIN pp.productJpaEntity p
-            WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND (
-                    :pattern = ''
-                 OR (:searchTarget = 'name' AND p.name LIKE :pattern)
-                 OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
-                 OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
-              )
-              AND (
-                    :categoryId IS NULL
-                 OR EXISTS (
-                        SELECT 1
-                        FROM ProductCategoryJpaEntity pc
-                        WHERE pc.productId = p.id
-                          AND pc.categoryId = :categoryId
-                 )
-              )
-              AND (
-                    :pricePolicyIds IS NULL
-                 OR pp.id IN :pricePolicyIds
-              )
-              AND (
-                    :cursor IS NULL
-                 OR NOT EXISTS (SELECT 1 FROM PricePolicyJpaEntity pp0 WHERE pp0.id = :cursor)
-                 OR (
-                        (:sortProperty = 'orderNum' AND (
-                              p.orderNum < (
-                                  SELECT pp2.productJpaEntity.orderNum
-                                  FROM PricePolicyJpaEntity pp2
-                                  WHERE pp2.id = :cursor
-                              )
-                           OR (p.orderNum = (
-                                    SELECT pp2.productJpaEntity.orderNum
-                                    FROM PricePolicyJpaEntity pp2
-                                    WHERE pp2.id = :cursor
-                                )
-                               AND pp.id < :cursor)
-                        ))
-                     OR (:sortProperty = 'popularity' AND (
-                              pp.popularity < (
-                                  SELECT pp3.popularity
-                                  FROM PricePolicyJpaEntity pp3
-                                  WHERE pp3.id = :cursor
-                              )
-                           OR (pp.popularity = (
-                                    SELECT pp3.popularity
-                                    FROM PricePolicyJpaEntity pp3
-                                    WHERE pp3.id = :cursor
-                                )
-                               AND pp.id < :cursor)
-                        ))
-                     OR (:sortProperty = 'discountPrice' AND (
-                              pp.discountPrice < (
-                                  SELECT pp4.discountPrice
-                                  FROM PricePolicyJpaEntity pp4
-                                  WHERE pp4.id = :cursor
-                              )
-                           OR (pp.discountPrice = (
-                                    SELECT pp4.discountPrice
-                                    FROM PricePolicyJpaEntity pp4
-                                    WHERE pp4.id = :cursor
-                                )
-                               AND pp.id < :cursor)
-                        ))
-                     OR (:sortProperty = 'accumulatedPoint' AND (
-                              pp.accumulatedPoint < (
-                                  SELECT pp5.accumulatedPoint
-                                  FROM PricePolicyJpaEntity pp5
-                                  WHERE pp5.id = :cursor
-                              )
-                           OR (pp.accumulatedPoint = (
-                                    SELECT pp5.accumulatedPoint
-                                    FROM PricePolicyJpaEntity pp5
-                                    WHERE pp5.id = :cursor
-                                )
-                               AND p.id < (SELECT pp5.productJpaEntity.id FROM PricePolicyJpaEntity pp5 WHERE pp5.id = :cursor))
-                        ))
-                     OR (:sortProperty = 'accumulatedPointRate' AND (
-                              pp.accumulationRate < (
-                                  SELECT pp6.accumulationRate
-                                  FROM PricePolicyJpaEntity pp6
-                                  WHERE pp6.id = :cursor
-                              )
-                           OR (pp.accumulationRate = (
-                                    SELECT pp6.accumulationRate
-                                    FROM PricePolicyJpaEntity pp6
-                                    WHERE pp6.id = :cursor
-                                )
-                               AND p.id < (SELECT pp6.productJpaEntity.id FROM PricePolicyJpaEntity pp6 WHERE pp6.id = :cursor))
-                        ))
-                 )
-              )
-            ORDER BY
-                CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END DESC,
-                CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END DESC,
-                CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN p.id END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN pp.accumulationRate END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
-                pp.id DESC
-            """)
-    /**
-     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
-     * 운영 안정화 이후 제거될 예정이다.
-     */
-    @Deprecated
-    List<PricePolicyJpaEntity> findAllActiveByCursorDesc(
-            @Param("pricePolicyIds") List<Long> pricePolicyIds,
-            @Param("cursor") Long cursor,
-            Pageable pageable,
-            @Param("sortProperty") String sortProperty,
-            @Param("searchTarget") String searchTarget,
-            @Param("pattern") String pattern,
-            @Param("categoryId") Long categoryId
-    );
-
-    @Query("""
-            SELECT pp
-            FROM PricePolicyJpaEntity pp
-              JOIN pp.productJpaEntity p
-            WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND (
-                    :pattern = ''
-                 OR (:searchTarget = 'name' AND p.name LIKE :pattern)
-                 OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
-                 OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
-              )
-              AND (
-                    :categoryId IS NULL
-                 OR EXISTS (
-                        SELECT 1
-                        FROM ProductCategoryJpaEntity pc
-                        WHERE pc.productId = p.id
-                          AND pc.categoryId = :categoryId
-                 )
-              )
-              AND (
-                    :pricePolicyIds IS NULL
-                    OR pp.id IN (:pricePolicyIds)
-              )
-            ORDER BY
-                CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END ASC,
-                CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END ASC,
-                CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END ASC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END ASC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN p.id END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN pp.accumulationRate END ASC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
-                pp.id ASC
-            """)
-    /**
-     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
-     * 운영 안정화 이후 제거될 예정이다.
-     */
-    @Deprecated
     List<PricePolicyJpaEntity> findAllActiveByOffsetAsc(
             @Param("pricePolicyIds") List<Long> pricePolicyIds,
             Pageable pageable,
@@ -335,11 +126,6 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                 CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
                 pp.id DESC
             """)
-    /**
-     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
-     * 운영 안정화 이후 제거될 예정이다.
-     */
-    @Deprecated
     List<PricePolicyJpaEntity> findAllActiveByOffsetDesc(
             @Param("pricePolicyIds") List<Long> pricePolicyIds,
             Pageable pageable,
@@ -370,11 +156,6 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
               )
             """)
-    /**
-     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
-     * 운영 안정화 이후 제거될 예정이다.
-     */
-    @Deprecated
     long countActiveByCategoryId(
             @Param("categoryId") Long categoryId,
             @Param("searchTarget") String searchTarget,
@@ -395,11 +176,6 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
                  OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
               )
             """)
-    /**
-     * @deprecated #3993 상품 카탈로그 ReadModel 조회 경로 전환 이후 ProductCatalogReadModel 기반 조회(FindProductCatalogReadModelPort)를 사용한다.
-     * 운영 안정화 이후 제거될 예정이다.
-     */
-    @Deprecated
     long countActive(@Param("searchTarget") String searchTarget, @Param("pattern") String pattern);
 
     @Query("""

@@ -345,50 +345,6 @@ class PricePolicyJpaRepositoryTest {
         }
     }
 
-    @Nested
-    @DisplayName("정렬 속성별 커서 조회")
-    class SortPropertyCursor {
-
-        @Test
-        @DisplayName("popularity 기준 내림차순으로 정렬한다")
-        void sortsByPopularityDesc() {
-            ProductJpaEntity productLow = saveProduct("낮은 인기", "브랜드");
-            ProductJpaEntity productHigh = saveProduct("높은 인기", "브랜드");
-            PricePolicyJpaEntity low = savePricePolicy(productLow, 1000L);
-            PricePolicyJpaEntity high = savePricePolicy(productHigh, 1000L);
-            updatePopularity(low.getId(), 10L);
-            updatePopularity(high.getId(), 100L);
-            entityManager.clear();
-
-            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "popularity"));
-
-            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorDesc(
-                    null, null, pageable, "popularity", "name", "", null
-            );
-
-            assertThat(results).extracting(PricePolicyJpaEntity::getId)
-                    .containsExactly(high.getId(), low.getId());
-        }
-
-        @Test
-        @DisplayName("discountPrice 기준 오름차순으로 정렬한다")
-        void sortsByDiscountPriceAsc() {
-            ProductJpaEntity product1 = saveProduct("상품1", "브랜드");
-            ProductJpaEntity product2 = saveProduct("상품2", "브랜드");
-            PricePolicyJpaEntity cheap = savePricePolicyWithDiscountPrice(product1, 1000L);
-            PricePolicyJpaEntity expensive = savePricePolicyWithDiscountPrice(product2, 9000L);
-
-            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "discountPrice"));
-
-            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository.findAllActiveByCursorAsc(
-                    null, null, pageable, "discountPrice", "name", "", null
-            );
-
-            assertThat(results).extracting(PricePolicyJpaEntity::getId)
-                    .containsExactly(cheap.getId(), expensive.getId());
-        }
-    }
-
     private ProductJpaEntity saveProduct(String name, String brandName) {
         Product product = Product.from(
                 ProductSnapshotState.builder()
