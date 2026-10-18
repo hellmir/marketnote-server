@@ -66,10 +66,20 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
 
     @Override
     public void publishOrderPurchaseConfirmedEvent(
-            Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed
+            Long orderId, Long buyerId, List<UUID> sharerKeys, boolean isAutoConfirmed,
+            List<OrderProduct> orderProducts
     ) {
+        List<OrderPurchaseConfirmedEvent.OrderProductItem> items = FormatValidator.hasValue(orderProducts)
+                ? orderProducts.stream()
+                        .map(op -> new OrderPurchaseConfirmedEvent.OrderProductItem(
+                                op.getPricePolicyId(),
+                                op.getProductId(),
+                                op.getQuantity().getValue()
+                        ))
+                        .toList()
+                : List.of();
         OrderPurchaseConfirmedEvent payload = new OrderPurchaseConfirmedEvent(
-                orderId, buyerId, sharerKeys, isAutoConfirmed
+                orderId, buyerId, sharerKeys, isAutoConfirmed, items
         );
         String topic = KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED;
         EventEnvelope<OrderPurchaseConfirmedEvent> envelope = EventEnvelope.of(

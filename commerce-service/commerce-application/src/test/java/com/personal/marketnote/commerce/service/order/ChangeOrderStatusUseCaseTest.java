@@ -195,7 +195,7 @@ class ChangeOrderStatusUseCaseTest {
 
             // then
             verify(publishOrderEventPort, never()).publishOrderPurchaseConfirmedEvent(
-                    anyLong(), anyLong(), anyList(), anyBoolean());
+                    anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
         }
 
         @Test
@@ -324,7 +324,7 @@ class ChangeOrderStatusUseCaseTest {
 
             // then
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), eq(List.of()), eq(true));
+                    eq(orderId), eq(buyerId), eq(List.of()), eq(true), anyList());
         }
 
         @Test
@@ -347,7 +347,7 @@ class ChangeOrderStatusUseCaseTest {
 
             // then
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), eq(List.of(sharerKey)), eq(true));
+                    eq(orderId), eq(buyerId), eq(List.of(sharerKey)), eq(true), anyList());
         }
 
         @Test
@@ -369,7 +369,7 @@ class ChangeOrderStatusUseCaseTest {
 
             // then
             verify(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                    eq(orderId), eq(buyerId), eq(List.of()), eq(true));
+                    eq(orderId), eq(buyerId), eq(List.of()), eq(true), anyList());
         }
 
         @Test
@@ -381,7 +381,7 @@ class ChangeOrderStatusUseCaseTest {
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             doThrow(new RuntimeException("이벤트 발행 실패"))
                     .when(publishOrderEventPort).publishOrderPurchaseConfirmedEvent(
-                            anyLong(), anyLong(), anyList(), anyBoolean());
+                            anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(orderId)

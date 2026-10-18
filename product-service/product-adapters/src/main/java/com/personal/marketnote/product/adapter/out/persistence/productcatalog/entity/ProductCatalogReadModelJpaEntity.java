@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
+import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -178,7 +179,9 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     }
 
     public void increaseSales(Long delta) {
-        this.sales = this.sales + delta;
+        long currentSales = FormatValidator.hasValue(sales) ? sales : 0L;
+        long addDelta = FormatValidator.hasValue(delta) ? delta : 0L;
+        this.sales = Math.addExact(currentSales, addDelta);
     }
 
     public void updateProductTags(String productTags) {

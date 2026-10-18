@@ -7,6 +7,14 @@ public record OrderPurchaseConfirmedEvent(
         Long orderId,
         Long buyerId,
         List<UUID> sharerKeys,
-        boolean isAutoConfirmed
+        boolean isAutoConfirmed,
+        List<OrderProductItem> orderProducts
 ) {
+
+    public record OrderProductItem(
+            Long pricePolicyId,
+            Long productId,
+            Integer quantity
+    ) {
+    }
 }

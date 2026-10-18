@@ -172,12 +172,14 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
 
         // Outbox 이벤트 저장 (트랜잭션 내)
         // [#929][#1190] 적립 예정 포인트 확정은 Kafka Consumer로 전환 완료
-        publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys);
+        publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, order);
     }
 
-    private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys) {
+    private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys, Order order) {
         try {
-            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(orderId, buyerId, sharerKeys, true);
+            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(
+                    orderId, buyerId, sharerKeys, true, order.getOrderProducts()
+            );
         } catch (Exception e) {
             log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
                     orderId, buyerId, e.getMessage(), e
