@@ -1,10 +1,12 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
+import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.exception.ProductInfoNoValueException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
@@ -27,6 +29,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,9 +68,13 @@ class UpdateProductUseCaseTest {
     void update_adminSkipsOwnerCheck_updatesProduct() {
         UpdateProductCommand command = buildCommand(11L, null);
         Product product = buildProduct(11L, "기존 상품");
+        Product refreshed = buildProductWithTags(11L, List.of(
+                buildPersistedTag(101L, "tag-1", 1L),
+                buildPersistedTag(102L, "tag-2", 2L)
+        ));
 
         when(getProductUseCase.getProduct(11L)).thenReturn(product);
-        when(findProductPort.findById(11L)).thenReturn(Optional.empty());
+        when(findProductPort.findById(11L)).thenReturn(Optional.of(refreshed));
 
         updateProductService.update(99L, true, command);
 
@@ -90,7 +98,12 @@ class UpdateProductUseCaseTest {
 
         verify(getProductUseCase).getProduct(11L);
         verify(findProductPort).findById(11L);
-        verifyNoInteractions(publishProductEventPort);
+        verify(publishProductEventPort).publishProductTagChangedEvent(
+                eq(11L),
+                anyList(),
+                eq(ProductTagChangedEvent.Action.UPDATED)
+        );
+        verifyNoMoreInteractions(publishProductEventPort);
     }
 
     @Test
@@ -100,10 +113,14 @@ class UpdateProductUseCaseTest {
         FulfillmentVendorGoodsOptionCommand options = buildFulfillmentOptions();
         UpdateProductCommand command = buildCommand(20L, options);
         Product product = buildProduct(20L, "기존 상품");
+        Product refreshed = buildProductWithTags(20L, List.of(
+                buildPersistedTag(201L, "tag-1", 1L),
+                buildPersistedTag(202L, "tag-2", 2L)
+        ));
 
         when(findProductPort.existsByIdAndSellerId(20L, userId)).thenReturn(true);
         when(getProductUseCase.getProduct(20L)).thenReturn(product);
-        when(findProductPort.findById(20L)).thenReturn(Optional.empty());
+        when(findProductPort.findById(20L)).thenReturn(Optional.of(refreshed));
 
         updateProductService.update(userId, false, command);
 
@@ -118,6 +135,34 @@ class UpdateProductUseCaseTest {
         assertThat(capturedEvent.productName()).isEqualTo("변경 상품");
         assertThat(capturedEvent.goodsType()).isEqualTo(options.goodsType());
         assertThat(capturedEvent.giftDivision()).isEqualTo(options.giftDivision());
+
+        ArgumentCaptor<List<ProductTagChangedEvent.ProductTagSnapshot>> tagCaptor
+                = ArgumentCaptor.forClass(List.class);
+        verify(publishProductEventPort).publishProductTagChangedEvent(
+                eq(20L), tagCaptor.capture(), eq(ProductTagChangedEvent.Action.UPDATED)
+        );
+        assertThat(tagCaptor.getValue())
+                .extracting(ProductTagChangedEvent.ProductTagSnapshot::id)
+                .containsExactly(201L, 202L);
+        assertThat(tagCaptor.getValue())
+                .extracting(ProductTagChangedEvent.ProductTagSnapshot::name)
+                .containsExactly("tag-1", "tag-2");
+    }
+
+    @Test
+    @DisplayName("상품 수정 후 새로 조회한 상품이 없으면 태그 변경 이벤트를 발행하지 않는다")
+    void update_refreshedProductMissing_skipsTagEvent() {
+        UpdateProductCommand command = buildCommand(50L, null);
+        Product product = buildProduct(50L, "기존 상품");
+
+        when(getProductUseCase.getProduct(50L)).thenReturn(product);
+        when(findProductPort.findById(50L)).thenReturn(Optional.empty());
+
+        updateProductService.update(1L, true, command);
+
+        verify(updateProductPort).update(product);
+        verify(findProductPort).findById(50L);
+        verifyNoInteractions(publishProductEventPort);
     }
 
     @Test
@@ -219,6 +264,33 @@ class UpdateProductUseCaseTest {
                         .detail("기존 상세")
                         .findAllOptionsYn(false)
                         .productTags(List.of())
+                        .status(EntityStatus.ACTIVE)
+                        .build()
+        );
+    }
+
+    private Product buildProductWithTags(Long id, List<ProductTag> tags) {
+        return Product.from(
+                ProductSnapshotState.builder()
+                        .id(id)
+                        .sellerId(1L)
+                        .name("변경 상품")
+                        .brandName("변경 브랜드")
+                        .detail("변경 상세 설명")
+                        .findAllOptionsYn(true)
+                        .productTags(tags)
+                        .status(EntityStatus.ACTIVE)
+                        .build()
+        );
+    }
+
+    private ProductTag buildPersistedTag(Long id, String name, Long orderNum) {
+        return ProductTag.from(
+                ProductTagSnapshotState.builder()
+                        .id(id)
+                        .productId(11L)
+                        .name(name)
+                        .orderNum(orderNum)
                         .status(EntityStatus.ACTIVE)
                         .build()
         );

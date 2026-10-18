@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.kafka.event.PricePolicyDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ProductDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
 import org.junit.jupiter.api.DisplayName;
@@ -231,5 +232,65 @@ class ProductEventKafkaProducerTest {
 
         ProductDeletedEvent payload = (ProductDeletedEvent) capturedEnvelope.payload();
         assertThat(payload.productId()).isEqualTo(100L);
+    }
+
+    @Test
+    @DisplayName("상품 태그 변경 이벤트 발행 시 올바른 토픽과 파티션 키로 Outbox에 저장된다")
+    void publishProductTagChangedEvent_savesToOutboxWithCorrectTopicAndPartitionKey() throws Exception {
+        // given
+        setUpClock("2026-10-18T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+
+        // when
+        productEventKafkaProducer.publishProductTagChangedEvent(
+                42L,
+                java.util.List.of(new ProductTagChangedEvent.ProductTagSnapshot(1L, "겨울", 1L)),
+                ProductTagChangedEvent.Action.UPDATED
+        );
+
+        // then
+        ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+        verify(saveOutboxEventPort).save(outboxCaptor.capture());
+
+        OutboxEvent captured = outboxCaptor.getValue();
+        assertThat(captured.getTopic()).isEqualTo(KafkaTopicConstants.PRODUCT_TAG_CHANGED);
+        assertThat(captured.getPartitionKey()).isEqualTo("42");
+        assertThat(captured.getSource()).isEqualTo("product-service");
+        assertThat(captured.getEventId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("상품 태그 변경 이벤트 발행 시 EventEnvelope 페이로드에 productId/태그 목록/액션이 포함된다")
+    @SuppressWarnings("unchecked")
+    void publishProductTagChangedEvent_envelopeContainsCorrectPayload() throws Exception {
+        // given
+        setUpClock("2026-10-18T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        java.util.List<ProductTagChangedEvent.ProductTagSnapshot> tags = java.util.List.of(
+                new ProductTagChangedEvent.ProductTagSnapshot(10L, "봄", 1L),
+                new ProductTagChangedEvent.ProductTagSnapshot(11L, "세일", 2L)
+        );
+
+        // when
+        productEventKafkaProducer.publishProductTagChangedEvent(
+                7L, tags, ProductTagChangedEvent.Action.REORDERED
+        );
+
+        // then
+        ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
+        verify(objectMapper).writeValueAsString(envelopeCaptor.capture());
+
+        EventEnvelope<?> capturedEnvelope = envelopeCaptor.getValue();
+        assertThat(capturedEnvelope.eventType()).isEqualTo(KafkaTopicConstants.PRODUCT_TAG_CHANGED);
+        assertThat(capturedEnvelope.source()).isEqualTo("product-service");
+        assertThat(capturedEnvelope.eventId()).isNotNull();
+
+        ProductTagChangedEvent payload = (ProductTagChangedEvent) capturedEnvelope.payload();
+        assertThat(payload.productId()).isEqualTo(7L);
+        assertThat(payload.action()).isEqualTo(ProductTagChangedEvent.Action.REORDERED);
+        assertThat(payload.productTags()).hasSize(2);
+        assertThat(payload.productTags().get(0).id()).isEqualTo(10L);
+        assertThat(payload.productTags().get(0).name()).isEqualTo("봄");
+        assertThat(payload.productTags().get(1).orderNum()).isEqualTo(2L);
     }
 }

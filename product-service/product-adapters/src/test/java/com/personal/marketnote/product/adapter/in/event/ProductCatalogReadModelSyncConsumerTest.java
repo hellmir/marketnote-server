@@ -9,6 +9,7 @@ import com.personal.marketnote.common.kafka.event.ImageChangedEvent;
 import com.personal.marketnote.common.kafka.event.InventoryChangedEvent;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.kafka.event.ReviewUpdatedEvent;
@@ -326,6 +327,77 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handleReviewDeleted(record, acknowledgment);
 
         verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 8, 4.2f);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductTagChanged 이벤트 수신 시 SyncProductTagChangeUseCase 에 위임한다")
+    void handleProductTagChanged_validPayload_delegatesToUseCase() {
+        java.util.UUID eventId = java.util.UUID.randomUUID();
+        ProductTagChangedEvent payload = new ProductTagChangedEvent(
+                777L,
+                List.of(new ProductTagChangedEvent.ProductTagSnapshot(1L, "봄", 1L)),
+                ProductTagChangedEvent.Action.UPDATED
+        );
+        EventEnvelope<ProductTagChangedEvent> envelope = new EventEnvelope<>(
+                eventId.toString(), KafkaTopicConstants.PRODUCT_TAG_CHANGED,
+                "product-service", FIXED_TIME, payload
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_TAG_CHANGED, envelope);
+
+        consumer.handleProductTagChanged(record, acknowledgment);
+
+        verify(syncProductTagChangeUseCase).syncProductTagChange(eq(eventId), eq(payload));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductTagChanged 이벤트 envelope이 null 이면 UseCase 를 호출하지 않는다")
+    void handleProductTagChanged_nullEnvelope_acknowledges() {
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                KafkaTopicConstants.PRODUCT_TAG_CHANGED, 0, 0, "1", null);
+
+        consumer.handleProductTagChanged(record, acknowledgment);
+
+        verifyNoInteractions(syncProductTagChangeUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductTagChanged 이벤트 productId 가 유효하지 않으면 UseCase 를 호출하지 않는다")
+    void handleProductTagChanged_invalidProductId_acknowledges() {
+        ProductTagChangedEvent payload = new ProductTagChangedEvent(
+                null, List.of(), ProductTagChangedEvent.Action.UPDATED
+        );
+        EventEnvelope<ProductTagChangedEvent> envelope = envelopeOf(
+                KafkaTopicConstants.PRODUCT_TAG_CHANGED, "product-service", payload
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_TAG_CHANGED, envelope);
+
+        consumer.handleProductTagChanged(record, acknowledgment);
+
+        verifyNoInteractions(syncProductTagChangeUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("ProductTagChanged 이벤트 eventId 가 UUID 형식이 아니면 UseCase 를 호출하지 않는다")
+    void handleProductTagChanged_invalidEventId_acknowledges() {
+        ProductTagChangedEvent payload = new ProductTagChangedEvent(
+                1L, List.of(), ProductTagChangedEvent.Action.UPDATED
+        );
+        EventEnvelope<ProductTagChangedEvent> envelope = new EventEnvelope<>(
+                "invalid-uuid", KafkaTopicConstants.PRODUCT_TAG_CHANGED,
+                "product-service", FIXED_TIME, payload
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRODUCT_TAG_CHANGED, envelope);
+
+        consumer.handleProductTagChanged(record, acknowledgment);
+
+        verifyNoInteractions(syncProductTagChangeUseCase);
         verify(acknowledgment).acknowledge();
     }
 }
