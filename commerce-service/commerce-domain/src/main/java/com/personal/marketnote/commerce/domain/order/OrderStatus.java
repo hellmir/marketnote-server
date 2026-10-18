@@ -26,6 +26,7 @@ public enum OrderStatus {
     RETURN_REJECTED("반품 불가"),
     RETURN_IN_PROGRESS("반품 진행 중"),
     PARTIALLY_CANCELLED("부분 취소"),
+    PARTIALLY_RETURN_REQUESTED("부분 반품 요청"),
     PARTIALLY_RETURNED("부분 반품됨"),
     RETURNED("반품 완료");
 
@@ -42,14 +43,15 @@ public enum OrderStatus {
         ALLOWED_TRANSITIONS.put(PARTIALLY_CANCEL_REQUESTED, EnumSet.of(CANCELLED, PARTIALLY_CANCELLED, CANCEL_REQUESTED));
         ALLOWED_TRANSITIONS.put(PARTIALLY_CANCELLED, EnumSet.of(CANCEL_REQUESTED, PARTIALLY_CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED, RETURN_REQUESTED));
-        ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
-        ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
+        ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED, RETURN_REQUESTED, PARTIALLY_RETURN_REQUESTED));
+        ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, RETURN_REQUESTED, PARTIALLY_RETURN_REQUESTED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_CONFIRMED, EnumSet.of(CONFIRMED, RETURN_REQUESTED, PARTIALLY_RETURN_REQUESTED));
         ALLOWED_TRANSITIONS.put(CONFIRMED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(RETURN_REQUESTED, EnumSet.of(RETURN_IN_PROGRESS, RETURN_REJECTED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_RETURN_REQUESTED, EnumSet.of(RETURN_REQUESTED, RETURN_IN_PROGRESS, RETURN_REJECTED));
         ALLOWED_TRANSITIONS.put(RETURN_REJECTED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(RETURN_IN_PROGRESS, EnumSet.of(RETURNED, RETURN_REJECTED));
-        ALLOWED_TRANSITIONS.put(PARTIALLY_RETURNED, EnumSet.of(RETURN_REQUESTED, RETURNED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_RETURNED, EnumSet.of(RETURN_REQUESTED, PARTIALLY_RETURN_REQUESTED, RETURNED));
         ALLOWED_TRANSITIONS.put(RETURNED, EnumSet.noneOf(OrderStatus.class));
     }
 
@@ -117,6 +119,14 @@ public enum OrderStatus {
         return this == RETURN_REQUESTED;
     }
 
+    public boolean isPartiallyReturnRequested() {
+        return this == PARTIALLY_RETURN_REQUESTED;
+    }
+
+    public static OrderStatus getPartiallyReturnRequested() {
+        return PARTIALLY_RETURN_REQUESTED;
+    }
+
     public boolean isReturnRejected() {
         return this == RETURN_REJECTED;
     }
@@ -153,7 +163,8 @@ public enum OrderStatus {
         return this != PARTIALLY_CONFIRMED
                 && this != PARTIALLY_RETURNED
                 && this != PARTIALLY_CANCELLED
-                && this != PARTIALLY_CANCEL_REQUESTED;
+                && this != PARTIALLY_CANCEL_REQUESTED
+                && this != PARTIALLY_RETURN_REQUESTED;
     }
 
     public boolean isReviewable() {

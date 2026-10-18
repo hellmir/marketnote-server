@@ -3,9 +3,12 @@ package com.personal.marketnote.commerce.adapter.in.web.order.request;
 import com.personal.marketnote.commerce.domain.order.OrderStatusReasonCategory;
 import com.personal.marketnote.common.utility.RegularExpressionConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class RequestReturnRequest {
@@ -15,6 +18,14 @@ public class RequestReturnRequest {
             requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private OrderStatusReasonCategory reasonCategory;
+
+    @Schema(
+            name = "pricePolicyIds",
+            description = "반품 대상 가격정책 ID 리스트 (미입력/빈 배열 = 전체 반품)",
+            requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    @Size(max = 100, message = "반품 대상 상품은 100개를 초과할 수 없습니다.")
+    private List<@NotNull(message = "pricePolicyId는 null일 수 없습니다.") Long> pricePolicyIds;
 
     @Schema(
             name = "reason",
