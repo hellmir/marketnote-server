@@ -49,12 +49,12 @@ class HmacSignatureGeneratorTest {
     }
 
     @Test
-    @DisplayName("서명은 32자리 Hex 문자열로 반환된다")
-    void shouldReturnHexStringWith32Characters() {
+    @DisplayName("서명은 64자리 Hex 문자열로 반환된다")
+    void shouldReturnHexStringWith64Characters() {
         String signature = HmacSignatureGenerator.generate(SECRET_KEY, TIMESTAMP, NONCE, HTTP_METHOD, REQUEST_PATH);
 
-        assertThat(signature).hasSize(32);
-        assertThat(signature).matches("[0-9a-f]{32}");
+        assertThat(signature).hasSize(64);
+        assertThat(signature).matches("[0-9a-f]{64}");
     }
 
     @Test
