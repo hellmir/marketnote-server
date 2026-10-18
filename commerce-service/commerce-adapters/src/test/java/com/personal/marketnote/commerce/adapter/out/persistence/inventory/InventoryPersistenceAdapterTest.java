@@ -20,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -60,6 +61,20 @@ class InventoryPersistenceAdapterTest {
                 VALUES (:productId, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 """)
                 .setParameter("productId", productId)
+                .setParameter("pricePolicyId", pricePolicyId)
+                .setParameter("stock", stock)
+                .executeUpdate();
+        entityManager.flush();
+        entityManager.clear();
+    }
+
+    private void persistInventoryWithProductKey(Long productId, UUID productKey, Long pricePolicyId, int stock) {
+        entityManager.createNativeQuery("""
+                INSERT INTO inventory (product_id, product_key, price_policy_id, stock, reserved, version, created_at, modified_at)
+                VALUES (:productId, :productKey, :pricePolicyId, :stock, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """)
+                .setParameter("productId", productId)
+                .setParameter("productKey", productKey)
                 .setParameter("pricePolicyId", pricePolicyId)
                 .setParameter("stock", stock)
                 .executeUpdate();
@@ -169,6 +184,74 @@ class InventoryPersistenceAdapterTest {
 
             // then
             assertThat(found).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findByProductKeys")
+    class FindByProductKeys {
+
+        @Test
+        @DisplayName("상품 키 목록으로 재고를 조회한다")
+        void shouldFindByProductKeys() {
+            // given
+            UUID keyA = UUID.randomUUID();
+            UUID keyB = UUID.randomUUID();
+            UUID keyC = UUID.randomUUID();
+            persistInventoryWithProductKey(1L, keyA, 100L, 50);
+            persistInventoryWithProductKey(1L, keyB, 200L, 30);
+            persistInventoryWithProductKey(2L, keyC, 300L, 20);
+
+            // when
+            Set<Inventory> found = adapter.findByProductKeys(Set.of(keyA, keyB));
+
+            // then
+            assertThat(found).hasSize(2);
+            assertThat(found).allMatch(inv ->
+                    inv.getProductKey().equals(keyA) || inv.getProductKey().equals(keyB)
+            );
+        }
+
+        @Test
+        @DisplayName("일부만 일치하면 일치하는 재고만 반환한다")
+        void shouldReturnOnlyMatchedInventories() {
+            // given
+            UUID keyA = UUID.randomUUID();
+            UUID keyNotSaved = UUID.randomUUID();
+            persistInventoryWithProductKey(1L, keyA, 100L, 50);
+
+            // when
+            Set<Inventory> found = adapter.findByProductKeys(Set.of(keyA, keyNotSaved));
+
+            // then
+            assertThat(found).hasSize(1);
+            assertThat(found.iterator().next().getProductKey()).isEqualTo(keyA);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 상품 키로 조회 시 빈 Set을 반환한다")
+        void shouldReturnEmptySetWhenNotFound() {
+            // when
+            Set<Inventory> found = adapter.findByProductKeys(Set.of(UUID.randomUUID()));
+
+            // then
+            assertThat(found).isEmpty();
+        }
+
+        @Test
+        @DisplayName("productKey가 null인 기존 레코드는 조회 대상에서 제외된다")
+        void shouldExcludeNullProductKey() {
+            // given
+            UUID key = UUID.randomUUID();
+            persistInventory(1L, 100L, 50);
+            persistInventoryWithProductKey(2L, key, 200L, 30);
+
+            // when
+            Set<Inventory> found = adapter.findByProductKeys(Set.of(key));
+
+            // then
+            assertThat(found).hasSize(1);
+            assertThat(found.iterator().next().getProductKey()).isEqualTo(key);
         }
     }
 
