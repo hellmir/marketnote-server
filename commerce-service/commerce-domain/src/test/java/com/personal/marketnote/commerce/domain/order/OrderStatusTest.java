@@ -360,4 +360,87 @@ class OrderStatusTest {
             assertThat(OrderStatus.CONFIRMED.isDelivered()).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("PARTIALLY_RETURN_REQUESTED 전이 검증")
+    class PartiallyReturnRequestedTransitionTest {
+
+        @Test
+        @DisplayName("SHIPPING에서 PARTIALLY_RETURN_REQUESTED로 전이할 수 있다")
+        void shipping_canTransitionTo_partiallyReturnRequested() {
+            assertThat(OrderStatus.SHIPPING.canTransitionTo(OrderStatus.PARTIALLY_RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("DELIVERED에서 PARTIALLY_RETURN_REQUESTED로 전이할 수 있다")
+        void delivered_canTransitionTo_partiallyReturnRequested() {
+            assertThat(OrderStatus.DELIVERED.canTransitionTo(OrderStatus.PARTIALLY_RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CONFIRMED에서 PARTIALLY_RETURN_REQUESTED로 전이할 수 있다")
+        void partiallyConfirmed_canTransitionTo_partiallyReturnRequested() {
+            assertThat(OrderStatus.PARTIALLY_CONFIRMED.canTransitionTo(OrderStatus.PARTIALLY_RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURNED에서 PARTIALLY_RETURN_REQUESTED로 전이할 수 있다")
+        void partiallyReturned_canTransitionTo_partiallyReturnRequested() {
+            assertThat(OrderStatus.PARTIALLY_RETURNED.canTransitionTo(OrderStatus.PARTIALLY_RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURN_REQUESTED에서 RETURN_IN_PROGRESS로 전이할 수 있다")
+        void partiallyReturnRequested_canTransitionTo_returnInProgress() {
+            assertThat(OrderStatus.PARTIALLY_RETURN_REQUESTED.canTransitionTo(OrderStatus.RETURN_IN_PROGRESS)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURN_REQUESTED에서 RETURN_REJECTED로 전이할 수 있다")
+        void partiallyReturnRequested_canTransitionTo_returnRejected() {
+            assertThat(OrderStatus.PARTIALLY_RETURN_REQUESTED.canTransitionTo(OrderStatus.RETURN_REJECTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURN_REQUESTED에서 RETURN_REQUESTED로 전이할 수 있다")
+        void partiallyReturnRequested_canTransitionTo_returnRequested() {
+            assertThat(OrderStatus.PARTIALLY_RETURN_REQUESTED.canTransitionTo(OrderStatus.RETURN_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURN_REQUESTED에서 CONFIRMED로 전이할 수 없다")
+        void partiallyReturnRequested_cannotTransitionTo_confirmed() {
+            assertThat(OrderStatus.PARTIALLY_RETURN_REQUESTED.canTransitionTo(OrderStatus.CONFIRMED)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_RETURN_REQUESTED는 최종 상태가 아니다")
+        void partiallyReturnRequested_isNotTerminal() {
+            assertThat(OrderStatus.PARTIALLY_RETURN_REQUESTED.isTerminal()).isFalse();
+        }
+
+        @Test
+        @DisplayName("isPartiallyReturnRequested는 PARTIALLY_RETURN_REQUESTED 상태에서 true를 반환한다")
+        void isPartiallyReturnRequested_true() {
+            assertThat(OrderStatus.PARTIALLY_RETURN_REQUESTED.isPartiallyReturnRequested()).isTrue();
+        }
+
+        @Test
+        @DisplayName("isPartiallyReturnRequested는 RETURN_REQUESTED 상태에서 false를 반환한다")
+        void isPartiallyReturnRequested_falseForReturnRequested() {
+            assertThat(OrderStatus.RETURN_REQUESTED.isPartiallyReturnRequested()).isFalse();
+        }
+
+        @Test
+        @DisplayName("isNotPartialChanged는 PARTIALLY_RETURN_REQUESTED 상태에서 false를 반환한다")
+        void isNotPartialChanged_falseForPartiallyReturnRequested() {
+            assertThat(OrderStatus.PARTIALLY_RETURN_REQUESTED.isNotPartialChanged()).isFalse();
+        }
+
+        @Test
+        @DisplayName("getPartiallyReturnRequested는 PARTIALLY_RETURN_REQUESTED 상수를 반환한다")
+        void getPartiallyReturnRequested_returnsConstant() {
+            assertThat(OrderStatus.getPartiallyReturnRequested()).isEqualTo(OrderStatus.PARTIALLY_RETURN_REQUESTED);
+        }
+    }
 }

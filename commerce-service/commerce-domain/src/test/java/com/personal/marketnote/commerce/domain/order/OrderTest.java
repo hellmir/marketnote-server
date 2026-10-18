@@ -212,6 +212,46 @@ class OrderTest {
         );
     }
 
+    @Test
+    @DisplayName("changeProductsStatus에서 일부만 반품 요청하면 PARTIALLY_RETURN_REQUESTED가 된다")
+    void shouldSetPartiallyReturnRequestedWhenOnlySomeProductsReturnRequested() {
+        Order order = createOrderWithDeliveredProducts();
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        order.changeProductsStatus(List.of(1L), OrderStatus.RETURN_REQUESTED, now);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_RETURN_REQUESTED);
+        assertThat(order.getOrderProducts().get(0).getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
+        assertThat(order.getOrderProducts().get(1).getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
+    }
+
+    @Test
+    @DisplayName("changeProductsStatus에서 전체가 반품 요청되면 RETURN_REQUESTED가 된다")
+    void shouldSetReturnRequestedWhenAllProductsReturnRequested() {
+        Order order = createOrderWithDeliveredProducts();
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        order.changeProductsStatus(List.of(1L, 2L), OrderStatus.RETURN_REQUESTED, now);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
+        order.getOrderProducts().forEach(product ->
+                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED)
+        );
+    }
+
+    @Test
+    @DisplayName("changeProductsStatus에서 일부만 반품 거부되면 주문 상태는 변경되지 않는다")
+    void shouldKeepOrderStatusWhenOnlySomeProductsReturnRejected() {
+        Order order = createOrderWithPartiallyReturnRequestedProducts();
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        order.changeProductsStatus(List.of(1L), OrderStatus.RETURN_REJECTED, now);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_RETURN_REQUESTED);
+        assertThat(order.getOrderProducts().get(0).getOrderStatus()).isEqualTo(OrderStatus.RETURN_REJECTED);
+        assertThat(order.getOrderProducts().get(1).getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
+    }
+
     private OrderCreateState createDefaultOrderCreateState() {
         return OrderCreateState.builder()
                 .buyerId(1L)
@@ -276,6 +316,28 @@ class OrderTest {
                                 .orderId(1L).sellerId(10L).pricePolicyId(1L)
                                 .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
                                 .orderStatus(OrderStatus.DELIVERED).build(),
+                        OrderProductSnapshotState.builder()
+                                .orderId(1L).sellerId(10L).pricePolicyId(2L)
+                                .quantity(2).unitAmount(20000L).accumulatedPoint(0L)
+                                .orderStatus(OrderStatus.DELIVERED).build()
+                ))
+                .build());
+    }
+
+    private Order createOrderWithPartiallyReturnRequestedProducts() {
+        return Order.from(OrderSnapshotState.builder()
+                .id(1L)
+                .buyerId(100L)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-20260101-001"))
+                .orderStatus(OrderStatus.PARTIALLY_RETURN_REQUESTED)
+                .amount(createOrderAmount())
+                .shippingAddress(createShippingAddress())
+                .orderProductStates(List.of(
+                        OrderProductSnapshotState.builder()
+                                .orderId(1L).sellerId(10L).pricePolicyId(1L)
+                                .quantity(1).unitAmount(10000L).accumulatedPoint(0L)
+                                .orderStatus(OrderStatus.RETURN_REQUESTED).build(),
                         OrderProductSnapshotState.builder()
                                 .orderId(1L).sellerId(10L).pricePolicyId(2L)
                                 .quantity(2).unitAmount(20000L).accumulatedPoint(0L)

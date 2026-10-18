@@ -116,6 +116,27 @@ class CompleteReturnUseCaseTest {
         }
 
         @Test
+        @DisplayName("PARTIALLY_RETURN_REQUESTED 상태의 주문을 RETURNED로 전이할 수 있다")
+        void shouldAllowCompletionFromPartiallyReturnRequested() {
+            OrderProduct product = mock(OrderProduct.class);
+            Order order = createReturnableOrder(OrderStatus.PARTIALLY_RETURN_REQUESTED, product);
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+
+            simulateReturnTransition(order, product, OrderStatus.RETURNED);
+
+            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(0L).build());
+
+            service.completeReturn(new CompleteReturnCommand(1L));
+
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURN_IN_PROGRESS), any(LocalDateTime.class));
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURNED), any(LocalDateTime.class));
+            verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
+        }
+
+        @Test
         @DisplayName("반품 배송비를 CalculateReturnShippingFeeUseCase로 계산하여 이벤트에 포함한다")
         void shouldCalculateReturnShippingFeeAndIncludeInEvent() {
             OrderProduct product = mock(OrderProduct.class);
