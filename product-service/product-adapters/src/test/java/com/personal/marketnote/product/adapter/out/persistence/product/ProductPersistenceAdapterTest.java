@@ -109,6 +109,36 @@ class ProductPersistenceAdapterTest {
     }
 
     @Nested
+    @DisplayName("findAll")
+    class FindAll {
+
+        @Test
+        @DisplayName("결과가 없으면 빈 리스트를 반환한다")
+        void returnsEmptyListWhenNoProducts() {
+            when(productJpaRepository.findAll()).thenReturn(List.of());
+
+            List<Product> result = adapter.findAll();
+
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findAllByCategoryId")
+    class FindAllByCategoryId {
+
+        @Test
+        @DisplayName("결과가 없으면 빈 리스트를 반환한다")
+        void returnsEmptyListWhenNoProducts() {
+            when(productJpaRepository.findAllByCategoryIdOrderByOrderNumAsc(1L)).thenReturn(List.of());
+
+            List<Product> result = adapter.findAllByCategoryId(1L);
+
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
     @DisplayName("findActiveById")
     class FindActiveById {
 
