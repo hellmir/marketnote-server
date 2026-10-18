@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.kafka.event.ProductTagChangedEvent;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
@@ -27,6 +28,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +66,19 @@ class ReorderProductTagsUseCaseTest {
         Map<Long, Long> captured = mapCaptor.getValue();
         assertThat(captured).containsEntry(100L, 2L);
         assertThat(captured).containsEntry(200L, 1L);
+
+        ArgumentCaptor<List<ProductTagChangedEvent.ProductTagSnapshot>> tagCaptor
+                = ArgumentCaptor.forClass(List.class);
+        verify(publishProductEventPort).publishProductTagChangedEvent(
+                eq(productId), tagCaptor.capture(), eq(ProductTagChangedEvent.Action.REORDERED)
+        );
+        List<ProductTagChangedEvent.ProductTagSnapshot> snapshots = tagCaptor.getValue();
+        assertThat(snapshots).extracting(ProductTagChangedEvent.ProductTagSnapshot::id)
+                .containsExactly(100L, 200L);
+        assertThat(snapshots).extracting(ProductTagChangedEvent.ProductTagSnapshot::orderNum)
+                .containsExactly(2L, 1L);
+        assertThat(snapshots).extracting(ProductTagChangedEvent.ProductTagSnapshot::name)
+                .containsExactly("태그1", "태그2");
     }
 
     @Test
@@ -89,6 +104,10 @@ class ReorderProductTagsUseCaseTest {
         Map<Long, Long> captured = mapCaptor.getValue();
         assertThat(captured).containsEntry(100L, 3L);
         assertThat(captured).containsEntry(200L, 1L);
+
+        verify(publishProductEventPort).publishProductTagChangedEvent(
+                eq(productId), anyList(), eq(ProductTagChangedEvent.Action.REORDERED)
+        );
     }
 
     @Test
@@ -107,7 +126,7 @@ class ReorderProductTagsUseCaseTest {
                 .hasMessageContaining("관리자 또는 상품 판매자가 아닙니다");
 
         verify(findProductPort).existsByIdAndSellerId(productId, nonOwnerId);
-        verifyNoInteractions(getProductUseCase, updateProductTagPort);
+        verifyNoInteractions(getProductUseCase, updateProductTagPort, publishProductEventPort);
     }
 
     @Test
@@ -129,7 +148,7 @@ class ReorderProductTagsUseCaseTest {
                 .hasMessageContaining("productId=" + productId);
 
         verify(getProductUseCase).getProduct(productId);
-        verifyNoInteractions(updateProductTagPort);
+        verifyNoInteractions(updateProductTagPort, publishProductEventPort);
     }
 
     @Test
@@ -147,7 +166,7 @@ class ReorderProductTagsUseCaseTest {
                 .isSameAs(exception);
 
         verify(getProductUseCase).getProduct(productId);
-        verifyNoInteractions(findProductPort, updateProductTagPort);
+        verifyNoInteractions(findProductPort, updateProductTagPort, publishProductEventPort);
     }
 
     @Test
@@ -167,7 +186,7 @@ class ReorderProductTagsUseCaseTest {
                 .hasMessageContaining("중복된 태그 ID")
                 .hasMessageContaining("tagId=100");
 
-        verifyNoInteractions(updateProductTagPort);
+        verifyNoInteractions(updateProductTagPort, publishProductEventPort);
     }
 
     @Test
@@ -187,7 +206,7 @@ class ReorderProductTagsUseCaseTest {
                 .hasMessageContaining("중복된 순서 번호")
                 .hasMessageContaining("orderNum=1");
 
-        verifyNoInteractions(updateProductTagPort);
+        verifyNoInteractions(updateProductTagPort, publishProductEventPort);
     }
 
     @SuppressWarnings("unchecked")
