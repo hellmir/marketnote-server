@@ -164,6 +164,36 @@ class OrderStatusTest {
         }
 
         @Test
+        @DisplayName("PAID에서 PARTIALLY_CANCEL_REQUESTED로 전이할 수 있다")
+        void paid_canTransitionTo_partiallyCancelRequested() {
+            assertThat(OrderStatus.PAID.canTransitionTo(OrderStatus.PARTIALLY_CANCEL_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PREPARING에서 PARTIALLY_CANCEL_REQUESTED로 전이할 수 있다")
+        void preparing_canTransitionTo_partiallyCancelRequested() {
+            assertThat(OrderStatus.PREPARING.canTransitionTo(OrderStatus.PARTIALLY_CANCEL_REQUESTED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CANCEL_REQUESTED에서 CANCELLED로 전이할 수 있다")
+        void partiallyCancelRequested_canTransitionTo_cancelled() {
+            assertThat(OrderStatus.PARTIALLY_CANCEL_REQUESTED.canTransitionTo(OrderStatus.CANCELLED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CANCEL_REQUESTED에서 PARTIALLY_CANCELLED로 전이할 수 있다")
+        void partiallyCancelRequested_canTransitionTo_partiallyCancelled() {
+            assertThat(OrderStatus.PARTIALLY_CANCEL_REQUESTED.canTransitionTo(OrderStatus.PARTIALLY_CANCELLED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CANCEL_REQUESTED에서 SHIPPING로 전이할 수 없다")
+        void partiallyCancelRequested_cannotTransitionTo_shipping() {
+            assertThat(OrderStatus.PARTIALLY_CANCEL_REQUESTED.canTransitionTo(OrderStatus.SHIPPING)).isFalse();
+        }
+
+        @Test
         @DisplayName("FAILED에서 어떤 상태로도 전이할 수 없다")
         void failed_cannotTransitionToAny() {
             for (OrderStatus target : OrderStatus.values()) {
