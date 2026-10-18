@@ -18,6 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @PersistenceAdapter
@@ -55,6 +56,16 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
     @Override
     public Set<Inventory> findByProductIds(Set<Long> productIds) {
         return inventoryJpaRepository.findByProductIds(productIds)
+                .stream()
+                .map(InventoryJpaEntityToDomainMapper::mapToDomain)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Inventory> findByProductKeys(Set<UUID> productKeys) {
+        return inventoryJpaRepository.findByProductKeys(productKeys)
                 .stream()
                 .map(InventoryJpaEntityToDomainMapper::mapToDomain)
                 .filter(Optional::isPresent)

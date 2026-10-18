@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 public interface InventoryJpaRepository extends JpaRepository<InventoryJpaEntity, Long> {
     Optional<InventoryJpaEntity> findByPricePolicyId(Long pricePolicyId);
@@ -25,6 +26,14 @@ public interface InventoryJpaRepository extends JpaRepository<InventoryJpaEntity
             ORDER BY i.productId ASC
             """)
     Set<InventoryJpaEntity> findByProductIds(Set<Long> productIds);
+
+    @Query("""
+            SELECT i FROM InventoryJpaEntity i
+            WHERE i.productKey
+            IN :productKeys
+            ORDER BY i.pricePolicyId ASC
+            """)
+    Set<InventoryJpaEntity> findByProductKeys(Set<UUID> productKeys);
 
     @Query("""
             SELECT COUNT(i) > 0 FROM InventoryJpaEntity i
