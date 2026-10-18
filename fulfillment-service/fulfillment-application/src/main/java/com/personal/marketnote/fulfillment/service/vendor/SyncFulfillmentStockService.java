@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -42,12 +43,53 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         if (FormatValidator.hasNoValue(command.customerCode())) {
             throw new FulfillmentQueryParameterNoValueException("Customer code", "Fulfillment stock sync");
         }
+
+        List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = hasProductKeys(command.productKeys())
+                ? syncByProductKeys(command)
+                : syncByProductIds(command);
+
+        publishFulfillmentInventorySyncedEventPort.publish(new FulfillmentInventorySyncedEvent(inventories));
+    }
+
+    private boolean hasProductKeys(List<UUID> productKeys) {
+        if (FormatValidator.hasNoValue(productKeys)) {
+            return false;
+        }
+        return productKeys.stream().anyMatch(FormatValidator::hasValue);
+    }
+
+    private List<FulfillmentInventorySyncedEvent.InventoryItem> syncByProductKeys(SyncFulfillmentStockCommand command) {
+        List<UUID> productKeys = command.productKeys().stream()
+                .filter(FormatValidator::hasValue)
+                .distinct()
+                .toList();
+
+        List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = new ArrayList<>();
+        for (UUID productKey : productKeys) {
+            GetFulfillmentStocksResult stockDetail = fulfillmentAuthenticatedCaller.call(token ->
+                    getFulfillmentStockDetailUseCase.getStockDetail(
+                            GetFulfillmentStockDetailCommand.of(
+                                    command.customerCode(),
+                                    token,
+                                    productKey.toString(),
+                                    productKey,
+                                    DEFAULT_OUT_OF_STOCK_INCLUDED
+                            )
+                    )
+            );
+            int stockQuantity = resolveStockQuantity(stockDetail);
+            inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(null, productKey, stockQuantity));
+        }
+        return inventories;
+    }
+
+    private List<FulfillmentInventorySyncedEvent.InventoryItem> syncByProductIds(SyncFulfillmentStockCommand command) {
         if (FormatValidator.hasNoValue(command.productIds())) {
             throw new FulfillmentQueryParameterNoValueException("Product ids", "Fulfillment stock sync");
         }
 
         List<Long> productIds = command.productIds().stream()
-                .filter(productId -> FormatValidator.hasValue(productId))
+                .filter(FormatValidator::hasValue)
                 .distinct()
                 .toList();
         if (FormatValidator.hasNoValue(productIds)) {
@@ -69,8 +111,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
             int stockQuantity = resolveStockQuantity(stockDetail);
             inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(productId, null, stockQuantity));
         }
-
-        publishFulfillmentInventorySyncedEventPort.publish(new FulfillmentInventorySyncedEvent(inventories));
+        return inventories;
     }
 
     @Override
@@ -137,14 +178,14 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
             return List.of();
         }
 
-        Map<Long, Integer> stockByProductId = new LinkedHashMap<>();
+        Map<StockKey, Integer> stockByKey = new LinkedHashMap<>();
         for (FulfillmentStockInfoResult stockInfo : result.stocks()) {
             if (FormatValidator.hasNoValue(stockInfo) || FormatValidator.hasNoValue(stockInfo.customerProductCode())) {
                 continue;
             }
 
-            Long productId = resolveProductId(stockInfo.customerProductCode());
-            if (FormatValidator.hasNoValue(productId)) {
+            StockKey key = resolveStockKey(stockInfo.customerProductCode());
+            if (FormatValidator.hasNoValue(key)) {
                 continue;
             }
 
@@ -153,28 +194,57 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                 continue;
             }
 
-            int updatedStock = stockByProductId.getOrDefault(productId, 0) + Math.max(0, quantity);
-            stockByProductId.put(productId, updatedStock);
+            int updatedStock = stockByKey.getOrDefault(key, 0) + Math.max(0, quantity);
+            stockByKey.put(key, updatedStock);
         }
 
-        if (stockByProductId.isEmpty()) {
+        if (stockByKey.isEmpty()) {
             return List.of();
         }
 
-        return stockByProductId.entrySet().stream()
-                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(entry.getKey(), null, entry.getValue()))
+        return stockByKey.entrySet().stream()
+                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(
+                        entry.getKey().productId(),
+                        entry.getKey().productKey(),
+                        entry.getValue()
+                ))
                 .toList();
     }
 
-    private Long resolveProductId(String customerProductCode) {
+    private StockKey resolveStockKey(String customerProductCode) {
         if (FormatValidator.hasNoValue(customerProductCode)) {
             return null;
         }
 
+        UUID productKey = parseProductKey(customerProductCode);
+        if (FormatValidator.hasValue(productKey)) {
+            return new StockKey(null, productKey);
+        }
+
+        Long productId = parseProductId(customerProductCode);
+        if (FormatValidator.hasValue(productId)) {
+            return new StockKey(productId, null);
+        }
+
+        return null;
+    }
+
+    private UUID parseProductKey(String customerProductCode) {
+        try {
+            return UUID.fromString(customerProductCode);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private Long parseProductId(String customerProductCode) {
         try {
             return Long.parseLong(customerProductCode);
         } catch (NumberFormatException e) {
             return null;
         }
+    }
+
+    private record StockKey(Long productId, UUID productKey) {
     }
 }
