@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.service;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException;
 import com.personal.marketnote.fulfillment.port.in.command.RegisterInternalReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentReturnDeliveryCommand;
@@ -11,12 +12,12 @@ import com.personal.marketnote.fulfillment.port.in.result.RegisterInternalReturn
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryItemResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.RegisterInternalReturnDeliveryUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentReturnDeliveryPort;
-import com.personal.marketnote.fulfillment.port.out.vendor.RequestFulfillmentAuthPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
     private static final String FASSTO_RETURN_TYPE_NORMAL = "01";
 
     private final GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
-    private final RequestFulfillmentAuthPort requestFulfillmentAuthPort;
+    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
     private final DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
     private final RegisterFulfillmentReturnDeliveryPort registerFulfillmentReturnDeliveryPort;
     private final FindShippingTrackerPort findShippingTrackerPort;
@@ -35,13 +36,21 @@ public class RegisterInternalReturnDeliveryService implements RegisterInternalRe
 
     @Override
     public RegisterInternalReturnDeliveryResult registerReturnDelivery(RegisterInternalReturnDeliveryCommand command) {
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthPort.requestAccessToken();
+        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+        String customerCode = getFulfillmentCustomerCodePort.getCustomerCode();
         try {
-            String customerCode = getFulfillmentCustomerCodePort.getCustomerCode();
-            RegisterFulfillmentReturnDeliveryCommand fasstoCommand = buildFasstoCommand(
-                    customerCode, accessToken.getValue(), command
-            );
-            RegisterFulfillmentDeliveryResult fasstoResult = registerFulfillmentReturnDeliveryPort.registerReturnDelivery(fasstoCommand);
+            RegisterFulfillmentDeliveryResult fasstoResult;
+            try {
+                fasstoResult = registerFulfillmentReturnDeliveryPort.registerReturnDelivery(
+                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                );
+            } catch (FulfillmentInvalidAccessException firstFailure) {
+                requestFulfillmentAuthUseCase.invalidateCache();
+                accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+                fasstoResult = registerFulfillmentReturnDeliveryPort.registerReturnDelivery(
+                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                );
+            }
 
             RegisterInternalReturnDeliveryResult result = mapToResult(command.orderId(), fasstoResult);
             if (result.registered()) {

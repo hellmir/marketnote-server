@@ -16,7 +16,7 @@ import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrack
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentReturnDeliveryPort;
-import com.personal.marketnote.fulfillment.port.out.vendor.RequestFulfillmentAuthPort;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,7 +48,7 @@ class RegisterInternalReturnDeliveryUseCaseTest {
     private GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
 
     @Mock
-    private RequestFulfillmentAuthPort requestFulfillmentAuthPort;
+    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
 
     @Mock
     private DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
@@ -129,7 +129,7 @@ class RegisterInternalReturnDeliveryUseCaseTest {
         RegisterInternalReturnDeliveryCommand command = createCommand(orderId);
 
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
         when(registerFulfillmentReturnDeliveryPort.registerReturnDelivery(any()))
                 .thenReturn(RegisterFulfillmentDeliveryResult.of(0, Collections.emptyList()));
@@ -145,7 +145,7 @@ class RegisterInternalReturnDeliveryUseCaseTest {
 
     private void stubFasstoSuccess(Long orderId) {
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         RegisterFulfillmentDeliveryResult fasstoResult = RegisterFulfillmentDeliveryResult.of(1, List.of(

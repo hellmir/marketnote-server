@@ -5,18 +5,19 @@ import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryRegistrationNotFoundException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException;
 import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.CancelFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.CancelFulfillmentDeliveryItemCommand;
 import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.delivery.FindFulfillmentDeliveryRegistrationPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.CancelFulfillmentDeliveryPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
-import com.personal.marketnote.fulfillment.port.out.vendor.RequestFulfillmentAuthPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class CancelInternalFulfillmentDeliveryService implements CancelInternalFulfillmentDeliveryUseCase {
     private final FindFulfillmentDeliveryRegistrationPort findFulfillmentDeliveryRegistrationPort;
     private final GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
-    private final RequestFulfillmentAuthPort requestFulfillmentAuthPort;
+    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
     private final DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
     private final CancelFulfillmentDeliveryPort cancelFulfillmentDeliveryPort;
     private final FindShippingTrackerPort findShippingTrackerPort;
@@ -41,13 +42,20 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
         FulfillmentDeliveryRegistration registration = findRegistration(command.orderId());
         validateCancellable(registration);
 
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthPort.requestAccessToken();
+        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+        String customerCode = getFulfillmentCustomerCodePort.getCustomerCode();
         try {
-            String customerCode = getFulfillmentCustomerCodePort.getCustomerCode();
-            CancelFulfillmentDeliveryCommand cancelCommand = buildCancelCommand(
-                    customerCode, accessToken.getValue(), command.orderId()
-            );
-            cancelFulfillmentDeliveryPort.cancelDelivery(cancelCommand);
+            try {
+                cancelFulfillmentDeliveryPort.cancelDelivery(
+                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId())
+                );
+            } catch (FulfillmentInvalidAccessException firstFailure) {
+                requestFulfillmentAuthUseCase.invalidateCache();
+                accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+                cancelFulfillmentDeliveryPort.cancelDelivery(
+                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId())
+                );
+            }
 
             cancelShippingTrackerIfActive(command.orderId());
 

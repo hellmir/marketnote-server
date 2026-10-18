@@ -10,7 +10,6 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.in.event.saga.payload.FulfillmentCancelSagaPayload;
 import com.personal.marketnote.fulfillment.adapter.in.event.saga.payload.FulfillmentDeliverySagaPayload;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryRegistrationNotFoundException;
@@ -24,7 +23,7 @@ import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillm
 import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.CreateShippingTrackerUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentDeliveryUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -46,7 +45,7 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
 
     private final ObjectMapper objectMapper;
     private final CreateShippingTrackerUseCase createShippingTrackerUseCase;
-    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     private final RegisterFulfillmentDeliveryUseCase registerFulfillmentDeliveryUseCase;
     private final CancelInternalFulfillmentDeliveryUseCase cancelInternalFulfillmentDeliveryUseCase;
     private final SagaResponsePublisher sagaResponsePublisher;
@@ -213,8 +212,6 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
     }
 
     private void registerFulfillmentDelivery(FulfillmentDeliverySagaPayload payload) {
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
-
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
                 .orderNumber(String.valueOf(payload.orderId()))
                 .orderDate(LocalDate.now(clock).format(DateTimeFormatter.BASIC_ISO_DATE))
@@ -225,11 +222,14 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                 .products(convertToGoodsCommands(payload.orderProducts()))
                 .build();
 
-        RegisterFulfillmentDeliveryCommand command = RegisterFulfillmentDeliveryCommand.of(
-                fasstoAuthProperties.getCustomerCode(), accessToken.getValue(), List.of(itemCommand)
-        );
-
-        registerFulfillmentDeliveryUseCase.registerDeliveryIdempotent(command);
+        fulfillmentAuthenticatedCaller.call(token -> {
+            registerFulfillmentDeliveryUseCase.registerDeliveryIdempotent(
+                    RegisterFulfillmentDeliveryCommand.of(
+                            fasstoAuthProperties.getCustomerCode(), token, List.of(itemCommand)
+                    )
+            );
+            return null;
+        });
     }
 
     private String buildRecipientAddress(FulfillmentDeliverySagaPayload payload) {

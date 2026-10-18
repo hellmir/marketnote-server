@@ -210,6 +210,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 return mapDeliveryListResult(parsedResponse);
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -325,6 +327,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             if (isSuccess) {
                 return mapDeliveryStatusResult(parsedResponse);
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
@@ -442,6 +446,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 return mapOutOrdGoodsDetailResult(parsedResponse);
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -557,6 +563,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             if (isSuccess) {
                 return mapOutOrdGoodsByOrdNoResult(parsedResponse);
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
@@ -674,6 +682,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 return mapDeliveryGoodDetailResult(parsedResponse);
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -784,6 +794,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             if (isSuccess) {
                 return mapDeliveryDetailResult(parsedResponse);
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
@@ -908,6 +920,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             if (isSuccess) {
                 return parsedResponse;
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
@@ -1043,6 +1057,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 return parsedResponse;
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -1175,6 +1191,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 return parsedResponse;
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -1303,6 +1321,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
                 return parsedResponse;
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -1430,6 +1450,8 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             if (isSuccess) {
                 return parsedResponse;
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {

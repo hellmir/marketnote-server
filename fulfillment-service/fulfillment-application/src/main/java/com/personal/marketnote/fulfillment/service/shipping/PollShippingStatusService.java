@@ -3,7 +3,6 @@ package com.personal.marketnote.fulfillment.service.shipping;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.CarrierCode;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
@@ -13,12 +12,12 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillment
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.PollShippingStatusUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.event.PublishShippingStatusChangedEventPort;
 import com.personal.marketnote.fulfillment.port.out.notification.SendDeliveryFailureSlackAlertPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentDeliveryStatusesPort;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Isolation;
@@ -42,7 +41,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
 
     private final FindShippingTrackerPort findShippingTrackerPort;
     private final UpdateShippingTrackerPort updateShippingTrackerPort;
-    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     private final GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort;
     private final PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort;
     private final SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort;
@@ -52,7 +51,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     public PollShippingStatusService(
             FindShippingTrackerPort findShippingTrackerPort,
             UpdateShippingTrackerPort updateShippingTrackerPort,
-            RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase,
+            FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller,
             GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort,
             PublishShippingStatusChangedEventPort publishShippingStatusChangedEventPort,
             SendDeliveryFailureSlackAlertPort sendDeliveryFailureSlackAlertPort,
@@ -61,7 +60,7 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
     ) {
         this.findShippingTrackerPort = findShippingTrackerPort;
         this.updateShippingTrackerPort = updateShippingTrackerPort;
-        this.requestFulfillmentAuthUseCase = requestFulfillmentAuthUseCase;
+        this.fulfillmentAuthenticatedCaller = fulfillmentAuthenticatedCaller;
         this.getDeliveryStatusesPort = getDeliveryStatusesPort;
         this.publishShippingStatusChangedEventPort = publishShippingStatusChangedEventPort;
         this.sendDeliveryFailureSlackAlertPort = sendDeliveryFailureSlackAlertPort;
@@ -78,18 +77,18 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
             return;
         }
 
-        FulfillmentAccessToken token = requestFulfillmentAuthUseCase.requestAccessToken();
-
         LocalDate startDate = resolveStartDate(activeTrackers);
         LocalDate endDate = LocalDate.now(clock);
 
-        GetFulfillmentDeliveryStatusesResult result = getDeliveryStatusesPort.getDeliveryStatuses(
-                GetFulfillmentDeliveryStatusesCommand.of(
-                        command.customerCode(),
-                        token.getValue(),
-                        startDate.format(DATE_FORMATTER),
-                        endDate.format(DATE_FORMATTER),
-                        OUTBOUND_RELEASE_TYPE
+        GetFulfillmentDeliveryStatusesResult result = fulfillmentAuthenticatedCaller.call(token ->
+                getDeliveryStatusesPort.getDeliveryStatuses(
+                        GetFulfillmentDeliveryStatusesCommand.of(
+                                command.customerCode(),
+                                token,
+                                startDate.format(DATE_FORMATTER),
+                                endDate.format(DATE_FORMATTER),
+                                OUTBOUND_RELEASE_TYPE
+                        )
                 )
         );
 

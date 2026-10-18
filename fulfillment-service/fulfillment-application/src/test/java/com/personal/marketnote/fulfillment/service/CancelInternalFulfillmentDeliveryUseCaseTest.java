@@ -19,7 +19,7 @@ import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrack
 import com.personal.marketnote.fulfillment.port.out.vendor.CancelFulfillmentDeliveryPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
-import com.personal.marketnote.fulfillment.port.out.vendor.RequestFulfillmentAuthPort;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +52,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     private GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
 
     @Mock
-    private RequestFulfillmentAuthPort requestFulfillmentAuthPort;
+    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
 
     @Mock
     private DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
@@ -78,7 +78,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
 
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
@@ -111,7 +111,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         assertThatThrownBy(() -> cancelInternalFulfillmentDeliveryService.cancelDelivery(command))
                 .isInstanceOf(FulfillmentDeliveryCancellationNotAllowedException.class);
 
-        verifyNoInteractions(requestFulfillmentAuthPort);
+        verifyNoInteractions(requestFulfillmentAuthUseCase);
         verifyNoInteractions(cancelFulfillmentDeliveryPort);
         verifyNoInteractions(disconnectFulfillmentAuthPort);
     }
@@ -128,7 +128,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         assertThatThrownBy(() -> cancelInternalFulfillmentDeliveryService.cancelDelivery(command))
                 .isInstanceOf(FulfillmentDeliveryRegistrationNotFoundException.class);
 
-        verifyNoInteractions(requestFulfillmentAuthPort);
+        verifyNoInteractions(requestFulfillmentAuthUseCase);
         verifyNoInteractions(cancelFulfillmentDeliveryPort);
         verifyNoInteractions(disconnectFulfillmentAuthPort);
     }
@@ -144,7 +144,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
 
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
         when(cancelFulfillmentDeliveryPort.cancelDelivery(any())).thenThrow(new RuntimeException("Fassto 호출 실패"));
 
@@ -167,7 +167,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
 
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
@@ -179,8 +179,8 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         cancelInternalFulfillmentDeliveryService.cancelDelivery(command);
 
         // then
-        InOrder inOrder = inOrder(requestFulfillmentAuthPort, cancelFulfillmentDeliveryPort, disconnectFulfillmentAuthPort);
-        inOrder.verify(requestFulfillmentAuthPort).requestAccessToken();
+        InOrder inOrder = inOrder(requestFulfillmentAuthUseCase, cancelFulfillmentDeliveryPort, disconnectFulfillmentAuthPort);
+        inOrder.verify(requestFulfillmentAuthUseCase).requestAccessToken();
         inOrder.verify(cancelFulfillmentDeliveryPort).cancelDelivery(any());
         inOrder.verify(disconnectFulfillmentAuthPort).disconnectAccessToken("test-token");
     }
@@ -197,7 +197,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
 
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
@@ -231,7 +231,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
 
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(
@@ -260,7 +260,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
 
         FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20261231235959");
-        when(requestFulfillmentAuthPort.requestAccessToken()).thenReturn(accessToken);
+        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
         when(getFulfillmentCustomerCodePort.getCustomerCode()).thenReturn("CUST001");
 
         CancelFulfillmentDeliveryResult fasstoResult = CancelFulfillmentDeliveryResult.of(1, List.of(

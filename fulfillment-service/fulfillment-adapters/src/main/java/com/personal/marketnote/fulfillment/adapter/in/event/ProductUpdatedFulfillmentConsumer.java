@@ -7,12 +7,10 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
-import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsItemCommand;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.UpdateFulfillmentGoodsUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -27,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductUpdatedFulfillmentConsumer {
     private final UpdateFulfillmentGoodsUseCase updateFulfillmentGoodsUseCase;
-    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     private final FulfillmentAuthProperties fasstoAuthProperties;
     private final ObjectMapper objectMapper;
 
@@ -73,11 +71,6 @@ public class ProductUpdatedFulfillmentConsumer {
             return;
         }
 
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
-        if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-            throw new FulfillmentAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
-        }
-
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
                 payload.productId(),
                 payload.productKey(),
@@ -118,13 +111,16 @@ public class ProductUpdatedFulfillmentConsumer {
                 payload.externalGoodsImageUrl()
         );
 
-        UpdateFulfillmentGoodsCommand command = UpdateFulfillmentGoodsCommand.of(
-                fasstoAuthProperties.getCustomerCode(),
-                accessToken.getValue(),
-                List.of(itemCommand)
-        );
-
-        updateFulfillmentGoodsUseCase.updateGoods(command);
+        fulfillmentAuthenticatedCaller.call(token -> {
+            updateFulfillmentGoodsUseCase.updateGoods(
+                    UpdateFulfillmentGoodsCommand.of(
+                            fasstoAuthProperties.getCustomerCode(),
+                            token,
+                            List.of(itemCommand)
+                    )
+            );
+            return null;
+        });
 
         log.info("Kafka 이벤트로 풀필먼트 상품 수정 완료. productId={}", payload.productId());
         // 예외(UpdateFulfillmentGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리

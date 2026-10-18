@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
-import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentGoodsAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentGoodsUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +23,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,7 +39,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     private RegisterFulfillmentGoodsUseCase registerFulfillmentGoodsUseCase;
 
     @Mock
-    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
 
     @Mock
     private FulfillmentAuthProperties fasstoAuthProperties;
@@ -63,8 +62,12 @@ class ProductRegisteredFulfillmentConsumerTest {
         return new ConsumerRecord<>("product.product.registered", 0, 0L, "key-1", envelope);
     }
 
-    private FulfillmentAccessToken buildValidAccessToken() {
-        return FulfillmentAccessToken.of("valid-token", "20261231235959");
+    @SuppressWarnings("unchecked")
+    private void stubAuthenticatedCaller() {
+        lenient().when(fulfillmentAuthenticatedCaller.call(any())).thenAnswer(invocation -> {
+            Function<String, Object> operation = invocation.getArgument(0);
+            return operation.apply("test-token");
+        });
     }
 
     @Test
@@ -72,7 +75,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_success_registersFulfillmentGoodsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(10L, "테스트 상품", "1");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
@@ -84,7 +87,7 @@ class ProductRegisteredFulfillmentConsumerTest {
 
         RegisterFulfillmentGoodsCommand command = captor.getValue();
         assertThat(command.customerCode()).isEqualTo("CUST001");
-        assertThat(command.accessToken()).isEqualTo("valid-token");
+        assertThat(command.accessToken()).isEqualTo("test-token");
         assertThat(command.goods()).hasSize(1);
         assertThat(command.goods().get(0).productId()).isEqualTo(10L);
         assertThat(command.goods().get(0).productKey()).isNotNull();
@@ -100,7 +103,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_withCustomGodType_usesProvidedGodType() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(20L, "커스텀 상품", "2");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
@@ -119,7 +122,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_nullGodType_usesDefault() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(30L, "기본 타입 상품", null);
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
@@ -143,7 +146,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -157,7 +160,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -179,23 +182,8 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("Fulfillment 액세스 토큰이 null이면 FulfillmentAccessTokenIssuanceFailedException을 던진다")
-    void handleEvent_nullAccessToken_throwsException() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(null);
-
-        // when & then
-        assertThatThrownBy(() -> consumer.handleProductRegisteredEvent(record, acknowledgment))
-                .isInstanceOf(FulfillmentAccessTokenIssuanceFailedException.class);
-
-        verifyNoInteractions(registerFulfillmentGoodsUseCase);
-        verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
@@ -203,7 +191,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_registerFulfillmentGoodsFailed_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RegisterFulfillmentGoodsFailedException(new IOException("Fulfillment API 오류")))
                 .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
@@ -221,7 +209,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_alreadyRegistered_warnsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new FulfillmentGoodsAlreadyRegisteredException(1L))
                 .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
@@ -246,7 +234,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -267,7 +255,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -281,7 +269,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -295,7 +283,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         consumer.handleProductRegisteredEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, registerFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -304,7 +292,7 @@ class ProductRegisteredFulfillmentConsumerTest {
     void handleEvent_unexpectedException_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RuntimeException("네트워크 오류"))
                 .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));

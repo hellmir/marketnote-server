@@ -7,13 +7,11 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.ProductRegisteredEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
-import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentGoodsAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentGoodsItemCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentGoodsUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -31,7 +29,7 @@ public class ProductRegisteredFulfillmentConsumer {
     private static final String DEFAULT_GIFT_DIV = "01";
 
     private final RegisterFulfillmentGoodsUseCase registerFulfillmentGoodsUseCase;
-    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     private final FulfillmentAuthProperties fasstoAuthProperties;
     private final ObjectMapper objectMapper;
 
@@ -78,11 +76,6 @@ public class ProductRegisteredFulfillmentConsumer {
                 return;
             }
 
-            FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
-            if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-                throw new FulfillmentAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
-            }
-
             String godType = FormatValidator.hasValue(payload.goodsType()) ? payload.goodsType() : DEFAULT_GOD_TYPE;
 
             RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
@@ -93,13 +86,16 @@ public class ProductRegisteredFulfillmentConsumer {
                     .giftDivision(DEFAULT_GIFT_DIV)
                     .build();
 
-            RegisterFulfillmentGoodsCommand command = RegisterFulfillmentGoodsCommand.of(
-                    fasstoAuthProperties.getCustomerCode(),
-                    accessToken.getValue(),
-                    List.of(itemCommand)
-            );
-
-            registerFulfillmentGoodsUseCase.registerGoodsIdempotent(command);
+            fulfillmentAuthenticatedCaller.call(token -> {
+                registerFulfillmentGoodsUseCase.registerGoodsIdempotent(
+                        RegisterFulfillmentGoodsCommand.of(
+                                fasstoAuthProperties.getCustomerCode(),
+                                token,
+                                List.of(itemCommand)
+                        )
+                );
+                return null;
+            });
 
             log.info("Kafka 이벤트로 풀필먼트 상품 등록 완료. productId={}", payload.productId());
         } catch (FulfillmentGoodsAlreadyRegisteredException e) {

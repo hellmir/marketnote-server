@@ -188,6 +188,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 return mapWarehousingListResult(parsedResponse);
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -305,6 +307,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 return mapWarehousingDetailResult(parsedResponse);
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -418,6 +422,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
                 return mapWarehousingInspecDetailResult(parsedResponse);
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
@@ -529,6 +535,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             if (isSuccess) {
                 return mapWarehousingAbnormalResult(parsedResponse);
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
@@ -646,6 +654,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             if (isSuccess) {
                 return mapWarehousingAbnormalImageResult(parsedResponse);
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
@@ -770,6 +780,8 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             if (isSuccess) {
                 return parsedResponse;
             }
+
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
 
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {

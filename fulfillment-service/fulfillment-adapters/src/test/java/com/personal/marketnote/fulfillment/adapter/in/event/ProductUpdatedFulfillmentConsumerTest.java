@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ProductUpdatedEvent;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
-import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.UpdateFulfillmentGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.UpdateFulfillmentGoodsCommand;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.UpdateFulfillmentGoodsUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +22,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,7 +38,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     private UpdateFulfillmentGoodsUseCase updateFulfillmentGoodsUseCase;
 
     @Mock
-    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
 
     @Mock
     private FulfillmentAuthProperties fasstoAuthProperties;
@@ -82,8 +81,12 @@ class ProductUpdatedFulfillmentConsumerTest {
         return new ConsumerRecord<>("product.product.updated", 0, 0L, "key-10", envelope);
     }
 
-    private FulfillmentAccessToken buildValidAccessToken() {
-        return FulfillmentAccessToken.of("valid-token", "20261231235959");
+    @SuppressWarnings("unchecked")
+    private void stubAuthenticatedCaller() {
+        lenient().when(fulfillmentAuthenticatedCaller.call(any())).thenAnswer(invocation -> {
+            Function<String, Object> operation = invocation.getArgument(0);
+            return operation.apply("test-token");
+        });
     }
 
     @Test
@@ -91,7 +94,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_success_updatesFulfillmentGoodsAndAcknowledges() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(10L, "테스트 상품", "1", "01");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
@@ -103,7 +106,7 @@ class ProductUpdatedFulfillmentConsumerTest {
 
         UpdateFulfillmentGoodsCommand command = captor.getValue();
         assertThat(command.customerCode()).isEqualTo("CUST001");
-        assertThat(command.accessToken()).isEqualTo("valid-token");
+        assertThat(command.accessToken()).isEqualTo("test-token");
         assertThat(command.goods()).hasSize(1);
         assertThat(command.goods().get(0).productId()).isEqualTo(10L);
         assertThat(command.goods().get(0).productKey()).isNotNull();
@@ -119,7 +122,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_allFields_mapsAllFieldsCorrectly() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecordWithAllFields();
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
 
         // when
@@ -158,7 +161,7 @@ class ProductUpdatedFulfillmentConsumerTest {
         consumer.handleProductUpdatedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -172,7 +175,7 @@ class ProductUpdatedFulfillmentConsumerTest {
         consumer.handleProductUpdatedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -199,23 +202,8 @@ class ProductUpdatedFulfillmentConsumerTest {
         consumer.handleProductUpdatedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("Fulfillment 액세스 토큰이 null이면 FulfillmentAccessTokenIssuanceFailedException을 던진다")
-    void handleEvent_nullAccessToken_throwsException() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1", "01");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(null);
-
-        // when & then
-        assertThatThrownBy(() -> consumer.handleProductUpdatedEvent(record, acknowledgment))
-                .isInstanceOf(FulfillmentAccessTokenIssuanceFailedException.class);
-
-        verifyNoInteractions(updateFulfillmentGoodsUseCase);
-        verify(acknowledgment, never()).acknowledge();
     }
 
     @Test
@@ -223,7 +211,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_updateFulfillmentGoodsFailed_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1", "01");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new UpdateFulfillmentGoodsFailedException(new IOException("Fulfillment API 오류")))
                 .when(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));
@@ -248,7 +236,7 @@ class ProductUpdatedFulfillmentConsumerTest {
         consumer.handleProductUpdatedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -275,7 +263,7 @@ class ProductUpdatedFulfillmentConsumerTest {
         consumer.handleProductUpdatedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -289,7 +277,7 @@ class ProductUpdatedFulfillmentConsumerTest {
         consumer.handleProductUpdatedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -303,7 +291,7 @@ class ProductUpdatedFulfillmentConsumerTest {
         consumer.handleProductUpdatedEvent(record, acknowledgment);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
         verify(acknowledgment).acknowledge();
     }
 
@@ -312,7 +300,7 @@ class ProductUpdatedFulfillmentConsumerTest {
     void handleEvent_unexpectedException_propagatesForRetry() {
         // given
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1", "01");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(buildValidAccessToken());
+        stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
         doThrow(new RuntimeException("네트워크 오류"))
                 .when(updateFulfillmentGoodsUseCase).updateGoods(any(UpdateFulfillmentGoodsCommand.class));

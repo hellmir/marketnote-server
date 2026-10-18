@@ -212,6 +212,8 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
                 return mapStockListResult(parsedResponse);
             }
 
+            FasstoInvalidAccessDetector.throwIfInvalidAccess(parsedResponse, response);
+
             String vendorMessage = resolveVendorMessage(parsedResponse, FormatValidator.hasValue(response) ? response.getBody() : null);
             if (FormatValidator.hasValue(vendorMessage)) {
                 failureMessage = vendorMessage;
