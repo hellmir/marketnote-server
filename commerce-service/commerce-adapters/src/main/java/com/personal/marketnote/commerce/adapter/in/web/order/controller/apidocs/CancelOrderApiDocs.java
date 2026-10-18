@@ -26,31 +26,38 @@ import java.lang.annotation.*;
                 ---
                 
                 ## Description
-                
+
                 - 구매자가 주문 취소를 요청합니다.
-                
-                - 주문 상태를 CANCELLED(주문 취소)로 변경합니다.
-                
-                - 결제 대기, 결제 완료, 상품 준비중 상태에서만 취소 요청이 가능합니다.
-                
+
+                - pricePolicyIds를 지정하지 않거나 빈 배열이면 주문 전체를 취소합니다.
+
+                - pricePolicyIds가 있으면 지정한 상품만 부분 취소합니다. 남은 미취소 상품을 모두 포함하면 전체 취소로 처리합니다.
+
+                - 주문 전체 취소 시 상태를 CANCELLED(주문 취소) 또는 CANCEL_REQUESTED(취소 요청)로 변경합니다.
+
+                - 부분 취소 시 일부 상품만 취소되며 주문 전체 상태는 PARTIALLY_CANCEL_REQUESTED(부분 취소 요청) 또는 PARTIALLY_CANCELLED(부분 취소)로 변경됩니다.
+
+                - 결제 대기, 결제 완료, 상품 준비중 상태에서만 취소 요청이 가능합니다. 부분 취소는 PARTIALLY_CANCELLED 상태에서도 가능합니다.
+
                 - 취소 사유 카테고리 목록
-                
+
                     - "CANCEL_ORDER": 구매 의사 취소
-                
+
                     - "CHANGE_OPTION": 색상, 사이즈 등 변경
-                
+
                     - "MISTAKE": 주문 실수
-                
+
                     - "ETC": 직접 입력
-                
+
                 ---
-                
+
                 ## Request
-                
+
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
                 | reasonCategory | string | 취소 사유 카테고리 | N | "CANCEL_ORDER" |
                 | reason | string | 취소 사유 | N | "단순 변심" |
+                | pricePolicyIds | array(number) | 취소 대상 상품의 가격 정책 ID 목록 (미지정/빈 배열이면 전체 취소) | N | [100, 200] |
                 
                 ---
                 
@@ -80,7 +87,8 @@ import java.lang.annotation.*;
                         examples = @ExampleObject("""
                                 {
                                   "reasonCategory": "CANCEL_ORDER",
-                                  "reason": "단순 변심"
+                                  "reason": "단순 변심",
+                                  "pricePolicyIds": []
                                 }
                                 """)
                 )

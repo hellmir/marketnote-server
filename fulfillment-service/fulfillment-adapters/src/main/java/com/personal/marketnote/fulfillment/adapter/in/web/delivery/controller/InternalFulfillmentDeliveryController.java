@@ -90,15 +90,19 @@ public class InternalFulfillmentDeliveryController {
     /**
      * 풀필먼트 출고 취소 (서비스 간 통신용)
      *
-     * @param request 출고 취소 요청 (orderId)
+     * @param request 출고 취소 요청 (orderId, productKeys — 빈 리스트면 주문 전체 취소)
      */
     @PostMapping("/cancel")
     @CancelInternalFulfillmentDeliveryApiDocs
     public ResponseEntity<BaseResponse<CancelInternalFulfillmentDeliveryResponse>> cancelDelivery(
             @Valid @RequestBody CancelInternalFulfillmentDeliveryRequest request
     ) {
+        List<String> productKeys = FormatValidator.hasValue(request.productKeys())
+                ? request.productKeys()
+                : List.of();
+
         CancelInternalFulfillmentDeliveryResult result = cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(
-                new CancelInternalFulfillmentDeliveryCommand(request.orderId())
+                new CancelInternalFulfillmentDeliveryCommand(request.orderId(), productKeys)
         );
 
         return new ResponseEntity<>(

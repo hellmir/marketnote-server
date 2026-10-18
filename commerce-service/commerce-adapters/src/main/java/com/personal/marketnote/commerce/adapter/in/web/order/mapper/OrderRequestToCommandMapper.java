@@ -43,6 +43,7 @@ public class OrderRequestToCommandMapper {
                 .reasonCategory(request.getReasonCategory())
                 .reason(request.getReason())
                 .buyerId(buyerId)
+                .pricePolicyIds(request.getPricePolicyIds())
                 .build();
     }
 
@@ -66,18 +67,6 @@ public class OrderRequestToCommandMapper {
                 .id(id)
                 .reasonCategory(request.getReasonCategory())
                 .reason(request.getReason())
-                .build();
-    }
-
-    public static PartialCancelOrderCommand mapToPartialCancelCommand(
-            Long id, PartialCancelOrderRequest request, Long buyerId
-    ) {
-        return PartialCancelOrderCommand.builder()
-                .id(id)
-                .reasonCategory(request.getReasonCategory())
-                .reason(request.getReason())
-                .buyerId(buyerId)
-                .cancelPricePolicyIds(request.getCancelPricePolicyIds())
                 .build();
     }
 

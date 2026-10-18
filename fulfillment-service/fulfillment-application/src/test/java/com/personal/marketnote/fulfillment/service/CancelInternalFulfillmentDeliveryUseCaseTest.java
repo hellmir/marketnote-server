@@ -72,7 +72,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldCancelDeliveryWhenStatusIsCancellable(FulfillmentWorkStatus cancellableStatus) {
         // given
         Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
 
         FulfillmentDeliveryRegistration registration = createRegistration(orderId, cancellableStatus);
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
@@ -102,7 +102,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldThrowExceptionWhenStatusIsNotCancellable(FulfillmentWorkStatus nonCancellableStatus) {
         // given
         Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
 
         FulfillmentDeliveryRegistration registration = createRegistration(orderId, nonCancellableStatus);
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
@@ -121,7 +121,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldThrowExceptionWhenRegistrationNotFound() {
         // given
         Long orderId = 999L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.empty());
 
         // when & then
@@ -138,7 +138,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldPropagateExceptionAndDisconnectWhenCancelFails() {
         // given
         Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
 
         FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
@@ -161,7 +161,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldExecuteInCorrectOrder() {
         // given
         Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
 
         FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
@@ -191,7 +191,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldCancelShippingTrackerWhenInPreparingOrShipping(ShippingStatus status) {
         // given
         Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
 
         FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
@@ -225,7 +225,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldSkipShippingTrackerWhenTerminal(ShippingStatus terminalStatus) {
         // given
         Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
 
         FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));
@@ -254,7 +254,7 @@ class CancelInternalFulfillmentDeliveryUseCaseTest {
     void shouldSkipWhenShippingTrackerNotFound() {
         // given
         Long orderId = 100L;
-        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId);
+        CancelInternalFulfillmentDeliveryCommand command = new CancelInternalFulfillmentDeliveryCommand(orderId, java.util.List.of());
 
         FulfillmentDeliveryRegistration registration = createRegistration(orderId, FulfillmentWorkStatus.REGISTERED);
         when(findFulfillmentDeliveryRegistrationPort.findByOrderId(orderId)).thenReturn(Optional.of(registration));

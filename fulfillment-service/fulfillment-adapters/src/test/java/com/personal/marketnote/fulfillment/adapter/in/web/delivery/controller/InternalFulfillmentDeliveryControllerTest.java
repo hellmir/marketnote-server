@@ -109,8 +109,8 @@ class InternalFulfillmentDeliveryControllerTest {
         @DisplayName("요청 본문의 주문 ID로 취소 UseCase에 위임하고 OK를 반환한다")
         void returnsOk() {
             // given
-            CancelInternalFulfillmentDeliveryRequest request = new CancelInternalFulfillmentDeliveryRequest(300L);
-            when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(new CancelInternalFulfillmentDeliveryCommand(300L)))
+            CancelInternalFulfillmentDeliveryRequest request = new CancelInternalFulfillmentDeliveryRequest(300L, java.util.List.of());
+            when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(new CancelInternalFulfillmentDeliveryCommand(300L, java.util.List.of())))
                     .thenReturn(new CancelInternalFulfillmentDeliveryResult(300L, true, "cancelled"));
 
             // when
@@ -118,7 +118,7 @@ class InternalFulfillmentDeliveryControllerTest {
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(new CancelInternalFulfillmentDeliveryCommand(300L));
+            verify(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(new CancelInternalFulfillmentDeliveryCommand(300L, java.util.List.of()));
         }
     }
 

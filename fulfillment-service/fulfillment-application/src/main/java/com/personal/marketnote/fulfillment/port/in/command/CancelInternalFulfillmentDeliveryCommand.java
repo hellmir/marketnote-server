@@ -1,4 +1,6 @@
 package com.personal.marketnote.fulfillment.port.in.command;
 
-public record CancelInternalFulfillmentDeliveryCommand(Long orderId) {
+import java.util.List;
+
+public record CancelInternalFulfillmentDeliveryCommand(Long orderId, List<String> productKeys) {
 }

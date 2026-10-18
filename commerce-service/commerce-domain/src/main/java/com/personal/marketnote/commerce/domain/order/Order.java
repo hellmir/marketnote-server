@@ -100,11 +100,19 @@ public class Order {
                 .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
 
         if (
-                orderStatus.isCancelled()
+                orderStatus.isCancelRequested()
                         && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isCancelled())
+                        .anyMatch(orderProduct -> !orderProduct.isCancelRequested() && !orderProduct.isCancelled())
         ) {
-            if (!this.orderStatus.canPartiallyCancel()) {
+            this.orderStatus = OrderStatus.getPartiallyCancelRequested();
+            return;
+        }
+
+        if (
+                orderStatus.isCancelled()
+                        && orderProducts.stream().anyMatch(orderProduct -> !orderProduct.isCancelled())
+        ) {
+            if (!this.orderStatus.canPartiallyCancel() && !this.orderStatus.isPartiallyCancelRequested()) {
                 throw new InvalidOrderProductStatusTransitionException(this.orderStatus, OrderStatus.PARTIALLY_CANCELLED);
             }
             this.orderStatus = OrderStatus.getPartiallyCancelled();
@@ -123,7 +131,7 @@ public class Order {
         if (
                 orderStatus.isConfirmed()
                         && orderProducts.stream()
-                        .anyMatch(orderProduct -> !orderProduct.getOrderStatus().isConfirmed())
+                        .anyMatch(orderProduct -> !orderProduct.isConfirmed())
         ) {
             this.orderStatus = OrderStatus.getPartiallyConfirmed();
             return;
