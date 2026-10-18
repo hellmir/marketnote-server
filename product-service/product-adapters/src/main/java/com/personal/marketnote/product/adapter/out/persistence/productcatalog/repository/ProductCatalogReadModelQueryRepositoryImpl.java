@@ -31,7 +31,13 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
         String direction = isAsc ? "ASC" : "DESC";
         String comparator = isAsc ? ">" : "<";
 
+        boolean hasExplicitCursor = FormatValidator.hasValue(cursor) && cursor > 0;
         Object cursorSortValue = resolveCursorSortValue(cursor, sortColumn);
+        if (hasExplicitCursor && FormatValidator.hasNoValue(cursorSortValue)) {
+            // 커서 레코드가 삭제/비활성화되어 정렬 기준값을 복원할 수 없다.
+            // 1페이지 재조회(무한 스크롤 중복 노출) 를 막기 위해 빈 결과를 반환한다.
+            return List.of();
+        }
         boolean hasCursor = FormatValidator.hasValue(cursorSortValue);
 
         StringBuilder jpql = new StringBuilder(
