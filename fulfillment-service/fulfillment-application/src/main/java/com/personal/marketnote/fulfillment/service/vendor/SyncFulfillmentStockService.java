@@ -67,7 +67,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                     )
             );
             int stockQuantity = resolveStockQuantity(stockDetail);
-            inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(productId, stockQuantity));
+            inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(productId, null, stockQuantity));
         }
 
         publishFulfillmentInventorySyncedEventPort.publish(new FulfillmentInventorySyncedEvent(inventories));
@@ -162,7 +162,7 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         }
 
         return stockByProductId.entrySet().stream()
-                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(entry.getKey(), entry.getValue()))
+                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(entry.getKey(), null, entry.getValue()))
                 .toList();
     }
 

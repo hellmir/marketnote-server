@@ -67,8 +67,8 @@ class FulfillmentInventorySyncedConsumerTest {
             // given
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
                     List.of(
-                            new FulfillmentInventorySyncedEvent.InventoryItem(1L, 100),
-                            new FulfillmentInventorySyncedEvent.InventoryItem(2L, 50)
+                            new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100),
+                            new FulfillmentInventorySyncedEvent.InventoryItem(2L, null, 50)
                     )
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
@@ -144,7 +144,7 @@ class FulfillmentInventorySyncedConsumerTest {
         void shouldAcknowledgeWhenInventoryProductNotFound() {
             // given
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(999L, 100))
+                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(999L, null, 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
@@ -195,7 +195,7 @@ class FulfillmentInventorySyncedConsumerTest {
         void shouldRethrowUnexpectedException() {
             // given
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(1L, 100))
+                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 

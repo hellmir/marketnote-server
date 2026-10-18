@@ -57,7 +57,9 @@ public class FulfillmentInventorySyncedConsumer {
             );
 
             List<SyncFulfillmentVendorInventoryItemCommand> items = payload.inventories().stream()
-                    .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.productId(), item.stock()))
+                    .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(
+                            item.productId(), item.productKey(), item.stock()
+                    ))
                     .toList();
 
             SyncFulfillmentVendorInventoryCommand command = SyncFulfillmentVendorInventoryCommand.of(items);

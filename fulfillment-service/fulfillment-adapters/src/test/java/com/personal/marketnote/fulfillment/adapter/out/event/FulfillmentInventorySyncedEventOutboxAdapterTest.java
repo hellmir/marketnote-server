@@ -55,8 +55,8 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
 
             FulfillmentInventorySyncedEvent event = new FulfillmentInventorySyncedEvent(
                     List.of(
-                            new FulfillmentInventorySyncedEvent.InventoryItem(1L, 100),
-                            new FulfillmentInventorySyncedEvent.InventoryItem(2L, 50)
+                            new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100),
+                            new FulfillmentInventorySyncedEvent.InventoryItem(2L, null, 50)
                     )
             );
             when(objectMapper.writeValueAsString(event)).thenReturn("{\"inventories\":[]}");
