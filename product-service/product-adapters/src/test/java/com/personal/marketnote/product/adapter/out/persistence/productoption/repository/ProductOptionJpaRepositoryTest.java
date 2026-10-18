@@ -94,6 +94,89 @@ class ProductOptionJpaRepositoryTest {
     }
 
     @Nested
+    @DisplayName("findByProductIdAndIds")
+    class FindByProductIdAndIds {
+
+        @Test
+        @DisplayName("요청 상품 ID에 속한 옵션만 반환한다")
+        void returnsOnlyOptionsOwnedByProduct() {
+            ProductJpaEntity productA = saveProduct("상품A");
+            ProductJpaEntity productB = saveProduct("상품B");
+            ProductOptionCategoryJpaEntity categoryA = saveOptionCategory(productA, "색상");
+            ProductOptionCategoryJpaEntity categoryB = saveOptionCategory(productB, "사이즈");
+            ProductOptionJpaEntity ownedA = saveOption(categoryA, "빨강");
+            ProductOptionJpaEntity foreignB = saveOption(categoryB, "L");
+            entityManager.flush();
+            entityManager.clear();
+
+            List<ProductOptionJpaEntity> results = productOptionJpaRepository.findByProductIdAndIds(
+                    productA.getId(), List.of(ownedA.getId(), foreignB.getId())
+            );
+
+            assertThat(results).extracting(ProductOptionJpaEntity::getId).containsExactly(ownedA.getId());
+        }
+
+        @Test
+        @DisplayName("상품의 모든 옵션이 요청되면 모두 반환한다")
+        void returnsAllWhenAllBelongToProduct() {
+            ProductJpaEntity product = saveProduct("상품");
+            ProductOptionCategoryJpaEntity category = saveOptionCategory(product, "색상");
+            ProductOptionJpaEntity red = saveOption(category, "빨강");
+            ProductOptionJpaEntity blue = saveOption(category, "파랑");
+            entityManager.flush();
+            entityManager.clear();
+
+            List<ProductOptionJpaEntity> results = productOptionJpaRepository.findByProductIdAndIds(
+                    product.getId(), List.of(red.getId(), blue.getId())
+            );
+
+            assertThat(results).extracting(ProductOptionJpaEntity::getId)
+                    .containsExactlyInAnyOrder(red.getId(), blue.getId());
+        }
+
+        @Test
+        @DisplayName("요청 옵션이 모두 타 상품 소유면 빈 목록을 반환한다")
+        void returnsEmptyWhenAllOptionsBelongToOtherProduct() {
+            ProductJpaEntity productA = saveProduct("상품A");
+            ProductJpaEntity productB = saveProduct("상품B");
+            ProductOptionCategoryJpaEntity categoryB = saveOptionCategory(productB, "사이즈");
+            ProductOptionJpaEntity foreign = saveOption(categoryB, "L");
+            entityManager.flush();
+            entityManager.clear();
+
+            List<ProductOptionJpaEntity> results = productOptionJpaRepository.findByProductIdAndIds(
+                    productA.getId(), List.of(foreign.getId())
+            );
+
+            assertThat(results).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("countByProductIdAndIds")
+    class CountByProductIdAndIds {
+
+        @Test
+        @DisplayName("요청 상품 ID에 속한 옵션 개수만 센다")
+        void countsOnlyOptionsOwnedByProduct() {
+            ProductJpaEntity productA = saveProduct("상품A");
+            ProductJpaEntity productB = saveProduct("상품B");
+            ProductOptionCategoryJpaEntity categoryA = saveOptionCategory(productA, "색상");
+            ProductOptionCategoryJpaEntity categoryB = saveOptionCategory(productB, "사이즈");
+            ProductOptionJpaEntity ownedA = saveOption(categoryA, "빨강");
+            ProductOptionJpaEntity foreignB = saveOption(categoryB, "L");
+            entityManager.flush();
+            entityManager.clear();
+
+            long count = productOptionJpaRepository.countByProductIdAndIds(
+                    productA.getId(), List.of(ownedA.getId(), foreignB.getId())
+            );
+
+            assertThat(count).isEqualTo(1L);
+        }
+    }
+
+    @Nested
     @DisplayName("deleteAllByCategoryId")
     class DeleteAllByCategoryId {
 
