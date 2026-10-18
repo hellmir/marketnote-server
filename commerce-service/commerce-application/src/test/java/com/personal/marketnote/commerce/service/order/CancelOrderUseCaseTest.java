@@ -466,6 +466,156 @@ class CancelOrderUseCaseTest {
     }
 
     // ==================================================================================
+    // 부분 취소 — pricePolicyIds 파라미터
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("부분 취소 — pricePolicyIds 파라미터")
+    class PartialCancelTest {
+
+        @Test
+        @DisplayName("pricePolicyIds 일부 지정 시 PARTIALLY_CANCEL_REQUESTED로 전이 후 SAGA 호출한다")
+        void cancelOrder_partialFromPaid_startsSagaWithPartialFlag() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("부분 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L))
+                    .build();
+
+            cancelOrderService.cancelOrder(command);
+
+            ArgumentCaptor<OrderCancelSagaContext> captor = ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            verify(orderCancelSagaStarter).start(captor.capture());
+            OrderCancelSagaContext context = captor.getValue();
+
+            assertThat(context.isFullCancel()).isFalse();
+            assertThat(context.cancelProducts()).hasSize(1);
+            assertThat(context.cancelProducts().get(0).pricePolicyId()).isEqualTo(100L);
+            assertThat(context.productKeys()).isNotNull();
+            verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds 전부 지정 시 전체 취소로 위임되어 isFullCancel=true로 SAGA 시작")
+        void cancelOrder_allProductsSpecified_fullCancel() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("전체 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L, 200L))
+                    .build();
+
+            cancelOrderService.cancelOrder(command);
+
+            ArgumentCaptor<OrderCancelSagaContext> captor = ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            verify(orderCancelSagaStarter).start(captor.capture());
+            assertThat(captor.getValue().isFullCancel()).isTrue();
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds 빈 리스트 = 전체 취소")
+        void cancelOrder_emptyPricePolicyIds_fullCancel() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("전체 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of())
+                    .build();
+
+            cancelOrderService.cancelOrder(command);
+
+            ArgumentCaptor<OrderCancelSagaContext> captor = ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+            verify(orderCancelSagaStarter).start(captor.capture());
+            assertThat(captor.getValue().isFullCancel()).isTrue();
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds에 주문에 없는 ID 포함 시 InvalidPartialCancelProductException 발생")
+        void cancelOrder_nonExistentPricePolicyId_throwsException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("부분 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(999L))
+                    .build();
+
+            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
+                    .isInstanceOf(InvalidPartialCancelProductException.class);
+
+            verifyNoInteractions(updateOrderPort);
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds 중복 시 InvalidPartialCancelProductException 발생")
+        void cancelOrder_duplicatePricePolicyIds_throwsException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAID);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("부분 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L, 100L))
+                    .build();
+
+            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
+                    .isInstanceOf(InvalidPartialCancelProductException.class);
+
+            verifyNoInteractions(updateOrderPort);
+        }
+
+        @Test
+        @DisplayName("부분 취소 불가 상태(SHIPPING)에서 pricePolicyIds 요청 시 PartialCancelNotAllowedException 발생")
+        void cancelOrder_partialFromShipping_throwsException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.SHIPPING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("부분 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L))
+                    .build();
+
+            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
+                    .isInstanceOf(PartialCancelNotAllowedException.class);
+
+            verifyNoInteractions(updateOrderPort);
+        }
+    }
+
+    // ==================================================================================
     // 헬퍼 메서드
     // ==================================================================================
 
@@ -476,6 +626,44 @@ class CancelOrderUseCaseTest {
                 .reason("구매 의사 취소")
                 .buyerId(buyerId)
                 .build();
+    }
+
+    private Order createOrderWithMultipleProducts(Long orderId, Long buyerId, OrderStatus status) {
+        List<OrderProductSnapshotState> productStates = List.of(
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId)
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .sharerKey(UUID.randomUUID())
+                        .quantity(1)
+                        .unitAmount(30000L)
+                        .orderStatus(status)
+                        .accumulatedPoint(0L)
+                        .build(),
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId)
+                        .sellerId(20L)
+                        .pricePolicyId(200L)
+                        .sharerKey(UUID.randomUUID())
+                        .quantity(2)
+                        .unitAmount(20000L)
+                        .orderStatus(status)
+                        .accumulatedPoint(0L)
+                        .build()
+        );
+
+        return Order.from(OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
+                .orderStatus(status)
+                .amount(OrderAmount.of(70000L, 70000L, 0L, 0L, 3000L))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .orderProductStates(productStates)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
     }
 
     private Order createOrder(Long orderId, Long buyerId, OrderStatus status) {
