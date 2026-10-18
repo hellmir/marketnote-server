@@ -406,4 +406,94 @@ class ProductCatalogReadModelSyncConsumerTest {
         verify(acknowledgment).acknowledge();
     }
 
+    @Test
+    @DisplayName("PricePolicyCreated 이벤트 수신 시 SyncPricePolicyCreatedUseCase 에 위임한다")
+    void handlePricePolicyCreated_validPayload_delegatesToUseCase() {
+        java.util.UUID eventId = java.util.UUID.randomUUID();
+        PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
+                100L, 200L, 300L, "테스트 상품", "브랜드",
+                10000L, 9000L, 100L, 0L,
+                List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
+                List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(500L, "색상: 빨강"))
+        );
+        EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
+                eventId.toString(), KafkaTopicConstants.PRICE_POLICY_CREATED,
+                "product-service", FIXED_TIME, payload
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRICE_POLICY_CREATED, envelope);
+
+        consumer.handlePricePolicyCreated(record, acknowledgment);
+
+        verify(syncPricePolicyCreatedUseCase).syncPricePolicyCreated(eq(eventId), eq(payload));
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("PricePolicyCreated 이벤트 envelope 이 null 이면 UseCase 를 호출하지 않는다")
+    void handlePricePolicyCreated_nullEnvelope_acknowledges() {
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                KafkaTopicConstants.PRICE_POLICY_CREATED, 0, 0, "1", null);
+
+        consumer.handlePricePolicyCreated(record, acknowledgment);
+
+        verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("PricePolicyCreated 이벤트 productId 가 유효하지 않으면 UseCase 를 호출하지 않는다")
+    void handlePricePolicyCreated_invalidProductId_acknowledges() {
+        PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
+                null, 200L, 300L, "상품", "브랜드",
+                10000L, 9000L, 100L, 0L, List.of(), List.of()
+        );
+        EventEnvelope<PricePolicyCreatedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRICE_POLICY_CREATED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRICE_POLICY_CREATED, envelope);
+
+        consumer.handlePricePolicyCreated(record, acknowledgment);
+
+        verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("PricePolicyCreated 이벤트 pricePolicyId 가 유효하지 않으면 UseCase 를 호출하지 않는다")
+    void handlePricePolicyCreated_invalidPricePolicyId_acknowledges() {
+        PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
+                100L, null, 300L, "상품", "브랜드",
+                10000L, 9000L, 100L, 0L, List.of(), List.of()
+        );
+        EventEnvelope<PricePolicyCreatedEvent> envelope =
+                envelopeOf(KafkaTopicConstants.PRICE_POLICY_CREATED, "product-service", payload);
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRICE_POLICY_CREATED, envelope);
+
+        consumer.handlePricePolicyCreated(record, acknowledgment);
+
+        verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("PricePolicyCreated 이벤트 eventId 가 UUID 형식이 아니면 UseCase 를 호출하지 않는다")
+    void handlePricePolicyCreated_invalidEventId_acknowledges() {
+        PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
+                100L, 200L, 300L, "상품", "브랜드",
+                10000L, 9000L, 100L, 0L, List.of(), List.of()
+        );
+        EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
+                "invalid-uuid", KafkaTopicConstants.PRICE_POLICY_CREATED,
+                "product-service", FIXED_TIME, payload
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRICE_POLICY_CREATED, envelope);
+
+        consumer.handlePricePolicyCreated(record, acknowledgment);
+
+        verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verify(acknowledgment).acknowledge();
+    }
 }
