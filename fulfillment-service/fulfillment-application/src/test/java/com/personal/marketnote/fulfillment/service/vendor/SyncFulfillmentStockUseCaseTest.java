@@ -1,6 +1,5 @@
 package com.personal.marketnote.fulfillment.service.vendor;
 
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStocksCommand;
@@ -10,8 +9,9 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentStoc
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentStockDetailUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentStocksUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentInventorySyncedEventPort;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,9 +21,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,13 +36,22 @@ class SyncFulfillmentStockUseCaseTest {
     private SyncFulfillmentStockService service;
 
     @Mock
-    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     @Mock
     private GetFulfillmentStockDetailUseCase getFulfillmentStockDetailUseCase;
     @Mock
     private GetFulfillmentStocksUseCase getFulfillmentStocksUseCase;
     @Mock
     private PublishFulfillmentInventorySyncedEventPort publishFulfillmentInventorySyncedEventPort;
+
+    @SuppressWarnings("unchecked")
+    @BeforeEach
+    void stubAuthenticatedCaller() {
+        lenient().when(fulfillmentAuthenticatedCaller.call(any())).thenAnswer(invocation -> {
+            Function<String, Object> operation = invocation.getArgument(0);
+            return operation.apply("token");
+        });
+    }
 
     @Nested
     @DisplayName("sync 성공")
@@ -49,8 +60,6 @@ class SyncFulfillmentStockUseCaseTest {
         @DisplayName("재고 동기화를 수행하고 커머스 재고를 업데이트한다")
         void shouldSyncAndUpdateInventory() {
             // given
-            FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("token", "20270101120000");
-            when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
             SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of("CUST001", List.of(1L));
@@ -97,8 +106,6 @@ class SyncFulfillmentStockUseCaseTest {
         @DisplayName("전체 재고 동기화를 수행하고 커머스 재고를 업데이트한다")
         void shouldSyncAllAndUpdateInventory() {
             // given
-            FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("token", "20270101120000");
-            when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
 
             FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
                     "WH001", "GOD001", "1", "상품명", null, null, null,

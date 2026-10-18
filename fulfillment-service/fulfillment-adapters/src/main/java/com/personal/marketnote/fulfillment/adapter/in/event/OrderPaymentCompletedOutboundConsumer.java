@@ -7,7 +7,6 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.ShippingTrackerAlreadyExistsException;
 import com.personal.marketnote.fulfillment.port.in.command.CreateShippingTrackerCommand;
@@ -16,7 +15,7 @@ import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfil
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryItemCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.CreateShippingTrackerUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentDeliveryUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -37,7 +36,7 @@ import java.util.List;
 public class OrderPaymentCompletedOutboundConsumer {
     private final ObjectMapper objectMapper;
     private final CreateShippingTrackerUseCase createShippingTrackerUseCase;
-    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     private final RegisterFulfillmentDeliveryUseCase registerFulfillmentDeliveryUseCase;
     private final FulfillmentAuthProperties fasstoAuthProperties;
     private final Clock clock;
@@ -104,8 +103,6 @@ public class OrderPaymentCompletedOutboundConsumer {
     }
 
     private void registerFulfillmentDelivery(OrderPaymentCompletedEvent payload, String eventId) {
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
-
         RegisterFulfillmentDeliveryItemCommand itemCommand = RegisterFulfillmentDeliveryItemCommand.builder()
                 .orderNumber(String.valueOf(payload.orderId()))
                 .orderDate(LocalDate.now(clock).format(DateTimeFormatter.BASIC_ISO_DATE))
@@ -116,11 +113,14 @@ public class OrderPaymentCompletedOutboundConsumer {
                 .products(convertToGoodsCommands(payload.orderProducts()))
                 .build();
 
-        RegisterFulfillmentDeliveryCommand command = RegisterFulfillmentDeliveryCommand.of(
-                fasstoAuthProperties.getCustomerCode(), accessToken.getValue(), List.of(itemCommand)
-        );
-
-        registerFulfillmentDeliveryUseCase.registerDeliveryIdempotent(command);
+        fulfillmentAuthenticatedCaller.call(token -> {
+            registerFulfillmentDeliveryUseCase.registerDeliveryIdempotent(
+                    RegisterFulfillmentDeliveryCommand.of(
+                            fasstoAuthProperties.getCustomerCode(), token, List.of(itemCommand)
+                    )
+            );
+            return null;
+        });
 
         log.info("Fassto 출고 요청 완료. eventId={}, orderId={}, products={}건",
                 eventId, payload.orderId(), payload.orderProducts().size());

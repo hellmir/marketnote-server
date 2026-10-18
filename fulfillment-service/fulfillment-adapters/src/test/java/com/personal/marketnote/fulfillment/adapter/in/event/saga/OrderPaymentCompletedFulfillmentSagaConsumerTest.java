@@ -5,7 +5,6 @@ import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentWorkStatus;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
@@ -14,7 +13,7 @@ import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillm
 import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.CreateShippingTrackerUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentDeliveryUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,11 +31,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -59,7 +60,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
     private CreateShippingTrackerUseCase createShippingTrackerUseCase;
 
     @Mock
-    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
 
     @Mock
     private RegisterFulfillmentDeliveryUseCase registerFulfillmentDeliveryUseCase;
@@ -103,6 +104,14 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         compensationPayload = objectMapper.writeValueAsString(Map.of("orderId", 1L));
     }
 
+    @SuppressWarnings("unchecked")
+    private void stubAuthenticatedCaller() {
+        lenient().when(fulfillmentAuthenticatedCaller.call(any())).thenAnswer(invocation -> {
+            Function<String, Object> operation = invocation.getArgument(0);
+            return operation.apply("test-token");
+        });
+    }
+
     @Nested
     @DisplayName("ACTION 처리")
     class ActionHandling {
@@ -114,8 +123,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            when(requestFulfillmentAuthUseCase.requestAccessToken())
-                    .thenReturn(FulfillmentAccessToken.of("token-value", "20990101000000"));
+            stubAuthenticatedCaller();
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST01");
 
             consumer.handleFulfillmentStep(record, acknowledgment);
@@ -135,8 +143,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            when(requestFulfillmentAuthUseCase.requestAccessToken())
-                    .thenReturn(FulfillmentAccessToken.of("token-value", "20990101000000"));
+            stubAuthenticatedCaller();
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST01");
             doThrow(new FulfillmentDeliveryAlreadyRegisteredException(1L))
                     .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());
@@ -157,8 +164,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            when(requestFulfillmentAuthUseCase.requestAccessToken())
-                    .thenReturn(FulfillmentAccessToken.of("token-value", "20990101000000"));
+            stubAuthenticatedCaller();
             when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST01");
             doThrow(new RuntimeException("외부 API 실패"))
                     .when(registerFulfillmentDeliveryUseCase).registerDeliveryIdempotent(any());

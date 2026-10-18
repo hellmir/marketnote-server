@@ -3,7 +3,6 @@ package com.personal.marketnote.fulfillment.service.vendor;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.FulfillmentInventorySyncedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryParameterNoValueException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStocksCommand;
@@ -13,6 +12,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentStoc
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentStocksResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.*;
 import com.personal.marketnote.fulfillment.port.out.event.PublishFulfillmentInventorySyncedEventPort;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase, SyncFulfillmentAllStockUseCase {
     private static final String DEFAULT_OUT_OF_STOCK_INCLUDED = "Y";
 
-    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     private final GetFulfillmentStockDetailUseCase getFulfillmentStockDetailUseCase;
     private final GetFulfillmentStocksUseCase getFulfillmentStocksUseCase;
     private final PublishFulfillmentInventorySyncedEventPort publishFulfillmentInventorySyncedEventPort;
@@ -54,19 +54,16 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
             throw new FulfillmentQueryParameterNoValueException("Valid product ids", "Fulfillment stock sync");
         }
 
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
-        if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-            throw new FulfillmentQueryParameterNoValueException("Fulfillment access token", "stock sync");
-        }
-
         List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = new ArrayList<>();
         for (Long productId : productIds) {
-            GetFulfillmentStocksResult stockDetail = getFulfillmentStockDetailUseCase.getStockDetail(
-                    GetFulfillmentStockDetailCommand.of(
-                            command.customerCode(),
-                            accessToken.getValue(),
-                            String.valueOf(productId),
-                            DEFAULT_OUT_OF_STOCK_INCLUDED
+            GetFulfillmentStocksResult stockDetail = fulfillmentAuthenticatedCaller.call(token ->
+                    getFulfillmentStockDetailUseCase.getStockDetail(
+                            GetFulfillmentStockDetailCommand.of(
+                                    command.customerCode(),
+                                    token,
+                                    String.valueOf(productId),
+                                    DEFAULT_OUT_OF_STOCK_INCLUDED
+                            )
                     )
             );
             int stockQuantity = resolveStockQuantity(stockDetail);
@@ -85,17 +82,14 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
             throw new FulfillmentQueryParameterNoValueException("Customer code", "Fulfillment stock sync");
         }
 
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
-        if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-            throw new FulfillmentQueryParameterNoValueException("Fulfillment access token", "stock sync");
-        }
-
-        GetFulfillmentStocksResult stocksResult = getFulfillmentStocksUseCase.getStocks(
-                GetFulfillmentStocksCommand.of(
-                        command.customerCode(),
-                        accessToken.getValue(),
-                        null,
-                        command.warehouseCode()
+        GetFulfillmentStocksResult stocksResult = fulfillmentAuthenticatedCaller.call(token ->
+                getFulfillmentStocksUseCase.getStocks(
+                        GetFulfillmentStocksCommand.of(
+                                command.customerCode(),
+                                token,
+                                null,
+                                command.warehouseCode()
+                        )
                 )
         );
         List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = resolveInventories(stocksResult);

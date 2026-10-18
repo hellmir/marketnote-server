@@ -1,15 +1,16 @@
 package com.personal.marketnote.fulfillment.adapter.out.scheduler;
 
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFulfillmentAllStockCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentWarehousingInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentWarehousingResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentWarehousingUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.SyncFulfillmentAllStockUseCase;
 import com.personal.marketnote.fulfillment.port.out.scheduler.ScheduleFulfillmentWarehousingPollingCommand;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
+
+import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
     private MutableClock clock;
 
     @Mock
-    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     @Mock
     private GetFulfillmentWarehousingUseCase getFulfillmentWarehousingUseCase;
     @Mock
@@ -55,10 +56,18 @@ class FulfillmentWarehousingPollingSchedulerTest {
         scheduler = new FulfillmentWarehousingPollingScheduler(
                 taskScheduler,
                 clock,
-                requestFulfillmentAuthUseCase,
+                fulfillmentAuthenticatedCaller,
                 getFulfillmentWarehousingUseCase,
                 syncFulfillmentAllStockUseCase
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private void stubAuthenticatedCaller() {
+        lenient().when(fulfillmentAuthenticatedCaller.call(any())).thenAnswer(invocation -> {
+            Function<String, Object> operation = invocation.getArgument(0);
+            return operation.apply("token");
+        });
     }
 
     @Test
@@ -87,8 +96,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
     @DisplayName("workStatus 4가 발견되면 재고 동기화를 호출한다")
     void poll_whenConfirmed_syncsStocks() {
         clock.setInstant(parseInstant("2026-02-08T10:00:00"));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token", "20260116120000"));
+        stubAuthenticatedCaller();
 
         FulfillmentWarehousingInfoResult item = buildWarehousingInfo("ORD-1", "WH1", "4");
         GetFulfillmentWarehousingResult result = GetFulfillmentWarehousingResult.of(1, List.of(item));
@@ -120,8 +128,7 @@ class FulfillmentWarehousingPollingSchedulerTest {
     @DisplayName("workStatus 4가 없고 5가 있으면 5 기준으로 동기화를 수행한다")
     void poll_whenCompleted_syncsStocks() {
         clock.setInstant(parseInstant("2026-02-08T11:00:00"));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token", "20260116120000"));
+        stubAuthenticatedCaller();
 
         FulfillmentWarehousingInfoResult completed = buildWarehousingInfo("ORD-3", "WH2", "5");
 

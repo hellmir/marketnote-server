@@ -5,13 +5,11 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
-import com.personal.marketnote.fulfillment.exception.FulfillmentAccessTokenIssuanceFailedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryAlreadyRegisteredException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.usecase.CreateShippingTrackerUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RegisterFulfillmentDeliveryUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,11 +27,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,7 +48,7 @@ class OrderPaymentCompletedOutboundDeliveryTest {
     private CreateShippingTrackerUseCase createShippingTrackerUseCase;
 
     @Mock
-    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
 
     @Mock
     private RegisterFulfillmentDeliveryUseCase registerFulfillmentDeliveryUseCase;
@@ -66,9 +65,12 @@ class OrderPaymentCompletedOutboundDeliveryTest {
     @Mock
     private Acknowledgment acknowledgment;
 
+    @SuppressWarnings("unchecked")
     private void setUpFasstoAuth() {
-        FulfillmentAccessToken accessToken = FulfillmentAccessToken.of("test-token", "20260416200000");
-        when(requestFulfillmentAuthUseCase.requestAccessToken()).thenReturn(accessToken);
+        lenient().when(fulfillmentAuthenticatedCaller.call(any())).thenAnswer(invocation -> {
+            Function<String, Object> operation = invocation.getArgument(0);
+            return operation.apply("test-token");
+        });
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("TEST_CODE");
     }
 
@@ -173,20 +175,6 @@ class OrderPaymentCompletedOutboundDeliveryTest {
 
         // then
         verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("토큰 발급 실패 시 FulfillmentAccessTokenIssuanceFailedException이 발생한다")
-    void shouldThrowWhenAccessTokenIssuanceFails() {
-        // given
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenThrow(new FulfillmentAccessTokenIssuanceFailedException("test-event", 1L));
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecordWithShipping();
-
-        // when & then
-        assertThatThrownBy(() -> consumer.handleOrderPaymentCompletedEvent(record, acknowledgment))
-                .isInstanceOf(FulfillmentAccessTokenIssuanceFailedException.class);
-        verify(acknowledgment, never()).acknowledge();
     }
 
     @Test

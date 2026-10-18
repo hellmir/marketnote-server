@@ -3,6 +3,7 @@ package com.personal.marketnote.fulfillment.service;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
+import com.personal.marketnote.fulfillment.exception.FulfillmentInvalidAccessException;
 import com.personal.marketnote.fulfillment.port.in.command.GetInternalReturnGodDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentReturnGodDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.result.GetInternalReturnGodDetailResult;
@@ -12,10 +13,10 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentRetu
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentReturnGodDetailInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentReturnGodDetailResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.GetInternalReturnGodDetailUseCase;
+import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentCustomerCodePort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentReturnGodDetailPort;
-import com.personal.marketnote.fulfillment.port.out.vendor.RequestFulfillmentAuthPort;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -24,29 +25,47 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GetInternalReturnGodDetailService implements GetInternalReturnGodDetailUseCase {
     private final GetFulfillmentCustomerCodePort getFulfillmentCustomerCodePort;
-    private final RequestFulfillmentAuthPort requestFulfillmentAuthPort;
+    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
     private final DisconnectFulfillmentAuthPort disconnectFulfillmentAuthPort;
     private final GetFulfillmentReturnGodDetailPort getFulfillmentReturnGodDetailPort;
 
     @Override
     public GetInternalReturnGodDetailResult getReturnGodDetail(GetInternalReturnGodDetailCommand command) {
-        FulfillmentAccessToken accessToken = requestFulfillmentAuthPort.requestAccessToken();
+        FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+        String customerCode = getFulfillmentCustomerCodePort.getCustomerCode();
         try {
-            String customerCode = getFulfillmentCustomerCodePort.getCustomerCode();
-            GetFulfillmentReturnGodDetailCommand fasstoCommand = GetFulfillmentReturnGodDetailCommand.of(
-                    customerCode,
-                    accessToken.getValue(),
-                    null,
-                    null,
-                    command.returnSlipNumbers(),
-                    null
-            );
-            GetFulfillmentReturnGodDetailResult fasstoResult = getFulfillmentReturnGodDetailPort.getReturnGodDetail(fasstoCommand);
+            GetFulfillmentReturnGodDetailResult fasstoResult;
+            try {
+                fasstoResult = getFulfillmentReturnGodDetailPort.getReturnGodDetail(
+                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                );
+            } catch (FulfillmentInvalidAccessException firstFailure) {
+                requestFulfillmentAuthUseCase.invalidateCache();
+                accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
+                fasstoResult = getFulfillmentReturnGodDetailPort.getReturnGodDetail(
+                        buildFasstoCommand(customerCode, accessToken.getValue(), command)
+                );
+            }
 
             return mapToResult(fasstoResult);
         } finally {
             disconnectFulfillmentAuthPort.disconnectAccessToken(accessToken.getValue());
         }
+    }
+
+    private GetFulfillmentReturnGodDetailCommand buildFasstoCommand(
+            String customerCode,
+            String accessToken,
+            GetInternalReturnGodDetailCommand command
+    ) {
+        return GetFulfillmentReturnGodDetailCommand.of(
+                customerCode,
+                accessToken,
+                null,
+                null,
+                command.returnSlipNumbers(),
+                null
+        );
     }
 
     private GetInternalReturnGodDetailResult mapToResult(GetFulfillmentReturnGodDetailResult fasstoResult) {

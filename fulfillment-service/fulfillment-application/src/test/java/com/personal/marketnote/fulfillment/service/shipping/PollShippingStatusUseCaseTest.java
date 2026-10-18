@@ -1,7 +1,6 @@
 package com.personal.marketnote.fulfillment.service.shipping;
 
 import com.personal.marketnote.common.kafka.event.ShippingStatusChangedEvent;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingStatus;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTracker;
 import com.personal.marketnote.fulfillment.domain.shipping.ShippingTrackerSnapshotState;
@@ -10,12 +9,12 @@ import com.personal.marketnote.fulfillment.domain.shipping.TrackingNumber;
 import com.personal.marketnote.fulfillment.port.in.command.PollShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentDeliveryStatusInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentDeliveryStatusesResult;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.out.event.PublishShippingStatusChangedEventPort;
 import com.personal.marketnote.fulfillment.port.out.notification.SendDeliveryFailureSlackAlertPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.FindShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentDeliveryStatusesPort;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,7 +50,7 @@ class PollShippingStatusUseCaseTest {
     private UpdateShippingTrackerPort updateShippingTrackerPort;
 
     @Mock
-    private RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
 
     @Mock
     private GetFulfillmentDeliveryStatusesPort getDeliveryStatusesPort;
@@ -73,13 +72,21 @@ class PollShippingStatusUseCaseTest {
         pollShippingStatusService = new PollShippingStatusService(
                 findShippingTrackerPort,
                 updateShippingTrackerPort,
-                requestFulfillmentAuthUseCase,
+                fulfillmentAuthenticatedCaller,
                 getDeliveryStatusesPort,
                 publishShippingStatusChangedEventPort,
                 sendDeliveryFailureSlackAlertPort,
                 clock,
                 transactionManager
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private void stubAuthenticatedCaller() {
+        lenient().when(fulfillmentAuthenticatedCaller.call(any())).thenAnswer(invocation -> {
+            java.util.function.Function<String, Object> operation = invocation.getArgument(0);
+            return operation.apply("token123");
+        });
     }
 
     @Test
@@ -93,7 +100,7 @@ class PollShippingStatusUseCaseTest {
         pollShippingStatusService.pollShippingStatuses(command);
 
         // then
-        verifyNoInteractions(requestFulfillmentAuthUseCase);
+        verifyNoInteractions(fulfillmentAuthenticatedCaller);
         verifyNoInteractions(getDeliveryStatusesPort);
         verifyNoInteractions(updateShippingTrackerPort);
     }
@@ -105,8 +112,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
 
@@ -142,8 +148,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "피킹완료", null, null));
 
@@ -170,8 +175,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createShippingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "배송완료", "INV001", "CJ"));
 
@@ -200,8 +204,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createShippingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "배송불가", "INV001", "CJ"));
 
@@ -230,8 +233,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createShippingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "배송불가", "INV001", "CJ"));
 
@@ -252,8 +254,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
 
@@ -275,8 +276,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker1, tracker2));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker1));
         when(findShippingTrackerPort.findByOrderId(200L)).thenReturn(Optional.of(tracker2));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
 
         GetFulfillmentDeliveryStatusesResult result = GetFulfillmentDeliveryStatusesResult.of(2, List.of(
                 createDeliveryStatusInfo("100", "배송불가", "INV001", "CJ"),
@@ -313,8 +313,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "피킹중", null, null));
 
@@ -341,8 +340,7 @@ class PollShippingStatusUseCaseTest {
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
 
@@ -369,8 +367,7 @@ class PollShippingStatusUseCaseTest {
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker1, tracker2));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker1));
         when(findShippingTrackerPort.findByOrderId(200L)).thenReturn(Optional.of(tracker2));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
 
         // tracker1은 배송완료 (PREPARING→DELIVERED는 전이 불가 → 예외)
         // tracker2는 집하완료 (PREPARING→SHIPPING은 정상 전이)
@@ -404,8 +401,7 @@ class PollShippingStatusUseCaseTest {
                 .build());
         when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
-        when(requestFulfillmentAuthUseCase.requestAccessToken())
-                .thenReturn(FulfillmentAccessToken.of("token123", "20260410100000"));
+        stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
                 .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
 

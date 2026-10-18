@@ -2,16 +2,15 @@ package com.personal.marketnote.fulfillment.adapter.out.scheduler;
 
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.utility.FormatValidator;
-import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentWarehousingCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.SyncFulfillmentAllStockCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentWarehousingInfoResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentWarehousingResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.GetFulfillmentWarehousingUseCase;
-import com.personal.marketnote.fulfillment.port.in.usecase.vendor.RequestFulfillmentAuthUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.vendor.SyncFulfillmentAllStockUseCase;
 import com.personal.marketnote.fulfillment.port.out.scheduler.ScheduleFulfillmentWarehousingPollingCommand;
 import com.personal.marketnote.fulfillment.port.out.scheduler.ScheduleFulfillmentWarehousingPollingPort;
+import com.personal.marketnote.fulfillment.utility.FulfillmentAuthenticatedCaller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
@@ -35,7 +34,7 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
 
     private final TaskScheduler taskScheduler;
     private final Clock clock;
-    private final RequestFulfillmentAuthUseCase requestFulfillmentAuthUseCase;
+    private final FulfillmentAuthenticatedCaller fulfillmentAuthenticatedCaller;
     private final GetFulfillmentWarehousingUseCase getFulfillmentWarehousingUseCase;
     private final SyncFulfillmentAllStockUseCase syncFulfillmentAllStockUseCase;
 
@@ -87,22 +86,12 @@ public class FulfillmentWarehousingPollingScheduler implements ScheduleFulfillme
         }
 
         try {
-            FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
-            if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
-                scheduleNext(context, resolveNextRunAt(context, now));
-                return;
-            }
-
-            FulfillmentWarehousingInfoResult completed = resolveCompletedWarehousing(
-                    accessToken.getValue(),
-                    context,
-                    COMPLETED_WORK_STATUS_CONFIRMED
+            FulfillmentWarehousingInfoResult completed = fulfillmentAuthenticatedCaller.call(accessToken ->
+                    resolveCompletedWarehousing(accessToken, context, COMPLETED_WORK_STATUS_CONFIRMED)
             );
             if (FormatValidator.hasNoValue(completed)) {
-                completed = resolveCompletedWarehousing(
-                        accessToken.getValue(),
-                        context,
-                        COMPLETED_WORK_STATUS_COMPLETED
+                completed = fulfillmentAuthenticatedCaller.call(accessToken ->
+                        resolveCompletedWarehousing(accessToken, context, COMPLETED_WORK_STATUS_COMPLETED)
                 );
             }
             if (FormatValidator.hasValue(completed)) {
