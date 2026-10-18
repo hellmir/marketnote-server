@@ -34,54 +34,6 @@ public interface FindPricePoliciesPort {
     List<PricePolicy> findByIds(List<Long> ids);
 
     /**
-     * @param pricePolicyIds 가격 정책 ID 목록
-     * @param cursor         커서
-     * @param pageSize       페이지 크기
-     * @param isAsc          오름차순 여부
-     * @param sortProperty   정렬 속성
-     * @param searchTarget   검색 대상
-     * @param searchKeyword  검색 키워드
-     * @return 가격 정책 목록 {@link List<PricePolicy>}
-     * @Date 2026-01-02
-     * @Author 성효빈
-     * @Description 가격 정책 목록을 조회합니다(페이지네이션 적용).
-     */
-    List<PricePolicy> findPricePolicies(
-            List<Long> pricePolicyIds,
-            Long cursor,
-            int pageSize,
-            boolean isAsc,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
-    );
-
-    /**
-     * @param categoryId     카테고리 ID
-     * @param pricePolicyIds 가격 정책 ID 목록
-     * @param cursor         커서
-     * @param pageSize       페이지 크기
-     * @param isAsc          오름차순 여부
-     * @param sortProperty   정렬 속성
-     * @param searchTarget   검색 대상
-     * @param searchKeyword  검색 키워드
-     * @return 카테고리별 가격 정책 목록 {@link List<PricePolicy>}
-     * @Date 2026-01-02
-     * @Author 성효빈
-     * @Description 카테고리별 가격 정책 목록을 조회합니다(페이지네이션 적용).
-     */
-    List<PricePolicy> findPricePoliciesByCategoryId(
-            Long categoryId,
-            List<Long> pricePolicyIds,
-            Long cursor,
-            int pageSize,
-            boolean isAsc,
-            ProductSortProperty sortProperty,
-            ProductSearchTarget searchTarget,
-            String searchKeyword
-    );
-
-    /**
      * @param categoryId    카테고리 ID
      * @param searchTarget  검색 대상
      * @param searchKeyword 검색 키워드
