@@ -10,7 +10,7 @@ import java.security.MessageDigest;
 import static com.personal.marketnote.common.security.hmac.HmacHeaderConstants.SIGNING_INPUT_DELIMITER;
 
 public final class HmacSignatureGenerator {
-    private static final String HMAC_MD5_ALGORITHM = "HmacMD5";
+    private static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
 
     private HmacSignatureGenerator() {
     }
@@ -23,7 +23,7 @@ public final class HmacSignatureGenerator {
             String requestPath
     ) {
         String signingInput = buildSigningInput(timestamp, nonce, httpMethod, requestPath);
-        return computeHmacMd5(secretKey, signingInput);
+        return computeHmacSha256(secretKey, signingInput);
     }
 
     public static boolean constantTimeEquals(String a, String b) {
@@ -40,10 +40,10 @@ public final class HmacSignatureGenerator {
                 + SIGNING_INPUT_DELIMITER + requestPath;
     }
 
-    private static String computeHmacMd5(String secretKey, String data) {
+    private static String computeHmacSha256(String secretKey, String data) {
         try {
-            Mac mac = Mac.getInstance(HMAC_MD5_ALGORITHM);
-            mac.init(new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), HMAC_MD5_ALGORITHM));
+            Mac mac = Mac.getInstance(HMAC_SHA256_ALGORITHM);
+            mac.init(new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), HMAC_SHA256_ALGORITHM));
             byte[] result = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return toHex(result);
         } catch (Exception e) {
