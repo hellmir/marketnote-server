@@ -381,6 +381,44 @@ class OrderControllerTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(requestReturnUseCase).requestReturn(any(RequestReturnCommand.class));
         }
+
+        @Test
+        @DisplayName("pricePolicyIds가 요청에 포함되면 Command에 그대로 전달된다")
+        void shouldPassPricePolicyIdsToCommand() {
+            // given
+            Long orderId = 1L;
+            RequestReturnRequest request = mock(RequestReturnRequest.class);
+            when(request.getReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
+            when(request.getPricePolicyIds()).thenReturn(List.of(101L, 102L));
+            OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
+
+            // when
+            orderController.requestReturn(orderId, request, principal);
+
+            // then
+            ArgumentCaptor<RequestReturnCommand> captor = ArgumentCaptor.forClass(RequestReturnCommand.class);
+            verify(requestReturnUseCase).requestReturn(captor.capture());
+            assertThat(captor.getValue().pricePolicyIds()).containsExactly(101L, 102L);
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds가 null이면 Command에도 null로 전달된다")
+        void shouldPassNullPricePolicyIdsAsIs() {
+            // given
+            Long orderId = 1L;
+            RequestReturnRequest request = mock(RequestReturnRequest.class);
+            when(request.getReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
+            when(request.getPricePolicyIds()).thenReturn(null);
+            OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
+
+            // when
+            orderController.requestReturn(orderId, request, principal);
+
+            // then
+            ArgumentCaptor<RequestReturnCommand> captor = ArgumentCaptor.forClass(RequestReturnCommand.class);
+            verify(requestReturnUseCase).requestReturn(captor.capture());
+            assertThat(captor.getValue().pricePolicyIds()).isNull();
+        }
     }
 
     @Nested

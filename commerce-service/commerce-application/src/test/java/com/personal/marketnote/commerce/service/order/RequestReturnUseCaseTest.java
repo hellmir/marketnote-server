@@ -3,13 +3,16 @@ package com.personal.marketnote.commerce.service.order;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
+import com.personal.marketnote.commerce.exception.InvalidReturnTargetPricePolicyException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.commerce.port.in.command.order.RequestReturnCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
+import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryCommand;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.service.returntracker.CreateReturnTrackerAfterReturnRequestService;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -452,8 +455,257 @@ class RequestReturnUseCaseTest {
     }
 
     // ==================================================================================
+    // 부분 반품 요청
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("부분 반품 요청")
+    class PartialReturnRequestTest {
+
+        @Test
+        @DisplayName("pricePolicyIds가 null이면 전체 반품(changeAllProductsStatus)으로 처리된다")
+        void requestReturn_withNullPricePolicyIds_callsChangeAllProductsStatus() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithTwoProducts(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .pricePolicyIds(null)
+                    .build();
+
+            requestReturnService.requestReturn(command);
+
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
+            order.getOrderProducts().forEach(product ->
+                    assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED)
+            );
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds가 빈 리스트면 전체 반품으로 처리된다")
+        void requestReturn_withEmptyPricePolicyIds_callsChangeAllProductsStatus() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithTwoProducts(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of())
+                    .build();
+
+            requestReturnService.requestReturn(command);
+
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds에 일부만 전달하면 Order 상태가 PARTIALLY_RETURN_REQUESTED로 전이된다")
+        void requestReturn_withPartialPricePolicyIds_transitionsToPartiallyReturnRequested() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithTwoProducts(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L))
+                    .build();
+
+            requestReturnService.requestReturn(command);
+
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_RETURN_REQUESTED);
+            assertThat(order.getOrderProducts().get(0).getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
+            assertThat(order.getOrderProducts().get(1).getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
+        }
+
+        @Test
+        @DisplayName("pricePolicyIds에 주문에 없는 ID가 포함되면 InvalidReturnTargetPricePolicyException이 발생한다")
+        void requestReturn_withInvalidPricePolicyId_throwsException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithTwoProducts(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L, 999L))
+                    .build();
+
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
+                    .isInstanceOf(InvalidReturnTargetPricePolicyException.class);
+        }
+
+        @Test
+        @DisplayName("부분 반품 요청된 품목만 Fassto products로 전달된다")
+        void requestReturn_partialReturn_fassto_productsFiltered() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithTwoProducts(orderId, buyerId, OrderStatus.DELIVERED);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(200L))
+                    .build();
+
+            requestReturnService.requestReturn(command);
+
+            ArgumentCaptor<RegisterFulfillmentReturnDeliveryCommand> captor =
+                    ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
+            verify(createReturnTrackerAfterReturnRequestService).createReturnTracker(captor.capture());
+
+            RegisterFulfillmentReturnDeliveryCommand deliveryCommand = captor.getValue();
+            assertThat(deliveryCommand.products()).hasSize(1);
+            assertThat(deliveryCommand.products().get(0).quantity()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("Fassto productCode는 OrderProduct.productKey(UUID 문자열)로 매핑된다")
+        void requestReturn_fassto_productCodeIsProductKey() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            UUID productKey100 = UUID.fromString("00000000-0000-0000-0000-000000000100");
+            UUID productKey200 = UUID.fromString("00000000-0000-0000-0000-000000000200");
+            Order order = createOrderWithProductKeys(orderId, buyerId, productKey100, productKey200);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .build();
+
+            requestReturnService.requestReturn(command);
+
+            ArgumentCaptor<RegisterFulfillmentReturnDeliveryCommand> captor =
+                    ArgumentCaptor.forClass(RegisterFulfillmentReturnDeliveryCommand.class);
+            verify(createReturnTrackerAfterReturnRequestService).createReturnTracker(captor.capture());
+
+            RegisterFulfillmentReturnDeliveryCommand deliveryCommand = captor.getValue();
+            assertThat(deliveryCommand.products()).hasSize(2);
+            assertThat(deliveryCommand.products().get(0).productCode()).isEqualTo(productKey100.toString());
+            assertThat(deliveryCommand.products().get(1).productCode()).isEqualTo(productKey200.toString());
+        }
+
+        @Test
+        @DisplayName("이미 모든 요청 품목이 RETURN_REQUESTED 상태면 OrderStatusAlreadyChangedException이 발생한다")
+        void requestReturn_partialReturn_alreadyRequested_throwsException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMixedProductStatuses(orderId, buyerId);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            RequestReturnCommand command = RequestReturnCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L))
+                    .build();
+
+            assertThatThrownBy(() -> requestReturnService.requestReturn(command))
+                    .isInstanceOf(OrderStatusAlreadyChangedException.class);
+        }
+    }
+
+    // ==================================================================================
     // 헬퍼 메서드
     // ==================================================================================
+
+    private Order createOrderWithTwoProducts(Long orderId, Long buyerId, OrderStatus status) {
+        List<OrderProductSnapshotState> productStates = List.of(
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId)
+                        .productKey(UUID.randomUUID())
+                        .sellerId(10L)
+                        .pricePolicyId(100L)
+                        .quantity(1)
+                        .unitAmount(50000L)
+                        .orderStatus(status)
+                        .accumulatedPoint(0L)
+                        .build(),
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId)
+                        .productKey(UUID.randomUUID())
+                        .sellerId(10L)
+                        .pricePolicyId(200L)
+                        .quantity(2)
+                        .unitAmount(30000L)
+                        .orderStatus(status)
+                        .accumulatedPoint(0L)
+                        .build()
+        );
+
+        return Order.from(OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
+                .orderStatus(status)
+                .amount(OrderAmount.of(110000L, null, 0L, 0L, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .orderProductStates(productStates)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+    }
+
+    private Order createOrderWithProductKeys(Long orderId, Long buyerId, UUID productKey1, UUID productKey2) {
+        List<OrderProductSnapshotState> productStates = List.of(
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId).productKey(productKey1).sellerId(10L).pricePolicyId(100L)
+                        .quantity(1).unitAmount(50000L).accumulatedPoint(0L)
+                        .orderStatus(OrderStatus.DELIVERED).build(),
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId).productKey(productKey2).sellerId(10L).pricePolicyId(200L)
+                        .quantity(2).unitAmount(30000L).accumulatedPoint(0L)
+                        .orderStatus(OrderStatus.DELIVERED).build()
+        );
+
+        return Order.from(OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
+                .orderStatus(OrderStatus.DELIVERED)
+                .amount(OrderAmount.of(110000L, null, 0L, 0L, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .orderProductStates(productStates)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+    }
+
+    private Order createOrderWithMixedProductStatuses(Long orderId, Long buyerId) {
+        List<OrderProductSnapshotState> productStates = List.of(
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId).productKey(UUID.randomUUID()).sellerId(10L).pricePolicyId(100L)
+                        .quantity(1).unitAmount(50000L).accumulatedPoint(0L)
+                        .orderStatus(OrderStatus.RETURN_REQUESTED).build(),
+                OrderProductSnapshotState.builder()
+                        .orderId(orderId).productKey(UUID.randomUUID()).sellerId(10L).pricePolicyId(200L)
+                        .quantity(2).unitAmount(30000L).accumulatedPoint(0L)
+                        .orderStatus(OrderStatus.DELIVERED).build()
+        );
+
+        return Order.from(OrderSnapshotState.builder()
+                .id(orderId)
+                .buyerId(buyerId)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-" + orderId))
+                .orderStatus(OrderStatus.PARTIALLY_RETURN_REQUESTED)
+                .amount(OrderAmount.of(110000L, null, 0L, 0L, null))
+                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .orderProductStates(productStates)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+    }
 
     private Order createOrderWithBuyerId(Long orderId, Long buyerId, OrderStatus status) {
         List<OrderProductSnapshotState> productStates = List.of(
