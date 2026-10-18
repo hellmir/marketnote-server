@@ -13,6 +13,7 @@ import com.personal.marketnote.product.adapter.out.persistence.productoption.ent
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionCategoryJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionJpaRepository;
 import com.personal.marketnote.product.adapter.out.persistence.productoption.repository.ProductOptionPricePolicyJpaRepository;
+import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
@@ -21,6 +22,7 @@ import com.personal.marketnote.product.exception.ProductNoPricePolicyException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.out.productoption.DeleteProductOptionCategoryPort;
 import com.personal.marketnote.product.port.out.productoption.FindProductOptionCategoryPort;
+import com.personal.marketnote.product.port.out.productoption.FindProductOptionPort;
 import com.personal.marketnote.product.port.out.productoption.SaveProductOptionsPort;
 import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,9 @@ import java.util.Optional;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
-public class ProductOptionPersistenceAdapter implements SaveProductOptionsPort, DeleteProductOptionCategoryPort, FindProductOptionCategoryPort, UpdateOptionPricePolicyPort {
+public class ProductOptionPersistenceAdapter
+        implements SaveProductOptionsPort, DeleteProductOptionCategoryPort, FindProductOptionCategoryPort,
+        FindProductOptionPort, UpdateOptionPricePolicyPort {
     private final ProductJpaRepository productJpaRepository;
     private final ProductOptionCategoryJpaRepository productOptionCategoryJpaRepository;
     private final ProductOptionJpaRepository productOptionJpaRepository;
@@ -225,5 +229,16 @@ public class ProductOptionPersistenceAdapter implements SaveProductOptionsPort, 
             ProductOptionPricePolicyJpaEntity optionPricePolicy = ProductOptionPricePolicyJpaEntity.of(optionRef, pricePolicyRef);
             productOptionPricePolicyJpaRepository.save(optionPricePolicy);
         }
+    }
+
+    @Override
+    public List<ProductOption> findByIds(List<Long> ids) {
+        if (FormatValidator.hasNoValue(ids)) {
+            return List.of();
+        }
+        return productOptionJpaRepository.findAllById(ids).stream()
+                .map(ProductJpaEntityToDomainMapper::mapToDomain)
+                .flatMap(Optional::stream)
+                .toList();
     }
 }

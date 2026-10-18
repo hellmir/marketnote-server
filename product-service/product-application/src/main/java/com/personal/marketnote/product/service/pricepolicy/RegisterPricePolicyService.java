@@ -1,9 +1,12 @@
 package com.personal.marketnote.product.service.pricepolicy;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.kafka.event.PricePolicyCreatedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
+import com.personal.marketnote.product.domain.product.ProductTag;
 import com.personal.marketnote.product.exception.InvalidPricePolicyAccumulatedPointException;
 import com.personal.marketnote.product.exception.InvalidPricePolicyPriceException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
@@ -15,6 +18,7 @@ import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase
 import com.personal.marketnote.product.port.out.event.PublishProductEventPort;
 import com.personal.marketnote.product.port.out.pricepolicy.SavePricePolicyPort;
 import com.personal.marketnote.product.port.out.product.FindProductPort;
+import com.personal.marketnote.product.port.out.productoption.FindProductOptionPort;
 import com.personal.marketnote.product.port.out.productoption.UpdateOptionPricePolicyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +36,7 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
     private final FindProductPort findProductPort;
     private final SavePricePolicyPort savePricePolicyPort;
     private final UpdateOptionPricePolicyPort updateOptionPricePolicyPort;
+    private final FindProductOptionPort findProductOptionPort;
     private final PublishProductEventPort publishProductEventPort;
 
     @Override
@@ -56,10 +61,46 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
             updateOptionPricePolicyPort.assignPricePolicyToOptions(productId, id, optionIds);
         }
 
-        // Outbox 이벤트 저장 (트랜잭션 내)
-        publishProductEventPort.publishPricePolicyCreatedEvent(productId, id);
+        List<PricePolicyCreatedEvent.ProductOptionSnapshot> optionSnapshots = toOptionSnapshots(optionIds);
+        List<PricePolicyCreatedEvent.ProductTagSnapshot> tagSnapshots = toTagSnapshots(product.getProductTags());
+
+        // Outbox 이벤트 저장 (트랜잭션 내). 신규 가격 정책이므로 sales 는 0L.
+        publishProductEventPort.publishPricePolicyCreatedEvent(
+                new PricePolicyCreatedEvent(
+                        productId, id,
+                        product.getSellerId(),
+                        product.getName(),
+                        product.getBrandName(),
+                        command.price(), command.discountPrice(), command.accumulatedPoint(),
+                        0L,
+                        tagSnapshots, optionSnapshots
+                )
+        );
 
         return RegisterPricePolicyResult.of(id);
+    }
+
+    private List<PricePolicyCreatedEvent.ProductOptionSnapshot> toOptionSnapshots(List<Long> optionIds) {
+        if (FormatValidator.hasNoValue(optionIds)) {
+            return List.of();
+        }
+        List<ProductOption> options = findProductOptionPort.findByIds(optionIds);
+        return options.stream()
+                .map(option -> new PricePolicyCreatedEvent.ProductOptionSnapshot(
+                        option.getId(), option.getContent()
+                ))
+                .toList();
+    }
+
+    private List<PricePolicyCreatedEvent.ProductTagSnapshot> toTagSnapshots(List<ProductTag> productTags) {
+        if (FormatValidator.hasNoValue(productTags)) {
+            return List.of();
+        }
+        return productTags.stream()
+                .map(tag -> new PricePolicyCreatedEvent.ProductTagSnapshot(
+                        tag.getId(), tag.getName(), tag.getOrderNum()
+                ))
+                .toList();
     }
 
     private void validateDiscountPriceNotExceedPrice(RegisterPricePolicyCommand command) {

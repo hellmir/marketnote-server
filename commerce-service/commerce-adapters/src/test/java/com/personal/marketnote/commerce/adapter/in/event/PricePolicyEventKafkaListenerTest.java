@@ -39,7 +39,11 @@ class PricePolicyEventKafkaListenerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long productId, Long pricePolicyId) {
-        PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(productId, pricePolicyId);
+        PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
+                productId, pricePolicyId, null, null, null,
+                null, null, null, null,
+                java.util.List.of(), java.util.List.of()
+        );
         EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "product.price-policy.created", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event
@@ -115,7 +119,11 @@ class PricePolicyEventKafkaListenerTest {
     @DisplayName("eventType이 불일치하면 UseCase를 호출하지 않고 acknowledge한다")
     void handlePricePolicyCreatedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(1L, 2L);
+        PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
+                1L, 2L, null, null, null,
+                null, null, null, null,
+                java.util.List.of(), java.util.List.of()
+        );
         EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "product-service",
                 LocalDateTime.of(2026, 2, 27, 10, 0), event

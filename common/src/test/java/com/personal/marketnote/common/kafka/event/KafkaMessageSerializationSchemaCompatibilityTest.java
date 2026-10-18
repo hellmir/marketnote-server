@@ -143,7 +143,12 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("PricePolicyCreatedEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void pricePolicyCreatedEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(10L, 20L);
+            PricePolicyCreatedEvent event = new PricePolicyCreatedEvent(
+                    10L, 20L, 30L, "상품", "브랜드",
+                    10000L, 9000L, 100L, 0L,
+                    java.util.List.of(new PricePolicyCreatedEvent.ProductTagSnapshot(1L, "NEW", 1L)),
+                    java.util.List.of(new PricePolicyCreatedEvent.ProductOptionSnapshot(50L, "색상: 빨강"))
+            );
             EventEnvelope<PricePolicyCreatedEvent> envelope = EventEnvelope.of(
                     "product.price-policy.created", "product-service", event, FIXED_CLOCK);
 
@@ -154,6 +159,11 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             PricePolicyCreatedEvent result = deserialized.getPayloadAs(PricePolicyCreatedEvent.class, OBJECT_MAPPER);
             assertThat(result.productId()).isEqualTo(10L);
             assertThat(result.pricePolicyId()).isEqualTo(20L);
+            assertThat(result.sellerId()).isEqualTo(30L);
+            assertThat(result.productName()).isEqualTo("상품");
+            assertThat(result.price()).isEqualTo(10000L);
+            assertThat(result.productTags()).hasSize(1);
+            assertThat(result.selectedOptions()).hasSize(1);
         }
 
         @Test
