@@ -18,6 +18,7 @@ import com.personal.marketnote.product.domain.option.ProductOptionCategory;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.pricepolicy.Rate;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicyCreateState;
+import com.personal.marketnote.product.exception.InvalidProductOptionOwnershipException;
 import com.personal.marketnote.product.exception.ProductNoPricePolicyException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.out.productoption.DeleteProductOptionCategoryPort;
@@ -219,6 +220,14 @@ public class ProductOptionPersistenceAdapter
     @Override
     @CacheEvict(value = "product:detail", key = "#productId")
     public void assignPricePolicyToOptions(Long productId, Long pricePolicyId, List<Long> optionIds) {
+        if (FormatValidator.hasNoValue(optionIds)) {
+            return;
+        }
+        long ownedCount = productOptionJpaRepository.countByProductIdAndIds(productId, optionIds);
+        if (ownedCount != optionIds.size()) {
+            throw new InvalidProductOptionOwnershipException(productId);
+        }
+
         // 기존 동일 옵션 조합 가격 정책 삭제
         List<PricePolicyJpaEntity> existentPricePolicies = pricePolicyJpaRepository.findByOptionIds(optionIds);
         existentPricePolicies.forEach(PricePolicyJpaEntity::deactivate);
@@ -232,11 +241,11 @@ public class ProductOptionPersistenceAdapter
     }
 
     @Override
-    public List<ProductOption> findByIds(List<Long> ids) {
+    public List<ProductOption> findByProductIdAndIds(Long productId, List<Long> ids) {
         if (FormatValidator.hasNoValue(ids)) {
             return List.of();
         }
-        return productOptionJpaRepository.findAllById(ids).stream()
+        return productOptionJpaRepository.findByProductIdAndIds(productId, ids).stream()
                 .map(ProductJpaEntityToDomainMapper::mapToDomain)
                 .flatMap(Optional::stream)
                 .toList();

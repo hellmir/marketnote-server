@@ -9,6 +9,7 @@ import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductTag;
 import com.personal.marketnote.product.exception.InvalidPricePolicyAccumulatedPointException;
 import com.personal.marketnote.product.exception.InvalidPricePolicyPriceException;
+import com.personal.marketnote.product.exception.InvalidProductOptionOwnershipException;
 import com.personal.marketnote.product.exception.NotProductOwnerException;
 import com.personal.marketnote.product.mapper.ProductCommandToStateMapper;
 import com.personal.marketnote.product.port.in.command.RegisterPricePolicyCommand;
@@ -57,11 +58,16 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         Long id = savePricePolicyPort.save(pricePolicy);
 
         List<Long> optionIds = command.optionIds();
+        List<PricePolicyCreatedEvent.ProductOptionSnapshot> optionSnapshots = List.of();
         if (FormatValidator.hasValue(optionIds)) {
+            List<ProductOption> ownedOptions = findProductOptionPort.findByProductIdAndIds(productId, optionIds);
+            if (ownedOptions.size() != optionIds.size()) {
+                throw new InvalidProductOptionOwnershipException(productId);
+            }
+            optionSnapshots = toOptionSnapshots(ownedOptions);
             updateOptionPricePolicyPort.assignPricePolicyToOptions(productId, id, optionIds);
         }
 
-        List<PricePolicyCreatedEvent.ProductOptionSnapshot> optionSnapshots = toOptionSnapshots(optionIds);
         List<PricePolicyCreatedEvent.ProductTagSnapshot> tagSnapshots = toTagSnapshots(product.getProductTags());
 
         // Outbox 이벤트 저장 (트랜잭션 내). 신규 가격 정책이므로 sales 는 0L.
@@ -80,11 +86,10 @@ public class RegisterPricePolicyService implements RegisterPricePolicyUseCase {
         return RegisterPricePolicyResult.of(id);
     }
 
-    private List<PricePolicyCreatedEvent.ProductOptionSnapshot> toOptionSnapshots(List<Long> optionIds) {
-        if (FormatValidator.hasNoValue(optionIds)) {
+    private List<PricePolicyCreatedEvent.ProductOptionSnapshot> toOptionSnapshots(List<ProductOption> options) {
+        if (FormatValidator.hasNoValue(options)) {
             return List.of();
         }
-        List<ProductOption> options = findProductOptionPort.findByIds(optionIds);
         return options.stream()
                 .map(option -> new PricePolicyCreatedEvent.ProductOptionSnapshot(
                         option.getId(), option.getContent()

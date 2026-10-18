@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface FindProductOptionPort {
 
-    List<ProductOption> findByIds(List<Long> ids);
+    List<ProductOption> findByProductIdAndIds(Long productId, List<Long> ids);
 }
