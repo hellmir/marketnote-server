@@ -65,7 +65,8 @@ public class OrderCancelSagaDefinition implements SagaDefinition<OrderCancelSaga
     private String buildFulfillmentCancelAction(OrderCancelSagaContext context) {
         return serialize(Map.of(
                 "orderId", context.orderId(),
-                "originalStatus", context.originalStatus()
+                "originalStatus", context.originalStatus(),
+                "productKeys", context.productKeys() == null ? List.of() : context.productKeys()
         ));
     }
 

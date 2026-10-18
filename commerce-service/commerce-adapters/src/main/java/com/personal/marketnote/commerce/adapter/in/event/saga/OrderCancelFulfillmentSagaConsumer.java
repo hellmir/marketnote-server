@@ -18,6 +18,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Slf4j
 @Component
 @ConditionalOnProperty(prefix = "saga", name = "enabled", havingValue = "true")
@@ -82,7 +84,13 @@ public class OrderCancelFulfillmentSagaConsumer {
                 return;
             }
 
-            CancelFulfillmentReleaseResult result = cancelFulfillmentReleasePort.cancelRelease(payload.orderId());
+            List<String> productKeys = FormatValidator.hasValue(payload.productKeys())
+                    ? payload.productKeys()
+                    : List.of();
+
+            CancelFulfillmentReleaseResult result = cancelFulfillmentReleasePort.cancelRelease(
+                    payload.orderId(), productKeys
+            );
 
             if (!result.cancelled()) {
                 log.warn("풀필먼트 출고 취소 거부. sagaId={}, orderId={}, message={}",

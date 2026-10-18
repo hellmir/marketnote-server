@@ -40,15 +40,19 @@ public class FulfillmentServiceClient implements CancelFulfillmentReleasePort, R
     }
 
     @Override
-    public CancelFulfillmentReleaseResult cancelRelease(Long orderId) {
+    public CancelFulfillmentReleaseResult cancelRelease(Long orderId, List<String> productKeys) {
         URI uri = buildCancelReleaseUri();
+
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("orderId", orderId);
+        body.put("productKeys", FormatValidator.hasValue(productKeys) ? productKeys : List.of());
 
         try {
             ResponseEntity<JsonNode> responseEntity = restClient.post()
                     .uri(uri)
                     .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(Map.of("orderId", orderId))
+                    .body(body)
                     .retrieve()
                     .toEntity(JsonNode.class);
 

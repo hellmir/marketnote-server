@@ -88,6 +88,14 @@ public class OrderProduct {
         return FormatValidator.hasValue(this.orderStatus) && this.orderStatus.isConfirmed();
     }
 
+    public boolean isCancelled() {
+        return FormatValidator.hasValue(this.orderStatus) && this.orderStatus.isCancelled();
+    }
+
+    public boolean isCancelRequested() {
+        return FormatValidator.hasValue(this.orderStatus) && this.orderStatus.isCancelRequested();
+    }
+
     public boolean isWithinReviewDeadline(LocalDateTime now) {
         // confirmedAt이 null인 기존 데이터는 기한 내로 간주 (마이그레이션 전 데이터 호환)
         if (FormatValidator.hasNoValue(confirmedAt)) {

@@ -71,12 +71,12 @@ class OrderCancelFulfillmentSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            when(cancelFulfillmentReleasePort.cancelRelease(1L))
+            when(cancelFulfillmentReleasePort.cancelRelease(1L, java.util.List.of()))
                     .thenReturn(new CancelFulfillmentReleaseResult(1L, true, "취소 성공"));
 
             consumer.handleFulfillmentCancelStep(record, acknowledgment);
 
-            verify(cancelFulfillmentReleasePort).cancelRelease(1L);
+            verify(cancelFulfillmentReleasePort).cancelRelease(1L, java.util.List.of());
             verify(sagaResponsePublisher).publishSuccess(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
             verify(acknowledgment).acknowledge();
@@ -89,7 +89,7 @@ class OrderCancelFulfillmentSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            when(cancelFulfillmentReleasePort.cancelRelease(1L))
+            when(cancelFulfillmentReleasePort.cancelRelease(1L, java.util.List.of()))
                     .thenReturn(new CancelFulfillmentReleaseResult(1L, false, "피킹 완료"));
 
             consumer.handleFulfillmentCancelStep(record, acknowledgment);
@@ -107,7 +107,7 @@ class OrderCancelFulfillmentSagaConsumerTest {
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            when(cancelFulfillmentReleasePort.cancelRelease(1L))
+            when(cancelFulfillmentReleasePort.cancelRelease(1L, java.util.List.of()))
                     .thenThrow(new FulfillmentServiceRequestFailedException(new IOException("connection refused")));
 
             consumer.handleFulfillmentCancelStep(record, acknowledgment);

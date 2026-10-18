@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.service;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.domain.delivery.FulfillmentDeliveryRegistration;
 import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryCancellationNotAllowedException;
@@ -47,13 +48,13 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
         try {
             try {
                 cancelFulfillmentDeliveryPort.cancelDelivery(
-                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId())
+                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
                 );
             } catch (FulfillmentInvalidAccessException firstFailure) {
                 requestFulfillmentAuthUseCase.invalidateCache();
                 accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
                 cancelFulfillmentDeliveryPort.cancelDelivery(
-                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId())
+                        buildCancelCommand(customerCode, accessToken.getValue(), command.orderId(), command.productKeys())
                 );
             }
 
@@ -86,9 +87,19 @@ public class CancelInternalFulfillmentDeliveryService implements CancelInternalF
         }
     }
 
-    private CancelFulfillmentDeliveryCommand buildCancelCommand(String customerCode, String accessToken, Long orderId) {
+    private CancelFulfillmentDeliveryCommand buildCancelCommand(
+            String customerCode, String accessToken, Long orderId, List<String> productKeys
+    ) {
         String orderNumber = String.valueOf(orderId);
-        CancelFulfillmentDeliveryItemCommand itemCommand = CancelFulfillmentDeliveryItemCommand.of(orderNumber, orderNumber);
-        return CancelFulfillmentDeliveryCommand.of(customerCode, accessToken, List.of(itemCommand));
+
+        if (FormatValidator.hasNoValue(productKeys) || productKeys.isEmpty()) {
+            CancelFulfillmentDeliveryItemCommand itemCommand = CancelFulfillmentDeliveryItemCommand.of(orderNumber, orderNumber);
+            return CancelFulfillmentDeliveryCommand.of(customerCode, accessToken, List.of(itemCommand));
+        }
+
+        List<CancelFulfillmentDeliveryItemCommand> itemCommands = productKeys.stream()
+                .map(productKey -> CancelFulfillmentDeliveryItemCommand.of(orderNumber, orderNumber, productKey))
+                .toList();
+        return CancelFulfillmentDeliveryCommand.of(customerCode, accessToken, itemCommands);
     }
 }

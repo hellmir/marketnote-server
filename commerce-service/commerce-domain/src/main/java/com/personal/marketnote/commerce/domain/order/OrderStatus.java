@@ -16,6 +16,7 @@ public enum OrderStatus {
     FAILED("결제 실패"),
     PREPARING("상품 준비중"),
     CANCEL_REQUESTED("취소 요청"),
+    PARTIALLY_CANCEL_REQUESTED("부분 취소 요청"),
     CANCELLED("주문 취소"),
     SHIPPING("배송중"),
     DELIVERED("배송 완료"),
@@ -34,11 +35,12 @@ public enum OrderStatus {
 
     static {
         ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCELLED, PARTIALLY_CANCELLED));
-        ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
+        ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED, PARTIALLY_CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(FAILED, EnumSet.noneOf(OrderStatus.class));
-        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
+        ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCEL_REQUESTED, PARTIALLY_CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCEL_REQUESTED, EnumSet.of(CANCELLED));
-        ALLOWED_TRANSITIONS.put(PARTIALLY_CANCELLED, EnumSet.of(CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_CANCEL_REQUESTED, EnumSet.of(CANCELLED, PARTIALLY_CANCELLED, CANCEL_REQUESTED));
+        ALLOWED_TRANSITIONS.put(PARTIALLY_CANCELLED, EnumSet.of(CANCEL_REQUESTED, PARTIALLY_CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(CANCELLED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(SHIPPING, EnumSet.of(DELIVERED, RETURN_REQUESTED));
         ALLOWED_TRANSITIONS.put(DELIVERED, EnumSet.of(CONFIRMED, RETURN_REQUESTED));
@@ -131,8 +133,16 @@ public enum OrderStatus {
         return this == PARTIALLY_CANCELLED;
     }
 
+    public boolean isPartiallyCancelRequested() {
+        return this == PARTIALLY_CANCEL_REQUESTED;
+    }
+
     public static OrderStatus getPartiallyCancelled() {
         return PARTIALLY_CANCELLED;
+    }
+
+    public static OrderStatus getPartiallyCancelRequested() {
+        return PARTIALLY_CANCEL_REQUESTED;
     }
 
     public boolean canPartiallyCancel() {
@@ -140,7 +150,10 @@ public enum OrderStatus {
     }
 
     public boolean isNotPartialChanged() {
-        return this != PARTIALLY_CONFIRMED && this != PARTIALLY_RETURNED && this != PARTIALLY_CANCELLED;
+        return this != PARTIALLY_CONFIRMED
+                && this != PARTIALLY_RETURNED
+                && this != PARTIALLY_CANCELLED
+                && this != PARTIALLY_CANCEL_REQUESTED;
     }
 
     public boolean isReviewable() {

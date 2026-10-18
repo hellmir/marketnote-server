@@ -14,14 +14,24 @@ import java.util.Map;
 public class FulfillmentDeliveryCancelItemMapper {
     private String slipNo;
     private String ordNo;
+    private String cstGodCd;
 
     public static FulfillmentDeliveryCancelItemMapper of(
             String slipNo,
             String ordNo
     ) {
+        return of(slipNo, ordNo, null);
+    }
+
+    public static FulfillmentDeliveryCancelItemMapper of(
+            String slipNo,
+            String ordNo,
+            String cstGodCd
+    ) {
         FulfillmentDeliveryCancelItemMapper mapper = FulfillmentDeliveryCancelItemMapper.builder()
                 .slipNo(slipNo)
                 .ordNo(ordNo)
+                .cstGodCd(cstGodCd)
                 .build();
         mapper.validate();
         return mapper;
@@ -31,6 +41,9 @@ public class FulfillmentDeliveryCancelItemMapper {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("slipNo", slipNo);
         payload.put("ordNo", ordNo);
+        if (FormatValidator.hasValue(cstGodCd)) {
+            payload.put("cstGodCd", cstGodCd);
+        }
         return payload;
     }
 

@@ -161,8 +161,12 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                 return;
             }
 
+            List<String> productKeys = FormatValidator.hasValue(payload.productKeys())
+                    ? payload.productKeys()
+                    : List.of();
+
             CancelInternalFulfillmentDeliveryResult result = cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(
-                    new CancelInternalFulfillmentDeliveryCommand(payload.orderId())
+                    new CancelInternalFulfillmentDeliveryCommand(payload.orderId(), productKeys)
             );
 
             if (!result.cancelled()) {

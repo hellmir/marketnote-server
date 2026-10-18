@@ -400,7 +400,7 @@ class CancelOrderUseCaseTest {
             Long buyerId = 100L;
             Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
+            when(cancelFulfillmentReleasePort.cancelRelease(orderId, java.util.List.of()))
                     .thenReturn(new CancelFulfillmentReleaseResult(orderId, false, "이미 출고 완료"));
 
             CancelOrderCommand command = createCommand(orderId, buyerId);
@@ -418,7 +418,7 @@ class CancelOrderUseCaseTest {
             Long buyerId = 200L;
             Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
+            when(cancelFulfillmentReleasePort.cancelRelease(orderId, java.util.List.of()))
                     .thenReturn(new CancelFulfillmentReleaseResult(orderId, false, "출고 진행중"));
 
             CancelOrderCommand command = createCommand(orderId, buyerId);
@@ -436,7 +436,7 @@ class CancelOrderUseCaseTest {
             Long buyerId = 100L;
             Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId))
+            when(cancelFulfillmentReleasePort.cancelRelease(orderId, java.util.List.of()))
                     .thenThrow(new FulfillmentServiceRequestFailedException(
                             new java.io.IOException("Connection refused")
                     ));

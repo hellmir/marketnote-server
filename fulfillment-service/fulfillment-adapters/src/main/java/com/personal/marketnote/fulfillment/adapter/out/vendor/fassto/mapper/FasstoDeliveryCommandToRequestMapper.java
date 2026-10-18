@@ -251,6 +251,6 @@ public class FasstoDeliveryCommandToRequestMapper {
     }
 
     private static FulfillmentDeliveryCancelItemMapper mapCancelItem(CancelFulfillmentDeliveryItemCommand item) {
-        return FulfillmentDeliveryCancelItemMapper.of(item.slipNumber(), item.orderNumber());
+        return FulfillmentDeliveryCancelItemMapper.of(item.slipNumber(), item.orderNumber(), item.productKey());
     }
 }

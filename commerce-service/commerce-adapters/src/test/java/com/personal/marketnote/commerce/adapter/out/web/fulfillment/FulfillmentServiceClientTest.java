@@ -67,7 +67,7 @@ class FulfillmentServiceClientTest {
                             """, MediaType.APPLICATION_JSON));
 
             // when
-            CancelFulfillmentReleaseResult result = fulfillmentServiceClient.cancelRelease(ORDER_ID);
+            CancelFulfillmentReleaseResult result = fulfillmentServiceClient.cancelRelease(ORDER_ID, java.util.List.of());
 
             // then
             assertThat(result.orderId()).isEqualTo(ORDER_ID);
@@ -93,7 +93,7 @@ class FulfillmentServiceClientTest {
                             """, MediaType.APPLICATION_JSON));
 
             // when
-            CancelFulfillmentReleaseResult result = fulfillmentServiceClient.cancelRelease(ORDER_ID);
+            CancelFulfillmentReleaseResult result = fulfillmentServiceClient.cancelRelease(ORDER_ID, java.util.List.of());
 
             // then
             assertThat(result.orderId()).isEqualTo(ORDER_ID);
@@ -111,7 +111,7 @@ class FulfillmentServiceClientTest {
                     .andRespond(withServerError());
 
             // when & then
-            assertThatThrownBy(() -> fulfillmentServiceClient.cancelRelease(ORDER_ID))
+            assertThatThrownBy(() -> fulfillmentServiceClient.cancelRelease(ORDER_ID, java.util.List.of()))
                     .isInstanceOf(FulfillmentServiceRequestFailedException.class);
 
             mockServer.verify();
