@@ -273,5 +273,39 @@ class ProductCatalogReadModelPersistenceAdapterTest {
 
             assertThat(count).isEqualTo(2);
         }
+
+        @Test
+        @DisplayName("커서 pricePolicyId 가 존재하지 않으면 (하드 삭제) 빈 결과를 반환하여 1페이지 재조회를 방지한다")
+        void returnsEmptyWhenCursorRecordDeleted() {
+            adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+            adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
+                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+
+            List<ProductCatalogItemResult> results = adapter.findCatalogItems(
+                    null, null, 999L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+            );
+
+            assertThat(results).isEmpty();
+        }
+
+        @Test
+        @DisplayName("커서 pricePolicyId 가 null 또는 0 이하이면 1페이지부터 정상 조회한다")
+        void returnsFirstPageWhenCursorAbsent() {
+            adapter.upsertCatalog(1L, 100L, 200L, null, "A", null,
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+            adapter.upsertCatalog(2L, 101L, 200L, null, "B", null,
+                    8000L, 7000L, BigDecimal.valueOf(12.5), 0L, BigDecimal.ZERO, 0L, 0L, 0L, null, null);
+
+            List<ProductCatalogItemResult> withNullCursor = adapter.findCatalogItems(
+                    null, null, null, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+            );
+            List<ProductCatalogItemResult> withZeroCursor = adapter.findCatalogItems(
+                    null, null, 0L, 10, true, ProductSortProperty.DISCOUNT_PRICE, null, null
+            );
+
+            assertThat(withNullCursor).hasSize(2);
+            assertThat(withZeroCursor).hasSize(2);
+        }
     }
 }
