@@ -3,9 +3,11 @@ package com.personal.marketnote.commerce.domain.inventory;
 import com.personal.marketnote.common.domain.exception.illegalargument.invalidvalue.InvalidQuantityException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
@@ -19,8 +21,13 @@ public class Inventory {
     private int reserved;
 
     public static Inventory of(Long productId, Long pricePolicyId) {
+        return of(productId, null, pricePolicyId);
+    }
+
+    public static Inventory of(Long productId, UUID productKey, Long pricePolicyId) {
         return Inventory.builder()
                 .productId(productId)
+                .productKey(productKey)
                 .pricePolicyId(pricePolicyId)
                 .stock(Stock.of(
                         "0"
@@ -61,6 +68,22 @@ public class Inventory {
                 .version(state.getVersion())
                 .reserved(state.getReserved())
                 .build();
+    }
+
+    public boolean hasProductKey() {
+        return FormatValidator.hasValue(productKey);
+    }
+
+    public void assignProductKey(UUID productKey) {
+        if (hasProductKey()) {
+            if (!this.productKey.equals(productKey)) {
+                log.warn("Inventory productKey 덮어쓰기 시도 무시. pricePolicyId={}, current={}, requested={}",
+                        pricePolicyId, this.productKey, productKey
+                );
+            }
+            return;
+        }
+        this.productKey = productKey;
     }
 
     public void reduce(int stockToReduce) {

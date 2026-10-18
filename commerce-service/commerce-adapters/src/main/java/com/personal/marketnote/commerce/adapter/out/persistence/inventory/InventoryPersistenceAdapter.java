@@ -79,6 +79,22 @@ public class InventoryPersistenceAdapter implements SaveInventoryPort, FindInven
     }
 
     @Override
+    public void updateProductKey(Set<Inventory> inventories) {
+        Set<Long> pricePolicyIds = inventories.stream()
+                .map(Inventory::getPricePolicyId)
+                .collect(Collectors.toSet());
+
+        Set<InventoryJpaEntity> entities = inventoryJpaRepository.findByPricePolicyIds(pricePolicyIds);
+
+        for (Inventory inventory : inventories) {
+            entities.stream()
+                    .filter(entity -> entity.getPricePolicyId().equals(inventory.getPricePolicyId()))
+                    .findFirst()
+                    .ifPresent(entity -> entity.assignProductKey(inventory.getProductKey()));
+        }
+    }
+
+    @Override
     public void update(Set<Inventory> inventories) throws InventoryNotFoundException {
         Set<Long> pricePolicyIds = inventories.stream()
                 .map(Inventory::getPricePolicyId)
