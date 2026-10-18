@@ -47,7 +47,11 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
         CategoryJpaEntity entity = CategoryJpaEntity.of(category.getParentCategoryId(), category.getName());
         CategoryJpaEntity saved = categoryJpaRepository.save(entity);
 
-        return CategoryJpaEntityToDomainMapper.mapToDomain(saved).get();
+        return CategoryJpaEntityToDomainMapper.mapToDomain(saved)
+                .orElseThrow(() -> new CategoryNotFoundException(
+                        "저장된 카테고리를 도메인으로 매핑할 수 없습니다. 저장된 카테고리 ID: %d",
+                        saved.getId()
+                ));
     }
 
     @Override

@@ -30,7 +30,8 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
         savedEntity.setIdToOrderNum();
         savedEntity.getProductTagJpaEntities().forEach(ProductTagJpaEntity::setIdToOrderNum);
 
-        return ProductJpaEntityToDomainMapper.mapToDomain(savedEntity).get();
+        return ProductJpaEntityToDomainMapper.mapToDomain(savedEntity)
+                .orElseThrow(() -> new ProductNotFoundException(savedEntity.getId()));
     }
 
     @Override
@@ -57,15 +58,18 @@ public class ProductPersistenceAdapter implements SaveProductPort, FindProductPo
     @Override
     public List<Product> findAll() {
         return loadProductsWithAssociations(productJpaRepository.findAll()).stream()
-                .map(entity -> ProductJpaEntityToDomainMapper.mapToDomain(entity).get())
+                .map(ProductJpaEntityToDomainMapper::mapToDomain)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .toList();
     }
 
     @Override
     public List<Product> findAllByCategoryId(Long categoryId) {
-
         return loadProductsWithAssociations(productJpaRepository.findAllByCategoryIdOrderByOrderNumAsc(categoryId)).stream()
-                .map(entity -> ProductJpaEntityToDomainMapper.mapToDomain(entity).get())
+                .map(ProductJpaEntityToDomainMapper::mapToDomain)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .toList();
     }
 
