@@ -23,4 +23,26 @@ public interface ProductOptionJpaRepository extends JpaRepository<ProductOptionJ
             where o.productOptionCategoryJpaEntity.id = :categoryId
             """)
     void deleteAllByCategoryId(@Param("categoryId") Long categoryId);
+
+    @Query("""
+            select o
+            from ProductOptionJpaEntity o
+            where o.productOptionCategoryJpaEntity.productJpaEntity.id = :productId
+              and o.id in :ids
+            """)
+    List<ProductOptionJpaEntity> findByProductIdAndIds(
+            @Param("productId") Long productId,
+            @Param("ids") List<Long> ids
+    );
+
+    @Query("""
+            select count(o)
+            from ProductOptionJpaEntity o
+            where o.productOptionCategoryJpaEntity.productJpaEntity.id = :productId
+              and o.id in :ids
+            """)
+    long countByProductIdAndIds(
+            @Param("productId") Long productId,
+            @Param("ids") List<Long> ids
+    );
 }
