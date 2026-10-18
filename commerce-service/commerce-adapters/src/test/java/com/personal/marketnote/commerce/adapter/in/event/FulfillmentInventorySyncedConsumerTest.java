@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.exception.InvalidFulfillmentSyncCommandException;
 import com.personal.marketnote.commerce.exception.InventoryProductNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryCommand;
+import com.personal.marketnote.commerce.port.in.command.inventory.SyncFulfillmentVendorInventoryItemCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.SyncFulfillmentVendorInventoryUseCase;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -23,7 +25,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -85,6 +89,68 @@ class FulfillmentInventorySyncedConsumerTest {
             verify(syncFulfillmentVendorInventoryUseCase).syncInventories(
                     any(SyncFulfillmentVendorInventoryCommand.class)
             );
+            verify(acknowledgment).acknowledge();
+        }
+    }
+
+    @Nested
+    @DisplayName("이벤트 수신 - productKey 전달")
+    class HandleProductKey {
+
+        @Test
+        @DisplayName("InventoryItem에 productKey가 있으면 Command에 productKey가 전달된다")
+        void shouldForwardProductKeyToCommandWhenPresent() {
+            // given
+            UUID productKey = UUID.randomUUID();
+            FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
+                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(1L, productKey, 100))
+            );
+            EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
+
+            ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                    "fulfillment-inventory-sync", envelope
+            );
+
+            // when
+            consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment);
+
+            // then
+            ArgumentCaptor<SyncFulfillmentVendorInventoryCommand> captor =
+                    ArgumentCaptor.forClass(SyncFulfillmentVendorInventoryCommand.class);
+            verify(syncFulfillmentVendorInventoryUseCase).syncInventories(captor.capture());
+            List<SyncFulfillmentVendorInventoryItemCommand> items = captor.getValue().inventories();
+            assertThat(items).hasSize(1);
+            assertThat(items.get(0).productId()).isEqualTo(1L);
+            assertThat(items.get(0).productKey()).isEqualTo(productKey);
+            assertThat(items.get(0).stock()).isEqualTo(100);
+            verify(acknowledgment).acknowledge();
+        }
+
+        @Test
+        @DisplayName("InventoryItem에 productKey가 없으면 Command의 productKey는 null이다")
+        void shouldPassNullProductKeyWhenAbsent() {
+            // given
+            FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
+                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100))
+            );
+            EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
+
+            ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                    "fulfillment-inventory-sync", envelope
+            );
+
+            // when
+            consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment);
+
+            // then
+            ArgumentCaptor<SyncFulfillmentVendorInventoryCommand> captor =
+                    ArgumentCaptor.forClass(SyncFulfillmentVendorInventoryCommand.class);
+            verify(syncFulfillmentVendorInventoryUseCase).syncInventories(captor.capture());
+            List<SyncFulfillmentVendorInventoryItemCommand> items = captor.getValue().inventories();
+            assertThat(items).hasSize(1);
+            assertThat(items.get(0).productKey()).isNull();
             verify(acknowledgment).acknowledge();
         }
     }

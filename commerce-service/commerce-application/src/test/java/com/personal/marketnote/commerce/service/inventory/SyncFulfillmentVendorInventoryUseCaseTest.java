@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.inventory;
 
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
+import com.personal.marketnote.commerce.domain.inventory.InventorySnapshotState;
 import com.personal.marketnote.commerce.exception.InventoryLockAcquisitionException;
 import com.personal.marketnote.commerce.exception.InventoryLockInterruptedException;
 import com.personal.marketnote.commerce.exception.InventoryProductNotFoundException;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -826,6 +828,19 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
         return Inventory.of(productId, pricePolicyId, stock, version);
     }
 
+    private Inventory buildInventoryWithProductKey(
+            Long productId, UUID productKey, Long pricePolicyId, int stock, Long version
+    ) {
+        return Inventory.from(InventorySnapshotState.builder()
+                .productId(productId)
+                .productKey(productKey)
+                .pricePolicyId(pricePolicyId)
+                .stock(stock)
+                .version(version)
+                .reserved(0)
+                .build());
+    }
+
     // ==================================================================================
     // 이벤트 발행 검증
     // ==================================================================================
@@ -909,6 +924,147 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
                     .isInstanceOf(InventoryProductNotFoundException.class);
 
             verifyNoInteractions(publishInventoryEventPort);
+        }
+    }
+
+    // ==================================================================================
+    // productKey 기반 조회 (#4083)
+    // ==================================================================================
+
+    @Nested
+    @DisplayName("syncInventories productKey 기반 조회")
+    class SyncInventoriesProductKeyTest {
+
+        @Test
+        @DisplayName("모든 항목이 productKey를 보유하면 findByProductKeys로 조회한다")
+        @SuppressWarnings("unchecked")
+        void syncInventories_allItemsHaveProductKey_callsFindByProductKeys() {
+            UUID productKey1 = UUID.randomUUID();
+            UUID productKey2 = UUID.randomUUID();
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, productKey1, 50),
+                    SyncFulfillmentVendorInventoryItemCommand.of(2L, productKey2, 30)
+            );
+            when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
+                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
+            ));
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
+                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L),
+                    buildInventoryWithProductKey(2L, productKey2, 200L, 20, 2L)
+            ));
+
+            syncFulfillmentVendorInventoryService.syncInventories(command);
+
+            ArgumentCaptor<Set<UUID>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(findInventoryPort).findByProductKeys(captor.capture());
+            assertThat(captor.getValue()).containsExactlyInAnyOrder(productKey1, productKey2);
+            verify(findInventoryPort, never()).findByProductIds(any());
+        }
+
+        @Test
+        @DisplayName("productKey 경로에서도 가격 정책 ID로 락을 획득하고 업데이트 순서를 유지한다")
+        @SuppressWarnings("unchecked")
+        void syncInventories_productKeyPath_acquiresLockByPricePolicyId() {
+            UUID productKey1 = UUID.randomUUID();
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, productKey1, 50)
+            );
+            when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
+                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L)
+            ));
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
+                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L)
+            ));
+
+            syncFulfillmentVendorInventoryService.syncInventories(command);
+
+            ArgumentCaptor<Set<Long>> lockKeysCaptor = ArgumentCaptor.forClass(Set.class);
+            verify(inventoryLockPort).executeWithLock(lockKeysCaptor.capture(), any());
+            assertThat(lockKeysCaptor.getValue()).containsExactly(100L);
+
+            InOrder inOrder = inOrder(findInventoryPort, updateInventoryPort, saveCacheStockPort, publishInventoryEventPort);
+            inOrder.verify(findInventoryPort).findByProductKeys(any());
+            inOrder.verify(findInventoryPort).findByPricePolicyIds(any());
+            inOrder.verify(updateInventoryPort).update(any());
+            inOrder.verify(saveCacheStockPort).save(any(Set.class));
+            inOrder.verify(publishInventoryEventPort).publishInventoryChangedEvent(
+                    100L, 1L, 50, InventoryChangeAction.UPDATED
+            );
+        }
+
+        @Test
+        @DisplayName("productKey 경로에서 조회된 재고의 productId로 업데이트한다")
+        @SuppressWarnings("unchecked")
+        void syncInventories_productKeyPath_updatesByResolvedProductId() {
+            UUID productKey1 = UUID.randomUUID();
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, productKey1, 77)
+            );
+            when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
+                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L)
+            ));
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
+                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L)
+            ));
+
+            syncFulfillmentVendorInventoryService.syncInventories(command);
+
+            ArgumentCaptor<Set<Inventory>> captor = ArgumentCaptor.forClass(Set.class);
+            verify(updateInventoryPort).update(captor.capture());
+            Inventory updated = captor.getValue().iterator().next();
+            assertThat(updated.getProductId()).isEqualTo(1L);
+            assertThat(updated.getStockValue()).isEqualTo(77);
+        }
+
+        @Test
+        @DisplayName("productKey 경로에서 일부 productKey가 존재하지 않으면 InventoryProductNotFoundException을 던진다")
+        void syncInventories_productKeyPath_partialMissing_throwsInventoryProductNotFoundException() {
+            UUID productKey1 = UUID.randomUUID();
+            UUID productKey2 = UUID.randomUUID();
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, productKey1, 50),
+                    SyncFulfillmentVendorInventoryItemCommand.of(2L, productKey2, 30)
+            );
+            when(findInventoryPort.findByProductKeys(any())).thenReturn(Set.of(
+                    buildInventoryWithProductKey(1L, productKey1, 100L, 10, 1L)
+            ));
+
+            assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
+                    .isInstanceOf(InventoryProductNotFoundException.class);
+
+            verifyNoInteractions(inventoryLockPort);
+            verifyNoInteractions(updateInventoryPort);
+            verifyNoInteractions(saveCacheStockPort);
+            verifyNoInteractions(publishInventoryEventPort);
+        }
+
+        @Test
+        @DisplayName("일부 항목이 productKey 미보유면 productId 경로(findByProductIds)로 조회한다")
+        @SuppressWarnings("unchecked")
+        void syncInventories_mixedItems_fallsBackToProductIdPath() {
+            UUID productKey1 = UUID.randomUUID();
+            SyncFulfillmentVendorInventoryCommand command = buildCommand(
+                    SyncFulfillmentVendorInventoryItemCommand.of(1L, productKey1, 50),
+                    SyncFulfillmentVendorInventoryItemCommand.of(2L, 30)
+            );
+            when(findInventoryPort.findByProductIds(any())).thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10),
+                    buildInventory(2L, 200L, 20)
+            ));
+            stubLockToExecuteTask();
+            when(findInventoryPort.findByPricePolicyIds(any())).thenReturn(Set.of(
+                    buildInventory(1L, 100L, 10, 1L),
+                    buildInventory(2L, 200L, 20, 2L)
+            ));
+
+            syncFulfillmentVendorInventoryService.syncInventories(command);
+
+            verify(findInventoryPort).findByProductIds(any());
+            verify(findInventoryPort, never()).findByProductKeys(any());
         }
     }
 }
