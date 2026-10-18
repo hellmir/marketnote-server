@@ -177,6 +177,33 @@ class ProductUpdatedFulfillmentConsumerTest {
     }
 
     @Test
+    @DisplayName("productKey가 null이면 Fassto 상품 수정을 호출하지 않고 acknowledge한다")
+    void handleEvent_nullProductKey_skipsAndAcknowledges() {
+        // given
+        ProductUpdatedEvent event = new ProductUpdatedEvent(
+                1L, null, "테스트", "1", "01",
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
+                null, null, null, null
+        );
+        EventEnvelope<ProductUpdatedEvent> envelope = new EventEnvelope<>(
+                "test-event-id", "product.product.updated", "product-service",
+                LocalDateTime.of(2026, 2, 27, 10, 0), event
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                "product.product.updated", 0, 0L, "key-1", envelope
+        );
+
+        // when
+        consumer.handleProductUpdatedEvent(record, acknowledgment);
+
+        // then
+        verifyNoInteractions(requestFulfillmentAuthUseCase, updateFulfillmentGoodsUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
     @DisplayName("Fulfillment 액세스 토큰이 null이면 FulfillmentAccessTokenIssuanceFailedException을 던진다")
     void handleEvent_nullAccessToken_throwsException() {
         // given
