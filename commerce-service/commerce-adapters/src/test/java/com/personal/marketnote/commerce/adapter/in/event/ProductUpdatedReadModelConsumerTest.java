@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -54,7 +55,7 @@ class ProductUpdatedReadModelConsumerTest {
 
     private ProductUpdatedEvent createPayload(Long productId, String productName) {
         return new ProductUpdatedEvent(
-                productId, productName, "1", "01",
+                productId, UUID.randomUUID(), productName, "1", "01",
                 null, null, null, null, null,
                 null, null, null, null, null,
                 null, null, null, null, null,

@@ -81,7 +81,7 @@ public class PartialCancelOrderService implements PartialCancelOrderUseCase {
         List<OrderProductItem> cancelProductItems = order.getOrderProducts().stream()
                 .filter(op -> command.cancelPricePolicyIds().contains(op.getPricePolicyId()))
                 .map(op -> new OrderProductItem(
-                        op.getPricePolicyId(), op.getProductId(), op.getSharerKey(),
+                        op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
                         op.getQuantity().getValue(), op.getUnitAmount().getValue()
                 ))
                 .toList();
@@ -297,7 +297,7 @@ public class PartialCancelOrderService implements PartialCancelOrderUseCase {
     private List<OrderProductItem> mapToOrderProductItems(List<OrderProduct> orderProducts) {
         return orderProducts.stream()
                 .map(op -> new OrderProductItem(
-                        op.getPricePolicyId(), op.getProductId(), op.getSharerKey(),
+                        op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
                         op.getQuantity().getValue(), op.getUnitAmount().getValue()
                 ))
                 .toList();

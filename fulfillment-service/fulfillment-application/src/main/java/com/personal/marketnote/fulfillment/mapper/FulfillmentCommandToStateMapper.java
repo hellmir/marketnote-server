@@ -22,7 +22,7 @@ public class FulfillmentCommandToStateMapper {
     public static FulfillmentGoodsRegistrationCreateState mapToGoodsRegistrationCreateState(
             RegisterFulfillmentGoodsCommand command
     ) {
-        Long productId = Long.parseLong(command.goods().getFirst().productCode());
+        Long productId = command.goods().getFirst().productId();
 
         return FulfillmentGoodsRegistrationCreateState.builder()
                 .productId(productId)

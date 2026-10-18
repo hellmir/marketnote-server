@@ -72,10 +72,13 @@ class OrderPaymentCompletedOutboundDeliveryTest {
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("TEST_CODE");
     }
 
+    private static final UUID PRODUCT_KEY_1 = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    private static final UUID PRODUCT_KEY_2 = UUID.fromString("22222222-2222-2222-2222-222222222222");
+
     private ConsumerRecord<String, EventEnvelope<?>> buildRecordWithShipping() {
         List<OrderPaymentCompletedEvent.OrderProductItem> products = List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(100L, 42L, UUID.randomUUID(), 2, 30000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(200L, 43L, null, 1, 20000L)
+                new OrderPaymentCompletedEvent.OrderProductItem(100L, 42L, PRODUCT_KEY_1, UUID.randomUUID(), 2, 30000L),
+                new OrderPaymentCompletedEvent.OrderProductItem(200L, 43L, PRODUCT_KEY_2, null, 1, 20000L)
         );
         OrderPaymentCompletedEvent event = new OrderPaymentCompletedEvent(
                 1L, 10L, 80000L, 5000L,
@@ -134,8 +137,8 @@ class OrderPaymentCompletedOutboundDeliveryTest {
     }
 
     @Test
-    @DisplayName("convertToGoodsCommands가 productId를 String.valueOf(productId)로 변환하여 productCode에 매핑한다")
-    void shouldConvertProductIdToProductCode() {
+    @DisplayName("convertToGoodsCommands가 이벤트의 productKey를 Command.productKey로 매핑한다")
+    void shouldConvertProductKeyToCommand() {
         // given
         setUpFasstoAuth();
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecordWithShipping();
@@ -150,9 +153,9 @@ class OrderPaymentCompletedOutboundDeliveryTest {
 
         var products = captor.getValue().deliveryRequests().get(0).products();
         assertThat(products).hasSize(2);
-        assertThat(products.get(0).productCode()).isEqualTo("42");
+        assertThat(products.get(0).productKey()).isEqualTo(PRODUCT_KEY_1);
         assertThat(products.get(0).orderQuantity()).isEqualTo(2);
-        assertThat(products.get(1).productCode()).isEqualTo("43");
+        assertThat(products.get(1).productKey()).isEqualTo(PRODUCT_KEY_2);
         assertThat(products.get(1).orderQuantity()).isEqualTo(1);
     }
 

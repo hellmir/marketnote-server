@@ -35,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -143,7 +144,8 @@ class InternalFulfillmentDeliveryControllerTest {
                     "단순변심",
                     "색상 불만족",
                     "부재 시 문 앞",
-                    List.of(new RegisterInternalReturnDeliveryRequest.ProductItem("GOD01", 2))
+                    List.of(new RegisterInternalReturnDeliveryRequest.ProductItem(
+                            UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 2))
             );
             when(registerInternalReturnDeliveryUseCase.registerReturnDelivery(any(RegisterInternalReturnDeliveryCommand.class)))
                     .thenReturn(RegisterInternalReturnDeliveryResult.of(400L, "RTN-001", true, "registered"));
@@ -161,7 +163,7 @@ class InternalFulfillmentDeliveryControllerTest {
             assertThat(command.orderId()).isEqualTo(400L);
             assertThat(command.pickupZipCode()).isEqualTo("06000");
             assertThat(command.products()).hasSize(1);
-            assertThat(command.products().get(0).productCode()).isEqualTo("GOD01");
+            assertThat(command.products().get(0).productKey()).isEqualTo(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
             assertThat(command.products().get(0).quantity()).isEqualTo(2);
         }
     }

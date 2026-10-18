@@ -69,7 +69,7 @@ public class CancelOrderService implements CancelOrderUseCase {
 
         List<OrderProductItem> orderProductItems = order.getOrderProducts().stream()
                 .map(op -> new OrderProductItem(
-                        op.getPricePolicyId(), op.getProductId(), op.getSharerKey(),
+                        op.getPricePolicyId(), op.getProductId(), op.getProductKey(), op.getSharerKey(),
                         op.getQuantity().getValue(), op.getUnitAmount().getValue()))
                 .toList();
 

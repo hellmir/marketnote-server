@@ -89,8 +89,8 @@ class OrderPaymentCompletedOutboundConsumerTest {
 
     private List<OrderPaymentCompletedEvent.OrderProductItem> buildOrderProducts() {
         return List.of(
-                new OrderPaymentCompletedEvent.OrderProductItem(1L, null, UUID.randomUUID(), 2, 10000L),
-                new OrderPaymentCompletedEvent.OrderProductItem(2L, null, UUID.randomUUID(), 1, 30000L)
+                new OrderPaymentCompletedEvent.OrderProductItem(1L, null, UUID.randomUUID(), UUID.randomUUID(), 2, 10000L),
+                new OrderPaymentCompletedEvent.OrderProductItem(2L, null, UUID.randomUUID(), UUID.randomUUID(), 1, 30000L)
         );
     }
 

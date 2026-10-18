@@ -42,7 +42,7 @@ class OrderPaymentCompletedSagaStarterTest {
                 .pointAmount(10000L)
                 .totalAccumulatedPoint(500L)
                 .orderProducts(List.of(
-                        new OrderProductItem(10L, 1000L, null, 2, 25000L)
+                        new OrderProductItem(10L, 1000L, null, null, 2, 25000L)
                 ))
                 .build();
 
@@ -70,7 +70,7 @@ class OrderPaymentCompletedSagaStarterTest {
                 .recipientPhoneNumber("010-1234-5678")
                 .orderProducts(List.of(
                         new OrderProductItem(
-                                10L, 1000L, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1, 50000L
+                                10L, 1000L, null, UUID.fromString("550e8400-e29b-41d4-a716-446655440000"), 1, 50000L
                         )
                 ))
                 .build();

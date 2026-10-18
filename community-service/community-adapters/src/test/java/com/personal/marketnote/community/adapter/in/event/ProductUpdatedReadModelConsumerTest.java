@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
@@ -58,7 +59,7 @@ class ProductUpdatedReadModelConsumerTest {
 
     private ProductUpdatedEvent createPayload(Long productId, String productName) {
         return new ProductUpdatedEvent(
-                productId, productName, null, null, null, null, null,
+                productId, UUID.randomUUID(), productName, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,

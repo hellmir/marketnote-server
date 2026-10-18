@@ -67,13 +67,21 @@ public class ProductUpdatedFulfillmentConsumer {
             return;
         }
 
+        if (FormatValidator.hasNoValue(payload.productKey())) {
+            log.error("productKey 누락. eventId={}, productId={}", envelope.eventId(), payload.productId());
+            acknowledgment.acknowledge();
+            return;
+        }
+
         FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
         if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
             throw new FulfillmentAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
         }
 
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
-                String.valueOf(payload.productId()),
+                payload.productId(),
+                payload.productKey(),
+                null,
                 payload.productName(),
                 payload.goodsType(),
                 payload.giftDivision(),

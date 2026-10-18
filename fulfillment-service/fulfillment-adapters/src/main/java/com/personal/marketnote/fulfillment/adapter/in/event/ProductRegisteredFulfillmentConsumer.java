@@ -72,6 +72,12 @@ public class ProductRegisteredFulfillmentConsumer {
                 return;
             }
 
+            if (FormatValidator.hasNoValue(payload.productKey())) {
+                log.error("productKey 누락. eventId={}, productId={}", envelope.eventId(), payload.productId());
+                acknowledgment.acknowledge();
+                return;
+            }
+
             FulfillmentAccessToken accessToken = requestFulfillmentAuthUseCase.requestAccessToken();
             if (FormatValidator.hasNoValue(accessToken) || FormatValidator.hasNoValue(accessToken.getValue())) {
                 throw new FulfillmentAccessTokenIssuanceFailedException(envelope.eventId(), payload.productId());
@@ -80,7 +86,8 @@ public class ProductRegisteredFulfillmentConsumer {
             String godType = FormatValidator.hasValue(payload.goodsType()) ? payload.goodsType() : DEFAULT_GOD_TYPE;
 
             RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
-                    .productCode(String.valueOf(payload.productId()))
+                    .productId(payload.productId())
+                    .productKey(payload.productKey())
                     .productName(payload.productName())
                     .productType(godType)
                     .giftDivision(DEFAULT_GIFT_DIV)
