@@ -58,6 +58,16 @@ class HmacSignatureGeneratorTest {
     }
 
     @Test
+    @DisplayName("HMAC-SHA256 알고리즘 고정 값과 일치한다 (Known-Answer Test)")
+    void shouldMatchKnownHmacSha256Value() {
+        String expected = "0dc8cb8bac59dc93c2d0536e90376b22832a281a8e1d3c7a2e835f0016a00a51";
+
+        String signature = HmacSignatureGenerator.generate(SECRET_KEY, TIMESTAMP, NONCE, HTTP_METHOD, REQUEST_PATH);
+
+        assertThat(signature).isEqualTo(expected);
+    }
+
+    @Test
     @DisplayName("서명 입력값은 콜론으로 구분되어 조합된다")
     void shouldBuildSigningInputWithColonDelimiter() {
         String signingInput = HmacSignatureGenerator.buildSigningInput(TIMESTAMP, NONCE, HTTP_METHOD, REQUEST_PATH);
