@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.port.out.inventory;
 import com.personal.marketnote.commerce.domain.inventory.Inventory;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * 재고 조회 포트
@@ -29,6 +30,13 @@ public interface FindInventoryPort {
      * @Description 상품 ID 목록으로 재고를 조회합니다.
      */
     Set<Inventory> findByProductIds(Set<Long> productIds);
+
+    /**
+     * @param productKeys 상품 키(UUID) 목록
+     * @return 재고 도메인 목록 {@link Set}
+     * @Description 상품 키 목록으로 재고를 조회합니다.
+     */
+    Set<Inventory> findByProductKeys(Set<UUID> productKeys);
 
     /**
      * @param pricePolicyId 가격 정책 ID

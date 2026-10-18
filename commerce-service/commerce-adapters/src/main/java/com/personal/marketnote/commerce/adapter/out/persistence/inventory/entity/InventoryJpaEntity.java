@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "inventory")
 @DynamicInsert
@@ -21,6 +23,9 @@ import org.hibernate.annotations.DynamicUpdate;
 public class InventoryJpaEntity extends BaseEntity {
     @Column(name = "product_id")
     private Long productId;
+
+    @Column(name = "product_key")
+    private UUID productKey;
 
     @Id
     @Column(name = "price_policy_id", nullable = false)
@@ -40,6 +45,7 @@ public class InventoryJpaEntity extends BaseEntity {
     public static InventoryJpaEntity from(Inventory inventory) {
         return new InventoryJpaEntity(
                 inventory.getProductId(),
+                inventory.getProductKey(),
                 inventory.getPricePolicyId(),
                 inventory.getStockValue(),
                 inventory.getReserved(),

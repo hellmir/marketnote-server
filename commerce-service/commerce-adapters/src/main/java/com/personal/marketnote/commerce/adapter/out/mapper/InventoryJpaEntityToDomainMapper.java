@@ -19,6 +19,7 @@ public class InventoryJpaEntityToDomainMapper {
                     int reservedValue = FormatValidator.hasNoValue(reserved) ? 0 : reserved;
                     InventorySnapshotState state = InventorySnapshotState.builder()
                             .productId(entity.getProductId())
+                            .productKey(entity.getProductKey())
                             .pricePolicyId(entity.getPricePolicyId())
                             .stock(entity.getStock())
                             .version(version)

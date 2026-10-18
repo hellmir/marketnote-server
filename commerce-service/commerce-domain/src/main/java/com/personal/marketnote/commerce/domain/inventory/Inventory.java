@@ -4,12 +4,15 @@ import com.personal.marketnote.common.domain.exception.illegalargument.invalidva
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
+import java.util.UUID;
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class Inventory {
     private Long productId;
+    private UUID productKey;
     private Long pricePolicyId;
     private Stock stock;
     private Long version;
@@ -50,6 +53,7 @@ public class Inventory {
     public static Inventory from(InventorySnapshotState state) {
         return Inventory.builder()
                 .productId(state.getProductId())
+                .productKey(state.getProductKey())
                 .pricePolicyId(state.getPricePolicyId())
                 .stock(Stock.of(
                         String.valueOf(state.getStock())
