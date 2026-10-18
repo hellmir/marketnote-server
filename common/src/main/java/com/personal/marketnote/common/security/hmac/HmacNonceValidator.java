@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.security.hmac;
 
 import com.personal.marketnote.common.security.hmac.exception.HmacNonceReplayedException;
+import com.personal.marketnote.common.security.hmac.exception.HmacNonceValidationUnavailableException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -26,7 +27,8 @@ public class HmacNonceValidator {
         } catch (HmacNonceReplayedException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Redis Nonce 검증 실패 (fail-open): nonce={}, error={}", nonce, e.getMessage());
+            log.error("Redis Nonce 검증 실패 (fail-secure): nonce={}, error={}", nonce, e.getMessage(), e);
+            throw new HmacNonceValidationUnavailableException(nonce, e);
         }
     }
 }

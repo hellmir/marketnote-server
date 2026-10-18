@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.security.hmac;
 
 import com.personal.marketnote.common.security.hmac.exception.HmacNonceReplayedException;
+import com.personal.marketnote.common.security.hmac.exception.HmacNonceValidationUnavailableException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,11 +60,13 @@ class HmacNonceValidatorTest {
     }
 
     @Test
-    @DisplayName("Redis 장애 시 fail-open으로 검증을 통과한다")
-    void shouldFailOpenWhenRedisUnavailable() {
-        when(stringRedisTemplate.opsForValue()).thenThrow(new RedisConnectionFailureException("Connection refused"));
+    @DisplayName("Redis 장애 시 HmacNonceValidationUnavailableException이 발생한다")
+    void shouldFailSecureWhenRedisUnavailable() {
+        RedisConnectionFailureException redisException = new RedisConnectionFailureException("Connection refused");
+        when(stringRedisTemplate.opsForValue()).thenThrow(redisException);
 
-        assertThatCode(() -> hmacNonceValidator.validateAndStore(NONCE))
-                .doesNotThrowAnyException();
+        assertThatThrownBy(() -> hmacNonceValidator.validateAndStore(NONCE))
+                .isInstanceOf(HmacNonceValidationUnavailableException.class)
+                .hasCauseReference(redisException);
     }
 }
