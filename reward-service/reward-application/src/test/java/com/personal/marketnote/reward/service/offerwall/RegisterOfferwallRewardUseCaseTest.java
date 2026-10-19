@@ -23,7 +23,7 @@ import com.personal.marketnote.reward.port.out.offerwall.SaveOfferwallMapperPort
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import com.personal.marketnote.reward.port.out.offerwall.ValidateOfferwallSignaturePort;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
-import com.personal.marketnote.reward.service.point.ModifyUserPointService;
+import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import com.personal.marketnote.reward.domain.attendance.RewardQuantity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -49,7 +49,7 @@ class RegisterOfferwallRewardUseCaseTest {
     private GetUserPointUseCase getUserPointUseCase;
 
     @Mock
-    private ModifyUserPointService modifyUserPointService;
+    private ModifyUserPointUseCase modifyUserPointUseCase;
 
     @Mock
     private SaveOfferwallMapperPort saveOfferwallMapperPort;
@@ -94,7 +94,7 @@ class RegisterOfferwallRewardUseCaseTest {
                     eq(OfferwallType.ADPOPCORN), eq(UserDeviceType.ANDROID), any(), any(), any(), any(), any(), any()
             );
             verify(saveOfferwallMapperPort).save(any(OfferwallMapper.class));
-            verify(modifyUserPointService).modify(any(ModifyUserPointCommand.class));
+            verify(modifyUserPointUseCase).modify(any(ModifyUserPointCommand.class));
         }
     }
 
@@ -113,7 +113,7 @@ class RegisterOfferwallRewardUseCaseTest {
             assertThatThrownBy(() -> registerOfferwallRewardService.register(command))
                     .isInstanceOf(UserNotFoundException.class);
 
-            verifyNoInteractions(saveOfferwallMapperPort, modifyUserPointService);
+            verifyNoInteractions(saveOfferwallMapperPort, modifyUserPointUseCase);
         }
 
         @Test
@@ -129,7 +129,7 @@ class RegisterOfferwallRewardUseCaseTest {
             assertThatThrownBy(() -> registerOfferwallRewardService.register(command))
                     .isInstanceOf(DuplicateOfferwallRewardException.class);
 
-            verifyNoInteractions(saveOfferwallMapperPort, modifyUserPointService);
+            verifyNoInteractions(saveOfferwallMapperPort, modifyUserPointUseCase);
         }
     }
 

@@ -11,6 +11,9 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingPointUs
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -24,6 +27,11 @@ public class ModifyPendingPointService implements ModifyPendingPointUseCase {
     private final SaveUserPointHistoryPort saveUserPointHistoryPort;
 
     @Override
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+    )
     public UpdateUserPointResult modifyPending(ModifyPendingPointCommand command) {
         UserPoint userPoint = getUserPointUseCase.getUserPoint(command.userId());
         addOrDeductExpectedPoint(userPoint, command);

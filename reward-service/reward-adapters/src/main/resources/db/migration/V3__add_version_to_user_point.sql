@@ -1,0 +1,2 @@
+ALTER TABLE user_point
+    ADD COLUMN version BIGINT NOT NULL DEFAULT 0;

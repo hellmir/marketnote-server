@@ -15,6 +15,9 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCa
 import com.personal.marketnote.reward.port.out.point.CheckReferralBonusClaimedPort;
 import com.personal.marketnote.reward.port.out.point.CountReferralPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -28,6 +31,11 @@ public class ClaimReferralBonusService implements ClaimReferralBonusUseCase {
     private final ModifyUserPointUseCase modifyUserPointUseCase;
 
     @Override
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+    )
     public ClaimReferralBonusResult claim(ClaimReferralBonusCommand command) {
         Long userId = command.userId();
         ReferralBonusTier tier = command.tier();
