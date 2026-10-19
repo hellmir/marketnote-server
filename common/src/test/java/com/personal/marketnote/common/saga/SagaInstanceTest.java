@@ -1,6 +1,8 @@
 package com.personal.marketnote.common.saga;
 
 import com.personal.marketnote.common.saga.exception.InvalidSagaStatusTransitionException;
+import com.personal.marketnote.common.saga.exception.SagaIdNoValueException;
+import com.personal.marketnote.common.saga.exception.SagaTypeNoValueException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -86,25 +88,25 @@ class SagaInstanceTest {
         }
 
         @Test
-        @DisplayName("sagaId가 null이면 IllegalArgumentException이 발생한다")
+        @DisplayName("sagaId가 null이면 SagaIdNoValueException이 발생한다")
         void throwsExceptionWhenSagaIdIsNull() {
             // given
             SagaInstanceCreateState state = new SagaInstanceCreateState(null, "OrderPayment", "{}");
 
             // when & then
             assertThatThrownBy(() -> SagaInstance.from(state, FIXED_CLOCK))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(SagaIdNoValueException.class);
         }
 
         @Test
-        @DisplayName("sagaType이 null이면 IllegalArgumentException이 발생한다")
+        @DisplayName("sagaType이 null이면 SagaTypeNoValueException이 발생한다")
         void throwsExceptionWhenSagaTypeIsNull() {
             // given
             SagaInstanceCreateState state = new SagaInstanceCreateState("saga-id-1", null, "{}");
 
             // when & then
             assertThatThrownBy(() -> SagaInstance.from(state, FIXED_CLOCK))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(SagaTypeNoValueException.class);
         }
     }
 

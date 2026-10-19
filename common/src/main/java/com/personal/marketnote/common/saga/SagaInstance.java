@@ -1,6 +1,8 @@
 package com.personal.marketnote.common.saga;
 
 import com.personal.marketnote.common.saga.exception.InvalidSagaStatusTransitionException;
+import com.personal.marketnote.common.saga.exception.SagaIdNoValueException;
+import com.personal.marketnote.common.saga.exception.SagaTypeNoValueException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
@@ -25,10 +27,10 @@ public class SagaInstance {
 
     public static SagaInstance from(SagaInstanceCreateState state, Clock clock) {
         if (FormatValidator.hasNoValue(state.sagaId())) {
-            throw new IllegalArgumentException("sagaId는 필수입니다.");
+            throw new SagaIdNoValueException();
         }
         if (FormatValidator.hasNoValue(state.sagaType())) {
-            throw new IllegalArgumentException("sagaType은 필수입니다.");
+            throw new SagaTypeNoValueException();
         }
         LocalDateTime now = LocalDateTime.now(clock);
         return SagaInstance.builder()
