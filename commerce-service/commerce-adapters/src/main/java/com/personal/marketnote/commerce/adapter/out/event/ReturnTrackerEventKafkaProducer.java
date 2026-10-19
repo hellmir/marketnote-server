@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.ReturnTrackerEventSerializationException;
 import com.personal.marketnote.commerce.port.out.event.PublishReturnTrackerEventPort;
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
@@ -36,7 +37,7 @@ public class ReturnTrackerEventKafkaProducer implements PublishReturnTrackerEven
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
-        String payloadJson = serializeEnvelope(envelope);
+        String payloadJson = serializeEnvelope(envelope, partitionKey);
         OutboxEvent outboxEvent = OutboxEvent.of(
                 envelope.eventId(), topic, partitionKey,
                 envelope.eventType(), SOURCE, payloadJson, clock
@@ -45,11 +46,11 @@ public class ReturnTrackerEventKafkaProducer implements PublishReturnTrackerEven
         log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
     }
 
-    private <T> String serializeEnvelope(EventEnvelope<T> envelope) {
+    private <T> String serializeEnvelope(EventEnvelope<T> envelope, String partitionKey) {
         try {
             return objectMapper.writeValueAsString(envelope);
         } catch (JsonProcessingException e) {
-            throw new IllegalStateException("이벤트 직렬화 실패: " + e.getMessage(), e);
+            throw new ReturnTrackerEventSerializationException(partitionKey, e);
         }
     }
 }

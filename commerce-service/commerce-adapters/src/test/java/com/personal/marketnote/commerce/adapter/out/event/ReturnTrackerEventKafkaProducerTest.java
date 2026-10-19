@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.adapter.out.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.ReturnTrackerEventSerializationException;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.outbox.OutboxEvent;
 import com.personal.marketnote.common.outbox.SaveOutboxEventPort;
@@ -65,7 +66,7 @@ class ReturnTrackerEventKafkaProducerTest {
     }
 
     @Test
-    @DisplayName("ObjectMapper에서 JsonProcessingException 발생 시 IllegalStateException으로 감싸 던진다")
+    @DisplayName("ObjectMapper에서 JsonProcessingException 발생 시 ReturnTrackerEventSerializationException으로 감싸 던진다")
     void shouldWrapJsonProcessingException() throws JsonProcessingException {
         // given
         when(objectMapper.writeValueAsString(org.mockito.ArgumentMatchers.any()))
@@ -73,7 +74,8 @@ class ReturnTrackerEventKafkaProducerTest {
 
         // when & then
         assertThatThrownBy(() -> producer.publishReturnInspectionCompletedEvent(42L))
-                .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(ReturnTrackerEventSerializationException.class)
+                .hasMessageContaining("orderId=42");
 
         verifyNoInteractions(saveOutboxEventPort);
     }
