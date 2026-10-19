@@ -25,7 +25,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @PersistenceAdapter
 @RequiredArgsConstructor
@@ -56,30 +63,16 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
             return Optional.empty();
         }
 
-        List<Long> candidateIds = productOptionPricePolicyJpaRepository.findCandidatePricePolicyIds(optionIds, optionIds.size());
+        List<Long> candidateIds = productOptionPricePolicyJpaRepository.findExactMatchingPricePolicyIds(optionIds, optionIds.size());
         if (FormatValidator.hasNoValue(candidateIds)) {
             return Optional.empty();
         }
 
-        Long matchedId = null;
-        for (Long id : candidateIds) {
-            long mappingCount = productOptionPricePolicyJpaRepository.countByPricePolicyJpaEntity_Id(id);
-            if (mappingCount == optionIds.size()) {
-                Optional<PricePolicyJpaEntity> policyOpt = pricePolicyJpaRepository.findById(id);
+        List<PricePolicyJpaEntity> candidates = pricePolicyJpaRepository.findAllById(candidateIds);
 
-                if (policyOpt.isPresent() && policyOpt.get().getProductJpaEntity().getId().equals(productId)) {
-                    if (FormatValidator.hasNoValue(matchedId) || id > matchedId) {
-                        matchedId = id;
-                    }
-                }
-            }
-        }
-
-        if (FormatValidator.hasNoValue(matchedId)) {
-            return Optional.empty();
-        }
-
-        PricePolicyJpaEntity entity = pricePolicyJpaRepository.findById(matchedId)
+        PricePolicyJpaEntity entity = candidates.stream()
+                .filter(p -> productId.equals(p.getProductJpaEntity().getId()))
+                .max(Comparator.comparingLong(PricePolicyJpaEntity::getId))
                 .orElse(null);
 
         if (FormatValidator.hasNoValue(entity)) {
@@ -138,9 +131,14 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
                 pricePolicyJpaRepository.findAllByProductJpaEntity_IdOrderByIdDesc(productId)
         );
 
+        Map<Long, List<Long>> optionIdsByPolicyId = fetchOptionIdsByPricePolicyIds(
+                policyEntities.stream().map(PricePolicyJpaEntity::getId).toList()
+        );
+
         return policyEntities.stream()
                 .map(policyEntity -> PricePolicyJpaEntityToDomainMapper.mapToDomain(
-                        policyEntity, productOptionPricePolicyJpaRepository.findOptionIdsByPricePolicyId(policyEntity.getId())
+                        policyEntity,
+                        optionIdsByPolicyId.getOrDefault(policyEntity.getId(), List.of())
                 ))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -209,13 +207,33 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
                 categoryId
         );
 
-        return new ArrayList<>(loadPricePoliciesWithAssociations(entities).stream()
+        List<PricePolicyJpaEntity> hydrated = loadPricePoliciesWithAssociations(entities);
+        Map<Long, List<Long>> optionIdsByPolicyId = fetchOptionIdsByPricePolicyIds(
+                hydrated.stream().map(PricePolicyJpaEntity::getId).toList()
+        );
+
+        return new ArrayList<>(hydrated.stream()
                 .map(policyEntity -> PricePolicyJpaEntityToDomainMapper.mapToDomain(
-                        policyEntity, productOptionPricePolicyJpaRepository.findOptionIdsByPricePolicyId(policyEntity.getId())
+                        policyEntity,
+                        optionIdsByPolicyId.getOrDefault(policyEntity.getId(), List.of())
                 ))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList());
+    }
+
+    private Map<Long, List<Long>> fetchOptionIdsByPricePolicyIds(List<Long> pricePolicyIds) {
+        if (FormatValidator.hasNoValue(pricePolicyIds)) {
+            return Map.of();
+        }
+        return productOptionPricePolicyJpaRepository.findAllOptionIdsByPricePolicyIds(pricePolicyIds).stream()
+                .collect(Collectors.groupingBy(
+                        ProductOptionPricePolicyJpaRepository.PricePolicyOptionMapping::getPricePolicyId,
+                        Collectors.mapping(
+                                ProductOptionPricePolicyJpaRepository.PricePolicyOptionMapping::getProductOptionId,
+                                Collectors.toList()
+                        )
+                ));
     }
 
     private String generateSearchPattern(String searchKeyword) {

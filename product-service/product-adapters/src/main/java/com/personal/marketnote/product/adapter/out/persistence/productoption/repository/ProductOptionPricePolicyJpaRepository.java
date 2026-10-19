@@ -13,13 +13,32 @@ public interface ProductOptionPricePolicyJpaRepository extends JpaRepository<Pro
     @Query("""
             select popp.id.pricePolicyId
             from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
-            where popp.id.productOptionId in :optionIds
+            where popp.id.pricePolicyId in (
+                select popp2.id.pricePolicyId
+                from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp2
+                where popp2.id.productOptionId in :optionIds
+                group by popp2.id.pricePolicyId
+                having count(distinct popp2.id.productOptionId) = :size
+            )
             group by popp.id.pricePolicyId
-            having count(distinct popp.id.productOptionId) = :size
+            having count(popp.id.productOptionId) = :size
             """)
-    List<Long> findCandidatePricePolicyIds(@Param("optionIds") List<Long> optionIds, @Param("size") long size);
+    List<Long> findExactMatchingPricePolicyIds(@Param("optionIds") List<Long> optionIds, @Param("size") long size);
 
     long countByPricePolicyJpaEntity_Id(Long pricePolicyId);
+
+    @Query("""
+            select popp.id.pricePolicyId as pricePolicyId, popp.id.productOptionId as productOptionId
+            from com.personal.marketnote.product.adapter.out.persistence.productoption.entity.ProductOptionPricePolicyJpaEntity popp
+            where popp.id.pricePolicyId in :pricePolicyIds
+            order by popp.id.pricePolicyId, popp.id.productOptionId
+            """)
+    List<PricePolicyOptionMapping> findAllOptionIdsByPricePolicyIds(@Param("pricePolicyIds") List<Long> pricePolicyIds);
+
+    interface PricePolicyOptionMapping {
+        Long getPricePolicyId();
+        Long getProductOptionId();
+    }
 
     @Modifying
     @Query("""

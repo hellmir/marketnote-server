@@ -71,7 +71,7 @@ class ProductOptionPricePolicyJpaRepositoryTest {
             entityManager.flush();
             entityManager.clear();
 
-            List<Long> results = repository.findCandidatePricePolicyIds(
+            List<Long> results = repository.findExactMatchingPricePolicyIds(
                     List.of(red.getId(), blue.getId()), 2L
             );
 
@@ -90,7 +90,7 @@ class ProductOptionPricePolicyJpaRepositoryTest {
             entityManager.flush();
             entityManager.clear();
 
-            List<Long> results = repository.findCandidatePricePolicyIds(
+            List<Long> results = repository.findExactMatchingPricePolicyIds(
                     List.of(red.getId(), blue.getId()), 2L
             );
 
