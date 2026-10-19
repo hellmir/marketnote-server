@@ -373,8 +373,8 @@ class ChangeOrderStatusUseCaseTest {
         }
 
         @Test
-        @DisplayName("publishOrderPurchaseConfirmedEvent 호출 실패 시 예외가 전파되지 않는다")
-        void shouldNotPropagateExceptionWhenPublishConfirmedEventFails() {
+        @DisplayName("publishOrderPurchaseConfirmedEvent 호출 실패 시 예외가 전파되어 트랜잭션이 롤백된다")
+        void shouldPropagateExceptionWhenPublishConfirmedEventFails() {
             // given
             Long orderId = 1L;
             Order order = createOrder(orderId, 100L, OrderStatus.DELIVERED, 10L);
@@ -389,8 +389,9 @@ class ChangeOrderStatusUseCaseTest {
                     .build();
 
             // when & then
-            assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+            assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("이벤트 발행 실패");
         }
     }
 
@@ -421,8 +422,8 @@ class ChangeOrderStatusUseCaseTest {
         }
 
         @Test
-        @DisplayName("publishOrderPaymentCompletedEvent 호출 실패 시 예외가 전파되지 않는다")
-        void shouldNotPropagateExceptionWhenPublishPaymentCompletedEventFails() {
+        @DisplayName("publishOrderPaymentCompletedEvent 호출 실패 시 예외가 전파되어 트랜잭션이 롤백된다")
+        void shouldPropagateExceptionWhenPublishPaymentCompletedEventFails() {
             // given
             Long orderId = 1L;
             Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L, 500L);
@@ -437,8 +438,9 @@ class ChangeOrderStatusUseCaseTest {
                     .build();
 
             // when & then
-            assertThatCode(() -> changeOrderStatusService.changeOrderStatus(command))
-                    .doesNotThrowAnyException();
+            assertThatThrownBy(() -> changeOrderStatusService.changeOrderStatus(command))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Outbox 저장 실패");
         }
     }
 

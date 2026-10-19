@@ -176,31 +176,21 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     }
 
     private void publishOrderPurchaseConfirmedEvent(Long orderId, Long buyerId, List<UUID> sharerKeys, Order order) {
-        try {
-            publishOrderEventPort.publishOrderPurchaseConfirmedEvent(
-                    orderId, buyerId, sharerKeys, true, order.getOrderProducts()
-            );
-        } catch (Exception e) {
-            log.error("구매 확정 이벤트 발행 실패 - orderId: {}, buyerId: {}, error: {}",
-                    orderId, buyerId, e.getMessage(), e
-            );
-        }
+        publishOrderEventPort.publishOrderPurchaseConfirmedEvent(
+                orderId, buyerId, sharerKeys, true, order.getOrderProducts()
+        );
     }
 
     private void publishOrderPaymentCompletedEvent(Order order, Long totalAccumulatedPoint) {
-        try {
-            publishOrderEventPort.publishOrderPaymentCompletedEvent(
-                    order.getId(),
-                    order.getBuyerId(),
-                    order.getAmount().getTotalAmount().getValue(),
-                    order.getAmount().getPointAmount().getValue(),
-                    order.getShippingAddress(),
-                    order.getOrderProducts(),
-                    totalAccumulatedPoint
-            );
-        } catch (Exception e) {
-            log.error("주문 결제 완료 이벤트 발행 실패 - orderId: {}, error: {}", order.getId(), e.getMessage(), e);
-        }
+        publishOrderEventPort.publishOrderPaymentCompletedEvent(
+                order.getId(),
+                order.getBuyerId(),
+                order.getAmount().getTotalAmount().getValue(),
+                order.getAmount().getPointAmount().getValue(),
+                order.getShippingAddress(),
+                order.getOrderProducts(),
+                totalAccumulatedPoint
+        );
     }
 
     private List<UUID> extractSharerKeys(List<OrderProduct> orderProducts) {
