@@ -33,6 +33,8 @@ import java.util.List;
 @EnableMethodSecurity
 @Profile({"qa.test", "prod"})
 public class OpaqueTokenIntrospectorConfig {
+    static final String CSP_POLICY_DIRECTIVES = "default-src 'self'; frame-ancestors 'none';";
+
     @Bean
     public HmacNonceValidator hmacNonceValidator(StringRedisTemplate stringRedisTemplate) {
         return new HmacNonceValidator(stringRedisTemplate);
@@ -73,7 +75,8 @@ public class OpaqueTokenIntrospectorConfig {
                         .httpStrictTransportSecurity(hsts -> hsts
                                 .includeSubDomains(true)
                                 .maxAgeInSeconds(31536000))
-                        .cacheControl(Customizer.withDefaults()))
+                        .cacheControl(Customizer.withDefaults())
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(CSP_POLICY_DIRECTIVES)))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/authentication/**").permitAll()

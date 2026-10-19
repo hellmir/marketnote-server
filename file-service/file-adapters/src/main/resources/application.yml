@@ -133,3 +133,15 @@ file:
     region:
       static: ${S3_REGION:ap-northeast-2}
     bucket-name: ${S3_BUCKET_NAME:ghi}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
