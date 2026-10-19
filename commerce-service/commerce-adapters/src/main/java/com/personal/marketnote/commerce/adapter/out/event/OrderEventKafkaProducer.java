@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.OrderEventSerializationException;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
@@ -214,18 +216,20 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
     }
 
     private <T> void saveToOutbox(EventEnvelope<T> envelope, String topic, String partitionKey) {
+        String payloadJson = serializePayload(envelope, topic);
+        OutboxEvent outboxEvent = OutboxEvent.of(
+                envelope.eventId(), topic, partitionKey,
+                envelope.eventType(), SOURCE, payloadJson, clock
+        );
+        saveOutboxEventPort.save(outboxEvent);
+        log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
+    }
+
+    private <T> String serializePayload(EventEnvelope<T> envelope, String topic) {
         try {
-            String payloadJson = objectMapper.writeValueAsString(envelope);
-            OutboxEvent outboxEvent = OutboxEvent.of(
-                    envelope.eventId(), topic, partitionKey,
-                    envelope.eventType(), SOURCE, payloadJson, clock
-            );
-            saveOutboxEventPort.save(outboxEvent);
-            log.info("Outbox 이벤트 저장. topic={}, partitionKey={}, eventId={}", topic, partitionKey, envelope.eventId());
-        } catch (Exception e) {
-            log.error("Outbox 이벤트 저장 실패. topic={}, partitionKey={}, error={}",
-                    topic, partitionKey, e.getMessage(), e
-            );
+            return objectMapper.writeValueAsString(envelope);
+        } catch (JsonProcessingException e) {
+            throw new OrderEventSerializationException(topic, e);
         }
     }
 }
