@@ -277,4 +277,91 @@ class OrderPaymentCompletedSagaDefinitionTest {
             assertThat(cartStep.hasCompensation()).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("풀필먼트 액션 payload productKey 전환 (#4087)")
+    class FulfillmentActionProductKey {
+
+        @Test
+        @DisplayName("toFulfillmentItems: context productKey가 fulfillment payload orderProducts에 보존된다")
+        void shouldPreserveProductKeyInFulfillmentPayload() {
+            // given
+            UUID productKey1 = UUID.fromString("11111111-1111-1111-1111-111111111111");
+            UUID productKey2 = UUID.fromString("22222222-2222-2222-2222-222222222222");
+            OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
+                    .orderId(1L)
+                    .buyerId(100L)
+                    .totalAmount(60000L)
+                    .recipientName("홍길동")
+                    .recipientPhoneNumber("010-1234-5678")
+                    .zipCode("06236")
+                    .address("서울특별시 강남구")
+                    .addressDetail("101호")
+                    .deliveryRequestMessage("부재시")
+                    .orderProducts(List.of(
+                            new OrderProductItem(10L, 1000L, productKey1, null, 2, 25000L),
+                            new OrderProductItem(20L, 2000L, productKey2, null, 1, 10000L)
+                    ))
+                    .build();
+
+            // when
+            String actionJson = definition.getSteps().get(0).action().apply(context);
+
+            // then
+            assertThat(actionJson).contains(productKey1.toString());
+            assertThat(actionJson).contains(productKey2.toString());
+            assertThat(actionJson).doesNotContain("\"productId\"");
+        }
+
+        @Test
+        @DisplayName("toFulfillmentItems: productKey가 null이면 payload에 null로 직렬화된다")
+        void shouldSerializeNullProductKey() {
+            // given
+            OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
+                    .orderId(1L)
+                    .buyerId(100L)
+                    .totalAmount(30000L)
+                    .recipientName("홍길동")
+                    .recipientPhoneNumber("010-1234-5678")
+                    .zipCode("06236")
+                    .address("서울특별시")
+                    .addressDetail("101호")
+                    .deliveryRequestMessage("부재시")
+                    .orderProducts(List.of(
+                            new OrderProductItem(10L, 1000L, null, null, 2, 25000L)
+                    ))
+                    .build();
+
+            // when
+            String actionJson = definition.getSteps().get(0).action().apply(context);
+
+            // then
+            assertThat(actionJson).contains("\"productKey\":null");
+            assertThat(actionJson).doesNotContain("\"productId\"");
+        }
+
+        @Test
+        @DisplayName("toFulfillmentItems: orderProducts가 빈 리스트이면 orderProducts가 빈 배열로 직렬화된다")
+        void shouldSerializeEmptyOrderProducts() {
+            // given
+            OrderPaymentCompletedSagaContext context = OrderPaymentCompletedSagaContext.builder()
+                    .orderId(1L)
+                    .buyerId(100L)
+                    .totalAmount(0L)
+                    .recipientName("홍길동")
+                    .recipientPhoneNumber("010-1234-5678")
+                    .zipCode("06236")
+                    .address("서울특별시")
+                    .addressDetail("101호")
+                    .deliveryRequestMessage("부재시")
+                    .orderProducts(List.of())
+                    .build();
+
+            // when
+            String actionJson = definition.getSteps().get(0).action().apply(context);
+
+            // then
+            assertThat(actionJson).contains("\"orderProducts\":[]");
+        }
+    }
 }
