@@ -109,10 +109,10 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                 publishValidationFailure(stepMessage, "orderProducts 누락");
                 return;
             }
-            boolean hasMissingProductId = payload.orderProducts().stream()
-                    .anyMatch(item -> FormatValidator.hasNoValue(item.productId()));
-            if (hasMissingProductId) {
-                publishValidationFailure(stepMessage, "productId 누락");
+            boolean hasMissingProductKey = payload.orderProducts().stream()
+                    .anyMatch(item -> FormatValidator.hasNoValue(item.productKey()));
+            if (hasMissingProductKey) {
+                publishValidationFailure(stepMessage, "productKey 누락");
                 return;
             }
 

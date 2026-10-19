@@ -157,7 +157,8 @@ class OrderPaymentCompletedSagaDefinitionTest {
             assertThat(actionJson).contains("\"addressDetail\"");
             assertThat(actionJson).contains("\"deliveryRequestMessage\"");
             assertThat(actionJson).contains("\"orderProducts\"");
-            assertThat(actionJson).contains("\"productId\"");
+            assertThat(actionJson).contains("\"productKey\"");
+            assertThat(actionJson).doesNotContain("\"productId\"");
         }
 
         @Test
