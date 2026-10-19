@@ -96,6 +96,28 @@ class ProductOptionPricePolicyJpaRepositoryTest {
 
             assertThat(results).isEmpty();
         }
+
+        @Test
+        @DisplayName("옵션을 초과 보유한 정책은 제외한다")
+        void excludesPoliciesWithExtraOptions() {
+            ProductJpaEntity product = saveProduct("상품", "브랜드");
+            ProductOptionCategoryJpaEntity category = saveOptionCategory(product, "색상");
+            ProductOptionJpaEntity red = saveOption(category, "빨강");
+            ProductOptionJpaEntity blue = saveOption(category, "파랑");
+            ProductOptionJpaEntity green = saveOption(category, "초록");
+            PricePolicyJpaEntity threeOption = savePricePolicy(product);
+            mapOptionToPolicy(red, threeOption);
+            mapOptionToPolicy(blue, threeOption);
+            mapOptionToPolicy(green, threeOption);
+            entityManager.flush();
+            entityManager.clear();
+
+            List<Long> results = repository.findExactMatchingPricePolicyIds(
+                    List.of(red.getId(), blue.getId()), 2L
+            );
+
+            assertThat(results).isEmpty();
+        }
     }
 
     @Nested
