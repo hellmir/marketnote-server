@@ -96,7 +96,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
                 "deliveryRequestMessage", "부재시 경비실",
                 "orderProducts", List.of(Map.of(
                         "pricePolicyId", 10L,
-                        "productId", 1000L,
+                        "productKey", java.util.UUID.randomUUID().toString(),
                         "quantity", 2,
                         "unitAmount", 25000L
                 ))
@@ -182,7 +182,11 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         void shouldPublishFailureOnMissingOrderId() throws Exception {
             String invalidPayload = objectMapper.writeValueAsString(Map.of(
                     "buyerId", 100L,
-                    "orderProducts", List.of(Map.of("pricePolicyId", 10L, "productId", 1000L, "quantity", 2))
+                    "orderProducts", List.of(Map.of(
+                            "pricePolicyId", 10L,
+                            "productKey", java.util.UUID.randomUUID().toString(),
+                            "quantity", 2
+                    ))
             ));
             SagaStepMessage stepMessage = new SagaStepMessage(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
@@ -199,8 +203,8 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         }
 
         @Test
-        @DisplayName("orderProducts 내 productId가 누락되면 실패 응답을 발행한다")
-        void shouldPublishFailureOnMissingProductId() throws Exception {
+        @DisplayName("orderProducts 내 productKey가 누락되면 실패 응답을 발행한다")
+        void shouldPublishFailureOnMissingProductKey() throws Exception {
             String invalidPayload = objectMapper.writeValueAsString(Map.of(
                     "orderId", 1L, "buyerId", 100L,
                     "orderProducts", List.of(Map.of(
@@ -216,7 +220,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
             verifyNoInteractions(registerFulfillmentDeliveryUseCase);
             verify(sagaResponsePublisher).publishFailure(
                     eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.ACTION), contains("productId")
+                    eq(SagaStepMessage.ACTION), contains("productKey")
             );
             verify(acknowledgment).acknowledge();
         }

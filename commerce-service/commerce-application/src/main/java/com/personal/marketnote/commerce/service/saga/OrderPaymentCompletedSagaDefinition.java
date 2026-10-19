@@ -89,8 +89,25 @@ public class OrderPaymentCompletedSagaDefinition implements SagaDefinition<Order
         payload.put("address", context.address());
         payload.put("addressDetail", context.addressDetail());
         payload.put("deliveryRequestMessage", context.deliveryRequestMessage());
-        payload.put("orderProducts", context.orderProducts());
+        payload.put("orderProducts", toFulfillmentItems(context.orderProducts()));
         return serialize(payload);
+    }
+
+    private List<Map<String, Object>> toFulfillmentItems(List<OrderProductItem> items) {
+        if (FormatValidator.hasNoValue(items)) {
+            return List.of();
+        }
+        return items.stream()
+                .map(item -> {
+                    Map<String, Object> map = new LinkedHashMap<>();
+                    map.put("pricePolicyId", item.pricePolicyId());
+                    map.put("productKey", item.productKey());
+                    map.put("sharerKey", item.sharerKey());
+                    map.put("quantity", item.quantity());
+                    map.put("unitAmount", item.unitAmount());
+                    return map;
+                })
+                .toList();
     }
 
     private String buildFulfillmentCompensation(OrderPaymentCompletedSagaContext context) {
