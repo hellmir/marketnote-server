@@ -189,3 +189,15 @@ user:
     scheduler:
       enabled: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_ENABLED:true}
       cron: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_CRON:0 0 * * * *}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
