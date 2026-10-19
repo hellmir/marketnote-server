@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.*;
 
 @Entity
@@ -32,6 +33,10 @@ public class UserPointJpaEntity extends BaseEntity {
 
     @Column(name = "expire_expected_amount", nullable = false)
     private Long expireExpectedAmount;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
 
     public static UserPointJpaEntity from(UserPoint userPoint) {
         return UserPointJpaEntity.builder()

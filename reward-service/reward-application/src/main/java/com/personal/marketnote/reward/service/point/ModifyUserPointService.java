@@ -14,6 +14,9 @@ import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -28,6 +31,11 @@ public class ModifyUserPointService implements ModifyUserPointUseCase {
     private final SaveUserPointHistoryPort saveUserPointHistoryPort;
 
     @Override
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+    )
     public UpdateUserPointResult modify(ModifyUserPointCommand command) {
         UserPoint userPoint = getTargetUserPoint(command);
         userPoint.changeAmount(command.isAccrual(), command.amount());

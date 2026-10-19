@@ -13,11 +13,14 @@ import com.personal.marketnote.reward.port.in.command.point.ModifyUserPointComma
 import com.personal.marketnote.reward.port.in.usecase.offerwall.GetOfferwallMapperUseCase;
 import com.personal.marketnote.reward.port.in.usecase.offerwall.RegisterOfferwallRewardUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
+import com.personal.marketnote.reward.port.in.usecase.point.ModifyUserPointUseCase;
 import com.personal.marketnote.reward.port.out.offerwall.SaveOfferwallMapperPort;
 import com.personal.marketnote.reward.port.out.offerwall.ValidateOfferwallSignaturePort;
-import com.personal.marketnote.reward.service.point.ModifyUserPointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -29,12 +32,17 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
     private static final String UX_OFFERWALL_SUCCESS_UNIQUE_CONSTRAINT = "ux_offerwall_success";
 
     private final GetUserPointUseCase getUserPointUseCase;
-    private final ModifyUserPointService modifyUserPointService;
+    private final ModifyUserPointUseCase modifyUserPointUseCase;
     private final SaveOfferwallMapperPort saveOfferwallMapperPort;
     private final GetOfferwallMapperUseCase getOfferwallMapperUseCase;
     private final ValidateOfferwallSignaturePort validateOfferwallSignaturePort;
 
     @Override
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+    )
     public Long register(RegisterOfferwallRewardCommand command) {
         validateSignature(command);
         validateUser(command);
@@ -54,7 +62,7 @@ public class RegisterOfferwallRewardService implements RegisterOfferwallRewardUs
             throw e;
         }
 
-        modifyUserPointService.modify(
+        modifyUserPointUseCase.modify(
                 ModifyUserPointCommand.builder()
                         .userKey(command.userKey())
                         .changeType(UserPointChangeType.ACCRUAL)

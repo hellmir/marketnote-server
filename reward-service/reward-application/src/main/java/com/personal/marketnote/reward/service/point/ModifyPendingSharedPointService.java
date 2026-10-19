@@ -11,6 +11,9 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingSharedP
 import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
@@ -26,6 +29,11 @@ public class ModifyPendingSharedPointService implements ModifyPendingSharedPoint
     private final ModifyPendingPointUseCase modifyPendingPointUseCase;
 
     @Override
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
+    )
     public UpdateUserPointResult modifyPending(ModifyPendingSharedPointCommand command) {
         UserPoint sharerPoint = findUserPointPort.findByUserKey(command.sharerKey().toString())
                 .orElseThrow(
