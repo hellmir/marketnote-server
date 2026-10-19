@@ -9,6 +9,7 @@ import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
+import com.personal.marketnote.product.exception.InvalidProductPageSizeException;
 import com.personal.marketnote.product.exception.ProductNotFoundException;
 import com.personal.marketnote.product.port.in.result.product.GetAdminProductsResult;
 import com.personal.marketnote.product.port.in.result.product.ProductItemResult;
@@ -61,6 +62,10 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
             ProductSearchTarget searchTarget,
             String searchKeyword
     ) {
+        if (pageSize <= 0) {
+            throw new InvalidProductPageSizeException(pageSize);
+        }
+
         List<PricePolicy> pricePolicies = findPricePoliciesPort.findPricePoliciesByOffset(
                 pricePolicyIds, page, pageSize, sortDirection,
                 sortProperty, searchTarget, searchKeyword, categoryId
@@ -105,6 +110,9 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
     }
 
     private int computeTotalPages(long totalElements, int pageSize) {
+        if (pageSize <= 0) {
+            throw new InvalidProductPageSizeException(pageSize);
+        }
         if (totalElements == 0) {
             return 0;
         }
