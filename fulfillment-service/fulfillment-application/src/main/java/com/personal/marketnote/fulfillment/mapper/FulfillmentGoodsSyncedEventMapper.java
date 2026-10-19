@@ -13,7 +13,7 @@ public class FulfillmentGoodsSyncedEventMapper {
 
     public static FulfillmentGoodsSyncedEvent mapToEvent(RegisterFulfillmentGoodsItemCommand item) {
         return new FulfillmentGoodsSyncedEvent(
-                String.valueOf(item.productId()),
+                item.productKey().toString(),
                 null,
                 item.productName(),
                 item.productType(),
@@ -80,7 +80,7 @@ public class FulfillmentGoodsSyncedEventMapper {
 
     public static FulfillmentGoodsSyncedEvent mapToEvent(UpdateFulfillmentGoodsItemCommand item) {
         return new FulfillmentGoodsSyncedEvent(
-                String.valueOf(item.productId()),
+                item.productKey().toString(),
                 null,
                 item.productName(),
                 item.productType(),

@@ -79,7 +79,6 @@ public class ProductRegisteredFulfillmentConsumer {
             String godType = FormatValidator.hasValue(payload.goodsType()) ? payload.goodsType() : DEFAULT_GOD_TYPE;
 
             RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
-                    .productId(payload.productId())
                     .productKey(payload.productKey())
                     .productName(payload.productName())
                     .productType(godType)

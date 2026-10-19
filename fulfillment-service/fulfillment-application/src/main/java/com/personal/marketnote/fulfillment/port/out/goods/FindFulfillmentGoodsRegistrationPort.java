@@ -1,5 +1,7 @@
 package com.personal.marketnote.fulfillment.port.out.goods;
 
+import java.util.UUID;
+
 public interface FindFulfillmentGoodsRegistrationPort {
-    boolean existsByProductId(Long productId);
+    boolean existsByProductKey(UUID productKey);
 }

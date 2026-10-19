@@ -4,11 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Builder
 public class FulfillmentGoodsRegistrationSnapshotState {
     private final Long id;
-    private final Long productId;
+    private final UUID productKey;
     private final LocalDateTime createdAt;
 }

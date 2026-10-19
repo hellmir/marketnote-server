@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,41 +33,43 @@ class FulfillmentGoodsRegistrationPersistenceAdapterTest {
     @Mock
     private FulfillmentGoodsRegistrationJpaRepository repository;
 
-    private FulfillmentGoodsRegistration buildRegistration(Long id, Long productId) {
+    private FulfillmentGoodsRegistration buildRegistration(Long id, UUID productKey) {
         return FulfillmentGoodsRegistration.from(
                 FulfillmentGoodsRegistrationSnapshotState.builder()
                         .id(id)
-                        .productId(productId)
+                        .productKey(productKey)
                         .createdAt(LocalDateTime.of(2026, 4, 14, 10, 0))
                         .build()
         );
     }
 
     @Nested
-    @DisplayName("existsByProductId")
-    class ExistsByProductId {
+    @DisplayName("existsByProductKey")
+    class ExistsByProductKey {
 
         @Test
-        @DisplayName("productId에 해당하는 상품 등록이 존재하면 true를 반환한다")
+        @DisplayName("productKey에 해당하는 상품 등록이 존재하면 true를 반환한다")
         void shouldReturnTrueWhenProductExists() {
             // given
-            when(repository.existsByProductId(100L)).thenReturn(true);
+            UUID productKey = UUID.randomUUID();
+            when(repository.existsByProductKey(productKey)).thenReturn(true);
 
             // when
-            boolean result = adapter.existsByProductId(100L);
+            boolean result = adapter.existsByProductKey(productKey);
 
             // then
             assertThat(result).isTrue();
         }
 
         @Test
-        @DisplayName("productId에 해당하는 상품 등록이 없으면 false를 반환한다")
+        @DisplayName("productKey에 해당하는 상품 등록이 없으면 false를 반환한다")
         void shouldReturnFalseWhenProductNotExists() {
             // given
-            when(repository.existsByProductId(999L)).thenReturn(false);
+            UUID productKey = UUID.randomUUID();
+            when(repository.existsByProductKey(productKey)).thenReturn(false);
 
             // when
-            boolean result = adapter.existsByProductId(999L);
+            boolean result = adapter.existsByProductKey(productKey);
 
             // then
             assertThat(result).isFalse();
@@ -81,7 +84,7 @@ class FulfillmentGoodsRegistrationPersistenceAdapterTest {
         @DisplayName("상품 등록 도메인 객체를 JPA 엔티티로 변환하여 저장한다")
         void shouldSaveGoodsRegistrationAsJpaEntity() {
             // given
-            FulfillmentGoodsRegistration registration = buildRegistration(null, 100L);
+            FulfillmentGoodsRegistration registration = buildRegistration(null, UUID.randomUUID());
 
             // when
             adapter.save(registration);
@@ -96,10 +99,10 @@ class FulfillmentGoodsRegistrationPersistenceAdapterTest {
     class SaveFailure {
 
         @Test
-        @DisplayName("동일 productId로 중복 저장 시 FulfillmentGoodsAlreadyRegisteredException이 발생한다")
-        void shouldThrowAlreadyRegisteredExceptionWhenDuplicateProductId() {
+        @DisplayName("동일 productKey로 중복 저장 시 FulfillmentGoodsAlreadyRegisteredException이 발생한다")
+        void shouldThrowAlreadyRegisteredExceptionWhenDuplicateProductKey() {
             // given
-            FulfillmentGoodsRegistration registration = buildRegistration(null, 100L);
+            FulfillmentGoodsRegistration registration = buildRegistration(null, UUID.randomUUID());
             when(repository.saveAndFlush(any(FulfillmentGoodsRegistrationJpaEntity.class)))
                     .thenThrow(new DataIntegrityViolationException("Unique constraint violation"));
 

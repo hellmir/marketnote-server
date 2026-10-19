@@ -89,7 +89,6 @@ class ProductRegisteredFulfillmentConsumerTest {
         assertThat(command.customerCode()).isEqualTo("CUST001");
         assertThat(command.accessToken()).isEqualTo("test-token");
         assertThat(command.goods()).hasSize(1);
-        assertThat(command.goods().get(0).productId()).isEqualTo(10L);
         assertThat(command.goods().get(0).productKey()).isNotNull();
         assertThat(command.goods().get(0).productName()).isEqualTo("테스트 상품");
         assertThat(command.goods().get(0).productType()).isEqualTo("1");
@@ -211,7 +210,7 @@ class ProductRegisteredFulfillmentConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, "테스트", "1");
         stubAuthenticatedCaller();
         when(fasstoAuthProperties.getCustomerCode()).thenReturn("CUST001");
-        doThrow(new FulfillmentGoodsAlreadyRegisteredException(1L))
+        doThrow(new FulfillmentGoodsAlreadyRegisteredException(java.util.UUID.randomUUID()))
                 .when(registerFulfillmentGoodsUseCase).registerGoodsIdempotent(any(RegisterFulfillmentGoodsCommand.class));
 
         // when

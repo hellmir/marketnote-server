@@ -5,6 +5,7 @@ import com.personal.marketnote.fulfillment.domain.exception.FulfillmentQueryPara
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -12,22 +13,22 @@ import java.time.LocalDateTime;
 @Getter
 public class FulfillmentGoodsRegistration {
     private Long id;
-    private Long productId;
+    private UUID productKey;
     private LocalDateTime createdAt;
 
     public static FulfillmentGoodsRegistration from(FulfillmentGoodsRegistrationCreateState state) {
-        if (FormatValidator.hasNoValue(state.getProductId())) {
-            throw new FulfillmentQueryParameterNoValueException("productId");
+        if (FormatValidator.hasNoValue(state.getProductKey())) {
+            throw new FulfillmentQueryParameterNoValueException("productKey");
         }
         return FulfillmentGoodsRegistration.builder()
-                .productId(state.getProductId())
+                .productKey(state.getProductKey())
                 .build();
     }
 
     public static FulfillmentGoodsRegistration from(FulfillmentGoodsRegistrationSnapshotState state) {
         return FulfillmentGoodsRegistration.builder()
                 .id(state.getId())
-                .productId(state.getProductId())
+                .productKey(state.getProductKey())
                 .createdAt(state.getCreatedAt())
                 .build();
     }

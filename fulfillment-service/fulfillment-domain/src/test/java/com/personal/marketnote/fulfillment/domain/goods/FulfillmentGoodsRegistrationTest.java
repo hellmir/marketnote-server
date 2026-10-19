@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,26 +19,27 @@ class FulfillmentGoodsRegistrationTest {
     class FromCreateState {
 
         @Test
-        @DisplayName("productId가 유효하면 정상 생성된다")
-        void shouldCreateWhenProductIdIsValid() {
+        @DisplayName("productKey가 유효하면 정상 생성된다")
+        void shouldCreateWhenProductKeyIsValid() {
             // given
+            UUID productKey = UUID.randomUUID();
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
-                    .productId(1L)
+                    .productKey(productKey)
                     .build();
 
             // when
             FulfillmentGoodsRegistration registration = FulfillmentGoodsRegistration.from(state);
 
             // then
-            assertThat(registration.getProductId()).isEqualTo(1L);
+            assertThat(registration.getProductKey()).isEqualTo(productKey);
         }
 
         @Test
-        @DisplayName("productId가 null이면 FulfillmentQueryParameterNoValueException이 발생한다")
-        void shouldThrowExceptionWhenProductIdIsNull() {
+        @DisplayName("productKey가 null이면 FulfillmentQueryParameterNoValueException이 발생한다")
+        void shouldThrowExceptionWhenProductKeyIsNull() {
             // given
             FulfillmentGoodsRegistrationCreateState state = FulfillmentGoodsRegistrationCreateState.builder()
-                    .productId(null)
+                    .productKey(null)
                     .build();
 
             // when & then
@@ -54,10 +56,11 @@ class FulfillmentGoodsRegistrationTest {
         @DisplayName("SnapshotState의 모든 필드가 그대로 복원된다")
         void shouldRestoreAllFieldsFromSnapshotState() {
             // given
+            UUID productKey = UUID.randomUUID();
             LocalDateTime createdAt = LocalDateTime.of(2026, 4, 11, 10, 0, 0);
             FulfillmentGoodsRegistrationSnapshotState state = FulfillmentGoodsRegistrationSnapshotState.builder()
                     .id(100L)
-                    .productId(200L)
+                    .productKey(productKey)
                     .createdAt(createdAt)
                     .build();
 
@@ -66,7 +69,7 @@ class FulfillmentGoodsRegistrationTest {
 
             // then
             assertThat(registration.getId()).isEqualTo(100L);
-            assertThat(registration.getProductId()).isEqualTo(200L);
+            assertThat(registration.getProductKey()).isEqualTo(productKey);
             assertThat(registration.getCreatedAt()).isEqualTo(createdAt);
         }
     }

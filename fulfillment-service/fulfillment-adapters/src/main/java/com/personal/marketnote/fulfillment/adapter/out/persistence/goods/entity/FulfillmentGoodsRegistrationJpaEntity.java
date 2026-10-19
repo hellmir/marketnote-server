@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "fassto_goods_registration")
@@ -21,8 +22,8 @@ public class FulfillmentGoodsRegistrationJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "product_id", nullable = false, unique = true)
-    private Long productId;
+    @Column(name = "product_key", nullable = false, unique = true)
+    private UUID productKey;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -31,7 +32,7 @@ public class FulfillmentGoodsRegistrationJpaEntity {
     public static FulfillmentGoodsRegistrationJpaEntity from(FulfillmentGoodsRegistration registration) {
         return FulfillmentGoodsRegistrationJpaEntity.builder()
                 .id(registration.getId())
-                .productId(registration.getProductId())
+                .productKey(registration.getProductKey())
                 .createdAt(registration.getCreatedAt())
                 .build();
     }
@@ -40,7 +41,7 @@ public class FulfillmentGoodsRegistrationJpaEntity {
         return FulfillmentGoodsRegistration.from(
                 FulfillmentGoodsRegistrationSnapshotState.builder()
                         .id(id)
-                        .productId(productId)
+                        .productKey(productKey)
                         .createdAt(createdAt)
                         .build()
         );

@@ -38,7 +38,7 @@ class UpdateFulfillmentGoodsUseCaseTest {
     void shouldReturnUpdateResultFromPort() {
         // given
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
-                1L, UUID.randomUUID(), null, "테스트 상품", "1", "01",
+                UUID.randomUUID(), null, "테스트 상품", "1", "01",
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
@@ -67,7 +67,7 @@ class UpdateFulfillmentGoodsUseCaseTest {
     void shouldPublishSyncedEventForEachGoodsItem() {
         // given
         UpdateFulfillmentGoodsItemCommand item1 = UpdateFulfillmentGoodsItemCommand.of(
-                1L, UUID.randomUUID(), null, "상품1", "1", "01",
+                UUID.randomUUID(), null, "상품1", "1", "01",
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
@@ -76,7 +76,7 @@ class UpdateFulfillmentGoodsUseCaseTest {
                 null
         );
         UpdateFulfillmentGoodsItemCommand item2 = UpdateFulfillmentGoodsItemCommand.of(
-                2L, UUID.randomUUID(), null, "상품2", "1", "01",
+                UUID.randomUUID(), null, "상품2", "1", "01",
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
                 null, null, null, null, null, null,
