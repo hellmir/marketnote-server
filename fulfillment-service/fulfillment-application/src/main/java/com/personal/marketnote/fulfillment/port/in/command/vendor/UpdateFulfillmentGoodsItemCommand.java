@@ -3,7 +3,6 @@ package com.personal.marketnote.fulfillment.port.in.command.vendor;
 import java.util.UUID;
 
 public record UpdateFulfillmentGoodsItemCommand(
-        Long productId,
         UUID productKey,
         String productCode,
         String productName,
@@ -42,7 +41,6 @@ public record UpdateFulfillmentGoodsItemCommand(
         String externalProductImageUrl
 ) {
     public static UpdateFulfillmentGoodsItemCommand of(
-            Long productId,
             UUID productKey,
             String productCode,
             String productName,
@@ -81,7 +79,6 @@ public record UpdateFulfillmentGoodsItemCommand(
             String externalProductImageUrl
     ) {
         return new UpdateFulfillmentGoodsItemCommand(
-                productId,
                 productKey,
                 productCode,
                 productName,

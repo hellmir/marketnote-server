@@ -10,6 +10,8 @@ import com.personal.marketnote.fulfillment.port.out.goods.SaveFulfillmentGoodsRe
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.UUID;
+
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class FulfillmentGoodsRegistrationPersistenceAdapter
@@ -17,8 +19,8 @@ public class FulfillmentGoodsRegistrationPersistenceAdapter
     private final FulfillmentGoodsRegistrationJpaRepository repository;
 
     @Override
-    public boolean existsByProductId(Long productId) {
-        return repository.existsByProductId(productId);
+    public boolean existsByProductKey(UUID productKey) {
+        return repository.existsByProductKey(productKey);
     }
 
     @Override
@@ -26,7 +28,7 @@ public class FulfillmentGoodsRegistrationPersistenceAdapter
         try {
             repository.saveAndFlush(FulfillmentGoodsRegistrationJpaEntity.from(registration));
         } catch (DataIntegrityViolationException e) {
-            throw new FulfillmentGoodsAlreadyRegisteredException(registration.getProductId());
+            throw new FulfillmentGoodsAlreadyRegisteredException(registration.getProductKey());
         }
     }
 }

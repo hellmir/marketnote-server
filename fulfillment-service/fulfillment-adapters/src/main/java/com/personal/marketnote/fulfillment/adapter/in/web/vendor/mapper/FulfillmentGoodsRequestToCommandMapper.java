@@ -87,7 +87,6 @@ public class FulfillmentGoodsRequestToCommandMapper {
         List<UpdateFulfillmentGoodsItemCommand> goods = request.stream()
                 .map(item -> UpdateFulfillmentGoodsItemCommand.of(
                         null,
-                        null,
                         item.getCstGodCd(),
                         item.getGodNm(),
                         item.getGodType(),

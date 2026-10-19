@@ -72,7 +72,6 @@ public class ProductUpdatedFulfillmentConsumer {
         }
 
         UpdateFulfillmentGoodsItemCommand itemCommand = UpdateFulfillmentGoodsItemCommand.of(
-                payload.productId(),
                 payload.productKey(),
                 null,
                 payload.productName(),

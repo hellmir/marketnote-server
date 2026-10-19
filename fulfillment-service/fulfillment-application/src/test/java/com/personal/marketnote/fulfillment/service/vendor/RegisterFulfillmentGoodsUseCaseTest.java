@@ -39,10 +39,9 @@ class RegisterFulfillmentGoodsUseCaseTest {
     @Mock
     private PublishFulfillmentGoodsSyncedEventPort publishFulfillmentGoodsSyncedEventPort;
 
-    private RegisterFulfillmentGoodsCommand buildCommand(Long productId) {
+    private RegisterFulfillmentGoodsCommand buildCommand(UUID productKey) {
         RegisterFulfillmentGoodsItemCommand itemCommand = RegisterFulfillmentGoodsItemCommand.builder()
-                .productId(productId)
-                .productKey(UUID.randomUUID())
+                .productKey(productKey)
                 .productName("테스트 상품")
                 .productType("1")
                 .giftDivision("01")
@@ -63,7 +62,8 @@ class RegisterFulfillmentGoodsUseCaseTest {
         @DisplayName("기존 registerGoods는 멱등성 체크 없이 Fulfillment API를 호출한다")
         void registerGoods_callsFulfillmentApiWithoutIdempotencyCheck() {
             // given
-            RegisterFulfillmentGoodsCommand command = buildCommand(10L);
+            UUID productKey = UUID.randomUUID();
+            RegisterFulfillmentGoodsCommand command = buildCommand(productKey);
             RegisterFulfillmentGoodsResult expectedResult = buildResult();
             when(registerFulfillmentGoodsPort.registerGoods(any())).thenReturn(expectedResult);
 
@@ -84,7 +84,8 @@ class RegisterFulfillmentGoodsUseCaseTest {
         @DisplayName("상품이 미등록 상태이면 등록 이력을 저장하고 Fulfillment API를 호출한다")
         void registerGoodsIdempotent_newProduct_savesRegistrationAndCallsApi() {
             // given
-            RegisterFulfillmentGoodsCommand command = buildCommand(10L);
+            UUID productKey = UUID.randomUUID();
+            RegisterFulfillmentGoodsCommand command = buildCommand(productKey);
             RegisterFulfillmentGoodsResult expectedResult = buildResult();
             when(registerFulfillmentGoodsPort.registerGoods(any())).thenReturn(expectedResult);
 
@@ -103,14 +104,15 @@ class RegisterFulfillmentGoodsUseCaseTest {
         @DisplayName("이미 등록된 상품이면 FulfillmentGoodsAlreadyRegisteredException을 던진다")
         void registerGoodsIdempotent_alreadyRegistered_throwsException() {
             // given
-            RegisterFulfillmentGoodsCommand command = buildCommand(10L);
-            doThrow(new FulfillmentGoodsAlreadyRegisteredException(10L))
+            UUID productKey = UUID.randomUUID();
+            RegisterFulfillmentGoodsCommand command = buildCommand(productKey);
+            doThrow(new FulfillmentGoodsAlreadyRegisteredException(productKey))
                     .when(saveFulfillmentGoodsRegistrationPort).save(any());
 
             // when & then
             assertThatThrownBy(() -> registerFulfillmentGoodsService.registerGoodsIdempotent(command))
                     .isInstanceOf(FulfillmentGoodsAlreadyRegisteredException.class)
-                    .hasMessageContaining("productId=10");
+                    .hasMessageContaining("productKey=" + productKey);
 
             verify(saveFulfillmentGoodsRegistrationPort).save(any());
             verifyNoInteractions(registerFulfillmentGoodsPort);
@@ -120,7 +122,8 @@ class RegisterFulfillmentGoodsUseCaseTest {
         @DisplayName("Fulfillment API 호출 실패 시에도 등록 이력은 이미 저장되어 있다")
         void registerGoodsIdempotent_apiFails_registrationAlreadySaved() {
             // given
-            RegisterFulfillmentGoodsCommand command = buildCommand(10L);
+            UUID productKey = UUID.randomUUID();
+            RegisterFulfillmentGoodsCommand command = buildCommand(productKey);
             when(registerFulfillmentGoodsPort.registerGoods(any()))
                     .thenThrow(new RuntimeException("Fulfillment API 오류"));
 
