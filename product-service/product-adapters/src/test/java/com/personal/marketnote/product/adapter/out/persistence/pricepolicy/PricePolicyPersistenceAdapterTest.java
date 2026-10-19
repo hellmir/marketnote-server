@@ -34,6 +34,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -127,34 +128,20 @@ class PricePolicyPersistenceAdapterTest {
             Optional<PricePolicy> result = adapter.findByProductAndOptionIds(100L, null);
 
             assertThat(result).isEmpty();
-            verify(productOptionPricePolicyJpaRepository, never()).findCandidatePricePolicyIds(any(), anyLong());
+            verify(productOptionPricePolicyJpaRepository, never()).findExactMatchingPricePolicyIds(any(), anyLong());
         }
 
         @Test
         @DisplayName("후보 가격 정책이 없으면 empty를 반환한다")
         void returnsEmptyWhenNoCandidates() {
             List<Long> optionIds = List.of(1L, 2L);
-            when(productOptionPricePolicyJpaRepository.findCandidatePricePolicyIds(optionIds, 2))
+            when(productOptionPricePolicyJpaRepository.findExactMatchingPricePolicyIds(optionIds, 2))
                     .thenReturn(List.of());
 
             Optional<PricePolicy> result = adapter.findByProductAndOptionIds(100L, optionIds);
 
             assertThat(result).isEmpty();
-        }
-
-        @Test
-        @DisplayName("후보 정책이 있지만 옵션 매핑 수가 다르면 empty를 반환한다")
-        void returnsEmptyWhenMappingCountMismatch() {
-            List<Long> optionIds = List.of(1L, 2L);
-            when(productOptionPricePolicyJpaRepository.findCandidatePricePolicyIds(optionIds, 2))
-                    .thenReturn(List.of(10L));
-            when(productOptionPricePolicyJpaRepository.countByPricePolicyJpaEntity_Id(10L))
-                    .thenReturn(5L);
-
-            Optional<PricePolicy> result = adapter.findByProductAndOptionIds(100L, optionIds);
-
-            assertThat(result).isEmpty();
-            verify(pricePolicyJpaRepository, never()).findById(10L);
+            verify(pricePolicyJpaRepository, never()).findAllById(anyList());
         }
 
         @Test
@@ -164,11 +151,9 @@ class PricePolicyPersistenceAdapterTest {
             ProductJpaEntity productJpaEntity = mock(ProductJpaEntity.class);
             PricePolicyJpaEntity pricePolicyEntity = mock(PricePolicyJpaEntity.class);
 
-            when(productOptionPricePolicyJpaRepository.findCandidatePricePolicyIds(optionIds, 2))
+            when(productOptionPricePolicyJpaRepository.findExactMatchingPricePolicyIds(optionIds, 2))
                     .thenReturn(List.of(10L));
-            when(productOptionPricePolicyJpaRepository.countByPricePolicyJpaEntity_Id(10L))
-                    .thenReturn(2L);
-            when(pricePolicyJpaRepository.findById(10L)).thenReturn(Optional.of(pricePolicyEntity));
+            when(pricePolicyJpaRepository.findAllById(List.of(10L))).thenReturn(List.of(pricePolicyEntity));
             when(pricePolicyEntity.getProductJpaEntity()).thenReturn(productJpaEntity);
             when(productJpaEntity.getId()).thenReturn(999L);
 
