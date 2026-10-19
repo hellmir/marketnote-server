@@ -15,6 +15,7 @@ import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
+import com.personal.marketnote.product.exception.PricePolicyNotFoundException;
 import com.personal.marketnote.product.port.out.pricepolicy.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -229,7 +230,7 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
     public void deleteById(Long pricePolicyId) {
         Long productId = pricePolicyJpaRepository.findById(pricePolicyId)
                 .map(entity -> entity.getProductJpaEntity().getId())
-                .orElse(null);
+                .orElseThrow(() -> new PricePolicyNotFoundException(pricePolicyId));
         deleteByIdInternal(productId, pricePolicyId);
     }
 
