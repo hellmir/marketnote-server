@@ -8,6 +8,7 @@ import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
+import com.personal.marketnote.product.exception.InvalidProductPageSizeException;
 import com.personal.marketnote.product.port.in.result.product.GetAdminProductsResult;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductInventoryUseCase;
 import com.personal.marketnote.product.port.out.file.FindProductImagesPort;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -227,6 +229,30 @@ class GetAdminProductsUseCaseTest {
 
         // then
         assertThat(result.totalPages()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("pageSize가 0이면 InvalidProductPageSizeException을 던진다")
+    void getAdminProducts_pageSizeZero_throwsInvalidProductPageSizeException() {
+        assertThatThrownBy(() -> getAdminProductsService.getAdminProducts(
+                null, null, 0, 0,
+                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, null
+        )).isInstanceOf(InvalidProductPageSizeException.class);
+
+        verifyNoInteractions(findPricePoliciesPort);
+    }
+
+    @Test
+    @DisplayName("pageSize가 음수이면 InvalidProductPageSizeException을 던진다")
+    void getAdminProducts_pageSizeNegative_throwsInvalidProductPageSizeException() {
+        assertThatThrownBy(() -> getAdminProductsService.getAdminProducts(
+                null, null, 0, -1,
+                Sort.Direction.DESC, ProductSortProperty.ORDER_NUM,
+                ProductSearchTarget.NAME, null
+        )).isInstanceOf(InvalidProductPageSizeException.class);
+
+        verifyNoInteractions(findPricePoliciesPort);
     }
 
     @Test
