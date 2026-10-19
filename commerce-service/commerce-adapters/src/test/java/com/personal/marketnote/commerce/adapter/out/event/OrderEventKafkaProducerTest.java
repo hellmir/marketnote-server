@@ -1,6 +1,8 @@
 package com.personal.marketnote.commerce.adapter.out.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.commerce.adapter.out.event.exception.OrderEventSerializationException;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
@@ -27,8 +29,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -343,5 +348,40 @@ class OrderEventKafkaProducerTest {
         OrderCancelFailedEvent payload = (OrderCancelFailedEvent) capturedEnvelope.payload();
         assertThat(payload.orderId()).isEqualTo(10L);
         assertThat(payload.buyerId()).isEqualTo(50L);
+    }
+
+    @Test
+    @DisplayName("Outbox 저장 실패 시 예외를 전파한다")
+    void saveToOutbox_propagatesExceptionWhenSaveFails() throws Exception {
+        // given
+        setUpClock("2026-10-18T10:00:00Z");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{}");
+        doThrow(new RuntimeException("DB connection failed"))
+                .when(saveOutboxEventPort).save(any(OutboxEvent.class));
+
+        // when & then
+        assertThatThrownBy(() -> orderEventKafkaProducer.publishOrderCancelFailedEvent(1L, 50L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("DB connection failed");
+    }
+
+    @Test
+    @DisplayName("Payload 직렬화 실패 시 OrderEventSerializationException을 던진다")
+    void saveToOutbox_throwsOrderEventSerializationExceptionOnJsonProcessingFailure() throws Exception {
+        // given
+        setUpClock("2026-10-18T10:00:00Z");
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new TestJsonProcessingException("Serialization failed"));
+
+        // when & then
+        assertThatThrownBy(() -> orderEventKafkaProducer.publishOrderCancelFailedEvent(1L, 50L))
+                .isInstanceOf(OrderEventSerializationException.class);
+        verifyNoInteractions(saveOutboxEventPort);
+    }
+
+    private static class TestJsonProcessingException extends JsonProcessingException {
+        protected TestJsonProcessingException(String msg) {
+            super(msg);
+        }
     }
 }
