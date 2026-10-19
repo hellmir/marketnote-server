@@ -12,6 +12,7 @@ import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
+import com.personal.marketnote.product.exception.PricePolicyNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -345,13 +347,14 @@ class PricePolicyPersistenceAdapterTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 가격 정책 삭제 시 옵션 매핑만 삭제한다")
-        void deletesMappingOnlyWhenEntityNotFound() {
+        @DisplayName("존재하지 않는 가격 정책 삭제 시 PricePolicyNotFoundException을 던진다")
+        void throwsWhenPricePolicyNotFound() {
             when(pricePolicyJpaRepository.findById(10L)).thenReturn(Optional.empty());
 
-            adapter.deleteById(10L);
+            assertThatThrownBy(() -> adapter.deleteById(10L))
+                    .isInstanceOf(PricePolicyNotFoundException.class);
 
-            verify(productOptionPricePolicyJpaRepository).deleteByPricePolicyId(10L);
+            verify(productOptionPricePolicyJpaRepository, never()).deleteByPricePolicyId(anyLong());
         }
     }
 
