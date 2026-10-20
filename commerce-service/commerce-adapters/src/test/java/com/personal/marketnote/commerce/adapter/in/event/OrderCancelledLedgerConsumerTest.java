@@ -39,9 +39,15 @@ class OrderCancelledLedgerConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long cancelAmount) {
+        return buildRecord(orderId, cancelAmount, true, null);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
+            Long orderId, Long cancelAmount, boolean isFullCancel, String cancelId
+    ) {
         OrderCancelledEvent event = new OrderCancelledEvent(
                 orderId, "order-key-1", 50L, cancelAmount, 80000L, 1000L, 3000L,
-                true, 0L, List.of(), List.of(), null
+                isFullCancel, 0L, List.of(), List.of(), cancelId
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.cancelled", "commerce-service",
@@ -174,6 +180,59 @@ class OrderCancelledLedgerConsumerTest {
         // then
         verifyNoInteractions(recordLedgerEntryUseCase);
         verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 취소 이벤트 수신 시 cancelId를 포함한 멱등성 키로 역분개를 기록한다")
+    void handleOrderCancelledEvent_partialCancel_generatesIdempotencyKeyWithCancelId() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 30000L, false, "cancel-id-abc");
+
+        // when
+        consumer.handleOrderCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-abc"
+        );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("부분 취소 이벤트에 cancelId가 없으면 unknown 접미사로 멱등성 키를 생성한다")
+    void handleOrderCancelledEvent_partialCancelWithoutCancelId_usesUnknownSuffix() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 30000L, false, null);
+
+        // when
+        consumer.handleOrderCancelledEvent(record, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:unknown"
+        );
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("같은 orderId로 서로 다른 cancelId를 가진 부분 취소 2건은 각각 역분개를 기록한다")
+    void handleOrderCancelledEvent_twoPartialCancelsWithDifferentCancelIds_recordsBothLedgerEntries() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> firstRecord = buildRecord(1L, 30000L, false, "cancel-id-1");
+        ConsumerRecord<String, EventEnvelope<?>> secondRecord = buildRecord(1L, 20000L, false, "cancel-id-2");
+
+        // when
+        consumer.handleOrderCancelledEvent(firstRecord, acknowledgment);
+        consumer.handleOrderCancelledEvent(secondRecord, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                1L, 30000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-1"
+        );
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(
+                1L, 20000L, "ORDER_PARTIAL_CANCELLATION:1:cancel-id-2"
+        );
+        verify(acknowledgment, times(2)).acknowledge();
     }
 
     @Test
