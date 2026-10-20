@@ -143,5 +143,20 @@ class UserPointPersistenceAdapterTest {
             verify(repository).save(any(UserPointJpaEntity.class));
             verify(repository).flush();
         }
+
+        @Test
+        @DisplayName("update 호출 시 내부에서 findByUserId 재조회를 하지 않는다")
+        void shouldNotRefetchOnUpdate() {
+            // given
+            UserPointJpaEntity existing = buildEntity(5_000L);
+            UserPoint domain = existing.toDomain();
+            given(repository.save(any(UserPointJpaEntity.class))).willReturn(existing);
+
+            // when
+            adapter.update(domain);
+
+            // then
+            verify(repository, org.mockito.Mockito.never()).findByUserId(any());
+        }
     }
 }
