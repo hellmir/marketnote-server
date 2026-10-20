@@ -3,11 +3,12 @@ package com.personal.marketnote.reward.service.point;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointHistory;
+import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.mapper.RewardCommandToStateMapper;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
-import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
 public class ModifyPendingPointService implements ModifyPendingPointUseCase {
-    private final GetUserPointUseCase getUserPointUseCase;
+    private final FindUserPointPort findUserPointPort;
     private final UpdateUserPointPort updateUserPointPort;
     private final SaveUserPointHistoryPort saveUserPointHistoryPort;
 
@@ -33,7 +34,8 @@ public class ModifyPendingPointService implements ModifyPendingPointUseCase {
             backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     public UpdateUserPointResult modifyPending(ModifyPendingPointCommand command) {
-        UserPoint userPoint = getUserPointUseCase.getUserPoint(command.userId());
+        UserPoint userPoint = findUserPointPort.findByUserIdForUpdate(command.userId())
+                .orElseThrow(() -> new UserPointNotFoundException(command.userId()));
         addOrDeductExpectedPoint(userPoint, command);
         UserPoint updatedPoint = updateUserPointPort.update(userPoint);
 
