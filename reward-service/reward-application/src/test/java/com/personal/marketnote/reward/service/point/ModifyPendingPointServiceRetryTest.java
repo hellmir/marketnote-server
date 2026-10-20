@@ -7,8 +7,8 @@ import com.personal.marketnote.reward.domain.point.UserPointHistory;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
-import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import org.junit.jupiter.api.AfterEach;
@@ -44,8 +44,8 @@ class ModifyPendingPointServiceRetryTest {
     static class TestConfig {
 
         @Bean
-        GetUserPointUseCase getUserPointUseCase() {
-            return mock(GetUserPointUseCase.class);
+        FindUserPointPort findUserPointPort() {
+            return mock(FindUserPointPort.class);
         }
 
         @Bean
@@ -60,12 +60,12 @@ class ModifyPendingPointServiceRetryTest {
 
         @Bean
         ModifyPendingPointUseCase modifyPendingPointService(
-                GetUserPointUseCase getUserPointUseCase,
+                FindUserPointPort findUserPointPort,
                 UpdateUserPointPort updateUserPointPort,
                 SaveUserPointHistoryPort saveUserPointHistoryPort
         ) {
             return new ModifyPendingPointService(
-                    getUserPointUseCase, updateUserPointPort, saveUserPointHistoryPort
+                    findUserPointPort, updateUserPointPort, saveUserPointHistoryPort
             );
         }
     }
@@ -74,7 +74,7 @@ class ModifyPendingPointServiceRetryTest {
     private ModifyPendingPointUseCase modifyPendingPointService;
 
     @Autowired
-    private GetUserPointUseCase getUserPointUseCase;
+    private FindUserPointPort findUserPointPort;
 
     @Autowired
     private UpdateUserPointPort updateUserPointPort;
@@ -84,7 +84,7 @@ class ModifyPendingPointServiceRetryTest {
 
     @AfterEach
     void resetMocks() {
-        reset(getUserPointUseCase, updateUserPointPort, saveUserPointHistoryPort);
+        reset(findUserPointPort, updateUserPointPort, saveUserPointHistoryPort);
     }
 
     private UserPoint createUserPoint() {
@@ -115,7 +115,7 @@ class ModifyPendingPointServiceRetryTest {
     void shouldRetryOnOptimisticLockAndSucceedOnThirdAttempt() {
         // given
         ModifyPendingPointCommand command = createAccrualCommand();
-        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(createUserPoint());
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(java.util.Optional.of(createUserPoint()));
         when(updateUserPointPort.update(any(UserPoint.class)))
                 .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
                 .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID))
@@ -135,7 +135,7 @@ class ModifyPendingPointServiceRetryTest {
     void shouldThrowWhenOptimisticLockFailsAllRetries() {
         // given
         ModifyPendingPointCommand command = createAccrualCommand();
-        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(createUserPoint());
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(java.util.Optional.of(createUserPoint()));
         when(updateUserPointPort.update(any(UserPoint.class)))
                 .thenThrow(new ObjectOptimisticLockingFailureException(UserPoint.class, USER_ID));
 
@@ -151,7 +151,7 @@ class ModifyPendingPointServiceRetryTest {
     void shouldNotRetryOnOtherExceptions() {
         // given
         ModifyPendingPointCommand command = createAccrualCommand();
-        when(getUserPointUseCase.getUserPoint(USER_ID)).thenReturn(createUserPoint());
+        when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(java.util.Optional.of(createUserPoint()));
         when(updateUserPointPort.update(any(UserPoint.class)))
                 .thenThrow(new IllegalStateException("other error"));
 

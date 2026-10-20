@@ -5,7 +5,7 @@ import com.personal.marketnote.reward.domain.point.*;
 import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.port.in.command.point.ModifyPendingPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.UpdateUserPointResult;
-import com.personal.marketnote.reward.port.in.usecase.point.GetUserPointUseCase;
+import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointHistoryPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +30,7 @@ class ModifyPendingPointUseCaseTest {
     private ModifyPendingPointService modifyPendingPointService;
 
     @Mock
-    private GetUserPointUseCase getUserPointUseCase;
+    private FindUserPointPort findUserPointPort;
 
     @Mock
     private UpdateUserPointPort updateUserPointPort;
@@ -66,7 +66,7 @@ class ModifyPendingPointUseCaseTest {
     void shouldAddPendingAmountAndSaveHistory() {
         // given
         UserPoint userPoint = createUserPoint(1000L, 0L);
-        when(getUserPointUseCase.getUserPoint(1L)).thenReturn(userPoint);
+        when(findUserPointPort.findByUserIdForUpdate(1L)).thenReturn(java.util.Optional.of(userPoint));
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
                 .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
@@ -98,7 +98,7 @@ class ModifyPendingPointUseCaseTest {
     void shouldDeductPendingAmountAndSaveHistory() {
         // given
         UserPoint userPoint = createUserPoint(1000L, 500L);
-        when(getUserPointUseCase.getUserPoint(1L)).thenReturn(userPoint);
+        when(findUserPointPort.findByUserIdForUpdate(1L)).thenReturn(java.util.Optional.of(userPoint));
         when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
         when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
                 .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
@@ -128,7 +128,7 @@ class ModifyPendingPointUseCaseTest {
     void shouldThrowWhenInsufficientPendingAmount() {
         // given
         UserPoint userPoint = createUserPoint(1000L, 200L);
-        when(getUserPointUseCase.getUserPoint(1L)).thenReturn(userPoint);
+        when(findUserPointPort.findByUserIdForUpdate(1L)).thenReturn(java.util.Optional.of(userPoint));
 
         ModifyPendingPointCommand command = createCommand(UserPointChangeType.DEDUCTION, 500L);
 
@@ -144,8 +144,8 @@ class ModifyPendingPointUseCaseTest {
     @DisplayName("회원 포인트 정보가 존재하지 않으면 UserPointNotFoundException이 발생한다")
     void shouldThrowWhenUserPointNotFound() {
         // given
-        when(getUserPointUseCase.getUserPoint(1L))
-                .thenThrow(new UserPointNotFoundException(1L));
+        when(findUserPointPort.findByUserIdForUpdate(1L))
+                .thenReturn(java.util.Optional.empty());
 
         ModifyPendingPointCommand command = createCommand(UserPointChangeType.ACCRUAL, 500L);
 
