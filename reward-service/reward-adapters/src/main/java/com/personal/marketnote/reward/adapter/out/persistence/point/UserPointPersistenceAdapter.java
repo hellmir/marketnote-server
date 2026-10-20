@@ -4,7 +4,6 @@ import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.reward.adapter.out.persistence.point.entity.UserPointJpaEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.point.repository.UserPointJpaRepository;
 import com.personal.marketnote.reward.domain.point.UserPoint;
-import com.personal.marketnote.reward.exception.UserPointNotFoundException;
 import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import com.personal.marketnote.reward.port.out.point.SaveUserPointPort;
 import com.personal.marketnote.reward.port.out.point.UpdateUserPointPort;
@@ -49,16 +48,9 @@ public class UserPointPersistenceAdapter implements SaveUserPointPort, FindUserP
     }
 
     @Override
-    public UserPoint update(UserPoint userPoint) throws UserPointNotFoundException {
-        UserPointJpaEntity userPointJpaEntity = findEntityByUserId(userPoint.getUserId());
-        userPointJpaEntity.updateFrom(userPoint);
+    public UserPoint update(UserPoint userPoint) {
+        UserPointJpaEntity saved = repository.save(UserPointJpaEntity.from(userPoint));
         repository.flush();
-
-        return userPoint;
-    }
-
-    private UserPointJpaEntity findEntityByUserId(Long userId) throws UserPointNotFoundException {
-        return repository.findByUserId(userId)
-                .orElseThrow(() -> new UserPointNotFoundException(userId));
+        return saved.toDomain();
     }
 }

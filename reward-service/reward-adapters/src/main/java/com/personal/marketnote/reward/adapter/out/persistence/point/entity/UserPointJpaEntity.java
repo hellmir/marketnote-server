@@ -45,6 +45,7 @@ public class UserPointJpaEntity extends BaseEntity {
                 .amount(userPoint.getAmountValue())
                 .addExpectedAmount(userPoint.getAddExpectedAmountValue())
                 .expireExpectedAmount(userPoint.getExpireExpectedAmountValue())
+                .version(userPoint.getVersion())
                 .build();
     }
 
@@ -58,13 +59,8 @@ public class UserPointJpaEntity extends BaseEntity {
                         .expireExpectedAmount(PointAmount.of(expireExpectedAmount))
                         .createdAt(getCreatedAt())
                         .modifiedAt(getModifiedAt())
+                        .version(version)
                         .build()
         );
-    }
-
-    public void updateFrom(UserPoint userPoint) {
-        this.amount = userPoint.getAmountValue();
-        this.addExpectedAmount = userPoint.getAddExpectedAmountValue();
-        this.expireExpectedAmount = userPoint.getExpireExpectedAmountValue();
     }
 }

@@ -128,37 +128,20 @@ class UserPointPersistenceAdapterTest {
     class UpdateTest {
 
         @Test
-        @DisplayName("기존 엔티티가 존재하면 updateFrom으로 도메인 상태를 반영한다")
-        void shouldUpdateExistingEntity() {
+        @DisplayName("도메인을 엔티티로 변환하여 save 후 도메인으로 반환한다")
+        void shouldSaveAndReturnDomainOnUpdate() {
             // given
-            UserPointJpaEntity existing = buildEntity(0L);
-            given(repository.findByUserId(USER_ID)).willReturn(Optional.of(existing));
-            UserPoint domain = existing.toDomain().withAmount(10_000L);
+            UserPointJpaEntity existing = buildEntity(10_000L);
+            UserPoint domain = existing.toDomain();
+            given(repository.save(any(UserPointJpaEntity.class))).willReturn(existing);
 
             // when
             UserPoint result = adapter.update(domain);
 
             // then
-            assertThat(existing.getAmount()).isEqualTo(10_000L);
             assertThat(result.getAmount().getValue()).isEqualTo(10_000L);
-        }
-
-        @Test
-        @DisplayName("기존 엔티티가 없으면 UserPointNotFoundException을 던진다")
-        void shouldThrowNotFoundWhenNoEntity() {
-            // given
-            UserPoint domain = UserPoint.from(UserPointCreateState.builder()
-                    .userId(USER_ID)
-                    .userKey(USER_KEY)
-                    .amount(PointAmount.of(0L))
-                    .addExpectedAmount(PointAmount.of(0L))
-                    .expireExpectedAmount(PointAmount.of(0L))
-                    .build());
-            given(repository.findByUserId(USER_ID)).willReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> adapter.update(domain))
-                    .isInstanceOf(UserPointNotFoundException.class);
+            verify(repository).save(any(UserPointJpaEntity.class));
+            verify(repository).flush();
         }
     }
 }
