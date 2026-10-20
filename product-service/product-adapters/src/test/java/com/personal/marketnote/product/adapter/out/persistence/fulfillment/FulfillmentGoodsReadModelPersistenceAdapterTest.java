@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.fulfillment;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.kafka.event.FulfillmentGoodsSyncedEvent;
 import com.personal.marketnote.product.adapter.out.persistence.fulfillment.entity.FulfillmentGoodsReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.fulfillment.repository.FulfillmentGoodsReadModelJpaRepository;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, FulfillmentGoodsReadModelPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, FulfillmentGoodsReadModelPersistenceAdapter.class})
 class FulfillmentGoodsReadModelPersistenceAdapterTest {
 
     @Autowired

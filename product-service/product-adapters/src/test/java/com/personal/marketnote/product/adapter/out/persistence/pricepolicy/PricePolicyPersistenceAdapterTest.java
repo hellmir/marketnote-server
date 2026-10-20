@@ -22,8 +22,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
@@ -34,6 +32,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -255,10 +255,10 @@ class PricePolicyPersistenceAdapterTest {
     class FindPricePoliciesByOffset {
 
         @Test
-        @DisplayName("오름차순이면 findAllActiveByOffsetAsc를 호출한다")
+        @DisplayName("오름차순이면 isAsc=true로 fragment 메서드를 호출한다")
         void delegatesToAsc() {
-            when(pricePolicyJpaRepository.findAllActiveByOffsetAsc(
-                    any(), any(Pageable.class), any(), any(), any(), any()))
+            when(pricePolicyJpaRepository.findActivePricePoliciesByOffset(
+                    any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
                     .thenReturn(List.of());
 
             adapter.findPricePoliciesByOffset(
@@ -272,21 +272,23 @@ class PricePolicyPersistenceAdapterTest {
                     null
             );
 
-            verify(pricePolicyJpaRepository).findAllActiveByOffsetAsc(
+            verify(pricePolicyJpaRepository).findActivePricePoliciesByOffset(
                     eq(List.of()),
-                    eq(PageRequest.of(0, 10)),
-                    eq("accumulatedPoint"),
-                    eq("name"),
-                    eq(""),
+                    eq(0),
+                    eq(10),
+                    eq(true),
+                    eq(ProductSortProperty.ACCUMULATED_POINT),
+                    eq(ProductSearchTarget.NAME),
+                    isNull(),
                     isNull()
             );
         }
 
         @Test
-        @DisplayName("내림차순이면 findAllActiveByOffsetDesc를 호출한다")
+        @DisplayName("내림차순이면 isAsc=false로 fragment 메서드를 호출한다")
         void delegatesToDesc() {
-            when(pricePolicyJpaRepository.findAllActiveByOffsetDesc(
-                    any(), any(Pageable.class), any(), any(), any(), any()))
+            when(pricePolicyJpaRepository.findActivePricePoliciesByOffset(
+                    any(), anyInt(), anyInt(), anyBoolean(), any(), any(), any(), any()))
                     .thenReturn(List.of());
 
             adapter.findPricePoliciesByOffset(
@@ -300,12 +302,14 @@ class PricePolicyPersistenceAdapterTest {
                     3L
             );
 
-            verify(pricePolicyJpaRepository).findAllActiveByOffsetDesc(
+            verify(pricePolicyJpaRepository).findActivePricePoliciesByOffset(
                     eq(List.of()),
-                    eq(PageRequest.of(2, 10)),
-                    eq("popularity"),
-                    eq("name"),
-                    eq("%k%"),
+                    eq(2),
+                    eq(10),
+                    eq(false),
+                    eq(ProductSortProperty.POPULARITY),
+                    eq(ProductSearchTarget.NAME),
+                    eq("k"),
                     eq(3L)
             );
         }

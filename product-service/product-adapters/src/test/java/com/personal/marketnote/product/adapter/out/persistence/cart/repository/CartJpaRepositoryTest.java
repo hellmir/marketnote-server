@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.cart.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.product.adapter.out.persistence.cart.entity.CartProductJpaEntity;
@@ -34,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuditConfig.class)
+@Import({AuditConfig.class, QuerydslConfig.class})
 class CartJpaRepositoryTest {
 
     @Autowired

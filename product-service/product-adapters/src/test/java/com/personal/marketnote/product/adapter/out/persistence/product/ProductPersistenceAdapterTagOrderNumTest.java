@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.product;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.entity.ProductTagJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.product.repository.ProductJpaRepository;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, ProductPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, ProductPersistenceAdapter.class})
 class ProductPersistenceAdapterTagOrderNumTest {
 
     @Autowired
