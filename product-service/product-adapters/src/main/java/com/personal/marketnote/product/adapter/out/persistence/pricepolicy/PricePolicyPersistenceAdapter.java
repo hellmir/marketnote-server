@@ -20,8 +20,6 @@ import com.personal.marketnote.product.port.out.pricepolicy.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
@@ -185,25 +183,16 @@ public class PricePolicyPersistenceAdapter implements SavePricePolicyPort, FindP
             String searchKeyword,
             Long categoryId
     ) {
-        String pattern = generateSearchPattern(searchKeyword);
-
         boolean isAsc = sortDirection == Sort.Direction.ASC;
 
-        List<PricePolicyJpaEntity> entities = isAsc
-                ? pricePolicyJpaRepository.findAllActiveByOffsetAsc(
+        List<PricePolicyJpaEntity> entities = pricePolicyJpaRepository.findActivePricePoliciesByOffset(
                 pricePolicyIds,
-                PageRequest.of(page, pageSize),
-                sortProperty.getCamelCaseValue(),
-                searchTarget.getCamelCaseValue(),
-                pattern,
-                categoryId
-        )
-                : pricePolicyJpaRepository.findAllActiveByOffsetDesc(
-                pricePolicyIds,
-                PageRequest.of(page, pageSize),
-                sortProperty.getCamelCaseValue(),
-                searchTarget.getCamelCaseValue(),
-                pattern,
+                page,
+                pageSize,
+                isAsc,
+                sortProperty,
+                searchTarget,
+                searchKeyword,
                 categoryId
         );
 

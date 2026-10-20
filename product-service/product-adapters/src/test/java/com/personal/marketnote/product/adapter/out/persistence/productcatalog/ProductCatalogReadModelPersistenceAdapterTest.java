@@ -2,6 +2,7 @@ package com.personal.marketnote.product.adapter.out.persistence.productcatalog;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.configuration.ObjectMapperConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.ProductCatalogReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.repository.ProductCatalogReadModelJpaRepository;
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import({
         AuditConfig.class,
         ObjectMapperConfig.class,
+        QuerydslConfig.class,
         ProductCatalogReadModelPersistenceAdapter.class,
         ProductCatalogReadModelQueryRepositoryImpl.class
 })

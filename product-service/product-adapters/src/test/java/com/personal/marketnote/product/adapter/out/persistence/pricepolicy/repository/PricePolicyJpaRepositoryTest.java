@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.out.persistence.pricepolicy.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
@@ -28,9 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -41,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuditConfig.class)
+@Import({AuditConfig.class, QuerydslConfig.class})
 class PricePolicyJpaRepositoryTest {
 
     @Autowired
@@ -186,89 +184,6 @@ class PricePolicyJpaRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findAllActiveByOffsetAsc")
-    class FindAllActiveByOffsetAsc {
-
-        @Test
-        @DisplayName("오프셋 기반 오름차순 정렬로 조회한다")
-        void returnsResultsByOrderNumAsc() {
-            ProductJpaEntity product1 = saveProduct("상품1", "브랜드1");
-            ProductJpaEntity product2 = saveProduct("상품2", "브랜드2");
-            ProductJpaEntity product3 = saveProduct("상품3", "브랜드3");
-            PricePolicyJpaEntity policy1 = savePricePolicy(product1, 1000L);
-            PricePolicyJpaEntity policy2 = savePricePolicy(product2, 2000L);
-            PricePolicyJpaEntity policy3 = savePricePolicy(product3, 3000L);
-
-            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "orderNum"));
-
-            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllActiveByOffsetAsc(null, pageable, "orderNum", "name", "", null);
-
-            assertThat(results).extracting(PricePolicyJpaEntity::getId)
-                    .containsExactly(policy1.getId(), policy2.getId(), policy3.getId());
-        }
-
-        @Test
-        @DisplayName("페이지 크기만큼 결과를 제한한다")
-        void respectsPageSize() {
-            ProductJpaEntity product1 = saveProduct("상품1", "브랜드1");
-            ProductJpaEntity product2 = saveProduct("상품2", "브랜드2");
-            ProductJpaEntity product3 = saveProduct("상품3", "브랜드3");
-            savePricePolicy(product1, 1000L);
-            savePricePolicy(product2, 2000L);
-            savePricePolicy(product3, 3000L);
-
-            Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.ASC, "orderNum"));
-
-            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllActiveByOffsetAsc(null, pageable, "orderNum", "name", "", null);
-
-            assertThat(results).hasSize(2);
-        }
-    }
-
-    @Nested
-    @DisplayName("findAllActiveByOffsetDesc")
-    class FindAllActiveByOffsetDesc {
-
-        @Test
-        @DisplayName("오프셋 기반 내림차순 정렬로 조회한다")
-        void returnsResultsByOrderNumDesc() {
-            ProductJpaEntity product1 = saveProduct("상품1", "브랜드1");
-            ProductJpaEntity product2 = saveProduct("상품2", "브랜드2");
-            ProductJpaEntity product3 = saveProduct("상품3", "브랜드3");
-            PricePolicyJpaEntity policy1 = savePricePolicy(product1, 1000L);
-            PricePolicyJpaEntity policy2 = savePricePolicy(product2, 2000L);
-            PricePolicyJpaEntity policy3 = savePricePolicy(product3, 3000L);
-
-            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
-
-            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllActiveByOffsetDesc(null, pageable, "orderNum", "name", "", null);
-
-            assertThat(results).extracting(PricePolicyJpaEntity::getId)
-                    .containsExactly(policy3.getId(), policy2.getId(), policy1.getId());
-        }
-
-        @Test
-        @DisplayName("pricePolicyIds 지정 시 해당 ID만 조회한다")
-        void filtersByPricePolicyIds() {
-            ProductJpaEntity product1 = saveProduct("상품1", "브랜드1");
-            ProductJpaEntity product2 = saveProduct("상품2", "브랜드2");
-            PricePolicyJpaEntity policy1 = savePricePolicy(product1, 1000L);
-            savePricePolicy(product2, 2000L);
-
-            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "orderNum"));
-
-            List<PricePolicyJpaEntity> results = pricePolicyJpaRepository
-                    .findAllActiveByOffsetDesc(List.of(policy1.getId()), pageable, "orderNum", "name", "", null);
-
-            assertThat(results).hasSize(1);
-            assertThat(results.getFirst().getId()).isEqualTo(policy1.getId());
-        }
-    }
-
-    @Nested
     @DisplayName("findAllWithProductAndOptionMappingsByIdIn")
     class FindAllWithProductAndOptionMappings {
 
@@ -380,22 +295,6 @@ class PricePolicyJpaRepositoryTest {
         return saved;
     }
 
-    private PricePolicyJpaEntity savePricePolicyWithDiscountPrice(ProductJpaEntity productEntity, Long discountPrice) {
-        PricePolicy pricePolicy = PricePolicy.from(
-                PricePolicyCreateState.builder()
-                        .price(10000L)
-                        .discountPrice(discountPrice)
-                        .discountRate(Rate.of(BigDecimal.valueOf(10.0)))
-                        .accumulatedPoint(100L)
-                        .accumulationRate(Rate.of(BigDecimal.valueOf(1.0)))
-                        .build()
-        );
-        PricePolicyJpaEntity entity = PricePolicyJpaEntity.from(productEntity, pricePolicy);
-        PricePolicyJpaEntity saved = pricePolicyJpaRepository.save(entity);
-        saved.setIdToOrderNum();
-        return saved;
-    }
-
     private ProductOptionCategoryJpaEntity saveOptionCategory(ProductJpaEntity product, String name) {
         ProductOptionCategoryCreateState state = ProductOptionCategoryCreateState.builder()
                 .product(null)
@@ -427,10 +326,4 @@ class PricePolicyJpaRepositoryTest {
         entityManager.persist(mapping);
     }
 
-    private void updatePopularity(Long policyId, Long popularity) {
-        entityManager.createNativeQuery("UPDATE price_policy SET popularity = :popularity WHERE id = :id")
-                .setParameter("popularity", popularity)
-                .setParameter("id", policyId)
-                .executeUpdate();
-    }
 }

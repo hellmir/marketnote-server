@@ -3,6 +3,7 @@ package com.personal.marketnote.product.adapter.out.persistence.image;
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
 import com.personal.marketnote.common.application.file.port.in.result.GetFilesResult;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.product.adapter.out.persistence.image.entity.ImageReadModelJpaEntity;
@@ -29,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, ImageReadModelPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, ImageReadModelPersistenceAdapter.class})
 class ImageReadModelPersistenceAdapterTest {
 
     @Autowired

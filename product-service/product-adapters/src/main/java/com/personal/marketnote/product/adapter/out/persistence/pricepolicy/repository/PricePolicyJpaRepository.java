@@ -1,7 +1,6 @@
 package com.personal.marketnote.product.adapter.out.persistence.pricepolicy.repository;
 
 import com.personal.marketnote.product.adapter.out.persistence.pricepolicy.entity.PricePolicyJpaEntity;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEntity, Long> {
+public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEntity, Long>, PricePolicySearchQueryRepository {
     List<PricePolicyJpaEntity> findAllByProductJpaEntity_IdOrderByIdDesc(Long productId);
 
     @Query("""
@@ -44,96 +43,6 @@ public interface PricePolicyJpaRepository extends JpaRepository<PricePolicyJpaEn
             )
             """)
     Optional<PricePolicyJpaEntity> findOneByOptionIds(List<Long> optionIds);
-
-    @Query("""
-            SELECT pp
-            FROM PricePolicyJpaEntity pp
-              JOIN pp.productJpaEntity p
-            WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND (
-                    :pattern = ''
-                 OR (:searchTarget = 'name' AND p.name LIKE :pattern)
-                 OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
-                 OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
-              )
-              AND (
-                    :categoryId IS NULL
-                 OR EXISTS (
-                        SELECT 1
-                        FROM ProductCategoryJpaEntity pc
-                        WHERE pc.productId = p.id
-                          AND pc.categoryId = :categoryId
-                 )
-              )
-              AND (
-                    :pricePolicyIds IS NULL
-                    OR pp.id IN (:pricePolicyIds)
-              )
-            ORDER BY
-                CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END ASC,
-                CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END ASC,
-                CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END ASC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END ASC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN p.id END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN pp.accumulationRate END ASC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
-                pp.id ASC
-            """)
-    List<PricePolicyJpaEntity> findAllActiveByOffsetAsc(
-            @Param("pricePolicyIds") List<Long> pricePolicyIds,
-            Pageable pageable,
-            @Param("sortProperty") String sortProperty,
-            @Param("searchTarget") String searchTarget,
-            @Param("pattern") String pattern,
-            @Param("categoryId") Long categoryId
-    );
-
-    @Query("""
-            SELECT pp
-            FROM PricePolicyJpaEntity pp
-              JOIN pp.productJpaEntity p
-            WHERE 1 = 1
-              AND p.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND pp.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
-              AND (
-                    :pattern = ''
-                 OR (:searchTarget = 'name' AND p.name LIKE :pattern)
-                 OR (:searchTarget = 'brandName' AND p.brandName LIKE :pattern)
-                 OR (:searchTarget <> 'name' AND :searchTarget <> 'brandName' AND (p.name LIKE :pattern OR p.brandName LIKE :pattern))
-              )
-              AND (
-                    :categoryId IS NULL
-                 OR EXISTS (
-                        SELECT 1
-                        FROM ProductCategoryJpaEntity pc
-                        WHERE pc.productId = p.id
-                          AND pc.categoryId = :categoryId
-                 )
-              )
-              AND (
-                    :pricePolicyIds IS NULL
-                    OR pp.id IN :pricePolicyIds
-              )
-            ORDER BY
-                CASE WHEN :sortProperty = 'orderNum' THEN p.orderNum END DESC,
-                CASE WHEN :sortProperty = 'popularity' THEN pp.popularity END DESC,
-                CASE WHEN :sortProperty = 'discountPrice' THEN pp.discountPrice END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN pp.accumulatedPoint END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPoint' THEN p.id END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN pp.accumulationRate END DESC,
-                CASE WHEN :sortProperty = 'accumulatedPointRate' THEN p.id END DESC,
-                pp.id DESC
-            """)
-    List<PricePolicyJpaEntity> findAllActiveByOffsetDesc(
-            @Param("pricePolicyIds") List<Long> pricePolicyIds,
-            Pageable pageable,
-            @Param("sortProperty") String sortProperty,
-            @Param("searchTarget") String searchTarget,
-            @Param("pattern") String pattern,
-            @Param("categoryId") Long categoryId
-    );
 
     @Query("""
             SELECT COUNT(pp)
