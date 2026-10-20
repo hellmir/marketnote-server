@@ -19,6 +19,7 @@ public class UserPoint {
     private PointAmount expireExpectedAmount;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private Long version;
 
     public UserPoint withAmount(Long amount) {
         return UserPoint.builder()
@@ -29,6 +30,7 @@ public class UserPoint {
                 .expireExpectedAmount(expireExpectedAmount)
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
+                .version(version)
                 .build();
     }
 
@@ -51,6 +53,7 @@ public class UserPoint {
                 .expireExpectedAmount(resolvePointAmountOrZero(state.getExpireExpectedAmount()))
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
+                .version(state.getVersion())
                 .build();
     }
 

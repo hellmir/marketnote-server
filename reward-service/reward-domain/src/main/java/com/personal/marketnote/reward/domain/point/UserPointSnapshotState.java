@@ -15,4 +15,5 @@ public class UserPointSnapshotState {
     private final PointAmount expireExpectedAmount;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
+    private final Long version;
 }

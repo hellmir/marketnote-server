@@ -55,7 +55,7 @@ class UserPointJpaEntityVersionTest {
 
         UserPointJpaEntity entity = em.find(UserPointJpaEntity.class, 1L);
         UserPoint changed = entity.toDomain().withAmount(7_000L);
-        entity.updateFrom(changed);
+        em.merge(UserPointJpaEntity.from(changed));
         em.flush();
         em.clear();
 
