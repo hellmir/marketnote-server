@@ -12,6 +12,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderCancelledEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -66,16 +67,18 @@ public class OrderCancelledSettlementConsumer {
         }
 
         try {
-            createCancellationAllocations(payload.orderId());
-            log.info("주문 취소 역배분 생성 완료. orderId={}", payload.orderId());
+            createCancellationAllocations(payload.orderId(), payload.cancelId());
+            log.info("주문 취소 역배분 생성 완료. orderId={}, cancelId={}", payload.orderId(), payload.cancelId());
         } catch (DataIntegrityViolationException e) {
-            log.info("이미 처리된 주문 취소 역배분 이벤트 (멱등 처리). eventId={}, orderId={}", envelope.eventId(), payload.orderId());
+            log.info("이미 처리된 주문 취소 역배분 이벤트 (멱등 처리). eventId={}, orderId={}, cancelId={}",
+                    envelope.eventId(), payload.orderId(), payload.cancelId()
+            );
         }
 
         acknowledgment.acknowledge();
     }
 
-    private void createCancellationAllocations(Long orderId) {
+    private void createCancellationAllocations(Long orderId, String cancelId) {
         List<PaymentAllocation> originalAllocations = findPaymentAllocationPort.findByOrderId(orderId);
 
         List<PaymentAllocation> cancellationAllocations = originalAllocations.stream()
@@ -89,7 +92,7 @@ public class OrderCancelledSettlementConsumer {
                                 .transactionType(PaymentAllocationTransactionType.CANCELLATION)
                                 .targetType(PaymentAllocationTargetType.ORDER)
                                 .idempotencyKey(IdempotencyKey.of(
-                                        IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()
+                                        buildIdempotencyKeyValue(orderId, allocation.getSellerId(), cancelId)
                                 ))
                                 .build()
                 ))
@@ -98,5 +101,12 @@ public class OrderCancelledSettlementConsumer {
         if (!cancellationAllocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(cancellationAllocations);
         }
+    }
+
+    private String buildIdempotencyKeyValue(Long orderId, Long sellerId, String cancelId) {
+        if (FormatValidator.hasNoValue(cancelId)) {
+            return IDEMPOTENCY_KEY_PREFIX + orderId + ":" + sellerId;
+        }
+        return IDEMPOTENCY_KEY_PREFIX + orderId + ":" + sellerId + ":" + cancelId;
     }
 }
