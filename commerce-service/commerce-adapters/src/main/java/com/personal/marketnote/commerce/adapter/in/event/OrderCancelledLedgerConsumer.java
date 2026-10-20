@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderCancelledEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -18,8 +19,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class OrderCancelledLedgerConsumer {
-    private static final String IDEMPOTENCY_KEY_PREFIX = "ORDER_CANCELLATION:";
-
     private final ObjectMapper objectMapper;
     private final RecordLedgerEntryUseCase recordLedgerEntryUseCase;
 
@@ -56,19 +55,27 @@ public class OrderCancelledLedgerConsumer {
             return;
         }
 
-        String idempotencyKey = IDEMPOTENCY_KEY_PREFIX + payload.orderId();
+        String idempotencyKey = resolveIdempotencyKey(payload);
 
         try {
             recordLedgerEntryUseCase.recordPaymentCancellation(
                     payload.orderId(), payload.cancelAmount(), idempotencyKey
             );
-            log.info("주문 취소 역분개 완료. orderId={}, cancelAmount={}, idempotencyKey={}",
-                    payload.orderId(), payload.cancelAmount(), idempotencyKey
+            log.info("주문 취소 역분개 완료. orderId={}, isFullCancel={}, cancelAmount={}, idempotencyKey={}",
+                    payload.orderId(), payload.isFullCancel(), payload.cancelAmount(), idempotencyKey
             );
         } catch (DuplicateLedgerTransactionException e) {
             log.info("이미 처리된 주문 취소 역분개 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private String resolveIdempotencyKey(OrderCancelledEvent payload) {
+        if (payload.isFullCancel()) {
+            return "ORDER_CANCELLATION:" + payload.orderId();
+        }
+        return "ORDER_PARTIAL_CANCELLATION:" + payload.orderId()
+                + ":" + (FormatValidator.hasValue(payload.cancelId()) ? payload.cancelId() : "unknown");
     }
 }

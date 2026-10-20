@@ -14,7 +14,8 @@ public record OrderCancelledEvent(
         boolean isFullCancel,
         Long alreadyRefunded,
         List<OrderProductItem> orderProducts,
-        List<OrderProductItem> cancelProducts
+        List<OrderProductItem> cancelProducts,
+        String cancelId
 ) {
 
     public record OrderProductItem(

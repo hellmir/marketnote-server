@@ -85,7 +85,7 @@ class CompleteCancelOrderUseCaseTest {
                     eq(1L), eq("ORD-001"), eq(100L),
                     eq(50000L), eq(50000L), eq(0L), eq(3000L),
                     eq(true), eq(0L),
-                    any(), any());
+                    any(), any(), isNull());
         }
 
         @Test
@@ -157,7 +157,7 @@ class CompleteCancelOrderUseCaseTest {
                     eq(1L), eq("ORD-001"), eq(100L),
                     eq(65000L), eq(65000L), eq(0L), eq(3000L),
                     eq(true), eq(0L),
-                    any(), cancelProductsCaptor.capture()
+                    any(), cancelProductsCaptor.capture(), isNull()
             );
 
             List<OrderProduct> capturedProducts = cancelProductsCaptor.getValue();
@@ -203,7 +203,7 @@ class CompleteCancelOrderUseCaseTest {
                     eq(1L), eq("ORD-001"), eq(100L),
                     eq(50000L), eq(65000L), eq(0L), eq(3000L),
                     eq(false), eq(0L),
-                    any(), cancelProductsCaptor.capture()
+                    any(), cancelProductsCaptor.capture(), notNull()
             );
 
             List<OrderProduct> capturedProducts = cancelProductsCaptor.getValue();
@@ -244,7 +244,7 @@ class CompleteCancelOrderUseCaseTest {
             verify(publishOrderEventPort).publishOrderCancelledEvent(
                     any(), any(), any(), any(), any(), any(), any(),
                     anyBoolean(), any(),
-                    any(), cancelProductsCaptor.capture()
+                    any(), cancelProductsCaptor.capture(), any()
             );
 
             List<OrderProduct> capturedProducts = cancelProductsCaptor.getValue();

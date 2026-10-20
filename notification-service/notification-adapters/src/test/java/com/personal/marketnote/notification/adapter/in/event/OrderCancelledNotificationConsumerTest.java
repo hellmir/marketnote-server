@@ -41,7 +41,7 @@ class OrderCancelledNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderCancelledEvent event = new OrderCancelledEvent(
                 orderId, "order-key-123", buyerId, 50000L, 50000L, 0L, 0L, true, 0L,
-                List.of(), List.of()
+                List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.cancelled", "commerce-service",
@@ -95,7 +95,7 @@ class OrderCancelledNotificationConsumerTest {
         // given
         OrderCancelledEvent event = new OrderCancelledEvent(
                 100L, "order-key-123", 1L, 50000L, 50000L, 0L, 0L, true, 0L,
-                List.of(), List.of()
+                List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

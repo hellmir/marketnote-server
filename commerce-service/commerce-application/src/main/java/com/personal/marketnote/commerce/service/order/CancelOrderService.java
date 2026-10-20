@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @UseCase
@@ -309,7 +310,8 @@ public class CancelOrderService implements CancelOrderUseCase {
                 true,
                 0L,
                 order.getOrderProducts(),
-                order.getOrderProducts()
+                order.getOrderProducts(),
+                null
         );
     }
 
@@ -332,7 +334,8 @@ public class CancelOrderService implements CancelOrderUseCase {
                 false,
                 0L,
                 order.getOrderProducts(),
-                cancelProducts
+                cancelProducts,
+                UUID.randomUUID().toString()
         );
     }
 
