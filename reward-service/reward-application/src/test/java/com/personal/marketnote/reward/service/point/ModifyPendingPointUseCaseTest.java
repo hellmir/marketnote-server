@@ -62,6 +62,29 @@ class ModifyPendingPointUseCaseTest {
     }
 
     @Test
+    @DisplayName("적립 예정 포인트 수정 시 비관적 잠금(findByUserIdForUpdate)으로 조회한다")
+    void shouldUseFindByUserIdForUpdateOnModify() {
+        // given
+        UserPoint userPoint = createUserPoint(1000L, 0L);
+        when(findUserPointPort.findByUserIdForUpdate(1L)).thenReturn(java.util.Optional.of(userPoint));
+        when(updateUserPointPort.update(any(UserPoint.class))).thenReturn(userPoint);
+        when(saveUserPointHistoryPort.save(any(UserPointHistory.class)))
+                .thenReturn(UserPointHistory.from(UserPointHistoryCreateState.builder()
+                        .userId(1L).changeType(UserPointChangeType.ACCRUAL).amount(PointAmount.of(500L)).isReflected(false)
+                        .sourceType(UserPointSourceType.ORDER).sourceId(100L)
+                        .reason("주문 결제 적립 예정").accumulatedAt(LocalDateTime.now())
+                        .build()));
+
+        ModifyPendingPointCommand command = createCommand(UserPointChangeType.ACCRUAL, 500L);
+
+        // when
+        modifyPendingPointService.modifyPending(command);
+
+        // then
+        verify(findUserPointPort).findByUserIdForUpdate(1L);
+    }
+
+    @Test
     @DisplayName("적립 예정 포인트를 추가하면 addExpectedAmount가 증가하고 이력이 저장된다")
     void shouldAddPendingAmountAndSaveHistory() {
         // given
