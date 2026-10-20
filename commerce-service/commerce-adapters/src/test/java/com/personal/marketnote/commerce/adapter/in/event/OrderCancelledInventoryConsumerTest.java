@@ -50,7 +50,7 @@ class OrderCancelledInventoryConsumerTest {
                                                                  List<OrderProductItem> cancelProducts) {
         OrderCancelledEvent event = new OrderCancelledEvent(
                 orderId, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                isFullCancel, 0L, orderProducts, cancelProducts
+                isFullCancel, 0L, orderProducts, cancelProducts, null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.cancelled", "commerce-service",
@@ -202,7 +202,7 @@ class OrderCancelledInventoryConsumerTest {
         // given
         OrderCancelledEvent event = new OrderCancelledEvent(
                 1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 0L, createOrderProductItems(), List.of()
+                true, 0L, createOrderProductItems(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

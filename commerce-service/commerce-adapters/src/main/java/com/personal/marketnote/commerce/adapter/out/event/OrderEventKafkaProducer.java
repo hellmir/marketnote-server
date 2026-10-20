@@ -96,7 +96,8 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
             Long orderId, String orderKey, Long buyerId,
             Long cancelAmount, Long paymentAmount, Long pointAmount,
             Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
-            List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts
+            List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts,
+            String cancelId
     ) {
         List<OrderCancelledEvent.OrderProductItem> items = orderProducts.stream()
                 .map(op -> new OrderCancelledEvent.OrderProductItem(
@@ -119,7 +120,7 @@ public class OrderEventKafkaProducer implements PublishOrderEventPort {
         OrderCancelledEvent payload = new OrderCancelledEvent(
                 orderId, orderKey, buyerId, cancelAmount, paymentAmount,
                 pointAmount, shippingFee, isFullCancel, alreadyRefunded,
-                items, cancelItems
+                items, cancelItems, cancelId
         );
         String topic = KafkaTopicConstants.ORDER_CANCELLED;
         EventEnvelope<OrderCancelledEvent> envelope = EventEnvelope.of(

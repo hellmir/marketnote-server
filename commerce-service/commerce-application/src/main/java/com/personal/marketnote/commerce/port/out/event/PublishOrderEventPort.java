@@ -19,10 +19,13 @@ public interface PublishOrderEventPort {
             List<OrderProduct> orderProducts
     );
 
-    void publishOrderCancelledEvent(Long orderId, String orderKey, Long buyerId,
-                                    Long cancelAmount, Long paymentAmount, Long pointAmount,
-                                    Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
-                                    List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts);
+    void publishOrderCancelledEvent(
+            Long orderId, String orderKey, Long buyerId,
+            Long cancelAmount, Long paymentAmount, Long pointAmount,
+            Long shippingFee, boolean isFullCancel, Long alreadyRefunded,
+            List<OrderProduct> orderProducts, List<OrderProduct> cancelProducts,
+            String cancelId
+    );
 
     void publishOrderReturnedEvent(Long orderId, String orderKey, Long buyerId,
                                    Long returnAmount, Long paymentAmount, Long pointAmount,

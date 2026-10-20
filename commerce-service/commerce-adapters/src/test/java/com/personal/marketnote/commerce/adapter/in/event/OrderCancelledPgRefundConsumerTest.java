@@ -51,7 +51,8 @@ class OrderCancelledPgRefundConsumerTest {
                 orderId, orderKey, 50L, cancelAmount, paymentAmount, 1000L, 3000L,
                 isFullCancel, alreadyRefunded,
                 List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
-                List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L))
+                List.of(new OrderProductItem(100L, SHARER_KEY, 2, 30000L)),
+                null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.cancelled", "commerce-service",
@@ -145,7 +146,7 @@ class OrderCancelledPgRefundConsumerTest {
         // given
         OrderCancelledEvent event = new OrderCancelledEvent(
                 1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 0L, List.of(), List.of()
+                true, 0L, List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

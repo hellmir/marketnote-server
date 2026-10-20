@@ -49,7 +49,7 @@ class OrderCancelledSettlementConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId) {
         OrderCancelledEvent event = new OrderCancelledEvent(
                 orderId, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
-                true, 0L, List.of(), List.of()
+                true, 0L, List.of(), List.of(), null
         );
         EventEnvelope<OrderCancelledEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.cancelled", "commerce-service",

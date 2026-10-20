@@ -181,7 +181,7 @@ class OrderEventKafkaProducerTest {
                 1L, "order-key-001", 50L,
                 60000L, 80000L, 5000L, 3000L,
                 false, 0L,
-                orderProducts, cancelProducts
+                orderProducts, cancelProducts, "cancel-id-partial-1"
         );
 
         // then
@@ -211,7 +211,7 @@ class OrderEventKafkaProducerTest {
                 10L, "order-key-002", 50L,
                 60000L, 80000L, 5000L, 3000L,
                 true, 20000L,
-                orderProducts, cancelProducts
+                orderProducts, cancelProducts, null
         );
 
         // then
@@ -234,6 +234,7 @@ class OrderEventKafkaProducerTest {
         assertThat(payload.shippingFee()).isEqualTo(3000L);
         assertThat(payload.isFullCancel()).isTrue();
         assertThat(payload.alreadyRefunded()).isEqualTo(20000L);
+        assertThat(payload.cancelId()).isNull();
 
         assertThat(payload.orderProducts()).hasSize(2);
         OrderCancelledEvent.OrderProductItem firstItem = payload.orderProducts().get(0);
