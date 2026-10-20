@@ -1,11 +1,21 @@
 package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.mapper;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.warehousing.*;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.*;
 
 import java.util.List;
+import java.util.UUID;
 
 public class FasstoWarehousingCommandToRequestMapper {
+
+    private static String resolveCstGodCd(UUID productKey, String productCode) {
+        if (FormatValidator.hasValue(productKey)) {
+            return productKey.toString();
+        }
+        return productCode;
+    }
+
     public static FulfillmentWarehousingMapper mapToRegisterRequest(RegisterFulfillmentWarehousingCommand command) {
         List<FulfillmentWarehousingItemMapper> requests = command.warehousingRequests().stream()
                 .map(FasstoWarehousingCommandToRequestMapper::mapItem)
@@ -50,7 +60,7 @@ public class FasstoWarehousingCommandToRequestMapper {
         return FulfillmentWarehousingAbnormalImageQuery.of(
                 command.accessToken(),
                 command.slipNumber(),
-                command.productCode(),
+                resolveCstGodCd(command.productKey(), command.productCode()),
                 command.goodsSerialNo(),
                 command.fileSeq(),
                 command.imageNumber()
@@ -119,10 +129,18 @@ public class FasstoWarehousingCommandToRequestMapper {
     }
 
     private static FulfillmentWarehousingGoodsMapper mapGoods(RegisterFulfillmentWarehousingGoodsCommand item) {
-        return FulfillmentWarehousingGoodsMapper.of(item.productCode(), item.expirationDate(), item.orderQuantity());
+        return FulfillmentWarehousingGoodsMapper.of(
+                resolveCstGodCd(item.productKey(), item.productCode()),
+                item.expirationDate(),
+                item.orderQuantity()
+        );
     }
 
     private static FulfillmentWarehousingGoodsMapper mapUpdateGoods(UpdateFulfillmentWarehousingGoodsCommand item) {
-        return FulfillmentWarehousingGoodsMapper.of(item.productCode(), item.expirationDate(), item.orderQuantity());
+        return FulfillmentWarehousingGoodsMapper.of(
+                resolveCstGodCd(item.productKey(), item.productCode()),
+                item.expirationDate(),
+                item.orderQuantity()
+        );
     }
 }

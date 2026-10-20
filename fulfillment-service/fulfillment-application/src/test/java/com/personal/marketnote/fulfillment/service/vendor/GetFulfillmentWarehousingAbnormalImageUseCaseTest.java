@@ -27,7 +27,7 @@ class GetFulfillmentWarehousingAbnormalImageUseCaseTest {
     @DisplayName("Command를 Port에 위임하여 결과를 반환한다")
     void shouldDelegateToPort() {
         // given
-        GetFulfillmentWarehousingAbnormalImageCommand command = new GetFulfillmentWarehousingAbnormalImageCommand("token", "SLIP001", "GOD001", "SN001", "1", "CUST001");
+        GetFulfillmentWarehousingAbnormalImageCommand command = GetFulfillmentWarehousingAbnormalImageCommand.of("token", "SLIP001", "GOD001", "SN001", "1", "CUST001");
         GetFulfillmentWarehousingAbnormalImageResult expectedResult = GetFulfillmentWarehousingAbnormalImageResult.of(0, null);
         when(getFulfillmentWarehousingAbnormalImagePort.getWarehousingAbnormalImage(any())).thenReturn(expectedResult);
         // when
