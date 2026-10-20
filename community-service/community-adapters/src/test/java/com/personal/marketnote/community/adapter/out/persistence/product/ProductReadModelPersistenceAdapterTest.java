@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.adapter.out.persistence.product;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.product.entity.ProductReadModelJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.product.repository.ProductReadModelJpaRepository;
@@ -22,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, ProductReadModelPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, ProductReadModelPersistenceAdapter.class})
 class ProductReadModelPersistenceAdapterTest {
 
     @Autowired

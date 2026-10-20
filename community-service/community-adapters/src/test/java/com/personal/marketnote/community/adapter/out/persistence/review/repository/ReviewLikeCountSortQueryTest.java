@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.adapter.out.persistence.review.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.community.adapter.out.persistence.like.entity.LikeJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.like.repository.LikeJpaRepository;
@@ -30,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(AuditConfig.class)
+@Import({AuditConfig.class, QuerydslConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ReviewLikeCountSortQueryTest {
 
