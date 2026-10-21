@@ -20,6 +20,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -34,7 +36,7 @@ public class PaymentCancelledPartialSharedPointConsumer {
     private final ObjectMapper objectMapper;
 
     @Value("${reward.share-point-rate:0.1}")
-    private float sharePointRate;
+    private BigDecimal sharePointRate;
 
     @KafkaListener(
             topics = KafkaTopicConstants.PAYMENT_CANCELLED,
@@ -153,12 +155,19 @@ public class PaymentCancelledPartialSharedPointConsumer {
             return null;
         }
 
-        long originalSharePoint = Math.round(paymentAmount * sharePointRate);
+        long originalSharePoint = calculateSharedPoint(paymentAmount, sharePointRate);
         if (originalSharePoint <= 0) {
             return null;
         }
 
         long numerator = Math.multiplyExact(cancelAmount, originalSharePoint);
         return (numerator + paymentAmount / 2) / paymentAmount;
+    }
+
+    private static long calculateSharedPoint(long amount, BigDecimal rate) {
+        return BigDecimal.valueOf(amount)
+                .multiply(rate)
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValueExact();
     }
 }

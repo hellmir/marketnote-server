@@ -27,6 +27,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,7 +48,7 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
     private final SagaResponsePublisher sagaResponsePublisher;
 
     @Value("${reward.share-point-rate:0.1}")
-    private float sharePointRate;
+    private BigDecimal sharePointRate;
 
     @KafkaListener(
             topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
@@ -114,7 +116,7 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
                 return;
             }
 
-            long sharePointAmount = Math.round(payload.totalAmount() * sharePointRate);
+            long sharePointAmount = calculateSharedPoint(payload.totalAmount(), sharePointRate);
             if (sharePointAmount <= 0) {
                 skipSuccess(stepMessage, "공유 포인트 금액 0 이하");
                 return;
@@ -235,5 +237,12 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                 stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
+    }
+
+    private static long calculateSharedPoint(long amount, BigDecimal rate) {
+        return BigDecimal.valueOf(amount)
+                .multiply(rate)
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValueExact();
     }
 }

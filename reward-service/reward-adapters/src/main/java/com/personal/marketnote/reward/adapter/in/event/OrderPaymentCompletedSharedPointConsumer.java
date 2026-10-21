@@ -21,6 +21,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -36,7 +38,7 @@ public class OrderPaymentCompletedSharedPointConsumer {
     private final ObjectMapper objectMapper;
 
     @Value("${reward.share-point-rate:0.1}")
-    private float sharePointRate;
+    private BigDecimal sharePointRate;
 
     @KafkaListener(
             topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
@@ -87,7 +89,7 @@ public class OrderPaymentCompletedSharedPointConsumer {
                 return;
             }
 
-            long sharePointAmount = Math.round(payload.totalAmount() * sharePointRate);
+            long sharePointAmount = calculateSharedPoint(payload.totalAmount(), sharePointRate);
             if (sharePointAmount <= 0) {
                 log.info("공유 포인트 적립 금액이 0 이하 (적립 생략). orderId={}, totalAmount={}, sharePointRate={}",
                         payload.orderId(), payload.totalAmount(), sharePointRate);
@@ -142,5 +144,12 @@ public class OrderPaymentCompletedSharedPointConsumer {
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
+    }
+
+    private static long calculateSharedPoint(long amount, BigDecimal rate) {
+        return BigDecimal.valueOf(amount)
+                .multiply(rate)
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValueExact();
     }
 }
