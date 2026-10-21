@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -42,7 +44,7 @@ class RewardServiceClientTest {
         rewardServiceClient = new RewardServiceClient(
                 builder,
                 BASE_URL,
-                0.01f,
+                new BigDecimal("0.01"),
                 hmacServiceAuthHeaderBuilder
         );
     }
