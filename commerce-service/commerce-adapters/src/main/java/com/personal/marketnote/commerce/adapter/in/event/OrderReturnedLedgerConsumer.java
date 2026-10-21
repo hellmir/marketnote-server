@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderReturnedEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -58,19 +59,28 @@ public class OrderReturnedLedgerConsumer {
             return;
         }
 
-        String idempotencyKey = IDEMPOTENCY_KEY_PREFIX + payload.orderId();
+        String idempotencyKey = buildIdempotencyKey(payload.orderId(), payload.returnId());
 
         try {
             recordLedgerEntryUseCase.recordPaymentCancellation(
                     payload.orderId(), payload.returnAmount(), idempotencyKey
             );
-            log.info("반품 완료 역분개 완료. orderId={}, returnAmount={}, idempotencyKey={}",
-                    payload.orderId(), payload.returnAmount(), idempotencyKey
+            log.info("반품 완료 역분개 완료. orderId={}, returnAmount={}, returnId={}, idempotencyKey={}",
+                    payload.orderId(), payload.returnAmount(), payload.returnId(), idempotencyKey
             );
         } catch (DuplicateLedgerTransactionException e) {
-            log.info("이미 처리된 반품 완료 역분개 이벤트 (멱등 처리). eventId={}, message={}", envelope.eventId(), e.getMessage());
+            log.info("이미 처리된 반품 완료 역분개 이벤트 (멱등 처리). eventId={}, returnId={}, message={}",
+                    envelope.eventId(), payload.returnId(), e.getMessage()
+            );
         }
 
         acknowledgment.acknowledge();
+    }
+
+    private String buildIdempotencyKey(Long orderId, String returnId) {
+        if (FormatValidator.hasNoValue(returnId)) {
+            return IDEMPOTENCY_KEY_PREFIX + orderId;
+        }
+        return IDEMPOTENCY_KEY_PREFIX + orderId + ":" + returnId;
     }
 }

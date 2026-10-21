@@ -13,7 +13,8 @@ public record OrderReturnedEvent(
         Long shippingFee,
         boolean isFullReturn,
         Long returnShippingFee,
-        List<OrderProductItem> returnProducts
+        List<OrderProductItem> returnProducts,
+        String returnId
 ) {
 
     public record OrderProductItem(

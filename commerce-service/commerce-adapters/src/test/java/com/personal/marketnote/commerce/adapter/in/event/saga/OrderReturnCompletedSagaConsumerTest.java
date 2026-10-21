@@ -88,7 +88,7 @@ class OrderReturnCompletedSagaConsumerTest {
                     eq(1L), eq("order-key-1"), eq(100L),
                     eq(50000L), eq(60000L), eq(5000L),
                     eq(3000L), eq(true), eq(0L),
-                    anyList()
+                    anyList(), isNull()
             );
             verify(sagaResponsePublisher).publishSuccess(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");
@@ -107,7 +107,7 @@ class OrderReturnCompletedSagaConsumerTest {
                             anyLong(), anyString(), anyLong(),
                             anyLong(), anyLong(), anyLong(),
                             anyLong(), anyBoolean(), anyLong(),
-                            anyList()
+                            anyList(), any()
                     );
 
             consumer.handleReturnCompletedStep(record, acknowledgment);
