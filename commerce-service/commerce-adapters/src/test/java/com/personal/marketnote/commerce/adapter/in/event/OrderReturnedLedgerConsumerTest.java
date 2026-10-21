@@ -37,9 +37,13 @@ class OrderReturnedLedgerConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long returnAmount) {
+        return buildRecord(orderId, returnAmount, null);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long returnAmount, String returnId) {
         OrderReturnedEvent event = new OrderReturnedEvent(
                 orderId, "order-key-1", 50L, returnAmount, 80000L, 1000L, 3000L,
-                true, 2500L, List.of(), null
+                true, 2500L, List.of(), returnId
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.returned", "commerce-service",
@@ -189,5 +193,66 @@ class OrderReturnedLedgerConsumerTest {
 
         verify(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_RETURN:1");
         verify(acknowledgment, never()).acknowledge();
+    }
+
+    @Test
+    @DisplayName("returnId 포함 이벤트 수신 시 idempotencyKey에 returnId가 포함된다")
+    void handleOrderReturnedEvent_withReturnId_includesReturnIdInIdempotencyKey() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 60000L, "return-uuid-123");
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(1L, 60000L, "ORDER_RETURN:1:return-uuid-123");
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("returnId가 null인 이벤트 수신 시 기존 형식 idempotencyKey를 사용한다")
+    void handleOrderReturnedEvent_nullReturnId_usesLegacyIdempotencyKey() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(200L, 40000L, null);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(200L, 40000L, "ORDER_RETURN:200");
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("동일 orderId에 다른 returnId로 부분반품/전체반품이 2회 발생하면 두 번째 역분개도 정상 호출된다")
+    void handleOrderReturnedEvent_distinctReturnIds_bothReversalsInvoked() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> firstRecord = buildRecord(300L, 20000L, "return-1");
+        ConsumerRecord<String, EventEnvelope<?>> secondRecord = buildRecord(300L, 50000L, "return-2");
+
+        // when
+        consumer.handleOrderReturnedEvent(firstRecord, acknowledgment);
+        consumer.handleOrderReturnedEvent(secondRecord, acknowledgment);
+
+        // then
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(300L, 20000L, "ORDER_RETURN:300:return-1");
+        verify(recordLedgerEntryUseCase).recordPaymentCancellation(300L, 50000L, "ORDER_RETURN:300:return-2");
+        verify(acknowledgment, times(2)).acknowledge();
+    }
+
+    @Test
+    @DisplayName("동일 returnId로 재발행되어 DuplicateLedgerTransactionException 발생 시 멱등 처리하고 acknowledge한다")
+    void handleOrderReturnedEvent_duplicateReturnId_idempotentlyAcknowledges() {
+        // given
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(400L, 30000L, "return-duplicate");
+        doThrow(new DuplicateLedgerTransactionException("ORDER_RETURN:400:return-duplicate"))
+                .when(recordLedgerEntryUseCase)
+                .recordPaymentCancellation(400L, 30000L, "ORDER_RETURN:400:return-duplicate");
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        verify(acknowledgment).acknowledge();
     }
 }
