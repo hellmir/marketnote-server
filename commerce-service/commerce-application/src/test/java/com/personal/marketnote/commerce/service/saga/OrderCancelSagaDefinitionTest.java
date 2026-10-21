@@ -150,5 +150,14 @@ class OrderCancelSagaDefinitionTest {
             assertThat(actionJson).contains("\"orderProducts\"");
             assertThat(actionJson).contains("CANCEL_ORDER");
         }
+
+        @Test
+        @DisplayName("취소 완료 액션 메시지에 컨텍스트의 cancelId가 포함된다")
+        void shouldIncludeCancelIdInCompleteCancellationAction() {
+            String actionJson = definition.getSteps().get(2).action().apply(context);
+
+            assertThat(actionJson).contains("\"cancelId\"");
+            assertThat(actionJson).contains("test-cancel-id");
+        }
     }
 }
