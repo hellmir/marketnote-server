@@ -71,8 +71,8 @@ class FulfillmentInventorySyncedConsumerTest {
             // given
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
                     List.of(
-                            new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100),
-                            new FulfillmentInventorySyncedEvent.InventoryItem(2L, null, 50)
+                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100),
+                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 50)
                     )
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
@@ -98,12 +98,12 @@ class FulfillmentInventorySyncedConsumerTest {
     class HandleProductKey {
 
         @Test
-        @DisplayName("InventoryItem에 productKey가 있으면 Command에 productKey가 전달된다")
-        void shouldForwardProductKeyToCommandWhenPresent() {
+        @DisplayName("InventoryItem의 productKey와 stock이 Command에 그대로 전달된다")
+        void shouldForwardProductKeyAndStockToCommand() {
             // given
             UUID productKey = UUID.randomUUID();
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(1L, productKey, 100))
+                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(productKey, 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
@@ -121,18 +121,22 @@ class FulfillmentInventorySyncedConsumerTest {
             verify(syncFulfillmentVendorInventoryUseCase).syncInventories(captor.capture());
             List<SyncFulfillmentVendorInventoryItemCommand> items = captor.getValue().inventories();
             assertThat(items).hasSize(1);
-            assertThat(items.get(0).productId()).isEqualTo(1L);
             assertThat(items.get(0).productKey()).isEqualTo(productKey);
             assertThat(items.get(0).stock()).isEqualTo(100);
             verify(acknowledgment).acknowledge();
         }
 
         @Test
-        @DisplayName("InventoryItem에 productKey가 없으면 Command의 productKey는 null이다")
-        void shouldPassNullProductKeyWhenAbsent() {
+        @DisplayName("여러 항목의 productKey가 각각 Command로 전달된다")
+        void shouldForwardEachItemToCommand() {
             // given
+            UUID productKey1 = UUID.randomUUID();
+            UUID productKey2 = UUID.randomUUID();
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100))
+                    List.of(
+                            new FulfillmentInventorySyncedEvent.InventoryItem(productKey1, 100),
+                            new FulfillmentInventorySyncedEvent.InventoryItem(productKey2, 50)
+                    )
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
@@ -149,9 +153,9 @@ class FulfillmentInventorySyncedConsumerTest {
                     ArgumentCaptor.forClass(SyncFulfillmentVendorInventoryCommand.class);
             verify(syncFulfillmentVendorInventoryUseCase).syncInventories(captor.capture());
             List<SyncFulfillmentVendorInventoryItemCommand> items = captor.getValue().inventories();
-            assertThat(items).hasSize(1);
-            assertThat(items.get(0).productKey()).isNull();
-            verify(acknowledgment).acknowledge();
+            assertThat(items).hasSize(2);
+            assertThat(items).extracting(SyncFulfillmentVendorInventoryItemCommand::productKey)
+                    .containsExactlyInAnyOrder(productKey1, productKey2);
         }
     }
 
@@ -209,8 +213,9 @@ class FulfillmentInventorySyncedConsumerTest {
         @DisplayName("InventoryProductNotFoundException 발생 시 acknowledge하고 재시도하지 않는다")
         void shouldAcknowledgeWhenInventoryProductNotFound() {
             // given
+            UUID missingProductKey = UUID.randomUUID();
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(999L, null, 100))
+                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(missingProductKey, 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 
@@ -219,7 +224,7 @@ class FulfillmentInventorySyncedConsumerTest {
                     "key", envelope
             );
 
-            doThrow(new InventoryProductNotFoundException(999L))
+            doThrow(new InventoryProductNotFoundException(missingProductKey))
                     .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
 
             // when
@@ -261,7 +266,7 @@ class FulfillmentInventorySyncedConsumerTest {
         void shouldRethrowUnexpectedException() {
             // given
             FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(
-                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100))
+                    List.of(new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100))
             );
             EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
 

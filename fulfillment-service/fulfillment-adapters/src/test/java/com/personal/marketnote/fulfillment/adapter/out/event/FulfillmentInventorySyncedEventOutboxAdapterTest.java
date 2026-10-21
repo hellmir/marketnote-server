@@ -20,6 +20,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -55,8 +56,8 @@ class FulfillmentInventorySyncedEventOutboxAdapterTest {
 
             FulfillmentInventorySyncedEvent event = new FulfillmentInventorySyncedEvent(
                     List.of(
-                            new FulfillmentInventorySyncedEvent.InventoryItem(1L, null, 100),
-                            new FulfillmentInventorySyncedEvent.InventoryItem(2L, null, 50)
+                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 100),
+                            new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 50)
                     )
             );
             when(objectMapper.writeValueAsString(event)).thenReturn("{\"inventories\":[]}");

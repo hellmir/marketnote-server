@@ -66,7 +66,7 @@ class SyncFulfillmentStockUseCaseTest {
             // given
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
-            SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of("CUST001", List.of(1L));
+            SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of("CUST001", List.of(UUID.randomUUID()));
 
             // when
             service.sync(command);
@@ -89,14 +89,14 @@ class SyncFulfillmentStockUseCaseTest {
         @Test
         @DisplayName("customerCode가 없으면 FulfillmentQueryParameterNoValueException이 발생한다")
         void shouldThrowWhenCustomerCodeIsNull() {
-            SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of(null, List.of(1L));
+            SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of(null, List.of(UUID.randomUUID()));
             assertThatThrownBy(() -> service.sync(command))
                     .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
         }
 
         @Test
-        @DisplayName("productIds가 없으면 FulfillmentQueryParameterNoValueException이 발생한다")
-        void shouldThrowWhenProductIdsIsNull() {
+        @DisplayName("productKeys가 없으면 FulfillmentQueryParameterNoValueException이 발생한다")
+        void shouldThrowWhenProductKeysIsNull() {
             SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of("CUST001", null);
             assertThatThrownBy(() -> service.sync(command))
                     .isInstanceOf(FulfillmentQueryParameterNoValueException.class);
@@ -110,9 +110,9 @@ class SyncFulfillmentStockUseCaseTest {
         @DisplayName("전체 재고 동기화를 수행하고 커머스 재고를 업데이트한다")
         void shouldSyncAllAndUpdateInventory() {
             // given
-
+            UUID productKey = UUID.randomUUID();
             FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", "1", "상품명", null, null, null,
+                    "WH001", "GOD001", productKey.toString(), "상품명", null, null, null,
                     10, 0, 10, null, null, null, List.of(), null
             );
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
@@ -147,21 +147,21 @@ class SyncFulfillmentStockUseCaseTest {
     }
 
     // ==================================================================================
-    // productKey 전환 (#4073)
+    // productKey 전용 발행 (#4089)
     // ==================================================================================
 
     @Nested
     @DisplayName("sync productKey 송신")
     class SyncProductKey {
         @Test
-        @DisplayName("productKeys가 있으면 Fassto에 productKey.toString()이 customerProductCode로 전달된다")
-        void shouldSendProductKeyToFasstoWhenProductKeysPresent() {
+        @DisplayName("Fassto에 productKey.toString()이 customerProductCode로 전달된다")
+        void shouldSendProductKeyToFassto() {
             // given
             UUID productKey = UUID.randomUUID();
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
             SyncFulfillmentStockCommand command =
-                    SyncFulfillmentStockCommand.ofProductKeys("CUST001", List.of(productKey));
+                    SyncFulfillmentStockCommand.of("CUST001", List.of(productKey));
 
             // when
             service.sync(command);
@@ -175,7 +175,7 @@ class SyncFulfillmentStockUseCaseTest {
         }
 
         @Test
-        @DisplayName("productKeys 경로에서 발행되는 InventoryItem에 productKey가 담긴다")
+        @DisplayName("발행되는 InventoryItem에 productKey가 담긴다")
         void shouldPublishProductKeyInInventoryItem() {
             // given
             UUID productKey = UUID.randomUUID();
@@ -186,7 +186,7 @@ class SyncFulfillmentStockUseCaseTest {
             when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
             SyncFulfillmentStockCommand command =
-                    SyncFulfillmentStockCommand.ofProductKeys("CUST001", List.of(productKey));
+                    SyncFulfillmentStockCommand.of("CUST001", List.of(productKey));
 
             // when
             service.sync(command);
@@ -198,56 +198,12 @@ class SyncFulfillmentStockUseCaseTest {
             List<FulfillmentInventorySyncedEvent.InventoryItem> items = captor.getValue().inventories();
             assertThat(items).hasSize(1);
             assertThat(items.get(0).productKey()).isEqualTo(productKey);
-            assertThat(items.get(0).productId()).isNull();
             assertThat(items.get(0).stock()).isEqualTo(5);
-        }
-
-        @Test
-        @DisplayName("productKeys가 없으면 productIds fallback으로 Fassto에 productId가 전달된다")
-        void shouldFallbackToProductIdWhenProductKeysAbsent() {
-            // given
-            when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(0, List.of()));
-            SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of("CUST001", List.of(42L));
-
-            // when
-            service.sync(command);
-
-            // then
-            ArgumentCaptor<GetFulfillmentStockDetailCommand> captor =
-                    ArgumentCaptor.forClass(GetFulfillmentStockDetailCommand.class);
-            verify(getFulfillmentStockDetailUseCase).getStockDetail(captor.capture());
-            assertThat(captor.getValue().customerProductCode()).isEqualTo("42");
-            assertThat(captor.getValue().productKey()).isNull();
-        }
-
-        @Test
-        @DisplayName("productIds 경로에서 발행되는 InventoryItem에 productId가 담기고 productKey는 null이다")
-        void shouldPublishProductIdInInventoryItemWhenProductIdsPath() {
-            // given
-            FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", "1", "상품명", null, null, null,
-                    7, 0, 7, null, null, null, List.of(), null
-            );
-            when(getFulfillmentStockDetailUseCase.getStockDetail(any(GetFulfillmentStockDetailCommand.class)))
-                    .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
-            SyncFulfillmentStockCommand command = SyncFulfillmentStockCommand.of("CUST001", List.of(1L));
-
-            // when
-            service.sync(command);
-
-            // then
-            ArgumentCaptor<FulfillmentInventorySyncedEvent> captor =
-                    ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
-            verify(publishFulfillmentInventorySyncedEventPort).publish(captor.capture());
-            FulfillmentInventorySyncedEvent.InventoryItem item = captor.getValue().inventories().get(0);
-            assertThat(item.productId()).isEqualTo(1L);
-            assertThat(item.productKey()).isNull();
         }
     }
 
     @Nested
-    @DisplayName("syncAll customerProductCode 역파싱")
+    @DisplayName("syncAll customerProductCode UUID 파싱")
     class SyncAllParsing {
         @Test
         @DisplayName("customerProductCode가 UUID 포맷이면 이벤트 productKey에 담긴다")
@@ -271,17 +227,16 @@ class SyncFulfillmentStockUseCaseTest {
             verify(publishFulfillmentInventorySyncedEventPort).publish(captor.capture());
             FulfillmentInventorySyncedEvent.InventoryItem item = captor.getValue().inventories().get(0);
             assertThat(item.productKey()).isEqualTo(productKey);
-            assertThat(item.productId()).isNull();
             assertThat(item.stock()).isEqualTo(3);
         }
 
         @Test
-        @DisplayName("customerProductCode가 숫자 포맷이면 Long.parseLong fallback으로 productId에 담긴다")
-        void shouldParseLegacyLongAndPublishProductId() {
+        @DisplayName("customerProductCode가 UUID가 아니면 해당 항목을 skip하고 이벤트를 발행하지 않는다")
+        void shouldSkipWhenParsingFails() {
             // given
             FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", "42", "상품명", null, null, null,
-                    9, 0, 9, null, null, null, List.of(), null
+                    "WH001", "GOD001", "INVALID-CODE", "상품명", null, null, null,
+                    10, 0, 10, null, null, null, List.of(), null
             );
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
@@ -291,21 +246,16 @@ class SyncFulfillmentStockUseCaseTest {
             service.syncAll(command);
 
             // then
-            ArgumentCaptor<FulfillmentInventorySyncedEvent> captor =
-                    ArgumentCaptor.forClass(FulfillmentInventorySyncedEvent.class);
-            verify(publishFulfillmentInventorySyncedEventPort).publish(captor.capture());
-            FulfillmentInventorySyncedEvent.InventoryItem item = captor.getValue().inventories().get(0);
-            assertThat(item.productId()).isEqualTo(42L);
-            assertThat(item.productKey()).isNull();
+            verify(publishFulfillmentInventorySyncedEventPort, org.mockito.Mockito.never()).publish(any());
         }
 
         @Test
-        @DisplayName("customerProductCode가 UUID/숫자 둘 다 아니면 해당 항목을 skip하고 이벤트를 발행하지 않는다")
-        void shouldSkipWhenParsingFails() {
+        @DisplayName("customerProductCode가 숫자 포맷이어도 UUID가 아니면 skip한다 (productId fallback 제거)")
+        void shouldSkipLegacyLongFormat() {
             // given
             FulfillmentStockInfoResult stockInfo = FulfillmentStockInfoResult.of(
-                    "WH001", "GOD001", "INVALID-CODE", "상품명", null, null, null,
-                    10, 0, 10, null, null, null, List.of(), null
+                    "WH001", "GOD001", "42", "상품명", null, null, null,
+                    9, 0, 9, null, null, null, List.of(), null
             );
             when(getFulfillmentStocksUseCase.getStocks(any(GetFulfillmentStocksCommand.class)))
                     .thenReturn(GetFulfillmentStocksResult.of(1, List.of(stockInfo)));
