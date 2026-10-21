@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -25,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
@@ -74,7 +77,7 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(consumer, "sharePointRate", 0.1f);
+        ReflectionTestUtils.setField(consumer, "sharePointRate", new BigDecimal("0.1"));
     }
 
     @Nested
@@ -116,6 +119,35 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
             verify(sagaResponsePublisher).publishSuccess(
                     eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
                     eq(SagaStepMessage.ACTION), contains("skipped")
+            );
+            verify(acknowledgment).acknowledge();
+        }
+
+        @Test
+        @DisplayName("큰 금액(100억)에서도 BigDecimal 정밀 계산으로 오차 없이 정확한 적립 금액을 산출한다")
+        void shouldCalculatePreciselyOnLargeAmount() throws Exception {
+            // given
+            long totalAmount = 10_000_000_000L;
+            String payload = objectMapper.writeValueAsString(Map.of(
+                    "orderId", 1L, "buyerId", 100L, "totalAmount", totalAmount,
+                    "sharerKeys", List.of(SHARER_KEY.toString())
+            ));
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, payload);
+
+            // when
+            consumer.handleSharedPointStep(createRecord(stepMessage), acknowledgment);
+
+            // then
+            ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(
+                    ModifyPendingSharedPointCommand.class
+            );
+            verify(modifyPendingSharedPointUseCase).modifyPending(captor.capture());
+            // BigDecimal 기대값: 10_000_000_000 * 0.1 = 1_000_000_000 (정확)
+            // float 버그 시: Math.round(1e10 * 0.1f) = 1_000_000_077 (오차)
+            assertThat(captor.getValue().amount()).isEqualTo(1_000_000_000L);
+            verify(sagaResponsePublisher).publishSuccess(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}"
             );
             verify(acknowledgment).acknowledge();
         }

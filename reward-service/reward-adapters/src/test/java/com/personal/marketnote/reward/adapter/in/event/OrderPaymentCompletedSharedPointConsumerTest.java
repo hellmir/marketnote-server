@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -52,7 +53,7 @@ class OrderPaymentCompletedSharedPointConsumerTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(consumer, "sharePointRate", 0.1f);
+        ReflectionTestUtils.setField(consumer, "sharePointRate", new BigDecimal("0.1"));
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(
@@ -90,7 +91,8 @@ class OrderPaymentCompletedSharedPointConsumerTest {
         verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(captor.capture());
 
         List<ModifyPendingSharedPointCommand> commands = captor.getAllValues();
-        long expectedAmount = Math.round(50000L * 0.1f);
+        // 50000 * 0.1 = 5000 (HALF_UP, scale=0)
+        long expectedAmount = 5000L;
 
         // 첫 번째 공유자 (SHARER_KEY_1)
         ModifyPendingSharedPointCommand firstCommand = commands.get(0);
@@ -429,6 +431,30 @@ class OrderPaymentCompletedSharedPointConsumerTest {
 
         // then
         verifyNoInteractions(modifyPendingSharedPointUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("큰 금액(100억)에서도 BigDecimal 정밀 계산으로 오차 없이 정확한 적립 금액을 산출한다")
+    void handleOrderPaymentCompletedEvent_largeAmount_calculatesPrecisely() {
+        // given
+        long totalAmount = 10_000_000_000L;
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, null, null, SHARER_KEY_1, 1, totalAmount)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, 100L, totalAmount, orderProducts);
+
+        // when
+        consumer.handleOrderPaymentCompletedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(
+                ModifyPendingSharedPointCommand.class
+        );
+        verify(modifyPendingSharedPointUseCase).modifyPending(captor.capture());
+        // BigDecimal 기대값: 10_000_000_000 * 0.1 = 1_000_000_000 (정확)
+        // float 버그 시: Math.round(1e10 * 0.1f) = 1_000_000_077 (오차)
+        assertThat(captor.getValue().amount()).isEqualTo(1_000_000_000L);
         verify(acknowledgment).acknowledge();
     }
 }
