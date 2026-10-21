@@ -1,10 +1,10 @@
 package com.personal.marketnote.commerce.service.order;
 
+import com.personal.marketnote.commerce.domain.order.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
-import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand.CancelProductItemCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;

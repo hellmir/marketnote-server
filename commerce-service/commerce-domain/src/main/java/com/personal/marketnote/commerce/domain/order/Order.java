@@ -158,6 +158,9 @@ public class Order {
     }
 
     public void changeAllProductsStatus(OrderStatus orderStatus, LocalDateTime now) {
+        if (this.orderStatus != orderStatus && !this.orderStatus.canTransitionTo(orderStatus)) {
+            throw new InvalidOrderStatusTransitionException(this.orderStatus, orderStatus);
+        }
         orderProducts.forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
         this.orderStatus = orderStatus;
     }

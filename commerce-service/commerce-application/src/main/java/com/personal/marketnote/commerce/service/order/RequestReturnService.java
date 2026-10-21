@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.InvalidReturnTargetPricePolicyException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
