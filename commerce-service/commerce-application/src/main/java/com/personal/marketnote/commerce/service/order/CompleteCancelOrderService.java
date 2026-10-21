@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @UseCase
 @RequiredArgsConstructor
@@ -67,7 +66,7 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
                 command.alreadyRefunded(),
                 order.getOrderProducts(),
                 cancelProducts,
-                resolveCancelId(command.isFullCancel())
+                command.cancelId()
         );
 
         log.info("주문 취소 완료 처리. orderId={}, orderKey={}, isFullCancel={}",
@@ -121,12 +120,5 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
             return null;
         }
         return OrderStatusReasonCategory.valueOf(reasonCategoryStr);
-    }
-
-    private String resolveCancelId(boolean isFullCancel) {
-        if (isFullCancel) {
-            return null;
-        }
-        return UUID.randomUUID().toString();
     }
 }

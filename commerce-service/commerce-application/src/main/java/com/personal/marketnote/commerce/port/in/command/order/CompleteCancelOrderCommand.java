@@ -18,7 +18,8 @@ public record CompleteCancelOrderCommand(
         Long alreadyRefunded,
         String reasonCategory,
         String reason,
-        List<CancelProductItemCommand> cancelProducts
+        List<CancelProductItemCommand> cancelProducts,
+        String cancelId
 ) {
     public record CancelProductItemCommand(
             Long pricePolicyId,

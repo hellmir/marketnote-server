@@ -89,6 +89,7 @@ public class OrderCancelCompleteSagaConsumer {
                     .reasonCategory(payload.reasonCategory())
                     .reason(payload.reason())
                     .cancelProducts(mapToCancelProductItemCommands(payload.cancelProducts()))
+                    .cancelId(payload.cancelId())
                     .build();
 
             completeCancelOrderUseCase.completeCancellation(command);
