@@ -43,26 +43,17 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         if (FormatValidator.hasNoValue(command.customerCode())) {
             throw new FulfillmentQueryParameterNoValueException("Customer code", "Fulfillment stock sync");
         }
-
-        List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = hasProductKeys(command.productKeys())
-                ? syncByProductKeys(command)
-                : syncByProductIds(command);
-
-        publishFulfillmentInventorySyncedEventPort.publish(new FulfillmentInventorySyncedEvent(inventories));
-    }
-
-    private boolean hasProductKeys(List<UUID> productKeys) {
-        if (FormatValidator.hasNoValue(productKeys)) {
-            return false;
+        if (FormatValidator.hasNoValue(command.productKeys())) {
+            throw new FulfillmentQueryParameterNoValueException("Product keys", "Fulfillment stock sync");
         }
-        return productKeys.stream().anyMatch(FormatValidator::hasValue);
-    }
 
-    private List<FulfillmentInventorySyncedEvent.InventoryItem> syncByProductKeys(SyncFulfillmentStockCommand command) {
         List<UUID> productKeys = command.productKeys().stream()
                 .filter(FormatValidator::hasValue)
                 .distinct()
                 .toList();
+        if (FormatValidator.hasNoValue(productKeys)) {
+            throw new FulfillmentQueryParameterNoValueException("Valid product keys", "Fulfillment stock sync");
+        }
 
         List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = new ArrayList<>();
         for (UUID productKey : productKeys) {
@@ -78,40 +69,10 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                     )
             );
             int stockQuantity = resolveStockQuantity(stockDetail);
-            inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(null, productKey, stockQuantity));
-        }
-        return inventories;
-    }
-
-    private List<FulfillmentInventorySyncedEvent.InventoryItem> syncByProductIds(SyncFulfillmentStockCommand command) {
-        if (FormatValidator.hasNoValue(command.productIds())) {
-            throw new FulfillmentQueryParameterNoValueException("Product ids", "Fulfillment stock sync");
+            inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(productKey, stockQuantity));
         }
 
-        List<Long> productIds = command.productIds().stream()
-                .filter(FormatValidator::hasValue)
-                .distinct()
-                .toList();
-        if (FormatValidator.hasNoValue(productIds)) {
-            throw new FulfillmentQueryParameterNoValueException("Valid product ids", "Fulfillment stock sync");
-        }
-
-        List<FulfillmentInventorySyncedEvent.InventoryItem> inventories = new ArrayList<>();
-        for (Long productId : productIds) {
-            GetFulfillmentStocksResult stockDetail = fulfillmentAuthenticatedCaller.call(token ->
-                    getFulfillmentStockDetailUseCase.getStockDetail(
-                            GetFulfillmentStockDetailCommand.of(
-                                    command.customerCode(),
-                                    token,
-                                    String.valueOf(productId),
-                                    DEFAULT_OUT_OF_STOCK_INCLUDED
-                            )
-                    )
-            );
-            int stockQuantity = resolveStockQuantity(stockDetail);
-            inventories.add(new FulfillmentInventorySyncedEvent.InventoryItem(productId, null, stockQuantity));
-        }
-        return inventories;
+        publishFulfillmentInventorySyncedEventPort.publish(new FulfillmentInventorySyncedEvent(inventories));
     }
 
     @Override
@@ -178,14 +139,14 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
             return List.of();
         }
 
-        Map<StockKey, Integer> stockByKey = new LinkedHashMap<>();
+        Map<UUID, Integer> stockByKey = new LinkedHashMap<>();
         for (FulfillmentStockInfoResult stockInfo : result.stocks()) {
             if (FormatValidator.hasNoValue(stockInfo) || FormatValidator.hasNoValue(stockInfo.customerProductCode())) {
                 continue;
             }
 
-            StockKey key = resolveStockKey(stockInfo.customerProductCode());
-            if (FormatValidator.hasNoValue(key)) {
+            UUID productKey = parseProductKey(stockInfo.customerProductCode());
+            if (FormatValidator.hasNoValue(productKey)) {
                 continue;
             }
 
@@ -194,8 +155,8 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
                 continue;
             }
 
-            int updatedStock = stockByKey.getOrDefault(key, 0) + Math.max(0, quantity);
-            stockByKey.put(key, updatedStock);
+            int updatedStock = stockByKey.getOrDefault(productKey, 0) + Math.max(0, quantity);
+            stockByKey.put(productKey, updatedStock);
         }
 
         if (stockByKey.isEmpty()) {
@@ -203,30 +164,8 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         }
 
         return stockByKey.entrySet().stream()
-                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(
-                        entry.getKey().productId(),
-                        entry.getKey().productKey(),
-                        entry.getValue()
-                ))
+                .map(entry -> new FulfillmentInventorySyncedEvent.InventoryItem(entry.getKey(), entry.getValue()))
                 .toList();
-    }
-
-    private StockKey resolveStockKey(String customerProductCode) {
-        if (FormatValidator.hasNoValue(customerProductCode)) {
-            return null;
-        }
-
-        UUID productKey = parseProductKey(customerProductCode);
-        if (FormatValidator.hasValue(productKey)) {
-            return new StockKey(null, productKey);
-        }
-
-        Long productId = parseProductId(customerProductCode);
-        if (FormatValidator.hasValue(productId)) {
-            return new StockKey(productId, null);
-        }
-
-        return null;
     }
 
     private UUID parseProductKey(String customerProductCode) {
@@ -235,16 +174,5 @@ public class SyncFulfillmentStockService implements SyncFulfillmentStockUseCase,
         } catch (IllegalArgumentException e) {
             return null;
         }
-    }
-
-    private Long parseProductId(String customerProductCode) {
-        try {
-            return Long.parseLong(customerProductCode);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private record StockKey(Long productId, UUID productKey) {
     }
 }
