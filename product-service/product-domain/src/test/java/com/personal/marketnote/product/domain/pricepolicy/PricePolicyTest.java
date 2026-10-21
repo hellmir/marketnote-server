@@ -186,7 +186,7 @@ class PricePolicyTest {
     }
 
     @Test
-    @DisplayName("setOptionIds를 호출하면 productOptions에서 id 목록이 추출된다")
+    @DisplayName("syncOptionIdsFromOptions를 호출하면 productOptions에서 id 목록이 추출된다")
     void shouldExtractOptionIdsFromProductOptions() {
         List<ProductOption> options = List.of(
                 createProductOption(10L),
@@ -201,7 +201,7 @@ class PricePolicyTest {
                 .build();
 
         PricePolicy pricePolicy = PricePolicy.from(state);
-        pricePolicy.setOptionIds();
+        pricePolicy.syncOptionIdsFromOptions();
 
         assertThat(pricePolicy.getOptionIds()).containsExactly(10L, 20L);
     }

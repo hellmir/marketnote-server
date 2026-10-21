@@ -127,7 +127,7 @@ public class PricePolicy extends BaseDomain {
         return FormatValidator.hasValue(productId);
     }
 
-    public void setOptionIds() {
+    public void syncOptionIdsFromOptions() {
         optionIds = productOptions.stream()
                 .map(ProductOption::getId)
                 .toList();
