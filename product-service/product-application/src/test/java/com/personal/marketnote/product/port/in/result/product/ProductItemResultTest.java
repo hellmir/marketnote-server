@@ -8,6 +8,7 @@ import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductSnapshotState;
 import com.personal.marketnote.product.domain.product.ProductTag;
 import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +33,8 @@ class ProductItemResultTest {
 
         // then
         assertThat(result.getProductTags()).hasSize(2);
-        assertThat(result.getProductTags().get(0).getName()).isEqualTo("태그B");
-        assertThat(result.getProductTags().get(1).getName()).isEqualTo("태그C");
+        assertThat(result.getProductTags().get(0).name()).isEqualTo("태그B");
+        assertThat(result.getProductTags().get(1).name()).isEqualTo("태그C");
     }
 
     @Test
@@ -49,8 +50,8 @@ class ProductItemResultTest {
 
         // then
         assertThat(result.getProductTags()).hasSize(2);
-        assertThat(result.getProductTags().get(0).getName()).isEqualTo("태그B");
-        assertThat(result.getProductTags().get(1).getName()).isEqualTo("태그A");
+        assertThat(result.getProductTags().get(0).name()).isEqualTo("태그B");
+        assertThat(result.getProductTags().get(1).name()).isEqualTo("태그A");
     }
 
     @Test
@@ -65,7 +66,7 @@ class ProductItemResultTest {
 
         // then
         assertThat(result.getProductTags()).hasSize(1);
-        assertThat(result.getProductTags().get(0).getName()).isEqualTo("태그A");
+        assertThat(result.getProductTags().get(0).name()).isEqualTo("태그A");
     }
 
     @Test
@@ -177,10 +178,10 @@ class ProductItemResultTest {
         assertThat(result.getSales()).isEqualTo(250);
         assertThat(result.getProductTags()).hasSize(2);
         assertThat(result.getProductTags())
-                .extracting(ProductTag::getId, ProductTag::getName, ProductTag::getOrderNum)
+                .extracting(ProductTagItem::id, ProductTagItem::name, ProductTagItem::orderNum)
                 .containsExactly(
-                        org.assertj.core.groups.Tuple.tuple(10L, "NEW", 1L),
-                        org.assertj.core.groups.Tuple.tuple(11L, "HOT", 2L)
+                        Tuple.tuple(10L, "NEW", 1L),
+                        Tuple.tuple(11L, "HOT", 2L)
                 );
         assertThat(result.getSelectedOptions()).hasSize(2);
         assertThat(result.getSelectedOptions().get(0).id()).isEqualTo(100L);
