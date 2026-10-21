@@ -1,6 +1,4 @@
-package com.personal.marketnote.commerce.exception;
-
-import com.personal.marketnote.commerce.domain.order.OrderStatus;
+package com.personal.marketnote.commerce.domain.order;
 
 public class InvalidOrderStatusTransitionException extends IllegalStateException {
     private static final String INVALID_ORDER_STATUS_TRANSITION_EXCEPTION_MESSAGE

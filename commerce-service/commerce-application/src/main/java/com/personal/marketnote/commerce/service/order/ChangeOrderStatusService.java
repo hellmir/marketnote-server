@@ -4,7 +4,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.OrderStatusHistory;
-import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
+import com.personal.marketnote.commerce.domain.order.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.mapper.OrderCommandToStateMapper;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;

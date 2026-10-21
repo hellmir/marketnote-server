@@ -1,7 +1,7 @@
 package com.personal.marketnote.commerce.adapter.in.event.saga;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
+import com.personal.marketnote.commerce.domain.order.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.CompleteCancelOrderUseCase;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;

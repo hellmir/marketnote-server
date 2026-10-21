@@ -1,7 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
-import com.personal.marketnote.commerce.exception.InvalidOrderStatusTransitionException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
