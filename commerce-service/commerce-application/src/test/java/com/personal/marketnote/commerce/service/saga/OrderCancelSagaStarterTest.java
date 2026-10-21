@@ -85,4 +85,31 @@ class OrderCancelSagaStarterTest {
         assertThat(captured.originalStatus()).isEqualTo("PREPARING");
         assertThat(captured.orderProducts()).hasSize(2);
     }
+
+    @Test
+    @DisplayName("전달받은 컨텍스트의 cancelId가 Orchestrator에 그대로 전달된다")
+    void shouldPropagateCancelIdToOrchestrator() {
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(10L, 1000L, null, null, 1, 50000L)
+        );
+        OrderCancelSagaContext context = new OrderCancelSagaContext(
+                100L, "order-key-100", 300L,
+                50000L, 50000L, 0L, 3000L,
+                true, 0L,
+                "PREPARING", "CANCEL_ORDER", "취소",
+                orderProducts, orderProducts, List.of(), "cancel-uuid-xyz"
+        );
+
+        orderCancelSagaStarter.start(context);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<OrderCancelSagaContext> contextCaptor =
+                ArgumentCaptor.forClass(OrderCancelSagaContext.class);
+        verify(sagaOrchestrator).start(
+                any(OrderCancelSagaDefinition.class),
+                eq("ORDER_CANCEL:100"),
+                contextCaptor.capture()
+        );
+        assertThat(contextCaptor.getValue().cancelId()).isEqualTo("cancel-uuid-xyz");
+    }
 }
