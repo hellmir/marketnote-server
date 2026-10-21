@@ -43,7 +43,14 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
         }
 
         List<SyncFulfillmentVendorInventoryItemCommand> items = command.inventories();
-        Set<Inventory> inventories = findInventoriesByItems(items);
+        validateProductKeys(items);
+
+        Set<UUID> productKeys = items.stream()
+                .map(SyncFulfillmentVendorInventoryItemCommand::productKey)
+                .collect(Collectors.toSet());
+        Set<Inventory> inventories = findInventoryPort.findByProductKeys(productKeys);
+        validateInventoryExistsByProductKey(productKeys, inventories);
+
         Map<Long, Integer> stocksByProductId = resolveStocksByProductId(inventories, items);
 
         Set<Long> pricePolicyIds = inventories.stream()
@@ -73,29 +80,12 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
         });
     }
 
-    private Set<Inventory> findInventoriesByItems(List<SyncFulfillmentVendorInventoryItemCommand> items) {
-        if (hasAllProductKeys(items)) {
-            Set<UUID> productKeys = items.stream()
-                    .map(SyncFulfillmentVendorInventoryItemCommand::productKey)
-                    .collect(Collectors.toSet());
-            Set<Inventory> inventories = findInventoryPort.findByProductKeys(productKeys);
-            validateInventoryExistsByProductKey(productKeys, inventories);
-            return inventories;
-        }
-
-        Set<Long> productIds = items.stream()
-                .map(SyncFulfillmentVendorInventoryItemCommand::productId)
-                .collect(Collectors.toSet());
-        if (productIds.stream().anyMatch(FormatValidator::hasNoValue)) {
+    private void validateProductKeys(List<SyncFulfillmentVendorInventoryItemCommand> items) {
+        boolean hasInvalidItem = items.stream()
+                .anyMatch(item -> FormatValidator.hasNoValue(item.productKey()));
+        if (hasInvalidItem) {
             throw new InvalidFulfillmentSyncCommandException();
         }
-        Set<Inventory> inventories = findInventoryPort.findByProductIds(productIds);
-        validateInventoryExistsByProductId(productIds, inventories);
-        return inventories;
-    }
-
-    private boolean hasAllProductKeys(List<SyncFulfillmentVendorInventoryItemCommand> items) {
-        return items.stream().allMatch(item -> FormatValidator.hasValue(item.productKey()));
     }
 
     private Map<Long, Integer> resolveStocksByProductId(
@@ -108,39 +98,14 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
 
         Map<Long, Integer> stocksByProductId = new LinkedHashMap<>();
         for (SyncFulfillmentVendorInventoryItemCommand item : items) {
-            Long productId = resolveProductId(item, productIdByProductKey);
+            Long productId = productIdByProductKey.get(item.productKey());
+            if (FormatValidator.hasNoValue(productId)) {
+                throw new InvalidFulfillmentSyncCommandException();
+            }
             stocksByProductId.put(productId, item.stock());
         }
 
         return stocksByProductId;
-    }
-
-    private Long resolveProductId(
-            SyncFulfillmentVendorInventoryItemCommand item,
-            Map<UUID, Long> productIdByProductKey
-    ) {
-        if (FormatValidator.hasValue(item.productKey()) && productIdByProductKey.containsKey(item.productKey())) {
-            return productIdByProductKey.get(item.productKey());
-        }
-        if (FormatValidator.hasNoValue(item.productId())) {
-            throw new InvalidFulfillmentSyncCommandException();
-        }
-        return item.productId();
-    }
-
-    private void validateInventoryExistsByProductId(Set<Long> productIds, Set<Inventory> inventories) {
-        Set<Long> foundProductIds = inventories.stream()
-                .map(Inventory::getProductId)
-                .collect(Collectors.toSet());
-
-        Long missingProductId = productIds.stream()
-                .filter(productId -> !foundProductIds.contains(productId))
-                .findFirst()
-                .orElse(null);
-
-        if (FormatValidator.hasValue(missingProductId)) {
-            throw new InventoryProductNotFoundException(missingProductId);
-        }
     }
 
     private void validateInventoryExistsByProductKey(Set<UUID> productKeys, Set<Inventory> inventories) {

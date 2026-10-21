@@ -19,7 +19,7 @@ public class InventoryRequestToCommandMapper {
             SyncFulfillmentVendorInventoryRequest request
     ) {
         List<SyncFulfillmentVendorInventoryItemCommand> inventories = request.getInventories().stream()
-                .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.getProductId(), item.getStock()))
+                .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.getProductKey(), item.getStock()))
                 .toList();
 
         return SyncFulfillmentVendorInventoryCommand.of(inventories);
