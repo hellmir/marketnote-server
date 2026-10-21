@@ -42,7 +42,8 @@ class ReturnCompletedNotificationConsumerTest {
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, Long buyerId) {
         OrderReturnedEvent event = new OrderReturnedEvent(
                 orderId, "order-key-123", buyerId, 50000L, 50000L, 0L, 0L, true, 3000L,
-                List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L))
+                List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L)),
+                null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.returned", "commerce-service",
@@ -96,7 +97,8 @@ class ReturnCompletedNotificationConsumerTest {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
                 100L, "order-key-123", 1L, 50000L, 50000L, 0L, 0L, true, 3000L,
-                List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L))
+                List.of(new OrderReturnedEvent.OrderProductItem(1L, UUID.randomUUID(), 1, 50000L)),
+                null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

@@ -49,7 +49,7 @@ class OrderReturnedInventoryConsumerTest {
                                                                  List<OrderProductItem> returnProducts) {
         OrderReturnedEvent event = new OrderReturnedEvent(
                 orderId, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                isFullReturn, 2500L, returnProducts
+                isFullReturn, 2500L, returnProducts, null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.returned", "commerce-service",
@@ -186,7 +186,7 @@ class OrderReturnedInventoryConsumerTest {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
                 1L, "order-key-1", 50L, 60000L, 80000L, 1000L, 3000L,
-                true, 2500L, createReturnProductItems()
+                true, 2500L, createReturnProductItems(), null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",

@@ -24,6 +24,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
@@ -210,7 +211,8 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 amount.getShippingFee().getValue(),
                 isFullReturn,
                 returnShippingFee,
-                returnProducts
+                returnProducts,
+                UUID.randomUUID().toString()
         );
     }
 }

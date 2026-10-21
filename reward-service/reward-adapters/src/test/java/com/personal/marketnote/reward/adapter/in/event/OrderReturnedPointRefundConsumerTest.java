@@ -53,7 +53,7 @@ class OrderReturnedPointRefundConsumerTest {
     ) {
         OrderReturnedEvent event = new OrderReturnedEvent(
                 orderId, "order-key-1", buyerId, returnAmount, paymentAmount, pointAmount, 3000L,
-                isFullReturn, 2500L, List.of()
+                isFullReturn, 2500L, List.of(), null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.returned", "commerce-service",
@@ -201,7 +201,7 @@ class OrderReturnedPointRefundConsumerTest {
         // given
         OrderReturnedEvent event = new OrderReturnedEvent(
                 1L, "order-key-1", 100L, 50000L, 80000L, 1000L, 3000L,
-                true, 2500L, List.of()
+                true, 2500L, List.of(), null
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "commerce-service",
