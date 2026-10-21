@@ -64,7 +64,7 @@ public class GetProductService implements GetProductUseCase {
             throw new PricePolicyNotFoundException(pricePolicyId);
         }
         PricePolicy targetPricePolicy = pricePolicies.getFirst();
-        targetPricePolicy.setOptionIds();
+        targetPricePolicy.syncOptionIdsFromOptions();
 
         return getProductInfo(targetPricePolicy.getProductId(), targetPricePolicy.getOptionIds());
     }
