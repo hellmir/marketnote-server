@@ -6,7 +6,6 @@ import com.personal.marketnote.product.domain.option.ProductOption;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
 import com.personal.marketnote.product.domain.product.ProductTag;
-import com.personal.marketnote.product.domain.product.ProductTagSnapshotState;
 import com.personal.marketnote.product.port.in.result.option.ProductOptionItemResult;
 import com.personal.marketnote.product.port.in.result.pricepolicy.GetProductPricePolicyResult;
 import lombok.AccessLevel;
@@ -25,7 +24,7 @@ public class ProductItemResult {
     private String brandName;
     private GetProductPricePolicyResult pricePolicy;
     private Integer sales;
-    private List<ProductTag> productTags;
+    private List<ProductTagItem> productTags;
     private GetFileResult catalogImage;
     private List<ProductOptionItemResult> selectedOptions;
     private Integer stock;
@@ -163,20 +162,13 @@ public class ProductItemResult {
         return sales.intValue();
     }
 
-    private static List<ProductTag> toProductTags(List<ProductCatalogTagSnapshot> snapshots) {
+    private static List<ProductTagItem> toProductTags(List<ProductCatalogTagSnapshot> snapshots) {
         if (FormatValidator.hasNoValue(snapshots)) {
             return List.of();
         }
         return snapshots.stream()
-                .map(snapshot -> ProductTag.from(
-                        ProductTagSnapshotState.builder()
-                                .id(snapshot.id())
-                                .name(snapshot.name())
-                                .orderNum(snapshot.orderNum())
-                                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                                .build()
-                ))
-                .sorted(Comparator.comparingLong(ProductTag::getOrderNum))
+                .map(snapshot -> new ProductTagItem(snapshot.id(), snapshot.name(), snapshot.orderNum()))
+                .sorted(Comparator.comparingLong(ProductTagItem::orderNum))
                 .limit(MAX_DISPLAY_TAGS)
                 .toList();
     }
@@ -216,10 +208,11 @@ public class ProductItemResult {
 
     private static final int MAX_DISPLAY_TAGS = 2;
 
-    private static List<ProductTag> getTopOrderedTags(List<ProductTag> productTags) {
+    private static List<ProductTagItem> getTopOrderedTags(List<ProductTag> productTags) {
         return productTags.stream()
                 .sorted(Comparator.comparingLong(ProductTag::getOrderNum))
                 .limit(MAX_DISPLAY_TAGS)
+                .map(ProductTagItem::from)
                 .toList();
     }
 }

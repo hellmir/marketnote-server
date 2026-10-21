@@ -1,10 +1,10 @@
 package com.personal.marketnote.product.adapter.in.web.product.response;
 
 import com.personal.marketnote.common.application.file.port.in.result.GetFileResult;
-import com.personal.marketnote.product.domain.product.ProductTag;
 import com.personal.marketnote.product.port.in.result.option.ProductOptionItemResult;
 import com.personal.marketnote.product.port.in.result.pricepolicy.GetProductPricePolicyResult;
 import com.personal.marketnote.product.port.in.result.product.ProductItemResult;
+import com.personal.marketnote.product.port.in.result.product.ProductTagItem;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +22,7 @@ public class ProductItemResponse {
     private String brandName;
     private GetProductPricePolicyResult pricePolicy;
     private Integer sales;
-    private List<ProductTag> productTags;
+    private List<ProductTagItem> productTags;
     private GetFileResult catalogImage;
     private List<ProductOptionItemResult> selectedOptions;
     private Integer stock;
