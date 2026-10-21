@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -52,7 +53,7 @@ class PaymentCancelledPartialSharedPointConsumerTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(consumer, "sharePointRate", 0.1f);
+        ReflectionTestUtils.setField(consumer, "sharePointRate", new BigDecimal("0.1"));
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, boolean isFullCancel,
@@ -89,8 +90,9 @@ class PaymentCancelledPartialSharedPointConsumerTest {
         verify(modifyPendingSharedPointUseCase, times(2)).modifyPending(captor.capture());
 
         List<ModifyPendingSharedPointCommand> commands = captor.getAllValues();
-        long expectedOriginalSharePoint = Math.round(80000L * 0.1f);
-        long expectedProportionalPoint = (30000L * expectedOriginalSharePoint + 80000L / 2) / 80000L;
+        // originalSharePoint = 80000 * 0.1 = 8000 (HALF_UP, scale=0)
+        // proportional = (30000 * 8000 + 80000 / 2) / 80000 = (240_000_000 + 40_000) / 80_000 = 3000 (long division truncation)
+        long expectedProportionalPoint = 3000L;
 
         ModifyPendingSharedPointCommand firstCommand = commands.get(0);
         assertThat(firstCommand.buyerId()).isEqualTo(100L);
@@ -442,6 +444,34 @@ class PaymentCancelledPartialSharedPointConsumerTest {
 
         verify(modifyPendingSharedPointUseCase).modifyPending(any(ModifyPendingSharedPointCommand.class));
         verify(acknowledgment, never()).acknowledge();
+    }
+
+    @Test
+    @DisplayName("큰 금액(100억)에서도 BigDecimal 정밀 계산으로 오차 없이 정확한 비례 차감 금액을 산출한다")
+    void handlePaymentCancelledEvent_largeAmount_calculatesPrecisely() {
+        // given
+        long paymentAmount = 10_000_000_000L;
+        long cancelAmount = 3_000_000_000L;
+        List<OrderProductItem> orderProducts = List.of(
+                new OrderProductItem(1L, SHARER_KEY_1, 1, paymentAmount)
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(1L, false, cancelAmount, paymentAmount, orderProducts);
+
+        // when
+        consumer.handlePaymentCancelledEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<ModifyPendingSharedPointCommand> captor = ArgumentCaptor.forClass(
+                ModifyPendingSharedPointCommand.class
+        );
+        verify(modifyPendingSharedPointUseCase).modifyPending(captor.capture());
+        // BigDecimal 기대값: originalSharePoint = 1_000_000_000 (정확)
+        // proportional = (3_000_000_000 * 1_000_000_000 + 5_000_000_000) / 10_000_000_000 = 300_000_000
+        long expectedOriginalSharePoint = 1_000_000_000L;
+        long expectedProportionalPoint = (cancelAmount * expectedOriginalSharePoint + paymentAmount / 2) / paymentAmount;
+        assertThat(captor.getValue().amount()).isEqualTo(expectedProportionalPoint);
+        assertThat(expectedProportionalPoint).isEqualTo(300_000_000L);
+        verify(acknowledgment).acknowledge();
     }
 
     @Test
