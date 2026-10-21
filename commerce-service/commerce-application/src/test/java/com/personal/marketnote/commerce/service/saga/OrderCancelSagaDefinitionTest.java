@@ -115,7 +115,7 @@ class OrderCancelSagaDefinitionTest {
                     50000L, 50000L, 0L, 3000L,
                     true, 0L,
                     "PREPARING", "CANCEL_ORDER", "구매 의사 취소",
-                    orderProducts, orderProducts, List.of()
+                    orderProducts, orderProducts, List.of(), "test-cancel-id"
             );
         }
 

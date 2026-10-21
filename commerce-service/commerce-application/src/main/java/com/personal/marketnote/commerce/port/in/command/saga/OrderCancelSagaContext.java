@@ -19,6 +19,7 @@ public record OrderCancelSagaContext(
         String reason,
         List<OrderProductItem> orderProducts,
         List<OrderProductItem> cancelProducts,
-        List<String> productKeys
+        List<String> productKeys,
+        String cancelId
 ) {
 }

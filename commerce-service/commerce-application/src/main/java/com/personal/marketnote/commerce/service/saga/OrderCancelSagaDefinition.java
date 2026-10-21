@@ -98,7 +98,8 @@ public class OrderCancelSagaDefinition implements SagaDefinition<OrderCancelSaga
                 entry("reasonCategory", context.reasonCategory()),
                 entry("reason", context.reason()),
                 entry("orderProducts", context.orderProducts()),
-                entry("cancelProducts", context.cancelProducts())
+                entry("cancelProducts", context.cancelProducts()),
+                entry("cancelId", context.cancelId())
         ));
     }
 

@@ -203,7 +203,7 @@ class CompleteCancelOrderUseCaseTest {
                     eq(1L), eq("ORD-001"), eq(100L),
                     eq(50000L), eq(65000L), eq(0L), eq(3000L),
                     eq(false), eq(0L),
-                    any(), cancelProductsCaptor.capture(), notNull()
+                    any(), cancelProductsCaptor.capture(), isNull()
             );
 
             List<OrderProduct> capturedProducts = cancelProductsCaptor.getValue();

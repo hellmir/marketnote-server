@@ -40,7 +40,7 @@ class OrderCancelSagaStarterTest {
                 50000L, 50000L, 0L, 3000L,
                 true, 0L,
                 "PAID", "CANCEL_ORDER", "구매 의사 취소",
-                orderProducts, orderProducts, List.of()
+                orderProducts, orderProducts, List.of(), null
         );
 
         orderCancelSagaStarter.start(context);
@@ -66,7 +66,7 @@ class OrderCancelSagaStarterTest {
                 100000L, 100000L, 5000L, 3000L,
                 true, 0L,
                 "PREPARING", "MISTAKE", "주문 실수",
-                orderProducts, orderProducts, List.of()
+                orderProducts, orderProducts, List.of(), null
         );
 
         orderCancelSagaStarter.start(context);

@@ -128,7 +128,8 @@ public class CancelOrderService implements CancelOrderUseCase {
                 command.reason(),
                 orderProductItems,
                 orderProductItems,
-                List.of()
+                List.of(),
+                UUID.randomUUID().toString()
         );
 
         orderCancelSagaStarter.get().start(context);
@@ -169,7 +170,8 @@ public class CancelOrderService implements CancelOrderUseCase {
                 command.reason(),
                 allProductItems,
                 cancelProductItems,
-                productKeys
+                productKeys,
+                UUID.randomUUID().toString()
         );
 
         orderCancelSagaStarter.get().start(context);
