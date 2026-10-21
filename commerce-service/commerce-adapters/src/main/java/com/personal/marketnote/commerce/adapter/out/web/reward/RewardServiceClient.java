@@ -15,6 +15,8 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
@@ -40,13 +42,13 @@ public class RewardServiceClient implements ModifyUserPointPort {
 
     private final RestClient restClient;
     private final String rewardServiceBaseUrl;
-    private final float sharePointRate;
+    private final BigDecimal sharePointRate;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
 
     public RewardServiceClient(
             RestClient.Builder restClientBuilder,
             @Value("${reward-service.base-url}") String rewardServiceBaseUrl,
-            @Value("${reward-service.share-point-rate}") float sharePointRate,
+            @Value("${reward-service.share-point-rate:0.1}") BigDecimal sharePointRate,
             HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder
     ) {
         this.restClient = restClientBuilder.build();
@@ -185,13 +187,18 @@ public class RewardServiceClient implements ModifyUserPointPort {
             return;
         }
 
-        long originalSharePoint = Math.round(paymentAmount * sharePointRate);
+        long originalSharePoint = BigDecimal.valueOf(paymentAmount)
+                .multiply(sharePointRate)
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValueExact();
         if (originalSharePoint <= 0) {
             return;
         }
 
         long numerator = Math.multiplyExact(cancelAmount, originalSharePoint);
-        long proportionalPoint = (numerator + paymentAmount / 2) / paymentAmount;
+        long proportionalPoint = BigDecimal.valueOf(numerator)
+                .divide(BigDecimal.valueOf(paymentAmount), 0, RoundingMode.HALF_UP)
+                .longValueExact();
         if (proportionalPoint <= 0) {
             return;
         }
@@ -249,7 +256,10 @@ public class RewardServiceClient implements ModifyUserPointPort {
         }
 
         URI uri = buildPendingPointUri(sharerKey);
-        long sharePointAmount = Math.round(totalAmount * sharePointRate);
+        long sharePointAmount = BigDecimal.valueOf(totalAmount)
+                .multiply(sharePointRate)
+                .setScale(0, RoundingMode.HALF_UP)
+                .longValueExact();
         ModifyUserPointRequest requestBody = ModifyUserPointRequest.pendingAccrual(
                 sharePointAmount, orderId, SHARE_PURCHASE_REASON
         );
