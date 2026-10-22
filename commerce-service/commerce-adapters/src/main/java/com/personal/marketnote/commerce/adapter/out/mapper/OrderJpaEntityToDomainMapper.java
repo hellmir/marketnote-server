@@ -109,12 +109,14 @@ public class OrderJpaEntityToDomainMapper {
     }
 
     private static OrderAmount mapToOrderAmount(OrderJpaEntity entity) {
-        return OrderAmount.of(
-                entity.getTotalAmount(),
-                entity.getPaidAmount(),
-                entity.getCouponAmount(),
-                entity.getPointAmount(),
-                entity.getShippingFee()
+        return OrderAmount.from(
+                OrderAmountSnapshotState.builder()
+                        .totalAmount(entity.getTotalAmount())
+                        .paidAmount(entity.getPaidAmount())
+                        .couponAmount(entity.getCouponAmount())
+                        .pointAmount(entity.getPointAmount())
+                        .shippingFee(entity.getShippingFee())
+                        .build()
         );
     }
 

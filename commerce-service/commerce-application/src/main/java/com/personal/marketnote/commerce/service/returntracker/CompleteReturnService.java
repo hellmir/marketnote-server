@@ -139,7 +139,11 @@ public class CompleteReturnService implements CompleteReturnUseCase {
         OrderAmount amount = order.getAmount();
         long returnAmount = calculateReturnAmount(returnProducts);
         long refundPointAmount = resolveRefundPointAmount(
-                amount.getPointAmount().getValue(), returnAmount, amount.getPaidAmount(), isFullReturn
+                amount.getPointAmount().getValue(),
+                returnAmount,
+                amount.getPaidAmount().getValue(),
+                isFullReturn,
+                order.getId()
         );
 
         List<ReturnProductItem> sagaReturnProducts = returnProducts.stream()
@@ -156,7 +160,7 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 order.getOrderKey().toString(),
                 order.getBuyerId(),
                 returnAmount,
-                amount.getPaidAmount(),
+                amount.getPaidAmount().getValue(),
                 amount.getPointAmount().getValue(),
                 amount.getShippingFee().getValue(),
                 isFullReturn,
@@ -175,7 +179,9 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 .reduce(0L, Math::addExact);
     }
 
-    private long resolveRefundPointAmount(long pointAmount, long returnAmount, long paymentAmount, boolean isFullReturn) {
+    private long resolveRefundPointAmount(
+            long pointAmount, long returnAmount, long paymentAmount, boolean isFullReturn, Long orderId
+    ) {
         if (pointAmount <= 0) {
             return 0L;
         }
@@ -183,6 +189,10 @@ public class CompleteReturnService implements CompleteReturnUseCase {
             return pointAmount;
         }
         if (paymentAmount <= 0) {
+            log.warn(
+                    "부분 반품 포인트 환불 계산 불가 - paymentAmount가 0 이하입니다. orderId={}, paymentAmount={}, pointAmount={}, returnAmount={}",
+                    orderId, paymentAmount, pointAmount, returnAmount
+            );
             return 0L;
         }
         if (returnAmount > paymentAmount) {
@@ -206,7 +216,7 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 order.getOrderKey().toString(),
                 order.getBuyerId(),
                 returnAmount,
-                amount.getPaidAmount(),
+                amount.getPaidAmount().getValue(),
                 amount.getPointAmount().getValue(),
                 amount.getShippingFee().getValue(),
                 isFullReturn,

@@ -16,6 +16,7 @@ import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolic
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +78,10 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         if (command.isPartialProductChange()) {
             order.changeProductsStatus(command.pricePolicyIds(), status, now);
             return;
+        }
+
+        if (status.isPaid() && FormatValidator.hasValue(command.paidAmount())) {
+            order.recordPaidAmount(Money.of(command.paidAmount()));
         }
 
         order.changeAllProductsStatus(status, now);

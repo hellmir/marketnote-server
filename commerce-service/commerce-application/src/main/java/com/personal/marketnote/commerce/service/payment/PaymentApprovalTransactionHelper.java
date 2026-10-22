@@ -152,6 +152,7 @@ public class PaymentApprovalTransactionHelper {
                             .id(payment.getOrderId())
                             .orderStatus(OrderStatus.PAID)
                             .skipSubsequentProcesses(true)
+                            .paidAmount(payment.getPaymentAmount().getValue())
                             .build()
             );
             startOrderPaymentSaga(order, payment);
@@ -162,6 +163,7 @@ public class PaymentApprovalTransactionHelper {
                 ChangeOrderStatusCommand.builder()
                         .id(payment.getOrderId())
                         .orderStatus(OrderStatus.PAID)
+                        .paidAmount(payment.getPaymentAmount().getValue())
                         .build()
         );
 

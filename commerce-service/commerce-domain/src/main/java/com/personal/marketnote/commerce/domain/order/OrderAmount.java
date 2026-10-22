@@ -10,7 +10,7 @@ import lombok.*;
 @Getter
 public class OrderAmount {
     private Money totalAmount;
-    private Long paidAmount;
+    private Money paidAmount;
     private Money couponAmount;
     private Money pointAmount;
     private Money shippingFee;
@@ -25,7 +25,7 @@ public class OrderAmount {
     ) {
         return OrderAmount.builder()
                 .totalAmount(resolveMoneyOrZero(totalAmount))
-                .paidAmount(paidAmount)
+                .paidAmount(resolveMoneyOrZero(paidAmount))
                 .couponAmount(resolveMoneyOrZero(couponAmount))
                 .pointAmount(resolveMoneyOrZero(pointAmount))
                 .shippingFee(resolveMoneyOrZero(shippingFee))
@@ -35,6 +35,7 @@ public class OrderAmount {
     public static OrderAmount from(OrderAmountCreateState state) {
         return OrderAmount.builder()
                 .totalAmount(Money.of(state.getTotalAmount()))
+                .paidAmount(resolveMoneyOrZero(state.getPaidAmount()))
                 .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
                 .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
                 .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
@@ -44,10 +45,20 @@ public class OrderAmount {
     public static OrderAmount from(OrderAmountSnapshotState state) {
         return OrderAmount.builder()
                 .totalAmount(resolveMoneyOrZero(state.getTotalAmount()))
-                .paidAmount(state.getPaidAmount())
+                .paidAmount(resolveMoneyOrZero(state.getPaidAmount()))
                 .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
                 .pointAmount(resolveMoneyOrZero(state.getPointAmount()))
                 .shippingFee(resolveMoneyOrZero(state.getShippingFee()))
+                .build();
+    }
+
+    public OrderAmount withPaidAmount(Money paidAmount) {
+        return OrderAmount.builder()
+                .totalAmount(totalAmount)
+                .paidAmount(paidAmount)
+                .couponAmount(couponAmount)
+                .pointAmount(pointAmount)
+                .shippingFee(shippingFee)
                 .build();
     }
 

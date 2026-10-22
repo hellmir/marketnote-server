@@ -58,7 +58,7 @@ public record GetOrderResult(
                 .statusChangeReasonCategory(order.getStatusChangeReasonCategory())
                 .statusChangeReason(order.getStatusChangeReason())
                 .totalAmount(order.getAmount().getTotalAmount().getValue())
-                .paidAmount(order.getAmount().getPaidAmount())
+                .paidAmount(order.getAmount().getPaidAmount().getValue())
                 .couponAmount(order.getAmount().getCouponAmount().getValue())
                 .pointAmount(order.getAmount().getPointAmount().getValue())
                 .shippingFee(order.getAmount().getShippingFee().getValue())

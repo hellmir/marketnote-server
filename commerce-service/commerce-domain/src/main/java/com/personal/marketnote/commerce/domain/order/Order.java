@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.domain.order;
 
 import com.personal.marketnote.commerce.domain.shipping.ShippingRegionType;
+import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.RandomCodeGenerator;
 import lombok.*;
@@ -155,6 +156,10 @@ public class Order {
         }
 
         this.orderStatus = orderStatus;
+    }
+
+    public void recordPaidAmount(Money paidAmount) {
+        this.amount = amount.withPaidAmount(paidAmount);
     }
 
     public void changeAllProductsStatus(OrderStatus orderStatus, LocalDateTime now) {

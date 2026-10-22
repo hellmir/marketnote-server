@@ -14,7 +14,8 @@ public record ChangeOrderStatusCommand(
         OrderStatus orderStatus,
         OrderStatusReasonCategory reasonCategory,
         String reason,
-        Boolean skipSubsequentProcesses
+        Boolean skipSubsequentProcesses,
+        Long paidAmount
 ) {
     public boolean isPartialProductChange() {
         return FormatValidator.hasValue(pricePolicyIds);

@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderAmountCreateState {
     private final Long totalAmount;
+    private final Long paidAmount;
     private final Long couponAmount;
     private final Long pointAmount;
     private final Long shippingFee;
