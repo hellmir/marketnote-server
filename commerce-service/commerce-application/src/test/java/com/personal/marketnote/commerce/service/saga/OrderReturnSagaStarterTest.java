@@ -41,7 +41,7 @@ class OrderReturnSagaStarterTest {
                 1L, "order-key-1", 100L,
                 50000L, 60000L, 5000L, 3000L,
                 true, 0L, 5000L,
-                returnProducts
+                returnProducts, "RET-001"
         );
 
         orderReturnSagaStarter.start(context);
@@ -66,7 +66,7 @@ class OrderReturnSagaStarterTest {
                 42L, "order-key-42", 200L,
                 100000L, 120000L, 10000L, 3000L,
                 false, 2500L, 10000L,
-                returnProducts
+                returnProducts, "RET-042"
         );
 
         orderReturnSagaStarter.start(context);
@@ -84,5 +84,6 @@ class OrderReturnSagaStarterTest {
         assertThat(captured.buyerId()).isEqualTo(200L);
         assertThat(captured.isFullReturn()).isFalse();
         assertThat(captured.returnProducts()).hasSize(2);
+        assertThat(captured.returnId()).isEqualTo("RET-042");
     }
 }
