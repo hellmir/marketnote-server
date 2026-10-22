@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.point.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.reward.adapter.out.persistence.point.entity.UserPointHistoryJpaEntity;
 import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
@@ -29,7 +30,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@Import(AuditConfig.class)
+@Import({AuditConfig.class, QuerydslConfig.class})
 @DisplayName("UserPointHistoryJpaRepository 테스트")
 class UserPointHistoryJpaRepositoryTest {
 

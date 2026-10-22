@@ -69,20 +69,13 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
             int page, int pageSize, GoodsStatus goodsStatus, Boolean exposed, String keyword
     ) {
         PageRequest pageRequest = PageRequest.of(page - 1, pageSize);
-        Page<GifticonGoodsJpaEntity> pageResult = fetchAdminGoodsPage(goodsStatus, exposed, keyword, pageRequest);
+        Page<GifticonGoodsJpaEntity> pageResult = repository.findAllForAdmin(
+                goodsStatus, exposed, keyword, pageRequest
+        );
         List<GifticonGoods> items = pageResult.getContent().stream()
                 .map(GifticonGoodsJpaEntity::toDomain)
                 .toList();
         return new FindAllForAdminResult(items, pageResult.getTotalElements());
-    }
-
-    private Page<GifticonGoodsJpaEntity> fetchAdminGoodsPage(
-            GoodsStatus goodsStatus, Boolean exposed, String keyword, PageRequest pageRequest
-    ) {
-        if (FormatValidator.hasNoValue(goodsStatus)) {
-            return repository.findAllForAdminWithoutStatus(exposed, keyword, pageRequest);
-        }
-        return repository.findAllForAdminWithStatus(goodsStatus, exposed, keyword, pageRequest);
     }
 
     @Override
@@ -103,24 +96,19 @@ public class GifticonGoodsPersistenceAdapter implements FindGifticonGoodsPort, S
             String categoryCodeParam, String brandCodeParam, Long cursor, Pageable pageable
     ) {
         if (FormatValidator.equals(cursor, FIRST_PAGE_CURSOR_VALUE)) {
-            return repository.findFirstPageExposed(
-                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
+            return repository.findExposedByAnchor(
+                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, null, null, pageable
             );
         }
         Optional<GifticonGoodsJpaEntity> anchor = repository.findById(cursor);
         if (anchor.isEmpty()) {
-            return repository.findFirstPageExposed(
-                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, pageable
+            return repository.findExposedByAnchor(
+                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, null, null, pageable
             );
         }
         Integer anchorOrderNum = anchor.get().getOrderNum();
-        if (FormatValidator.hasValue(anchorOrderNum)) {
-            return repository.findExposedAfterNonNullAnchor(
-                    categoryCodeParam, brandCodeParam, GoodsStatus.SALE, anchorOrderNum, cursor, pageable
-            );
-        }
-        return repository.findExposedAfterNullAnchor(
-                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, cursor, pageable
+        return repository.findExposedByAnchor(
+                categoryCodeParam, brandCodeParam, GoodsStatus.SALE, anchorOrderNum, cursor, pageable
         );
     }
 

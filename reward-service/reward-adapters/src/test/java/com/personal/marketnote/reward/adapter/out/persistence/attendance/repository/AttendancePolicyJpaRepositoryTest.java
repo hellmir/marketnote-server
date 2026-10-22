@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.attendance.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.reward.adapter.out.persistence.attendance.entity.AttendancePolicyJpaEntity;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
@@ -29,7 +30,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@Import(AuditConfig.class)
+@Import({AuditConfig.class, QuerydslConfig.class})
 @DisplayName("AttendancePolicyJpaRepository 테스트")
 class AttendancePolicyJpaRepositoryTest {
 

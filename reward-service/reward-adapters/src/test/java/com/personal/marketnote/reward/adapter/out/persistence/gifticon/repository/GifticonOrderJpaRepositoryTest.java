@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.gifticon.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity.GifticonOrderJpaEntity;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderCreateState;
@@ -25,7 +26,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@Import(AuditConfig.class)
+@Import({AuditConfig.class, QuerydslConfig.class})
 @DisplayName("GifticonOrderJpaRepository 테스트")
 class GifticonOrderJpaRepositoryTest {
 

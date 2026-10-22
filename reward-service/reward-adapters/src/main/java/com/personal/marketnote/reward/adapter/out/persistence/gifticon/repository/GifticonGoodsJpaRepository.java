@@ -2,158 +2,16 @@ package com.personal.marketnote.reward.adapter.out.persistence.gifticon.reposito
 
 import com.personal.marketnote.reward.adapter.out.persistence.gifticon.entity.GifticonGoodsJpaEntity;
 import com.personal.marketnote.reward.domain.gifticon.GoodsStatus;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface GifticonGoodsJpaRepository extends JpaRepository<GifticonGoodsJpaEntity, Long> {
+public interface GifticonGoodsJpaRepository extends JpaRepository<GifticonGoodsJpaEntity, Long>, GifticonGoodsQueryRepository {
 
     Optional<GifticonGoodsJpaEntity> findByGoodsCode(String goodsCode);
 
     boolean existsByGoodsCode(String goodsCode);
 
     List<GifticonGoodsJpaEntity> findAllByGoodsStatus(GoodsStatus goodsStatus);
-
-    @Query("""
-            SELECT DISTINCT g.brandCode, g.brandName, g.brandImageUrl
-            FROM GifticonGoodsJpaEntity g
-            WHERE g.exposed = true
-              AND g.goodsStatus = :saleStatus
-              AND g.categoryCode = :categoryCode
-            ORDER BY g.brandName ASC
-            """)
-    List<Object[]> findDistinctBrandsByCategoryCode(
-            @Param("categoryCode") String categoryCode,
-            @Param("saleStatus") GoodsStatus saleStatus
-    );
-
-    @Query("""
-            SELECT g FROM GifticonGoodsJpaEntity g
-            WHERE g.exposed = true
-              AND g.goodsStatus = :saleStatus
-              AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
-              AND (:brandCode = '' OR g.brandCode = :brandCode)
-            ORDER BY
-                CASE WHEN g.orderNum IS NULL THEN 1 ELSE 0 END,
-                g.orderNum ASC,
-                g.id ASC
-            """)
-    List<GifticonGoodsJpaEntity> findFirstPageExposed(
-            @Param("categoryCode") String categoryCode,
-            @Param("brandCode") String brandCode,
-            @Param("saleStatus") GoodsStatus saleStatus,
-            Pageable pageable
-    );
-
-    @Query("""
-            SELECT g FROM GifticonGoodsJpaEntity g
-            WHERE g.exposed = true
-              AND g.goodsStatus = :saleStatus
-              AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
-              AND (:brandCode = '' OR g.brandCode = :brandCode)
-              AND (
-                    g.orderNum IS NULL
-                 OR g.orderNum > :anchorOrderNum
-                 OR (g.orderNum = :anchorOrderNum AND g.id > :anchorId)
-              )
-            ORDER BY
-                CASE WHEN g.orderNum IS NULL THEN 1 ELSE 0 END,
-                g.orderNum ASC,
-                g.id ASC
-            """)
-    List<GifticonGoodsJpaEntity> findExposedAfterNonNullAnchor(
-            @Param("categoryCode") String categoryCode,
-            @Param("brandCode") String brandCode,
-            @Param("saleStatus") GoodsStatus saleStatus,
-            @Param("anchorOrderNum") Integer anchorOrderNum,
-            @Param("anchorId") Long anchorId,
-            Pageable pageable
-    );
-
-    @Query("""
-            SELECT g FROM GifticonGoodsJpaEntity g
-            WHERE g.exposed = true
-              AND g.goodsStatus = :saleStatus
-              AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
-              AND (:brandCode = '' OR g.brandCode = :brandCode)
-              AND g.orderNum IS NULL
-              AND g.id > :anchorId
-            ORDER BY g.id ASC
-            """)
-    List<GifticonGoodsJpaEntity> findExposedAfterNullAnchor(
-            @Param("categoryCode") String categoryCode,
-            @Param("brandCode") String brandCode,
-            @Param("saleStatus") GoodsStatus saleStatus,
-            @Param("anchorId") Long anchorId,
-            Pageable pageable
-    );
-
-    @Query("""
-            SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
-            WHERE g.exposed = true
-              AND g.goodsStatus = :saleStatus
-              AND (:categoryCode = '' OR g.categoryCode = :categoryCode)
-              AND (:brandCode = '' OR g.brandCode = :brandCode)
-            """)
-    long countAllExposed(
-            @Param("categoryCode") String categoryCode,
-            @Param("brandCode") String brandCode,
-            @Param("saleStatus") GoodsStatus saleStatus
-    );
-
-    @Query(value = """
-            SELECT g FROM GifticonGoodsJpaEntity g
-            WHERE g.goodsStatus = :goodsStatus
-            AND (:exposed IS NULL OR g.exposed = :exposed)
-            AND (:keyword = '' OR g.goodsName LIKE CONCAT('%', :keyword, '%'))
-            ORDER BY g.id DESC
-            """,
-            countQuery = """
-                    SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
-                    WHERE g.goodsStatus = :goodsStatus
-                    AND (:exposed IS NULL OR g.exposed = :exposed)
-                    AND (:keyword = '' OR g.goodsName LIKE CONCAT('%', :keyword, '%'))
-                    """)
-    Page<GifticonGoodsJpaEntity> findAllForAdminWithStatus(
-            @Param("goodsStatus") GoodsStatus goodsStatus,
-            @Param("exposed") Boolean exposed,
-            @Param("keyword") String keyword,
-            Pageable pageable
-    );
-
-    @Query(value = """
-            SELECT g FROM GifticonGoodsJpaEntity g
-            WHERE (:exposed IS NULL OR g.exposed = :exposed)
-            AND (:keyword = '' OR g.goodsName LIKE CONCAT('%', :keyword, '%'))
-            ORDER BY g.id DESC
-            """,
-            countQuery = """
-                    SELECT COUNT(g) FROM GifticonGoodsJpaEntity g
-                    WHERE (:exposed IS NULL OR g.exposed = :exposed)
-                    AND (:keyword = '' OR g.goodsName LIKE CONCAT('%', :keyword, '%'))
-                    """)
-    Page<GifticonGoodsJpaEntity> findAllForAdminWithoutStatus(
-            @Param("exposed") Boolean exposed,
-            @Param("keyword") String keyword,
-            Pageable pageable
-    );
-
-    @Query("""
-            SELECT g FROM GifticonGoodsJpaEntity g
-            WHERE g.popular = true
-              AND g.exposed = true
-              AND g.goodsStatus = :saleStatus
-            ORDER BY
-                CASE WHEN g.orderNum IS NULL THEN 1 ELSE 0 END,
-                g.orderNum ASC
-            """)
-    List<GifticonGoodsJpaEntity> findAllPopularAndExposed(
-            @Param("saleStatus") GoodsStatus saleStatus,
-            Pageable pageable
-    );
 }
