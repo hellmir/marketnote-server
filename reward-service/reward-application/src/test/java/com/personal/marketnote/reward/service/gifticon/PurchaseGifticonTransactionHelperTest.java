@@ -80,7 +80,6 @@ class PurchaseGifticonTransactionHelperTest {
         // given
         UserPoint userPoint = createUserPointWithAmount(10000L);
         when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
-        when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
@@ -137,7 +136,6 @@ class PurchaseGifticonTransactionHelperTest {
         // given
         UserPoint userPoint = createUserPointWithAmount(10000L);
         when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
-        when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
@@ -164,12 +162,11 @@ class PurchaseGifticonTransactionHelperTest {
     }
 
     @Test
-    @DisplayName("TR_ID가 NC{userId}_{yyMMddHHmmss} 형식으로 생성된다")
+    @DisplayName("TR_ID가 NC{userId}_{yyMMddHHmmss}{ms3} 형식으로 25자 이내로 생성된다")
     void shouldGenerateTrIdInCorrectFormat() {
         // given
         UserPoint userPoint = createUserPointWithAmount(10000L);
         when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
-        when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()
@@ -192,9 +189,10 @@ class PurchaseGifticonTransactionHelperTest {
         );
 
         // then
-        // NC{userId}_{yyMMddHHmmss} = "NC" + userId + "_" + 12자
+        // 기프티쇼 API 25자 제약 (v1.04 P.26, ERR0807).
+        // NC{userId}_{yyMMddHHmmss(12)}{ms(3)} = "NC" + userId + "_" + 15자
         assertThat(context.trId()).startsWith("NC" + USER_ID + "_");
-        assertThat(context.trId()).matches("NC\\d+_\\d{12}");
+        assertThat(context.trId()).matches("NC\\d+_\\d{15}");
         assertThat(context.trId().length()).isLessThanOrEqualTo(25);
     }
 
@@ -204,7 +202,6 @@ class PurchaseGifticonTransactionHelperTest {
         // given
         UserPoint userPoint = createUserPointWithAmount(10000L);
         when(findUserPointPort.findByUserIdForUpdate(USER_ID)).thenReturn(Optional.of(userPoint));
-        when(findGifticonOrderPort.existsByTrId(any())).thenReturn(false);
         when(saveGifticonOrderPort.save(any())).thenAnswer(invocation -> {
             GifticonOrder order = invocation.getArgument(0);
             return GifticonOrder.from(GifticonOrderSnapshotState.builder()

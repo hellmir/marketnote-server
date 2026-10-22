@@ -84,7 +84,7 @@ class GifticonOrderPersistenceAdapterTest {
                     .trId(TR_ID)
                     .cashPrice(10_000L)
                     .build());
-            given(repository.save(any(GifticonOrderJpaEntity.class)))
+            given(repository.saveAndFlush(any(GifticonOrderJpaEntity.class)))
                     .willAnswer(invocation -> invocation.getArgument(0));
 
             // when
@@ -94,7 +94,7 @@ class GifticonOrderPersistenceAdapterTest {
             assertThat(saved.getTrId()).isEqualTo(TR_ID);
             assertThat(saved.getUserId()).isEqualTo(USER_ID);
             assertThat(saved.isPending()).isTrue();
-            verify(repository).save(any(GifticonOrderJpaEntity.class));
+            verify(repository).saveAndFlush(any(GifticonOrderJpaEntity.class));
         }
 
         @Test
@@ -110,7 +110,7 @@ class GifticonOrderPersistenceAdapterTest {
                     .trId(TR_ID)
                     .cashPrice(10_000L)
                     .build());
-            given(repository.save(any(GifticonOrderJpaEntity.class)))
+            given(repository.saveAndFlush(any(GifticonOrderJpaEntity.class)))
                     .willThrow(new DataIntegrityViolationException("dup"));
 
             // when & then
@@ -180,13 +180,6 @@ class GifticonOrderPersistenceAdapterTest {
             given(repository.findByTrId(TR_ID)).willReturn(Optional.empty());
             assertThat(adapter.findByTrId(TR_ID)).isEmpty();
         }
-    }
-
-    @Test
-    @DisplayName("existsByTrId는 리포지토리 결과를 그대로 반환한다")
-    void shouldDelegateExistsByTrId() {
-        given(repository.existsByTrId(TR_ID)).willReturn(true);
-        assertThat(adapter.existsByTrId(TR_ID)).isTrue();
     }
 
     @Nested
