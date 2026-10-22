@@ -2,12 +2,11 @@ package com.personal.marketnote.product.service.product;
 
 import com.personal.marketnote.product.port.in.result.fulfillment.FulfillmentVendorGoodsElementInfoResult;
 import com.personal.marketnote.product.port.in.result.fulfillment.FulfillmentVendorGoodsInfoResult;
-import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsElementsResult;
 import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsResult;
 import com.personal.marketnote.product.port.in.result.product.GetAdminProductDetailResult;
 import com.personal.marketnote.product.port.in.result.product.GetProductInfoWithOptionsResult;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
-import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsElementsPort;
+import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsElementPort;
 import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsPort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,7 +33,7 @@ class GetAdminProductDetailUseCaseTest {
     @Mock
     private GetFulfillmentVendorGoodsPort getFulfillmentVendorGoodsPort;
     @Mock
-    private GetFulfillmentVendorGoodsElementsPort getFulfillmentVendorGoodsElementsPort;
+    private GetFulfillmentVendorGoodsElementPort getFulfillmentVendorGoodsElementPort;
 
     @InjectMocks
     private GetAdminProductDetailService getAdminProductDetailService;
@@ -45,13 +45,13 @@ class GetAdminProductDetailUseCaseTest {
         List<Long> selectedOptionIds = List.of(1L, 2L);
         GetProductInfoWithOptionsResult productInfo = mock(GetProductInfoWithOptionsResult.class);
         FulfillmentVendorGoodsInfoResult goodsInfo = goodsInfoWithCstGodCd(String.valueOf(id));
-        FulfillmentVendorGoodsElementInfoResult elementInfo = elementInfoWithCstGodCd(String.valueOf(id));
+        FulfillmentVendorGoodsElementInfoResult elementInfo = mock(FulfillmentVendorGoodsElementInfoResult.class);
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, selectedOptionIds)).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(1, List.of(goodsInfo)));
-        when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
-                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(1, List.of(elementInfo)));
+        when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
+                .thenReturn(Optional.of(elementInfo));
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(
                 id, selectedOptionIds
@@ -62,7 +62,7 @@ class GetAdminProductDetailUseCaseTest {
         assertThat(result.fulfillmentGoodsElement()).isSameAs(elementInfo);
         verify(getProductUseCase).getProductInfoIncludingInactive(id, selectedOptionIds);
         verify(getFulfillmentVendorGoodsPort).getFulfillmentVendorGoods(String.valueOf(id));
-        verify(getFulfillmentVendorGoodsElementsPort).getFulfillmentVendorGoodsElements();
+        verify(getFulfillmentVendorGoodsElementPort).getFulfillmentVendorGoodsElement(String.valueOf(id));
     }
 
     @Test
@@ -74,8 +74,8 @@ class GetAdminProductDetailUseCaseTest {
         when(getProductUseCase.getProductInfoIncludingInactive(eq(id), anyList())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
-        when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
-                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(0, List.of()));
+        when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
+                .thenReturn(Optional.empty());
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, null);
 
@@ -87,47 +87,61 @@ class GetAdminProductDetailUseCaseTest {
     }
 
     @Test
-    @DisplayName("풀필먼트 정보에서 유효하지 않은 항목은 무시하고 매칭된 항목만 반환한다")
-    void getAdminProductDetail_skipsInvalidFulfillmentEntries() {
+    @DisplayName("풀필먼트 상품 정보 중 유효하지 않은 항목은 무시하고 매칭된 항목만 반환한다")
+    void getAdminProductDetail_skipsInvalidFulfillmentGoodsEntries() {
         Long id = 300L;
         GetProductInfoWithOptionsResult productInfo = mock(GetProductInfoWithOptionsResult.class);
         FulfillmentVendorGoodsInfoResult invalidGoods = goodsInfoWithCstGodCd(" ");
         FulfillmentVendorGoodsInfoResult validGoods = goodsInfoWithCstGodCd(String.valueOf(id));
-        FulfillmentVendorGoodsElementInfoResult invalidElement = elementInfoWithCstGodCd(null);
-        FulfillmentVendorGoodsElementInfoResult validElement = elementInfoWithCstGodCd(String.valueOf(id));
+        FulfillmentVendorGoodsElementInfoResult elementInfo = mock(FulfillmentVendorGoodsElementInfoResult.class);
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(2, Arrays.asList(null, invalidGoods, validGoods)));
-        when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
-                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(2, Arrays.asList(null, invalidElement, validElement)));
+        when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
+                .thenReturn(Optional.of(elementInfo));
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
         assertThat(result.fulfillmentGoods()).isSameAs(validGoods);
-        assertThat(result.fulfillmentGoodsElement()).isSameAs(validElement);
+        assertThat(result.fulfillmentGoodsElement()).isSameAs(elementInfo);
     }
 
     @Test
-    @DisplayName("풀필먼트 정보가 중복될 경우 최초 항목을 반환한다")
-    void getAdminProductDetail_returnsFirstDuplicateFulfillmentInfo() {
+    @DisplayName("풀필먼트 상품 정보가 중복될 경우 최초 항목을 반환한다")
+    void getAdminProductDetail_returnsFirstDuplicateFulfillmentGoods() {
         Long id = 400L;
         GetProductInfoWithOptionsResult productInfo = mock(GetProductInfoWithOptionsResult.class);
         FulfillmentVendorGoodsInfoResult firstGoods = goodsInfoWithCstGodCd(String.valueOf(id));
         FulfillmentVendorGoodsInfoResult secondGoods = goodsInfoWithCstGodCd(String.valueOf(id));
-        FulfillmentVendorGoodsElementInfoResult firstElement = elementInfoWithCstGodCd(String.valueOf(id));
-        FulfillmentVendorGoodsElementInfoResult secondElement = elementInfoWithCstGodCd(String.valueOf(id));
+        FulfillmentVendorGoodsElementInfoResult elementInfo = mock(FulfillmentVendorGoodsElementInfoResult.class);
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(2, List.of(firstGoods, secondGoods)));
-        when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
-                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(2, List.of(firstElement, secondElement)));
+        when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
+                .thenReturn(Optional.of(elementInfo));
 
         GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
 
         assertThat(result.fulfillmentGoods()).isSameAs(firstGoods);
-        assertThat(result.fulfillmentGoodsElement()).isSameAs(firstElement);
+    }
+
+    @Test
+    @DisplayName("풀필먼트 구성 조회 결과가 비어 있으면 null을 반환한다")
+    void getAdminProductDetail_returnsNullWhenElementEmpty() {
+        Long id = 450L;
+        GetProductInfoWithOptionsResult productInfo = mock(GetProductInfoWithOptionsResult.class);
+
+        when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
+        when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
+                .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
+        when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
+                .thenReturn(Optional.empty());
+
+        GetAdminProductDetailResult result = getAdminProductDetailService.getAdminProductDetail(id, List.of());
+
+        assertThat(result.fulfillmentGoodsElement()).isNull();
     }
 
     @Test
@@ -141,7 +155,7 @@ class GetAdminProductDetailUseCaseTest {
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
                 .isSameAs(exception);
 
-        verifyNoInteractions(getFulfillmentVendorGoodsPort, getFulfillmentVendorGoodsElementsPort);
+        verifyNoInteractions(getFulfillmentVendorGoodsPort, getFulfillmentVendorGoodsElementPort);
     }
 
     @Test
@@ -153,8 +167,8 @@ class GetAdminProductDetailUseCaseTest {
 
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id))).thenThrow(exception);
-        lenient().when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements())
-                .thenReturn(GetFulfillmentVendorGoodsElementsResult.of(0, List.of()));
+        lenient().when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
+                .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
                 .isSameAs(exception);
@@ -170,7 +184,8 @@ class GetAdminProductDetailUseCaseTest {
         when(getProductUseCase.getProductInfoIncludingInactive(id, List.of())).thenReturn(productInfo);
         when(getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id)))
                 .thenReturn(GetFulfillmentVendorGoodsResult.of(0, List.of()));
-        when(getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements()).thenThrow(exception);
+        when(getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id)))
+                .thenThrow(exception);
 
         assertThatThrownBy(() -> getAdminProductDetailService.getAdminProductDetail(id, List.of()))
                 .isSameAs(exception);
@@ -178,12 +193,6 @@ class GetAdminProductDetailUseCaseTest {
 
     private FulfillmentVendorGoodsInfoResult goodsInfoWithCstGodCd(String cstGodCd) {
         FulfillmentVendorGoodsInfoResult info = mock(FulfillmentVendorGoodsInfoResult.class);
-        when(info.customerGoodsCode()).thenReturn(cstGodCd);
-        return info;
-    }
-
-    private FulfillmentVendorGoodsElementInfoResult elementInfoWithCstGodCd(String cstGodCd) {
-        FulfillmentVendorGoodsElementInfoResult info = mock(FulfillmentVendorGoodsElementInfoResult.class);
         when(info.customerGoodsCode()).thenReturn(cstGodCd);
         return info;
     }

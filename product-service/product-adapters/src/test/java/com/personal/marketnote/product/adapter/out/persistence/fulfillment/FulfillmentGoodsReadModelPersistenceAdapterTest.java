@@ -5,7 +5,7 @@ import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.kafka.event.FulfillmentGoodsSyncedEvent;
 import com.personal.marketnote.product.adapter.out.persistence.fulfillment.entity.FulfillmentGoodsReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.fulfillment.repository.FulfillmentGoodsReadModelJpaRepository;
-import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsElementsResult;
+import com.personal.marketnote.product.port.in.result.fulfillment.FulfillmentVendorGoodsElementInfoResult;
 import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -150,26 +151,50 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
     }
 
     @Nested
-    @DisplayName("getFulfillmentVendorGoodsElements")
-    class GetFulfillmentVendorGoodsElements {
+    @DisplayName("getFulfillmentVendorGoodsElement")
+    class GetFulfillmentVendorGoodsElement {
 
         @Test
-        @DisplayName("모든 활성 상품의 구성품 목록을 반환한다")
-        void returnsAllActiveGoodsElements() {
+        @DisplayName("ACTIVE 상태인 customerGoodsCode 단건을 조회한다")
+        void returnsActiveGoodsElementSingle() {
+            // given
+            adapter.upsert(createEventWithElements("CGC001"));
+
+            // when
+            Optional<FulfillmentVendorGoodsElementInfoResult> result =
+                    adapter.getFulfillmentVendorGoodsElement("CGC001");
+
+            // then
+            assertThat(result).isPresent();
+            assertThat(result.get().customerGoodsCode()).isEqualTo("CGC001");
+            assertThat(result.get().elementList()).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 customerGoodsCode는 빈 Optional을 반환한다")
+        void returnsEmptyWhenNotFound() {
+            // when
+            Optional<FulfillmentVendorGoodsElementInfoResult> result =
+                    adapter.getFulfillmentVendorGoodsElement("NON_EXISTENT");
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("다른 customerGoodsCode가 함께 있어도 요청한 건만 반환한다")
+        void returnsOnlyRequestedCustomerGoodsCode() {
             // given
             adapter.upsert(createEventWithElements("CGC001"));
             adapter.upsert(createEventWithElements("CGC002"));
 
             // when
-            GetFulfillmentVendorGoodsElementsResult result = adapter.getFulfillmentVendorGoodsElements();
+            Optional<FulfillmentVendorGoodsElementInfoResult> result =
+                    adapter.getFulfillmentVendorGoodsElement("CGC002");
 
             // then
-            assertThat(result.dataCount()).isEqualTo(2);
-            assertThat(result.elements()).hasSize(2);
-            assertThat(result.elements()).anySatisfy(element -> {
-                assertThat(element.customerGoodsCode()).isEqualTo("CGC001");
-                assertThat(element.elementList()).hasSize(2);
-            });
+            assertThat(result).isPresent();
+            assertThat(result.get().customerGoodsCode()).isEqualTo("CGC002");
         }
     }
 }
