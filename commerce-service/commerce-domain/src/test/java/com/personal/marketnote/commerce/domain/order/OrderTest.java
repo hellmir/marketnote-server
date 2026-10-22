@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OrderTest {
 
@@ -170,6 +171,42 @@ class OrderTest {
         order.getOrderProducts().forEach(product ->
                 assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.PAID)
         );
+    }
+
+    @Test
+    @DisplayName("changeAllProductsStatus에서 허용되지 않은 상태 전이 시 InvalidOrderStatusTransitionException이 발생한다")
+    void shouldThrowInvalidOrderStatusTransitionExceptionWhenTransitionNotAllowed() {
+        Order order = createOrderWithProducts(OrderStatus.CONFIRMED);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.CANCELLED, now))
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
+    }
+
+    @Test
+    @DisplayName("changeAllProductsStatus에서 동일 상태 전이 요청 시 canTransitionTo 검증을 건너뛰고 OrderProduct 반복은 수행되어 예외 없이 완료된다")
+    void shouldSkipCanTransitionCheckAndCompleteWhenRequestingSameStatus() {
+        Order order = createOrderWithProducts(OrderStatus.RETURN_IN_PROGRESS);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        order.changeAllProductsStatus(OrderStatus.RETURN_IN_PROGRESS, now);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_IN_PROGRESS);
+        order.getOrderProducts().forEach(product ->
+                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.RETURN_IN_PROGRESS)
+        );
+    }
+
+    @Test
+    @DisplayName("changeAllProductsStatus에서 Terminal 상태(RETURNED)를 동일 상태로 재호출하면 canTransitionTo 검증을 건너뛰어 예외가 발생하지 않는다")
+    void shouldNotThrowWhenTerminalStateTransitionsToSameStatus() {
+        Order order = createOrderWithProducts(OrderStatus.RETURNED);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        order.changeAllProductsStatus(OrderStatus.RETURNED, now);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURNED);
     }
 
     @Test
