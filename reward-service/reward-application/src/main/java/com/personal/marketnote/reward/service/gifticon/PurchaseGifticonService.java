@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.service.gifticon;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.reward.domain.exception.DuplicateGifticonOrderException;
 import com.personal.marketnote.reward.domain.exception.GifticonCouponSendFailedException;
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
@@ -20,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PurchaseGifticonService implements PurchaseGifticonUseCase {
 
+    private static final int MAX_TR_ID_RETRY = 3;
+
     private final FindGifticonGoodsPort findGifticonGoodsPort;
     private final PurchaseGifticonTransactionHelper transactionHelper;
     private final SendGifticonCouponPort sendGifticonCouponPort;
@@ -29,14 +32,7 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
     public PurchaseGifticonResult purchase(PurchaseGifticonCommand command) {
         GifticonGoods goods = findAndValidateGoods(command.goodsCode());
 
-        DeductCashAndCreateOrderContext context = transactionHelper.deductCashAndCreateOrder(
-                command.userId(),
-                goods.getGoodsCode().getValue(),
-                goods.getGoodsName(),
-                goods.getBrandName(),
-                goods.getImageUrl(),
-                goods.getCashPrice().getValue()
-        );
+        DeductCashAndCreateOrderContext context = deductWithRetry(command.userId(), goods);
 
         SendCouponResult sendResult = sendGifticonCouponPort.sendCoupon(
                 context.trId(), context.goodsCode(), String.valueOf(command.userId())
@@ -61,6 +57,30 @@ public class PurchaseGifticonService implements PurchaseGifticonUseCase {
                 context.cashPrice(),
                 context.goodsName()
         );
+    }
+
+    // Helper의 REQUIRES_NEW 트랜잭션이 DuplicateGifticonOrderException 발생 시 롤백되어
+    // 포인트 차감·주문 저장 모두 원복된다. 재시도 시 중복 차감 없음.
+    private DeductCashAndCreateOrderContext deductWithRetry(Long userId, GifticonGoods goods) {
+        DuplicateGifticonOrderException lastException = null;
+        for (int attempt = 1; attempt <= MAX_TR_ID_RETRY; attempt++) {
+            try {
+                return transactionHelper.deductCashAndCreateOrder(
+                        userId,
+                        goods.getGoodsCode().getValue(),
+                        goods.getGoodsName(),
+                        goods.getBrandName(),
+                        goods.getImageUrl(),
+                        goods.getCashPrice().getValue()
+                );
+            } catch (DuplicateGifticonOrderException dgoe) {
+                lastException = dgoe;
+                log.warn("trId 중복 발생 — 재시도 {}/{}: userId={}, message={}",
+                        attempt, MAX_TR_ID_RETRY, userId, dgoe.getMessage());
+            }
+        }
+        log.error("trId 중복이 {}회 연속 발생하여 기프티콘 구매를 중단합니다. userId={}", MAX_TR_ID_RETRY, userId);
+        throw lastException;
     }
 
     private GifticonGoods findAndValidateGoods(String goodsCode) {

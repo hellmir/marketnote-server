@@ -14,8 +14,6 @@ public interface GifticonOrderJpaRepository extends JpaRepository<GifticonOrderJ
 
     Optional<GifticonOrderJpaEntity> findByTrId(String trId);
 
-    boolean existsByTrId(String trId);
-
     @Query("""
             SELECT o FROM GifticonOrderJpaEntity o
             WHERE o.userId = :userId

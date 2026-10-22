@@ -26,11 +26,14 @@ public class GifticonOrderPersistenceAdapter
 
     private final GifticonOrderJpaRepository gifticonOrderJpaRepository;
 
+    // saveAndFlush로 즉시 INSERT하여 tr_id UNIQUE 제약 위반을 트랜잭션 커밋 전에 감지.
+    // save만 쓰면 flush가 커밋 시점으로 지연되어 Adapter try/catch를 벗어나며,
+    // DuplicateGifticonOrderException 변환이 실패해 Service 레이어 재시도가 동작하지 않는다.
     @Override
     public GifticonOrder save(GifticonOrder order) {
         try {
             GifticonOrderJpaEntity entity = GifticonOrderJpaEntity.from(order);
-            GifticonOrderJpaEntity savedEntity = gifticonOrderJpaRepository.save(entity);
+            GifticonOrderJpaEntity savedEntity = gifticonOrderJpaRepository.saveAndFlush(entity);
             return savedEntity.toDomain();
         } catch (DataIntegrityViolationException e) {
             throw new DuplicateGifticonOrderException(order.getTrId());
@@ -48,11 +51,6 @@ public class GifticonOrderPersistenceAdapter
     public Optional<GifticonOrder> findByTrId(String trId) {
         return gifticonOrderJpaRepository.findByTrId(trId)
                 .map(GifticonOrderJpaEntity::toDomain);
-    }
-
-    @Override
-    public boolean existsByTrId(String trId) {
-        return gifticonOrderJpaRepository.existsByTrId(trId);
     }
 
     @Override
