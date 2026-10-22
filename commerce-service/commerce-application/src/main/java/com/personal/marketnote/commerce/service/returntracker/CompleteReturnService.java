@@ -162,7 +162,8 @@ public class CompleteReturnService implements CompleteReturnUseCase {
                 isFullReturn,
                 returnShippingFee,
                 refundPointAmount,
-                sagaReturnProducts
+                sagaReturnProducts,
+                UUID.randomUUID().toString()
         );
 
         orderReturnSagaStarter.get().start(context);

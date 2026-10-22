@@ -14,7 +14,8 @@ public record OrderReturnSagaContext(
         boolean isFullReturn,
         Long returnShippingFee,
         Long refundPointAmount,
-        List<ReturnProductItem> returnProducts
+        List<ReturnProductItem> returnProducts,
+        String returnId
 ) {
     public record ReturnProductItem(
             Long pricePolicyId,

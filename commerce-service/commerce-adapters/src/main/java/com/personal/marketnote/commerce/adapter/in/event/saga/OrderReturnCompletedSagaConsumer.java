@@ -84,7 +84,7 @@ public class OrderReturnCompletedSagaConsumer {
                     payload.orderId(), payload.orderKey(), payload.buyerId(),
                     payload.returnAmount(), payload.paymentAmount(), payload.pointAmount(),
                     payload.shippingFee(), payload.isFullReturn(), payload.returnShippingFee(),
-                    returnProducts, null
+                    returnProducts, payload.returnId()
             );
 
             sagaResponsePublisher.publishSuccess(
