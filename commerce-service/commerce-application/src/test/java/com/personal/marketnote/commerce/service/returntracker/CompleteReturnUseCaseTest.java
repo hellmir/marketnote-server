@@ -5,6 +5,7 @@ import com.personal.marketnote.common.domain.quantity.Quantity;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.port.in.command.order.CalculateReturnShippingFeeCommand;
 import com.personal.marketnote.commerce.port.in.command.returntracker.CompleteReturnCommand;
+import com.personal.marketnote.commerce.port.in.command.saga.OrderReturnSagaContext;
 import com.personal.marketnote.commerce.port.in.result.order.CalculateReturnShippingFeeResult;
 import com.personal.marketnote.commerce.port.in.usecase.order.CalculateReturnShippingFeeUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -298,6 +300,43 @@ class CompleteReturnUseCaseTest {
                     eq(20000L), eq(79000L), eq(1000L), eq(3000L),
                     eq(true), eq(3000L), anyList(), anyString()
             );
+        }
+    }
+
+    @Nested
+    @DisplayName("SAGA 경로 처리")
+    class SagaPath {
+
+        @Test
+        @DisplayName("SAGA 시작 시 생성된 returnId가 OrderReturnSagaContext에 포함된다")
+        void shouldIncludeReturnIdInSagaContext() {
+            OrderReturnSagaStarter sagaStarter = mock(OrderReturnSagaStarter.class);
+            orderReturnSagaStarter = Optional.of(sagaStarter);
+            CompleteReturnService sagaService = new CompleteReturnService(
+                    getOrderUseCase, updateOrderPort, publishOrderEventPort,
+                    calculateReturnShippingFeeUseCase, clock, orderReturnSagaStarter
+            );
+
+            OrderProduct product = mock(OrderProduct.class);
+            Order order = createReturnableOrder(OrderStatus.RETURN_REQUESTED, product);
+            when(product.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
+
+            simulateReturnTransition(order, product, OrderStatus.RETURNED);
+
+            when(getOrderUseCase.getOrder(1L)).thenReturn(order);
+            when(calculateReturnShippingFeeUseCase.calculateReturnShippingFee(
+                    any(CalculateReturnShippingFeeCommand.class)
+            )).thenReturn(CalculateReturnShippingFeeResult.builder().returnShippingFee(3000L).build());
+
+            sagaService.completeReturn(new CompleteReturnCommand(1L));
+
+            ArgumentCaptor<OrderReturnSagaContext> contextCaptor =
+                    ArgumentCaptor.forClass(OrderReturnSagaContext.class);
+            verify(sagaStarter).start(contextCaptor.capture());
+
+            OrderReturnSagaContext capturedContext = contextCaptor.getValue();
+            assertThat(capturedContext.returnId()).isNotBlank();
+            verifyNoInteractions(publishOrderEventPort);
         }
     }
 

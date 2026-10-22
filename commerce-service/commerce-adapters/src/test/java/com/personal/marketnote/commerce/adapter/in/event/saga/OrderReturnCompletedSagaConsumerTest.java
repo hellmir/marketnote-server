@@ -58,19 +58,20 @@ class OrderReturnCompletedSagaConsumerTest {
         @BeforeEach
         void setUp() throws Exception {
             actionPayload = new ObjectMapper().writeValueAsString(
-                    Map.of(
-                            "orderId", 1L,
-                            "orderKey", "order-key-1",
-                            "buyerId", 100L,
-                            "returnAmount", 50000L,
-                            "paymentAmount", 60000L,
-                            "pointAmount", 5000L,
-                            "shippingFee", 3000L,
-                            "isFullReturn", true,
-                            "returnShippingFee", 0L,
-                            "returnProducts", List.of(
+                    Map.ofEntries(
+                            Map.entry("orderId", 1L),
+                            Map.entry("orderKey", "order-key-1"),
+                            Map.entry("buyerId", 100L),
+                            Map.entry("returnAmount", 50000L),
+                            Map.entry("paymentAmount", 60000L),
+                            Map.entry("pointAmount", 5000L),
+                            Map.entry("shippingFee", 3000L),
+                            Map.entry("isFullReturn", true),
+                            Map.entry("returnShippingFee", 0L),
+                            Map.entry("returnProducts", List.of(
                                     Map.of("pricePolicyId", 10L, "quantity", 2, "unitAmount", 25000L)
-                            )
+                            )),
+                            Map.entry("returnId", "RET-SAGA-9999")
                     )
             );
         }
@@ -88,7 +89,7 @@ class OrderReturnCompletedSagaConsumerTest {
                     eq(1L), eq("order-key-1"), eq(100L),
                     eq(50000L), eq(60000L), eq(5000L),
                     eq(3000L), eq(true), eq(0L),
-                    anyList(), isNull()
+                    anyList(), eq("RET-SAGA-9999")
             );
             verify(sagaResponsePublisher).publishSuccess(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "{\"success\":true}");

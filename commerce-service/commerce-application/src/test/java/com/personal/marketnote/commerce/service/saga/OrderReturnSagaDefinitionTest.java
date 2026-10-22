@@ -144,7 +144,7 @@ class OrderReturnSagaDefinitionTest {
                     1L, "order-key-1", 100L,
                     50000L, 60000L, 5000L, 3000L,
                     true, 0L, 5000L,
-                    returnProducts
+                    returnProducts, "RET-SAGA-001"
             );
         }
 
@@ -246,6 +246,15 @@ class OrderReturnSagaDefinitionTest {
             assertThat(actionJson).contains("\"buyerId\"");
             assertThat(actionJson).contains("\"returnProducts\"");
             assertThat(actionJson).contains("\"isFullReturn\"");
+        }
+
+        @Test
+        @DisplayName("반품 완료 액션 메시지에 컨텍스트의 returnId가 포함된다")
+        void shouldBuildReturnCompletedActionWithReturnId() {
+            String actionJson = definition.getSteps().get(5).action().apply(context);
+
+            assertThat(actionJson).contains("\"returnId\"");
+            assertThat(actionJson).contains("RET-SAGA-001");
         }
     }
 }
