@@ -10,8 +10,6 @@ import java.util.Optional;
 public interface FindGifticonOrderPort {
     Optional<GifticonOrder> findByTrId(String trId);
 
-    boolean existsByTrId(String trId);
-
     List<GifticonOrder> findByUserIdAndStatuses(
             Long userId, List<GifticonOrderStatus> statuses,
             GifticonOrderSortType sortType, Long cursor, int pageSize

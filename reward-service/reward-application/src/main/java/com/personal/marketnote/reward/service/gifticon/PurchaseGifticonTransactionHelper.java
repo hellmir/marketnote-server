@@ -127,15 +127,13 @@ public class PurchaseGifticonTransactionHelper {
         updateGifticonOrderPort.update(order);
     }
 
+    // 기프티쇼 TR_ID 25자 제약 (공식 API 규격서 v1.04 P.26, ERR0807 "TR_ID가 25byte를 초과했습니다") 준수.
+    // 포맷: NC{userId}_{yyMMddHHmmss}{ms3} — 총 15 + userId 자리수 → userId 10자리까지 25자 이내.
+    // 동일 초 내 동시 요청 TOCTOU 회피는 ms 3자리(0~999) + Service 레이어 재시도로 커버.
+    // ⚠️ 포맷 변경 시 25자 제약 재검증 필수.
     private String generateTrId(Long userId) {
         LocalDateTime now = LocalDateTime.now(clock);
-        String trId = "NC" + userId + "_" + now.format(TR_ID_DATE_FORMAT);
-
-        if (findGifticonOrderPort.existsByTrId(trId)) {
-            log.warn("TR_ID 중복 발생, 재생성: trId={}", trId);
-            trId = "NC" + userId + "_" + LocalDateTime.now(clock).format(TR_ID_DATE_FORMAT);
-        }
-
-        return trId;
+        String msSuffix = String.format("%03d", now.getNano() / 1_000_000);
+        return "NC" + userId + "_" + now.format(TR_ID_DATE_FORMAT) + msSuffix;
     }
 }
