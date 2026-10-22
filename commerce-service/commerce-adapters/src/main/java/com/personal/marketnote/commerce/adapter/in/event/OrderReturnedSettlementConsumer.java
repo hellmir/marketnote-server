@@ -12,6 +12,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderReturnedEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -56,8 +57,8 @@ public class OrderReturnedSettlementConsumer {
 
         OrderReturnedEvent payload = envelope.getPayloadAs(OrderReturnedEvent.class, objectMapper);
 
-        log.info("반품 완료 이벤트 수신 (정산 역배분). eventId={}, orderId={}, isFullReturn={}",
-                envelope.eventId(), payload.orderId(), payload.isFullReturn()
+        log.info("반품 완료 이벤트 수신 (정산 역배분). eventId={}, orderId={}, returnId={}, isFullReturn={}",
+                envelope.eventId(), payload.orderId(), payload.returnId(), payload.isFullReturn()
         );
 
         if (EventPayloadValidator.hasInvalidIds(
@@ -68,18 +69,20 @@ public class OrderReturnedSettlementConsumer {
         }
 
         try {
-            createReturnAllocations(payload.orderId());
-            log.info("반품 완료 역배분 생성 완료. orderId={}", payload.orderId());
+            createReturnAllocations(payload.orderId(), payload.returnId());
+            log.info("반품 완료 역배분 생성 완료. orderId={}, returnId={}",
+                    payload.orderId(), payload.returnId()
+            );
         } catch (DataIntegrityViolationException e) {
-            log.info("이미 처리된 반품 완료 역배분 이벤트 (멱등 처리). eventId={}, orderId={}",
-                    envelope.eventId(), payload.orderId()
+            log.info("이미 처리된 반품 완료 역배분 이벤트 (멱등 처리). eventId={}, orderId={}, returnId={}",
+                    envelope.eventId(), payload.orderId(), payload.returnId()
             );
         }
 
         acknowledgment.acknowledge();
     }
 
-    private void createReturnAllocations(Long orderId) {
+    private void createReturnAllocations(Long orderId, String returnId) {
         List<PaymentAllocation> originalAllocations = findPaymentAllocationPort.findByOrderId(orderId);
 
         List<PaymentAllocation> returnAllocations = originalAllocations.stream()
@@ -93,7 +96,7 @@ public class OrderReturnedSettlementConsumer {
                                 .transactionType(PaymentAllocationTransactionType.RETURN_REFUND)
                                 .targetType(PaymentAllocationTargetType.ORDER)
                                 .idempotencyKey(IdempotencyKey.of(
-                                        IDEMPOTENCY_KEY_PREFIX + orderId + ":" + allocation.getSellerId()
+                                        buildIdempotencyKey(orderId, allocation.getSellerId(), returnId)
                                 ))
                                 .build()
                 ))
@@ -102,5 +105,12 @@ public class OrderReturnedSettlementConsumer {
         if (!returnAllocations.isEmpty()) {
             savePaymentAllocationPort.saveAll(returnAllocations);
         }
+    }
+
+    private String buildIdempotencyKey(Long orderId, Long sellerId, String returnId) {
+        if (FormatValidator.hasNoValue(returnId)) {
+            return IDEMPOTENCY_KEY_PREFIX + orderId + ":" + sellerId;
+        }
+        return IDEMPOTENCY_KEY_PREFIX + orderId + ":" + sellerId + ":" + returnId;
     }
 }
