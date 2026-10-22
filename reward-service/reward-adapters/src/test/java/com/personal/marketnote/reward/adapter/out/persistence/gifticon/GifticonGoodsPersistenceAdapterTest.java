@@ -143,11 +143,11 @@ class GifticonGoodsPersistenceAdapterTest {
     class FindAllForAdminTest {
 
         @Test
-        @DisplayName("goodsStatus가 null이면 status 없는 쿼리를 호출한다")
-        void shouldUseWithoutStatusQueryWhenStatusIsNull() {
+        @DisplayName("goodsStatus가 null이면 통합 findAllForAdmin을 status=null로 호출한다")
+        void shouldUseFindAllForAdminWithNullStatus() {
             // given
             Page<GifticonGoodsJpaEntity> page = new PageImpl<>(List.of(buildEntity(1L, "G001")));
-            given(repository.findAllForAdminWithoutStatus(any(), any(), any(Pageable.class))).willReturn(page);
+            given(repository.findAllForAdmin(eq(null), any(), any(), any(Pageable.class))).willReturn(page);
 
             // when
             FindAllForAdminResult result = adapter.findAllForAdmin(1, 10, null, true, "");
@@ -155,15 +155,15 @@ class GifticonGoodsPersistenceAdapterTest {
             // then
             assertThat(result.items()).hasSize(1);
             assertThat(result.totalElements()).isEqualTo(1L);
-            verify(repository).findAllForAdminWithoutStatus(eq(true), eq(""), any(Pageable.class));
+            verify(repository).findAllForAdmin(eq(null), eq(true), eq(""), any(Pageable.class));
         }
 
         @Test
-        @DisplayName("goodsStatus가 있으면 status 포함 쿼리를 호출한다")
-        void shouldUseWithStatusQueryWhenStatusProvided() {
+        @DisplayName("goodsStatus가 있으면 통합 findAllForAdmin에 status를 전달한다")
+        void shouldUseFindAllForAdminWithStatus() {
             // given
             Page<GifticonGoodsJpaEntity> page = new PageImpl<>(List.of(buildEntity(1L, "G001")));
-            given(repository.findAllForAdminWithStatus(eq(GoodsStatus.SALE), any(), any(), any(Pageable.class)))
+            given(repository.findAllForAdmin(eq(GoodsStatus.SALE), any(), any(), any(Pageable.class)))
                     .willReturn(page);
 
             // when
@@ -171,7 +171,7 @@ class GifticonGoodsPersistenceAdapterTest {
 
             // then
             assertThat(result.items()).hasSize(1);
-            verify(repository).findAllForAdminWithStatus(eq(GoodsStatus.SALE), eq(null), eq("테스트"), any(Pageable.class));
+            verify(repository).findAllForAdmin(eq(GoodsStatus.SALE), eq(null), eq("테스트"), any(Pageable.class));
         }
     }
 
@@ -180,71 +180,77 @@ class GifticonGoodsPersistenceAdapterTest {
     class FindAllExposedByCursorTest {
 
         @Test
-        @DisplayName("cursor=-1이면 findFirstPageExposed를 호출하고 null 파라미터를 빈 문자열로 변환한다")
+        @DisplayName("cursor=-1이면 findExposedByAnchor를 anchor=null로 호출하고 null 파라미터를 빈 문자열로 변환한다")
         void shouldUseFirstPageQueryWhenCursorIsFirstPage() {
-            given(repository.findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class)))
-                    .willReturn(List.of(buildEntity(1L, "G001")));
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(1L, "G001")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, -1L, 10);
 
             assertThat(result).hasSize(1);
-            verify(repository).findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class));
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
         }
 
         @Test
-        @DisplayName("cursor 아이템의 orderNum이 null이 아니면 findExposedAfterNonNullAnchor를 호출한다")
-        void shouldRouteToNonNullAnchorQuery() {
+        @DisplayName("cursor 아이템의 orderNum이 null이 아니면 findExposedByAnchor에 non-null anchorOrderNum을 전달한다")
+        void shouldRouteWithNonNullAnchorOrderNum() {
             GifticonGoodsJpaEntity anchorEntity = buildEntity(5L, "G005");
             given(repository.findById(5L)).willReturn(Optional.of(anchorEntity));
-            given(repository.findExposedAfterNonNullAnchor(
+            given(repository.findExposedByAnchor(
                     eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class))
             ).willReturn(List.of(buildEntity(6L, "G006")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor("C001", "B001", 5L, 10);
 
             assertThat(result).hasSize(1);
-            verify(repository).findExposedAfterNonNullAnchor(
+            verify(repository).findExposedByAnchor(
                     eq("C001"), eq("B001"), eq(GoodsStatus.SALE), eq(1), eq(5L), any(Pageable.class));
         }
 
         @Test
-        @DisplayName("cursor 아이템의 orderNum이 null이면 findExposedAfterNullAnchor를 호출한다")
-        void shouldRouteToNullAnchorQuery() {
+        @DisplayName("cursor 아이템의 orderNum이 null이면 findExposedByAnchor에 anchorOrderNum=null, anchorId만 전달한다")
+        void shouldRouteWithNullAnchorOrderNum() {
             GifticonGoodsJpaEntity anchorEntity = buildEntityWithOrderNum(7L, "G007", null);
             given(repository.findById(7L)).willReturn(Optional.of(anchorEntity));
-            given(repository.findExposedAfterNullAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(7L), any(Pageable.class))
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class))
             ).willReturn(List.of(buildEntity(8L, "G008")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 7L, 10);
 
             assertThat(result).hasSize(1);
-            verify(repository).findExposedAfterNullAnchor(
-                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(7L), any(Pageable.class));
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(7L), any(Pageable.class));
         }
 
         @Test
-        @DisplayName("cursor가 존재하지 않으면 findFirstPageExposed로 폴백한다")
+        @DisplayName("cursor가 존재하지 않으면 findExposedByAnchor를 anchor=null로 폴백 호출한다")
         void shouldFallbackToFirstPageWhenCursorMissing() {
             given(repository.findById(99L)).willReturn(Optional.empty());
-            given(repository.findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class)))
-                    .willReturn(List.of(buildEntity(1L, "G001")));
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+            ).willReturn(List.of(buildEntity(1L, "G001")));
 
             List<GifticonGoods> result = adapter.findAllExposedByCursor(null, null, 99L, 10);
 
             assertThat(result).hasSize(1);
-            verify(repository).findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class));
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
         }
 
         @Test
         @DisplayName("공백 문자열 카테고리/브랜드는 빈 문자열로 정규화된다")
         void shouldNormalizeBlankFiltersToEmpty() {
-            given(repository.findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class)))
-                    .willReturn(List.of());
+            given(repository.findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class))
+            ).willReturn(List.of());
 
             adapter.findAllExposedByCursor("   ", "", -1L, 10);
 
-            verify(repository).findFirstPageExposed(eq(""), eq(""), eq(GoodsStatus.SALE), any(Pageable.class));
+            verify(repository).findExposedByAnchor(
+                    eq(""), eq(""), eq(GoodsStatus.SALE), eq(null), eq(null), any(Pageable.class));
         }
     }
 
