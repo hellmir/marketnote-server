@@ -66,14 +66,6 @@ class GifticonOrderJpaRepositoryTest {
     }
 
     @Test
-    @DisplayName("existsByTrId는 trId 존재 여부를 반환한다")
-    void shouldExistsByTrId() {
-        persistOrder(1L, "TR002", GifticonOrderStatus.PENDING, null);
-        assertThat(repository.existsByTrId("TR002")).isTrue();
-        assertThat(repository.existsByTrId("TR-NONE")).isFalse();
-    }
-
-    @Test
     @DisplayName("findByUserIdAndStatusesOrderByCreatedAtDesc는 cursor=-1이면 모든 주문을 createdAt desc 정렬로 반환한다")
     void shouldReturnAllOrdersByCreatedAtDescWhenCursorIsMinusOne() {
         persistOrder(1L, "TR-A", GifticonOrderStatus.ISSUED, LocalDate.now().plusDays(10));

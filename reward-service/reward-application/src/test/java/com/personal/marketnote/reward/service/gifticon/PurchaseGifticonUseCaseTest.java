@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.service.gifticon;
 
+import com.personal.marketnote.reward.domain.exception.DuplicateGifticonOrderException;
 import com.personal.marketnote.reward.domain.exception.GifticonCouponSendFailedException;
 import com.personal.marketnote.reward.domain.exception.GifticonGoodsNotFoundException;
 import com.personal.marketnote.reward.domain.gifticon.GifticonGoods;
@@ -82,6 +83,9 @@ class PurchaseGifticonUseCaseTest {
         assertThat(result.orderNo()).isEqualTo("20260404000001");
         assertThat(result.cashAmount()).isEqualTo(5000L);
         assertThat(result.goodsName()).isEqualTo("테스트 기프티콘");
+        verify(transactionHelper, times(1)).deductCashAndCreateOrder(
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+        );
         verify(transactionHelper).commitSuccess(context, sendResult);
         verify(transactionHelper, never()).commitFailure(any());
     }
@@ -161,6 +165,72 @@ class PurchaseGifticonUseCaseTest {
         verify(transactionHelper).commitFailure(context);
         verify(cancelGifticonSendFailPort).cancelSendFailed("NC100_260404210000", String.valueOf(USER_ID));
         verify(transactionHelper, never()).commitSuccess(any(), any());
+    }
+
+    @Test
+    @DisplayName("trId 충돌이 1회 발생해도 재시도하여 구매에 성공한다")
+    void shouldRetryAndSucceedWhenTrIdConflictOccursOnce() {
+        // given
+        GifticonGoods goods = createExposedSaleGoods();
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+
+        DeductCashAndCreateOrderContext context = new DeductCashAndCreateOrderContext(
+                1L, "NC100_260404210000000000001", GOODS_CODE, "테스트 기프티콘", 5000L, USER_ID
+        );
+        when(transactionHelper.deductCashAndCreateOrder(
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+        ))
+                .thenThrow(new DuplicateGifticonOrderException("NC100_260404210000000000000"))
+                .thenReturn(context);
+
+        SendCouponResult sendResult = SendCouponResult.builder()
+                .success(true)
+                .orderNo("20260404000001")
+                .pinNo("900343630367")
+                .couponImageUrl("http://t.giftishow.co.kr/coupon.jpg")
+                .validEndDate("20260504")
+                .build();
+        when(sendGifticonCouponPort.sendCoupon(
+                "NC100_260404210000000000001", GOODS_CODE, String.valueOf(USER_ID)
+        )).thenReturn(sendResult);
+
+        PurchaseGifticonCommand command = new PurchaseGifticonCommand(USER_ID, GOODS_CODE);
+
+        // when
+        PurchaseGifticonResult result = purchaseGifticonService.purchase(command);
+
+        // then
+        assertThat(result.orderId()).isEqualTo(1L);
+        assertThat(result.orderNo()).isEqualTo("20260404000001");
+        verify(transactionHelper, times(2)).deductCashAndCreateOrder(
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+        );
+        verify(transactionHelper).commitSuccess(context, sendResult);
+    }
+
+    @Test
+    @DisplayName("trId 충돌이 3회 연속 발생하면 DuplicateGifticonOrderException이 전파된다")
+    void shouldPropagateExceptionWhenTrIdConflictOccursThreeTimes() {
+        // given
+        GifticonGoods goods = createExposedSaleGoods();
+        when(findGifticonGoodsPort.findByGoodsCode(GOODS_CODE)).thenReturn(Optional.of(goods));
+
+        when(transactionHelper.deductCashAndCreateOrder(
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+        )).thenThrow(new DuplicateGifticonOrderException("NC100_260404210000000000000"));
+
+        PurchaseGifticonCommand command = new PurchaseGifticonCommand(USER_ID, GOODS_CODE);
+
+        // when & then
+        assertThatThrownBy(() -> purchaseGifticonService.purchase(command))
+                .isInstanceOf(DuplicateGifticonOrderException.class);
+
+        verify(transactionHelper, times(3)).deductCashAndCreateOrder(
+                eq(USER_ID), eq(GOODS_CODE), any(), any(), any(), eq(5000L)
+        );
+        verify(sendGifticonCouponPort, never()).sendCoupon(any(), any(), any());
+        verify(transactionHelper, never()).commitSuccess(any(), any());
+        verify(transactionHelper, never()).commitFailure(any());
     }
 
     @Test
