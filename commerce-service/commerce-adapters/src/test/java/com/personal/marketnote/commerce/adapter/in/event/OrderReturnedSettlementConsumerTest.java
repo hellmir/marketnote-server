@@ -47,9 +47,13 @@ class OrderReturnedSettlementConsumerTest {
     private Acknowledgment acknowledgment;
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId) {
+        return buildRecord(orderId, null);
+    }
+
+    private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, String returnId) {
         OrderReturnedEvent event = new OrderReturnedEvent(
                 orderId, "order-key-1", 1L, 50000L, 50000L, 0L, 3000L,
-                true, 2500L, List.of(), null
+                true, 2500L, List.of(), returnId
         );
         EventEnvelope<OrderReturnedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "commerce.order.returned", "commerce-service",
@@ -178,6 +182,90 @@ class OrderReturnedSettlementConsumerTest {
         // then
         verifyNoInteractions(findPaymentAllocationPort, savePaymentAllocationPort);
         verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("returnId가 존재하면 idempotencyKey 포맷에 returnId가 포함된다")
+    @SuppressWarnings("unchecked")
+    void handleOrderReturnedEvent_withReturnId_includesReturnIdInIdempotencyKey() {
+        // given
+        Long orderId = 300L;
+        String returnId = "RET-20260418-001";
+        PaymentAllocation original = createOriginalAllocation(1L, orderId, 10L, 50000L, 3000L);
+        when(findPaymentAllocationPort.findByOrderId(orderId)).thenReturn(List.of(original));
+
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(orderId, returnId);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<List<PaymentAllocation>> captor = ArgumentCaptor.forClass(List.class);
+        verify(savePaymentAllocationPort).saveAll(captor.capture());
+        List<PaymentAllocation> returnAllocations = captor.getValue();
+
+        assertThat(returnAllocations).hasSize(1);
+        assertThat(returnAllocations.get(0).getIdempotencyKey().getValue())
+                .isEqualTo("ORDER_RETURN_ALLOCATION:300:10:RET-20260418-001");
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("returnId가 null이면 legacy 포맷(returnId 미포함)으로 idempotencyKey를 생성한다")
+    @SuppressWarnings("unchecked")
+    void handleOrderReturnedEvent_withoutReturnId_usesLegacyIdempotencyKey() {
+        // given
+        Long orderId = 400L;
+        PaymentAllocation original = createOriginalAllocation(1L, orderId, 10L, 50000L, 3000L);
+        when(findPaymentAllocationPort.findByOrderId(orderId)).thenReturn(List.of(original));
+
+        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(orderId, null);
+
+        // when
+        consumer.handleOrderReturnedEvent(record, acknowledgment);
+
+        // then
+        ArgumentCaptor<List<PaymentAllocation>> captor = ArgumentCaptor.forClass(List.class);
+        verify(savePaymentAllocationPort).saveAll(captor.capture());
+        List<PaymentAllocation> returnAllocations = captor.getValue();
+
+        assertThat(returnAllocations).hasSize(1);
+        assertThat(returnAllocations.get(0).getIdempotencyKey().getValue())
+                .isEqualTo("ORDER_RETURN_ALLOCATION:400:10");
+
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("동일 orderId/sellerId에 서로 다른 returnId로 2회 호출 시 각각 독립된 idempotencyKey를 생성한다")
+    @SuppressWarnings("unchecked")
+    void handleOrderReturnedEvent_partialReturnsSameSeller_generatesDistinctIdempotencyKeys() {
+        // given
+        Long orderId = 500L;
+        String firstReturnId = "RET-001";
+        String secondReturnId = "RET-002";
+        PaymentAllocation original = createOriginalAllocation(1L, orderId, 10L, 50000L, 3000L);
+        when(findPaymentAllocationPort.findByOrderId(orderId)).thenReturn(List.of(original));
+
+        ConsumerRecord<String, EventEnvelope<?>> firstRecord = buildRecord(orderId, firstReturnId);
+        ConsumerRecord<String, EventEnvelope<?>> secondRecord = buildRecord(orderId, secondReturnId);
+
+        // when
+        consumer.handleOrderReturnedEvent(firstRecord, acknowledgment);
+        consumer.handleOrderReturnedEvent(secondRecord, acknowledgment);
+
+        // then
+        ArgumentCaptor<List<PaymentAllocation>> captor = ArgumentCaptor.forClass(List.class);
+        verify(savePaymentAllocationPort, times(2)).saveAll(captor.capture());
+        List<List<PaymentAllocation>> allSaves = captor.getAllValues();
+
+        assertThat(allSaves.get(0).get(0).getIdempotencyKey().getValue())
+                .isEqualTo("ORDER_RETURN_ALLOCATION:500:10:RET-001");
+        assertThat(allSaves.get(1).get(0).getIdempotencyKey().getValue())
+                .isEqualTo("ORDER_RETURN_ALLOCATION:500:10:RET-002");
+
+        verify(acknowledgment, times(2)).acknowledge();
     }
 
     @Test
