@@ -12,6 +12,7 @@ public record ReturnCompletedSagaPayload(
         Long shippingFee,
         boolean isFullReturn,
         Long returnShippingFee,
-        List<SagaOrderProductItem> returnProducts
+        List<SagaOrderProductItem> returnProducts,
+        String returnId
 ) {
 }

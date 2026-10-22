@@ -165,7 +165,8 @@ public class OrderReturnSagaDefinition implements SagaDefinition<OrderReturnSaga
                 entry("shippingFee", context.shippingFee()),
                 entry("isFullReturn", context.isFullReturn()),
                 entry("returnShippingFee", context.returnShippingFee()),
-                entry("returnProducts", context.returnProducts())
+                entry("returnProducts", context.returnProducts()),
+                entry("returnId", context.returnId())
         ));
     }
 
