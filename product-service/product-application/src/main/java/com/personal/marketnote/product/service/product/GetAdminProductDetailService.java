@@ -4,13 +4,12 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.port.in.result.fulfillment.FulfillmentVendorGoodsElementInfoResult;
 import com.personal.marketnote.product.port.in.result.fulfillment.FulfillmentVendorGoodsInfoResult;
-import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsElementsResult;
 import com.personal.marketnote.product.port.in.result.fulfillment.GetFulfillmentVendorGoodsResult;
 import com.personal.marketnote.product.port.in.result.product.GetAdminProductDetailResult;
 import com.personal.marketnote.product.port.in.result.product.GetProductInfoWithOptionsResult;
 import com.personal.marketnote.product.port.in.usecase.product.GetAdminProductDetailUseCase;
 import com.personal.marketnote.product.port.in.usecase.product.GetProductUseCase;
-import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsElementsPort;
+import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsElementPort;
 import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,7 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
 
     private final GetProductUseCase getProductUseCase;
     private final GetFulfillmentVendorGoodsPort getFulfillmentVendorGoodsPort;
-    private final GetFulfillmentVendorGoodsElementsPort getFulfillmentVendorGoodsElementsPort;
+    private final GetFulfillmentVendorGoodsElementPort getFulfillmentVendorGoodsElementPort;
 
     @Override
     public GetAdminProductDetailResult getAdminProductDetail(Long id, List<Long> selectedOptionIds) {
@@ -40,11 +39,9 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
 
         GetFulfillmentVendorGoodsResult goodsResult =
                 getFulfillmentVendorGoodsPort.getFulfillmentVendorGoods(String.valueOf(id));
-        GetFulfillmentVendorGoodsElementsResult elementsResult =
-                getFulfillmentVendorGoodsElementsPort.getFulfillmentVendorGoodsElements();
-
         FulfillmentVendorGoodsInfoResult goodsInfo = resolveGoodsInfo(id, goodsResult);
-        FulfillmentVendorGoodsElementInfoResult elementInfo = resolveElementInfo(id, elementsResult);
+
+        FulfillmentVendorGoodsElementInfoResult elementInfo = resolveElementInfo(id);
 
         return GetAdminProductDetailResult.of(productInfo, goodsInfo, elementInfo);
     }
@@ -60,15 +57,12 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
         return goodsByCstGodCd.get(String.valueOf(id));
     }
 
-    private FulfillmentVendorGoodsElementInfoResult resolveElementInfo(
-            Long id,
-            GetFulfillmentVendorGoodsElementsResult elementsResult
-    ) {
+    private FulfillmentVendorGoodsElementInfoResult resolveElementInfo(Long id) {
         if (FormatValidator.hasNoValue(id)) {
             return null;
         }
-        Map<String, FulfillmentVendorGoodsElementInfoResult> elementsByCstGodCd = mapElementsByCstGodCd(elementsResult);
-        return elementsByCstGodCd.get(String.valueOf(id));
+        return getFulfillmentVendorGoodsElementPort.getFulfillmentVendorGoodsElement(String.valueOf(id))
+                .orElse(null);
     }
 
     private Map<String, FulfillmentVendorGoodsInfoResult> mapGoodsByCstGodCd(
@@ -87,23 +81,5 @@ public class GetAdminProductDetailService implements GetAdminProductDetailUseCas
             goodsByCstGodCd.putIfAbsent(item.customerGoodsCode(), item);
         }
         return goodsByCstGodCd;
-    }
-
-    private Map<String, FulfillmentVendorGoodsElementInfoResult> mapElementsByCstGodCd(
-            GetFulfillmentVendorGoodsElementsResult elementsResult
-    ) {
-        if (FormatValidator.hasNoValue(elementsResult)
-                || FormatValidator.hasNoValue(elementsResult.elements())) {
-            return Map.of();
-        }
-
-        Map<String, FulfillmentVendorGoodsElementInfoResult> elementsByCstGodCd = new HashMap<>();
-        for (FulfillmentVendorGoodsElementInfoResult element : elementsResult.elements()) {
-            if (FormatValidator.hasNoValue(element) || FormatValidator.hasNoValue(element.customerGoodsCode())) {
-                continue;
-            }
-            elementsByCstGodCd.putIfAbsent(element.customerGoodsCode(), element);
-        }
-        return elementsByCstGodCd;
     }
 }

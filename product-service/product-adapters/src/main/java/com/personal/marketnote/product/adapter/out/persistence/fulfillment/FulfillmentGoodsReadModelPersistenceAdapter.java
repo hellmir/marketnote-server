@@ -1,13 +1,14 @@
 package com.personal.marketnote.product.adapter.out.persistence.fulfillment;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.kafka.event.FulfillmentGoodsSyncedEvent;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.persistence.fulfillment.entity.FulfillmentGoodsElementReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.fulfillment.entity.FulfillmentGoodsReadModelJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.fulfillment.repository.FulfillmentGoodsReadModelJpaRepository;
 import com.personal.marketnote.product.port.in.result.fulfillment.*;
-import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsElementsPort;
+import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsElementPort;
 import com.personal.marketnote.product.port.out.fulfillment.GetFulfillmentVendorGoodsPort;
 import com.personal.marketnote.product.port.out.fulfillment.SaveFulfillmentGoodsReadModelPort;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 public class FulfillmentGoodsReadModelPersistenceAdapter implements
         SaveFulfillmentGoodsReadModelPort,
         GetFulfillmentVendorGoodsPort,
-        GetFulfillmentVendorGoodsElementsPort {
+        GetFulfillmentVendorGoodsElementPort {
 
     private final FulfillmentGoodsReadModelJpaRepository repository;
 
@@ -73,17 +74,9 @@ public class FulfillmentGoodsReadModelPersistenceAdapter implements
 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
-    public GetFulfillmentVendorGoodsElementsResult getFulfillmentVendorGoodsElements() {
-        List<FulfillmentGoodsReadModelJpaEntity> allGoods =
-                repository.findAll().stream()
-                        .filter(entity -> entity.getStatus().isActive())
-                        .toList();
-
-        List<FulfillmentVendorGoodsElementInfoResult> elements = allGoods.stream()
-                .map(this::mapToElementInfoResult)
-                .toList();
-
-        return GetFulfillmentVendorGoodsElementsResult.of(elements.size(), elements);
+    public Optional<FulfillmentVendorGoodsElementInfoResult> getFulfillmentVendorGoodsElement(String customerGoodsCode) {
+        return repository.findByCustomerGoodsCodeAndStatus(customerGoodsCode, EntityStatus.ACTIVE)
+                .map(this::mapToElementInfoResult);
     }
 
     private void updateEntity(FulfillmentGoodsReadModelJpaEntity entity, FulfillmentGoodsSyncedEvent event) {
