@@ -60,6 +60,7 @@ public class PaymentApprovedOrderStatusConsumer {
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
                     .id(payload.orderId())
                     .orderStatus(OrderStatus.PAID)
+                    .paidAmount(payload.paymentAmount())
                     .build();
             changeOrderStatusUseCase.changeOrderStatus(command);
 

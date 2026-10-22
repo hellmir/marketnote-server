@@ -58,7 +58,7 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "total_amount", nullable = false)
     private Long totalAmount;
 
-    @Column(name = "paid_amount")
+    @Column(name = "paid_amount", nullable = false)
     private Long paidAmount;
 
     @Column(name = "coupon_amount")
@@ -129,7 +129,7 @@ public class OrderJpaEntity extends BaseEntity {
                 .orderNumber(order.getOrderNumber().getValue())
                 .orderStatus(order.getOrderStatus())
                 .totalAmount(order.getAmount().getTotalAmount().getValue())
-                .paidAmount(order.getAmount().getPaidAmount())
+                .paidAmount(order.getAmount().getPaidAmount().getValue())
                 .couponAmount(order.getAmount().getCouponAmount().getValue())
                 .pointAmount(order.getAmount().getPointAmount().getValue())
                 .shippingFee(order.getAmount().getShippingFee().getValue())
@@ -164,7 +164,7 @@ public class OrderJpaEntity extends BaseEntity {
     public void updateFrom(Order order) {
         orderStatus = order.getOrderStatus();
         totalAmount = order.getAmount().getTotalAmount().getValue();
-        paidAmount = order.getAmount().getPaidAmount();
+        paidAmount = order.getAmount().getPaidAmount().getValue();
         couponAmount = order.getAmount().getCouponAmount().getValue();
         pointAmount = order.getAmount().getPointAmount().getValue();
         shippingFee = order.getAmount().getShippingFee().getValue();

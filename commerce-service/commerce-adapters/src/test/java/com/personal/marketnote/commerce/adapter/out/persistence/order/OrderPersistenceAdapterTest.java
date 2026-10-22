@@ -12,6 +12,7 @@ import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
+import com.personal.marketnote.common.domain.money.Money;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -167,7 +168,7 @@ class OrderPersistenceAdapterTest {
             assertThat(saved.getOrderNumber()).isNotNull();
             assertThat(saved.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
             assertThat(saved.getAmount().getTotalAmount().getValue()).isEqualTo(50000L);
-            assertThat(saved.getAmount().getPaidAmount()).isEqualTo(45000L);
+            assertThat(saved.getAmount().getPaidAmount()).isEqualTo(Money.of(45000L));
             assertThat(saved.getOrderProducts()).hasSize(1);
         }
 

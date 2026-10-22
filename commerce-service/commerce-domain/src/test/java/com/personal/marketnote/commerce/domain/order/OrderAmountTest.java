@@ -22,7 +22,7 @@ class OrderAmountTest {
 
             // then
             assertThat(orderAmount.getTotalAmount()).isEqualTo(Money.of(50000L));
-            assertThat(orderAmount.getPaidAmount()).isEqualTo(45000L);
+            assertThat(orderAmount.getPaidAmount()).isEqualTo(Money.of(45000L));
             assertThat(orderAmount.getCouponAmount()).isEqualTo(Money.of(3000L));
             assertThat(orderAmount.getPointAmount()).isEqualTo(Money.of(2000L));
             assertThat(orderAmount.getShippingFee()).isEqualTo(Money.of(3000L));
@@ -36,7 +36,7 @@ class OrderAmountTest {
 
             // then
             assertThat(orderAmount.getTotalAmount()).isEqualTo(Money.of(50000L));
-            assertThat(orderAmount.getPaidAmount()).isNull();
+            assertThat(orderAmount.getPaidAmount()).isEqualTo(Money.zero());
             assertThat(orderAmount.getCouponAmount()).isEqualTo(Money.zero());
             assertThat(orderAmount.getPointAmount()).isEqualTo(Money.zero());
             assertThat(orderAmount.getShippingFee()).isEqualTo(Money.zero());

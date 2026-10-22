@@ -398,7 +398,7 @@ class GetOrderAndOrderProductsUseCaseTest {
             GetOrderResult result = getOrderService.getOrderAndOrderProducts(orderId);
 
             assertThat(result.totalAmount()).isEqualTo(0L);
-            assertThat(result.paidAmount()).isNull();
+            assertThat(result.paidAmount()).isEqualTo(0L);
             assertThat(result.couponAmount()).isEqualTo(0L);
             assertThat(result.pointAmount()).isEqualTo(0L);
         }

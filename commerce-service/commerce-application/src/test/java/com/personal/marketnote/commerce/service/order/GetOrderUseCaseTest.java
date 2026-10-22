@@ -236,7 +236,7 @@ class GetOrderUseCaseTest {
 
             Order result = getOrderService.getOrder(orderId);
 
-            assertThat(result.getAmount().getPaidAmount()).isEqualTo(paidAmount);
+            assertThat(result.getAmount().getPaidAmount()).isEqualTo(Money.of(paidAmount));
         }
 
         @Test

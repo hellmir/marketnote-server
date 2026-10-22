@@ -183,8 +183,8 @@ class CancelOrderUseCaseTest {
             assertThat(context.buyerId()).isEqualTo(buyerId);
             assertThat(context.isFullCancel()).isTrue();
             assertThat(context.originalStatus()).isEqualTo(OrderStatus.PAID.name());
-            assertThat(context.cancelAmount()).isEqualTo(order.getAmount().getPaidAmount());
-            assertThat(context.paymentAmount()).isEqualTo(order.getAmount().getPaidAmount());
+            assertThat(context.cancelAmount()).isEqualTo(order.getAmount().getPaidAmount().getValue());
+            assertThat(context.paymentAmount()).isEqualTo(order.getAmount().getPaidAmount().getValue());
             assertThat(context.alreadyRefunded()).isZero();
             assertThat(context.reasonCategory()).isEqualTo(OrderStatusReasonCategory.CANCEL_ORDER.name());
             assertThat(context.orderProducts()).hasSize(1);
