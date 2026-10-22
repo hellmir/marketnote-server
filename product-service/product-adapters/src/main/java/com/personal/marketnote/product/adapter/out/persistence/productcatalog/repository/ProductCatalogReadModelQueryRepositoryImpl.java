@@ -3,18 +3,26 @@ package com.personal.marketnote.product.adapter.out.persistence.productcatalog.r
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.ProductCatalogReadModelJpaEntity;
+import com.personal.marketnote.product.adapter.out.persistence.productcatalog.entity.QProductCatalogReadModelJpaEntity;
 import com.personal.marketnote.product.domain.product.ProductSearchTarget;
 import com.personal.marketnote.product.domain.product.ProductSortProperty;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalogReadModelQueryRepository {
 
-    private final EntityManager entityManager;
+    private static final QProductCatalogReadModelJpaEntity catalog =
+            QProductCatalogReadModelJpaEntity.productCatalogReadModelJpaEntity;
+
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public List<ProductCatalogReadModelJpaEntity> findCatalogItems(
@@ -27,68 +35,26 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
             ProductSearchTarget searchTarget,
             String searchKeyword
     ) {
-        String sortColumn = resolveSortColumn(sortProperty);
-        String direction = isAsc ? "ASC" : "DESC";
-        String comparator = isAsc ? ">" : "<";
-
         boolean hasExplicitCursor = FormatValidator.hasValue(cursor) && cursor > 0;
-        Object cursorSortValue = resolveCursorSortValue(cursor, sortColumn);
+        Object cursorSortValue = resolveCursorSortValue(cursor, sortProperty);
         if (hasExplicitCursor && FormatValidator.hasNoValue(cursorSortValue)) {
             // 커서 레코드가 삭제/비활성화되어 정렬 기준값을 복원할 수 없다.
             // 1페이지 재조회(무한 스크롤 중복 노출) 를 막기 위해 빈 결과를 반환한다.
             return List.of();
         }
-        boolean hasCursor = FormatValidator.hasValue(cursorSortValue);
 
-        StringBuilder jpql = new StringBuilder(
-                "SELECT p FROM ProductCatalogReadModelJpaEntity p WHERE p.status = :status "
-        );
-
-        if (FormatValidator.hasValue(categoryId)) {
-            jpql.append("AND p.primaryCategoryId = :categoryId ");
-        }
-
-        if (FormatValidator.hasValue(pricePolicyIds)) {
-            jpql.append("AND p.pricePolicyId IN :pricePolicyIds ");
-        }
-
-        if (FormatValidator.hasValue(searchKeyword) && FormatValidator.hasValue(searchTarget)) {
-            String searchColumn = resolveSearchColumn(searchTarget);
-            jpql.append("AND p.").append(searchColumn).append(" LIKE :searchKeyword ");
-        }
-
-        if (hasCursor) {
-            jpql.append("AND (p.").append(sortColumn).append(" ").append(comparator).append(" :cursorSortValue ")
-                    .append("OR (p.").append(sortColumn).append(" = :cursorSortValue ")
-                    .append("AND p.pricePolicyId ").append(comparator).append(" :cursor)) ");
-        }
-
-        jpql.append("ORDER BY p.").append(sortColumn).append(" ").append(direction);
-        jpql.append(", p.pricePolicyId ").append(direction);
-
-        TypedQuery<ProductCatalogReadModelJpaEntity> query =
-                entityManager.createQuery(jpql.toString(), ProductCatalogReadModelJpaEntity.class);
-        query.setParameter("status", EntityStatus.ACTIVE);
-
-        if (FormatValidator.hasValue(categoryId)) {
-            query.setParameter("categoryId", categoryId);
-        }
-
-        if (FormatValidator.hasValue(pricePolicyIds)) {
-            query.setParameter("pricePolicyIds", pricePolicyIds);
-        }
-
-        if (FormatValidator.hasValue(searchKeyword) && FormatValidator.hasValue(searchTarget)) {
-            query.setParameter("searchKeyword", "%" + searchKeyword + "%");
-        }
-
-        if (hasCursor) {
-            query.setParameter("cursorSortValue", cursorSortValue);
-            query.setParameter("cursor", cursor);
-        }
-
-        query.setMaxResults(pageSize);
-        return query.getResultList();
+        return queryFactory
+                .selectFrom(catalog)
+                .where(
+                        catalog.status.eq(EntityStatus.ACTIVE),
+                        categoryIdEq(categoryId),
+                        pricePolicyIdsIn(pricePolicyIds),
+                        searchKeywordLike(searchTarget, searchKeyword),
+                        cursorCondition(sortProperty, cursor, cursorSortValue, isAsc)
+                )
+                .orderBy(sortOrderSpecifiers(sortProperty, isAsc))
+                .limit(pageSize)
+                .fetch();
     }
 
     @Override
@@ -97,75 +63,130 @@ public class ProductCatalogReadModelQueryRepositoryImpl implements ProductCatalo
             ProductSearchTarget searchTarget,
             String searchKeyword
     ) {
-        StringBuilder jpql = new StringBuilder(
-                "SELECT COUNT(p) FROM ProductCatalogReadModelJpaEntity p WHERE p.status = :status "
-        );
-
-        if (FormatValidator.hasValue(categoryId)) {
-            jpql.append("AND p.primaryCategoryId = :categoryId ");
+        Long count = queryFactory
+                .select(catalog.count())
+                .from(catalog)
+                .where(
+                        catalog.status.eq(EntityStatus.ACTIVE),
+                        categoryIdEq(categoryId),
+                        searchKeywordLike(searchTarget, searchKeyword)
+                )
+                .fetchOne();
+        if (FormatValidator.hasNoValue(count)) {
+            return 0L;
         }
-
-        if (FormatValidator.hasValue(searchKeyword) && FormatValidator.hasValue(searchTarget)) {
-            String searchColumn = resolveSearchColumn(searchTarget);
-            jpql.append("AND p.").append(searchColumn).append(" LIKE :searchKeyword ");
-        }
-
-        TypedQuery<Long> query = entityManager.createQuery(jpql.toString(), Long.class);
-        query.setParameter("status", EntityStatus.ACTIVE);
-
-        if (FormatValidator.hasValue(categoryId)) {
-            query.setParameter("categoryId", categoryId);
-        }
-
-        if (FormatValidator.hasValue(searchKeyword) && FormatValidator.hasValue(searchTarget)) {
-            query.setParameter("searchKeyword", "%" + searchKeyword + "%");
-        }
-
-        return query.getSingleResult();
+        return count;
     }
 
-    private Object resolveCursorSortValue(Long cursor, String sortColumn) {
+    private BooleanExpression categoryIdEq(Long categoryId) {
+        if (FormatValidator.hasNoValue(categoryId)) {
+            return null;
+        }
+        return catalog.primaryCategoryId.eq(categoryId);
+    }
+
+    private BooleanExpression pricePolicyIdsIn(List<Long> pricePolicyIds) {
+        if (FormatValidator.hasNoValue(pricePolicyIds)) {
+            return null;
+        }
+        return catalog.pricePolicyId.in(pricePolicyIds);
+    }
+
+    private BooleanExpression searchKeywordLike(ProductSearchTarget searchTarget, String searchKeyword) {
+        if (FormatValidator.hasNoValue(searchKeyword) || FormatValidator.hasNoValue(searchTarget)) {
+            return null;
+        }
+        StringPath path = searchPath(searchTarget);
+        return path.like("%" + searchKeyword + "%");
+    }
+
+    private BooleanExpression cursorCondition(
+            ProductSortProperty sortProperty,
+            Long cursor,
+            Object cursorSortValue,
+            boolean isAsc
+    ) {
+        if (FormatValidator.hasNoValue(cursorSortValue)) {
+            return null;
+        }
+        return switch (sortProperty) {
+            case ORDER_NUM -> longCursor(catalog.orderNum, cursor, (Long) cursorSortValue, isAsc);
+            case POPULARITY -> longCursor(catalog.popularity, cursor, (Long) cursorSortValue, isAsc);
+            case ACCUMULATED_POINT -> longCursor(catalog.accumulatedPoint, cursor, (Long) cursorSortValue, isAsc);
+            case ACCUMULATED_POINT_RATE -> bigDecimalCursor(
+                    catalog.accumulatedPointRate, cursor, (BigDecimal) cursorSortValue, isAsc
+            );
+            case DISCOUNT_PRICE -> longCursor(catalog.discountPrice, cursor, (Long) cursorSortValue, isAsc);
+        };
+    }
+
+    private BooleanExpression longCursor(NumberPath<Long> sortPath, Long cursor, Long cursorSortValue, boolean isAsc) {
+        if (isAsc) {
+            return sortPath.gt(cursorSortValue)
+                    .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.gt(cursor)));
+        }
+        return sortPath.lt(cursorSortValue)
+                .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.lt(cursor)));
+    }
+
+    private BooleanExpression bigDecimalCursor(
+            NumberPath<BigDecimal> sortPath,
+            Long cursor,
+            BigDecimal cursorSortValue,
+            boolean isAsc
+    ) {
+        if (isAsc) {
+            return sortPath.gt(cursorSortValue)
+                    .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.gt(cursor)));
+        }
+        return sortPath.lt(cursorSortValue)
+                .or(sortPath.eq(cursorSortValue).and(catalog.pricePolicyId.lt(cursor)));
+    }
+
+    private OrderSpecifier<?>[] sortOrderSpecifiers(ProductSortProperty sortProperty, boolean isAsc) {
+        OrderSpecifier<?> primary = primaryOrderSpecifier(sortProperty, isAsc);
+        OrderSpecifier<Long> tieBreaker = isAsc ? catalog.pricePolicyId.asc() : catalog.pricePolicyId.desc();
+        return new OrderSpecifier<?>[]{primary, tieBreaker};
+    }
+
+    private OrderSpecifier<?> primaryOrderSpecifier(ProductSortProperty sortProperty, boolean isAsc) {
+        return switch (sortProperty) {
+            case ORDER_NUM -> isAsc ? catalog.orderNum.asc() : catalog.orderNum.desc();
+            case POPULARITY -> isAsc ? catalog.popularity.asc() : catalog.popularity.desc();
+            case ACCUMULATED_POINT -> isAsc ? catalog.accumulatedPoint.asc() : catalog.accumulatedPoint.desc();
+            case ACCUMULATED_POINT_RATE -> isAsc ? catalog.accumulatedPointRate.asc() : catalog.accumulatedPointRate.desc();
+            case DISCOUNT_PRICE -> isAsc ? catalog.discountPrice.asc() : catalog.discountPrice.desc();
+        };
+    }
+
+    private StringPath searchPath(ProductSearchTarget searchTarget) {
+        return switch (searchTarget) {
+            case NAME -> catalog.name;
+            case BRAND_NAME -> catalog.brandName;
+        };
+    }
+
+    private Object resolveCursorSortValue(Long cursor, ProductSortProperty sortProperty) {
         if (FormatValidator.hasNoValue(cursor) || cursor <= 0) {
             return null;
         }
-        TypedQuery<ProductCatalogReadModelJpaEntity> cursorQuery = entityManager.createQuery(
-                "SELECT p FROM ProductCatalogReadModelJpaEntity p WHERE p.pricePolicyId = :pricePolicyId",
-                ProductCatalogReadModelJpaEntity.class
-        );
-        cursorQuery.setParameter("pricePolicyId", cursor);
-        cursorQuery.setMaxResults(1);
-        List<ProductCatalogReadModelJpaEntity> rows = cursorQuery.getResultList();
-        if (FormatValidator.hasNoValue(rows)) {
+        ProductCatalogReadModelJpaEntity entity = queryFactory
+                .selectFrom(catalog)
+                .where(catalog.pricePolicyId.eq(cursor))
+                .fetchFirst();
+        if (FormatValidator.hasNoValue(entity)) {
             return null;
         }
-        return extractSortValue(rows.getFirst(), sortColumn);
+        return extractSortValue(entity, sortProperty);
     }
 
-    private Object extractSortValue(ProductCatalogReadModelJpaEntity entity, String sortColumn) {
-        return switch (sortColumn) {
-            case "orderNum" -> entity.getOrderNum();
-            case "popularity" -> entity.getPopularity();
-            case "accumulatedPoint" -> entity.getAccumulatedPoint();
-            case "accumulatedPointRate" -> entity.getAccumulatedPointRate();
-            case "discountPrice" -> entity.getDiscountPrice();
-            default -> 0L;
-        };
-    }
-
-    private String resolveSortColumn(ProductSortProperty sortProperty) {
+    private Object extractSortValue(ProductCatalogReadModelJpaEntity entity, ProductSortProperty sortProperty) {
         return switch (sortProperty) {
-            case ORDER_NUM -> "orderNum";
-            case POPULARITY -> "popularity";
-            case ACCUMULATED_POINT -> "accumulatedPoint";
-            case ACCUMULATED_POINT_RATE -> "accumulatedPointRate";
-            case DISCOUNT_PRICE -> "discountPrice";
-        };
-    }
-
-    private String resolveSearchColumn(ProductSearchTarget searchTarget) {
-        return switch (searchTarget) {
-            case NAME -> "name";
-            case BRAND_NAME -> "brandName";
+            case ORDER_NUM -> entity.getOrderNum();
+            case POPULARITY -> entity.getPopularity();
+            case ACCUMULATED_POINT -> entity.getAccumulatedPoint();
+            case ACCUMULATED_POINT_RATE -> entity.getAccumulatedPointRate();
+            case DISCOUNT_PRICE -> entity.getDiscountPrice();
         };
     }
 }
