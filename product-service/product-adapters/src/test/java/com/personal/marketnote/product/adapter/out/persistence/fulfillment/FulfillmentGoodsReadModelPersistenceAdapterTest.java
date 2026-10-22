@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -31,6 +32,9 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
 
     @Autowired
     private FulfillmentGoodsReadModelJpaRepository repository;
+
+    @Autowired
+    private TestEntityManager em;
 
     @BeforeEach
     void setUp() {
@@ -195,6 +199,29 @@ class FulfillmentGoodsReadModelPersistenceAdapterTest {
             // then
             assertThat(result).isPresent();
             assertThat(result.get().customerGoodsCode()).isEqualTo("CGC002");
+        }
+
+        @Test
+        @DisplayName("INACTIVE 상태인 customerGoodsCode는 빈 Optional을 반환한다")
+        void returnsEmptyWhenStatusIsInactive() {
+            // given
+            adapter.upsert(createEventWithElements("CGC001"));
+            em.getEntityManager()
+                    .createNativeQuery(
+                            "UPDATE fulfillment_goods_read_models SET status = 'INACTIVE' "
+                                    + "WHERE customer_goods_code = :code"
+                    )
+                    .setParameter("code", "CGC001")
+                    .executeUpdate();
+            em.flush();
+            em.clear();
+
+            // when
+            Optional<FulfillmentVendorGoodsElementInfoResult> result =
+                    adapter.getFulfillmentVendorGoodsElement("CGC001");
+
+            // then
+            assertThat(result).isEmpty();
         }
     }
 }
