@@ -74,7 +74,7 @@ public class AdminGifticonCategoryController {
     @UpdateGifticonCategoryApiDocs
     public ResponseEntity<BaseResponse<Void>> updateGifticonCategory(
             @PathVariable("categoryId") Long categoryId,
-            @RequestBody UpdateGifticonCategoryRequest request
+            @Valid @RequestBody UpdateGifticonCategoryRequest request
     ) {
         updateGifticonCategoryUseCase.updateGifticonCategory(request.toCommand(categoryId));
 
