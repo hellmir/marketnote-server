@@ -70,27 +70,6 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
             }
         }
 
-        if (FormatValidator.equals(sortProperty, PostSortProperty.IS_ANSWERED)) {
-            return mapToPostsWithReplies(
-                    postJpaRepository.findByBoardAndFiltersOrderByAnswered(
-                            board,
-                            category,
-                            targetGroupType,
-                            targetGroupId,
-                            cursor,
-                            isDesc,
-                            isPublicOnly,
-                            userIdFilter,
-                            isAnsweredOnly,
-                            searchInTitle,
-                            searchInContent,
-                            searchKeywordPattern,
-                            EntityStatus.ACTIVE,
-                            pageable
-                    )
-            );
-        }
-
         return mapToPostsWithReplies(
                 postJpaRepository.findByBoardAndFilters(
                         board,
@@ -106,7 +85,8 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
                         searchInContent,
                         searchKeywordPattern,
                         EntityStatus.ACTIVE,
-                        pageable
+                        pageable,
+                        sortProperty
                 )
         );
     }
@@ -131,19 +111,10 @@ public class PostPersistenceAdapter implements SavePostPort, FindPostPort, Updat
                 && FormatValidator.hasValue(filterValue)
                 && filterCategory.isAnsweredOnly(filterValue);
 
-        if (FormatValidator.equals(sortProperty, PostSortProperty.IS_ANSWERED)) {
-            return mapToPostsWithReplies(
-                    postJpaRepository.findByUserIdAndBoardOrderByAnswered(
-                            userId, board, cursor, isDesc, isAnsweredOnly, searchInTitle, searchInContent,
-                            searchKeywordPattern, EntityStatus.ACTIVE, pageable
-                    )
-            );
-        }
-
         return mapToPostsWithReplies(
                 postJpaRepository.findByUserIdAndBoard(
                         userId, board, cursor, isDesc, isAnsweredOnly, searchInTitle, searchInContent,
-                        searchKeywordPattern, EntityStatus.ACTIVE, pageable
+                        searchKeywordPattern, EntityStatus.ACTIVE, pageable, sortProperty
                 )
         );
     }

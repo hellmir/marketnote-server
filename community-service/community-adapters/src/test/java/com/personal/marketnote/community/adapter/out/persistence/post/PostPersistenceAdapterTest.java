@@ -114,7 +114,7 @@ class PostPersistenceAdapterTest {
         private final Pageable pageable = PageRequest.of(0, 20);
 
         @Test
-        @DisplayName("ID 정렬 시 기본 쿼리에 필터/검색 파라미터를 전달한다")
+        @DisplayName("ID 정렬 시 통합 쿼리에 필터/검색/sortProperty=ID를 전달한다")
         void delegatesToDefaultQueryForIdSort() {
             when(postJpaRepository.findByBoardAndFilters(
                     eq(Board.PRODUCT_INQUERY),
@@ -130,7 +130,8 @@ class PostPersistenceAdapterTest {
                     eq(false),
                     eq("%keyword%"),
                     eq(EntityStatus.ACTIVE),
-                    eq(pageable)
+                    eq(pageable),
+                    eq(PostSortProperty.ID)
             )).thenReturn(List.of(newPersistedEntity(1L, samplePost, "PRODUCT_QUESTION")));
             when(postJpaRepository.findRepliesByParentIds(anyList(), eq(EntityStatus.ACTIVE)))
                     .thenReturn(List.of());
@@ -155,11 +156,13 @@ class PostPersistenceAdapterTest {
         }
 
         @Test
-        @DisplayName("IS_ANSWERED 정렬 시 답변순 쿼리로 분기한다")
-        void branchesToAnsweredSortQuery() {
-            when(postJpaRepository.findByBoardAndFiltersOrderByAnswered(
+        @DisplayName("IS_ANSWERED 정렬 시 동일 통합 쿼리에 sortProperty=IS_ANSWERED를 그대로 전달한다")
+        void passesIsAnsweredSortPropertyThrough() {
+            ArgumentCaptor<PostSortProperty> sortCaptor = ArgumentCaptor.forClass(PostSortProperty.class);
+            when(postJpaRepository.findByBoardAndFilters(
                     any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any()
+                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(),
+                    sortCaptor.capture()
             )).thenReturn(List.of());
 
             Posts result = adapter.findPublicPosts(
@@ -179,10 +182,7 @@ class PostPersistenceAdapterTest {
             );
 
             assertThat(result.size()).isZero();
-            verify(postJpaRepository, never()).findByBoardAndFilters(
-                    any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any()
-            );
+            assertThat(sortCaptor.getValue()).isEqualTo(PostSortProperty.IS_ANSWERED);
         }
 
         @Test
@@ -192,7 +192,7 @@ class PostPersistenceAdapterTest {
             when(postJpaRepository.findByBoardAndFilters(
                     any(), any(), any(), any(), any(), anyBoolean(), any(),
                     filterUserIdCaptor.capture(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any()
+                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
@@ -221,7 +221,7 @@ class PostPersistenceAdapterTest {
             when(postJpaRepository.findByBoardAndFilters(
                     any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
                     isAnsweredCaptor.capture(),
-                    anyBoolean(), anyBoolean(), any(), any(), any()
+                    anyBoolean(), anyBoolean(), any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
@@ -251,7 +251,7 @@ class PostPersistenceAdapterTest {
                     any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
                     anyBoolean(), anyBoolean(), anyBoolean(),
                     patternCaptor.capture(),
-                    any(), any()
+                    any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
@@ -275,7 +275,7 @@ class PostPersistenceAdapterTest {
             when(postJpaRepository.findByBoardAndFilters(
                     any(), any(), any(), any(), any(), anyBoolean(), any(), any(), anyBoolean(),
                     inTitle.capture(), inContent.capture(),
-                    any(), any(), any()
+                    any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
@@ -301,7 +301,7 @@ class PostPersistenceAdapterTest {
             when(postJpaRepository.findByBoardAndFilters(
                     any(), any(), any(), any(), any(), anyBoolean(), any(), any(), anyBoolean(),
                     inTitle.capture(), inContent.capture(),
-                    any(), any(), any()
+                    any(), any(), any(), any()
             )).thenReturn(List.of());
 
             adapter.findPublicPosts(
@@ -327,7 +327,7 @@ class PostPersistenceAdapterTest {
 
             when(postJpaRepository.findByBoardAndFilters(
                     any(), any(), any(), any(), any(), anyBoolean(), any(), any(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any()
+                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(), any()
             )).thenReturn(List.of(parent));
             when(postJpaRepository.findRepliesByParentIds(List.of(1L), EntityStatus.ACTIVE))
                     .thenReturn(List.of(reply));
@@ -352,11 +352,13 @@ class PostPersistenceAdapterTest {
         private final Pageable pageable = PageRequest.of(0, 20);
 
         @Test
-        @DisplayName("IS_ANSWERED 정렬 시 유저 답변순 쿼리로 분기한다")
-        void branchesToUserAnsweredSortQuery() {
-            when(postJpaRepository.findByUserIdAndBoardOrderByAnswered(
+        @DisplayName("IS_ANSWERED 정렬 시 통합 쿼리에 sortProperty=IS_ANSWERED를 그대로 전달한다")
+        void passesUserIsAnsweredSortPropertyThrough() {
+            ArgumentCaptor<PostSortProperty> sortCaptor = ArgumentCaptor.forClass(PostSortProperty.class);
+            when(postJpaRepository.findByUserIdAndBoard(
                     eq(9L), eq(Board.PRODUCT_INQUERY), any(), anyBoolean(),
-                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any()
+                    anyBoolean(), anyBoolean(), anyBoolean(), any(), any(), any(),
+                    sortCaptor.capture()
             )).thenReturn(List.of());
 
             Posts result = adapter.findUserPosts(
@@ -367,20 +369,18 @@ class PostPersistenceAdapterTest {
             );
 
             assertThat(result.size()).isZero();
-            verify(postJpaRepository, never()).findByUserIdAndBoard(
-                    any(), any(), any(), anyBoolean(), anyBoolean(),
-                    anyBoolean(), anyBoolean(), any(), any(), any()
-            );
+            assertThat(sortCaptor.getValue()).isEqualTo(PostSortProperty.IS_ANSWERED);
         }
 
         @Test
-        @DisplayName("ID 정렬 시 유저 기본 쿼리에 필터 파라미터를 전달한다")
+        @DisplayName("ID 정렬 시 통합 쿼리에 필터 파라미터와 sortProperty=ID를 전달한다")
         void delegatesToUserDefaultQueryForIdSort() {
             ArgumentCaptor<Boolean> isAnsweredCaptor = ArgumentCaptor.forClass(Boolean.class);
             when(postJpaRepository.findByUserIdAndBoard(
                     eq(9L), eq(Board.PRODUCT_INQUERY), eq(null), eq(true),
                     isAnsweredCaptor.capture(),
-                    anyBoolean(), anyBoolean(), any(), any(), any()
+                    anyBoolean(), anyBoolean(), any(), any(), any(),
+                    eq(PostSortProperty.ID)
             )).thenReturn(List.of());
 
             adapter.findUserPosts(

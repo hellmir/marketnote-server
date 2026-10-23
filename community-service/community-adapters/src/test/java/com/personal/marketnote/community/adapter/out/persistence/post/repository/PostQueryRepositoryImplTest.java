@@ -7,6 +7,7 @@ import com.personal.marketnote.community.adapter.out.persistence.post.entity.Pos
 import com.personal.marketnote.community.domain.post.Board;
 import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.domain.post.PostCreateState;
+import com.personal.marketnote.community.domain.post.PostSortProperty;
 import com.personal.marketnote.community.domain.post.PostTargetGroupType;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +41,7 @@ class PostQueryRepositoryImplTest {
     private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 20);
 
     @Nested
-    @DisplayName("findByBoardAndFilters - 기본 커서 페이지네이션")
+    @DisplayName("findByBoardAndFilters - 기본 커서 페이지네이션 (sortProperty=ID)")
     class FindByBoardAndFilters {
 
         @Test
@@ -53,7 +54,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, third.getId(), true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results)
@@ -71,7 +73,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, first.getId(), false,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results)
@@ -88,7 +91,26 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
+            );
+
+            assertThat(results)
+                    .extracting(PostJpaEntity::getId)
+                    .containsExactly(second.getId(), first.getId());
+        }
+
+        @Test
+        @DisplayName("sortProperty가 null이어도 id 정렬 기본값으로 동작한다")
+        void returnsIdSortedWhenSortPropertyIsNull() {
+            PostJpaEntity first = saveParent(Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", false);
+            PostJpaEntity second = saveParent(Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", false);
+            flushAndClear();
+
+            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
+                    Board.PRODUCT_INQUERY, null, null, null, null, true,
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    null
             );
 
             assertThat(results)
@@ -105,11 +127,13 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> filtered = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
             List<PostJpaEntity> all = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(filtered).extracting(PostJpaEntity::getId).containsExactly(matched.getId());
@@ -130,7 +154,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, PostTargetGroupType.PRODUCT, 99L, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(matched.getId());
@@ -145,7 +170,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    true, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    true, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(publicPost.getId());
@@ -160,7 +186,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    false, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    false, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).hasSize(2);
@@ -175,7 +202,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, 10L, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, 10L, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(mine.getId());
@@ -190,7 +218,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.INACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.INACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(inactive.getId());
@@ -205,7 +234,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(parent.getId());
@@ -222,7 +252,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, false, "%키워드%", EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, false, "%키워드%", EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(titleMatched.getId());
@@ -239,7 +270,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, false, true, "%키워드%", EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, false, true, "%키워드%", EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(contentMatched.getId());
@@ -259,7 +291,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, "%키워드%", EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, "%키워드%", EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results)
@@ -276,7 +309,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).hasSize(2);
@@ -284,7 +318,7 @@ class PostQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findByUserIdAndBoard - 사용자 게시글 커서 페이지네이션")
+    @DisplayName("findByUserIdAndBoard - 사용자 게시글 커서 페이지네이션 (sortProperty=ID)")
     class FindByUserIdAndBoard {
 
         @Test
@@ -297,7 +331,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByUserIdAndBoard(
                     10L, Board.PRODUCT_INQUERY, third.getId(), true, false,
-                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results)
@@ -314,7 +349,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByUserIdAndBoard(
                     10L, Board.PRODUCT_INQUERY, null, true, false,
-                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).extracting(PostJpaEntity::getId).containsExactly(mine.getId());
@@ -322,7 +358,7 @@ class PostQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findByBoardAndFiltersOrderByAnswered - hasReply 기반 동적 정렬")
+    @DisplayName("findByBoardAndFilters - hasReply 기반 동적 정렬 (sortProperty=IS_ANSWERED)")
     class FindByBoardAndFiltersOrderByAnswered {
 
         @Test
@@ -334,9 +370,10 @@ class PostQueryRepositoryImplTest {
             PostJpaEntity hasReply2 = saveParent(Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", true);
             flushAndClear();
 
-            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFiltersOrderByAnswered(
+            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
@@ -353,9 +390,10 @@ class PostQueryRepositoryImplTest {
             PostJpaEntity hasReply2 = saveParent(Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", true);
             flushAndClear();
 
-            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFiltersOrderByAnswered(
+            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, false,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
@@ -365,7 +403,7 @@ class PostQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findByUserIdAndBoardOrderByAnswered - 사용자 게시글 hasReply 정렬")
+    @DisplayName("findByUserIdAndBoard - 사용자 게시글 hasReply 정렬 (sortProperty=IS_ANSWERED)")
     class FindByUserIdAndBoardOrderByAnswered {
 
         @Test
@@ -375,9 +413,10 @@ class PostQueryRepositoryImplTest {
             PostJpaEntity hasReply = saveParentWithUserIdAndHasReply(Board.PRODUCT_INQUERY, 10L);
             flushAndClear();
 
-            List<PostJpaEntity> results = postJpaRepository.findByUserIdAndBoardOrderByAnswered(
+            List<PostJpaEntity> results = postJpaRepository.findByUserIdAndBoard(
                     10L, Board.PRODUCT_INQUERY, null, true, false,
-                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
@@ -392,9 +431,10 @@ class PostQueryRepositoryImplTest {
             PostJpaEntity hasReply = saveParentWithUserIdAndHasReply(Board.PRODUCT_INQUERY, 10L);
             flushAndClear();
 
-            List<PostJpaEntity> results = postJpaRepository.findByUserIdAndBoardOrderByAnswered(
+            List<PostJpaEntity> results = postJpaRepository.findByUserIdAndBoard(
                     10L, Board.PRODUCT_INQUERY, null, false, false,
-                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
@@ -417,7 +457,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> list = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
             long count = postJpaRepository.countByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null,
@@ -458,7 +499,8 @@ class PostQueryRepositoryImplTest {
 
             List<PostJpaEntity> list = postJpaRepository.findByUserIdAndBoard(
                     10L, Board.PRODUCT_INQUERY, null, true, false,
-                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
             long count = postJpaRepository.countByUserIdAndBoard(
                     10L, Board.PRODUCT_INQUERY, false, true, true, null, EntityStatus.ACTIVE
