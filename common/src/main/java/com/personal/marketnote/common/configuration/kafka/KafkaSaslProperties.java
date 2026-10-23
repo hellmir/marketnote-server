@@ -74,7 +74,7 @@ public class KafkaSaslProperties {
         }
         String resourcePath = location.substring(CLASSPATH_PREFIX.length());
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath);
-        if (inputStream == null) {
+        if (FormatValidator.hasNoValue(inputStream)) {
             throw new KafkaSslTruststoreNotFoundException(location);
         }
         try (inputStream) {

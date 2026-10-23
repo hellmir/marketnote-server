@@ -2,6 +2,7 @@ package com.personal.marketnote.common.outbox.entity;
 
 import com.personal.marketnote.common.outbox.OutboxEventStatus;
 import com.personal.marketnote.common.outbox.exception.InvalidOutboxEventStatusTransitionException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -150,7 +151,7 @@ public class OutboxEventJpaEntity {
     }
 
     private static String truncate(String value, int maxLength) {
-        if (value == null || value.length() <= maxLength) {
+        if (FormatValidator.hasNoValue(value) || value.length() <= maxLength) {
             return value;
         }
         return value.substring(0, maxLength);
