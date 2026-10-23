@@ -11,6 +11,7 @@ import com.personal.marketnote.commerce.domain.ledger.LedgerTransactionType;
 import com.personal.marketnote.commerce.domain.ledger.TransactionType;
 import com.personal.marketnote.commerce.port.out.ledger.dto.AccountBalanceDto;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import({AuditConfig.class, LedgerQueryPersistenceAdapter.class, LedgerPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, LedgerQueryPersistenceAdapter.class, LedgerPersistenceAdapter.class})
 @DisplayName("LedgerQueryPersistenceAdapter 통합 테스트")
 class LedgerQueryPersistenceAdapterTest {
 

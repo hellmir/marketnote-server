@@ -7,6 +7,7 @@ import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationCreat
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import({AuditConfig.class, PaymentAllocationPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, PaymentAllocationPersistenceAdapter.class})
 @DisplayName("PaymentAllocationPersistenceAdapter 통합 테스트")
 class PaymentAllocationPersistenceAdapterTest {
 

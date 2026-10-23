@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCard;
 import com.personal.marketnote.commerce.domain.quickpayment.QuickPaymentCardCreateState;
 import com.personal.marketnote.commerce.exception.QuickPaymentCardNotFoundException;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import({AuditConfig.class, QuickPaymentCardPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, QuickPaymentCardPersistenceAdapter.class})
 @DisplayName("QuickPaymentCardPersistenceAdapter 통합 테스트")
 class QuickPaymentCardPersistenceAdapterTest {
 

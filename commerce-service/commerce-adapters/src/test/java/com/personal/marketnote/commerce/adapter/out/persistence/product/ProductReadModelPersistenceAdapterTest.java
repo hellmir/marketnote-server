@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.product.entity.P
 import com.personal.marketnote.commerce.adapter.out.persistence.product.repository.ProductReadModelJpaRepository;
 import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, ProductReadModelPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, ProductReadModelPersistenceAdapter.class})
 @DisplayName("ProductReadModelPersistenceAdapter 테스트")
 class ProductReadModelPersistenceAdapterTest {
 

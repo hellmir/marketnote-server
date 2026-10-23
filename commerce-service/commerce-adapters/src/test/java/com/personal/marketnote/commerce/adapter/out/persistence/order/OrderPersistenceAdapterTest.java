@@ -7,10 +7,12 @@ import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.Ord
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderHistoryJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderJpaRepository;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderProductJpaRepository;
+import com.personal.marketnote.commerce.adapter.out.persistence.order.repository.OrderQueryRepositoryImpl;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.domain.money.Money;
 import jakarta.persistence.EntityManager;
@@ -33,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, OrderPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, OrderQueryRepositoryImpl.class, OrderPersistenceAdapter.class})
 @DisplayName("OrderPersistenceAdapter 통합 테스트")
 class OrderPersistenceAdapterTest {
 

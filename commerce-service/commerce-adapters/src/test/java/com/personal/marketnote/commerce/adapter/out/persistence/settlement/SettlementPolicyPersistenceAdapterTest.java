@@ -6,6 +6,7 @@ import com.personal.marketnote.commerce.domain.settlement.SettlementCycle;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicy;
 import com.personal.marketnote.commerce.domain.settlement.SettlementPolicyCreateState;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import({AuditConfig.class, SettlementPolicyPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, SettlementPolicyPersistenceAdapter.class})
 @DisplayName("SettlementPolicyPersistenceAdapter 통합 테스트")
 class SettlementPolicyPersistenceAdapterTest {
 

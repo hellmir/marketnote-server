@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.inventory.InventoryReservation;
 import com.personal.marketnote.commerce.domain.inventory.InventoryReservationCreateState;
 import com.personal.marketnote.commerce.exception.DuplicateInventoryReservationException;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import({AuditConfig.class, InventoryReservationPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, InventoryReservationPersistenceAdapter.class})
 @DisplayName("InventoryReservationPersistenceAdapter 통합 테스트")
 class InventoryReservationPersistenceAdapterTest {
 

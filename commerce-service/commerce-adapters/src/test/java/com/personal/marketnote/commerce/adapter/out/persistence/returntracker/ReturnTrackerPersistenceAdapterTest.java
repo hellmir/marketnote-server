@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.returntracker.ReturnInspectionSta
 import com.personal.marketnote.commerce.domain.returntracker.ReturnTracker;
 import com.personal.marketnote.commerce.domain.returntracker.ReturnTrackerCreateState;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, ReturnTrackerPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, ReturnTrackerPersistenceAdapter.class})
 @DisplayName("ReturnTrackerPersistenceAdapter 통합 테스트")
 class ReturnTrackerPersistenceAdapterTest {
 

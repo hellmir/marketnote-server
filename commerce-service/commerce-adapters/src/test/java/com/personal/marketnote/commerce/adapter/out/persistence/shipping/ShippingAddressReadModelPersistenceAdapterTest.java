@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.shipping.reposit
 import com.personal.marketnote.commerce.exception.ShippingAddressNotFoundException;
 import com.personal.marketnote.commerce.port.out.result.user.ShippingAddressInfoResult;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, ShippingAddressReadModelPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, ShippingAddressReadModelPersistenceAdapter.class})
 @DisplayName("ShippingAddressReadModelPersistenceAdapter 테스트")
 class ShippingAddressReadModelPersistenceAdapterTest {
 
