@@ -56,6 +56,16 @@ public class FulfillmentInventorySyncedConsumer {
                     envelope.eventId(), payload.inventories().size()
             );
 
+            if (payload.inventories().size() > SyncFulfillmentVendorInventoryCommand.MAX_INVENTORIES_SIZE) {
+                log.warn(
+                        "풀필먼트 재고 동기화 이벤트 크기 상한 초과 (skip). eventId={}, inventoryCount={}, max={}",
+                        envelope.eventId(), payload.inventories().size(),
+                        SyncFulfillmentVendorInventoryCommand.MAX_INVENTORIES_SIZE
+                );
+                acknowledgment.acknowledge();
+                return;
+            }
+
             List<SyncFulfillmentVendorInventoryItemCommand> items = payload.inventories().stream()
                     .map(item -> SyncFulfillmentVendorInventoryItemCommand.of(item.productKey(), item.stock()))
                     .toList();

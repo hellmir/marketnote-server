@@ -31,7 +31,7 @@ import java.lang.annotation.*;
                 
                 | **키** | **타입** | **설명** | **필수 여부** | **예시** |
                 | --- | --- | --- | --- | --- |
-                | inventories | array | 풀필먼트 벤더 재고 목록 | Y | [ ... ] |
+                | inventories | array | 풀필먼트 벤더 재고 목록 (최대 1000건) | Y | [ ... ] |
                 | inventories.productKey | string(uuid) | 상품 키 (UUID) | Y | "3fa85f64-5717-4562-b3fc-2c963f66afa6" |
                 | inventories.stock | number | 재고 수량 | Y | 100 |
                 
