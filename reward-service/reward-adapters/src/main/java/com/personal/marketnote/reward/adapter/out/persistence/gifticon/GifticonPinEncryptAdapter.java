@@ -1,8 +1,11 @@
 package com.personal.marketnote.reward.adapter.out.persistence.gifticon;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.configuration.GifticonPinProperties;
 import com.personal.marketnote.reward.domain.exception.GifticonPinDecryptionFailedException;
+import com.personal.marketnote.reward.domain.exception.GifticonPinEncryptKeyNoValueException;
 import com.personal.marketnote.reward.domain.exception.GifticonPinEncryptionFailedException;
+import com.personal.marketnote.reward.domain.exception.InvalidGifticonPinEncryptKeyException;
 import com.personal.marketnote.reward.port.out.gifticon.DecryptGifticonPinPort;
 import com.personal.marketnote.reward.port.out.gifticon.EncryptGifticonPinPort;
 import lombok.extern.slf4j.Slf4j;
@@ -24,9 +27,19 @@ public class GifticonPinEncryptAdapter implements EncryptGifticonPinPort, Decryp
     private final SecureRandom secureRandom = new SecureRandom();
 
     public GifticonPinEncryptAdapter(GifticonPinProperties properties) {
-        this.keySpec = new SecretKeySpec(
-                properties.getEncryptKey().getBytes(StandardCharsets.UTF_8), "AES"
-        );
+        byte[] keyBytes = validateAndResolveKey(properties.getEncryptKey());
+        this.keySpec = new SecretKeySpec(keyBytes, "AES");
+    }
+
+    private static byte[] validateAndResolveKey(String encryptKey) {
+        if (FormatValidator.hasNoValue(encryptKey)) {
+            throw new GifticonPinEncryptKeyNoValueException();
+        }
+        byte[] keyBytes = encryptKey.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+            throw new InvalidGifticonPinEncryptKeyException(keyBytes.length);
+        }
+        return keyBytes;
     }
 
     @Override

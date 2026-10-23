@@ -20,7 +20,7 @@ public class SecurityPropertiesValidator {
 
     private static final Set<String> WEAK_DEFAULTS = Set.of(
             "dev-secret-change-me", "dev-hmac-secret-change-me",
-            "dev-pin-key-change-me",
+            "dev-pin-key-change-me", "dev-pin-key-change-me-0123456789",
             "dev-aligo-api-key-change-me", "dev-aligo-user-id-change-me",
             "abc", "def", "ghi",
             "change-me", "password", "root", "secret", "test",
