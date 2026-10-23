@@ -2,6 +2,7 @@ package com.personal.marketnote.common.adapter.in.ratelimit;
 
 import com.personal.marketnote.common.domain.exception.RateLimitExceededException;
 import com.personal.marketnote.common.utility.ElementExtractor;
+import com.personal.marketnote.common.utility.FormatValidator;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,7 +33,7 @@ public class RateLimitAspect {
     @Around("@annotation(rateLimited)")
     public Object checkRateLimit(ProceedingJoinPoint joinPoint, RateLimited rateLimited) throws Throwable {
         Long userId = extractUserId();
-        if (userId == null) {
+        if (FormatValidator.hasNoValue(userId)) {
             return joinPoint.proceed();
         }
 
@@ -40,7 +41,7 @@ public class RateLimitAspect {
 
         try {
             Long currentCount = redisTemplate.opsForValue().increment(redisKey);
-            if (currentCount == null) {
+            if (FormatValidator.hasNoValue(currentCount)) {
                 return joinPoint.proceed();
             }
 
@@ -64,7 +65,7 @@ public class RateLimitAspect {
 
     private Long extractUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
+        if (FormatValidator.hasNoValue(authentication)) {
             return null;
         }
 

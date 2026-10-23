@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.security.hmac;
 
 import com.personal.marketnote.common.security.hmac.exception.HmacSignatureGenerationFailedException;
+import com.personal.marketnote.common.utility.FormatValidator;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -27,7 +28,7 @@ public final class HmacSignatureGenerator {
     }
 
     public static boolean constantTimeEquals(String a, String b) {
-        if (a == null || b == null) {
+        if (FormatValidator.hasNoValue(a) || FormatValidator.hasNoValue(b)) {
             return false;
         }
         return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));

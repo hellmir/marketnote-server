@@ -134,7 +134,7 @@ public class SecurityPropertiesValidator {
     }
 
     private void validateAllowedAudiences(List<String> violations, String propertyName, List<String> values) {
-        if (values == null || values.isEmpty()) {
+        if (FormatValidator.hasNoValue(values)) {
             violations.add(propertyName + " 값이 설정되지 않았습니다.");
             return;
         }

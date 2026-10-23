@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.outbox;
 
 import com.personal.marketnote.common.outbox.exception.InvalidOutboxEventStatusTransitionException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 import java.time.Clock;
@@ -88,7 +89,7 @@ public class OutboxEvent {
     }
 
     private static String truncate(String value, int maxLength) {
-        if (value == null || value.length() <= maxLength) {
+        if (FormatValidator.hasNoValue(value) || value.length() <= maxLength) {
             return value;
         }
         return value.substring(0, maxLength);
