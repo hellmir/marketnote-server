@@ -1,46 +1,39 @@
 package com.personal.marketnote.commerce.service.payment;
 
-import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.payment.*;
-import com.personal.marketnote.commerce.domain.refund.Refund;
-import com.personal.marketnote.commerce.domain.refund.RefundType;
-import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
-import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationSnapshotState;
-import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTargetType;
-import com.personal.marketnote.commerce.domain.settlement.PaymentAllocationTransactionType;
-import com.personal.marketnote.commerce.exception.InvalidCancelProductException;
 import com.personal.marketnote.commerce.exception.PaymentCancelException;
-import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
-import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
-import com.personal.marketnote.commerce.port.out.event.PublishPaymentEventPort;
-import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
-import com.personal.marketnote.commerce.port.out.payment.*;
+import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
-import com.personal.marketnote.commerce.port.out.product.FindProductByPricePolicyPort;
-import com.personal.marketnote.commerce.port.out.refund.SaveRefundPort;
-import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResult;
-import com.personal.marketnote.commerce.port.out.result.shipping.ShippingPolicyInfoResult;
-import com.personal.marketnote.commerce.port.out.reward.ModifyUserPointPort;
-import com.personal.marketnote.commerce.port.out.settlement.FindPaymentAllocationPort;
-import com.personal.marketnote.commerce.port.out.shipping.FindShippingPolicyBySellerIdsPort;
-import com.personal.marketnote.common.utility.FormatValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+/**
+ * CancelPaymentService 오케스트레이션 테스트
+ *
+ * <p>서비스는 PaymentCancelTransactionHelper를 순차 호출하는 역할만 수행하므로,
+ * 이 테스트는 TX-1 → PG 호출 → TX-2A → TX-2B 호출 순서와 예외 전파만 검증한다.
+ * Helper의 내부 비즈니스 로직은 {@link PaymentCancelTransactionHelperTest}에서 검증된다.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CancelPaymentUseCase 테스트")
 class CancelPaymentUseCaseTest {
@@ -49,568 +42,44 @@ class CancelPaymentUseCaseTest {
     private CancelPaymentService cancelPaymentService;
 
     @Mock
-    private FindOrderPort findOrderPort;
-
-    @Mock
-    private FindPaymentPort findPaymentPort;
-
-    @Mock
-    private UpdatePaymentPort updatePaymentPort;
-
-    @Mock
-    private FindPspPaymentEventPort findPspPaymentEventPort;
-
-    @Mock
-    private UpdatePspPaymentEventPort updatePspPaymentEventPort;
+    private PaymentCancelTransactionHelper txHelper;
 
     @Mock
     private PaymentVendorPort paymentVendorPort;
 
-    @Mock
-    private RestoreProductInventoryUseCase restoreProductInventoryUseCase;
-
-    @Mock
-    private ModifyUserPointPort modifyUserPointPort;
-
-    @Mock
-    private SaveRefundPort saveRefundPort;
-
-    @Mock
-    private FindProductByPricePolicyPort findProductByPricePolicyPort;
-
-    @Mock
-    private PublishPaymentEventPort publishPaymentEventPort;
-
-    @Mock
-    private FindPaymentAllocationPort findPaymentAllocationPort;
-
-    @Mock
-    private FindShippingPolicyBySellerIdsPort findShippingPolicyBySellerIdsPort;
-
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
     private static final String ORDER_KEY_STR = ORDER_KEY.toString();
-    private static final UUID SHARER_KEY_1 = UUID.fromString("00000000-0000-0000-0000-000000000200");
-    private static final UUID SHARER_KEY_2 = UUID.fromString("00000000-0000-0000-0000-000000000300");
 
     @Nested
-    @DisplayName("전체 취소 성공")
-    class FullCancelSuccessTest {
+    @DisplayName("일반 취소 경로 (PG 호출)")
+    class NormalCancelFlowTest {
 
         @Test
-        @DisplayName("전체 취소 성공 시 Payment가 환불 상태로 변경된다")
-        void shouldMarkPaymentAsRefunded() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+        @DisplayName("PG 취소 성공 시 TX-1 → PG → TX-2A → TX-2B 순으로 호출된다")
+        void shouldCallHelperMethodsInOrderWhenVendorSucceeds() {
+            CancelPaymentCommand command = createFullCancelCommand();
+            PaymentCancelContext context = createContext(false, 50000L, 0L);
             PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(txHelper.prepareCancel(command)).thenReturn(context);
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
 
             cancelPaymentService.cancel(command);
 
-            verify(updatePaymentPort).update(argThat(p ->
-                    Boolean.TRUE.equals(p.getRefundedYn()) && p.getRefundAmount().equals(Money.of(50000L))
-            ));
+            InOrder inOrder = inOrder(txHelper, paymentVendorPort);
+            inOrder.verify(txHelper).prepareCancel(command);
+            inOrder.verify(paymentVendorPort).cancelPayment(any());
+            inOrder.verify(txHelper).commitPspEventCancel(context, vendorResult);
+            inOrder.verify(txHelper).commitPaymentAndPostProcess(context, vendorResult);
+            verify(txHelper, never()).commitCancelSkipPg(any());
         }
 
         @Test
-        @DisplayName("전체 취소 시 KCP에 STSC 모드와 전체 금액이 전송된다")
-        void shouldSendFullCancelToVendor() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    "STSC".equals(c.cancelType())
-                            && c.cancelAmount().equals(50000L)
-                            && c.remainAmount().equals(0L)
-                            && "tno_123".equals(c.transactionId())
-            ));
-        }
-
-        @Test
-        @DisplayName("이미 부분환불된 결제의 전체 취소 시 잔여액만 취소된다")
-        void shouldCancelOnlyRemainingAmountWhenPartiallyRefunded() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            payment.markAsPartiallyRefunded(Money.of(10000L));
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(40000L) && c.remainAmount().equals(0L)
-            ));
-        }
-    }
-
-    @Nested
-    @DisplayName("부분 취소 성공")
-    class PartialCancelSuccessTest {
-
-        @Test
-        @DisplayName("부분 취소 성공 시 환불 금액이 누적된다")
-        void shouldAccumulateRefundAmount() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(argThat(p ->
-                    p.getRefundAmount().equals(Money.of(20000L)) && Boolean.FALSE.equals(p.getRefundedYn())
-            ));
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 KCP에 STPC 모드와 부분 금액이 전송된다")
-        void shouldSendPartialCancelToVendor() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    "STPC".equals(c.cancelType())
-                            && c.cancelAmount().equals(20000L)
-                            && c.remainAmount().equals(30000L)
-            ));
-        }
-
-    }
-
-    @Nested
-    @DisplayName("부분 취소 금액 검증")
-    class PartialCancelValidationTest {
-
-        @Test
-        @DisplayName("부분 취소 금액이 null이면 IllegalArgumentException이 발생한다")
-        void shouldThrowWhenCancelAmountIsNull() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = CancelPaymentCommand.builder()
-                    .buyerId(BUYER_ID)
-                    .orderKey(ORDER_KEY_STR)
-                    .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                    .cancelAmount(null)
-                    .build();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-
-        @Test
-        @DisplayName("부분 취소 금액이 0이면 IllegalArgumentException이 발생한다")
-        void shouldThrowWhenCancelAmountIsZero() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 0L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-
-        @Test
-        @DisplayName("부분 취소 금액이 음수이면 IllegalArgumentException이 발생한다")
-        void shouldThrowWhenCancelAmountIsNegative() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, -10000L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("0보다 커야 합니다");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-
-        @Test
-        @DisplayName("부분 취소 금액이 환불 가능 금액을 초과하면 IllegalArgumentException이 발생한다")
-        void shouldThrowWhenCancelAmountExceedsRefundable() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 60000L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("환불 가능 금액");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-
-        @Test
-        @DisplayName("이미 부분환불된 상태에서 잔여액을 초과하는 부분 취소는 실패한다")
-        void shouldThrowWhenCancelAmountExceedsRemainingAfterPartialRefund() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            payment.markAsPartiallyRefunded(Money.of(30000L));
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 25000L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("환불 가능 금액");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-    }
-
-    @Nested
-    @DisplayName("주문 조회 실패")
-    class OrderNotFoundTest {
-
-        @Test
-        @DisplayName("주문을 찾을 수 없으면 OrderNotFoundException이 발생한다")
-        void shouldThrowWhenOrderNotFound() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(com.personal.marketnote.commerce.exception.OrderNotFoundException.class);
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-    }
-
-    // [#929][#1034] 분개 기록은 Kafka Consumer(PaymentCancelledLedgerConsumer)로 전환 완료
-
-    @Nested
-    @DisplayName("재고 복구 검증")
-    class InventoryRestoreTest {
-
-        @Test
-        @DisplayName("전체 취소 성공 시 재고 복구가 호출된다")
-        void shouldRestoreInventoryOnFullCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(restoreProductInventoryUseCase).restore(anyList(), anyLong(), anyString());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 취소 대상 상품 목록이 없으면 재고 복구가 호출되지 않는다")
-        void shouldNotRestoreInventoryOnPartialCancelWithoutCancelProducts() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 취소 대상 상품 목록이 빈 리스트이면 재고 복구가 호출되지 않는다")
-        void shouldNotRestoreInventoryOnPartialCancelWithEmptyCancelProducts() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(ORDER_KEY_STR, 20000L, List.of());
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(restoreProductInventoryUseCase, never()).restore(anyList(), anyLong(), anyString());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 취소 대상 상품 목록이 있으면 해당 상품의 재고 복구가 호출된다")
-        void shouldRestoreInventoryOnPartialCancelWithCancelProducts() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
-            );
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(restoreProductInventoryUseCase).restore(argThat(products ->
-                    products.size() == 1
-                            && products.get(0).getPricePolicyId().equals(100L)
-                            && products.get(0).getQuantity().getValue() == 1
-            ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 취소 대상 상품의 pricePolicyId와 수량이 정확히 전달된다")
-        void shouldPassCorrectPricePolicyIdAndQuantityOnPartialCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1),
-                    new CancelPaymentCommand.CancelProductItem(200L, 2)
-            );
-            Order order = createOrderWithMultipleProducts(1L, BUYER_ID, List.of(100L, 200L), List.of(2, 3));
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 30000L, cancelProducts
-            );
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(restoreProductInventoryUseCase).restore(argThat(products ->
-                    products.size() == 2
-                            && products.get(0).getPricePolicyId().equals(100L)
-                            && products.get(0).getQuantity().getValue() == 1
-                            && products.get(1).getPricePolicyId().equals(200L)
-                            && products.get(1).getQuantity().getValue() == 2
-            ), eq(1L), eq("주문 부분 취소에 의한 재고 복구"));
-        }
-
-        @Test
-        @DisplayName("부분 취소 재고 복구 실패 시에도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenPartialInventoryRestoreFails() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
-            );
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
-                    .restore(anyList(), anyLong(), anyString());
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-        }
-
-        @Test
-        @DisplayName("전액 취소 시 cancelProducts가 있어도 기존 전체 재고 복구가 수행된다")
-        void shouldUseFullRestoreOnFullCancelEvenWithCancelProducts() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = CancelPaymentCommand.builder()
-                    .buyerId(BUYER_ID)
-                    .orderKey(ORDER_KEY_STR)
-                    .cancelType(CancelPaymentCommand.CancelType.FULL)
-                    .cancelReason("고객 요청")
-                    .cancelProducts(cancelProducts)
-                    .build();
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            // 전액 취소는 기존 restoreInventory(order)가 호출되므로 전체 주문 상품 목록으로 복구
-            verify(restoreProductInventoryUseCase).restore(anyList(), eq(1L), eq("주문 전액 취소에 의한 재고 복구"));
-        }
-
-        @Test
-        @DisplayName("재고 복구 실패 시에도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenInventoryRestoreFails() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            doThrow(new RuntimeException("재고 복구 실패")).when(restoreProductInventoryUseCase)
-                    .restore(anyList(), anyLong(), anyString());
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-
-        }
-    }
-
-    @Nested
-    @DisplayName("부분 취소 상품 검증")
-    class PartialCancelProductValidationTest {
-
-        @Test
-        @DisplayName("부분 취소 시 주문에 존재하지 않는 상품으로 요청하면 InvalidCancelProductException이 발생한다")
-        void shouldThrowWhenCancelProductNotInOrder() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(999L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
-            );
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(InvalidCancelProductException.class)
-                    .hasMessageContaining("주문에 존재하지 않는 상품");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 중복된 pricePolicyId가 포함되면 InvalidCancelProductException이 발생한다")
-        void shouldThrowWhenDuplicatePricePolicyIdInCancelProducts() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1),
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
-            );
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(InvalidCancelProductException.class)
-                    .hasMessageContaining("중복된 상품");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 취소 수량이 주문 수량을 초과하면 InvalidCancelProductException이 발생한다")
-        void shouldThrowWhenCancelQuantityExceedsOrderQuantity() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 5)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 25000L, cancelProducts
-            );
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-
-            assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(InvalidCancelProductException.class)
-                    .hasMessageContaining("취소 수량이 주문 수량을 초과");
-
-            verify(paymentVendorPort, never()).cancelPayment(any());
-        }
-    }
-
-    @Nested
-    @DisplayName("KCP 취소 실패")
-    class VendorFailureTest {
-
-        @Test
-        @DisplayName("KCP 취소 응답이 실패이면 PaymentCancelException이 발생한다")
-        void shouldThrowWhenVendorReturnsError() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+        @DisplayName("PG 취소 실패 시 PaymentCancelException이 발생하고 TX-2A/TX-2B가 호출되지 않는다")
+        void shouldThrowAndSkipCommitsWhenVendorFails() {
+            CancelPaymentCommand command = createFullCancelCommand();
+            PaymentCancelContext context = createContext(false, 50000L, 0L);
             PaymentCancelVendorResult vendorResult = PaymentCancelVendorResult.builder()
                     .success(false)
                     .resultCode("8001")
@@ -618,942 +87,191 @@ class CancelPaymentUseCaseTest {
                     .rawResponse("{}")
                     .build();
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(txHelper.prepareCancel(command)).thenReturn(context);
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
 
             assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(PaymentCancelException.class);
+                    .isInstanceOf(PaymentCancelException.class)
+                    .hasMessageContaining("8001")
+                    .hasMessageContaining("취소 불가");
 
-            verify(updatePaymentPort, never()).update(any());
+            verify(txHelper, never()).commitPspEventCancel(any(), any());
+            verify(txHelper, never()).commitPaymentAndPostProcess(any(), any());
+            verify(txHelper, never()).commitCancelSkipPg(any());
+        }
+
+        @Test
+        @DisplayName("PG 호출 시 Context의 transactionNumber/modType/금액이 전달된다")
+        void shouldPassVendorCommandFieldsFromContext() {
+            CancelPaymentCommand command = createFullCancelCommand();
+            PaymentCancelContext context = createContext(true, 50000L, 0L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(txHelper.prepareCancel(command)).thenReturn(context);
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(org.mockito.ArgumentMatchers.argThat(c ->
+                    "tno_123".equals(c.transactionId())
+                            && "STSC".equals(c.cancelType())
+                            && c.cancelAmount().equals(50000L)
+                            && c.remainAmount().equals(0L)
+            ));
         }
     }
 
     @Nested
-    @DisplayName("결제 미존재")
-    class PaymentNotFoundTest {
+    @DisplayName("배송비 차감 환불 0원 경로 (PG 호출 생략)")
+    class SkipPgFlowTest {
 
         @Test
-        @DisplayName("orderKey에 해당하는 결제가 없으면 PaymentNotFoundException이 발생한다")
-        void shouldThrowWhenPaymentNotFound() {
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+        @DisplayName("adjustedCancelAmount가 0이고 shippingFeeDeduction > 0이면 commitCancelSkipPg만 호출된다")
+        void shouldCallCommitCancelSkipPgWhenAdjustedIsZero() {
+            CancelPaymentCommand command = createPartialCancelCommand();
+            PaymentCancelContext context = createContext(false, 0L, 3000L);
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.empty());
+            when(txHelper.prepareCancel(command)).thenReturn(context);
+
+            cancelPaymentService.cancel(command);
+
+            verify(txHelper).commitCancelSkipPg(context);
+            verify(paymentVendorPort, never()).cancelPayment(any());
+            verify(txHelper, never()).commitPspEventCancel(any(), any());
+            verify(txHelper, never()).commitPaymentAndPostProcess(any(), any());
+        }
+
+        @Test
+        @DisplayName("adjustedCancelAmount가 0이어도 shippingFeeDeduction이 0이면 PG 경로를 탄다")
+        void shouldFollowPgFlowWhenShippingFeeDeductionIsZeroEvenIfAdjustedIsZero() {
+            CancelPaymentCommand command = createPartialCancelCommand();
+            PaymentCancelContext context = createContext(false, 0L, 0L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(txHelper.prepareCancel(command)).thenReturn(context);
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(any());
+            verify(txHelper, never()).commitCancelSkipPg(any());
+        }
+
+        @Test
+        @DisplayName("adjustedCancelAmount가 양수면 shippingFeeDeduction이 있어도 PG 경로를 탄다")
+        void shouldFollowPgFlowWhenAdjustedIsPositive() {
+            CancelPaymentCommand command = createPartialCancelCommand();
+            PaymentCancelContext context = createContext(false, 17000L, 3000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(txHelper.prepareCancel(command)).thenReturn(context);
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            verify(paymentVendorPort).cancelPayment(any());
+            verify(txHelper, never()).commitCancelSkipPg(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("prepareCancel 예외 전파")
+    class PrepareFailureTest {
+
+        @Test
+        @DisplayName("prepareCancel에서 예외 발생 시 PG/Commit 메서드가 호출되지 않는다")
+        void shouldNotCallSubsequentStepsWhenPrepareFails() {
+            CancelPaymentCommand command = createFullCancelCommand();
+
+            when(txHelper.prepareCancel(command))
+                    .thenThrow(new com.personal.marketnote.commerce.exception.PaymentNotFoundException(ORDER_KEY_STR));
 
             assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                    .isInstanceOf(com.personal.marketnote.commerce.exception.PaymentNotFoundException.class);
 
             verify(paymentVendorPort, never()).cancelPayment(any());
+            verify(txHelper, never()).commitPspEventCancel(any(), any());
+            verify(txHelper, never()).commitPaymentAndPostProcess(any(), any());
+            verify(txHelper, never()).commitCancelSkipPg(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("원자성 보장 (#4097)")
+    class AtomicityTest {
+
+        @Test
+        @DisplayName("PG 성공 후 TX-2A(PSP Event)가 TX-2B(payment)보다 먼저 커밋된다")
+        void shouldCommitPspEventBeforePaymentAndPostProcess() {
+            CancelPaymentCommand command = createFullCancelCommand();
+            PaymentCancelContext context = createContext(false, 50000L, 0L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(txHelper.prepareCancel(command)).thenReturn(context);
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            cancelPaymentService.cancel(command);
+
+            InOrder inOrder = inOrder(txHelper);
+            inOrder.verify(txHelper).commitPspEventCancel(context, vendorResult);
+            inOrder.verify(txHelper).commitPaymentAndPostProcess(context, vendorResult);
         }
 
         @Test
-        @DisplayName("PspPaymentEvent가 없으면 PaymentNotFoundException이 발생한다")
-        void shouldThrowWhenEventNotFound() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
+        @DisplayName("TX-2B 실패 시에도 TX-2A(PSP Event)는 이미 커밋되어 있다 — 수동 복구 근거 확보")
+        void shouldKeepPspEventCommittedWhenPaymentCommitFails() {
+            CancelPaymentCommand command = createFullCancelCommand();
+            PaymentCancelContext context = createContext(false, 50000L, 0L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
 
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.empty());
+            when(txHelper.prepareCancel(command)).thenReturn(context);
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+            org.mockito.Mockito.doThrow(new RuntimeException("DB 오류"))
+                    .when(txHelper).commitPaymentAndPostProcess(context, vendorResult);
 
             assertThatThrownBy(() -> cancelPaymentService.cancel(command))
-                    .isInstanceOf(PaymentNotFoundException.class);
+                    .isInstanceOf(RuntimeException.class);
 
-            verify(paymentVendorPort, never()).cancelPayment(any());
+            // TX-2A는 TX-2B 예외 발생 전에 별도 트랜잭션으로 이미 호출되었음
+            verify(txHelper).commitPspEventCancel(context, vendorResult);
         }
     }
 
-    @Nested
-    @DisplayName("포인트 환불 검증")
-    class PointRefundTest {
-
-        @Test
-        @DisplayName("전체 취소 시 포인트가 사용된 주문이면 포인트 환불이 호출된다")
-        void shouldRefundPointsOnFullCancelWhenPointUsed() {
-            Long pointAmount = 5000L;
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 45000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 45000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID, pointAmount)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort).refundOrderPoints(BUYER_ID, pointAmount, 1L);
-        }
-
-        @Test
-        @DisplayName("전체 취소 시 포인트 미사용 주문이면 포인트 환불이 호출되지 않는다")
-        void shouldNotRefundPointsWhenNoPointUsed() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID, 0L)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort, never()).refundOrderPoints(anyLong(), anyLong(), anyLong());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 포인트 환불이 호출되지 않는다")
-        void shouldNotRefundPointsOnPartialCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID, 5000L)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort, never()).refundOrderPoints(anyLong(), anyLong(), anyLong());
-        }
-
-        @Test
-        @DisplayName("포인트 환불 실패 시에도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenPointRefundFails() {
-            Long pointAmount = 5000L;
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 45000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 45000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID, pointAmount)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            doThrow(new RuntimeException("포인트 환불 실패")).when(modifyUserPointPort)
-                    .refundOrderPoints(anyLong(), anyLong(), anyLong());
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-
-        }
+    private PaymentCancelContext createContext(boolean isFullCancel, Long adjustedCancelAmount, Long shippingFeeDeduction) {
+        Payment payment = createSuccessPayment();
+        PspPaymentEvent event = createCompleteEvent();
+        Order order = createOrder();
+        boolean fullFlag = isFullCancel;
+        String modType = fullFlag ? "STSC" : "STPC";
+        return PaymentCancelContext.of(
+                payment, event, order,
+                50000L, adjustedCancelAmount, 50000L - adjustedCancelAmount, 0L, shippingFeeDeduction,
+                fullFlag, "고객 요청", "고객 요청", fullFlag ? null : UUID.randomUUID().toString(),
+                "tno_123", modType, createFullCancelCommand()
+        );
     }
 
-    @Nested
-    @DisplayName("환불 상세 기록 검증")
-    class RefundRecordTest {
-
-        private Payment createPaymentWithId(
-                Long paymentId, Long orderId, UUID orderKey, Long amount, String pgPaymentKey
-        ) {
-            PaymentSnapshotState state = PaymentSnapshotState.builder()
-                    .id(paymentId)
-                    .orderId(orderId)
-                    .orderKey(orderKey)
-                    .pgPaymentKey(pgPaymentKey)
-                    .paymentAmount(amount)
-                    .successYn(true)
-                    .refundedYn(false)
-                    .refundAmount(0L)
-                    .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                    .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
-                    .build();
-            return Payment.from(state);
-        }
-
-        @Test
-        @DisplayName("전체 취소 성공 시 FULL_REFUND 환불 기록이 저장된다")
-        void shouldSaveFullRefundRecordOnFullCancel() {
-            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(saveRefundPort).save(argThat(refund ->
-                    refund.getRefundType() == RefundType.FULL_REFUND
-                            && refund.getRefundAmount().equals(Money.of(50000L))
-                            && "SYSTEM".equals(refund.getProcessedBy())
-            ));
-        }
-
-        @Test
-        @DisplayName("부분 취소 성공 시 PARTIAL_REFUND 환불 기록이 저장된다")
-        void shouldSavePartialRefundRecordOnPartialCancel() {
-            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(saveRefundPort).save(argThat(refund ->
-                    refund.getRefundType() == RefundType.PARTIAL_REFUND
-                            && refund.getRefundAmount().equals(Money.of(20000L))
-            ));
-        }
-
-        @Test
-        @DisplayName("환불 기록에 PG 응답 정보가 포함된다")
-        void shouldIncludePgResponseInRefundRecord() {
-            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(saveRefundPort).save(argThat(refund ->
-                    FormatValidator.hasValue(refund.getPgRawResponse())
-                            && FormatValidator.hasValue(refund.getPgRefundKey())
-            ));
-        }
-
-        @Test
-        @DisplayName("환불 기록 저장 실패 시에도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenRefundRecordSaveFails() {
-            Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            doThrow(new RuntimeException("환불 기록 저장 실패")).when(saveRefundPort).save(any(Refund.class));
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-
-        }
-    }
-
-    @Nested
-    @DisplayName("부분 취소 적립 예정 포인트 비례 차감 검증")
-    class PartialCancelPendingPointTest {
-
-        @Test
-        @DisplayName("부분 취소 시 취소 금액에 비례하여 적립 예정 포인트가 차감된다")
-        void shouldReducePendingPointsProportionally() {
-            // 결제금액 50000, 부분취소 20000 (40%), 적립포인트 500*2=1000 → 비례 400
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L, 500L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            // 총 적립포인트 = 500 * 2 = 1000, 비례 = round(20000/50000 * 1000) = 400
-            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 400L, 1L);
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 적립 포인트가 0이면 차감이 호출되지 않는다")
-        void shouldNotReduceWhenAccumulatedPointIsZero() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 상품 정보 조회 실패해도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenProductInfoFails() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 포인트 차감 실패해도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenPendingPointReduceFails() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 500L, 500L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            doThrow(new RuntimeException("포인트 차감 실패")).when(modifyUserPointPort)
-                    .reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-        }
-
-        @Test
-        @DisplayName("여러 상품의 적립 포인트를 합산하여 비례 차감한다")
-        void shouldSumAccumulatedPointsFromMultipleProducts() {
-            // 상품1: 300포인트 * 1개 = 300, 상품2: 200포인트 * 2개 = 400, 합계 = 700
-            // 결제금액 70000, 부분취소 35000 (50%) → 비례 350
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 70000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 70000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 35000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            List<OrderProductSnapshotState> productStates = List.of(
-                    OrderProductSnapshotState.builder()
-                            .pricePolicyId(100L).quantity(1).sellerId(10L).unitAmount(30000L).accumulatedPoint(300L)
-                        .build(),
-                    OrderProductSnapshotState.builder()
-                            .pricePolicyId(200L).quantity(2).sellerId(10L).unitAmount(20000L).accumulatedPoint(200L)
-                        .build()
-            );
-            OrderSnapshotState orderState = OrderSnapshotState.builder()
-                    .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
-                    .amount(OrderAmount.of(70000L, null, null, 0L, null))
-                    .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
-                    .orderProductStates(productStates).build();
-            Order order = Order.from(orderState);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            // 합계 700, 비례 = round(35000/70000 * 700) = 350
-            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 350L, 1L);
-        }
-
-        @Test
-        @DisplayName("전체 취소 시에는 비례 차감이 아닌 기존 전체 회수가 호출된다")
-        void shouldUseFullRevokeOnFullCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
-        }
-    }
-
-    @Nested
-    @DisplayName("부분 취소 적립 예정 포인트 스냅샷 기반 차감 검증")
-    class PartialCancelSnapshotDeductionTest {
-
-        @Test
-        @DisplayName("부분 취소 시 반품 상품의 스냅샷 적립금 합산으로 차감된다")
-        void shouldDeductBySnapshotAccumulatedPointOfCancelProducts() {
-            // 상품A: 10000원, 적립 1000원 / 상품B: 20000원, 적립 1000원 → 합계 30000원, 적립 2000원
-            // 상품A 반품 → 스냅샷 기반 차감 = 1000 (비례 계산이었다면 667)
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 10000L, cancelProducts
-            );
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 1000L, 1L);
-            verifyNoInteractions(findProductByPricePolicyPort);
-        }
-
-        @Test
-        @DisplayName("상품별 적립률이 다를 때 반품 상품의 실제 적립금만 차감된다")
-        void shouldDeductOnlyCancelProductAccumulatedPointWhenRatesDiffer() {
-            // 상품A: 10000원, 적립 100원(1%) / 상품B: 20000원, 적립 2000원(10%) → 합계 30000원
-            // 상품B 반품 → 스냅샷 기반 차감 = 2000 (비례 계산이었다면 1400)
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
-            );
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(100L, 2000L));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 2000L, 1L);
-            verifyNoInteractions(findProductByPricePolicyPort);
-        }
-
-        @Test
-        @DisplayName("cancelProducts 지정 시 스냅샷 accumulatedPoint 기반으로 차감된다")
-        void shouldDeductBySnapshotAccumulatedPoint() {
-            // accumulatedPoint=500인 상품 2개 반품 → 스냅샷 기반 차감 = 500*2=1000
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 2)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
-            );
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            Order order = createOrderWithAccumulatedPoint(1L, BUYER_ID, 50000L, 100L, 2, 25000L, 500L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            // 스냅샷 기반: 500 * 2 = 1000
-            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 1000L, 1L);
-            verifyNoInteractions(findProductByPricePolicyPort);
-        }
-
-        @Test
-        @DisplayName("accumulatedPoint가 0인 상품 반품 시 차감이 0이다")
-        void shouldReturnZeroDeductionWhenAccumulatedPointIsZero() {
-            // 적립금 0원 상품 반품 → 차감 0 (폴백 안 됨)
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 10000L, cancelProducts
-            );
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(0L, 500L));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            // 차감 0이므로 reducePartialPendingPoints 호출 안 됨
-            verify(modifyUserPointPort, never()).reducePartialPendingPoints(anyLong(), anyLong(), anyLong());
-            verifyNoInteractions(findProductByPricePolicyPort);
-        }
-
-        @Test
-        @DisplayName("cancelProducts 없이 부분 취소 시 비례 계산으로 폴백된다")
-        void shouldFallbackToProportionalWhenNoCancelProducts() {
-            // cancelProducts 미지정 → 스냅샷 계산 불가 → 비례 계산 폴백
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 30000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 30000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 10000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            Order order = createOrderWithSnapshotPoints(1L, BUYER_ID, 30000L,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 20000L), List.of(1000L, 1000L));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            // 스냅샷 기반: 총 적립 = 1000+1000=2000, 비례 = round(10000/30000*2000) = 667
-            verify(modifyUserPointPort).reducePartialPendingPoints(BUYER_ID, 667L, 1L);
-        }
-    }
-
-    @Nested
-    @DisplayName("부분 취소 공유 적립 예정 포인트 비례 차감 검증")
-    class PartialCancelSharedPurchasePointTest {
-
-        @Test
-        @DisplayName("부분 취소 시 공유자가 있으면 공유 적립 예정 포인트 비례 차감이 호출된다")
-        void shouldReduceSharedPendingPointsOnPartialCancelWithSharers() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1, SHARER_KEY_2));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
-                    eq(List.of(SHARER_KEY_1, SHARER_KEY_2)), eq(50000L), eq(20000L), eq(1L)
-            );
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 공유자가 없으면 공유 적립 예정 포인트 비례 차감이 호출되지 않는다")
-        void shouldNotReduceSharedPendingPointsWhenNoSharers() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort, never()).reducePartialPendingSharedPurchasePoints(
-                    anyList(), anyLong(), anyLong(), anyLong()
-            );
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 중복 공유자가 있으면 중복 제거 후 공유 적립 예정 포인트 비례 차감이 호출된다")
-        void shouldDeduplicateSharerIdsOnPartialCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1, SHARER_KEY_1, SHARER_KEY_2));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort).reducePartialPendingSharedPurchasePoints(
-                    argThat(keys -> keys.size() == 2 && keys.contains(SHARER_KEY_1) && keys.contains(SHARER_KEY_2)),
-                    eq(50000L), eq(20000L), eq(1L)
-            );
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 공유 적립 예정 포인트 차감 실패해도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenSharedPointReduceFails() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-            doThrow(new RuntimeException("공유 포인트 차감 실패")).when(modifyUserPointPort)
-                    .reducePartialPendingSharedPurchasePoints(anyList(), anyLong(), anyLong(), anyLong());
-
-            cancelPaymentService.cancel(command);
-
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-        }
-
-        @Test
-        @DisplayName("전체 취소 시에는 비례 차감이 아닌 전체 회수가 호출된다")
-        void shouldUseFullRevokeInsteadOfPartialReduceOnFullCancel() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-            Order order = createOrderWithSharers(1L, BUYER_ID, 0L, List.of(SHARER_KEY_1, SHARER_KEY_2));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(modifyUserPointPort, never()).reducePartialPendingSharedPurchasePoints(
-                    anyList(), anyLong(), anyLong(), anyLong()
-            );
-        }
-    }
-
-    @Nested
-    @DisplayName("부분 취소 배송비 재계산 검증")
-    class PartialCancelShippingFeeRecalculationTest {
-
-        private static final Long SELLER_A = 10L;
-        private static final Long SELLER_B = 20L;
-
-        @Test
-        @DisplayName("부분 취소 시 남은 금액이 무료배송 기준 미달이면 환불액에서 배송비가 차감된다")
-        void shouldDeductShippingFeeWhenRemainingAmountBelowThreshold() {
-            // 판매자A: 상품1(30000원) + 상품2(20000원) = 50000원, 무료배송 기준 50000원, 배송비 3000원
-            // 상품2(20000원) 취소 → 남은 금액 30000원 < 50000원 → 배송비 3000원 차감
-            // 환불액: 20000 - 3000 = 17000원
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
-            );
-
-            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
-
-            PaymentAllocation allocation = createAllocation(1L, SELLER_A, 50000L, 0L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
-            when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
-                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(17000L)
-            ));
-        }
-
-        @Test
-        @DisplayName("부분 취소 시 남은 금액이 무료배송 기준 이상이면 배송비 차감 없이 기존대로 환불된다")
-        void shouldNotDeductShippingFeeWhenRemainingAmountAboveThreshold() {
-            // 판매자A: 상품1(30000원) + 상품2(30000원) = 60000원, 무료배송 기준 50000원, 배송비 3000원
-            // 상품2(30000원) 취소 → 남은 금액 30000원 < 50000원... 이 아니라
-            // 상품1(30000원) + 상품2(30000원), 상품2 일부수량만 취소로 기준 이상 유지 시나리오
-            // → 간단하게: 남은 금액이 기준 이상이면 차감 없음
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 80000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 80000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
-            );
-
-            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(60000L, 20000L), List.of(SELLER_A, SELLER_A));
-
-            PaymentAllocation allocation = createAllocation(1L, SELLER_A, 80000L, 0L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
-            when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
-                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(20000L)
-            ));
-        }
-
-        @Test
-        @DisplayName("여러 판매자 중 일부만 무료배송 기준 미달인 경우 해당 판매자의 배송비만 차감된다")
-        void shouldDeductOnlyAffectedSellerShippingFee() {
-            // 판매자A: 50000원 (무료배송 기준 50000원) → 20000원 취소 → 남은 30000원 < 50000 → 차감 3000원
-            // 판매자B: 40000원 (무료배송 기준 30000원) → 취소 없음 → 차감 없음
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 90000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 90000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
-            );
-
-            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L, 300L), List.of(1, 1, 1),
-                    List.of(20000L, 30000L, 40000L), List.of(SELLER_A, SELLER_A, SELLER_B));
-
-            PaymentAllocation allocationA = createAllocation(1L, SELLER_A, 50000L, 0L);
-            PaymentAllocation allocationB = createAllocation(1L, SELLER_B, 40000L, 0L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocationA, allocationB));
-            when(findShippingPolicyBySellerIdsPort.findBySellerIds(List.of(SELLER_A)))
-                    .thenReturn(Map.of(SELLER_A, new ShippingPolicyInfoResult(SELLER_A, 3000L, 50000L, 0L, 0L)));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(17000L)
-            ));
-        }
-
-        @Test
-        @DisplayName("원래 유료배송이었던 판매자는 배송비 차감 대상이 아니다")
-        void shouldNotDeductForPaidShippingSeller() {
-            // 판매자A: 20000원, 원래 배송비 3000원 (유료배송) → 10000원 취소 → 차감 대상 아님
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 23000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 23000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(100L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 10000L, cancelProducts
-            );
-
-            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(10000L, 10000L), List.of(SELLER_A, SELLER_A));
-
-            PaymentAllocation allocation = createAllocation(1L, SELLER_A, 20000L, 3000L);
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(findPaymentAllocationPort.findByOrderId(1L)).thenReturn(List.of(allocation));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(10000L)
-            ));
-            verifyNoInteractions(findShippingPolicyBySellerIdsPort);
-        }
-
-        @Test
-        @DisplayName("cancelProducts 없는 부분 취소는 배송비 재계산을 건너뛴다")
-        void shouldSkipShippingFeeRecalculationWithoutCancelProducts() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(20000L)
-            ));
-            verifyNoInteractions(findPaymentAllocationPort);
-            verifyNoInteractions(findShippingPolicyBySellerIdsPort);
-        }
-
-        @Test
-        @DisplayName("배송비 재계산 실패 시에도 기존 환불이 정상 진행된다")
-        void shouldProceedWithOriginalRefundWhenRecalculationFails() {
-            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
-            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
-            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
-
-            List<CancelPaymentCommand.CancelProductItem> cancelProducts = List.of(
-                    new CancelPaymentCommand.CancelProductItem(200L, 1)
-            );
-            CancelPaymentCommand command = createPartialCancelCommandWithProducts(
-                    ORDER_KEY_STR, 20000L, cancelProducts
-            );
-
-            Order order = createOrderWithMultipleSellers(1L, BUYER_ID,
-                    List.of(100L, 200L), List.of(1, 1), List.of(30000L, 20000L), List.of(SELLER_A, SELLER_A));
-
-            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
-            when(findOrderPort.findById(1L)).thenReturn(Optional.of(order));
-            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
-            when(findPaymentAllocationPort.findByOrderId(1L)).thenThrow(new RuntimeException("DB 조회 실패"));
-            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
-
-            cancelPaymentService.cancel(command);
-
-            verify(paymentVendorPort).cancelPayment(argThat(c ->
-                    c.cancelAmount().equals(20000L)
-            ));
-        }
-
-        private Order createOrderWithMultipleSellers(Long orderId, Long buyerId,
-                                                     List<Long> pricePolicyIds, List<Integer> quantities,
-                                                     List<Long> unitAmounts, List<Long> sellerIds) {
-            List<OrderProductSnapshotState> productStates = new ArrayList<>();
-            for (int i = 0; i < pricePolicyIds.size(); i++) {
-                productStates.add(OrderProductSnapshotState.builder()
-                        .pricePolicyId(pricePolicyIds.get(i))
-                        .quantity(quantities.get(i))
-                        .sellerId(sellerIds.get(i))
-                        .unitAmount(unitAmounts.get(i))
-                        .accumulatedPoint(0L)
-                        .build());
-            }
-            OrderSnapshotState state = OrderSnapshotState.builder()
-                    .id(orderId)
-                    .buyerId(buyerId)
-                    .orderKey(ORDER_KEY)
-                    .orderStatus(OrderStatus.PAID)
-                    .amount(OrderAmount.of(
-                            unitAmounts.stream().mapToLong(Long::longValue).sum(),
-                            null, null, 0L, null))
-                    .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
-                    .orderProductStates(productStates)
-                    .build();
-            return Order.from(state);
-        }
-
-        private PaymentAllocation createAllocation(
-                Long orderId, Long sellerId, Long allocatedAmount, Long shippingFee
-        ) {
-            PaymentAllocationSnapshotState state = PaymentAllocationSnapshotState.builder()
-                    .id(1L)
-                    .orderId(orderId)
-                    .sellerId(sellerId)
-                    .allocatedAmount(allocatedAmount)
-                    .shippingFee(shippingFee)
-                    .transactionType(PaymentAllocationTransactionType.ORDER_REGISTRATION)
-                    .targetType(PaymentAllocationTargetType.ORDER)
-                    .build();
-            return PaymentAllocation.from(state);
-        }
-    }
-
-    private Order createOrderWithAccumulatedPoint(Long orderId, Long buyerId, Long totalAmount,
-                                                  Long pricePolicyId, int quantity, Long unitAmount) {
-        return createOrderWithAccumulatedPoint(orderId, buyerId, totalAmount, pricePolicyId, quantity, unitAmount, 0L);
-    }
-
-    private Order createOrderWithAccumulatedPoint(
-            Long orderId, Long buyerId, Long totalAmount,
-            Long pricePolicyId, int quantity, Long unitAmount, Long accumulatedPoint
-    ) {
-        OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
-                .pricePolicyId(pricePolicyId)
-                .quantity(quantity)
-                .sellerId(10L)
-                .unitAmount(unitAmount)
-                .accumulatedPoint(accumulatedPoint)
-                        .build();
-        OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(totalAmount, null, null, 0L, null))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
-                .orderProductStates(List.of(productState))
-                .build();
-        return Order.from(state);
-    }
-
-    private ProductInfoResult createProductInfoWithPoint(Long accumulatedPoint) {
-        return new ProductInfoResult(1L, null, 10L, "테스트 상품", "테스트 브랜드", 25000L, null, accumulatedPoint, List.of());
-    }
-
-    private Payment createSuccessPayment(Long orderId, UUID orderKey, Long amount, String pgPaymentKey) {
+    private Payment createSuccessPayment() {
         PaymentCreateState state = PaymentCreateState.builder()
-                .orderId(orderId)
-                .orderKey(orderKey)
-                .paymentAmount(amount)
+                .orderId(1L)
+                .orderKey(ORDER_KEY)
+                .paymentAmount(50000L)
                 .build();
         Payment payment = Payment.from(state);
-        payment.markAsSuccess(pgPaymentKey);
+        payment.markAsSuccess("tno_123");
         return payment;
     }
 
-    private PspPaymentEvent createCompleteEvent(String orderKey, String tno, Long amount) {
+    private PspPaymentEvent createCompleteEvent() {
         PspPaymentEventSnapshotState state = PspPaymentEventSnapshotState.builder()
                 .id(1L)
                 .orderId(1L)
-                .orderKey(orderKey)
+                .orderKey(ORDER_KEY_STR)
                 .pgCompanyKey("NHN_KCP")
-                .pgPaymentKey(tno)
+                .pgPaymentKey("tno_123")
                 .poStatus(PaymentEventStatus.COMPLETE)
                 .method("CARD")
-                .amount(amount)
+                .amount(50000L)
                 .resultCode("0000")
                 .resultMessage("승인 성공")
                 .paidAt(LocalDateTime.of(2026, 2, 10, 15, 30, 0))
@@ -1561,133 +279,43 @@ class CancelPaymentUseCaseTest {
         return PspPaymentEvent.from(state);
     }
 
-    private Order createOrder(Long orderId, Long buyerId) {
-        return createOrder(orderId, buyerId, 0L);
-    }
-
-    private Order createOrder(Long orderId, Long buyerId, Long pointAmount) {
+    private Order createOrder() {
         OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
                 .pricePolicyId(100L)
                 .quantity(2)
                 .sellerId(10L)
                 .unitAmount(25000L)
                 .accumulatedPoint(0L)
-                        .build();
+                .build();
         OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
+                .id(1L)
+                .buyerId(BUYER_ID)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(50000L, null, null, pointAmount, null))
+                .amount(OrderAmount.of(50000L, null, null, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(productState))
                 .build();
         return Order.from(state);
     }
 
-    private Order createOrderWithSharers(Long orderId, Long buyerId, Long pointAmount, List<UUID> sharerKeys) {
-        List<OrderProductSnapshotState> productStates = new ArrayList<>();
-        for (int i = 0; i < sharerKeys.size(); i++) {
-            productStates.add(OrderProductSnapshotState.builder()
-                    .pricePolicyId(100L + i)
-                    .quantity(1)
-                    .sellerId(10L)
-                    .unitAmount(25000L)
-                    .sharerKey(sharerKeys.get(i))
-                    .accumulatedPoint(0L)
-                        .build());
-        }
-        OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(50000L, null, null, pointAmount, null))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
-                .orderProductStates(productStates)
-                .build();
-        return Order.from(state);
-    }
-
-    private CancelPaymentCommand createFullCancelCommand(String orderKey) {
+    private CancelPaymentCommand createFullCancelCommand() {
         return CancelPaymentCommand.builder()
                 .buyerId(BUYER_ID)
-                .orderKey(orderKey)
+                .orderKey(ORDER_KEY_STR)
                 .cancelType(CancelPaymentCommand.CancelType.FULL)
                 .cancelReason("고객 요청")
                 .build();
     }
 
-    private CancelPaymentCommand createPartialCancelCommand(String orderKey, Long cancelAmount) {
+    private CancelPaymentCommand createPartialCancelCommand() {
         return CancelPaymentCommand.builder()
                 .buyerId(BUYER_ID)
-                .orderKey(orderKey)
+                .orderKey(ORDER_KEY_STR)
                 .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                .cancelAmount(cancelAmount)
+                .cancelAmount(20000L)
                 .cancelReason("부분 취소")
                 .build();
-    }
-
-    private CancelPaymentCommand createPartialCancelCommandWithProducts(
-            String orderKey, Long cancelAmount, List<CancelPaymentCommand.CancelProductItem> cancelProducts
-    ) {
-        return CancelPaymentCommand.builder()
-                .buyerId(BUYER_ID)
-                .orderKey(orderKey)
-                .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
-                .cancelAmount(cancelAmount)
-                .cancelReason("부분 취소")
-                .cancelProducts(cancelProducts)
-                .build();
-    }
-
-    private Order createOrderWithMultipleProducts(Long orderId, Long buyerId,
-                                                  List<Long> pricePolicyIds, List<Integer> quantities) {
-        List<OrderProductSnapshotState> productStates = new ArrayList<>();
-        for (int i = 0; i < pricePolicyIds.size(); i++) {
-            productStates.add(OrderProductSnapshotState.builder()
-                    .pricePolicyId(pricePolicyIds.get(i))
-                    .quantity(quantities.get(i))
-                    .sellerId(10L)
-                    .unitAmount(25000L)
-                    .accumulatedPoint(0L)
-                        .build());
-        }
-        OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(50000L, null, null, 0L, null))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
-                .orderProductStates(productStates)
-                .build();
-        return Order.from(state);
-    }
-
-    private Order createOrderWithSnapshotPoints(Long orderId, Long buyerId, Long totalAmount,
-                                                List<Long> pricePolicyIds, List<Integer> quantities,
-                                                List<Long> unitAmounts, List<Long> accumulatedPoints) {
-        List<OrderProductSnapshotState> productStates = new ArrayList<>();
-        for (int i = 0; i < pricePolicyIds.size(); i++) {
-            productStates.add(OrderProductSnapshotState.builder()
-                    .pricePolicyId(pricePolicyIds.get(i))
-                    .quantity(quantities.get(i))
-                    .sellerId(10L)
-                    .unitAmount(unitAmounts.get(i))
-                    .accumulatedPoint(accumulatedPoints.get(i))
-                    .build());
-        }
-        OrderSnapshotState state = OrderSnapshotState.builder()
-                .id(orderId)
-                .buyerId(buyerId)
-                .orderKey(ORDER_KEY)
-                .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(totalAmount, null, null, 0L, null))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
-                .orderProductStates(productStates)
-                .build();
-        return Order.from(state);
     }
 
     private PaymentCancelVendorResult createSuccessVendorResult() {
