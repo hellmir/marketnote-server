@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.saga.SagaDefinition;
 import com.personal.marketnote.common.saga.SagaStepDefinition;
 import com.personal.marketnote.common.saga.exception.SagaSerializationException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -66,7 +67,7 @@ public class OrderCancelSagaDefinition implements SagaDefinition<OrderCancelSaga
         return serialize(Map.of(
                 "orderId", context.orderId(),
                 "originalStatus", context.originalStatus(),
-                "productKeys", context.productKeys() == null ? List.of() : context.productKeys()
+                "productKeys", FormatValidator.hasNoValue(context.productKeys()) ? List.of() : context.productKeys()
         ));
     }
 

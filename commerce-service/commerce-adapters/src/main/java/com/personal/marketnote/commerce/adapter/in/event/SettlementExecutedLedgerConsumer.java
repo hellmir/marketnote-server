@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.SettlementExecutedEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -56,7 +57,7 @@ public class SettlementExecutedLedgerConsumer {
         }
 
         try {
-            long shippingFee = payload.shippingFee() != null ? payload.shippingFee() : 0L;
+            long shippingFee = FormatValidator.hasValue(payload.shippingFee()) ? payload.shippingFee() : 0L;
             long feeBase = Math.addExact(payload.totalAllocatedAmount(), shippingFee);
 
             recordLedgerEntryUseCase.recordPgSettlement(

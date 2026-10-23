@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderReturnedEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -66,7 +67,7 @@ public class OrderReturnedPgRefundConsumer {
                     .pointAmount(payload.pointAmount())
                     .shippingFee(payload.shippingFee())
                     .isFullReturn(payload.isFullReturn())
-                    .returnShippingFee(payload.returnShippingFee() != null ? payload.returnShippingFee() : 0L)
+                    .returnShippingFee(FormatValidator.hasValue(payload.returnShippingFee()) ? payload.returnShippingFee() : 0L)
                     .build();
 
             completeReturnRefundUseCase.completeReturnRefund(command);

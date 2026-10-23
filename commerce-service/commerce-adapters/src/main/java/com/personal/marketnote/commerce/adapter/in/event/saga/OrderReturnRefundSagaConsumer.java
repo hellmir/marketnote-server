@@ -87,7 +87,7 @@ public class OrderReturnRefundSagaConsumer {
                     .returnAmount(payload.returnAmount())
                     .paymentAmount(payload.paymentAmount())
                     .isFullReturn(payload.isFullReturn())
-                    .returnShippingFee(payload.returnShippingFee() != null ? payload.returnShippingFee() : 0L)
+                    .returnShippingFee(FormatValidator.hasValue(payload.returnShippingFee()) ? payload.returnShippingFee() : 0L)
                     .build();
 
             completeReturnRefundUseCase.completeReturnRefund(command);
