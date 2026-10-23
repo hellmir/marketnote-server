@@ -206,6 +206,59 @@ class FulfillmentInventorySyncedConsumerTest {
     }
 
     @Nested
+    @DisplayName("이벤트 수신 - 크기 상한 초과")
+    class HandleOverSizeLimit {
+
+        @Test
+        @DisplayName("inventories 크기가 1000을 초과하면 acknowledge만 수행하고 UseCase를 호출하지 않는다")
+        void shouldSkipWhenInventoriesExceedSizeLimit() {
+            // given
+            List<FulfillmentInventorySyncedEvent.InventoryItem> oversized = new java.util.ArrayList<>();
+            for (int i = 0; i < 1001; i++) {
+                oversized.add(new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 1));
+            }
+            FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(oversized);
+            EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
+
+            ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                    "key", envelope
+            );
+
+            // when
+            consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment);
+
+            // then
+            verifyNoInteractions(syncFulfillmentVendorInventoryUseCase);
+            verify(acknowledgment).acknowledge();
+        }
+
+        @Test
+        @DisplayName("inventories 크기가 1000이면 정상 처리된다")
+        void shouldProcessWhenInventoriesAtSizeLimit() {
+            // given
+            List<FulfillmentInventorySyncedEvent.InventoryItem> atLimit = new java.util.ArrayList<>();
+            for (int i = 0; i < 1000; i++) {
+                atLimit.add(new FulfillmentInventorySyncedEvent.InventoryItem(UUID.randomUUID(), 1));
+            }
+            FulfillmentInventorySyncedEvent payload = new FulfillmentInventorySyncedEvent(atLimit);
+            EventEnvelope<FulfillmentInventorySyncedEvent> envelope = createEnvelope(payload);
+
+            ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
+                    KafkaTopicConstants.FULFILLMENT_INVENTORY_SYNCED, 0, 0,
+                    "key", envelope
+            );
+
+            // when
+            consumer.handleFulfillmentInventorySyncedEvent(record, acknowledgment);
+
+            // then
+            verify(syncFulfillmentVendorInventoryUseCase).syncInventories(any(SyncFulfillmentVendorInventoryCommand.class));
+            verify(acknowledgment).acknowledge();
+        }
+    }
+
+    @Nested
     @DisplayName("이벤트 수신 - 비즈니스 예외")
     class HandleBusinessException {
 
