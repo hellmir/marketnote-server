@@ -126,7 +126,7 @@ security:
 
 gifticon:
   pin:
-    encrypt-key: ${GIFTICON_PIN_ENCRYPT_KEY:dev-pin-key-change-me}
+    encrypt-key: ${GIFTICON_PIN_ENCRYPT_KEY:dev-pin-key-change-me-0123456789}
   sync:
     scheduler:
       enabled: ${GIFTICON_SYNC_SCHEDULER_ENABLED:false}
