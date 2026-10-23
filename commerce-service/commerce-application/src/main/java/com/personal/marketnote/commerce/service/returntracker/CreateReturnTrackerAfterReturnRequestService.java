@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillment
 import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryPort;
 import com.personal.marketnote.commerce.port.out.fulfillment.RegisterFulfillmentReturnDeliveryResult;
 import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -19,7 +20,7 @@ public class CreateReturnTrackerAfterReturnRequestService {
 
     public void createReturnTracker(RegisterFulfillmentReturnDeliveryCommand command) {
         RegisterFulfillmentReturnDeliveryResult result = registerReturnDelivery(command);
-        if (result == null) {
+        if (FormatValidator.hasNoValue(result)) {
             return;
         }
 

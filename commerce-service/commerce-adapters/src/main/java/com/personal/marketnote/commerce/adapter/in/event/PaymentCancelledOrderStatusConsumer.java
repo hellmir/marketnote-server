@@ -9,6 +9,7 @@ import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -61,7 +62,7 @@ public class PaymentCancelledOrderStatusConsumer {
 
             ChangeOrderStatusCommand command = buildCancelStatusCommand(payload);
 
-            if (command == null) {
+            if (FormatValidator.hasNoValue(command)) {
                 acknowledgment.acknowledge();
                 return;
             }
@@ -105,7 +106,7 @@ public class PaymentCancelledOrderStatusConsumer {
     }
 
     private List<Long> extractCancelPricePolicyIds(PaymentCancelledEvent payload) {
-        if (payload.cancelProducts() == null) {
+        if (FormatValidator.hasNoValue(payload.cancelProducts())) {
             return List.of();
         }
         return payload.cancelProducts().stream()
