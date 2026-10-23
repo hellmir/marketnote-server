@@ -8,6 +8,7 @@ import com.personal.marketnote.commerce.exception.DuplicateInventoryDeductionExc
 import com.personal.marketnote.commerce.exception.DuplicateInventoryRestorationException;
 import com.personal.marketnote.commerce.exception.InventoryNotFoundException;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, InventoryPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, InventoryPersistenceAdapter.class})
 @DisplayName("InventoryPersistenceAdapter 통합 테스트")
 class InventoryPersistenceAdapterTest {
 

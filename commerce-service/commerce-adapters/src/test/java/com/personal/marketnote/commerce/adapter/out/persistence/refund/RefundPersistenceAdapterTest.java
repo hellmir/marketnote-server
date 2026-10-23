@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundCreateState;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, RefundPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, RefundPersistenceAdapter.class})
 @DisplayName("RefundPersistenceAdapter 통합 테스트")
 class RefundPersistenceAdapterTest {
 

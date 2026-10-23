@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.payment.PaymentSnapshotState;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({AuditConfig.class, PaymentPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, PaymentPersistenceAdapter.class})
 @DisplayName("PaymentPersistenceAdapter 통합 테스트")
 class PaymentPersistenceAdapterTest {
 

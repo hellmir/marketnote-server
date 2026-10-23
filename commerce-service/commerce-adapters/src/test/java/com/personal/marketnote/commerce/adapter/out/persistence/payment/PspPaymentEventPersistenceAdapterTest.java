@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.payment.PaymentCreateState;
 import com.personal.marketnote.commerce.domain.payment.PspPaymentEvent;
 import com.personal.marketnote.common.configuration.AuditConfig;
+import com.personal.marketnote.common.configuration.QuerydslConfig;
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@Import({AuditConfig.class, PspPaymentEventPersistenceAdapter.class})
+@Import({AuditConfig.class, QuerydslConfig.class, PspPaymentEventPersistenceAdapter.class})
 @DisplayName("PspPaymentEventPersistenceAdapter 통합 테스트")
 class PspPaymentEventPersistenceAdapterTest {
 
