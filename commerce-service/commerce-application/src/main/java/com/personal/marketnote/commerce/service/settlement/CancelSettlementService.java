@@ -27,6 +27,8 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
  * <p>
  * COMPLETED 상태의 정산을 CANCELLED로 전이하고,
  * 원래 분개의 역분개(reverse journal entry)를 기록한다.
+ * PG 역분개와 Seller 역분개를 단일 LedgerTransaction에 6개 entries로 묶어
+ * 원자성을 보장한다 (부분 커밋으로 인한 복식부기 불균형 방지).
  * PaymentAllocation의 settlementId는 유지하여 재실행 시 추적 가능하도록 한다.
  * </p>
  *
@@ -56,12 +58,12 @@ public class CancelSettlementService implements CancelSettlementUseCase {
 
         settlement.cancel();
 
-        recordPgSettlementCancellation(
-                settlementId, settlement.getTotalAllocatedAmount().getValue(), settlement.getPgFeeAmount().getValue()
-        );
-        recordSellerSettlementCancellation(
+        recordSettlementCancellation(
                 settlementId,
-                settlement.getSellerPayoutAmount().getValue(), settlement.getPlatformFeeAmount().getValue()
+                settlement.getTotalAllocatedAmount().getValue(),
+                settlement.getPgFeeAmount().getValue(),
+                settlement.getSellerPayoutAmount().getValue(),
+                settlement.getPlatformFeeAmount().getValue()
         );
 
         updateSettlementPort.update(settlement);
@@ -72,88 +74,55 @@ public class CancelSettlementService implements CancelSettlementUseCase {
     }
 
     /**
-     * PG 정산 역분개를 기록한다.
+     * 정산 취소 역분개(PG + Seller)를 단일 LedgerTransaction으로 기록한다.
      * <p>
-     * 원래 PG 정산 분개의 DEBIT/CREDIT을 반전한다.
+     * PG 역분개와 Seller 역분개를 1개의 트랜잭션에 6개 entries로 묶어 원자성을 보장한다.
      * <pre>
-     * DEBIT  매출채권_PG      = totalAllocatedAmount
-     * CREDIT 보통예금         = totalAllocatedAmount - pgFeeAmount
-     * CREDIT PG수수료비용     = pgFeeAmount (if > 0)
+     * DEBIT  매출채권_PG        = totalAllocatedAmount
+     * DEBIT  보통예금           = sellerPayoutAmount
+     * DEBIT  플랫폼수수료수익   = platformFeeAmount (if > 0)
+     * CREDIT 보통예금           = totalAllocatedAmount - pgFeeAmount
+     * CREDIT PG수수료비용       = pgFeeAmount (if > 0)
+     * CREDIT 미지급금_판매자    = sellerPayoutAmount + platformFeeAmount
      * </pre>
+     * DEBIT 합계 == CREDIT 합계 == totalAllocated + sellerPayout + platformFee
      * </p>
      */
-    private void recordPgSettlementCancellation(Long settlementId, Long totalAllocatedAmount, Long pgFeeAmount) {
+    private void recordSettlementCancellation(
+            Long settlementId,
+            long totalAllocatedAmount,
+            long pgFeeAmount,
+            long sellerPayoutAmount,
+            long platformFeeAmount
+    ) {
         Account pgReceivable = findAccountPort.findByName(ACCOUNT_PG_RECEIVABLE)
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_RECEIVABLE));
         Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
         Account pgFeeAccount = findAccountPort.findByName(ACCOUNT_PG_FEE)
                 .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PG_FEE));
+        Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
+        Account platformFeeAccount = findAccountPort.findByName(ACCOUNT_PLATFORM_FEE_REVENUE)
+                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PLATFORM_FEE_REVENUE));
 
         List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
 
+        // PG 역분개 DEBIT: 매출채권_PG
         entries.add(RecordLedgerEntryCommand.EntryLine.builder()
                 .accountId(pgReceivable.getId())
                 .amount(totalAllocatedAmount)
                 .transactionType(TransactionType.DEBIT)
                 .build());
 
-        long cashAmount = totalAllocatedAmount - pgFeeAmount;
-        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                .accountId(cashAccount.getId())
-                .amount(cashAmount)
-                .transactionType(TransactionType.CREDIT)
-                .build());
-
-        if (pgFeeAmount > 0) {
-            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
-                    .accountId(pgFeeAccount.getId())
-                    .amount(pgFeeAmount)
-                    .transactionType(TransactionType.CREDIT)
-                    .build());
-        }
-
-        RecordLedgerEntryCommand command = RecordLedgerEntryCommand.builder()
-                .transactionType(LedgerTransactionType.SETTLEMENT_CANCELLATION)
-                .targetType("SETTLEMENT")
-                .targetId(settlementId)
-                .description("PG 정산 취소 역분개")
-                .idempotencyKey("PG_SETTLEMENT_CANCEL:" + settlementId)
-                .entries(entries)
-                .build();
-
-        recordLedgerEntryUseCase.record(command);
-    }
-
-    /**
-     * 판매자 정산 역분개를 기록한다.
-     * <p>
-     * 원래 판매자 정산 분개의 DEBIT/CREDIT을 반전한다.
-     * <pre>
-     * DEBIT  보통예금           = sellerPayoutAmount
-     * DEBIT  플랫폼수수료수익    = platformFeeAmount (if > 0)
-     * CREDIT 미지급금_판매자     = sellerPayoutAmount + platformFeeAmount
-     * </pre>
-     * </p>
-     */
-    private void recordSellerSettlementCancellation(
-            Long settlementId, Long sellerPayoutAmount, Long platformFeeAmount
-    ) {
-        Account sellerPayable = findAccountPort.findByName(ACCOUNT_SELLER_PAYABLE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_SELLER_PAYABLE));
-        Account cashAccount = findAccountPort.findByName(ACCOUNT_CASH)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_CASH));
-        Account platformFeeAccount = findAccountPort.findByName(ACCOUNT_PLATFORM_FEE_REVENUE)
-                .orElseThrow(() -> new AccountNotFoundException(ACCOUNT_PLATFORM_FEE_REVENUE));
-
-        List<RecordLedgerEntryCommand.EntryLine> entries = new ArrayList<>();
-
+        // Seller 역분개 DEBIT: 보통예금
         entries.add(RecordLedgerEntryCommand.EntryLine.builder()
                 .accountId(cashAccount.getId())
                 .amount(sellerPayoutAmount)
                 .transactionType(TransactionType.DEBIT)
                 .build());
 
+        // Seller 역분개 DEBIT: 플랫폼수수료수익 (platformFeeAmount > 0일 때만)
         if (platformFeeAmount > 0) {
             entries.add(RecordLedgerEntryCommand.EntryLine.builder()
                     .accountId(platformFeeAccount.getId())
@@ -162,10 +131,28 @@ public class CancelSettlementService implements CancelSettlementUseCase {
                     .build());
         }
 
-        long totalDebit = sellerPayoutAmount + platformFeeAmount;
+        // PG 역분개 CREDIT: 보통예금 (totalAllocated - pgFee)
+        long pgCashCredit = Math.subtractExact(totalAllocatedAmount, pgFeeAmount);
+        entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                .accountId(cashAccount.getId())
+                .amount(pgCashCredit)
+                .transactionType(TransactionType.CREDIT)
+                .build());
+
+        // PG 역분개 CREDIT: PG수수료비용 (pgFeeAmount > 0일 때만)
+        if (pgFeeAmount > 0) {
+            entries.add(RecordLedgerEntryCommand.EntryLine.builder()
+                    .accountId(pgFeeAccount.getId())
+                    .amount(pgFeeAmount)
+                    .transactionType(TransactionType.CREDIT)
+                    .build());
+        }
+
+        // Seller 역분개 CREDIT: 미지급금_판매자 (sellerPayout + platformFee)
+        long sellerPayableCredit = Math.addExact(sellerPayoutAmount, platformFeeAmount);
         entries.add(RecordLedgerEntryCommand.EntryLine.builder()
                 .accountId(sellerPayable.getId())
-                .amount(totalDebit)
+                .amount(sellerPayableCredit)
                 .transactionType(TransactionType.CREDIT)
                 .build());
 
@@ -173,8 +160,8 @@ public class CancelSettlementService implements CancelSettlementUseCase {
                 .transactionType(LedgerTransactionType.SETTLEMENT_CANCELLATION)
                 .targetType("SETTLEMENT")
                 .targetId(settlementId)
-                .description("판매자 정산 취소 역분개")
-                .idempotencyKey("SELLER_SETTLEMENT_CANCEL:" + settlementId)
+                .description("정산 취소 역분개")
+                .idempotencyKey("SETTLEMENT_CANCEL:" + settlementId)
                 .entries(entries)
                 .build();
 
