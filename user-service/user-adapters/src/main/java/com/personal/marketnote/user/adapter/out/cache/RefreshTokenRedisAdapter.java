@@ -1,5 +1,6 @@
 package com.personal.marketnote.user.adapter.out.cache;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.utility.Sha256HashUtils;
 import com.personal.marketnote.user.port.out.authentication.DeleteRefreshTokenPort;
 import com.personal.marketnote.user.port.out.authentication.FindRefreshTokenPort;
@@ -38,7 +39,7 @@ public class RefreshTokenRedisAdapter implements DeleteRefreshTokenPort, SaveRef
     @Override
     public boolean matchesByUserId(Long userId, String rawRefreshToken) {
         String stored = stringRedisTemplate.opsForValue().get(KEY_PREFIX + userId);
-        if (stored == null) {
+        if (FormatValidator.hasNoValue(stored)) {
             return false;
         }
         String expected = VALUE_PREFIX + Sha256HashUtils.encode(rawRefreshToken);

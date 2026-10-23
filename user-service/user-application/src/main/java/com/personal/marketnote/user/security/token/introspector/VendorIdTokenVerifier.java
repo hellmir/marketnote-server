@@ -67,7 +67,7 @@ public class VendorIdTokenVerifier {
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<>(
                 JwtClaimNames.AUD,
                 audience -> {
-                    if (audience == null) {
+                    if (FormatValidator.hasNoValue(audience)) {
                         return false;
                     }
                     if (audience instanceof List<?> audList) {
