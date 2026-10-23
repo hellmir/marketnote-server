@@ -2,6 +2,7 @@ package com.personal.marketnote.reward.mapper;
 
 import com.personal.marketnote.common.domain.calendar.Month;
 import com.personal.marketnote.common.domain.calendar.Year;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicy;
 import com.personal.marketnote.reward.domain.attendance.AttendancePolicyCreateState;
 import com.personal.marketnote.reward.domain.attendance.ContinuousPeriod;
@@ -36,7 +37,7 @@ public class RewardCommandToStateMapper {
                 .campaignKey(command.campaignKey())
                 .campaignType(command.campaignType())
                 .campaignName(command.campaignName())
-                .quantity(command.quantity() == null ? null : RewardQuantity.of(command.quantity()))
+                .quantity(FormatValidator.hasNoValue(command.quantity()) ? null : RewardQuantity.of(command.quantity()))
                 .signedValue(command.signedValue())
                 .appKey(command.appKey())
                 .appName(command.appName())
