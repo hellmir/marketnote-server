@@ -43,6 +43,9 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
         }
 
         List<SyncFulfillmentVendorInventoryItemCommand> items = command.inventories();
+        if (items.size() > SyncFulfillmentVendorInventoryCommand.MAX_INVENTORIES_SIZE) {
+            throw new InvalidFulfillmentSyncCommandException();
+        }
         validateProductKeys(items);
 
         Set<UUID> productKeys = items.stream()
