@@ -104,6 +104,24 @@ class SyncFulfillmentVendorInventoryUseCaseTest {
             verifyNoInteractions(inventoryLockPort);
         }
 
+        @Test
+        @DisplayName("inventories 크기가 1000을 초과하면 InvalidFulfillmentSyncCommandException을 던지고 어떤 Port도 호출하지 않는다")
+        void syncInventories_exceedsSizeLimit_throwsInvalidFulfillmentSyncCommandException() {
+            java.util.List<SyncFulfillmentVendorInventoryItemCommand> items = new java.util.ArrayList<>();
+            for (int i = 0; i < 1001; i++) {
+                items.add(SyncFulfillmentVendorInventoryItemCommand.of(UUID.randomUUID(), 1));
+            }
+            SyncFulfillmentVendorInventoryCommand command = SyncFulfillmentVendorInventoryCommand.of(items);
+
+            assertThatThrownBy(() -> syncFulfillmentVendorInventoryService.syncInventories(command))
+                    .isInstanceOf(com.personal.marketnote.commerce.exception.InvalidFulfillmentSyncCommandException.class);
+
+            verifyNoInteractions(findInventoryPort);
+            verifyNoInteractions(updateInventoryPort);
+            verifyNoInteractions(saveCacheStockPort);
+            verifyNoInteractions(inventoryLockPort);
+        }
+
         // ==================================================================================
         // 성공 케이스 (정상 동작)
         // ==================================================================================
