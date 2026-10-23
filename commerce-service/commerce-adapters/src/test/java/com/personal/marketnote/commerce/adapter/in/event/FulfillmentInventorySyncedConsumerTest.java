@@ -277,7 +277,7 @@ class FulfillmentInventorySyncedConsumerTest {
                     "key", envelope
             );
 
-            doThrow(new InventoryProductNotFoundException(missingProductKey))
+            doThrow(new InventoryProductNotFoundException())
                     .when(syncFulfillmentVendorInventoryUseCase).syncInventories(any());
 
             // when

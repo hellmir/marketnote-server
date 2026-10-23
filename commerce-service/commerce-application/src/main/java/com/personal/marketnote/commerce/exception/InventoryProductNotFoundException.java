@@ -1,15 +1,11 @@
 package com.personal.marketnote.commerce.exception;
 
 import com.personal.marketnote.common.domain.exception.DomainNotFoundException;
-import lombok.Getter;
 
-import java.util.UUID;
-
-@Getter
 public class InventoryProductNotFoundException extends DomainNotFoundException {
-    private static final String INVENTORY_NOT_FOUND_BY_PRODUCT_KEY_MESSAGE = "재고를 찾을 수 없습니다. 전송된 상품 키: %s";
+    private static final String INVENTORY_NOT_FOUND_MESSAGE = "재고를 찾을 수 없습니다.";
 
-    public InventoryProductNotFoundException(UUID productKey) {
-        super(String.format(INVENTORY_NOT_FOUND_BY_PRODUCT_KEY_MESSAGE, productKey));
+    public InventoryProductNotFoundException() {
+        super(INVENTORY_NOT_FOUND_MESSAGE);
     }
 }
