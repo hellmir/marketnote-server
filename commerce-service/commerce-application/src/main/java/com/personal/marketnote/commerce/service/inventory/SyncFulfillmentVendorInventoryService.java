@@ -15,6 +15,7 @@ import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.kafka.event.InventoryChangeAction;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+@Slf4j
 @UseCase
 @RequiredArgsConstructor
 @Transactional(isolation = READ_COMMITTED)
@@ -123,7 +125,8 @@ public class SyncFulfillmentVendorInventoryService implements SyncFulfillmentVen
                 .orElse(null);
 
         if (FormatValidator.hasValue(missingProductKey)) {
-            throw new InventoryProductNotFoundException(missingProductKey);
+            log.warn("재고 동기화 대상 상품 키를 찾지 못했습니다. productKey={}", missingProductKey);
+            throw new InventoryProductNotFoundException();
         }
     }
 }
