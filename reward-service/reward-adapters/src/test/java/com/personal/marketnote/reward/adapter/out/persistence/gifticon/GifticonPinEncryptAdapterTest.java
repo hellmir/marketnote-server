@@ -2,6 +2,8 @@ package com.personal.marketnote.reward.adapter.out.persistence.gifticon;
 
 import com.personal.marketnote.reward.configuration.GifticonPinProperties;
 import com.personal.marketnote.reward.domain.exception.GifticonPinDecryptionFailedException;
+import com.personal.marketnote.reward.domain.exception.GifticonPinEncryptKeyNoValueException;
+import com.personal.marketnote.reward.domain.exception.InvalidGifticonPinEncryptKeyException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -96,6 +98,91 @@ class GifticonPinEncryptAdapterTest {
             // when & then
             assertThatThrownBy(() -> adapter.decrypt(encrypted))
                     .isInstanceOf(GifticonPinDecryptionFailedException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("키 길이 검증")
+    class KeyLengthValidation {
+
+        @Test
+        @DisplayName("16바이트 키(AES-128)로 어댑터가 정상 생성되고 encrypt/decrypt 왕복이 성공한다")
+        void acceptsAes128Key() {
+            // given
+            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF");
+
+            // when
+            String encrypted = adapter.encrypt("test-pin");
+            String decrypted = adapter.decrypt(encrypted);
+
+            // then
+            assertThat(decrypted).isEqualTo("test-pin");
+        }
+
+        @Test
+        @DisplayName("24바이트 키(AES-192)로 어댑터가 정상 생성되고 encrypt/decrypt 왕복이 성공한다")
+        void acceptsAes192Key() {
+            // given
+            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF01234567");
+
+            // when
+            String encrypted = adapter.encrypt("test-pin");
+            String decrypted = adapter.decrypt(encrypted);
+
+            // then
+            assertThat(decrypted).isEqualTo("test-pin");
+        }
+
+        @Test
+        @DisplayName("32바이트 키(AES-256)로 어댑터가 정상 생성되고 encrypt/decrypt 왕복이 성공한다")
+        void acceptsAes256Key() {
+            // given
+            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF0123456789ABCDEF");
+
+            // when
+            String encrypted = adapter.encrypt("test-pin");
+            String decrypted = adapter.decrypt(encrypted);
+
+            // then
+            assertThat(decrypted).isEqualTo("test-pin");
+        }
+
+        @Test
+        @DisplayName("15바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=15가 포함된다")
+        void rejectsFifteenByteKey() {
+            assertThatThrownBy(() -> buildAdapter("0123456789ABCDE"))
+                    .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
+                    .hasMessageContaining("actualLength=15");
+        }
+
+        @Test
+        @DisplayName("17바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=17이 포함된다")
+        void rejectsSeventeenByteKey() {
+            assertThatThrownBy(() -> buildAdapter("0123456789ABCDEF0"))
+                    .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
+                    .hasMessageContaining("actualLength=17");
+        }
+
+        @Test
+        @DisplayName("21바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=21이 포함된다 (기존 기본값 부적절 증명)")
+        void rejectsLegacyDefaultKey() {
+            assertThatThrownBy(() -> buildAdapter("dev-pin-key-change-me"))
+                    .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
+                    .hasMessageContaining("actualLength=21");
+        }
+
+        @Test
+        @DisplayName("빈 문자열 키이면 GifticonPinEncryptKeyNoValueException이 발생한다")
+        void rejectsEmptyKey() {
+            assertThatThrownBy(() -> buildAdapter(""))
+                    .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
+        }
+
+        @Test
+        @DisplayName("null 키이면 GifticonPinEncryptKeyNoValueException이 발생한다")
+        void rejectsNullKey() {
+            assertThatThrownBy(() -> buildAdapter(null))
+                    .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
         }
     }
 

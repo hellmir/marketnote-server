@@ -62,6 +62,17 @@ class SecurityPropertiesValidatorTest {
     }
 
     @Test
+    @DisplayName("기프티콘 PIN 검증 활성화 + 32바이트 약한 기본값 설정 시 검증에 실패한다")
+    void shouldFailWhenGifticonPinValidationEnabledAndWeak32BytesDefault() {
+        ReflectionTestUtils.setField(validator, "gifticonPinValidationEnabled", true);
+        ReflectionTestUtils.setField(validator, "gifticonPinEncryptKey", "dev-pin-key-change-me-0123456789");
+
+        assertThatThrownBy(() -> validator.validateSecurityProperties())
+                .isInstanceOf(SecurityConfigurationValidationException.class)
+                .hasMessageContaining("gifticon.pin.encrypt-key");
+    }
+
+    @Test
     @DisplayName("Kafka SASL 비활성화 시 검증에 실패한다")
     void shouldFailWhenKafkaSaslDisabled() {
         ReflectionTestUtils.setField(validator, "kafkaSaslEnabled", false);
