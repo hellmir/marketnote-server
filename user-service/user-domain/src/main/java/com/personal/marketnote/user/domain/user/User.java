@@ -292,7 +292,7 @@ public class User extends BaseDomain {
     }
 
     public boolean canReSignUp(LocalDateTime now) {
-        if (withdrawnAt == null) {
+        if (FormatValidator.hasNoValue(withdrawnAt)) {
             return true;
         }
         return !now.isBefore(withdrawnAt.plusDays(WITHDRAWAL_COOLDOWN_DAYS));
