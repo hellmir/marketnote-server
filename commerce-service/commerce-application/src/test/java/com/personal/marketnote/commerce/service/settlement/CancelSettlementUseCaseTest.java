@@ -1,16 +1,22 @@
 package com.personal.marketnote.commerce.service.settlement;
 
-import com.personal.marketnote.commerce.domain.ledger.*;
+import com.personal.marketnote.commerce.domain.ledger.Account;
+import com.personal.marketnote.commerce.domain.ledger.AccountSnapshotState;
+import com.personal.marketnote.commerce.domain.ledger.AccountType;
+import com.personal.marketnote.commerce.domain.ledger.LedgerTransactionType;
+import com.personal.marketnote.commerce.domain.ledger.TransactionType;
 import com.personal.marketnote.commerce.domain.settlement.InvalidSettlementStatusTransitionException;
 import com.personal.marketnote.commerce.domain.settlement.Settlement;
 import com.personal.marketnote.commerce.domain.settlement.SettlementSnapshotState;
 import com.personal.marketnote.commerce.domain.settlement.SettlementStatus;
+import com.personal.marketnote.commerce.exception.AccountNotFoundException;
 import com.personal.marketnote.commerce.exception.SettlementNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.ledger.RecordLedgerEntryCommand;
 import com.personal.marketnote.commerce.port.in.usecase.ledger.RecordLedgerEntryUseCase;
 import com.personal.marketnote.commerce.port.out.ledger.FindAccountPort;
 import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPort;
+import com.personal.marketnote.common.domain.EntityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,13 +28,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CancelSettlementUseCase 테스트")
@@ -73,14 +84,16 @@ class CancelSettlementUseCaseTest {
                 .id(id)
                 .name(name)
                 .accountType(AccountType.ASSET)
-                .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
+                .status(EntityStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .build());
     }
 
-    private Settlement createCompletedSettlement(Long id, Long sellerId, Long totalAllocatedAmount,
-                                                 Long pgFeeAmount, Long platformFeeAmount, Long sellerPayoutAmount) {
+    private Settlement createCompletedSettlement(
+            Long id, Long sellerId, Long totalAllocatedAmount,
+            Long pgFeeAmount, Long platformFeeAmount, Long sellerPayoutAmount
+    ) {
         return Settlement.from(SettlementSnapshotState.builder()
                 .id(id)
                 .sellerId(sellerId)
@@ -95,7 +108,25 @@ class CancelSettlementUseCaseTest {
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .shippingFee(0L)
-                        .build());
+                .build());
+    }
+
+    private long sumByType(List<RecordLedgerEntryCommand.EntryLine> entries, TransactionType type) {
+        return entries.stream()
+                .filter(entry -> entry.transactionType() == type)
+                .mapToLong(RecordLedgerEntryCommand.EntryLine::amount)
+                .sum();
+    }
+
+    private RecordLedgerEntryCommand.EntryLine findEntry(
+            List<RecordLedgerEntryCommand.EntryLine> entries, Long accountId, TransactionType type
+    ) {
+        return entries.stream()
+                .filter(entry -> entry.accountId().equals(accountId) && entry.transactionType() == type)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError(
+                        "Entry not found: accountId=" + accountId + ", type=" + type
+                ));
     }
 
     @Nested
@@ -103,8 +134,8 @@ class CancelSettlementUseCaseTest {
     class CancelSuccess {
 
         @Test
-        @DisplayName("완료된 정산을 취소하면 역분개를 기록하고 CANCELLED 상태로 전이한다")
-        void shouldCancelCompletedSettlementSuccessfully() {
+        @DisplayName("완료된 정산을 취소하면 단일 LedgerTransaction에 6개 entries를 묶어 기록하고 CANCELLED 상태로 전이한다")
+        void shouldCancelCompletedSettlementWithSingleTransaction() {
             // given
             Settlement completedSettlement = createCompletedSettlement(1L, 10L, 100000L, 3000L, 5000L, 92000L);
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(completedSettlement));
@@ -113,13 +144,75 @@ class CancelSettlementUseCaseTest {
             cancelSettlementService.cancelSettlement(1L);
 
             // then
-            verify(recordLedgerEntryUseCase, times(2)).record(any(RecordLedgerEntryCommand.class));
+            ArgumentCaptor<RecordLedgerEntryCommand> captor = ArgumentCaptor.forClass(RecordLedgerEntryCommand.class);
+            verify(recordLedgerEntryUseCase, times(1)).record(captor.capture());
+
+            RecordLedgerEntryCommand command = captor.getValue();
+            assertThat(command.entries()).hasSize(6);
             verify(updateSettlementPort).update(argThat(Settlement::isCancelled));
         }
 
         @Test
-        @DisplayName("PG 수수료가 0인 정산을 취소하면 PG수수료비용 항목 없이 역분개를 기록한다")
-        void shouldCancelWithZeroPgFee() {
+        @DisplayName("recordLedgerEntryUseCase.record() 는 정확히 1회만 호출된다")
+        void shouldCallRecordExactlyOnce() {
+            // given
+            Settlement settlement = createCompletedSettlement(10L, 10L, 100000L, 3000L, 5000L, 92000L);
+            when(findSettlementPort.findById(10L)).thenReturn(Optional.of(settlement));
+
+            // when
+            cancelSettlementService.cancelSettlement(10L);
+
+            // then
+            verify(recordLedgerEntryUseCase, times(1)).record(any(RecordLedgerEntryCommand.class));
+        }
+
+        @Test
+        @DisplayName("idempotencyKey는 SETTLEMENT_CANCEL:{id} 형식의 단일 값이다")
+        void shouldUseUnifiedIdempotencyKey() {
+            // given
+            Settlement settlement = createCompletedSettlement(42L, 10L, 100000L, 3000L, 5000L, 92000L);
+            when(findSettlementPort.findById(42L)).thenReturn(Optional.of(settlement));
+
+            // when
+            cancelSettlementService.cancelSettlement(42L);
+
+            // then
+            ArgumentCaptor<RecordLedgerEntryCommand> captor = ArgumentCaptor.forClass(RecordLedgerEntryCommand.class);
+            verify(recordLedgerEntryUseCase).record(captor.capture());
+
+            RecordLedgerEntryCommand command = captor.getValue();
+            assertThat(command.idempotencyKey()).isEqualTo("SETTLEMENT_CANCEL:42");
+            assertThat(command.transactionType()).isEqualTo(LedgerTransactionType.SETTLEMENT_CANCELLATION);
+            assertThat(command.targetType()).isEqualTo("SETTLEMENT");
+            assertThat(command.targetId()).isEqualTo(42L);
+            assertThat(command.description()).isEqualTo("정산 취소 역분개");
+        }
+
+        @Test
+        @DisplayName("통합 분개의 DEBIT 합계는 CREDIT 합계와 일치한다")
+        void shouldBalanceDebitAndCreditSums() {
+            // given
+            Settlement settlement = createCompletedSettlement(5L, 30L, 200000L, 6000L, 10000L, 184000L);
+            when(findSettlementPort.findById(5L)).thenReturn(Optional.of(settlement));
+
+            // when
+            cancelSettlementService.cancelSettlement(5L);
+
+            // then
+            ArgumentCaptor<RecordLedgerEntryCommand> captor = ArgumentCaptor.forClass(RecordLedgerEntryCommand.class);
+            verify(recordLedgerEntryUseCase).record(captor.capture());
+
+            RecordLedgerEntryCommand command = captor.getValue();
+            long debitTotal = sumByType(command.entries(), TransactionType.DEBIT);
+            long creditTotal = sumByType(command.entries(), TransactionType.CREDIT);
+            assertThat(debitTotal).isEqualTo(creditTotal);
+            // 기대 합계: totalAllocated(200000) + sellerPayout(184000) + platformFee(10000) = 394000
+            assertThat(debitTotal).isEqualTo(394000L);
+        }
+
+        @Test
+        @DisplayName("PG 수수료가 0이면 PG수수료비용 CREDIT 항목은 제외된다")
+        void shouldExcludePgFeeEntryWhenZero() {
             // given
             Settlement settlement = createCompletedSettlement(2L, 20L, 50000L, 0L, 2500L, 47500L);
             when(findSettlementPort.findById(2L)).thenReturn(Optional.of(settlement));
@@ -129,16 +222,21 @@ class CancelSettlementUseCaseTest {
 
             // then
             ArgumentCaptor<RecordLedgerEntryCommand> captor = ArgumentCaptor.forClass(RecordLedgerEntryCommand.class);
-            verify(recordLedgerEntryUseCase, times(2)).record(captor.capture());
+            verify(recordLedgerEntryUseCase).record(captor.capture());
 
-            RecordLedgerEntryCommand pgCommand = captor.getAllValues().get(0);
-            assertThat(pgCommand.entries()).hasSize(2);
-            assertThat(pgCommand.idempotencyKey()).isEqualTo("PG_SETTLEMENT_CANCEL:2");
+            RecordLedgerEntryCommand command = captor.getValue();
+            assertThat(command.entries()).hasSize(5);
+            assertThat(command.entries())
+                    .noneMatch(entry -> entry.accountId().equals(PG_FEE_ID));
+
+            long debitTotal = sumByType(command.entries(), TransactionType.DEBIT);
+            long creditTotal = sumByType(command.entries(), TransactionType.CREDIT);
+            assertThat(debitTotal).isEqualTo(creditTotal);
         }
 
         @Test
-        @DisplayName("플랫폼 수수료가 0인 정산을 취소하면 플랫폼수수료수익 항목 없이 역분개를 기록한다")
-        void shouldCancelWithZeroPlatformFee() {
+        @DisplayName("플랫폼 수수료가 0이면 플랫폼수수료수익 DEBIT 항목은 제외된다")
+        void shouldExcludePlatformFeeEntryWhenZero() {
             // given
             Settlement settlement = createCompletedSettlement(3L, 30L, 80000L, 4000L, 0L, 76000L);
             when(findSettlementPort.findById(3L)).thenReturn(Optional.of(settlement));
@@ -148,11 +246,16 @@ class CancelSettlementUseCaseTest {
 
             // then
             ArgumentCaptor<RecordLedgerEntryCommand> captor = ArgumentCaptor.forClass(RecordLedgerEntryCommand.class);
-            verify(recordLedgerEntryUseCase, times(2)).record(captor.capture());
+            verify(recordLedgerEntryUseCase).record(captor.capture());
 
-            RecordLedgerEntryCommand sellerCommand = captor.getAllValues().get(1);
-            assertThat(sellerCommand.entries()).hasSize(2);
-            assertThat(sellerCommand.idempotencyKey()).isEqualTo("SELLER_SETTLEMENT_CANCEL:3");
+            RecordLedgerEntryCommand command = captor.getValue();
+            assertThat(command.entries()).hasSize(5);
+            assertThat(command.entries())
+                    .noneMatch(entry -> entry.accountId().equals(PLATFORM_FEE_ID));
+
+            long debitTotal = sumByType(command.entries(), TransactionType.DEBIT);
+            long creditTotal = sumByType(command.entries(), TransactionType.CREDIT);
+            assertThat(debitTotal).isEqualTo(creditTotal);
         }
     }
 
@@ -175,6 +278,22 @@ class CancelSettlementUseCaseTest {
         }
 
         @Test
+        @DisplayName("계정 조회 실패 시 AccountNotFoundException을 던진다")
+        void shouldThrowWhenAccountNotFound() {
+            // given
+            Settlement settlement = createCompletedSettlement(1L, 10L, 100000L, 3000L, 5000L, 92000L);
+            when(findSettlementPort.findById(1L)).thenReturn(Optional.of(settlement));
+            when(findAccountPort.findByName("매출채권_PG")).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> cancelSettlementService.cancelSettlement(1L))
+                    .isInstanceOf(AccountNotFoundException.class);
+
+            verifyNoInteractions(recordLedgerEntryUseCase);
+            verifyNoInteractions(updateSettlementPort);
+        }
+
+        @Test
         @DisplayName("PENDING 상태의 정산을 취소하면 InvalidSettlementStatusTransitionException을 던진다")
         void shouldThrowWhenSettlementIsPending() {
             // given
@@ -185,7 +304,7 @@ class CancelSettlementUseCaseTest {
                     .status(SettlementStatus.PENDING).version(0L)
                     .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
                     .shippingFee(0L)
-                        .build());
+                    .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(pendingSettlement));
 
             // when & then
@@ -207,7 +326,7 @@ class CancelSettlementUseCaseTest {
                     .status(SettlementStatus.FAILED).version(0L)
                     .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
                     .shippingFee(0L)
-                        .build());
+                    .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(failedSettlement));
 
             // when & then
@@ -229,7 +348,7 @@ class CancelSettlementUseCaseTest {
                     .status(SettlementStatus.CANCELLED).version(2L)
                     .createdAt(LocalDateTime.now()).modifiedAt(LocalDateTime.now())
                     .shippingFee(0L)
-                        .build());
+                    .build());
             when(findSettlementPort.findById(1L)).thenReturn(Optional.of(cancelledSettlement));
 
             // when & then
@@ -242,12 +361,12 @@ class CancelSettlementUseCaseTest {
     }
 
     @Nested
-    @DisplayName("역분개 검증")
-    class ReverseLedgerVerification {
+    @DisplayName("통합 역분개 검증")
+    class UnifiedReverseLedgerVerification {
 
         @Test
-        @DisplayName("PG 정산 역분개의 DEBIT/CREDIT이 원래 분개와 반대이다")
-        void shouldRecordPgReversalWithCorrectAmounts() {
+        @DisplayName("통합 분개에는 PG 역분개 3개(DEBIT 매출채권_PG, CREDIT 보통예금, CREDIT PG수수료비용) 항목이 포함된다")
+        void shouldIncludePgReversalEntries() {
             // given
             Settlement settlement = createCompletedSettlement(5L, 30L, 200000L, 6000L, 10000L, 184000L);
             when(findSettlementPort.findById(5L)).thenReturn(Optional.of(settlement));
@@ -257,35 +376,23 @@ class CancelSettlementUseCaseTest {
 
             // then
             ArgumentCaptor<RecordLedgerEntryCommand> captor = ArgumentCaptor.forClass(RecordLedgerEntryCommand.class);
-            verify(recordLedgerEntryUseCase, times(2)).record(captor.capture());
+            verify(recordLedgerEntryUseCase).record(captor.capture());
 
-            RecordLedgerEntryCommand pgCommand = captor.getAllValues().get(0);
-            assertThat(pgCommand.transactionType()).isEqualTo(LedgerTransactionType.SETTLEMENT_CANCELLATION);
-            assertThat(pgCommand.idempotencyKey()).isEqualTo("PG_SETTLEMENT_CANCEL:5");
-            assertThat(pgCommand.entries()).hasSize(3);
+            List<RecordLedgerEntryCommand.EntryLine> entries = captor.getValue().entries();
 
-            // DEBIT 매출채권_PG = 200000
-            RecordLedgerEntryCommand.EntryLine debit = pgCommand.entries().get(0);
-            assertThat(debit.accountId()).isEqualTo(PG_RECEIVABLE_ID);
-            assertThat(debit.amount()).isEqualTo(200000L);
-            assertThat(debit.transactionType()).isEqualTo(TransactionType.DEBIT);
+            RecordLedgerEntryCommand.EntryLine debitPgReceivable = findEntry(entries, PG_RECEIVABLE_ID, TransactionType.DEBIT);
+            assertThat(debitPgReceivable.amount()).isEqualTo(200000L);
 
-            // CREDIT 보통예금 = 194000
-            RecordLedgerEntryCommand.EntryLine creditCash = pgCommand.entries().get(1);
-            assertThat(creditCash.accountId()).isEqualTo(CASH_ID);
+            RecordLedgerEntryCommand.EntryLine creditCash = findEntry(entries, CASH_ID, TransactionType.CREDIT);
             assertThat(creditCash.amount()).isEqualTo(194000L);
-            assertThat(creditCash.transactionType()).isEqualTo(TransactionType.CREDIT);
 
-            // CREDIT PG수수료비용 = 6000
-            RecordLedgerEntryCommand.EntryLine creditPgFee = pgCommand.entries().get(2);
-            assertThat(creditPgFee.accountId()).isEqualTo(PG_FEE_ID);
+            RecordLedgerEntryCommand.EntryLine creditPgFee = findEntry(entries, PG_FEE_ID, TransactionType.CREDIT);
             assertThat(creditPgFee.amount()).isEqualTo(6000L);
-            assertThat(creditPgFee.transactionType()).isEqualTo(TransactionType.CREDIT);
         }
 
         @Test
-        @DisplayName("판매자 정산 역분개의 DEBIT/CREDIT이 원래 분개와 반대이다")
-        void shouldRecordSellerReversalWithCorrectAmounts() {
+        @DisplayName("통합 분개에는 Seller 역분개 3개(DEBIT 보통예금, DEBIT 플랫폼수수료수익, CREDIT 미지급금_판매자) 항목이 포함된다")
+        void shouldIncludeSellerReversalEntries() {
             // given
             Settlement settlement = createCompletedSettlement(5L, 30L, 200000L, 6000L, 10000L, 184000L);
             when(findSettlementPort.findById(5L)).thenReturn(Optional.of(settlement));
@@ -295,30 +402,18 @@ class CancelSettlementUseCaseTest {
 
             // then
             ArgumentCaptor<RecordLedgerEntryCommand> captor = ArgumentCaptor.forClass(RecordLedgerEntryCommand.class);
-            verify(recordLedgerEntryUseCase, times(2)).record(captor.capture());
+            verify(recordLedgerEntryUseCase).record(captor.capture());
 
-            RecordLedgerEntryCommand sellerCommand = captor.getAllValues().get(1);
-            assertThat(sellerCommand.transactionType()).isEqualTo(LedgerTransactionType.SETTLEMENT_CANCELLATION);
-            assertThat(sellerCommand.idempotencyKey()).isEqualTo("SELLER_SETTLEMENT_CANCEL:5");
-            assertThat(sellerCommand.entries()).hasSize(3);
+            List<RecordLedgerEntryCommand.EntryLine> entries = captor.getValue().entries();
 
-            // DEBIT 보통예금 = 184000
-            RecordLedgerEntryCommand.EntryLine debitCash = sellerCommand.entries().get(0);
-            assertThat(debitCash.accountId()).isEqualTo(CASH_ID);
+            RecordLedgerEntryCommand.EntryLine debitCash = findEntry(entries, CASH_ID, TransactionType.DEBIT);
             assertThat(debitCash.amount()).isEqualTo(184000L);
-            assertThat(debitCash.transactionType()).isEqualTo(TransactionType.DEBIT);
 
-            // DEBIT 플랫폼수수료수익 = 10000
-            RecordLedgerEntryCommand.EntryLine debitPlatformFee = sellerCommand.entries().get(1);
-            assertThat(debitPlatformFee.accountId()).isEqualTo(PLATFORM_FEE_ID);
+            RecordLedgerEntryCommand.EntryLine debitPlatformFee = findEntry(entries, PLATFORM_FEE_ID, TransactionType.DEBIT);
             assertThat(debitPlatformFee.amount()).isEqualTo(10000L);
-            assertThat(debitPlatformFee.transactionType()).isEqualTo(TransactionType.DEBIT);
 
-            // CREDIT 미지급금_판매자 = 194000
-            RecordLedgerEntryCommand.EntryLine creditPayable = sellerCommand.entries().get(2);
-            assertThat(creditPayable.accountId()).isEqualTo(SELLER_PAYABLE_ID);
-            assertThat(creditPayable.amount()).isEqualTo(194000L);
-            assertThat(creditPayable.transactionType()).isEqualTo(TransactionType.CREDIT);
+            RecordLedgerEntryCommand.EntryLine creditSellerPayable = findEntry(entries, SELLER_PAYABLE_ID, TransactionType.CREDIT);
+            assertThat(creditSellerPayable.amount()).isEqualTo(194000L);
         }
     }
 }
