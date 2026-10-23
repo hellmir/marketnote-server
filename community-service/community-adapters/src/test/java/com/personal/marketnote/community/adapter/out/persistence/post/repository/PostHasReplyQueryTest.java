@@ -7,6 +7,7 @@ import com.personal.marketnote.community.adapter.out.persistence.post.entity.Pos
 import com.personal.marketnote.community.domain.post.Board;
 import com.personal.marketnote.community.domain.post.Post;
 import com.personal.marketnote.community.domain.post.PostCreateState;
+import com.personal.marketnote.community.domain.post.PostSortProperty;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +40,7 @@ class PostHasReplyQueryTest {
     private static final Pageable DEFAULT_PAGEABLE = PageRequest.of(0, 20);
 
     @Nested
-    @DisplayName("findByBoardAndFiltersOrderByAnswered - hasReply 컬럼 정렬")
+    @DisplayName("findByBoardAndFilters - hasReply 컬럼 정렬 (sortProperty=IS_ANSWERED)")
     class FindByBoardAndFiltersOrderByAnswered {
 
         @Test
@@ -51,9 +52,10 @@ class PostHasReplyQueryTest {
             PostJpaEntity hasReply2 = saveParent(Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", true);
             flushAndClear();
 
-            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFiltersOrderByAnswered(
+            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
@@ -75,9 +77,10 @@ class PostHasReplyQueryTest {
             PostJpaEntity hasReply2 = saveParent(Board.PRODUCT_INQUERY, "PRODUCT_QUESTION", true);
             flushAndClear();
 
-            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFiltersOrderByAnswered(
+            List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, false,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.IS_ANSWERED
             );
 
             assertThat(results)
@@ -104,7 +107,8 @@ class PostHasReplyQueryTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, true, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, true, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results)
@@ -121,7 +125,8 @@ class PostHasReplyQueryTest {
 
             List<PostJpaEntity> results = postJpaRepository.findByBoardAndFilters(
                     Board.PRODUCT_INQUERY, null, null, null, null, true,
-                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE
+                    null, null, false, true, true, null, EntityStatus.ACTIVE, DEFAULT_PAGEABLE,
+                    PostSortProperty.ID
             );
 
             assertThat(results).hasSize(2);

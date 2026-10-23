@@ -5,6 +5,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.adapter.out.persistence.post.entity.PostJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.post.entity.QPostJpaEntity;
 import com.personal.marketnote.community.domain.post.Board;
+import com.personal.marketnote.community.domain.post.PostSortProperty;
 import com.personal.marketnote.community.domain.post.PostTargetGroupType;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -45,9 +46,10 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
             boolean searchInContent,
             String searchKeywordPattern,
             EntityStatus status,
-            Pageable pageable
+            Pageable pageable,
+            PostSortProperty sortProperty
     ) {
-        JPAQuery<PostJpaEntity> query = queryFactory
+        return queryFactory
                 .selectFrom(post)
                 .where(
                         post.status.eq(status),
@@ -62,10 +64,10 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
                         cursorCondition(cursor, isDesc)
                 )
-                .orderBy(idOrder(isDesc))
+                .orderBy(resolveOrderSpecifiers(sortProperty, isDesc))
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
-        return query.fetch();
+                .limit(pageable.getPageSize())
+                .fetch();
     }
 
     @Override
@@ -137,7 +139,8 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
             boolean searchInContent,
             String searchKeywordPattern,
             EntityStatus status,
-            Pageable pageable
+            Pageable pageable,
+            PostSortProperty sortProperty
     ) {
         return queryFactory
                 .selectFrom(post)
@@ -150,75 +153,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
                         cursorCondition(cursor, isDesc)
                 )
-                .orderBy(idOrder(isDesc))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    @Override
-    public List<PostJpaEntity> findByBoardAndFiltersOrderByAnswered(
-            Board board,
-            String category,
-            PostTargetGroupType targetGroupType,
-            Long targetGroupId,
-            Long cursor,
-            boolean isDesc,
-            Boolean isPublicOnly,
-            Long filterUserId,
-            boolean isAnsweredOnly,
-            boolean searchInTitle,
-            boolean searchInContent,
-            String searchKeywordPattern,
-            EntityStatus status,
-            Pageable pageable
-    ) {
-        return queryFactory
-                .selectFrom(post)
-                .where(
-                        post.status.eq(status),
-                        post.board.eq(board),
-                        post.parentId.isNull(),
-                        categoryEq(category),
-                        targetGroupTypeEq(targetGroupType),
-                        targetGroupIdEq(targetGroupId),
-                        publicOnlyCondition(isPublicOnly),
-                        userIdEq(filterUserId),
-                        answeredOnlyCondition(isAnsweredOnly),
-                        searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
-                        cursorCondition(cursor, isDesc)
-                )
-                .orderBy(hasReplyOrder(isDesc), idOrder(isDesc))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    @Override
-    public List<PostJpaEntity> findByUserIdAndBoardOrderByAnswered(
-            Long userId,
-            Board board,
-            Long cursor,
-            boolean isDesc,
-            boolean isAnsweredOnly,
-            boolean searchInTitle,
-            boolean searchInContent,
-            String searchKeywordPattern,
-            EntityStatus status,
-            Pageable pageable
-    ) {
-        return queryFactory
-                .selectFrom(post)
-                .where(
-                        post.status.eq(status),
-                        post.board.eq(board),
-                        post.userId.eq(userId),
-                        post.parentId.isNull(),
-                        answeredOnlyCondition(isAnsweredOnly),
-                        searchKeywordCondition(searchInTitle, searchInContent, searchKeywordPattern),
-                        cursorCondition(cursor, isDesc)
-                )
-                .orderBy(hasReplyOrder(isDesc), idOrder(isDesc))
+                .orderBy(resolveOrderSpecifiers(sortProperty, isDesc))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -324,6 +259,13 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
             return post.id.lt(cursor);
         }
         return post.id.gt(cursor);
+    }
+
+    private OrderSpecifier<?>[] resolveOrderSpecifiers(PostSortProperty sortProperty, boolean isDesc) {
+        if (FormatValidator.equals(sortProperty, PostSortProperty.IS_ANSWERED)) {
+            return new OrderSpecifier<?>[]{hasReplyOrder(isDesc), idOrder(isDesc)};
+        }
+        return new OrderSpecifier<?>[]{idOrder(isDesc)};
     }
 
     private OrderSpecifier<Long> idOrder(boolean isDesc) {
