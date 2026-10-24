@@ -5,6 +5,7 @@ import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderSortType;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderStatus;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderStatusFilter;
+import com.personal.marketnote.reward.exception.InvalidGifticonOrderPageSizeException;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetMyGifticonOrdersCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrdersResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrdersResult.MyGifticonOrderItem;
@@ -23,12 +24,15 @@ import static org.springframework.transaction.annotation.Isolation.READ_COMMITTE
 @RequiredArgsConstructor
 public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
 
+    static final int MAX_PAGE_SIZE = 100;
+
     private final FindGifticonOrderPort findGifticonOrderPort;
     private final Clock clock;
 
     @Override
     @Transactional(isolation = READ_COMMITTED, readOnly = true)
     public GetMyGifticonOrdersResult getMyGifticonOrders(GetMyGifticonOrdersCommand command) {
+        validatePageSize(command.pageSize());
         GifticonOrderStatusFilter statusFilter = GifticonOrderStatusFilter.from(command.statusFilter());
         GifticonOrderSortType sortType = GifticonOrderSortType.from(command.sortType());
         List<GifticonOrderStatus> statuses = statusFilter.toStatuses();
@@ -57,6 +61,12 @@ public class GetMyGifticonOrdersService implements GetMyGifticonOrdersUseCase {
         return new GetMyGifticonOrdersResult(
                 availableCount, completedOrExpiredCount, hasNext, nextCursor, items
         );
+    }
+
+    private void validatePageSize(int pageSize) {
+        if (pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
+            throw new InvalidGifticonOrderPageSizeException(pageSize);
+        }
     }
 
     private Long resolveNextCursor(

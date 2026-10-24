@@ -16,6 +16,8 @@ import com.personal.marketnote.reward.port.in.result.point.*;
 import com.personal.marketnote.reward.port.in.usecase.point.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -36,6 +39,7 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 @RequestMapping("/api/v1/users")
 @Tag(name = "포인트 API", description = "회원 포인트 관련 API")
 @RequiredArgsConstructor
+@Validated
 public class PointController {
     private final RegisterUserPointUseCase registerUserPointUseCase;
     private final ModifyUserPointUseCase modifyUserPointUseCase;
@@ -152,7 +156,7 @@ public class PointController {
             @RequestParam(value = "start-date", required = false) LocalDate startDate,
             @RequestParam(value = "end-date", required = false) LocalDate endDate,
             @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "page-size", required = false, defaultValue = "20") int pageSize
+            @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
     ) {
         validateAuthentication(userId, principal);
         GetUserPointHistoryResult result = getUserPointHistoryUseCase.getUserPointHistories(

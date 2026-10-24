@@ -43,7 +43,7 @@ import java.lang.annotation.*;
                 | start-date | string(date) | 조회 시작일 (YYYY-MM-DD) | 선택 | 2026-03-01 |
                 | end-date | string(date) | 조회 종료일 (YYYY-MM-DD) | 선택 | 2026-03-31 |
                 | cursor | number | 이전 페이지 마지막 항목 ID (미입력 시 첫 페이지) | 선택 | 25 |
-                | page-size | number | 페이지 크기 (기본값: 20) | 선택 | 20 |
+                | page-size | number | 페이지 크기 (기본값: 20, 범위: 1~100) | 선택 | 20 |
                 
                 ---
                 

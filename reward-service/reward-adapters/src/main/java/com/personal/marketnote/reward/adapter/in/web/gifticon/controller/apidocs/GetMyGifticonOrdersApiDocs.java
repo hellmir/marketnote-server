@@ -33,13 +33,13 @@ import java.lang.annotation.*;
                 - status: AVAILABLE(사용가능, ISSUED) / COMPLETED_OR_EXPIRED(사용완료/기간만료/취소)
                 - sort: PURCHASE_LATEST(구매 최신순) / EXPIRY_SOONEST(유효기간 임박순)
                 - cursor: 페이징 커서 (기본값 -1)
-                - page-size: 페이지 크기 (기본값 10)
+                - page-size: 페이지 크기 (기본값 10, 범위 1~100)
                 """,
         parameters = {
                 @Parameter(name = "status", description = "상태 필터 (AVAILABLE / COMPLETED_OR_EXPIRED)", example = "AVAILABLE"),
                 @Parameter(name = "sort", description = "정렬 (PURCHASE_LATEST / EXPIRY_SOONEST)", example = "PURCHASE_LATEST"),
                 @Parameter(name = "cursor", description = "페이징 커서", example = "-1"),
-                @Parameter(name = "page-size", description = "페이지 크기", example = "10")
+                @Parameter(name = "page-size", description = "페이지 크기 (기본값 10, 범위 1~100)", example = "10")
         },
         security = {@SecurityRequirement(name = "bearer")},
         responses = {
