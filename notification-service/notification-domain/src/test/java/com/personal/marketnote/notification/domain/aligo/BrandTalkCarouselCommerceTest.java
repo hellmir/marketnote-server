@@ -12,7 +12,7 @@ class BrandTalkCarouselCommerceTest {
     @DisplayName("캐러셀 커머스 title 누락 시 예외가 발생한다")
     void shouldThrowExceptionWhenTitleMissing() {
         // when & then
-        assertThatThrownBy(() -> BrandTalkCarouselCommerce.of(null, "10000", null, null, null))
+        assertThatThrownBy(() -> BrandTalkCarouselCommerce.from(BrandTalkCarouselCommerceCreateState.builder().title(null).regularPrice("10000").discountPrice(null).discountRate(null).discountFixed(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("title은 필수");
     }
@@ -21,7 +21,7 @@ class BrandTalkCarouselCommerceTest {
     @DisplayName("캐러셀 커머스 regularPrice 누락 시 예외가 발생한다")
     void shouldThrowExceptionWhenRegularPriceMissing() {
         // when & then
-        assertThatThrownBy(() -> BrandTalkCarouselCommerce.of("상품명", null, null, null, null))
+        assertThatThrownBy(() -> BrandTalkCarouselCommerce.from(BrandTalkCarouselCommerceCreateState.builder().title("상품명").regularPrice(null).discountPrice(null).discountRate(null).discountFixed(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("regularPrice는 필수");
     }
@@ -30,7 +30,7 @@ class BrandTalkCarouselCommerceTest {
     @DisplayName("캐러셀 커머스 title + regularPrice만으로 정상 생성된다")
     void shouldCreateWithRequiredFieldsOnly() {
         // when
-        BrandTalkCarouselCommerce commerce = BrandTalkCarouselCommerce.of("상품명", "10000", null, null, null);
+        BrandTalkCarouselCommerce commerce = BrandTalkCarouselCommerce.from(BrandTalkCarouselCommerceCreateState.builder().title("상품명").regularPrice("10000").discountPrice(null).discountRate(null).discountFixed(null).build());
 
         // then
         assertThat(commerce.getTitle()).isEqualTo("상품명");
@@ -42,7 +42,7 @@ class BrandTalkCarouselCommerceTest {
     @DisplayName("캐러셀 커머스 할인 정보 포함하여 정상 생성된다")
     void shouldCreateWithDiscountInfo() {
         // when
-        BrandTalkCarouselCommerce commerce = BrandTalkCarouselCommerce.of("상품명", "10000", "8000", "20", null);
+        BrandTalkCarouselCommerce commerce = BrandTalkCarouselCommerce.from(BrandTalkCarouselCommerceCreateState.builder().title("상품명").regularPrice("10000").discountPrice("8000").discountRate("20").discountFixed(null).build());
 
         // then
         assertThat(commerce.getDiscountPrice()).isEqualTo("8000");

@@ -112,10 +112,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
             return List.of();
         }
         return commands.stream()
-                .map(cmd -> BrandTalkCarouselCommerce.of(
-                        cmd.title(), cmd.regularPrice(),
-                        cmd.discountPrice(), cmd.discountRate(), cmd.discountFixed()
-                ))
+                .map(cmd -> BrandTalkCarouselCommerce.from(BrandTalkCarouselCommerceCreateState.builder().title(cmd.title()).regularPrice(cmd.regularPrice()).discountPrice(cmd.discountPrice()).discountRate(cmd.discountRate()).discountFixed(cmd.discountFixed()).build()))
                 .toList();
     }
 
