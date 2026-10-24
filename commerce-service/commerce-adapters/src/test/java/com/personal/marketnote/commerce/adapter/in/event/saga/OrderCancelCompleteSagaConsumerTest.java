@@ -179,6 +179,61 @@ class OrderCancelCompleteSagaConsumerTest {
     }
 
     @Nested
+    @DisplayName("OrderCancelFailedEvent 재발행")
+    class OrderCancelFailedEventPublishing {
+
+        @Test
+        @DisplayName("주문 취소 완료 처리 실패 시 OrderCancelFailedEvent를 재발행한다")
+        void shouldPublishOrderCancelFailedEventOnCompleteError() throws Exception {
+            String actionPayload = buildFullPayload();
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
+
+            doThrow(new RuntimeException("DB 연결 실패"))
+                    .when(completeCancelOrderUseCase).completeCancellation(any(CompleteCancelOrderCommand.class));
+
+            consumer.handleCompleteCancellationStep(record, acknowledgment);
+
+            verify(publishOrderEventPort).publishOrderCancelFailedEvent(1L, 100L);
+            verify(acknowledgment).acknowledge();
+        }
+
+        @Test
+        @DisplayName("페이로드 검증 실패(orderKey 누락)에서 buyerId가 있으면 OrderCancelFailedEvent를 재발행한다")
+        void shouldPublishOrderCancelFailedEventOnValidationFailureWithBuyerId() throws Exception {
+            Map<String, Object> payloadMap = new HashMap<>(Map.of(
+                    "orderId", 1L,
+                    "buyerId", 100L,
+                    "cancelAmount", 50000L,
+                    "paymentAmount", 50000L,
+                    "isFullCancel", true
+            ));
+            String invalidPayload = TEST_OBJECT_MAPPER.writeValueAsString(payloadMap);
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
+
+            consumer.handleCompleteCancellationStep(record, acknowledgment);
+
+            verify(publishOrderEventPort).publishOrderCancelFailedEvent(1L, 100L);
+        }
+
+        @Test
+        @DisplayName("주문 취소 완료 성공 시 OrderCancelFailedEvent는 발행하지 않는다")
+        void shouldNotPublishOrderCancelFailedEventOnSuccess() throws Exception {
+            String actionPayload = buildFullPayload();
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
+
+            consumer.handleCompleteCancellationStep(record, acknowledgment);
+
+            verifyNoInteractions(publishOrderEventPort);
+        }
+    }
+
+    @Nested
     @DisplayName("봉투/메시지 타입 검증")
     class EnvelopeAndMessageType {
 
