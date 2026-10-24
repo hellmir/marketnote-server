@@ -35,6 +35,9 @@ import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -165,10 +168,19 @@ public class PaymentCancelTransactionHelper {
 
     /**
      * TX-2B: payment 환불 처리 + refund 저장 + 재고 복구 + 포인트 환불 + Outbox 이벤트 + afterCommit 훅
+     *
+     * <p>동시 부분취소 race 방지: TX-1 스냅샷이 아니라 TX-2B 진입 시점의 최신 Payment를 재조회하여
+     * refundAmount 누적. @Version 충돌 시 {@link Retryable}로 최대 3회 재시도.</p>
      */
+    @Retryable(
+            retryFor = OptimisticLockingFailureException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50)
+    )
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void commitPaymentAndPostProcess(PaymentCancelContext context, PaymentCancelVendorResult vendorResult) {
-        Payment payment = context.payment();
+        Payment payment = findPaymentPort.findByOrderKey(context.payment().getOrderKey())
+                .orElseThrow(() -> new PaymentNotFoundException(context.originalCommand().orderKey()));
         Order order = context.order();
         CancelPaymentCommand command = context.originalCommand();
         boolean isFullCancel = context.isFullCancel();
