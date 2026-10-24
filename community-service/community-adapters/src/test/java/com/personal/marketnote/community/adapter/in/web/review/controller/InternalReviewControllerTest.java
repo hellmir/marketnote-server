@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,8 +39,8 @@ class InternalReviewControllerTest {
             List<Long> productIds = List.of(1L, 2L);
             GetProductReviewAggregatesResult result = GetProductReviewAggregatesResult.from(
                     List.of(
-                            new ProductReviewAggregateSummaryResult(1L, 10, 4.5f),
-                            new ProductReviewAggregateSummaryResult(2L, 5, 3.0f)
+                            new ProductReviewAggregateSummaryResult(1L, 10, new BigDecimal("4.50")),
+                            new ProductReviewAggregateSummaryResult(2L, 5, new BigDecimal("3.00"))
                     )
             );
             when(getReviewUseCase.getProductReviewAggregates(productIds)).thenReturn(result);

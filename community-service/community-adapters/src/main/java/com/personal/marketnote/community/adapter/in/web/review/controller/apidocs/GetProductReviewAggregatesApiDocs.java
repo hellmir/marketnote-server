@@ -61,7 +61,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- |
                 | productId | number | 상품 ID | 1 |
                 | totalCount | number | 총 리뷰 개수 | 8 |
-                | averageRating | number | 평점 평균 | 4.5 |
+                | averageRating | number(소수점 2자리) | 평점 평균 (scale=2, 0.00~9.99) | 4.50 |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
         parameters = {
@@ -88,17 +88,17 @@ import java.lang.annotation.*;
                                               {
                                                 "productId": 22,
                                                 "totalCount": 2,
-                                                "averageRating": 3
+                                                "averageRating": 3.00
                                               },
                                               {
                                                 "productId": 55,
                                                 "totalCount": 7,
-                                                "averageRating": 3.4285715
+                                                "averageRating": 3.43
                                               },
                                               {
                                                 "productId": 77,
                                                 "totalCount": 5,
-                                                "averageRating": 3.6
+                                                "averageRating": 3.60
                                               }
                                             ]
                                           },

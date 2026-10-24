@@ -62,7 +62,7 @@ public class UpdateReviewService implements UpdateReviewUseCase {
 
         publishReviewEventPort.publishReviewUpdatedEvent(
                 review.getId(), review.getProductId(),
-                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating()
+                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating().floatValue()
         );
 
         return UpdateReviewResult.from(review);

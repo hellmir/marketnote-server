@@ -76,8 +76,8 @@ class ReviewControllerExceptionHandlingTest {
                             .threePointCount(0)
                             .twoPointCount(0)
                             .onePointCount(0)
-                            .totalRating(14f)
-                            .averageRating(4.67f)
+                            .totalRating(14L)
+                            .averageRating(new java.math.BigDecimal("4.67"))
                             .build()
             );
             when(getReviewUseCase.getProductReviewAggregate(1L)).thenReturn(aggregate);
@@ -103,7 +103,7 @@ class ReviewControllerExceptionHandlingTest {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().getContent().totalCount()).isZero();
-            assertThat(response.getBody().getContent().averageRating()).isZero();
+            assertThat(response.getBody().getContent().averageRating()).isEqualByComparingTo(java.math.BigDecimal.ZERO);
         }
     }
 

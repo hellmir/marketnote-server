@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -17,7 +19,7 @@ public class ProductReviewAggregateResult {
     private int threePointCount;
     private int twoPointCount;
     private int onePointCount;
-    private float averageRating;
+    private BigDecimal averageRating = new BigDecimal("0.00");
 
     public static ProductReviewAggregateResult from(
             ProductReviewAggregate productReviewAggregate
