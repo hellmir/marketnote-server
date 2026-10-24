@@ -264,6 +264,38 @@ class ProductReviewAggregateTest {
         assertThat(aggregate.getThreePointCount()).isEqualTo(1);
     }
 
+    @Test
+    @DisplayName("대량 누적 시 totalRating이 long으로 정확히 보존된다")
+    void shouldPreserveExactTotalRatingAfterLargeAccumulation() {
+        ProductReviewAggregate aggregate = createEmptyAggregate();
+
+        int count = 100_000;
+        for (int i = 0; i < count; i++) {
+            aggregate.addPoint(5);
+            aggregate.computeRating(5);
+        }
+
+        assertThat(aggregate.getTotalCount()).isEqualTo(count);
+        assertThat(aggregate.getTotalRating()).isEqualTo(500_000L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("5.00"));
+    }
+
+    @Test
+    @DisplayName("나눗셈이 무한소수가 되면 scale=2 HALF_UP로 반올림된다")
+    void shouldRoundToScaleTwoWithHalfUp() {
+        ProductReviewAggregate aggregate = createEmptyAggregate();
+        aggregate.addPoint(4);
+        aggregate.computeRating(4);
+        aggregate.addPoint(3);
+        aggregate.computeRating(3);
+        aggregate.addPoint(3);
+        aggregate.computeRating(3);
+
+        assertThat(aggregate.getTotalCount()).isEqualTo(3);
+        assertThat(aggregate.getTotalRating()).isEqualTo(10L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("3.33"));
+    }
+
     private ProductReviewAggregate createEmptyAggregate() {
         return ProductReviewAggregate.from(ProductReviewAggregateSnapshotState.builder()
                 .productId(1L)
