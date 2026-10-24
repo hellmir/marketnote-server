@@ -5,6 +5,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -171,6 +172,19 @@ public class GlobalExceptionHandler {
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
         return buildErrorResponse(httpStatus, e.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        String message = e.getConstraintViolations().stream()
+                .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())
+                .collect(Collectors.joining(", "));
+        if (message.isEmpty()) {
+            message = "요청 파라미터가 올바르지 않습니다.";
+        }
+        log.info(LOG_INFO_MESSAGE, e.getMessage(), e);
+        return buildErrorResponse(httpStatus, message);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

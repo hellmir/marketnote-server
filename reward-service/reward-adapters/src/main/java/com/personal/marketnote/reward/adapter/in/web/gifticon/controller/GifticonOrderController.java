@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFAULT_SUCCESS_CODE;
@@ -34,6 +35,7 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RestController
 @RequestMapping("/api/v1/gifticons/orders")
 @RequiredArgsConstructor
+@Validated
 @Tag(name = "기프티콘 주문 API")
 public class GifticonOrderController {
 
