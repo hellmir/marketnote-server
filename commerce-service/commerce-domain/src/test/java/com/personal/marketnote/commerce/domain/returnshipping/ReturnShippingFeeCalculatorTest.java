@@ -21,15 +21,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("case5: 판매자 귀책이면 반품 택배비는 0원이다")
         void shouldReturnZeroWhenSellerFault() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.SELLER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.FULL_RETURN,
-                    Money.zero(),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    Money.zero()
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.SELLER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.FULL_RETURN).remainingAmount(Money.zero()).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(Money.zero()).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -44,15 +36,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("case2: 고객 귀책 + 초기 유료 배송이면 편도 배송비(3,000원)를 반환한다")
         void shouldReturnOneWayFeeWhenBuyerFaultAndPaidShipping() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.PAID_SHIPPING,
-                    ReturnType.FULL_RETURN,
-                    Money.zero(),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    Money.zero()
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.PAID_SHIPPING).returnType(ReturnType.FULL_RETURN).remainingAmount(Money.zero()).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(Money.zero()).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -67,15 +51,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("case1: 고객 귀책 + 초기 무료 배송 + 전체 반품이면 왕복 배송비(6,000원)를 반환한다")
         void shouldReturnRoundTripFeeWhenBuyerFaultFreeShippingFullReturn() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.FULL_RETURN,
-                    Money.zero(),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    Money.zero()
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.FULL_RETURN).remainingAmount(Money.zero()).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(Money.zero()).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -90,15 +66,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("case3: 부분 반품 후 잔여 금액이 무료 배송 기준 미달이면 왕복 배송비(6,000원)를 반환한다")
         void shouldReturnRoundTripFeeWhenRemainingBelowThreshold() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.PARTIAL_RETURN,
-                    Money.of(29999L),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    Money.zero()
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.PARTIAL_RETURN).remainingAmount(Money.of(29999L)).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(Money.zero()).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -108,15 +76,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("case4: 부분 반품 후 잔여 금액이 무료 배송 기준 유지이면 편도 배송비(3,000원)를 반환한다")
         void shouldReturnOneWayFeeWhenRemainingMeetsThreshold() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.PARTIAL_RETURN,
-                    Money.of(35000L),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    Money.zero()
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.PARTIAL_RETURN).remainingAmount(Money.of(35000L)).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(Money.zero()).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -126,15 +86,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("부분 반품 후 잔여 금액이 무료 배송 기준과 정확히 같으면 편도 배송비를 반환한다")
         void shouldReturnOneWayFeeWhenRemainingEqualsThreshold() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.PARTIAL_RETURN,
-                    FREE_SHIPPING_THRESHOLD,
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    Money.zero()
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.PARTIAL_RETURN).remainingAmount(FREE_SHIPPING_THRESHOLD).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(Money.zero()).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -151,15 +103,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("고객 귀책 + 유료 배송 + 제주 → 편도 배송비 + 제주 추가 배송비 1회")
         void shouldAddJejuSurchargeForPaidShippingOneWay() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.PAID_SHIPPING,
-                    ReturnType.FULL_RETURN,
-                    Money.zero(),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    JEJU_SURCHARGE
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.PAID_SHIPPING).returnType(ReturnType.FULL_RETURN).remainingAmount(Money.zero()).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(JEJU_SURCHARGE).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -169,15 +113,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("고객 귀책 + 무료 배송 + 전체 반품 + 도서산간 → 왕복 배송비 + 도서산간 추가 배송비 2회")
         void shouldAddIslandSurchargeForRoundTrip() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.FULL_RETURN,
-                    Money.zero(),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    ISLAND_SURCHARGE
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.FULL_RETURN).remainingAmount(Money.zero()).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(ISLAND_SURCHARGE).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -187,15 +123,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("고객 귀책 + 무료 배송 + 기준 미달 + 제주 → 왕복 배송비 + 제주 추가 배송비 2회")
         void shouldAddJejuSurchargeForBelowThresholdRoundTrip() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.PARTIAL_RETURN,
-                    Money.of(20000L),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    JEJU_SURCHARGE
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.PARTIAL_RETURN).remainingAmount(Money.of(20000L)).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(JEJU_SURCHARGE).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -205,15 +133,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("판매자 귀책 + 제주 → 추가 배송비 포함 전액 면제 (0원)")
         void shouldReturnZeroForSellerFaultWithSurcharge() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.SELLER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.FULL_RETURN,
-                    Money.zero(),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    JEJU_SURCHARGE
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.SELLER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.FULL_RETURN).remainingAmount(Money.zero()).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(JEJU_SURCHARGE).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
@@ -223,15 +143,7 @@ class ReturnShippingFeeCalculatorTest {
         @Test
         @DisplayName("고객 귀책 + 무료 배송 + 기준 유지 + 도서산간 → 편도 배송비 + 도서산간 추가 배송비 1회")
         void shouldAddIslandSurchargeForAboveThresholdOneWay() {
-            ReturnShippingFeeContext context = ReturnShippingFeeContext.of(
-                    FaultType.BUYER,
-                    InitialShippingType.FREE_SHIPPING,
-                    ReturnType.PARTIAL_RETURN,
-                    Money.of(35000L),
-                    FREE_SHIPPING_THRESHOLD,
-                    ONE_WAY_SHIPPING_FEE,
-                    ISLAND_SURCHARGE
-            );
+            ReturnShippingFeeContext context = ReturnShippingFeeContext.from(ReturnShippingFeeContextCreateState.builder().faultType(FaultType.BUYER).initialShippingType(InitialShippingType.FREE_SHIPPING).returnType(ReturnType.PARTIAL_RETURN).remainingAmount(Money.of(35000L)).freeShippingThreshold(FREE_SHIPPING_THRESHOLD).shippingFee(ONE_WAY_SHIPPING_FEE).regionSurcharge(ISLAND_SURCHARGE).build());
 
             Money result = ReturnShippingFeeCalculator.calculate(context);
 
