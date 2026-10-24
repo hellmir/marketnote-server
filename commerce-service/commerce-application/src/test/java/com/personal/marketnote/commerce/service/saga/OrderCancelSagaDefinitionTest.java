@@ -130,6 +130,15 @@ class OrderCancelSagaDefinitionTest {
         }
 
         @Test
+        @DisplayName("풀필먼트 취소 액션 메시지에 buyerId가 포함된다")
+        void shouldIncludeBuyerIdInFulfillmentCancelAction() {
+            String actionJson = definition.getSteps().get(0).action().apply(context);
+
+            assertThat(actionJson).contains("\"buyerId\"");
+            assertThat(actionJson).contains("100");
+        }
+
+        @Test
         @DisplayName("PG 환불 액션 메시지에 orderId, orderKey, cancelAmount가 포함된다")
         void shouldBuildRefundPaymentAction() {
             String actionJson = definition.getSteps().get(1).action().apply(context);

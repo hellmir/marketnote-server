@@ -64,24 +64,26 @@ public class OrderCancelSagaDefinition implements SagaDefinition<OrderCancelSaga
     }
 
     private String buildFulfillmentCancelAction(OrderCancelSagaContext context) {
-        return serialize(Map.of(
-                "orderId", context.orderId(),
-                "originalStatus", context.originalStatus(),
-                "productKeys", FormatValidator.hasNoValue(context.productKeys()) ? List.of() : context.productKeys()
+        return serialize(Map.ofEntries(
+                entry("orderId", context.orderId()),
+                entry("buyerId", context.buyerId()),
+                entry("originalStatus", context.originalStatus()),
+                entry("productKeys",
+                        FormatValidator.hasNoValue(context.productKeys()) ? List.of() : context.productKeys())
         ));
     }
 
     private String buildRefundPaymentAction(OrderCancelSagaContext context) {
-        return serialize(Map.of(
-                "orderId", context.orderId(),
-                "orderKey", context.orderKey(),
-                "buyerId", context.buyerId(),
-                "cancelAmount", context.cancelAmount(),
-                "paymentAmount", context.paymentAmount(),
-                "pointAmount", context.pointAmount(),
-                "shippingFee", context.shippingFee(),
-                "isFullCancel", context.isFullCancel(),
-                "alreadyRefunded", context.alreadyRefunded()
+        return serialize(Map.ofEntries(
+                entry("orderId", context.orderId()),
+                entry("orderKey", context.orderKey()),
+                entry("buyerId", context.buyerId()),
+                entry("cancelAmount", context.cancelAmount()),
+                entry("paymentAmount", context.paymentAmount()),
+                entry("pointAmount", context.pointAmount()),
+                entry("shippingFee", context.shippingFee()),
+                entry("isFullCancel", context.isFullCancel()),
+                entry("alreadyRefunded", context.alreadyRefunded())
         ));
     }
 
