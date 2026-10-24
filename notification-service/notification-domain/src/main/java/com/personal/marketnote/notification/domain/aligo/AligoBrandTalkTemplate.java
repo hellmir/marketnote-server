@@ -49,14 +49,18 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .adult(state.isAdult())
                 .imageUrl(state.getImageUrl())
                 .imageLink(state.getImageLink())
-                .buttons(state.getButtons() != null ? state.getButtons() : List.of())
+                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
                 .coupon(state.getCoupon())
                 .templateHeader(state.getTemplateHeader())
                 .mainWideItem(state.getMainWideItem())
-                .subWideItems(state.getSubWideItems() != null ? state.getSubWideItems() : List.of())
+                .subWideItems(FormatValidator.hasValue(state.getSubWideItems()) ? state.getSubWideItems() : List.of())
                 .carouselHeader(state.getCarouselHeader())
-                .carouselItems(state.getCarouselItems() != null ? state.getCarouselItems() : List.of())
-                .carouselCommerces(state.getCarouselCommerces() != null ? state.getCarouselCommerces() : List.of())
+                .carouselItems(
+                        FormatValidator.hasValue(state.getCarouselItems()) ? state.getCarouselItems() : List.of()
+                )
+                .carouselCommerces(
+                        FormatValidator.hasValue(state.getCarouselCommerces()) ? state.getCarouselCommerces() : List.of()
+                )
                 .carouselTail(state.getCarouselTail())
                 .videoUrl(state.getVideoUrl())
                 .videoThumbnailUrl(state.getVideoThumbnailUrl())
@@ -78,14 +82,18 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                 .adult(state.isAdult())
                 .imageUrl(state.getImageUrl())
                 .imageLink(state.getImageLink())
-                .buttons(state.getButtons() != null ? state.getButtons() : List.of())
+                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
                 .coupon(state.getCoupon())
                 .templateHeader(state.getTemplateHeader())
                 .mainWideItem(state.getMainWideItem())
-                .subWideItems(state.getSubWideItems() != null ? state.getSubWideItems() : List.of())
+                .subWideItems(FormatValidator.hasValue(state.getSubWideItems()) ? state.getSubWideItems() : List.of())
                 .carouselHeader(state.getCarouselHeader())
-                .carouselItems(state.getCarouselItems() != null ? state.getCarouselItems() : List.of())
-                .carouselCommerces(state.getCarouselCommerces() != null ? state.getCarouselCommerces() : List.of())
+                .carouselItems(
+                        FormatValidator.hasValue(state.getCarouselItems()) ? state.getCarouselItems() : List.of()
+                )
+                .carouselCommerces(
+                        FormatValidator.hasValue(state.getCarouselCommerces()) ? state.getCarouselCommerces() : List.of()
+                )
                 .carouselTail(state.getCarouselTail())
                 .videoUrl(state.getVideoUrl())
                 .videoThumbnailUrl(state.getVideoThumbnailUrl())
@@ -163,7 +171,8 @@ public class AligoBrandTalkTemplate extends BaseDomain {
         if (FormatValidator.hasValue(state.getTemplateHeader()) && state.getTemplateHeader().contains("\n")) {
             throw new InvalidBrandTalkTemplateException("templateHeader에 줄바꿈을 포함할 수 없습니다.");
         }
-        if (state.getSubWideItems() != null && (state.getSubWideItems().size() < 2 || state.getSubWideItems().size() > 3)) {
+        List<BrandTalkWideItem> subWideItems = state.getSubWideItems();
+        if (FormatValidator.hasValue(subWideItems) && (subWideItems.size() < 2 || subWideItems.size() > 3)) {
             throw new InvalidBrandTalkTemplateException("WIDE_ITEM_LIST의 subWideItems는 최소 2개, 최대 3개입니다.");
         }
     }
@@ -175,7 +184,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
                     "carouselHeader는 최대 " + MAX_CAROUSEL_HEADER_LENGTH + "자까지 입력할 수 있습니다."
             );
         }
-        if (state.getCarouselItems() == null || state.getCarouselItems().isEmpty()) {
+        if (FormatValidator.hasNoValue(state.getCarouselItems())) {
             throw new InvalidBrandTalkTemplateException("CAROUSEL 타입에는 carouselItems가 필수입니다.");
         }
         boolean hasIntro = FormatValidator.hasValue(state.getCarouselHeader());
@@ -192,7 +201,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
     }
 
     private static void validateCarouselCommerce(AligoBrandTalkTemplateCreateState state) {
-        if (state.getCarouselCommerces() == null || state.getCarouselCommerces().isEmpty()) {
+        if (FormatValidator.hasNoValue(state.getCarouselCommerces())) {
             throw new InvalidBrandTalkTemplateException("CAROUSEL_COMMERCE 타입에는 carouselCommerces가 필수입니다.");
         }
     }
@@ -204,7 +213,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
     }
 
     private static void validateCommerce(AligoBrandTalkTemplateCreateState state) {
-        if (state.getCommerceInfo() == null) {
+        if (FormatValidator.hasNoValue(state.getCommerceInfo())) {
             throw new InvalidBrandTalkTemplateException("COMMERCE 타입에는 commerceInfo가 필수입니다.");
         }
     }

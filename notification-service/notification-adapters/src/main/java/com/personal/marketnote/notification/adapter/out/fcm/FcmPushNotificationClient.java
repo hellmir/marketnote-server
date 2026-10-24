@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.fcm;
 
 import com.google.firebase.messaging.*;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.device.Platform;
 import com.personal.marketnote.notification.domain.notification.FcmSendFailedException;
 import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
@@ -75,7 +76,7 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
 
     private SendPushNotificationResult handleFirebaseMessagingException(FirebaseMessagingException fme) {
         MessagingErrorCode errorCode = fme.getMessagingErrorCode();
-        String errorCodeName = errorCode != null ? errorCode.name() : "UNKNOWN";
+        String errorCodeName = FormatValidator.hasValue(errorCode) ? errorCode.name() : "UNKNOWN";
 
         if (isTokenInvalid(errorCode)) {
             log.warn("FCM 토큰 무효: errorCode={}", errorCodeName);
@@ -106,7 +107,7 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
                     .toList();
 
             BatchResponse response = sendWithRetry(messages);
-            if (response == null) {
+            if (FormatValidator.hasNoValue(response)) {
                 totalFailure += chunk.size();
                 for (SendPushNotificationCommand cmd : chunk) {
                     allFailedTokens.add(new SendBatchPushNotificationResult.FailedToken(
@@ -125,8 +126,8 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
                     continue;
                 }
                 FirebaseMessagingException exception = sendResponse.getException();
-                MessagingErrorCode errorCode = exception != null ? exception.getMessagingErrorCode() : null;
-                String errorCodeName = errorCode != null ? errorCode.name() : "UNKNOWN";
+                MessagingErrorCode errorCode = FormatValidator.hasValue(exception) ? exception.getMessagingErrorCode() : null;
+                String errorCodeName = FormatValidator.hasValue(errorCode) ? errorCode.name() : "UNKNOWN";
                 allFailedTokens.add(new SendBatchPushNotificationResult.FailedToken(
                         chunk.get(j).deviceToken(), errorCodeName, isTokenInvalid(errorCode)));
             }

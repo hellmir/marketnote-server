@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoSenderProfileListExternalPort;
 import com.personal.marketnote.notification.port.out.aligo.RegisterAligoSenderProfileExternalPort;
@@ -47,7 +48,7 @@ public class AligoSenderProfileExternalAdapter
                 "/akv10/profile/list/", params, AligoProfileListResponse.class
         );
 
-        if (response.list() == null) {
+        if (FormatValidator.hasNoValue(response.list())) {
             return List.of();
         }
 

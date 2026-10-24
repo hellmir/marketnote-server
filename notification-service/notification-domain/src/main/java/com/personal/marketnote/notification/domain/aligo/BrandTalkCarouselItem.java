@@ -1,5 +1,6 @@
 package com.personal.marketnote.notification.domain.aligo;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.*;
 
 import java.util.List;
@@ -28,13 +29,13 @@ public class BrandTalkCarouselItem {
                 .header(header)
                 .content(content)
                 .imageUrl(imageUrl)
-                .buttons(buttons != null ? buttons : List.of())
+                .buttons(FormatValidator.hasValue(buttons) ? buttons : List.of())
                 .coupon(coupon)
                 .build();
     }
 
     private static void validate(List<BrandTalkButton> buttons) {
-        if (buttons == null || buttons.size() < MIN_BUTTONS) {
+        if (FormatValidator.hasNoValue(buttons) || buttons.size() < MIN_BUTTONS) {
             throw new InvalidBrandTalkTemplateException(
                     "캐러셀 아이템의 버튼은 최소 " + MIN_BUTTONS + "개 필수입니다."
             );

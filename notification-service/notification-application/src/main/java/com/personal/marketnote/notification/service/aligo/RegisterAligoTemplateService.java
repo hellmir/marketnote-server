@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.command.AligoTemplateButtonCommand;
 import com.personal.marketnote.notification.port.in.command.RegisterAligoTemplateCommand;
@@ -53,7 +54,7 @@ public class RegisterAligoTemplateService implements RegisterAligoTemplateUseCas
     }
 
     private List<AligoTemplateButton> mapButtons(List<AligoTemplateButtonCommand> buttonCommands) {
-        if (buttonCommands == null) {
+        if (FormatValidator.hasNoValue(buttonCommands)) {
             return List.of();
         }
         return buttonCommands.stream()

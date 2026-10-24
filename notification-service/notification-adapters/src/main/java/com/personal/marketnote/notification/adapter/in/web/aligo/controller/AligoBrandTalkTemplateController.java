@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.RegisterBrandTalkTemplateRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.GetBrandTalkTemplateListResponse;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.RegisterBrandTalkTemplateResponse;
@@ -68,8 +69,8 @@ public class AligoBrandTalkTemplateController {
         List<BrandTalkButtonCommand> buttonCommands = mapButtons(request.buttons());
         BrandTalkCouponCommand couponCommand = mapCoupon(request.coupon());
 
-        byte[] imageFile = image != null ? image.getBytes() : null;
-        String imageFileName = image != null ? image.getOriginalFilename() : null;
+        byte[] imageFile = FormatValidator.hasValue(image) ? image.getBytes() : null;
+        String imageFileName = FormatValidator.hasValue(image) ? image.getOriginalFilename() : null;
 
         List<byte[]> carouselItemImageFiles = mapCarouselItemImageFiles(carouselItemImages);
         List<String> carouselItemImageFileNames = mapCarouselItemImageFileNames(carouselItemImages);
@@ -102,7 +103,7 @@ public class AligoBrandTalkTemplateController {
     }
 
     private List<BrandTalkButtonCommand> mapButtons(List<RegisterBrandTalkTemplateRequest.ButtonRequest> buttons) {
-        if (buttons == null) {
+        if (FormatValidator.hasNoValue(buttons)) {
             return List.of();
         }
         return buttons.stream()
@@ -114,7 +115,7 @@ public class AligoBrandTalkTemplateController {
     }
 
     private BrandTalkCouponCommand mapCoupon(RegisterBrandTalkTemplateRequest.CouponRequest coupon) {
-        if (coupon == null) {
+        if (FormatValidator.hasNoValue(coupon)) {
             return null;
         }
         return new BrandTalkCouponCommand(
@@ -124,7 +125,7 @@ public class AligoBrandTalkTemplateController {
     }
 
     private BrandTalkWideItemCommand mapWideItem(RegisterBrandTalkTemplateRequest.WideItemRequest item) {
-        if (item == null) {
+        if (FormatValidator.hasNoValue(item)) {
             return null;
         }
         return new BrandTalkWideItemCommand(
@@ -133,7 +134,7 @@ public class AligoBrandTalkTemplateController {
     }
 
     private List<BrandTalkWideItemCommand> mapWideItems(List<RegisterBrandTalkTemplateRequest.WideItemRequest> items) {
-        if (items == null) {
+        if (FormatValidator.hasNoValue(items)) {
             return List.of();
         }
         return items.stream().map(this::mapWideItem).toList();
@@ -142,7 +143,7 @@ public class AligoBrandTalkTemplateController {
     private List<BrandTalkCarouselItemCommand> mapCarouselItems(
             List<RegisterBrandTalkTemplateRequest.CarouselItemRequest> items
     ) {
-        if (items == null) {
+        if (FormatValidator.hasNoValue(items)) {
             return List.of();
         }
         return items.stream()
@@ -156,7 +157,7 @@ public class AligoBrandTalkTemplateController {
     private List<BrandTalkCarouselCommerceCommand> mapCarouselCommerces(
             List<RegisterBrandTalkTemplateRequest.CarouselCommerceRequest> commerces
     ) {
-        if (commerces == null) {
+        if (FormatValidator.hasNoValue(commerces)) {
             return List.of();
         }
         return commerces.stream()
@@ -168,14 +169,14 @@ public class AligoBrandTalkTemplateController {
     }
 
     private BrandTalkCarouselTailCommand mapCarouselTail(RegisterBrandTalkTemplateRequest.CarouselTailRequest tail) {
-        if (tail == null) {
+        if (FormatValidator.hasNoValue(tail)) {
             return null;
         }
         return new BrandTalkCarouselTailCommand(tail.linkM());
     }
 
     private BrandTalkCommerceInfoCommand mapCommerceInfo(RegisterBrandTalkTemplateRequest.CommerceInfoRequest commerceInfo) {
-        if (commerceInfo == null) {
+        if (FormatValidator.hasNoValue(commerceInfo)) {
             return null;
         }
         return new BrandTalkCommerceInfoCommand(
@@ -185,7 +186,7 @@ public class AligoBrandTalkTemplateController {
     }
 
     private List<byte[]> mapCarouselItemImageFiles(List<MultipartFile> files) throws IOException {
-        if (files == null) {
+        if (FormatValidator.hasNoValue(files)) {
             return List.of();
         }
         List<byte[]> result = new ArrayList<>();
@@ -196,7 +197,7 @@ public class AligoBrandTalkTemplateController {
     }
 
     private List<String> mapCarouselItemImageFileNames(List<MultipartFile> files) {
-        if (files == null) {
+        if (FormatValidator.hasNoValue(files)) {
             return List.of();
         }
         return files.stream().map(MultipartFile::getOriginalFilename).toList();

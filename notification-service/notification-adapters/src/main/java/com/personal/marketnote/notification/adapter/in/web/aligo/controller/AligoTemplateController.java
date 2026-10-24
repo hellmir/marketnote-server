@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.DeleteAligoTemplateRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.RegisterAligoTemplateRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.UpdateAligoTemplateRequest;
@@ -163,7 +164,7 @@ public class AligoTemplateController {
     private List<AligoTemplateButtonCommand> mapButtons(
             List<RegisterAligoTemplateRequest.ButtonRequest> buttons
     ) {
-        if (buttons == null) {
+        if (FormatValidator.hasNoValue(buttons)) {
             return List.of();
         }
         return buttons.stream()
