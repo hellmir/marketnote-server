@@ -317,7 +317,7 @@ class PaymentApprovalTransactionHelperTest {
                 .orderKey(ORDER_KEY)
                 .orderNumber(OrderNumber.of("ORD-TEST-001"))
                 .orderStatus(status)
-                .amount(OrderAmount.of(50000L, null, 0L, 0L, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)
                 .build());

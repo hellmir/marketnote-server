@@ -208,7 +208,7 @@ class CompleteReturnUseCaseTest {
             when(order.getOrderStatus()).thenReturn(OrderStatus.RETURN_REQUESTED);
             when(order.getStatusChangeReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
 
-            OrderAmount amount = OrderAmount.of(80000L, 79000L, 0L, 1000L, 3000L);
+            OrderAmount amount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(80000L).paidAmount(79000L).couponAmount(0L).pointAmount(1000L).shippingFee(3000L).build());
             when(order.getAmount()).thenReturn(amount);
 
             when(returnProduct.getPricePolicyId()).thenReturn(10L);
@@ -265,7 +265,7 @@ class CompleteReturnUseCaseTest {
             when(order.getOrderStatus()).thenReturn(OrderStatus.PARTIALLY_RETURNED);
             when(order.getStatusChangeReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
 
-            OrderAmount amount = OrderAmount.of(80000L, 79000L, 0L, 1000L, 3000L);
+            OrderAmount amount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(80000L).paidAmount(79000L).couponAmount(0L).pointAmount(1000L).shippingFee(3000L).build());
             when(order.getAmount()).thenReturn(amount);
 
             when(alreadyReturnedProduct.getPricePolicyId()).thenReturn(10L);
@@ -387,7 +387,7 @@ class CompleteReturnUseCaseTest {
         when(order.getOrderStatus()).thenReturn(status);
         when(order.getStatusChangeReasonCategory()).thenReturn(OrderStatusReasonCategory.SIMPLE_CHANGE_OF_MIND);
 
-        OrderAmount amount = OrderAmount.of(50000L, 49000L, 0L, 1000L, 3000L);
+        OrderAmount amount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(49000L).couponAmount(0L).pointAmount(1000L).shippingFee(3000L).build());
         when(order.getAmount()).thenReturn(amount);
 
         when(product.getPricePolicyId()).thenReturn(10L);

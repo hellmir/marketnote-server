@@ -136,7 +136,7 @@ class OrderPersistenceAdapterTest {
                     "ALTER TABLE order_status_history ALTER COLUMN reason_category SET DEFAULT 'ETC'"
             ).executeUpdate();
 
-            OrderAmount amount = OrderAmount.of(50000L, 45000L, 0L, 0L, 3000L);
+            OrderAmount amount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build());
             ShippingAddress shippingAddress = ShippingAddress.of(
                     "홍길동", "010-1234-5678", "06000", "서울시 강남구", "101호",
                     DeliveryRequestType.LEAVE_AT_DOOR, "문 앞에 놔주세요"
@@ -185,7 +185,7 @@ class OrderPersistenceAdapterTest {
             Order order = Order.from(
                     OrderCreateState.builder()
                             .buyerId(1L)
-                            .amount(OrderAmount.of(50000L, 45000L, 0L, 0L, 3000L))
+                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
                             .shippingAddress(ShippingAddress.of(
                                     "홍길동", "010-1234-5678", "06000", "서울시 강남구", "101호",
                                     DeliveryRequestType.LEAVE_AT_DOOR, null
@@ -403,7 +403,7 @@ class OrderPersistenceAdapterTest {
                             .orderKey(orderEntity.getOrderKey())
                             .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
                             .orderStatus(OrderStatus.PREPARING)
-                            .amount(OrderAmount.of(50000L, 45000L, 0L, 0L, 3000L))
+                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
                             .shippingAddress(ShippingAddress.of(
                                     "홍길동", "010-1234-5678", "06000", "서울시 강남구", "101호",
                                     DeliveryRequestType.LEAVE_AT_DOOR, "문 앞에 놔주세요"
@@ -457,7 +457,7 @@ class OrderPersistenceAdapterTest {
                             .orderKey(UUID.randomUUID())
                             .orderNumber(OrderNumber.of("ORD-TEST-999"))
                             .orderStatus(OrderStatus.PAID)
-                            .amount(OrderAmount.of(50000L, 45000L, 0L, 0L, 3000L))
+                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
                             .shippingAddress(ShippingAddress.of(
                                     "홍길동", "010-1234-5678", "06000", "서울시", "101호",
                                     DeliveryRequestType.LEAVE_AT_DOOR, null
@@ -592,7 +592,7 @@ class OrderPersistenceAdapterTest {
                             .orderKey(orderEntity.getOrderKey())
                             .orderNumber(OrderNumber.of(orderEntity.getOrderNumber()))
                             .orderStatus(OrderStatus.PREPARING)
-                            .amount(OrderAmount.of(50000L, 45000L, 0L, 0L, 3000L))
+                            .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(0L).pointAmount(0L).shippingFee(3000L).build()))
                             .shippingAddress(ShippingAddress.of(
                                     "홍길동", "010-1234-5678", "06000", "서울시 강남구", "101호",
                                     DeliveryRequestType.LEAVE_AT_DOOR, null

@@ -15,26 +15,9 @@ public class OrderAmount {
     private Money pointAmount;
     private Money shippingFee;
 
-    @Deprecated
-    public static OrderAmount of(
-            Long totalAmount,
-            Long paidAmount,
-            Long couponAmount,
-            Long pointAmount,
-            Long shippingFee
-    ) {
-        return OrderAmount.builder()
-                .totalAmount(resolveMoneyOrZero(totalAmount))
-                .paidAmount(resolveMoneyOrZero(paidAmount))
-                .couponAmount(resolveMoneyOrZero(couponAmount))
-                .pointAmount(resolveMoneyOrZero(pointAmount))
-                .shippingFee(resolveMoneyOrZero(shippingFee))
-                .build();
-    }
-
     public static OrderAmount from(OrderAmountCreateState state) {
         return OrderAmount.builder()
-                .totalAmount(Money.of(state.getTotalAmount()))
+                .totalAmount(resolveMoneyOrZero(state.getTotalAmount()))
                 .paidAmount(resolveMoneyOrZero(state.getPaidAmount()))
                 .couponAmount(resolveMoneyOrZero(state.getCouponAmount()))
                 .pointAmount(resolveMoneyOrZero(state.getPointAmount()))

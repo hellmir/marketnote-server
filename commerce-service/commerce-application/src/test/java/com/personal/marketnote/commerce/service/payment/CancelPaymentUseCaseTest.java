@@ -292,7 +292,7 @@ class CancelPaymentUseCaseTest {
                 .buyerId(BUYER_ID)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(50000L, null, null, 0L, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(productState))
                 .build();
