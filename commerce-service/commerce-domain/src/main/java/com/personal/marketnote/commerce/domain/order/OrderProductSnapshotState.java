@@ -27,5 +27,6 @@ public class OrderProductSnapshotState {
     private final Boolean isReviewed;
     private final LocalDateTime confirmedAt;
     private final LocalDateTime deliveredAt;
+    private final LocalDateTime scheduledAutoConfirmAt;
 }
 

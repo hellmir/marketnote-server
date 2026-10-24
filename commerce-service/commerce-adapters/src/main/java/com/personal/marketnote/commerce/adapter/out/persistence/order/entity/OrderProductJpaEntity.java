@@ -70,6 +70,9 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
+    @Column(name = "scheduled_auto_confirm_at")
+    private LocalDateTime scheduledAutoConfirmAt;
+
     public static OrderProductJpaEntity from(OrderProduct orderProduct, OrderJpaEntity orderJpaEntity) {
         return OrderProductJpaEntity.builder()
                 .id(new OrderProductId(orderProduct.getPricePolicyId(), orderJpaEntity.getId()))
@@ -86,6 +89,7 @@ public class OrderProductJpaEntity extends BaseEntity {
                 .orderStatus(orderProduct.getOrderStatus())
                 .confirmedAt(orderProduct.getConfirmedAt())
                 .deliveredAt(orderProduct.getDeliveredAt())
+                .scheduledAutoConfirmAt(orderProduct.getScheduledAutoConfirmAt())
                 .build();
     }
 
@@ -99,6 +103,7 @@ public class OrderProductJpaEntity extends BaseEntity {
         isReviewed = orderProduct.getIsReviewed();
         confirmedAt = orderProduct.getConfirmedAt();
         deliveredAt = orderProduct.getDeliveredAt();
+        scheduledAutoConfirmAt = orderProduct.getScheduledAutoConfirmAt();
     }
 
     public Long getPricePolicyId() {

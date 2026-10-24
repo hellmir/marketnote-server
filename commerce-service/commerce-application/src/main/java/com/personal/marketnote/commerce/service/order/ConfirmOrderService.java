@@ -41,7 +41,7 @@ public class ConfirmOrderService implements ConfirmOrderUseCase {
         validateStatusTransition(order);
 
         LocalDateTime now = LocalDateTime.now(clock);
-        order.changeAllProductsStatus(TARGET_STATUS, now);
+        order.changeAllProductsStatus(TARGET_STATUS, now, 0L);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()

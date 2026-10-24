@@ -79,7 +79,7 @@ class CompleteCancelOrderUseCaseTest {
 
             service.completeCancellation(command);
 
-            verify(order).changeAllProductsStatus(eq(OrderStatus.CANCELLED), any());
+            verify(order).changeAllProductsStatus(eq(OrderStatus.CANCELLED), any(), eq(0L));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
             verify(publishOrderEventPort).publishOrderCancelledEvent(
                     eq(1L), eq("ORD-001"), eq(100L),

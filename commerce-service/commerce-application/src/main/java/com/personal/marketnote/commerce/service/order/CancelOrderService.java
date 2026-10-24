@@ -163,7 +163,7 @@ public class CancelOrderService implements CancelOrderUseCase {
     }
 
     private void persistFullStatusChange(CancelOrderCommand command, Order order, OrderStatus targetStatus) {
-        order.changeAllProductsStatus(targetStatus, null);
+        order.changeAllProductsStatus(targetStatus, null, 0L);
 
         OrderStatusHistory history = OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()
@@ -181,7 +181,7 @@ public class CancelOrderService implements CancelOrderUseCase {
             CancelOrderCommand command, Order order,
             List<Long> pricePolicyIds, OrderStatus targetProductStatus
     ) {
-        order.changeProductsStatus(pricePolicyIds, targetProductStatus, null);
+        order.changeProductsStatus(pricePolicyIds, targetProductStatus, null, 0L);
 
         OrderStatusHistory history = OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()

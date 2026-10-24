@@ -26,6 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -74,7 +75,7 @@ class FailReturnInspectionUseCaseTest {
             service.failInspection(tracker, NOW);
 
             // then
-            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURN_REJECTED), eq(NOW));
+            verify(order).changeProductsStatus(eq(List.of(10L)), eq(OrderStatus.RETURN_REJECTED), eq(NOW), eq(0L));
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
         }
 
@@ -143,8 +144,8 @@ class FailReturnInspectionUseCaseTest {
             service.failInspection(tracker, NOW);
 
             // then
-            verify(order, never()).changeProductsStatus(anyList(), any(), any());
-            verify(order, never()).changeAllProductsStatus(any(), any());
+            verify(order, never()).changeProductsStatus(anyList(), any(), any(), anyLong());
+            verify(order, never()).changeAllProductsStatus(any(), any(), anyLong());
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
         }
@@ -166,8 +167,8 @@ class FailReturnInspectionUseCaseTest {
             service.failInspection(tracker, NOW);
 
             // then
-            verify(order, never()).changeProductsStatus(anyList(), any(), any());
-            verify(order, never()).changeAllProductsStatus(any(), any());
+            verify(order, never()).changeProductsStatus(anyList(), any(), any(), anyLong());
+            verify(order, never()).changeAllProductsStatus(any(), any(), anyLong());
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(publishOrderEventPort);
         }

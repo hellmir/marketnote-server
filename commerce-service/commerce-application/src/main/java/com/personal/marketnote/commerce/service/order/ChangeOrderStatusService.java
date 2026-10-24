@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
+import com.personal.marketnote.commerce.configuration.AutoConfirmSchedulerProperties;
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
@@ -42,6 +43,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final FindProductByPricePolicyPort findProductByPricePolicyPort;
     private final ModifyUserPointPort modifyUserPointPort;
     private final PublishOrderEventPort publishOrderEventPort;
+    private final AutoConfirmSchedulerProperties autoConfirmSchedulerProperties;
     private final Clock clock;
 
     @Override
@@ -69,9 +71,10 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private void changeOrderStatus(ChangeOrderStatusCommand command, Order order) {
         OrderStatus status = command.orderStatus();
         LocalDateTime now = LocalDateTime.now(clock);
+        long autoConfirmDays = autoConfirmSchedulerProperties.getAutoConfirmDays();
 
         if (command.isPartialProductChange()) {
-            order.changeProductsStatus(command.pricePolicyIds(), status, now);
+            order.changeProductsStatus(command.pricePolicyIds(), status, now, autoConfirmDays);
             return;
         }
 
@@ -79,7 +82,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             order.recordPaidAmount(Money.of(command.paidAmount()));
         }
 
-        order.changeAllProductsStatus(status, now);
+        order.changeAllProductsStatus(status, now, autoConfirmDays);
     }
 
     private void updatePaymentSubsequentProcesses(Order order) {

@@ -31,6 +31,7 @@ public class OrderProduct {
     private Boolean isReviewed;
     private LocalDateTime confirmedAt;
     private LocalDateTime deliveredAt;
+    private LocalDateTime scheduledAutoConfirmAt;
 
     public static OrderProduct from(OrderProductCreateState state) {
         return OrderProduct.builder()
@@ -65,10 +66,11 @@ public class OrderProduct {
                 .isReviewed(state.getIsReviewed())
                 .confirmedAt(state.getConfirmedAt())
                 .deliveredAt(state.getDeliveredAt())
+                .scheduledAutoConfirmAt(state.getScheduledAutoConfirmAt())
                 .build();
     }
 
-    public void changeOrderStatus(OrderStatus orderStatus, LocalDateTime now) {
+    public void changeOrderStatus(OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays) {
         if (this.orderStatus == orderStatus) {
             return;
         }
@@ -76,10 +78,16 @@ public class OrderProduct {
             throw new InvalidOrderProductStatusTransitionException(this.orderStatus, orderStatus);
         }
         this.orderStatus = orderStatus;
-        if (orderStatus.isDelivered()) {
+        applyTimestampForTransition(orderStatus, now, autoConfirmDays);
+    }
+
+    private void applyTimestampForTransition(OrderStatus target, LocalDateTime now, long autoConfirmDays) {
+        if (target.isDelivered()) {
             this.deliveredAt = now;
+            this.scheduledAutoConfirmAt = now.plusDays(autoConfirmDays);
+            return;
         }
-        if (orderStatus.isConfirmed()) {
+        if (target.isConfirmed()) {
             this.confirmedAt = now;
         }
     }

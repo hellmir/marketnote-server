@@ -159,7 +159,7 @@ class OrderProductTest {
             OrderProduct orderProduct = createOrderProduct(OrderStatus.SHIPPING);
 
             // when
-            orderProduct.changeOrderStatus(OrderStatus.DELIVERED, NOW);
+            orderProduct.changeOrderStatus(OrderStatus.DELIVERED, NOW, 7L);
 
             // then
             assertThat(orderProduct.getDeliveredAt()).isEqualTo(NOW);
@@ -173,7 +173,7 @@ class OrderProductTest {
             OrderProduct orderProduct = createOrderProductWithDeliveredAt(deliveredTime);
 
             // when
-            orderProduct.changeOrderStatus(OrderStatus.CONFIRMED, NOW);
+            orderProduct.changeOrderStatus(OrderStatus.CONFIRMED, NOW, 7L);
 
             // then
             assertThat(orderProduct.getDeliveredAt()).isEqualTo(deliveredTime);

@@ -91,6 +91,7 @@ public class OrderJpaEntityToDomainMapper {
                         .isReviewed(entity.getIsReviewed())
                         .confirmedAt(entity.getConfirmedAt())
                         .deliveredAt(entity.getDeliveredAt())
+                        .scheduledAutoConfirmAt(entity.getScheduledAutoConfirmAt())
                         .build());
     }
 
@@ -160,6 +161,7 @@ public class OrderJpaEntityToDomainMapper {
                                 .isReviewed(entity.getIsReviewed())
                                 .confirmedAt(entity.getConfirmedAt())
                                 .deliveredAt(entity.getDeliveredAt())
+                                .scheduledAutoConfirmAt(entity.getScheduledAutoConfirmAt())
                                 .build()
                 ));
     }

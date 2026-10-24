@@ -81,11 +81,11 @@ public class CompleteCancelOrderService implements CompleteCancelOrderUseCase {
 
     private void applyCancelStatusToProducts(CompleteCancelOrderCommand command, Order order, LocalDateTime now) {
         if (command.isFullCancel()) {
-            order.changeAllProductsStatus(OrderStatus.CANCELLED, now);
+            order.changeAllProductsStatus(OrderStatus.CANCELLED, now, 0L);
             return;
         }
         List<Long> cancelPricePolicyIds = extractCancelPricePolicyIds(command.cancelProducts());
-        order.changeProductsStatus(cancelPricePolicyIds, OrderStatus.CANCELLED, now);
+        order.changeProductsStatus(cancelPricePolicyIds, OrderStatus.CANCELLED, now, 0L);
     }
 
     private List<Long> extractCancelPricePolicyIds(List<CancelProductItemCommand> items) {
