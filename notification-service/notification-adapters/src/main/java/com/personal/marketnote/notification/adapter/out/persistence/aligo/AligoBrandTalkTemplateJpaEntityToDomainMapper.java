@@ -117,10 +117,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                         BrandTalkCoupon itemCoupon = FormatValidator.hasValue(dto.coupon())
                                 ? BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title(dto.coupon().title()).description(dto.coupon().description()).linkM(dto.coupon().linkM()).linkP(dto.coupon().linkP()).linkI(dto.coupon().linkI()).linkA(dto.coupon().linkA()).build())
                                 : null;
-                        return BrandTalkCarouselItem.of(
-                                dto.header(), dto.content(), dto.imageUrl(),
-                                itemButtons, itemCoupon
-                        );
+                        return BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header(dto.header()).content(dto.content()).imageUrl(dto.imageUrl()).buttons(itemButtons).coupon(itemCoupon).build());
                     })
                     .toList();
         } catch (JsonProcessingException e) {
