@@ -36,46 +36,6 @@ public class ResizedFile {
                 .build();
     }
 
-    @Deprecated
-    public static ResizedFile of(Long fileId, String size) {
-        return ResizedFile.builder()
-                .fileId(fileId)
-                .size(size)
-                .build();
-    }
-
-    @Deprecated
-    public static ResizedFile of(Long fileId, String size, String storageUrl) {
-        return ResizedFile.builder()
-                .fileId(fileId)
-                .size(size)
-                .storageUrl(storageUrl)
-                .build();
-    }
-
-    @Deprecated
-    public static ResizedFile of(Long id, Long fileId, String size, LocalDateTime createdAt, EntityStatus status) {
-        return ResizedFile.builder()
-                .id(id)
-                .fileId(fileId)
-                .size(size)
-                .createdAt(createdAt)
-                .status(status)
-                .build();
-    }
-
-    @Deprecated
-    public static ResizedFile of(Long id, Long fileId, String size, String storageUrl, LocalDateTime createdAt, EntityStatus status) {
-        return ResizedFile.builder()
-                .id(id)
-                .fileId(fileId)
-                .size(size)
-                .storageUrl(storageUrl)
-                .createdAt(createdAt)
-                .status(status)
-                .build();
-    }
-
     public boolean isActive() {
         return status.isActive();
     }
