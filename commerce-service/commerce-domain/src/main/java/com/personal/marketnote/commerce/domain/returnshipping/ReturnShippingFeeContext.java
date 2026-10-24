@@ -16,23 +16,15 @@ public class ReturnShippingFeeContext {
     private Money shippingFee;
     private Money regionSurcharge;
 
-    public static ReturnShippingFeeContext of(
-            FaultType faultType,
-            InitialShippingType initialShippingType,
-            ReturnType returnType,
-            Money remainingAmount,
-            Money freeShippingThreshold,
-            Money shippingFee,
-            Money regionSurcharge
-    ) {
+    public static ReturnShippingFeeContext from(ReturnShippingFeeContextCreateState state) {
         return ReturnShippingFeeContext.builder()
-                .faultType(faultType)
-                .initialShippingType(initialShippingType)
-                .returnType(returnType)
-                .remainingAmount(remainingAmount)
-                .freeShippingThreshold(freeShippingThreshold)
-                .shippingFee(shippingFee)
-                .regionSurcharge(regionSurcharge)
+                .faultType(state.getFaultType())
+                .initialShippingType(state.getInitialShippingType())
+                .returnType(state.getReturnType())
+                .remainingAmount(state.getRemainingAmount())
+                .freeShippingThreshold(state.getFreeShippingThreshold())
+                .shippingFee(state.getShippingFee())
+                .regionSurcharge(state.getRegionSurcharge())
                 .build();
     }
 
