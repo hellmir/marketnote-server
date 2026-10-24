@@ -14,7 +14,7 @@ class BrandTalkCarouselItemTest {
     @DisplayName("캐러셀 아이템의 버튼이 최소 1개 미만이면 예외가 발생한다")
     void shouldThrowExceptionWhenButtonsEmpty() {
         // when & then
-        assertThatThrownBy(() -> BrandTalkCarouselItem.of("제목", "내용", null, List.of(), null))
+        assertThatThrownBy(() -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl(null).buttons(List.of()).coupon(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("최소 1개");
     }
@@ -23,7 +23,7 @@ class BrandTalkCarouselItemTest {
     @DisplayName("캐러셀 아이템의 버튼이 null이면 예외가 발생한다")
     void shouldThrowExceptionWhenButtonsNull() {
         // when & then
-        assertThatThrownBy(() -> BrandTalkCarouselItem.of("제목", "내용", null, null, null))
+        assertThatThrownBy(() -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl(null).buttons(null).coupon(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("최소 1개");
     }
@@ -37,7 +37,7 @@ class BrandTalkCarouselItemTest {
         BrandTalkButton button3 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼3").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
 
         // when & then
-        assertThatThrownBy(() -> BrandTalkCarouselItem.of("제목", "내용", null, List.of(button1, button2, button3), null))
+        assertThatThrownBy(() -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl(null).buttons(List.of(button1, button2, button3)).coupon(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("최대 2개");
     }
@@ -49,7 +49,7 @@ class BrandTalkCarouselItemTest {
         BrandTalkButton button = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
 
         // when
-        BrandTalkCarouselItem item = BrandTalkCarouselItem.of("제목", "내용", "https://img.com/1.jpg", List.of(button), null);
+        BrandTalkCarouselItem item = BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl("https://img.com/1.jpg").buttons(List.of(button)).coupon(null).build());
 
         // then
         assertThat(item.getHeader()).isEqualTo("제목");
@@ -67,7 +67,7 @@ class BrandTalkCarouselItemTest {
         BrandTalkCoupon coupon = BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title("10% 할인").description(null).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
 
         // when
-        BrandTalkCarouselItem item = BrandTalkCarouselItem.of("제목", "내용", null, List.of(button1, button2), coupon);
+        BrandTalkCarouselItem item = BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목").content("내용").imageUrl(null).buttons(List.of(button1, button2)).coupon(coupon).build());
 
         // then
         assertThat(item.getButtons()).hasSize(2);

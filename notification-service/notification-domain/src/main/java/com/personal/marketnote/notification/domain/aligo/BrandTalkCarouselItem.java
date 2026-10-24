@@ -20,17 +20,15 @@ public class BrandTalkCarouselItem {
     private List<BrandTalkButton> buttons;
     private BrandTalkCoupon coupon;
 
-    public static BrandTalkCarouselItem of(
-            String header, String content, String imageUrl,
-            List<BrandTalkButton> buttons, BrandTalkCoupon coupon
-    ) {
+    public static BrandTalkCarouselItem from(BrandTalkCarouselItemCreateState state) {
+        List<BrandTalkButton> buttons = state.getButtons();
         validate(buttons);
         return BrandTalkCarouselItem.builder()
-                .header(header)
-                .content(content)
-                .imageUrl(imageUrl)
+                .header(state.getHeader())
+                .content(state.getContent())
+                .imageUrl(state.getImageUrl())
                 .buttons(FormatValidator.hasValue(buttons) ? buttons : List.of())
-                .coupon(coupon)
+                .coupon(state.getCoupon())
                 .build();
     }
 

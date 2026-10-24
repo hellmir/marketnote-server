@@ -123,7 +123,7 @@ class AligoBrandTalkTemplateTest {
 
     private List<BrandTalkCarouselItem> createCarouselItems(int count) {
         return java.util.stream.IntStream.rangeClosed(1, count)
-                .mapToObj(i -> BrandTalkCarouselItem.of("제목" + i, "내용" + i, null, List.of(createTestButton()), null))
+                .mapToObj(i -> BrandTalkCarouselItem.from(BrandTalkCarouselItemCreateState.builder().header("제목" + i).content("내용" + i).imageUrl(null).buttons(List.of(createTestButton())).coupon(null).build()))
                 .toList();
     }
 
