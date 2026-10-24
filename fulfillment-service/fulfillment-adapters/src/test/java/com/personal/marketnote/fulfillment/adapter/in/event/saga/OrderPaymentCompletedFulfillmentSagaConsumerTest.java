@@ -306,8 +306,8 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         }
 
         @Test
-        @DisplayName("이미 취소된 출고를 보상하면 멱등 성공 응답을 발행한다")
-        void shouldPublishSuccessOnCancellationNotAllowed() {
+        @DisplayName("출고 진행 중 보상 불가 시 실패 응답을 발행한다")
+        void shouldPublishFailureOnCancellationNotAllowed() {
             SagaStepMessage stepMessage = new SagaStepMessage(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
             ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
@@ -317,9 +317,9 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
 
             consumer.handleFulfillmentStep(record, acknowledgment);
 
-            verify(sagaResponsePublisher).publishSuccess(
+            verify(sagaResponsePublisher).publishFailure(
                     eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("idempotent")
+                    eq(SagaStepMessage.COMPENSATION), contains("풀필먼트 출고 취소 보상 거부")
             );
             verify(acknowledgment).acknowledge();
         }
