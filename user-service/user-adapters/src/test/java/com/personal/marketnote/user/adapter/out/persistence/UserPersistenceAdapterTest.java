@@ -17,6 +17,7 @@ import com.personal.marketnote.user.domain.user.LoginHistory;
 import com.personal.marketnote.user.domain.user.LoginHistorySnapshotState;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserPenaltyHistory;
+import com.personal.marketnote.user.domain.user.UserPenaltyHistoryCreateState;
 import com.personal.marketnote.user.domain.user.UserPenaltyHistorySnapshotState;
 import com.personal.marketnote.user.domain.user.UserSearchTarget;
 import com.personal.marketnote.user.domain.user.UserStatusAction;
@@ -576,7 +577,7 @@ class UserPersistenceAdapterTest {
         @DisplayName("사용자 제재 이력을 저장하고 도메인 객체를 반환한다")
         void savesAndReturnsDomain() {
             // given
-            UserPenaltyHistory history = UserPenaltyHistory.of(1L, 0, 1, "테스트 사유", 100L);
+            UserPenaltyHistory history = UserPenaltyHistory.from(UserPenaltyHistoryCreateState.builder().userId(1L).previousCount(0).currentCount(1).reason("테스트 사유").createdBy(100L).build());
 
             UserPenaltyHistoryJpaEntity savedEntity = mock(UserPenaltyHistoryJpaEntity.class);
             UserPenaltyHistory savedDomain = UserPenaltyHistory.from(
