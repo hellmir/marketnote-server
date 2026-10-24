@@ -16,15 +16,15 @@ public class BrandTalkWideItem {
     private String linkI;
     private String linkA;
 
-    public static BrandTalkWideItem of(String title, String imageUrl, String linkM, String linkP, String linkI, String linkA) {
-        validate(title);
+    public static BrandTalkWideItem from(BrandTalkWideItemCreateState state) {
+        validate(state.getTitle());
         return BrandTalkWideItem.builder()
-                .title(title)
-                .imageUrl(imageUrl)
-                .linkM(linkM)
-                .linkP(linkP)
-                .linkI(linkI)
-                .linkA(linkA)
+                .title(state.getTitle())
+                .imageUrl(state.getImageUrl())
+                .linkM(state.getLinkM())
+                .linkP(state.getLinkP())
+                .linkI(state.getLinkI())
+                .linkA(state.getLinkA())
                 .build();
     }
 

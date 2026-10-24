@@ -22,8 +22,8 @@ class BrandTalkWideItemTest {
                 .templateContent("내용")
                 .templateHeader("가".repeat(21))
                 .subWideItems(List.of(
-                        BrandTalkWideItem.of("서브1", null, null, null, null, null),
-                        BrandTalkWideItem.of("서브2", null, null, null, null, null)
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
                 ))
                 .build();
 
@@ -44,8 +44,8 @@ class BrandTalkWideItemTest {
                 .templateContent("내용")
                 .templateHeader("헤더\n줄바꿈")
                 .subWideItems(List.of(
-                        BrandTalkWideItem.of("서브1", null, null, null, null, null),
-                        BrandTalkWideItem.of("서브2", null, null, null, null, null)
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
                 ))
                 .build();
 
@@ -65,7 +65,7 @@ class BrandTalkWideItemTest {
                 .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
                 .templateContent("내용")
                 .subWideItems(List.of(
-                        BrandTalkWideItem.of("서브1", null, null, null, null, null)
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
                 ))
                 .build();
 
@@ -85,10 +85,10 @@ class BrandTalkWideItemTest {
                 .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
                 .templateContent("내용")
                 .subWideItems(List.of(
-                        BrandTalkWideItem.of("서브1", null, null, null, null, null),
-                        BrandTalkWideItem.of("서브2", null, null, null, null, null),
-                        BrandTalkWideItem.of("서브3", null, null, null, null, null),
-                        BrandTalkWideItem.of("서브4", null, null, null, null, null)
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브3").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브4").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
                 ))
                 .build();
 
@@ -108,10 +108,10 @@ class BrandTalkWideItemTest {
                 .templateType(BrandTalkTemplateType.WIDE_ITEM_LIST)
                 .templateContent("내용")
                 .templateHeader("20자이내헤더")
-                .mainWideItem(BrandTalkWideItem.of("메인", null, null, null, null, null))
+                .mainWideItem(BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("메인").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()))
                 .subWideItems(List.of(
-                        BrandTalkWideItem.of("서브1", null, null, null, null, null),
-                        BrandTalkWideItem.of("서브2", null, null, null, null, null)
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브1").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()),
+                        BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title("서브2").imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build())
                 ))
                 .build();
 
@@ -128,7 +128,7 @@ class BrandTalkWideItemTest {
     @Test
     @DisplayName("BrandTalkWideItem의 title이 누락되면 예외가 발생한다")
     void shouldThrowExceptionWhenWideItemTitleMissing() {
-        assertThatThrownBy(() -> BrandTalkWideItem.of(null, null, null, null, null, null))
+        assertThatThrownBy(() -> BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title(null).imageUrl(null).linkM(null).linkP(null).linkI(null).linkA(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class);
     }
 }
