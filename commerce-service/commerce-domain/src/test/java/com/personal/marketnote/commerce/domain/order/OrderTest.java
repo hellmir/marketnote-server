@@ -344,6 +344,41 @@ class OrderTest {
         assertThat(order.getOrderProducts().get(1).getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
     }
 
+    @Test
+    @DisplayName("changeAllProductsStatus에서 DELIVERED 전이 시 각 OrderProduct에 scheduledAutoConfirmAt이 now + autoConfirmDays로 설정된다")
+    void shouldSetScheduledAutoConfirmAtOnAllProductsWhenDeliveredViaChangeAllProductsStatus() {
+        Order order = createOrderWithProducts(OrderStatus.SHIPPING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
+        long autoConfirmDays = 7L;
+
+        order.changeAllProductsStatus(OrderStatus.DELIVERED, now, autoConfirmDays);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
+        order.getOrderProducts().forEach(product -> {
+            assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
+            assertThat(product.getDeliveredAt()).isEqualTo(now);
+            assertThat(product.getScheduledAutoConfirmAt()).isEqualTo(now.plusDays(autoConfirmDays));
+        });
+    }
+
+    @Test
+    @DisplayName("changeProductsStatus에서 특정 상품만 DELIVERED로 전이하면 해당 상품에만 scheduledAutoConfirmAt이 설정된다")
+    void shouldSetScheduledAutoConfirmAtOnlyOnTargetProductsWhenPartialDelivered() {
+        Order order = createOrderWithProducts(OrderStatus.SHIPPING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
+        long autoConfirmDays = 5L;
+
+        order.changeProductsStatus(List.of(1L), OrderStatus.DELIVERED, now, autoConfirmDays);
+
+        OrderProduct target = order.getOrderProducts().stream()
+                .filter(p -> p.getPricePolicyId().equals(1L)).findFirst().orElseThrow();
+        OrderProduct untouched = order.getOrderProducts().stream()
+                .filter(p -> p.getPricePolicyId().equals(2L)).findFirst().orElseThrow();
+
+        assertThat(target.getScheduledAutoConfirmAt()).isEqualTo(now.plusDays(autoConfirmDays));
+        assertThat(untouched.getScheduledAutoConfirmAt()).isNull();
+    }
+
     private OrderCreateState createDefaultOrderCreateState() {
         return OrderCreateState.builder()
                 .buyerId(1L)

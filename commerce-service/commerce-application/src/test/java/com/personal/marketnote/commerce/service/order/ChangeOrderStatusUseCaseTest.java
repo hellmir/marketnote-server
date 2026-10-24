@@ -166,6 +166,32 @@ class ChangeOrderStatusUseCaseTest {
             verify(publishOrderEventPort, never()).publishOrderPurchaseConfirmedEvent(
                     anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
         }
+
+        @Test
+        @DisplayName("SHIPPING에서 DELIVERED로 전이 시 OrderProduct에 scheduledAutoConfirmAt이 properties.autoConfirmDays 기준으로 설정된다")
+        void shouldSetScheduledAutoConfirmAtWhenChangingFromShippingToDelivered() {
+            // given
+            Long orderId = 1L;
+            Order order = createOrder(orderId, 100L, OrderStatus.SHIPPING, 10L);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+            autoConfirmSchedulerProperties.setAutoConfirmDays(3L);
+
+            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
+                    .id(orderId)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .build();
+
+            // when
+            changeOrderStatusService.changeOrderStatus(command);
+
+            // then
+            LocalDateTime now = LocalDateTime.now(clock);
+            order.getOrderProducts().forEach(product -> {
+                assertThat(product.getDeliveredAt()).isEqualTo(now);
+                assertThat(product.getScheduledAutoConfirmAt()).isEqualTo(now.plusDays(3L));
+            });
+            verify(autoConfirmSchedulerProperties, atLeastOnce()).getAutoConfirmDays();
+        }
     }
 
     @Nested
