@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.adapter.in.event.saga.payload.RefundPaym
 import com.personal.marketnote.commerce.exception.PaymentAlreadyRefundedException;
 import com.personal.marketnote.commerce.port.in.command.payment.RefundPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.payment.RefundPaymentUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
@@ -28,6 +29,7 @@ public class OrderCancelRefundSagaConsumer {
     private final ObjectMapper objectMapper;
     private final RefundPaymentUseCase refundPaymentUseCase;
     private final SagaResponsePublisher sagaResponsePublisher;
+    private final PublishOrderEventPort publishOrderEventPort;
 
     @KafkaListener(
             topics = KafkaTopicConstants.SAGA_ORDER_CANCEL_REFUND,
@@ -61,30 +63,32 @@ public class OrderCancelRefundSagaConsumer {
     }
 
     private void handleAction(SagaStepMessage stepMessage) {
+        RefundPaymentSagaPayload payload = parsePayload(stepMessage);
+        if (FormatValidator.hasNoValue(payload)) {
+            return;
+        }
+
+        if (FormatValidator.hasNoValue(payload.orderId())) {
+            publishValidationFailure(stepMessage, payload, "orderId 누락");
+            return;
+        }
+
+        if (FormatValidator.hasNoValue(payload.orderKey())) {
+            publishValidationFailure(stepMessage, payload, "orderKey 누락");
+            return;
+        }
+
+        if (FormatValidator.hasNoValue(payload.paymentAmount())) {
+            publishValidationFailure(stepMessage, payload, "paymentAmount 누락");
+            return;
+        }
+
+        if (!payload.isFullCancel() && FormatValidator.hasNoValue(payload.cancelAmount())) {
+            publishValidationFailure(stepMessage, payload, "부분 취소 시 cancelAmount 누락");
+            return;
+        }
+
         try {
-            RefundPaymentSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), RefundPaymentSagaPayload.class);
-
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                publishValidationFailure(stepMessage, "orderId 누락");
-                return;
-            }
-
-            if (FormatValidator.hasNoValue(payload.orderKey())) {
-                publishValidationFailure(stepMessage, "orderKey 누락");
-                return;
-            }
-
-            if (FormatValidator.hasNoValue(payload.paymentAmount())) {
-                publishValidationFailure(stepMessage, "paymentAmount 누락");
-                return;
-            }
-
-            if (!payload.isFullCancel() && FormatValidator.hasNoValue(payload.cancelAmount())) {
-                publishValidationFailure(stepMessage, "부분 취소 시 cancelAmount 누락");
-                return;
-            }
-
             RefundPaymentCommand command = RefundPaymentCommand.builder()
                     .orderKey(payload.orderKey())
                     .orderId(payload.orderId())
@@ -116,14 +120,48 @@ public class OrderCancelRefundSagaConsumer {
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                     stepMessage.messageType(), "PG 환불 처리 실패"
             );
+            publishOrderCancelFailedSafely(payload);
         }
     }
 
-    private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
+    private RefundPaymentSagaPayload parsePayload(SagaStepMessage stepMessage) {
+        try {
+            return objectMapper.readValue(stepMessage.payload(), RefundPaymentSagaPayload.class);
+        } catch (Exception e) {
+            log.error("SAGA PG 환불 스텝 페이로드 역직렬화 실패. sagaId={}, error={}",
+                    stepMessage.sagaId(), e.getMessage(), e
+            );
+            sagaResponsePublisher.publishFailure(
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "페이로드 역직렬화 실패"
+            );
+            return null;
+        }
+    }
+
+    private void publishValidationFailure(
+            SagaStepMessage stepMessage, RefundPaymentSagaPayload payload, String reason
+    ) {
         log.warn("SAGA PG 환불 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                 stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
+        publishOrderCancelFailedSafely(payload);
+    }
+
+    private void publishOrderCancelFailedSafely(RefundPaymentSagaPayload payload) {
+        if (FormatValidator.hasNoValue(payload)
+                || FormatValidator.hasNoValue(payload.orderId())
+                || FormatValidator.hasNoValue(payload.buyerId())) {
+            return;
+        }
+        try {
+            publishOrderEventPort.publishOrderCancelFailedEvent(payload.orderId(), payload.buyerId());
+        } catch (Exception e) {
+            log.error("OrderCancelFailedEvent 발행 실패. orderId={}, buyerId={}",
+                    payload.orderId(), payload.buyerId(), e
+            );
+        }
     }
 }

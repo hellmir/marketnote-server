@@ -5,12 +5,8 @@ import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.order.CancelOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.saga.OrderCancelSagaContext;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
-import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
-import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
-import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.service.saga.OrderCancelSagaStarter;
-import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,18 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,36 +33,21 @@ class CancelOrderUseCaseTest {
     @Mock
     private UpdateOrderPort updateOrderPort;
     @Mock
-    private CancelFulfillmentReleasePort cancelFulfillmentReleasePort;
-    @Mock
-    private PublishOrderEventPort publishOrderEventPort;
-    @Mock
-    private PlatformTransactionManager transactionManager;
-    @Spy
-    private Clock clock = Clock.fixed(Instant.parse("2026-04-05T00:00:00Z"), ZoneId.of("Asia/Seoul"));
-    @Mock
     private OrderCancelSagaStarter orderCancelSagaStarter;
 
     private CancelOrderService cancelOrderService;
 
     @BeforeEach
     void setUp() {
-        lenient().when(transactionManager.getTransaction(any(TransactionDefinition.class)))
-                .thenReturn(mock(TransactionStatus.class));
-
         cancelOrderService = new CancelOrderService(
                 getOrderUseCase,
                 updateOrderPort,
-                cancelFulfillmentReleasePort,
-                publishOrderEventPort,
-                transactionManager,
-                clock,
-                Optional.of(orderCancelSagaStarter)
+                orderCancelSagaStarter
         );
     }
 
     // ==================================================================================
-    // 결제 대기 상태 취소 (SAGA 미사용)
+    // 결제 대기 상태 취소 — 즉시 CANCELLED (SAGA 미호출)
     // ==================================================================================
 
     @Nested
@@ -82,7 +55,7 @@ class CancelOrderUseCaseTest {
     class PaymentPendingCancelTest {
 
         @Test
-        @DisplayName("결제 대기 상태의 주문을 취소하면 풀필먼트 취소와 SAGA 없이 즉시 CANCELLED 처리된다")
+        @DisplayName("결제 대기 상태의 주문을 취소하면 SAGA 호출 없이 즉시 CANCELLED로 전이되고 이력이 기록된다")
         void cancelOrder_fromPaymentPending_cancelledWithoutSaga() {
             Long orderId = 1L;
             Long buyerId = 100L;
@@ -93,9 +66,12 @@ class CancelOrderUseCaseTest {
 
             cancelOrderService.cancelOrder(command);
 
-            verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
+            ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+            ArgumentCaptor<OrderStatusHistory> historyCaptor = ArgumentCaptor.forClass(OrderStatusHistory.class);
+            verify(updateOrderPort).update(orderCaptor.capture(), historyCaptor.capture());
+
+            assertThat(orderCaptor.getValue().getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
+            assertThat(historyCaptor.getValue().getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
             verifyNoInteractions(orderCancelSagaStarter);
         }
     }
@@ -122,8 +98,6 @@ class CancelOrderUseCaseTest {
 
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
             verify(orderCancelSagaStarter).start(any(OrderCancelSagaContext.class));
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
         }
     }
 
@@ -149,8 +123,6 @@ class CancelOrderUseCaseTest {
 
             verify(updateOrderPort).update(any(Order.class), any(OrderStatusHistory.class));
             verify(orderCancelSagaStarter).start(any(OrderCancelSagaContext.class));
-            verifyNoInteractions(cancelFulfillmentReleasePort);
-            verifyNoInteractions(publishOrderEventPort);
         }
     }
 
@@ -407,101 +379,6 @@ class CancelOrderUseCaseTest {
 
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
-        }
-    }
-
-    // ==================================================================================
-    // 주문 취소 실패 이벤트 발행 (SAGA 미사용, sync 경로)
-    // ==================================================================================
-
-    @Nested
-    @DisplayName("주문 취소 실패 이벤트 발행")
-    class OrderCancelFailedEventPublishTest {
-
-        private CancelOrderService syncCancelOrderService;
-
-        @BeforeEach
-        void setUp() {
-            syncCancelOrderService = new CancelOrderService(
-                    getOrderUseCase,
-                    updateOrderPort,
-                    cancelFulfillmentReleasePort,
-                    publishOrderEventPort,
-                    transactionManager,
-                    clock,
-                    Optional.empty()
-            );
-        }
-
-        @Test
-        @DisplayName("풀필먼트 취소 거부 시 OrderCancelFailedEvent가 발행된다")
-        void cancelOrder_fulfillmentRejected_publishesCancelFailedEvent() {
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId, java.util.List.of()))
-                    .thenReturn(new CancelFulfillmentReleaseResult(orderId, false, "이미 출고 완료"));
-
-            CancelOrderCommand command = createCommand(orderId, buyerId);
-
-            assertThatThrownBy(() -> syncCancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderCancellationNotAllowedException.class);
-
-            verify(publishOrderEventPort).publishOrderCancelFailedEvent(orderId, buyerId);
-        }
-
-        @Test
-        @DisplayName("발행된 이벤트에 orderId, buyerId가 포함된다")
-        void cancelOrder_fulfillmentRejected_eventContainsOrderIdAndBuyerId() {
-            Long orderId = 5L;
-            Long buyerId = 200L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId, java.util.List.of()))
-                    .thenReturn(new CancelFulfillmentReleaseResult(orderId, false, "출고 진행중"));
-
-            CancelOrderCommand command = createCommand(orderId, buyerId);
-
-            assertThatThrownBy(() -> syncCancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderCancellationNotAllowedException.class);
-
-            verify(publishOrderEventPort).publishOrderCancelFailedEvent(5L, 200L);
-        }
-
-        @Test
-        @DisplayName("풀필먼트 서비스 통신 실패 시 OrderCancelFailedEvent가 발행된다")
-        void cancelOrder_fulfillmentCommunicationFailed_publishesCancelFailedEvent() {
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PREPARING);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-            when(cancelFulfillmentReleasePort.cancelRelease(orderId, java.util.List.of()))
-                    .thenThrow(new FulfillmentServiceRequestFailedException(
-                            new java.io.IOException("Connection refused")
-                    ));
-
-            CancelOrderCommand command = createCommand(orderId, buyerId);
-
-            assertThatThrownBy(() -> syncCancelOrderService.cancelOrder(command))
-                    .isInstanceOf(OrderCancellationNotAllowedException.class);
-
-            verify(publishOrderEventPort).publishOrderCancelFailedEvent(orderId, buyerId);
-        }
-
-        @Test
-        @DisplayName("취소 가능한 주문은 이벤트를 발행하지 않는다")
-        void cancelOrder_cancellable_doesNotPublishCancelFailedEvent() {
-            Long orderId = 1L;
-            Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
-            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
-
-            CancelOrderCommand command = createCommand(orderId, buyerId);
-
-            syncCancelOrderService.cancelOrder(command);
-
-            verify(publishOrderEventPort, never()).publishOrderCancelFailedEvent(any(), any());
         }
     }
 

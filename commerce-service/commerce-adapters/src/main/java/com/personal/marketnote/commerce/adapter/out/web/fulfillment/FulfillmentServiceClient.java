@@ -24,7 +24,7 @@ import java.util.Map;
 
 @ServiceAdapter
 @Slf4j
-public class FulfillmentServiceClient implements CancelFulfillmentReleasePort, RegisterFulfillmentReturnDeliveryPort, GetReturnInspectionResultPort {
+public class FulfillmentServiceClient implements RegisterFulfillmentReturnDeliveryPort, GetReturnInspectionResultPort {
     private final RestClient restClient;
     private final String fulfillmentServiceBaseUrl;
     private final HmacServiceAuthHeaderBuilder hmacServiceAuthHeaderBuilder;
@@ -37,48 +37,6 @@ public class FulfillmentServiceClient implements CancelFulfillmentReleasePort, R
         this.restClient = restClientBuilder.build();
         this.fulfillmentServiceBaseUrl = fulfillmentServiceBaseUrl;
         this.hmacServiceAuthHeaderBuilder = hmacServiceAuthHeaderBuilder;
-    }
-
-    @Override
-    public CancelFulfillmentReleaseResult cancelRelease(Long orderId, List<String> productKeys) {
-        URI uri = buildCancelReleaseUri();
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("orderId", orderId);
-        body.put("productKeys", FormatValidator.hasValue(productKeys) ? productKeys : List.of());
-
-        try {
-            ResponseEntity<JsonNode> responseEntity = restClient.post()
-                    .uri(uri)
-                    .headers(headers -> hmacServiceAuthHeaderBuilder.applyHeaders(headers, "POST", uri.getPath()))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .toEntity(JsonNode.class);
-
-            if (responseEntity.getStatusCode().isError()) {
-                throw new FulfillmentServiceRequestFailedException(
-                        new IOException("Fulfillment service returned error: " + responseEntity.getStatusCode()));
-            }
-
-            if (responseEntity.getStatusCode().is2xxSuccessful()
-                    && FormatValidator.hasValue(responseEntity.getBody())) {
-                JsonNode content = responseEntity.getBody().path("content");
-                return new CancelFulfillmentReleaseResult(
-                        content.path("orderId").asLong(),
-                        content.path("cancelled").asBoolean(),
-                        content.path("message").asText()
-                );
-            }
-
-            throw new FulfillmentServiceRequestFailedException(
-                    new IOException("풀필먼트 출고 취소 비정상 응답 - orderId: " + orderId));
-        } catch (FulfillmentServiceRequestFailedException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("풀필먼트 출고 취소 실패 - orderId: {}", orderId, e);
-            throw new FulfillmentServiceRequestFailedException(new IOException(e));
-        }
     }
 
     @Override
@@ -227,13 +185,6 @@ public class FulfillmentServiceClient implements CancelFulfillmentReleasePort, R
     private URI buildReturnDeliveryUri() {
         return UriComponentsBuilder.fromHttpUrl(fulfillmentServiceBaseUrl)
                 .path("/api/v1/internal/fulfillment/deliveries/return")
-                .build()
-                .toUri();
-    }
-
-    private URI buildCancelReleaseUri() {
-        return UriComponentsBuilder.fromHttpUrl(fulfillmentServiceBaseUrl)
-                .path("/api/v1/internal/fulfillment/deliveries/cancel")
                 .build()
                 .toUri();
     }

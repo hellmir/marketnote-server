@@ -38,4 +38,4 @@ settlement:
     default-platform-fee-rate: 500
 
 saga:
-  enabled: false
+  enabled: true
