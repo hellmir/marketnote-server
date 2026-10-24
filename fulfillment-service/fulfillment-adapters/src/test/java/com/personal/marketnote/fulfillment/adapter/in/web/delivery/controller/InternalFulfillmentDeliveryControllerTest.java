@@ -1,24 +1,19 @@
 package com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
-import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.CancelInternalFulfillmentDeliveryRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.RegisterInternalReturnDeliveryRequest;
-import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.CancelInternalFulfillmentDeliveryResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetFulfillmentWorkStatusResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetInternalReturnGodDetailResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.GetShippingStatusResponse;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.RegisterInternalReturnDeliveryResponse;
-import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.command.GetFulfillmentWorkStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.command.GetInternalReturnGodDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.GetShippingStatusCommand;
 import com.personal.marketnote.fulfillment.port.in.command.RegisterInternalReturnDeliveryCommand;
-import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.result.GetFulfillmentWorkStatusResult;
 import com.personal.marketnote.fulfillment.port.in.result.GetInternalReturnGodDetailResult;
 import com.personal.marketnote.fulfillment.port.in.result.GetShippingStatusResult;
 import com.personal.marketnote.fulfillment.port.in.result.RegisterInternalReturnDeliveryResult;
-import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.GetFulfillmentWorkStatusUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.GetInternalReturnGodDetailUseCase;
 import com.personal.marketnote.fulfillment.port.in.usecase.GetShippingStatusUseCase;
@@ -52,8 +47,6 @@ class InternalFulfillmentDeliveryControllerTest {
 
     @Mock
     private GetFulfillmentWorkStatusUseCase getFulfillmentWorkStatusUseCase;
-    @Mock
-    private CancelInternalFulfillmentDeliveryUseCase cancelInternalFulfillmentDeliveryUseCase;
     @Mock
     private RegisterInternalReturnDeliveryUseCase registerInternalReturnDeliveryUseCase;
     @Mock
@@ -98,27 +91,6 @@ class InternalFulfillmentDeliveryControllerTest {
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(getShippingStatusUseCase).getShippingStatus(new GetShippingStatusCommand(200L));
-        }
-    }
-
-    @Nested
-    @DisplayName("POST /api/v1/internal/fulfillment/deliveries/cancel - 출고 취소")
-    class CancelDelivery {
-
-        @Test
-        @DisplayName("요청 본문의 주문 ID로 취소 UseCase에 위임하고 OK를 반환한다")
-        void returnsOk() {
-            // given
-            CancelInternalFulfillmentDeliveryRequest request = new CancelInternalFulfillmentDeliveryRequest(300L, java.util.List.of());
-            when(cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(new CancelInternalFulfillmentDeliveryCommand(300L, java.util.List.of())))
-                    .thenReturn(new CancelInternalFulfillmentDeliveryResult(300L, true, "cancelled"));
-
-            // when
-            ResponseEntity<BaseResponse<CancelInternalFulfillmentDeliveryResponse>> response = controller.cancelDelivery(request);
-
-            // then
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            verify(cancelInternalFulfillmentDeliveryUseCase).cancelDelivery(new CancelInternalFulfillmentDeliveryCommand(300L, java.util.List.of()));
         }
     }
 
