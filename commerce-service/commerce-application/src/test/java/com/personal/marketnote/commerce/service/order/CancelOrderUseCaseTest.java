@@ -368,6 +368,46 @@ class CancelOrderUseCaseTest {
             verifyNoInteractions(updateOrderPort);
             verifyNoInteractions(orderCancelSagaStarter);
         }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING 상태에서 전체 취소 요청 시 InvalidOrderStatusTransitionException이 발생한다")
+        void cancelOrder_fromPaymentExecuting_throwsInvalidTransitionException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_EXECUTING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = createCommand(orderId, buyerId);
+
+            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
+                    .isInstanceOf(InvalidOrderStatusTransitionException.class);
+
+            verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(orderCancelSagaStarter);
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING 상태에서 부분 취소 요청 시 PartialCancelNotAllowedException이 발생한다")
+        void cancelOrder_partialFromPaymentExecuting_throwsPartialCancelNotAllowedException() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_EXECUTING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .buyerId(buyerId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("구매 의사 취소")
+                    .pricePolicyIds(List.of(100L))
+                    .build();
+
+            assertThatThrownBy(() -> cancelOrderService.cancelOrder(command))
+                    .isInstanceOf(PartialCancelNotAllowedException.class);
+
+            verifyNoInteractions(updateOrderPort);
+            verifyNoInteractions(orderCancelSagaStarter);
+        }
     }
 
     // ==================================================================================
