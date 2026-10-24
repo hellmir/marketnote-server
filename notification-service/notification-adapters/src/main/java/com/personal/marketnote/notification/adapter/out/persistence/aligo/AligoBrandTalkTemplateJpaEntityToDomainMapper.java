@@ -132,10 +132,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         try {
             List<CarouselCommerceDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
             return dtos.stream()
-                    .map(dto -> BrandTalkCarouselCommerce.of(
-                            dto.title(), dto.regularPrice(),
-                            dto.discountPrice(), dto.discountRate(), dto.discountFixed()
-                    ))
+                    .map(dto -> BrandTalkCarouselCommerce.from(BrandTalkCarouselCommerceCreateState.builder().title(dto.title()).regularPrice(dto.regularPrice()).discountPrice(dto.discountPrice()).discountRate(dto.discountRate()).discountFixed(dto.discountFixed()).build()))
                     .toList();
         } catch (JsonProcessingException e) {
             return List.of();

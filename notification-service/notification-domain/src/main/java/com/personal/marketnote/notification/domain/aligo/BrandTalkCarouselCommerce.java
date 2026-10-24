@@ -15,17 +15,14 @@ public class BrandTalkCarouselCommerce {
     private String discountRate;
     private String discountFixed;
 
-    public static BrandTalkCarouselCommerce of(
-            String title, String regularPrice,
-            String discountPrice, String discountRate, String discountFixed
-    ) {
-        validate(title, regularPrice);
+    public static BrandTalkCarouselCommerce from(BrandTalkCarouselCommerceCreateState state) {
+        validate(state.getTitle(), state.getRegularPrice());
         return BrandTalkCarouselCommerce.builder()
-                .title(title)
-                .regularPrice(regularPrice)
-                .discountPrice(discountPrice)
-                .discountRate(discountRate)
-                .discountFixed(discountFixed)
+                .title(state.getTitle())
+                .regularPrice(state.getRegularPrice())
+                .discountPrice(state.getDiscountPrice())
+                .discountRate(state.getDiscountRate())
+                .discountFixed(state.getDiscountFixed())
                 .build();
     }
 
