@@ -7,26 +7,18 @@ import com.personal.marketnote.commerce.port.in.command.saga.OrderCancelSagaCont
 import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentSagaContext.OrderProductItem;
 import com.personal.marketnote.commerce.port.in.usecase.order.CancelOrderUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.GetOrderUseCase;
-import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
-import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleasePort;
-import com.personal.marketnote.commerce.port.out.fulfillment.CancelFulfillmentReleaseResult;
 import com.personal.marketnote.commerce.port.out.order.UpdateOrderPort;
 import com.personal.marketnote.commerce.service.saga.OrderCancelSagaStarter;
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.exception.FulfillmentServiceRequestFailedException;
 import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,13 +29,10 @@ import java.util.stream.Collectors;
 public class CancelOrderService implements CancelOrderUseCase {
     private final GetOrderUseCase getOrderUseCase;
     private final UpdateOrderPort updateOrderPort;
-    private final CancelFulfillmentReleasePort cancelFulfillmentReleasePort;
-    private final PublishOrderEventPort publishOrderEventPort;
-    private final PlatformTransactionManager transactionManager;
-    private final Clock clock;
-    private final Optional<OrderCancelSagaStarter> orderCancelSagaStarter;
+    private final OrderCancelSagaStarter orderCancelSagaStarter;
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void cancelOrder(CancelOrderCommand command) {
         Order order = getOrderUseCase.getOrder(command.id());
 
@@ -83,31 +72,27 @@ public class CancelOrderService implements CancelOrderUseCase {
 
         OrderStatus originalStatus = order.getOrderStatus();
 
-        if (useSagaMode() && originalStatus.requiresPaymentRefund()) {
+        if (originalStatus.requiresPaymentRefund()) {
             cancelOrderViaSaga(command, order, originalStatus);
             return;
         }
 
-        cancelOrderSync(command, order, originalStatus, targetStatus);
+        persistFullStatusChange(command, order, targetStatus);
     }
 
     private void handlePartialCancel(CancelOrderCommand command, Order order, List<Long> pricePolicyIds) {
         OrderStatus originalStatus = order.getOrderStatus();
 
-        if (useSagaMode() && requiresPaymentRefundForPartialCancel(originalStatus)) {
+        if (requiresPaymentRefundForPartialCancel(originalStatus)) {
             partialCancelViaSaga(command, order, originalStatus, pricePolicyIds);
             return;
         }
 
-        partialCancelSync(command, order, originalStatus, pricePolicyIds);
-    }
-
-    private boolean useSagaMode() {
-        return orderCancelSagaStarter.isPresent();
+        persistPartialStatusChange(command, order, pricePolicyIds, OrderStatus.CANCELLED);
     }
 
     private void cancelOrderViaSaga(CancelOrderCommand command, Order order, OrderStatus originalStatus) {
-        persistStatusChange(command, order, OrderStatus.CANCEL_REQUESTED);
+        persistFullStatusChange(command, order, OrderStatus.CANCEL_REQUESTED);
 
         OrderAmount amount = order.getAmount();
 
@@ -132,14 +117,14 @@ public class CancelOrderService implements CancelOrderUseCase {
                 UUID.randomUUID().toString()
         );
 
-        orderCancelSagaStarter.get().start(context);
+        orderCancelSagaStarter.start(context);
     }
 
     private void partialCancelViaSaga(
             CancelOrderCommand command, Order order,
             OrderStatus originalStatus, List<Long> pricePolicyIds
     ) {
-        persistCancelRequestedForTargetProducts(command, order, pricePolicyIds);
+        persistPartialStatusChange(command, order, pricePolicyIds, OrderStatus.CANCEL_REQUESTED);
 
         OrderAmount amount = order.getAmount();
 
@@ -174,103 +159,40 @@ public class CancelOrderService implements CancelOrderUseCase {
                 UUID.randomUUID().toString()
         );
 
-        orderCancelSagaStarter.get().start(context);
+        orderCancelSagaStarter.start(context);
     }
 
-    private void cancelOrderSync(
+    private void persistFullStatusChange(CancelOrderCommand command, Order order, OrderStatus targetStatus) {
+        order.changeAllProductsStatus(targetStatus, null);
+
+        OrderStatusHistory history = OrderStatusHistory.from(
+                OrderStatusHistoryCreateState.builder()
+                        .orderId(command.id())
+                        .orderStatus(targetStatus)
+                        .reasonCategory(command.reasonCategory())
+                        .reason(command.reason())
+                        .build()
+        );
+
+        updateOrderPort.update(order, history);
+    }
+
+    private void persistPartialStatusChange(
             CancelOrderCommand command, Order order,
-            OrderStatus originalStatus, OrderStatus targetStatus
+            List<Long> pricePolicyIds, OrderStatus targetProductStatus
     ) {
-        cancelFulfillmentIfRequired(order, List.of());
-        persistStatusChange(command, order, targetStatus);
+        order.changeProductsStatus(pricePolicyIds, targetProductStatus, null);
 
-        if (originalStatus.requiresPaymentRefund()) {
-            publishOrderCancelledEvent(order);
-        }
-    }
+        OrderStatusHistory history = OrderStatusHistory.from(
+                OrderStatusHistoryCreateState.builder()
+                        .orderId(command.id())
+                        .orderStatus(order.getOrderStatus())
+                        .reasonCategory(command.reasonCategory())
+                        .reason(command.reason())
+                        .build()
+        );
 
-    private void partialCancelSync(
-            CancelOrderCommand command, Order order,
-            OrderStatus originalStatus, List<Long> pricePolicyIds
-    ) {
-        List<String> productKeys = order.getOrderProducts().stream()
-                .filter(op -> pricePolicyIds.contains(op.getPricePolicyId()))
-                .map(OrderProduct::getProductKey)
-                .filter(FormatValidator::hasValue)
-                .map(Object::toString)
-                .toList();
-
-        cancelFulfillmentIfRequired(order, productKeys);
-
-        persistPartialCancelStatusChange(command, order, pricePolicyIds);
-
-        if (requiresPaymentRefundForPartialCancel(originalStatus)) {
-            publishPartialCancelEvent(order, pricePolicyIds);
-        }
-    }
-
-    private void persistStatusChange(CancelOrderCommand command, Order order, OrderStatus targetStatus) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-        transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-        transactionTemplate.executeWithoutResult(status -> {
-            LocalDateTime now = LocalDateTime.now(clock);
-            order.changeAllProductsStatus(targetStatus, now);
-
-            OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                    OrderStatusHistoryCreateState.builder()
-                            .orderId(command.id())
-                            .orderStatus(targetStatus)
-                            .reasonCategory(command.reasonCategory())
-                            .reason(command.reason())
-                            .build()
-            );
-
-            updateOrderPort.update(order, orderStatusHistory);
-        });
-    }
-
-    private void persistCancelRequestedForTargetProducts(
-            CancelOrderCommand command, Order order, List<Long> pricePolicyIds
-    ) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-        transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-        transactionTemplate.executeWithoutResult(status -> {
-            LocalDateTime now = LocalDateTime.now(clock);
-            order.changeProductsStatus(pricePolicyIds, OrderStatus.CANCEL_REQUESTED, now);
-
-            OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                    OrderStatusHistoryCreateState.builder()
-                            .orderId(command.id())
-                            .orderStatus(order.getOrderStatus())
-                            .reasonCategory(command.reasonCategory())
-                            .reason(command.reason())
-                            .build()
-            );
-
-            updateOrderPort.update(order, orderStatusHistory);
-        });
-    }
-
-    private void persistPartialCancelStatusChange(
-            CancelOrderCommand command, Order order, List<Long> pricePolicyIds
-    ) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-        transactionTemplate.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-        transactionTemplate.executeWithoutResult(status -> {
-            LocalDateTime now = LocalDateTime.now(clock);
-            order.changeProductsStatus(pricePolicyIds, OrderStatus.CANCELLED, now);
-
-            OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
-                    OrderStatusHistoryCreateState.builder()
-                            .orderId(command.id())
-                            .orderStatus(order.getOrderStatus())
-                            .reasonCategory(command.reasonCategory())
-                            .reason(command.reason())
-                            .build()
-            );
-
-            updateOrderPort.update(order, orderStatusHistory);
-        });
+        updateOrderPort.update(order, history);
     }
 
     private OrderStatus resolveTargetStatus(Order order) {
@@ -278,67 +200,6 @@ public class CancelOrderService implements CancelOrderUseCase {
             return OrderStatus.CANCELLED;
         }
         return OrderStatus.CANCEL_REQUESTED;
-    }
-
-    private void cancelFulfillmentIfRequired(Order order, List<String> productKeys) {
-        if (!order.getOrderStatus().requiresFulfillmentCancellation()) {
-            return;
-        }
-
-        try {
-            CancelFulfillmentReleaseResult result = cancelFulfillmentReleasePort.cancelRelease(order.getId(), productKeys);
-            if (!result.cancelled()) {
-                log.warn("풀필먼트 출고 취소 거부 - orderId: {}, message: {}", order.getId(), result.message());
-                publishOrderEventPort.publishOrderCancelFailedEvent(order.getId(), order.getBuyerId());
-                throw new OrderCancellationNotAllowedException(order.getId());
-            }
-        } catch (FulfillmentServiceRequestFailedException e) {
-            log.error("풀필먼트 서비스 통신 실패로 주문 취소 거부 - orderId: {}", order.getId(), e);
-            publishOrderEventPort.publishOrderCancelFailedEvent(order.getId(), order.getBuyerId());
-            throw new OrderCancellationNotAllowedException(order.getId());
-        }
-    }
-
-    private void publishOrderCancelledEvent(Order order) {
-        OrderAmount amount = order.getAmount();
-        publishOrderEventPort.publishOrderCancelledEvent(
-                order.getId(),
-                order.getOrderKey().toString(),
-                order.getBuyerId(),
-                amount.getPaidAmount().getValue(),
-                amount.getPaidAmount().getValue(),
-                amount.getPointAmount().getValue(),
-                amount.getShippingFee().getValue(),
-                true,
-                0L,
-                order.getOrderProducts(),
-                order.getOrderProducts(),
-                null
-        );
-    }
-
-    private void publishPartialCancelEvent(Order order, List<Long> cancelPricePolicyIds) {
-        OrderAmount amount = order.getAmount();
-        long cancelAmount = calculateCancelAmount(order, cancelPricePolicyIds);
-
-        List<OrderProduct> cancelProducts = order.getOrderProducts().stream()
-                .filter(op -> cancelPricePolicyIds.contains(op.getPricePolicyId()))
-                .toList();
-
-        publishOrderEventPort.publishOrderCancelledEvent(
-                order.getId(),
-                order.getOrderKey().toString(),
-                order.getBuyerId(),
-                cancelAmount,
-                amount.getPaidAmount().getValue(),
-                amount.getPointAmount().getValue(),
-                amount.getShippingFee().getValue(),
-                false,
-                0L,
-                order.getOrderProducts(),
-                cancelProducts,
-                UUID.randomUUID().toString()
-        );
     }
 
     private void validateReasonCategory(CancelOrderCommand command) {

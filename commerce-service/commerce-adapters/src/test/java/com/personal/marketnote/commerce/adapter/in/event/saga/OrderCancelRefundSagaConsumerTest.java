@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.exception.PaymentAlreadyRefundedExceptio
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.payment.RefundPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.payment.RefundPaymentUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
@@ -48,6 +49,9 @@ class OrderCancelRefundSagaConsumerTest {
 
     @Mock
     private SagaResponsePublisher sagaResponsePublisher;
+
+    @Mock
+    private PublishOrderEventPort publishOrderEventPort;
 
     @Mock
     private Acknowledgment acknowledgment;
@@ -269,24 +273,19 @@ class OrderCancelRefundSagaConsumerTest {
         }
 
         @Test
-        @DisplayName("SagaStepMessage 역직렬화 실패 시 예외를 전파해 DLT로 라우팅되도록 한다")
-        void shouldPropagateExceptionOnDeserializationFailure() {
-            EventEnvelope<String> envelope = EventEnvelope.of(
-                    "saga.ORDER_CANCEL.REFUND_PAYMENT.action", "saga-orchestrator",
-                    "invalid-json-not-saga-step-message",
-                    Clock.fixed(Instant.parse("2026-04-26T01:00:00Z"), ZoneId.of("Asia/Seoul")));
+        @DisplayName("RefundPaymentSagaPayload 역직렬화 실패 시 페이로드 역직렬화 실패 응답을 발행하고 acknowledge한다")
+        void shouldPublishFailureOnPayloadDeserializationFailure() throws Exception {
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, "invalid-json");
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
 
-            @SuppressWarnings("unchecked")
-            ConsumerRecord<String, EventEnvelope<?>> record =
-                    new ConsumerRecord<>("saga.order-cancel.refund", 0, 0, SAGA_ID,
-                            (EventEnvelope<?>) (EventEnvelope) envelope);
-
-            org.assertj.core.api.Assertions.assertThatThrownBy(() ->
-                    consumer.handleRefundPaymentStep(record, acknowledgment)
-            ).isInstanceOf(Exception.class);
+            consumer.handleRefundPaymentStep(record, acknowledgment);
 
             verifyNoInteractions(refundPaymentUseCase);
-            verifyNoInteractions(acknowledgment);
+            verify(sagaResponsePublisher).publishFailure(
+                    eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
+                    eq(SagaStepMessage.ACTION), contains("페이로드 역직렬화 실패"));
+            verify(acknowledgment).acknowledge();
         }
 
         @Test

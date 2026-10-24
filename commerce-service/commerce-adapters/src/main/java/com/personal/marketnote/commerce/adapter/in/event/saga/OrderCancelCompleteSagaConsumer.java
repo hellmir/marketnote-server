@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.adapter.in.event.saga.payload.CompleteCa
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand;
 import com.personal.marketnote.commerce.port.in.command.order.CompleteCancelOrderCommand.CancelProductItemCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.CompleteCancelOrderUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
@@ -29,6 +30,7 @@ public class OrderCancelCompleteSagaConsumer {
     private final ObjectMapper objectMapper;
     private final CompleteCancelOrderUseCase completeCancelOrderUseCase;
     private final SagaResponsePublisher sagaResponsePublisher;
+    private final PublishOrderEventPort publishOrderEventPort;
 
     @KafkaListener(
             topics = KafkaTopicConstants.SAGA_ORDER_CANCEL_COMPLETED,
@@ -62,20 +64,22 @@ public class OrderCancelCompleteSagaConsumer {
     }
 
     private void handleAction(SagaStepMessage stepMessage) {
+        CompleteCancellationSagaPayload payload = parsePayload(stepMessage);
+        if (FormatValidator.hasNoValue(payload)) {
+            return;
+        }
+
+        if (FormatValidator.hasNoValue(payload.orderId())) {
+            publishValidationFailure(stepMessage, payload, "orderId 누락");
+            return;
+        }
+
+        if (FormatValidator.hasNoValue(payload.orderKey())) {
+            publishValidationFailure(stepMessage, payload, "orderKey 누락");
+            return;
+        }
+
         try {
-            CompleteCancellationSagaPayload payload = objectMapper.readValue(
-                    stepMessage.payload(), CompleteCancellationSagaPayload.class);
-
-            if (FormatValidator.hasNoValue(payload.orderId())) {
-                publishValidationFailure(stepMessage, "orderId 누락");
-                return;
-            }
-
-            if (FormatValidator.hasNoValue(payload.orderKey())) {
-                publishValidationFailure(stepMessage, "orderKey 누락");
-                return;
-            }
-
             CompleteCancelOrderCommand command = CompleteCancelOrderCommand.builder()
                     .orderId(payload.orderId())
                     .orderKey(payload.orderKey())
@@ -108,6 +112,37 @@ public class OrderCancelCompleteSagaConsumer {
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                     stepMessage.messageType(), "주문 취소 완료 처리 실패"
             );
+            publishOrderCancelFailedSafely(payload);
+        }
+    }
+
+    private CompleteCancellationSagaPayload parsePayload(SagaStepMessage stepMessage) {
+        try {
+            return objectMapper.readValue(stepMessage.payload(), CompleteCancellationSagaPayload.class);
+        } catch (Exception e) {
+            log.error("SAGA 주문 취소 완료 스텝 페이로드 역직렬화 실패. sagaId={}, error={}",
+                    stepMessage.sagaId(), e.getMessage(), e
+            );
+            sagaResponsePublisher.publishFailure(
+                    stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
+                    stepMessage.messageType(), "페이로드 역직렬화 실패"
+            );
+            return null;
+        }
+    }
+
+    private void publishOrderCancelFailedSafely(CompleteCancellationSagaPayload payload) {
+        if (FormatValidator.hasNoValue(payload)
+                || FormatValidator.hasNoValue(payload.orderId())
+                || FormatValidator.hasNoValue(payload.buyerId())) {
+            return;
+        }
+        try {
+            publishOrderEventPort.publishOrderCancelFailedEvent(payload.orderId(), payload.buyerId());
+        } catch (Exception e) {
+            log.error("OrderCancelFailedEvent 발행 실패. orderId={}, buyerId={}",
+                    payload.orderId(), payload.buyerId(), e
+            );
         }
     }
 
@@ -124,11 +159,14 @@ public class OrderCancelCompleteSagaConsumer {
                 .toList();
     }
 
-    private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
+    private void publishValidationFailure(
+            SagaStepMessage stepMessage, CompleteCancellationSagaPayload payload, String reason
+    ) {
         log.warn("SAGA 주문 취소 완료 스텝 페이로드 검증 실패. sagaId={}, reason={}", stepMessage.sagaId(), reason);
         sagaResponsePublisher.publishFailure(
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                 stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
+        publishOrderCancelFailedSafely(payload);
     }
 }
