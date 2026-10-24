@@ -103,6 +103,30 @@ class OrderTest {
     }
 
     @Test
+    @DisplayName("isPaymentExecuting은 PAYMENT_EXECUTING 상태에서 true를 반환한다")
+    void shouldReturnTrueWhenStatusIsPaymentExecuting() {
+        Order order = createOrderWithStatus(OrderStatus.PAYMENT_EXECUTING);
+
+        assertThat(order.isPaymentExecuting()).isTrue();
+    }
+
+    @Test
+    @DisplayName("isPaymentExecuting은 PAYMENT_PENDING 상태에서 false를 반환한다")
+    void shouldReturnFalseWhenStatusIsPaymentPendingForExecuting() {
+        Order order = createOrderWithStatus(OrderStatus.PAYMENT_PENDING);
+
+        assertThat(order.isPaymentExecuting()).isFalse();
+    }
+
+    @Test
+    @DisplayName("isPaymentExecuting은 PAID 상태에서 false를 반환한다")
+    void shouldReturnFalseWhenStatusIsPaidForExecuting() {
+        Order order = createOrderWithStatus(OrderStatus.PAID);
+
+        assertThat(order.isPaymentExecuting()).isFalse();
+    }
+
+    @Test
     @DisplayName("isBuyer는 동일 buyerId이면 true를 반환한다")
     void shouldReturnTrueWhenBuyerIdMatches() {
         Order order = createOrderWithStatus(OrderStatus.PAID);
@@ -171,6 +195,42 @@ class OrderTest {
         order.getOrderProducts().forEach(product ->
                 assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.PAID)
         );
+    }
+
+    @Test
+    @DisplayName("changeAllProductsStatus에서 PAYMENT_PENDING → PAID 직접 전이는 InvalidOrderStatusTransitionException이 발생한다")
+    void shouldThrowWhenTransitionFromPaymentPendingDirectlyToPaid() {
+        Order order = createOrderWithProducts(OrderStatus.PAYMENT_PENDING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.PAID, now))
+                .isInstanceOf(InvalidOrderStatusTransitionException.class);
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
+    }
+
+    @Test
+    @DisplayName("changeAllProductsStatus에서 PAYMENT_PENDING → PAYMENT_EXECUTING 전이는 성공한다")
+    void shouldChangeFromPaymentPendingToPaymentExecuting() {
+        Order order = createOrderWithProducts(OrderStatus.PAYMENT_PENDING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        order.changeAllProductsStatus(OrderStatus.PAYMENT_EXECUTING, now);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_EXECUTING);
+        order.getOrderProducts().forEach(product ->
+                assertThat(product.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_EXECUTING)
+        );
+    }
+
+    @Test
+    @DisplayName("changeAllProductsStatus에서 PAYMENT_EXECUTING → FAILED 전이는 성공한다")
+    void shouldChangeFromPaymentExecutingToFailed() {
+        Order order = createOrderWithProducts(OrderStatus.PAYMENT_EXECUTING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
+
+        order.changeAllProductsStatus(OrderStatus.FAILED, now);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.FAILED);
     }
 
     @Test

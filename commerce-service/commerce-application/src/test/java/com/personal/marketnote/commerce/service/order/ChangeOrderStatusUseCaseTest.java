@@ -114,6 +114,54 @@ class ChangeOrderStatusUseCaseTest {
             verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
             assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
         }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING에서 PAYMENT_EXECUTING으로 전이 시 Order와 History가 저장된다")
+        void shouldSaveOrderAndHistoryWhenChangingFromPendingToExecuting() {
+            // given
+            Long orderId = 1L;
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
+                    .id(orderId)
+                    .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                    .skipSubsequentProcesses(true)
+                    .build();
+
+            // when
+            changeOrderStatusService.changeOrderStatus(command);
+
+            // then
+            verify(updateOrderPort).update(eq(order), any(OrderStatusHistory.class));
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_EXECUTING);
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING에서 PAYMENT_EXECUTING으로 전이 시 PAID/CONFIRMED 후속 처리는 호출되지 않는다")
+        void shouldNotTriggerSubsequentProcessesWhenChangingFromPendingToExecuting() {
+            // given
+            Long orderId = 1L;
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L, 500L);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
+                    .id(orderId)
+                    .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                    .skipSubsequentProcesses(true)
+                    .build();
+
+            // when
+            changeOrderStatusService.changeOrderStatus(command);
+
+            // then
+            verify(findProductByPricePolicyPort, never()).findByPricePolicyIds(anyList());
+            verify(modifyUserPointPort, never()).addPendingProductAccumulationPoints(anyLong(), anyLong(), anyLong());
+            verify(publishOrderEventPort, never()).publishOrderPaymentCompletedEvent(
+                    anyLong(), anyLong(), anyLong(), anyLong(), any(), anyList(), anyLong());
+            verify(publishOrderEventPort, never()).publishOrderPurchaseConfirmedEvent(
+                    anyLong(), anyLong(), anyList(), anyBoolean(), anyList());
+        }
     }
 
     @Nested

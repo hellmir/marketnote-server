@@ -37,9 +37,51 @@ class OrderStatusTest {
         }
 
         @Test
+        @DisplayName("PAYMENT_PENDING에서 PARTIALLY_CANCELLED로 전이할 수 있다")
+        void paymentPending_canTransitionTo_partiallyCancelled() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.PARTIALLY_CANCELLED)).isTrue();
+        }
+
+        @Test
         @DisplayName("PAYMENT_PENDING에서 SHIPPING로 전이할 수 없다")
         void paymentPending_cannotTransitionTo_shipping() {
             assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.SHIPPING)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING에서 PAID로 전이할 수 있다")
+        void paymentExecuting_canTransitionTo_paid() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.canTransitionTo(OrderStatus.PAID)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING에서 FAILED로 전이할 수 있다")
+        void paymentExecuting_canTransitionTo_failed() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.canTransitionTo(OrderStatus.FAILED)).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING에서 CANCEL_REQUESTED로 전이할 수 없다 (결제 진행 중 취소 불가)")
+        void paymentExecuting_cannotTransitionTo_cancelRequested() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.canTransitionTo(OrderStatus.CANCEL_REQUESTED)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING에서 CANCELLED로 직접 전이할 수 없다 (CANCEL_REQUESTED 경유 필수)")
+        void paymentExecuting_cannotTransitionTo_cancelled() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.canTransitionTo(OrderStatus.CANCELLED)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING에서 SHIPPING로 전이할 수 없다")
+        void paymentExecuting_cannotTransitionTo_shipping() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.canTransitionTo(OrderStatus.SHIPPING)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING에서 PAYMENT_PENDING로 전이할 수 없다")
+        void paymentExecuting_cannotTransitionTo_paymentPending() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.canTransitionTo(OrderStatus.PAYMENT_PENDING)).isFalse();
         }
 
         @Test
@@ -279,6 +321,12 @@ class OrderStatusTest {
         }
 
         @Test
+        @DisplayName("PAYMENT_EXECUTING는 최종 상태가 아니다")
+        void paymentExecuting_isNotTerminal() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.isTerminal()).isFalse();
+        }
+
+        @Test
         @DisplayName("PREPARING는 최종 상태가 아니다")
         void preparing_isNotTerminal() {
             assertThat(OrderStatus.PREPARING.isTerminal()).isFalse();
@@ -447,6 +495,111 @@ class OrderStatusTest {
         @DisplayName("getPartiallyReturnRequested는 PARTIALLY_RETURN_REQUESTED 상수를 반환한다")
         void getPartiallyReturnRequested_returnsConstant() {
             assertThat(OrderStatus.getPartiallyReturnRequested()).isEqualTo(OrderStatus.PARTIALLY_RETURN_REQUESTED);
+        }
+    }
+
+    @Nested
+    @DisplayName("결제 진행 중 상태 검증 (isExecuting)")
+    class IsExecutingTest {
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING는 결제 진행 중 상태이다")
+        void paymentExecuting_isExecuting() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.isExecuting()).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING은 결제 진행 중 상태가 아니다")
+        void paymentPending_isNotExecuting() {
+            assertThat(OrderStatus.PAYMENT_PENDING.isExecuting()).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAID는 결제 진행 중 상태가 아니다")
+        void paid_isNotExecuting() {
+            assertThat(OrderStatus.PAID.isExecuting()).isFalse();
+        }
+
+        @Test
+        @DisplayName("FAILED는 결제 진행 중 상태가 아니다")
+        void failed_isNotExecuting() {
+            assertThat(OrderStatus.FAILED.isExecuting()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("클라이언트 노출 상태 변환 (toClientVisible)")
+    class ToClientVisibleTest {
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING은 클라이언트 대상으로 PAYMENT_PENDING으로 변환된다")
+        void paymentExecuting_toClientVisible_returnsPaymentPending() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.toClientVisible()).isEqualTo(OrderStatus.PAYMENT_PENDING);
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING은 변환 없이 자기 자신을 반환한다")
+        void paymentPending_toClientVisible_returnsSelf() {
+            assertThat(OrderStatus.PAYMENT_PENDING.toClientVisible()).isEqualTo(OrderStatus.PAYMENT_PENDING);
+        }
+
+        @Test
+        @DisplayName("PAID는 변환 없이 자기 자신을 반환한다")
+        void paid_toClientVisible_returnsSelf() {
+            assertThat(OrderStatus.PAID.toClientVisible()).isEqualTo(OrderStatus.PAID);
+        }
+
+        @Test
+        @DisplayName("FAILED는 변환 없이 자기 자신을 반환한다")
+        void failed_toClientVisible_returnsSelf() {
+            assertThat(OrderStatus.FAILED.toClientVisible()).isEqualTo(OrderStatus.FAILED);
+        }
+    }
+
+    @Nested
+    @DisplayName("부분 취소 가능 여부 검증 (canPartiallyCancel)")
+    class CanPartiallyCancelTest {
+
+        @Test
+        @DisplayName("PAYMENT_PENDING은 부분 취소 가능 상태이다")
+        void paymentPending_canPartiallyCancel() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canPartiallyCancel()).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAID는 부분 취소 가능 상태이다")
+        void paid_canPartiallyCancel() {
+            assertThat(OrderStatus.PAID.canPartiallyCancel()).isTrue();
+        }
+
+        @Test
+        @DisplayName("PREPARING은 부분 취소 가능 상태이다")
+        void preparing_canPartiallyCancel() {
+            assertThat(OrderStatus.PREPARING.canPartiallyCancel()).isTrue();
+        }
+
+        @Test
+        @DisplayName("PARTIALLY_CANCELLED는 부분 취소 가능 상태이다")
+        void partiallyCancelled_canPartiallyCancel() {
+            assertThat(OrderStatus.PARTIALLY_CANCELLED.canPartiallyCancel()).isTrue();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_EXECUTING은 부분 취소 가능 상태가 아니다 (결제 진행 중 부분 취소 금지)")
+        void paymentExecuting_cannotPartiallyCancel() {
+            assertThat(OrderStatus.PAYMENT_EXECUTING.canPartiallyCancel()).isFalse();
+        }
+
+        @Test
+        @DisplayName("SHIPPING은 부분 취소 가능 상태가 아니다")
+        void shipping_cannotPartiallyCancel() {
+            assertThat(OrderStatus.SHIPPING.canPartiallyCancel()).isFalse();
+        }
+
+        @Test
+        @DisplayName("CANCELLED는 부분 취소 가능 상태가 아니다")
+        void cancelled_cannotPartiallyCancel() {
+            assertThat(OrderStatus.CANCELLED.canPartiallyCancel()).isFalse();
         }
     }
 }
