@@ -11,7 +11,7 @@ class BrandTalkCommerceInfoTest {
     @Test
     @DisplayName("커머스 title 누락 시 예외가 발생한다")
     void shouldThrowExceptionWhenTitleMissing() {
-        assertThatThrownBy(() -> BrandTalkCommerceInfo.of(null, "10000", null, null, null))
+        assertThatThrownBy(() -> BrandTalkCommerceInfo.from(BrandTalkCommerceInfoCreateState.builder().title(null).regularPrice("10000").discountPrice(null).discountRate(null).discountFixed(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("title은 필수");
     }
@@ -19,7 +19,7 @@ class BrandTalkCommerceInfoTest {
     @Test
     @DisplayName("커머스 regularPrice 누락 시 예외가 발생한다")
     void shouldThrowExceptionWhenRegularPriceMissing() {
-        assertThatThrownBy(() -> BrandTalkCommerceInfo.of("상품명", null, null, null, null))
+        assertThatThrownBy(() -> BrandTalkCommerceInfo.from(BrandTalkCommerceInfoCreateState.builder().title("상품명").regularPrice(null).discountPrice(null).discountRate(null).discountFixed(null).build()))
                 .isInstanceOf(InvalidBrandTalkTemplateException.class)
                 .hasMessageContaining("regularPrice는 필수");
     }
@@ -27,7 +27,7 @@ class BrandTalkCommerceInfoTest {
     @Test
     @DisplayName("커머스 title + regularPrice만으로 정상 생성된다")
     void shouldCreateWithRequiredFieldsOnly() {
-        BrandTalkCommerceInfo info = BrandTalkCommerceInfo.of("상품명", "10000", null, null, null);
+        BrandTalkCommerceInfo info = BrandTalkCommerceInfo.from(BrandTalkCommerceInfoCreateState.builder().title("상품명").regularPrice("10000").discountPrice(null).discountRate(null).discountFixed(null).build());
         assertThat(info.getTitle()).isEqualTo("상품명");
         assertThat(info.getRegularPrice()).isEqualTo("10000");
     }
