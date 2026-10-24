@@ -56,22 +56,16 @@ public class ProductRegisteredFulfillmentConsumer {
         try {
             ProductRegisteredEvent payload = envelope.getPayloadAs(ProductRegisteredEvent.class, objectMapper);
 
-            log.info("상품 등록 이벤트 수신 (풀필먼트). eventId={}, productId={}", envelope.eventId(), payload.productId());
+            log.info("상품 등록 이벤트 수신 (풀필먼트). eventId={}, productKey={}", envelope.eventId(), payload.productKey());
 
-            if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                    EventPayloadValidator.id("productId", payload.productId()))) {
+            if (FormatValidator.hasNoValue(payload.productKey())) {
+                log.error("productKey 누락. eventId={}", envelope.eventId());
                 acknowledgment.acknowledge();
                 return;
             }
 
             if (FormatValidator.hasNoValue(payload.productName())) {
                 log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}", envelope.eventId(), payload.productName());
-                acknowledgment.acknowledge();
-                return;
-            }
-
-            if (FormatValidator.hasNoValue(payload.productKey())) {
-                log.error("productKey 누락. eventId={}, productId={}", envelope.eventId(), payload.productId());
                 acknowledgment.acknowledge();
                 return;
             }
@@ -96,7 +90,7 @@ public class ProductRegisteredFulfillmentConsumer {
                 return null;
             });
 
-            log.info("Kafka 이벤트로 풀필먼트 상품 등록 완료. productId={}", payload.productId());
+            log.info("Kafka 이벤트로 풀필먼트 상품 등록 완료. productKey={}", payload.productKey());
         } catch (FulfillmentGoodsAlreadyRegisteredException e) {
             log.warn("이미 Fulfillment에 등록된 상품입니다 (멱등 처리). eventId={}, key={}, message={}",
                     envelope.eventId(), record.key(), e.getMessage()

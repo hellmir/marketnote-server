@@ -49,7 +49,7 @@ public class FulfillmentGoodsMapper {
                 .toList();
     }
 
-    public String getProductId() {
+    public String getProductKey() {
         return goods.getFirst().getCstGodCd();
     }
 }
