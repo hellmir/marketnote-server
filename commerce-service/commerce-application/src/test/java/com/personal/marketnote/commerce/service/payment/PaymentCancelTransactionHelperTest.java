@@ -209,6 +209,24 @@ class PaymentCancelTransactionHelperTest {
             ));
         }
 
+        @Test
+        @DisplayName("부분 취소 TX-2B 진입 시 Payment를 fresh 재조회하여 race를 방지한다")
+        void shouldRefetchPaymentOnTx2bEntryForRaceMitigation() {
+            Payment payment = createSuccessPayment(1L, ORDER_KEY, 50000L, "tno_123");
+            PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
+            CancelPaymentCommand command = createPartialCancelCommand(ORDER_KEY_STR, 20000L);
+            PaymentCancelVendorResult vendorResult = createSuccessVendorResult();
+
+            when(findPaymentPort.findByOrderKey(ORDER_KEY)).thenReturn(Optional.of(payment));
+            when(findOrderPort.findById(1L)).thenReturn(Optional.of(createOrder(1L, BUYER_ID)));
+            when(findPspPaymentEventPort.findByOrderKey(ORDER_KEY_STR)).thenReturn(Optional.of(event));
+            when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
+
+            invokeCancel(command);
+
+            verify(findPaymentPort, times(2)).findByOrderKey(ORDER_KEY);
+        }
+
     }
 
     @Nested
