@@ -3,6 +3,7 @@ package com.personal.marketnote.user.service.user;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.user.domain.user.User;
 import com.personal.marketnote.user.domain.user.UserPenaltyHistory;
+import com.personal.marketnote.user.domain.user.UserPenaltyHistoryCreateState;
 import com.personal.marketnote.user.port.in.command.UpdateUserPenaltyCountCommand;
 import com.personal.marketnote.user.port.in.result.UpdateUserPenaltyCountResult;
 import com.personal.marketnote.user.port.in.usecase.user.GetUserUseCase;
@@ -32,13 +33,7 @@ public class UpdateUserPenaltyCountService implements UpdateUserPenaltyCountUseC
         updateUserPort.update(user);
 
         UserPenaltyHistory savedHistory = saveUserPenaltyHistoryPort.save(
-                UserPenaltyHistory.of(
-                        command.userId(),
-                        previousCount,
-                        user.getPenaltyCount(),
-                        command.reason(),
-                        command.adminId()
-                )
+                UserPenaltyHistory.from(UserPenaltyHistoryCreateState.builder().userId(command.userId()).previousCount(previousCount).currentCount(user.getPenaltyCount()).reason(command.reason()).createdBy(command.adminId()).build())
         );
 
         return UpdateUserPenaltyCountResult.of(user.getId(), user.getPenaltyCount(), savedHistory.getId());

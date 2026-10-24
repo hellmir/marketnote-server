@@ -23,7 +23,7 @@ class UserPenaltyHistoryTest {
             String reason = "게시글 도배 행위";
             Long createdBy = 99L;
 
-            UserPenaltyHistory history = UserPenaltyHistory.of(userId, previousCount, currentCount, reason, createdBy);
+            UserPenaltyHistory history = UserPenaltyHistory.from(UserPenaltyHistoryCreateState.builder().userId(userId).previousCount(previousCount).currentCount(currentCount).reason(reason).createdBy(createdBy).build());
 
             assertThat(history.getUserId()).isEqualTo(userId);
             assertThat(history.getPreviousCount()).isEqualTo(previousCount);
@@ -35,7 +35,7 @@ class UserPenaltyHistoryTest {
         @Test
         @DisplayName("UserPenaltyHistory.of로 생성 시 id와 createdAt은 null이다")
         void shouldNotSetIdAndCreatedAtOnCreate() {
-            UserPenaltyHistory history = UserPenaltyHistory.of(1L, 0, 1, "이유", 2L);
+            UserPenaltyHistory history = UserPenaltyHistory.from(UserPenaltyHistoryCreateState.builder().userId(1L).previousCount(0).currentCount(1).reason("이유").createdBy(2L).build());
 
             assertThat(history.getId()).isNull();
             assertThat(history.getCreatedAt()).isNull();
