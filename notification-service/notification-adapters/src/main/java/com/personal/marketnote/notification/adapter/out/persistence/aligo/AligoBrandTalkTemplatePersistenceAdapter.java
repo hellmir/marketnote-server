@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.out.persistence.aligo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoBrandTalkTemplateJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.repository.AligoBrandTalkTemplateJpaRepository;
 import com.personal.marketnote.notification.domain.aligo.*;
@@ -73,7 +74,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeButtons(List<BrandTalkButton> buttons) {
-        if (buttons == null || buttons.isEmpty()) {
+        if (FormatValidator.hasNoValue(buttons)) {
             return null;
         }
         List<Map<String, String>> buttonList = buttons.stream()
@@ -87,7 +88,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeCoupon(BrandTalkCoupon coupon) {
-        if (coupon == null) {
+        if (FormatValidator.hasNoValue(coupon)) {
             return null;
         }
         Map<String, String> couponMap = new LinkedHashMap<>();
@@ -116,7 +117,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeWideItem(BrandTalkWideItem item) {
-        if (item == null) {
+        if (FormatValidator.hasNoValue(item)) {
             return null;
         }
         Map<String, String> map = wideItemToMap(item);
@@ -128,7 +129,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeWideItems(List<BrandTalkWideItem> items) {
-        if (items == null || items.isEmpty()) {
+        if (FormatValidator.hasNoValue(items)) {
             return null;
         }
         List<Map<String, String>> list = items.stream().map(this::wideItemToMap).toList();
@@ -151,7 +152,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeCarouselItems(List<BrandTalkCarouselItem> items) {
-        if (items == null || items.isEmpty()) {
+        if (FormatValidator.hasNoValue(items)) {
             return null;
         }
         List<Map<String, Object>> list = items.stream().map(this::carouselItemToMap).toList();
@@ -167,10 +168,10 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         map.put("header", item.getHeader());
         map.put("content", item.getContent());
         map.put("imageUrl", item.getImageUrl());
-        if (item.getButtons() != null && !item.getButtons().isEmpty()) {
+        if (FormatValidator.hasValue(item.getButtons())) {
             map.put("buttons", item.getButtons().stream().map(this::buttonToMap).toList());
         }
-        if (item.getCoupon() != null) {
+        if (FormatValidator.hasValue(item.getCoupon())) {
             Map<String, String> couponMap = new LinkedHashMap<>();
             couponMap.put("title", item.getCoupon().getTitle());
             couponMap.put("description", item.getCoupon().getDescription());
@@ -180,7 +181,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeCarouselCommerces(List<BrandTalkCarouselCommerce> commerces) {
-        if (commerces == null || commerces.isEmpty()) {
+        if (FormatValidator.hasNoValue(commerces)) {
             return null;
         }
         List<Map<String, String>> list = commerces.stream().map(this::carouselCommerceToMap).toList();
@@ -202,7 +203,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeCarouselTail(BrandTalkCarouselTail tail) {
-        if (tail == null) {
+        if (FormatValidator.hasNoValue(tail)) {
             return null;
         }
         Map<String, String> map = new LinkedHashMap<>();
@@ -215,7 +216,7 @@ public class AligoBrandTalkTemplatePersistenceAdapter
     }
 
     private String serializeCommerceInfo(BrandTalkCommerceInfo commerceInfo) {
-        if (commerceInfo == null) {
+        if (FormatValidator.hasNoValue(commerceInfo)) {
             return null;
         }
         Map<String, String> map = new LinkedHashMap<>();

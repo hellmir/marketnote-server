@@ -1,5 +1,6 @@
 package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.port.in.result.aligo.GetAligoCategoryTreeResult;
 import com.personal.marketnote.notification.port.out.aligo.GetAligoCategoryExternalPort;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
     }
 
     private List<GetAligoCategoryTreeResult.CategoryResult> buildCategoryTree(AligoCategoryApiResponse.CategoryData data) {
-        if (data == null) {
+        if (FormatValidator.hasNoValue(data)) {
             return List.of();
         }
 
@@ -40,7 +41,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
         );
 
         Map<String, List<GetAligoCategoryTreeResult.CategoryResult>> secondByParent = new LinkedHashMap<>();
-        if (data.secondBusinessType() != null) {
+        if (FormatValidator.hasValue(data.secondBusinessType())) {
             for (AligoCategoryApiResponse.CategoryItem item : data.secondBusinessType()) {
                 List<GetAligoCategoryTreeResult.CategoryResult> children = thirdByParent.getOrDefault(
                         item.code(), List.of()
@@ -51,7 +52,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
         }
 
         List<GetAligoCategoryTreeResult.CategoryResult> result = new ArrayList<>();
-        if (data.firstBusinessType() != null) {
+        if (FormatValidator.hasValue(data.firstBusinessType())) {
             for (AligoCategoryApiResponse.CategoryItem item : data.firstBusinessType()) {
                 List<GetAligoCategoryTreeResult.CategoryResult> children = secondByParent.getOrDefault(
                         item.code(), List.of()
@@ -67,7 +68,7 @@ public class AligoCategoryExternalAdapter implements GetAligoCategoryExternalPor
             List<AligoCategoryApiResponse.CategoryItem> items
     ) {
         Map<String, List<GetAligoCategoryTreeResult.CategoryResult>> grouped = new LinkedHashMap<>();
-        if (items == null) {
+        if (FormatValidator.hasNoValue(items)) {
             return grouped;
         }
         for (AligoCategoryApiResponse.CategoryItem item : items) {

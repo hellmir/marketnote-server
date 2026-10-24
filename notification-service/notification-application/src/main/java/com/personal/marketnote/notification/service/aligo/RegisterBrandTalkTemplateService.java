@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.common.application.UseCase;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.*;
 import com.personal.marketnote.notification.port.in.command.*;
 import com.personal.marketnote.notification.port.in.result.aligo.RegisterBrandTalkTemplateResult;
@@ -66,7 +67,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     }
 
     private List<BrandTalkButton> mapButtons(List<BrandTalkButtonCommand> buttonCommands) {
-        if (buttonCommands == null) {
+        if (FormatValidator.hasNoValue(buttonCommands)) {
             return List.of();
         }
         return buttonCommands.stream()
@@ -78,7 +79,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     }
 
     private BrandTalkCoupon mapCoupon(BrandTalkCouponCommand couponCommand) {
-        if (couponCommand == null) {
+        if (FormatValidator.hasNoValue(couponCommand)) {
             return null;
         }
         return BrandTalkCoupon.of(
@@ -89,7 +90,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     }
 
     private BrandTalkWideItem mapWideItem(BrandTalkWideItemCommand command) {
-        if (command == null) {
+        if (FormatValidator.hasNoValue(command)) {
             return null;
         }
         return BrandTalkWideItem.of(
@@ -99,7 +100,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     }
 
     private List<BrandTalkWideItem> mapWideItems(List<BrandTalkWideItemCommand> commands) {
-        if (commands == null) {
+        if (FormatValidator.hasNoValue(commands)) {
             return List.of();
         }
         return commands.stream()
@@ -108,7 +109,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     }
 
     private List<BrandTalkCarouselItem> mapCarouselItems(List<BrandTalkCarouselItemCommand> commands) {
-        if (commands == null) {
+        if (FormatValidator.hasNoValue(commands)) {
             return List.of();
         }
         return commands.stream()
@@ -120,7 +121,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     }
 
     private List<BrandTalkCarouselCommerce> mapCarouselCommerces(List<BrandTalkCarouselCommerceCommand> commands) {
-        if (commands == null) {
+        if (FormatValidator.hasNoValue(commands)) {
             return List.of();
         }
         return commands.stream()
@@ -132,14 +133,14 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
     }
 
     private BrandTalkCarouselTail mapCarouselTail(BrandTalkCarouselTailCommand command) {
-        if (command == null) {
+        if (FormatValidator.hasNoValue(command)) {
             return null;
         }
         return BrandTalkCarouselTail.of(command.linkM());
     }
 
     private BrandTalkCommerceInfo mapCommerceInfo(BrandTalkCommerceInfoCommand command) {
-        if (command == null) {
+        if (FormatValidator.hasNoValue(command)) {
             return null;
         }
         return BrandTalkCommerceInfo.of(

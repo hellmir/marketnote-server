@@ -115,7 +115,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
             List<CarouselItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
             return dtos.stream()
                     .map(dto -> {
-                        List<BrandTalkButton> itemButtons = dto.buttons() != null
+                        List<BrandTalkButton> itemButtons = FormatValidator.hasValue(dto.buttons())
                                 ? dto.buttons().stream()
                                 .map(b -> BrandTalkButton.of(
                                         b.name(), AligoTemplateButtonLinkType.from(b.linkType()),
@@ -123,7 +123,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                                 ))
                                 .toList()
                                 : List.of();
-                        BrandTalkCoupon itemCoupon = dto.coupon() != null
+                        BrandTalkCoupon itemCoupon = FormatValidator.hasValue(dto.coupon())
                                 ? BrandTalkCoupon.of(
                                 dto.coupon().title(), dto.coupon().description(),
                                 dto.coupon().linkM(), dto.coupon().linkP(),

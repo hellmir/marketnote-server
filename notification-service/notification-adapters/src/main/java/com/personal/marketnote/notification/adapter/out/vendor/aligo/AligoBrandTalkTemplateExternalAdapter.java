@@ -49,7 +49,7 @@ public class AligoBrandTalkTemplateExternalAdapter
             addCommerceParams(params, template);
         }
 
-        if (template.requiresImage() && imageFile != null) {
+        if (template.requiresImage() && FormatValidator.hasValue(imageFile)) {
             Resource resource = createResource(imageFile, imageFileName);
             params.add("image", resource);
         }
@@ -100,11 +100,11 @@ public class AligoBrandTalkTemplateExternalAdapter
             params.add("image_link", template.getImageLink());
         }
 
-        if (template.getButtons() != null && !template.getButtons().isEmpty()) {
+        if (FormatValidator.hasValue(template.getButtons())) {
             params.add("tpl_button", serializeButtons(template.getButtons()));
         }
 
-        if (template.getCoupon() != null) {
+        if (FormatValidator.hasValue(template.getCoupon())) {
             params.add("tpl_coupon", serializeCoupon(template.getCoupon()));
         }
 
@@ -175,15 +175,15 @@ public class AligoBrandTalkTemplateExternalAdapter
         if (FormatValidator.hasValue(template.getTemplateHeader())) {
             params.add("template_header", template.getTemplateHeader());
         }
-        if (template.getMainWideItem() != null) {
+        if (FormatValidator.hasValue(template.getMainWideItem())) {
             params.add("main_wide_item", serializeWideItem(template.getMainWideItem()));
         }
-        if (template.getSubWideItems() != null && !template.getSubWideItems().isEmpty()) {
+        if (FormatValidator.hasValue(template.getSubWideItems())) {
             for (int i = 0; i < template.getSubWideItems().size(); i++) {
                 params.add("sub_wide_item" + (i + 1), serializeWideItem(template.getSubWideItems().get(i)));
             }
         }
-        if (imageFile != null) {
+        if (FormatValidator.hasValue(imageFile)) {
             Resource mainImageResource = createResource(imageFile, imageFileName);
             params.add("main_wide_item_image", mainImageResource);
         }
@@ -222,7 +222,7 @@ public class AligoBrandTalkTemplateExternalAdapter
         if (FormatValidator.hasValue(template.getCarouselHeader())) {
             params.add("carousel_header", template.getCarouselHeader());
         }
-        if (headerImageFile != null) {
+        if (FormatValidator.hasValue(headerImageFile)) {
             params.add("carousel_header_image", createResource(headerImageFile, headerImageFileName));
         }
 
@@ -233,15 +233,15 @@ public class AligoBrandTalkTemplateExternalAdapter
 
             params.add("carousel_list" + index, serializeCarouselListItem(item));
 
-            if (itemImageFiles != null && i < itemImageFiles.size() && itemImageFiles.get(i) != null) {
+            if (FormatValidator.hasValue(itemImageFiles) && i < itemImageFiles.size() && FormatValidator.hasValue(itemImageFiles.get(i))) {
                 params.add("carousel_list_image" + index, createResource(itemImageFiles.get(i), itemImageFileNames.get(i)));
             }
 
-            if (item.getButtons() != null && !item.getButtons().isEmpty()) {
+            if (FormatValidator.hasValue(item.getButtons())) {
                 params.add("carousel_list_button" + index, serializeButtons(item.getButtons()));
             }
 
-            if (item.getCoupon() != null) {
+            if (FormatValidator.hasValue(item.getCoupon())) {
                 params.add("carousel_list_coupon" + index, serializeCoupon(item.getCoupon()));
             }
         }
@@ -253,7 +253,7 @@ public class AligoBrandTalkTemplateExternalAdapter
             }
         }
 
-        if (template.getCarouselTail() != null) {
+        if (FormatValidator.hasValue(template.getCarouselTail())) {
             params.add("carousel_tail", serializeCarouselTail(template.getCarouselTail()));
         }
     }
@@ -313,7 +313,7 @@ public class AligoBrandTalkTemplateExternalAdapter
     }
 
     private void addCommerceParams(MultiValueMap<String, Object> params, AligoBrandTalkTemplate template) {
-        if (template.getCommerceInfo() != null) {
+        if (FormatValidator.hasValue(template.getCommerceInfo())) {
             params.add("template_commerce", serializeCommerceInfoForApi(template.getCommerceInfo()));
         }
     }

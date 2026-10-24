@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.persistence.aligo;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoTemplateButtonJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.entity.AligoTemplateJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.aligo.repository.AligoTemplateJpaRepository;
@@ -82,7 +83,7 @@ public class AligoTemplatePersistenceAdapter
     }
 
     private List<AligoTemplateButtonJpaEntity> mapButtonsToEntities(List<AligoTemplateButton> buttons) {
-        if (buttons == null) {
+        if (FormatValidator.hasNoValue(buttons)) {
             return List.of();
         }
         return buttons.stream()

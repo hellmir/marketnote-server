@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.out.persistence.aligo.entity;
 
 import com.personal.marketnote.common.adapter.out.persistence.audit.BaseGeneralEntity;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateEmType;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateStatus;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateType;
@@ -80,7 +81,7 @@ public class AligoTemplateJpaEntity extends BaseGeneralEntity {
         this.templateStatus = templateStatus;
         this.comments = comments;
         this.buttons.clear();
-        if (newButtons != null) {
+        if (FormatValidator.hasValue(newButtons)) {
             for (AligoTemplateButtonJpaEntity button : newButtons) {
                 button.assignTemplate(this);
                 this.buttons.add(button);
@@ -112,7 +113,7 @@ public class AligoTemplateJpaEntity extends BaseGeneralEntity {
         entity.imageName = imageName;
         entity.inspStatus = inspStatus;
         entity.templateStatus = templateStatus;
-        if (buttons != null) {
+        if (FormatValidator.hasValue(buttons)) {
             for (AligoTemplateButtonJpaEntity button : buttons) {
                 button.assignTemplate(entity);
                 entity.buttons.add(button);

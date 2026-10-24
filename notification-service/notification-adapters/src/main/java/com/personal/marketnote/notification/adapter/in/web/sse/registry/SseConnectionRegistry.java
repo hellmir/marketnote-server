@@ -1,5 +1,6 @@
 package com.personal.marketnote.notification.adapter.in.web.sse.registry;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -46,7 +47,7 @@ public class SseConnectionRegistry {
         });
 
         SseEmitter previousEmitter = connections.put(userId, emitter);
-        if (previousEmitter != null) {
+        if (FormatValidator.hasValue(previousEmitter)) {
             log.info("SSE 기존 커넥션 종료: userId={}", userId);
             previousEmitter.complete();
         }
@@ -59,7 +60,7 @@ public class SseConnectionRegistry {
 
     public void remove(Long userId) {
         SseEmitter emitter = connections.remove(userId);
-        if (emitter != null) {
+        if (FormatValidator.hasValue(emitter)) {
             emitter.complete();
             log.info("SSE 커넥션 제거: userId={}", userId);
         }
@@ -67,7 +68,7 @@ public class SseConnectionRegistry {
 
     public void sendToUser(Long userId, SseEmitter.SseEventBuilder event) {
         SseEmitter emitter = connections.get(userId);
-        if (emitter == null) {
+        if (FormatValidator.hasNoValue(emitter)) {
             return;
         }
 

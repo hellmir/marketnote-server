@@ -50,7 +50,7 @@ public class AligoTemplate extends BaseDomain {
                 .imageName(state.getImageName())
                 .inspStatus(AligoTemplateInspectionStatus.REG.name())
                 .templateStatus(AligoTemplateStatus.R)
-                .buttons(state.getButtons() != null ? state.getButtons() : List.of())
+                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
                 .build();
         template.activate();
         return template;
@@ -74,7 +74,7 @@ public class AligoTemplate extends BaseDomain {
                 .inspStatus(state.getInspStatus())
                 .templateStatus(state.getTemplateStatus())
                 .comments(state.getComments())
-                .buttons(state.getButtons() != null ? state.getButtons() : List.of())
+                .buttons(FormatValidator.hasValue(state.getButtons()) ? state.getButtons() : List.of())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -145,7 +145,7 @@ public class AligoTemplate extends BaseDomain {
         this.templateContent = templateContent;
         this.templateTitle = templateTitle;
         this.templateSubtitle = templateSubtitle;
-        this.buttons = buttons != null ? buttons : List.of();
+        this.buttons = FormatValidator.hasValue(buttons) ? buttons : List.of();
     }
 
     public void updateInspStatus(String inspStatus) {
@@ -175,7 +175,7 @@ public class AligoTemplate extends BaseDomain {
         if (FormatValidator.hasNoValue(state.getTemplateContent())) {
             throw new InvalidAligoTemplateException("templateContent는 필수입니다.");
         }
-        if (state.getButtons() != null && state.getButtons().size() > 5) {
+        if (FormatValidator.hasValue(state.getButtons()) && state.getButtons().size() > 5) {
             throw new InvalidAligoTemplateException("버튼은 최대 5개까지 등록할 수 있습니다.");
         }
     }

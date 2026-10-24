@@ -2,6 +2,7 @@ package com.personal.marketnote.notification.adapter.out.vendor.aligo;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.domain.aligo.AligoApiRequestFailedException;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplate;
 import com.personal.marketnote.notification.domain.aligo.AligoTemplateButton;
@@ -51,7 +52,7 @@ public class AligoTemplateExternalAdapter
                 "/akv10/template/list/", params, AligoTemplateListApiResponse.class
         );
 
-        if (response.list() == null) {
+        if (FormatValidator.hasNoValue(response.list())) {
             return List.of();
         }
 
@@ -83,10 +84,10 @@ public class AligoTemplateExternalAdapter
         params.add("tpl_name", template.getTemplateName());
         params.add("tpl_content", template.getTemplateContent());
 
-        if (template.getTemplateTitle() != null) {
+        if (FormatValidator.hasValue(template.getTemplateTitle())) {
             params.add("tpl_title", template.getTemplateTitle());
         }
-        if (template.getTemplateSubtitle() != null) {
+        if (FormatValidator.hasValue(template.getTemplateSubtitle())) {
             params.add("tpl_subtitle", template.getTemplateSubtitle());
         }
 
@@ -95,14 +96,14 @@ public class AligoTemplateExternalAdapter
         params.add("security_yn", template.isTemplateSecure() ? "Y" : "N");
         params.add("tpl_advert", template.isTemplateAdvert() ? "Y" : "N");
 
-        if (template.getImageUrl() != null) {
+        if (FormatValidator.hasValue(template.getImageUrl())) {
             params.add("image_url", template.getImageUrl());
         }
-        if (template.getImageName() != null) {
+        if (FormatValidator.hasValue(template.getImageName())) {
             params.add("image_name", template.getImageName());
         }
 
-        if (template.getButtons() != null && !template.getButtons().isEmpty()) {
+        if (FormatValidator.hasValue(template.getButtons())) {
             params.add("tpl_button", serializeButtons(template.getButtons()));
         }
 
@@ -127,9 +128,9 @@ public class AligoTemplateExternalAdapter
                         .senderKey(item.senderkey())
                         .templateCode(item.templtCode())
                         .templateName(item.templtName())
-                        .templateContent(item.templtContent() != null ? item.templtContent() : "")
+                        .templateContent(FormatValidator.hasValue(item.templtContent()) ? item.templtContent() : "")
                         .templateType(AligoTemplateType.from(item.templateType()))
-                        .templateEmType(AligoTemplateEmType.from(item.templateEmphasizeType() != null ? item.templateEmphasizeType() : "NONE"))
+                        .templateEmType(AligoTemplateEmType.from(FormatValidator.hasValue(item.templateEmphasizeType()) ? item.templateEmphasizeType() : "NONE"))
                         .inspStatus(item.inspStatus())
                         .templateStatus(AligoTemplateStatus.from(item.status()))
                         .comments(item.comments())
@@ -143,16 +144,16 @@ public class AligoTemplateExternalAdapter
         map.put("ordering", String.valueOf(button.getOrdering()));
         map.put("name", button.getName());
         map.put("linkType", button.getLinkType().name());
-        if (button.getLinkMo() != null) {
+        if (FormatValidator.hasValue(button.getLinkMo())) {
             map.put("linkMo", button.getLinkMo());
         }
-        if (button.getLinkPc() != null) {
+        if (FormatValidator.hasValue(button.getLinkPc())) {
             map.put("linkPc", button.getLinkPc());
         }
-        if (button.getLinkIos() != null) {
+        if (FormatValidator.hasValue(button.getLinkIos())) {
             map.put("linkIos", button.getLinkIos());
         }
-        if (button.getLinkAnd() != null) {
+        if (FormatValidator.hasValue(button.getLinkAnd())) {
             map.put("linkAnd", button.getLinkAnd());
         }
         return map;
