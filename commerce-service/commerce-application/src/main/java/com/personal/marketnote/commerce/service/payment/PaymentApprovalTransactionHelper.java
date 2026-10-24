@@ -78,6 +78,8 @@ public class PaymentApprovalTransactionHelper {
         event.startExecution();
         updatePspPaymentEventPort.update(event);
 
+        changeOrderToExecuting(payment.getOrderId());
+
         return PaymentApprovalContext.of(payment, event);
     }
 
@@ -111,7 +113,25 @@ public class PaymentApprovalTransactionHelper {
         event.startExecution();
         PspPaymentEvent savedEvent = savePspPaymentEventPort.save(event);
 
+        changeOrderToExecuting(payment.getOrderId());
+
         return PaymentApprovalContext.of(payment, savedEvent);
+    }
+
+    /**
+     * Order 상태를 PAYMENT_EXECUTING으로 전이한다.
+     *
+     * <p>skipSubsequentProcesses=true: PAYMENT_EXECUTING 자체는 후속 처리 대상이 아니지만,
+     * 향후 확장 대비 방어적 명시.</p>
+     */
+    private void changeOrderToExecuting(Long orderId) {
+        changeOrderStatusUseCase.changeOrderStatus(
+                ChangeOrderStatusCommand.builder()
+                        .id(orderId)
+                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
+                        .skipSubsequentProcesses(true)
+                        .build()
+        );
     }
 
     /**

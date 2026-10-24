@@ -74,12 +74,12 @@ public record GetOrderProductResult(
             OrderStatus defaultOrderStatus
     ) {
         OrderStatus status = orderProduct.getOrderStatus();
-        if (FormatValidator.hasNoValue(status) || status.isPending()) {
+        if (FormatValidator.hasNoValue(status) || status.isPending() || status.isExecuting()) {
             return FormatValidator.hasValue(defaultOrderStatus)
-                    ? defaultOrderStatus
+                    ? defaultOrderStatus.toClientVisible()
                     : OrderStatus.PAYMENT_PENDING;
         }
 
-        return status;
+        return status.toClientVisible();
     }
 }

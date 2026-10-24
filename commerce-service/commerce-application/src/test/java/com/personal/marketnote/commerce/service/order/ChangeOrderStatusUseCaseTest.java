@@ -53,11 +53,11 @@ class ChangeOrderStatusUseCaseTest {
     class BasicStatusChangeTest {
 
         @Test
-        @DisplayName("PAYMENT_PENDING에서 PAID로 전체 변경하면 주문과 히스토리가 저장된다")
-        void shouldSaveOrderAndHistoryWhenChangingFromPendingToPaid() {
+        @DisplayName("PAYMENT_EXECUTING에서 PAID로 전체 변경하면 주문과 히스토리가 저장된다")
+        void shouldSaveOrderAndHistoryWhenChangingFromExecutingToPaid() {
             // given
             Long orderId = 1L;
-            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L);
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_EXECUTING, 10L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -257,7 +257,7 @@ class ChangeOrderStatusUseCaseTest {
         void shouldSkipPaidSubsequentProcessesWhenSkipIsTrue() {
             // given
             Long orderId = 1L;
-            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L);
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_EXECUTING, 10L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -281,7 +281,7 @@ class ChangeOrderStatusUseCaseTest {
         void shouldExecutePaidSubsequentProcessesWhenSkipIsNull() {
             // given
             Long orderId = 1L;
-            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L, 500L);
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_EXECUTING, 10L, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -404,7 +404,7 @@ class ChangeOrderStatusUseCaseTest {
             // given
             Long orderId = 1L;
             Long buyerId = 100L;
-            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_PENDING, 10L, 500L);
+            Order order = createOrder(orderId, buyerId, OrderStatus.PAYMENT_EXECUTING, 10L, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
@@ -425,7 +425,7 @@ class ChangeOrderStatusUseCaseTest {
         void shouldPropagateExceptionWhenPublishPaymentCompletedEventFails() {
             // given
             Long orderId = 1L;
-            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_PENDING, 10L, 500L);
+            Order order = createOrder(orderId, 100L, OrderStatus.PAYMENT_EXECUTING, 10L, 500L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
             doThrow(new RuntimeException("Outbox 저장 실패"))
                     .when(publishOrderEventPort).publishOrderPaymentCompletedEvent(
@@ -722,7 +722,7 @@ class ChangeOrderStatusUseCaseTest {
                         .quantity(1)
                         .unitAmount(50000L)
                         .accumulatedPoint(point1)
-                        .orderStatus(OrderStatus.PAYMENT_PENDING)
+                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
                         .build(),
                 OrderProductSnapshotState.builder()
                         .orderId(orderId)
@@ -731,7 +731,7 @@ class ChangeOrderStatusUseCaseTest {
                         .quantity(1)
                         .unitAmount(30000L)
                         .accumulatedPoint(point2)
-                        .orderStatus(OrderStatus.PAYMENT_PENDING)
+                        .orderStatus(OrderStatus.PAYMENT_EXECUTING)
                         .build()
         );
 
@@ -740,7 +740,7 @@ class ChangeOrderStatusUseCaseTest {
                 .buyerId(buyerId)
                 .orderKey(UUID.randomUUID())
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
-                .orderStatus(OrderStatus.PAYMENT_PENDING)
+                .orderStatus(OrderStatus.PAYMENT_EXECUTING)
                 .amount(OrderAmount.of(80000L, null, 0L, 0L, null))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)

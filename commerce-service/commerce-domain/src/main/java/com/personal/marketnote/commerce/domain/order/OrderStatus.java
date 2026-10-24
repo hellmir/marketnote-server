@@ -12,6 +12,7 @@ import java.util.Set;
 @Getter
 public enum OrderStatus {
     PAYMENT_PENDING("결제 대기"),
+    PAYMENT_EXECUTING("결제 진행 중"),
     PAID("결제 완료"),
     FAILED("결제 실패"),
     PREPARING("상품 준비중"),
@@ -35,7 +36,8 @@ public enum OrderStatus {
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
 
     static {
-        ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAID, FAILED, CANCELLED, PARTIALLY_CANCELLED));
+        ALLOWED_TRANSITIONS.put(PAYMENT_PENDING, EnumSet.of(PAYMENT_EXECUTING, CANCELLED, PARTIALLY_CANCELLED));
+        ALLOWED_TRANSITIONS.put(PAYMENT_EXECUTING, EnumSet.of(PAID, FAILED));
         ALLOWED_TRANSITIONS.put(PAID, EnumSet.of(PREPARING, CANCEL_REQUESTED, PARTIALLY_CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
         ALLOWED_TRANSITIONS.put(FAILED, EnumSet.noneOf(OrderStatus.class));
         ALLOWED_TRANSITIONS.put(PREPARING, EnumSet.of(SHIPPING, CANCEL_REQUESTED, PARTIALLY_CANCEL_REQUESTED, CANCELLED, PARTIALLY_CANCELLED));
@@ -85,6 +87,22 @@ public enum OrderStatus {
 
     public boolean isPending() {
         return this == PAYMENT_PENDING;
+    }
+
+    public boolean isExecuting() {
+        return this == PAYMENT_EXECUTING;
+    }
+
+    /**
+     * 구매자(클라이언트) 대상 응답 시 노출 가능한 상태로 변환한다.
+     * PAYMENT_EXECUTING은 내부 상태이므로 PAYMENT_PENDING으로 치환하여 노출한다.
+     * 관리자 응답 경로에서는 사용하지 않는다.
+     */
+    public OrderStatus toClientVisible() {
+        if (isExecuting()) {
+            return PAYMENT_PENDING;
+        }
+        return this;
     }
 
     public boolean isFailed() {
