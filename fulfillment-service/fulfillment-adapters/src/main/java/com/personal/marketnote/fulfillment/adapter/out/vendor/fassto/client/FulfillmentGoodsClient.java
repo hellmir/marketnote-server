@@ -414,13 +414,13 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             String exception = isSuccess
                     ? null
                     : resolveResponseException(response, parsedResponse);
-            String productId = request.getProductId();
+            String productKey = request.getProductKey();
 
             vendorCommunicationRecorder.record(
                     targetType,
                     FulfillmentVendorCommunicationType.REQUEST,
                     FulfillmentVendorCommunicationSenderType.SERVER,
-                    productId,
+                    productKey,
                     vendorName,
                     requestPayload,
                     requestPayloadJson,
@@ -430,7 +430,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                     targetType,
                     FulfillmentVendorCommunicationType.RESPONSE,
                     FulfillmentVendorCommunicationSenderType.VENDOR,
-                    productId,
+                    productKey,
                     vendorName,
                     responsePayload,
                     responsePayloadJson,
@@ -538,13 +538,13 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             String exception = isSuccess
                     ? null
                     : resolveUpdateException(response, parsedResponse);
-            String productId = request.getProductId();
+            String productKey = request.getProductKey();
 
             vendorCommunicationRecorder.record(
                     targetType,
                     FulfillmentVendorCommunicationType.REQUEST,
                     FulfillmentVendorCommunicationSenderType.SERVER,
-                    productId,
+                    productKey,
                     vendorName,
                     requestPayload,
                     requestPayloadJson,
@@ -554,7 +554,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
                     targetType,
                     FulfillmentVendorCommunicationType.RESPONSE,
                     FulfillmentVendorCommunicationSenderType.VENDOR,
-                    productId,
+                    productKey,
                     vendorName,
                     responsePayload,
                     responsePayloadJson,

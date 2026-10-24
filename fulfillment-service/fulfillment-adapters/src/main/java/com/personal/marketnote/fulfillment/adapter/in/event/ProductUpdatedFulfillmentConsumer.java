@@ -51,22 +51,16 @@ public class ProductUpdatedFulfillmentConsumer {
 
         ProductUpdatedEvent payload = envelope.getPayloadAs(ProductUpdatedEvent.class, objectMapper);
 
-        log.info("상품 수정 이벤트 수신 (풀필먼트). eventId={}, productId={}", envelope.eventId(), payload.productId());
+        log.info("상품 수정 이벤트 수신 (풀필먼트). eventId={}, productKey={}", envelope.eventId(), payload.productKey());
 
-        if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
-                EventPayloadValidator.id("productId", payload.productId()))) {
+        if (FormatValidator.hasNoValue(payload.productKey())) {
+            log.error("productKey 누락. eventId={}", envelope.eventId());
             acknowledgment.acknowledge();
             return;
         }
 
         if (FormatValidator.hasNoValue(payload.productName())) {
             log.error("유효하지 않은 이벤트 페이로드. eventId={}, productName={}", envelope.eventId(), payload.productName());
-            acknowledgment.acknowledge();
-            return;
-        }
-
-        if (FormatValidator.hasNoValue(payload.productKey())) {
-            log.error("productKey 누락. eventId={}, productId={}", envelope.eventId(), payload.productId());
             acknowledgment.acknowledge();
             return;
         }
@@ -121,7 +115,7 @@ public class ProductUpdatedFulfillmentConsumer {
             return null;
         });
 
-        log.info("Kafka 이벤트로 풀필먼트 상품 수정 완료. productId={}", payload.productId());
+        log.info("Kafka 이벤트로 풀필먼트 상품 수정 완료. productKey={}", payload.productKey());
         // 예외(UpdateFulfillmentGoodsFailedException 포함)는 DefaultErrorHandler가 재시도 + DLT로 처리
 
         acknowledgment.acknowledge();

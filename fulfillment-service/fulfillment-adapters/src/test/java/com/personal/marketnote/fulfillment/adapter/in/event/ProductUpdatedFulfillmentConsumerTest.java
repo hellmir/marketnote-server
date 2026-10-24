@@ -150,20 +150,6 @@ class ProductUpdatedFulfillmentConsumerTest {
     }
 
     @Test
-    @DisplayName("productId가 null이면 상품 수정을 호출하지 않고 acknowledge한다")
-    void handleEvent_nullProductId_skipsAndAcknowledges() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, "테스트", "1", "01");
-
-        // when
-        consumer.handleProductUpdatedEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
     @DisplayName("productName이 null이면 상품 수정을 호출하지 않고 acknowledge한다")
     void handleEvent_nullProductName_skipsAndAcknowledges() {
         // given
@@ -256,34 +242,6 @@ class ProductUpdatedFulfillmentConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
                 "product.product.updated", 0, 0L, "key-1", envelope
         );
-
-        // when
-        consumer.handleProductUpdatedEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("productId가 0이면 상품 수정을 호출하지 않고 acknowledge한다")
-    void handleEvent_zeroProductId_skipsAndAcknowledges() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, "테스트", "1", "01");
-
-        // when
-        consumer.handleProductUpdatedEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(fulfillmentAuthenticatedCaller, updateFulfillmentGoodsUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("productId가 음수이면 상품 수정을 호출하지 않고 acknowledge한다")
-    void handleEvent_negativeProductId_skipsAndAcknowledges() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, "테스트", "1", "01");
 
         // when
         consumer.handleProductUpdatedEvent(record, acknowledgment);

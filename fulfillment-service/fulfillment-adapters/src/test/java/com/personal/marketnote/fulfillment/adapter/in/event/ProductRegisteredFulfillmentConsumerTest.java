@@ -136,20 +136,6 @@ class ProductRegisteredFulfillmentConsumerTest {
     }
 
     @Test
-    @DisplayName("productId가 null이면 상품 등록을 호출하지 않고 acknowledge한다")
-    void handleEvent_nullProductId_skipsAndAcknowledges() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(null, "테스트", "1");
-
-        // when
-        consumer.handleProductRegisteredEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
     @DisplayName("productName이 null이면 상품 등록을 호출하지 않고 acknowledge한다")
     void handleEvent_nullProductName_skipsAndAcknowledges() {
         // given
@@ -249,34 +235,6 @@ class ProductRegisteredFulfillmentConsumerTest {
         ConsumerRecord<String, EventEnvelope<?>> record = new ConsumerRecord<>(
                 "product.product.registered", 0, 0L, "key-1", envelope
         );
-
-        // when
-        consumer.handleProductRegisteredEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("productId가 0이면 상품 등록을 호출하지 않고 acknowledge한다")
-    void handleEvent_zeroProductId_skipsAndAcknowledges() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(0L, "테스트", "1");
-
-        // when
-        consumer.handleProductRegisteredEvent(record, acknowledgment);
-
-        // then
-        verifyNoInteractions(fulfillmentAuthenticatedCaller, registerFulfillmentGoodsUseCase);
-        verify(acknowledgment).acknowledge();
-    }
-
-    @Test
-    @DisplayName("productId가 음수이면 상품 등록을 호출하지 않고 acknowledge한다")
-    void handleEvent_negativeProductId_skipsAndAcknowledges() {
-        // given
-        ConsumerRecord<String, EventEnvelope<?>> record = buildRecord(-1L, "테스트", "1");
 
         // when
         consumer.handleProductRegisteredEvent(record, acknowledgment);
