@@ -6,6 +6,7 @@ import com.personal.marketnote.community.adapter.in.web.report.request.UpdateTar
 import com.personal.marketnote.community.adapter.in.web.report.response.GetReportsResponse;
 import com.personal.marketnote.community.adapter.in.web.report.response.UpdateTargetStatusResponse;
 import com.personal.marketnote.community.domain.report.Report;
+import com.personal.marketnote.community.domain.report.ReportCreateState;
 import com.personal.marketnote.community.domain.report.ReportTargetType;
 import com.personal.marketnote.community.port.in.command.report.ReportCommand;
 import com.personal.marketnote.community.port.in.command.report.UpdateTargetStatusCommand;
@@ -103,9 +104,15 @@ class ReportControllerTest {
         @Test
         @DisplayName("리뷰 ID로 신고 내역을 조회해 OK 응답을 반환한다")
         void returnsReviewReports() {
-            Report sampleReport = Report.of(ReportTargetType.REVIEW, 100L, 10L, "광고성");
             LocalDateTime now = LocalDateTime.now();
-            ReflectionTestUtils.setField(sampleReport, "createdAt", now);
+            Report sampleReport = Report.from(ReportCreateState.builder()
+                    .targetType(ReportTargetType.REVIEW)
+                    .targetId(100L)
+                    .reporterId(10L)
+                    .reason("광고성")
+                    .createdAt(now)
+                    .build()
+            );
             when(getReportUseCase.getReports(ReportTargetType.REVIEW, 100L))
                     .thenReturn(List.of(sampleReport));
 

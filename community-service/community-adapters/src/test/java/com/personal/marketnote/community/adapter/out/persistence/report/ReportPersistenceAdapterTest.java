@@ -3,6 +3,7 @@ package com.personal.marketnote.community.adapter.out.persistence.report;
 import com.personal.marketnote.community.adapter.out.persistence.report.entity.ReportJpaEntity;
 import com.personal.marketnote.community.adapter.out.persistence.report.repository.ReportJpaRepository;
 import com.personal.marketnote.community.domain.report.Report;
+import com.personal.marketnote.community.domain.report.ReportCreateState;
 import com.personal.marketnote.community.domain.report.ReportTargetType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,7 +39,13 @@ class ReportPersistenceAdapterTest {
         @Test
         @DisplayName("도메인을 엔티티로 변환해 저장한다")
         void savesDomainAsEntity() {
-            Report report = Report.of(ReportTargetType.REVIEW, 100L, 10L, "광고성 리뷰");
+            Report report = Report.from(ReportCreateState.builder()
+                    .targetType(ReportTargetType.REVIEW)
+                    .targetId(100L)
+                    .reporterId(10L)
+                    .reason("광고성 리뷰")
+                    .build()
+            );
             ArgumentCaptor<ReportJpaEntity> captor = ArgumentCaptor.forClass(ReportJpaEntity.class);
 
             adapter.save(report);
@@ -121,7 +128,13 @@ class ReportPersistenceAdapterTest {
     private ReportJpaEntity newPersistedEntity(
             ReportTargetType targetType, Long targetId, Long reporterId, String reason
     ) {
-        Report report = Report.of(targetType, targetId, reporterId, reason);
+        Report report = Report.from(ReportCreateState.builder()
+                .targetType(targetType)
+                .targetId(targetId)
+                .reporterId(reporterId)
+                .reason(reason)
+                .build()
+        );
         ReportJpaEntity entity = ReportJpaEntity.from(report);
         ReflectionTestUtils.setField(entity, "createdAt", LocalDateTime.now());
         return entity;
