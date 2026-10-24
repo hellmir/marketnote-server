@@ -4,11 +4,13 @@ import com.personal.marketnote.reward.domain.gifticon.GifticonOrder;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderSnapshotState;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderSortType;
 import com.personal.marketnote.reward.domain.gifticon.GifticonOrderStatus;
+import com.personal.marketnote.reward.exception.InvalidGifticonOrderPageSizeException;
 import com.personal.marketnote.reward.port.in.command.gifticon.GetMyGifticonOrdersCommand;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrdersResult;
 import com.personal.marketnote.reward.port.in.result.gifticon.GetMyGifticonOrdersResult.MyGifticonOrderItem;
 import com.personal.marketnote.reward.port.out.gifticon.FindGifticonOrderPort;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,8 +23,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -422,5 +426,113 @@ class GetMyGifticonOrdersUseCaseTest {
                 .modifiedAt(LocalDateTime.of(2026, 4, 1, 10, 0))
                 .build()
         );
+    }
+
+    @Nested
+    @DisplayName("pageSize 검증")
+    class PageSizeValidationTest {
+
+        @Test
+        @DisplayName("pageSize가 0이면 InvalidGifticonOrderPageSizeException이 발생한다")
+        void shouldThrowExceptionWhenPageSizeIsZero() {
+            // given
+            GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
+                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 0
+            );
+
+            // when & then
+            assertThatThrownBy(() -> getMyGifticonOrdersService.getMyGifticonOrders(command))
+                    .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
+
+            verifyNoInteractions(findGifticonOrderPort);
+        }
+
+        @Test
+        @DisplayName("pageSize가 음수이면 InvalidGifticonOrderPageSizeException이 발생한다")
+        void shouldThrowExceptionWhenPageSizeIsNegative() {
+            // given
+            GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
+                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, -1
+            );
+
+            // when & then
+            assertThatThrownBy(() -> getMyGifticonOrdersService.getMyGifticonOrders(command))
+                    .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
+
+            verifyNoInteractions(findGifticonOrderPort);
+        }
+
+        @Test
+        @DisplayName("pageSize가 101이면 InvalidGifticonOrderPageSizeException이 발생한다")
+        void shouldThrowExceptionWhenPageSizeExceedsMax() {
+            // given
+            GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
+                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 101
+            );
+
+            // when & then
+            assertThatThrownBy(() -> getMyGifticonOrdersService.getMyGifticonOrders(command))
+                    .isInstanceOf(InvalidGifticonOrderPageSizeException.class);
+
+            verifyNoInteractions(findGifticonOrderPort);
+        }
+
+        @Test
+        @DisplayName("pageSize가 1이면 정상 처리된다")
+        void shouldProcessNormallyWhenPageSizeIsOne() {
+            // given
+            List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
+
+            when(findGifticonOrderPort.findByUserIdAndStatuses(
+                    eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(2)
+            )).thenReturn(Collections.emptyList());
+
+            when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(0L);
+            when(findGifticonOrderPort.countByUserIdAndStatuses(
+                    USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            )).thenReturn(0L);
+
+            GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
+                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 1
+            );
+
+            // when
+            GetMyGifticonOrdersResult result = getMyGifticonOrdersService.getMyGifticonOrders(command);
+
+            // then
+            assertThat(result.items()).isEmpty();
+            verify(findGifticonOrderPort).findByUserIdAndStatuses(
+                    USER_ID, availableStatuses, GifticonOrderSortType.PURCHASE_LATEST, -1L, 2
+            );
+        }
+
+        @Test
+        @DisplayName("pageSize가 100이면 정상 처리된다")
+        void shouldProcessNormallyWhenPageSizeIsMax() {
+            // given
+            List<GifticonOrderStatus> availableStatuses = List.of(GifticonOrderStatus.ISSUED);
+
+            when(findGifticonOrderPort.findByUserIdAndStatuses(
+                    eq(USER_ID), eq(availableStatuses), eq(GifticonOrderSortType.PURCHASE_LATEST), eq(-1L), eq(101)
+            )).thenReturn(Collections.emptyList());
+
+            when(findGifticonOrderPort.countByUserIdAndStatuses(USER_ID, availableStatuses)).thenReturn(0L);
+            when(findGifticonOrderPort.countByUserIdAndStatuses(
+                    USER_ID, List.of(GifticonOrderStatus.USED, GifticonOrderStatus.EXPIRED, GifticonOrderStatus.CANCELLED)
+            )).thenReturn(0L);
+
+            GetMyGifticonOrdersCommand command = new GetMyGifticonOrdersCommand(
+                    USER_ID, "AVAILABLE", "PURCHASE_LATEST", -1L, 100
+            );
+
+            // when
+            GetMyGifticonOrdersResult result = getMyGifticonOrdersService.getMyGifticonOrders(command);
+
+            // then
+            assertThat(result.items()).isEmpty();
+            verify(findGifticonOrderPort).findByUserIdAndStatuses(
+                    USER_ID, availableStatuses, GifticonOrderSortType.PURCHASE_LATEST, -1L, 101
+            );
+        }
     }
 }
