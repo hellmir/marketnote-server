@@ -15,25 +15,13 @@ public class Report {
     private String reason;
     private LocalDateTime createdAt;
 
-    public static Report of(ReportTargetType targetType, Long targetId, Long reporterId, String reason) {
+    public static Report from(ReportCreateState state) {
         return Report.builder()
-                .targetType(targetType)
-                .targetId(targetId)
-                .reporterId(reporterId)
-                .reason(reason)
-                .build();
-    }
-
-    @Deprecated
-    public static Report of(
-            ReportTargetType targetType, Long targetId, Long reporterId, String reason, LocalDateTime createdAt
-    ) {
-        return Report.builder()
-                .targetType(targetType)
-                .targetId(targetId)
-                .reporterId(reporterId)
-                .reason(reason)
-                .createdAt(createdAt)
+                .targetType(state.getTargetType())
+                .targetId(state.getTargetId())
+                .reporterId(state.getReporterId())
+                .reason(state.getReason())
+                .createdAt(state.getCreatedAt())
                 .build();
     }
 

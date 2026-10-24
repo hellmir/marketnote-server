@@ -2,6 +2,7 @@ package com.personal.marketnote.community.service.report;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.community.domain.report.Report;
+import com.personal.marketnote.community.domain.report.ReportCreateState;
 import com.personal.marketnote.community.domain.report.ReportTargetType;
 import com.personal.marketnote.community.exception.PostNotFoundException;
 import com.personal.marketnote.community.exception.ReviewNotFoundException;
@@ -29,8 +30,13 @@ public class RegisterReportService implements RegisterReportUseCase {
     public void report(ReportCommand command) {
         validate(command);
         saveReportPort.save(
-                Report.of(
-                        command.targetType(), command.targetId(), command.reporterId(), command.reason()
+                Report.from(
+                        ReportCreateState.builder()
+                                .targetType(command.targetType())
+                                .targetId(command.targetId())
+                                .reporterId(command.reporterId())
+                                .reason(command.reason())
+                                .build()
                 )
         );
     }
