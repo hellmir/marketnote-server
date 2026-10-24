@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.exception.*;
 import com.personal.marketnote.commerce.port.in.command.payment.ReadyPaymentCommand;
@@ -483,7 +484,7 @@ class ReadyPaymentUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-TEST-001"))
                 .orderStatus(orderStatus)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .build();
         return Order.from(state);
     }

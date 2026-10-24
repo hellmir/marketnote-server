@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.exception.OrderProductNotFoundException;
 import com.personal.marketnote.commerce.exception.UnauthorizedOrderAccessException;
@@ -334,7 +335,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -362,7 +363,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of(productState))
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -389,7 +390,7 @@ class GetOrderWithBuyerVerificationUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())

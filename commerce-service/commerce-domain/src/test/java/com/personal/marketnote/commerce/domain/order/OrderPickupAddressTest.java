@@ -25,15 +25,7 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    ShippingAddress.of(
-                            "회수 수령인",
-                            "010-9999-8888",
-                            "54321",
-                            "회수지 주소",
-                            "회수지 상세주소",
-                            null,
-                            "부재시 경비실에 맡겨주세요"
-                    )
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("부재시 경비실에 맡겨주세요").build())
             );
 
             // then
@@ -83,15 +75,7 @@ class OrderPickupAddressTest {
 
             // when
             order.applyPickupAddress(
-                    ShippingAddress.of(
-                            "회수 수령인",
-                            "010-9999-8888",
-                            "54321",
-                            "회수지 주소",
-                            "회수지 상세주소",
-                            null,
-                            "회수 요청사항"
-                    )
+                    ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
             );
 
             // then
@@ -116,10 +100,10 @@ class OrderPickupAddressTest {
                     .orderStatus(OrderStatus.RETURN_REQUESTED)
                     .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
                     .shippingAddress(
-                            ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", null, null)
+                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(null).deliveryRequestMessage(null).build())
                     )
                     .pickupAddress(
-                            ShippingAddress.of("회수 수령인", "010-9999-8888", "54321", "회수지 주소", "회수지 상세주소", null, "회수 요청사항")
+                            ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 수령인").recipientPhoneNumber("010-9999-8888").zipCode("54321").address("회수지 주소").addressDetail("회수지 상세주소").deliveryRequestType(null).deliveryRequestMessage("회수 요청사항").build())
                     )
                     .orderProductStates(List.of())
                     .createdAt(LocalDateTime.now())
@@ -145,7 +129,7 @@ class OrderPickupAddressTest {
                 .orderStatus(OrderStatus.DELIVERED)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
                 .shippingAddress(
-                        ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", DeliveryRequestType.LEAVE_AT_DOOR, null)
+                        ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("배송 수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build())
                 )
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()

@@ -17,15 +17,7 @@ class ShippingAddressTest {
         @DisplayName("모든 필드가 정상적으로 설정된다")
         void shouldCreateWithAllFields() {
             // given & when
-            ShippingAddress shippingAddress = ShippingAddress.of(
-                    "홍길동",
-                    "010-1234-5678",
-                    "12345",
-                    "서울시 강남구",
-                    "테헤란로 123",
-                    DeliveryRequestType.LEAVE_AT_DOOR,
-                    null
-            );
+            ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build());
 
             // then
             assertThat(shippingAddress.getRecipientName().getValue()).isEqualTo("홍길동");
@@ -41,15 +33,7 @@ class ShippingAddressTest {
         @DisplayName("배송 요청이 null이어도 정상 생성된다")
         void shouldCreateWithNullDeliveryRequest() {
             // given & when
-            ShippingAddress shippingAddress = ShippingAddress.of(
-                    "홍길동",
-                    "010-1234-5678",
-                    "12345",
-                    "서울시 강남구",
-                    "테헤란로 123",
-                    null,
-                    null
-            );
+            ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(null).deliveryRequestMessage(null).build());
 
             // then
             assertThat(shippingAddress.getRecipientName().getValue()).isEqualTo("홍길동");
@@ -66,9 +50,7 @@ class ShippingAddressTest {
         @DisplayName("수령인명이 있으면 true를 반환한다")
         void shouldReturnTrueWhenRecipientNameExists() {
             // given
-            ShippingAddress shippingAddress = ShippingAddress.of(
-                    "홍길동", "010-1234-5678", "12345", "주소", "상세주소", null, null
-            );
+            ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("주소").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build());
 
             // when & then
             assertThat(shippingAddress.hasRecipientName()).isTrue();
@@ -78,9 +60,7 @@ class ShippingAddressTest {
         @DisplayName("수령인명이 null이면 false를 반환한다")
         void shouldReturnFalseWhenRecipientNameIsNull() {
             // given
-            ShippingAddress shippingAddress = ShippingAddress.of(
-                    null, null, null, null, null, null, null
-            );
+            ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(null).recipientPhoneNumber(null).zipCode(null).address(null).addressDetail(null).deliveryRequestType(null).deliveryRequestMessage(null).build());
 
             // when & then
             assertThat(shippingAddress.hasRecipientName()).isFalse();
@@ -95,15 +75,7 @@ class ShippingAddressTest {
         @DisplayName("배송 요청을 제외하고 나머지 필드가 그대로 복사된다")
         void shouldCopyAllFieldsExceptDeliveryRequest() {
             // given
-            ShippingAddress original = ShippingAddress.of(
-                    "홍길동",
-                    "010-1234-5678",
-                    "12345",
-                    "서울시 강남구",
-                    "테헤란로 123",
-                    DeliveryRequestType.LEAVE_AT_DOOR,
-                    null
-            );
+            ShippingAddress original = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("테헤란로 123").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage(null).build());
 
             // when
             ShippingAddress copied = original.withoutDeliveryRequest();
@@ -122,10 +94,7 @@ class ShippingAddressTest {
         @DisplayName("원본 객체의 배송 요청은 변경되지 않는다")
         void shouldNotModifyOriginalDeliveryRequest() {
             // given
-            ShippingAddress original = ShippingAddress.of(
-                    "홍길동", "010-1234-5678", "12345", "주소", "상세주소",
-                    DeliveryRequestType.CUSTOM, "요청사항"
-            );
+            ShippingAddress original = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("주소").addressDetail("상세주소").deliveryRequestType(DeliveryRequestType.CUSTOM).deliveryRequestMessage("요청사항").build());
 
             // when
             original.withoutDeliveryRequest();

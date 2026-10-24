@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderProductPort;
@@ -741,7 +742,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -756,7 +757,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -771,7 +772,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -786,7 +787,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of(orderNumber))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -801,7 +802,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(status)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -820,7 +821,7 @@ class GetOrderUseCaseTest {
                 .statusChangeReasonCategory(reasonCategory)
                 .statusChangeReason(reason)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -837,7 +838,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(paidAmount).couponAmount(couponAmount).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -864,7 +865,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -879,7 +880,7 @@ class GetOrderUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD-" + orderId))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)

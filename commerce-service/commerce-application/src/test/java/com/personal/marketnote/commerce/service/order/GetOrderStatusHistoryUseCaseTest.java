@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
 import com.personal.marketnote.commerce.port.in.result.order.GetOrderStatusHistoryResult;
 import com.personal.marketnote.commerce.port.in.result.order.OrderStatusHistoryItem;
@@ -43,7 +44,7 @@ class GetOrderStatusHistoryUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD" + id))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))

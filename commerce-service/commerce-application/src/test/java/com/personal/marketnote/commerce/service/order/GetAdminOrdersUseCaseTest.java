@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.InvalidOrderDateRangeException;
 import com.personal.marketnote.commerce.port.in.command.order.GetAdminOrdersQuery;
 import com.personal.marketnote.commerce.port.in.result.order.GetAdminOrdersResult;
@@ -44,7 +45,7 @@ class GetAdminOrdersUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD" + id))
                 .orderStatus(status)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of(
                         OrderProductSnapshotState.builder()
                                 .orderId(id)
@@ -272,7 +273,7 @@ class GetAdminOrdersUseCaseTest {
                 .orderNumber(OrderNumber.of("ORD1"))
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(100000L).paidAmount(95000L).couponAmount(3000L).pointAmount(2000L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of())
                 .createdAt(LocalDateTime.of(2026, 2, 20, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 2, 20, 10, 0))

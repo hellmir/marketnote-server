@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.common.domain.delivery.DeliveryRequestType;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
@@ -58,11 +59,7 @@ class OrderEventKafkaProducerShippingTest {
         setUpClock();
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        ShippingAddress shippingAddress = ShippingAddress.of(
-                "홍길동", "010-1234-5678", "06234",
-                "서울특별시 강남구 테헤란로 123", "4층 401호",
-                DeliveryRequestType.LEAVE_AT_DOOR, "문 앞에 놓아주세요"
-        );
+        ShippingAddress shippingAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06234").address("서울특별시 강남구 테헤란로 123").addressDetail("4층 401호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놓아주세요").build());
 
         OrderProduct product = OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)

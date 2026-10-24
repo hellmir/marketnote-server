@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.service.payment;
 
 import com.personal.marketnote.common.domain.money.Money;
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.*;
 import com.personal.marketnote.commerce.domain.refund.Refund;
 import com.personal.marketnote.commerce.domain.refund.RefundType;
@@ -960,7 +961,7 @@ class PaymentCancelTransactionHelperTest {
             OrderSnapshotState orderState = OrderSnapshotState.builder()
                     .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
                     .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(70000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                    .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                     .orderProductStates(productStates).build();
             Order order = Order.from(orderState);
 
@@ -1477,7 +1478,7 @@ class PaymentCancelTransactionHelperTest {
                     .orderKey(ORDER_KEY)
                     .orderStatus(OrderStatus.PAID)
                     .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(unitAmounts.stream().mapToLong(Long::longValue).sum()).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                    .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                    .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                     .orderProductStates(productStates)
                     .build();
             return Order.from(state);
@@ -1553,7 +1554,7 @@ class PaymentCancelTransactionHelperTest {
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of(productState))
                 .build();
         return Order.from(state);
@@ -1609,7 +1610,7 @@ class PaymentCancelTransactionHelperTest {
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(List.of(productState))
                 .build();
         return Order.from(state);
@@ -1633,7 +1634,7 @@ class PaymentCancelTransactionHelperTest {
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .build();
         return Order.from(state);
@@ -1689,7 +1690,7 @@ class PaymentCancelTransactionHelperTest {
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .build();
         return Order.from(state);
@@ -1714,7 +1715,7 @@ class PaymentCancelTransactionHelperTest {
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
                 .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
-                .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
                 .orderProductStates(productStates)
                 .build();
         return Order.from(state);

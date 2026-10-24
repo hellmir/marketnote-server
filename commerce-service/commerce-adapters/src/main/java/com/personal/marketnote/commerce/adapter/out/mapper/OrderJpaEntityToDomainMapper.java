@@ -4,6 +4,7 @@ import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.Ord
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderProductJpaEntity;
 import com.personal.marketnote.commerce.adapter.out.persistence.order.entity.OrderStatusHistoryJpaEntity;
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.common.utility.FormatValidator;
 
 import java.util.List;
@@ -121,15 +122,7 @@ public class OrderJpaEntityToDomainMapper {
     }
 
     private static ShippingAddress mapToShippingAddress(OrderJpaEntity entity) {
-        return ShippingAddress.of(
-                entity.getRecipientName(),
-                entity.getRecipientPhoneNumber(),
-                entity.getZipCode(),
-                entity.getAddress(),
-                entity.getAddressDetail(),
-                entity.getDeliveryRequestType(),
-                entity.getDeliveryRequestMessage()
-        );
+        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(entity.getRecipientName()).recipientPhoneNumber(entity.getRecipientPhoneNumber()).zipCode(entity.getZipCode()).address(entity.getAddress()).addressDetail(entity.getAddressDetail()).deliveryRequestType(entity.getDeliveryRequestType()).deliveryRequestMessage(entity.getDeliveryRequestMessage()).build());
     }
 
     private static ShippingAddress mapToPickupAddress(OrderJpaEntity entity) {
