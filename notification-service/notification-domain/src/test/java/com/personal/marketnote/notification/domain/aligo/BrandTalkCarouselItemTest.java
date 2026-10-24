@@ -64,7 +64,7 @@ class BrandTalkCarouselItemTest {
         // given
         BrandTalkButton button1 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼1").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
         BrandTalkButton button2 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼2").linkType(AligoTemplateButtonLinkType.BK).linkM(null).linkP(null).linkI(null).linkA(null).build());
-        BrandTalkCoupon coupon = BrandTalkCoupon.of("10% 할인", null, "https://m.ex.com", "https://www.ex.com", null, null);
+        BrandTalkCoupon coupon = BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title("10% 할인").description(null).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
 
         // when
         BrandTalkCarouselItem item = BrandTalkCarouselItem.of("제목", "내용", null, List.of(button1, button2), coupon);

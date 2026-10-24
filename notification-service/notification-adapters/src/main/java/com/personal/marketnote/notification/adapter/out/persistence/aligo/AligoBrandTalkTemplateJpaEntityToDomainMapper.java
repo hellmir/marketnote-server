@@ -69,10 +69,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         }
         try {
             CouponDto dto = objectMapper.readValue(couponJson, CouponDto.class);
-            return BrandTalkCoupon.of(
-                    dto.title(), dto.description(),
-                    dto.linkM(), dto.linkP(), dto.linkI(), dto.linkA()
-            );
+            return BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title(dto.title()).description(dto.description()).linkM(dto.linkM()).linkP(dto.linkP()).linkI(dto.linkI()).linkA(dto.linkA()).build());
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -118,11 +115,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                                 .toList()
                                 : List.of();
                         BrandTalkCoupon itemCoupon = FormatValidator.hasValue(dto.coupon())
-                                ? BrandTalkCoupon.of(
-                                dto.coupon().title(), dto.coupon().description(),
-                                dto.coupon().linkM(), dto.coupon().linkP(),
-                                dto.coupon().linkI(), dto.coupon().linkA()
-                        )
+                                ? BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title(dto.coupon().title()).description(dto.coupon().description()).linkM(dto.coupon().linkM()).linkP(dto.coupon().linkP()).linkI(dto.coupon().linkI()).linkA(dto.coupon().linkA()).build())
                                 : null;
                         return BrandTalkCarouselItem.of(
                                 dto.header(), dto.content(), dto.imageUrl(),
