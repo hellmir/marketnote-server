@@ -87,6 +87,10 @@ public class Order {
         return this.orderStatus.isPending();
     }
 
+    public boolean isPaymentExecuting() {
+        return this.orderStatus.isExecuting();
+    }
+
     public boolean isFailed() {
         return this.orderStatus.isFailed();
     }

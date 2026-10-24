@@ -162,7 +162,7 @@ class OrderTest {
     @Test
     @DisplayName("changeAllProductsStatus를 호출하면 모든 상품과 주문 상태가 변경된다")
     void shouldChangeAllProductsAndOrderStatus() {
-        Order order = createOrderWithProducts(OrderStatus.PAYMENT_PENDING);
+        Order order = createOrderWithProducts(OrderStatus.PAYMENT_EXECUTING);
         LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
 
         order.changeAllProductsStatus(OrderStatus.PAID, now);

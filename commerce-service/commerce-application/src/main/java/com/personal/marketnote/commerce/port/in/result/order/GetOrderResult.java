@@ -50,11 +50,12 @@ public record GetOrderResult(
             Order order,
             Map<Long, ProductInfoResult> productInfoResultsByPricePolicyId
     ) {
+        OrderStatus clientVisibleStatus = order.getOrderStatus().toClientVisible();
         return GetOrderResult.builder()
                 .id(order.getId())
                 .buyerId(order.getBuyerId())
                 .orderNumber(order.getOrderNumber().getValue())
-                .orderStatus(order.getOrderStatus())
+                .orderStatus(clientVisibleStatus)
                 .statusChangeReasonCategory(order.getStatusChangeReasonCategory())
                 .statusChangeReason(order.getStatusChangeReason())
                 .totalAmount(order.getAmount().getTotalAmount().getValue())
@@ -86,7 +87,7 @@ public record GetOrderResult(
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,
                                         productInfoResultsByPricePolicyId.get(orderProduct.getPricePolicyId()),
-                                        order.getOrderStatus()
+                                        clientVisibleStatus
                                 )
                         )
                         .toList())

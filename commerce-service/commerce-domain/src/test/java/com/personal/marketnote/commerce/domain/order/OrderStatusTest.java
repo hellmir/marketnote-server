@@ -13,15 +13,21 @@ class OrderStatusTest {
     class CanTransitionToTest {
 
         @Test
-        @DisplayName("PAYMENT_PENDING에서 PAID로 전이할 수 있다")
-        void paymentPending_canTransitionTo_paid() {
-            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.PAID)).isTrue();
+        @DisplayName("PAYMENT_PENDING에서 PAYMENT_EXECUTING로 전이할 수 있다")
+        void paymentPending_canTransitionTo_paymentExecuting() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.PAYMENT_EXECUTING)).isTrue();
         }
 
         @Test
-        @DisplayName("PAYMENT_PENDING에서 FAILED로 전이할 수 있다")
-        void paymentPending_canTransitionTo_failed() {
-            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.FAILED)).isTrue();
+        @DisplayName("PAYMENT_PENDING에서 PAID로 직접 전이할 수 없다 (PAYMENT_EXECUTING 경유 필수)")
+        void paymentPending_cannotTransitionTo_paid() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.PAID)).isFalse();
+        }
+
+        @Test
+        @DisplayName("PAYMENT_PENDING에서 FAILED로 직접 전이할 수 없다 (PAYMENT_EXECUTING 경유 필수)")
+        void paymentPending_cannotTransitionTo_failed() {
+            assertThat(OrderStatus.PAYMENT_PENDING.canTransitionTo(OrderStatus.FAILED)).isFalse();
         }
 
         @Test
