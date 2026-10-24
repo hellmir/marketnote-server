@@ -161,14 +161,15 @@ public class OrderCancelFulfillmentSagaConsumer {
                     stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
             );
         } catch (FulfillmentDeliveryCancellationNotAllowedException e) {
-            log.info("이미 취소된 출고 (멱등 처리). sagaId={}, orderId={}, message={}",
+            log.warn("주문 취소 풀필먼트 처리 거부 (출고 진행/완료). sagaId={}, orderId={}, message={}",
                     stepMessage.sagaId(), orderId, e.getMessage()
             );
-            sagaResponsePublisher.publishSuccess(
+            sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                     stepMessage.messageType(),
-                    "{\"compensated\":true,\"idempotent\":true,\"alreadyCancelled\":true}"
+                    "주문 취소 풀필먼트 처리 거부: orderId=" + orderId + ", " + e.getMessage()
             );
+            publishOrderCancelFailedSafely(orderId, buyerId);
         } catch (Exception e) {
             log.error("SAGA 주문 취소 풀필먼트 처리 실패. sagaId={}, orderId={}, error={}",
                     stepMessage.sagaId(), orderId, e.getMessage(), e

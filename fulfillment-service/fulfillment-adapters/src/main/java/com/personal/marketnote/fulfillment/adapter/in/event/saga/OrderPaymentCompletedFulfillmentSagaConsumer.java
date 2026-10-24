@@ -197,12 +197,12 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
                     stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
             );
         } catch (FulfillmentDeliveryCancellationNotAllowedException e) {
-            log.info("이미 취소된 출고 (멱등 보상 처리). sagaId={}, message={}",
+            log.warn("SAGA 풀필먼트 출고 취소 보상 거부 (출고 진행/완료). sagaId={}, message={}",
                     stepMessage.sagaId(), e.getMessage()
             );
-            sagaResponsePublisher.publishSuccess(
+            sagaResponsePublisher.publishFailure(
                     stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                    stepMessage.messageType(), "{\"compensated\":true,\"idempotent\":true}"
+                    stepMessage.messageType(), "풀필먼트 출고 취소 보상 거부: " + e.getMessage()
             );
         } catch (Exception e) {
             log.error("SAGA 풀필먼트 출고 취소 보상 실패. sagaId={}, error={}",

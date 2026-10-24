@@ -151,8 +151,8 @@ class OrderCancelFulfillmentSagaConsumerTest {
     }
 
     @Test
-    @DisplayName("FulfillmentDeliveryCancellationNotAllowedException은 멱등 성공이므로 OrderCancelFailedEvent를 발행하지 않는다")
-    void shouldNotPublishOrderCancelFailedWhenCancellationNotAllowed() {
+    @DisplayName("FulfillmentDeliveryCancellationNotAllowedException 발생 시 실패 응답과 OrderCancelFailedEvent를 발행한다")
+    void shouldPublishOrderCancelFailedWhenCancellationNotAllowed() {
         SagaStepMessage stepMessage = new SagaStepMessage(
                 SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, preparingPayload
         );
@@ -166,11 +166,11 @@ class OrderCancelFulfillmentSagaConsumerTest {
 
         consumer.handleOrderCancelFulfillmentStep(record, acknowledgment);
 
-        verify(sagaResponsePublisher).publishSuccess(
+        verify(sagaResponsePublisher).publishFailure(
                 eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                eq(SagaStepMessage.ACTION), contains("alreadyCancelled")
+                eq(SagaStepMessage.ACTION), contains("orderId=1")
         );
-        verifyNoInteractions(publishOrderCancelFailedEventPort);
+        verify(publishOrderCancelFailedEventPort).publish(1L, BUYER_ID);
         verify(acknowledgment).acknowledge();
     }
 
