@@ -118,7 +118,7 @@ class AligoBrandTalkTemplateTest {
     }
 
     private BrandTalkButton createTestButton() {
-        return BrandTalkButton.of("버튼", AligoTemplateButtonLinkType.WL, "https://m.ex.com", "https://www.ex.com", null, null);
+        return BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
     }
 
     private List<BrandTalkCarouselItem> createCarouselItems(int count) {

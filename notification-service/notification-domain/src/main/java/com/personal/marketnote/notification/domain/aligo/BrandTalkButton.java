@@ -16,18 +16,18 @@ public class BrandTalkButton {
     private String linkI;
     private String linkA;
 
-    public static BrandTalkButton of(
-            String name, AligoTemplateButtonLinkType linkType,
-            String linkM, String linkP, String linkI, String linkA
-    ) {
-        validate(name, linkType, linkM, linkP, linkI, linkA);
+    public static BrandTalkButton from(BrandTalkButtonCreateState state) {
+        validate(
+                state.getName(), state.getLinkType(),
+                state.getLinkM(), state.getLinkP(), state.getLinkI(), state.getLinkA()
+        );
         return BrandTalkButton.builder()
-                .name(name)
-                .linkType(linkType)
-                .linkM(linkM)
-                .linkP(linkP)
-                .linkI(linkI)
-                .linkA(linkA)
+                .name(state.getName())
+                .linkType(state.getLinkType())
+                .linkM(state.getLinkM())
+                .linkP(state.getLinkP())
+                .linkI(state.getLinkI())
+                .linkA(state.getLinkA())
                 .build();
     }
 
