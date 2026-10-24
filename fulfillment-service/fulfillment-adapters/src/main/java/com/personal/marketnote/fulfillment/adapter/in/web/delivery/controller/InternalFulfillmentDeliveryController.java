@@ -3,7 +3,6 @@ package com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller;
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.controller.apidocs.*;
-import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.CancelInternalFulfillmentDeliveryRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.request.RegisterInternalReturnDeliveryRequest;
 import com.personal.marketnote.fulfillment.adapter.in.web.delivery.response.*;
 import com.personal.marketnote.fulfillment.port.in.command.*;
@@ -32,7 +31,6 @@ import static com.personal.marketnote.common.domain.exception.ExceptionCode.DEFA
 @RequiredArgsConstructor
 public class InternalFulfillmentDeliveryController {
     private final GetFulfillmentWorkStatusUseCase getFulfillmentWorkStatusUseCase;
-    private final CancelInternalFulfillmentDeliveryUseCase cancelInternalFulfillmentDeliveryUseCase;
     private final RegisterInternalReturnDeliveryUseCase registerInternalReturnDeliveryUseCase;
     private final GetInternalReturnGodDetailUseCase getInternalReturnGodDetailUseCase;
     private final GetShippingStatusUseCase getShippingStatusUseCase;
@@ -82,35 +80,6 @@ public class InternalFulfillmentDeliveryController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "배송 상태 조회 성공"
-                ),
-                HttpStatus.OK
-        );
-    }
-
-    /**
-     * 풀필먼트 출고 취소 (서비스 간 통신용)
-     *
-     * @param request 출고 취소 요청 (orderId, productKeys — 빈 리스트면 주문 전체 취소)
-     */
-    @PostMapping("/cancel")
-    @CancelInternalFulfillmentDeliveryApiDocs
-    public ResponseEntity<BaseResponse<CancelInternalFulfillmentDeliveryResponse>> cancelDelivery(
-            @Valid @RequestBody CancelInternalFulfillmentDeliveryRequest request
-    ) {
-        List<String> productKeys = FormatValidator.hasValue(request.productKeys())
-                ? request.productKeys()
-                : List.of();
-
-        CancelInternalFulfillmentDeliveryResult result = cancelInternalFulfillmentDeliveryUseCase.cancelDelivery(
-                new CancelInternalFulfillmentDeliveryCommand(request.orderId(), productKeys)
-        );
-
-        return new ResponseEntity<>(
-                BaseResponse.of(
-                        CancelInternalFulfillmentDeliveryResponse.from(result),
-                        HttpStatus.OK,
-                        DEFAULT_SUCCESS_CODE,
-                        "풀필먼트 출고 취소 처리 완료"
                 ),
                 HttpStatus.OK
         );
