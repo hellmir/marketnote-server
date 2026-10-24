@@ -203,6 +203,102 @@ class OrderProductTest {
         }
     }
 
+    @Nested
+    @DisplayName("자동 확정 예정 일시 설정 (scheduledAutoConfirmAt)")
+    class ScheduledAutoConfirmAtTest {
+
+        @Test
+        @DisplayName("SHIPPING에서 DELIVERED로 전이하면 scheduledAutoConfirmAt이 now + autoConfirmDays로 설정된다")
+        void shouldSetScheduledAutoConfirmAtWhenTransitionToDelivered() {
+            // given
+            OrderProduct orderProduct = createOrderProduct(OrderStatus.SHIPPING);
+            long autoConfirmDays = 7L;
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.DELIVERED, NOW, autoConfirmDays);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(NOW.plusDays(autoConfirmDays));
+        }
+
+        @Test
+        @DisplayName("autoConfirmDays가 3이면 scheduledAutoConfirmAt이 now + 3일로 설정된다")
+        void shouldSetScheduledAutoConfirmAtWithCustomAutoConfirmDays() {
+            // given
+            OrderProduct orderProduct = createOrderProduct(OrderStatus.SHIPPING);
+            long autoConfirmDays = 3L;
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.DELIVERED, NOW, autoConfirmDays);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(NOW.plusDays(autoConfirmDays));
+        }
+
+        @Test
+        @DisplayName("DELIVERED가 아닌 다른 상태로 전이하면 scheduledAutoConfirmAt은 설정되지 않는다")
+        void shouldNotSetScheduledAutoConfirmAtWhenTransitionToNonDelivered() {
+            // given
+            OrderProduct orderProduct = createOrderProduct(OrderStatus.PAID);
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.PREPARING, NOW, 7L);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isNull();
+        }
+
+        @Test
+        @DisplayName("DELIVERED에서 CONFIRMED로 전이해도 scheduledAutoConfirmAt은 변경되지 않는다")
+        void shouldNotChangeScheduledAutoConfirmAtWhenTransitionFromDelivered() {
+            // given
+            LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
+            LocalDateTime scheduledAt = deliveredTime.plusDays(7L);
+            OrderProduct orderProduct = OrderProduct.from(OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .deliveredAt(deliveredTime)
+                    .scheduledAutoConfirmAt(scheduledAt)
+                    .build());
+
+            // when
+            orderProduct.changeOrderStatus(OrderStatus.CONFIRMED, NOW, 7L);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(scheduledAt);
+        }
+
+        @Test
+        @DisplayName("SnapshotState에서 복원 시 scheduledAutoConfirmAt이 보존된다")
+        void shouldPreserveScheduledAutoConfirmAtFromSnapshotState() {
+            // given
+            LocalDateTime deliveredTime = LocalDateTime.of(2026, 4, 1, 10, 0, 0);
+            LocalDateTime scheduledAt = deliveredTime.plusDays(7L);
+            OrderProductSnapshotState state = OrderProductSnapshotState.builder()
+                    .orderId(1L)
+                    .sellerId(10L)
+                    .pricePolicyId(100L)
+                    .quantity(1)
+                    .unitAmount(50000L)
+                    .accumulatedPoint(0L)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .deliveredAt(deliveredTime)
+                    .scheduledAutoConfirmAt(scheduledAt)
+                    .build();
+
+            // when
+            OrderProduct orderProduct = OrderProduct.from(state);
+
+            // then
+            assertThat(orderProduct.getScheduledAutoConfirmAt()).isEqualTo(scheduledAt);
+        }
+    }
+
     private OrderProduct createOrderProduct(OrderStatus status) {
         return OrderProduct.from(OrderProductSnapshotState.builder()
                 .orderId(1L)
