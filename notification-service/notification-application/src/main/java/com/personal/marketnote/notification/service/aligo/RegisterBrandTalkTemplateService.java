@@ -71,10 +71,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
             return List.of();
         }
         return buttonCommands.stream()
-                .map(btn -> BrandTalkButton.of(
-                        btn.name(), AligoTemplateButtonLinkType.from(btn.linkType()),
-                        btn.linkM(), btn.linkP(), btn.linkI(), btn.linkA()
-                ))
+                .map(btn -> BrandTalkButton.from(BrandTalkButtonCreateState.builder().name(btn.name()).linkType(AligoTemplateButtonLinkType.from(btn.linkType())).linkM(btn.linkM()).linkP(btn.linkP()).linkI(btn.linkI()).linkA(btn.linkA()).build()))
                 .toList();
     }
 

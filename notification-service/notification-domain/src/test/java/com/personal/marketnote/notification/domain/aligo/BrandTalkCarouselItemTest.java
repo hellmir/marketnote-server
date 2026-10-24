@@ -32,9 +32,9 @@ class BrandTalkCarouselItemTest {
     @DisplayName("캐러셀 아이템의 버튼이 3개(최대 2개 초과)이면 예외가 발생한다")
     void shouldThrowExceptionWhenButtonsExceedMax() {
         // given
-        BrandTalkButton button1 = BrandTalkButton.of("버튼1", AligoTemplateButtonLinkType.WL, "https://m.ex.com", "https://www.ex.com", null, null);
-        BrandTalkButton button2 = BrandTalkButton.of("버튼2", AligoTemplateButtonLinkType.WL, "https://m.ex.com", "https://www.ex.com", null, null);
-        BrandTalkButton button3 = BrandTalkButton.of("버튼3", AligoTemplateButtonLinkType.WL, "https://m.ex.com", "https://www.ex.com", null, null);
+        BrandTalkButton button1 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼1").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
+        BrandTalkButton button2 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼2").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
+        BrandTalkButton button3 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼3").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
 
         // when & then
         assertThatThrownBy(() -> BrandTalkCarouselItem.of("제목", "내용", null, List.of(button1, button2, button3), null))
@@ -46,7 +46,7 @@ class BrandTalkCarouselItemTest {
     @DisplayName("캐러셀 아이템 버튼 1개로 정상 생성된다")
     void shouldCreateWithOneButton() {
         // given
-        BrandTalkButton button = BrandTalkButton.of("버튼", AligoTemplateButtonLinkType.WL, "https://m.ex.com", "https://www.ex.com", null, null);
+        BrandTalkButton button = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
 
         // when
         BrandTalkCarouselItem item = BrandTalkCarouselItem.of("제목", "내용", "https://img.com/1.jpg", List.of(button), null);
@@ -62,8 +62,8 @@ class BrandTalkCarouselItemTest {
     @DisplayName("캐러셀 아이템 버튼 2개 + 쿠폰으로 정상 생성된다")
     void shouldCreateWithTwoButtonsAndCoupon() {
         // given
-        BrandTalkButton button1 = BrandTalkButton.of("버튼1", AligoTemplateButtonLinkType.WL, "https://m.ex.com", "https://www.ex.com", null, null);
-        BrandTalkButton button2 = BrandTalkButton.of("버튼2", AligoTemplateButtonLinkType.BK, null, null, null, null);
+        BrandTalkButton button1 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼1").linkType(AligoTemplateButtonLinkType.WL).linkM("https://m.ex.com").linkP("https://www.ex.com").linkI(null).linkA(null).build());
+        BrandTalkButton button2 = BrandTalkButton.from(BrandTalkButtonCreateState.builder().name("버튼2").linkType(AligoTemplateButtonLinkType.BK).linkM(null).linkP(null).linkI(null).linkA(null).build());
         BrandTalkCoupon coupon = BrandTalkCoupon.of("10% 할인", null, "https://m.ex.com", "https://www.ex.com", null, null);
 
         // when

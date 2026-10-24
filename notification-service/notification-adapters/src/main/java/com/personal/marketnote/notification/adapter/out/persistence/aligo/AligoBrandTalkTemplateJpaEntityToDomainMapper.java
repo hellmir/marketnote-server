@@ -56,10 +56,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         try {
             List<ButtonDto> dtos = objectMapper.readValue(buttonsJson, new TypeReference<>() {});
             return dtos.stream()
-                    .map(dto -> BrandTalkButton.of(
-                            dto.name(), AligoTemplateButtonLinkType.from(dto.linkType()),
-                            dto.linkM(), dto.linkP(), dto.linkI(), dto.linkA()
-                    ))
+                    .map(dto -> BrandTalkButton.from(BrandTalkButtonCreateState.builder().name(dto.name()).linkType(AligoTemplateButtonLinkType.from(dto.linkType())).linkM(dto.linkM()).linkP(dto.linkP()).linkI(dto.linkI()).linkA(dto.linkA()).build()))
                     .toList();
         } catch (JsonProcessingException e) {
             return List.of();
@@ -117,10 +114,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
                     .map(dto -> {
                         List<BrandTalkButton> itemButtons = FormatValidator.hasValue(dto.buttons())
                                 ? dto.buttons().stream()
-                                .map(b -> BrandTalkButton.of(
-                                        b.name(), AligoTemplateButtonLinkType.from(b.linkType()),
-                                        b.linkM(), b.linkP(), b.linkI(), b.linkA()
-                                ))
+                                .map(b -> BrandTalkButton.from(BrandTalkButtonCreateState.builder().name(b.name()).linkType(AligoTemplateButtonLinkType.from(b.linkType())).linkM(b.linkM()).linkP(b.linkP()).linkI(b.linkI()).linkA(b.linkA()).build()))
                                 .toList()
                                 : List.of();
                         BrandTalkCoupon itemCoupon = FormatValidator.hasValue(dto.coupon())
