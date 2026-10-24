@@ -71,7 +71,7 @@ public class RegisterReviewService implements RegisterReviewUseCase {
         // [#929][#1038] 주문상품 리뷰 상태 업데이트는 Kafka Consumer(ReviewRegisteredCommerceConsumer)로 전환 완료
         publishReviewEventPort.publishReviewRegisteredEvent(
                 orderId, pricePolicyId, productId,
-                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating(),
+                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating().floatValue(),
                 command.reviewerId(), savedReview.getId()
         );
 

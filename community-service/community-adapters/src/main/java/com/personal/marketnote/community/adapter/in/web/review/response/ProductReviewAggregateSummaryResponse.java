@@ -2,10 +2,12 @@ package com.personal.marketnote.community.adapter.in.web.review.response;
 
 import com.personal.marketnote.community.port.in.result.review.ProductReviewAggregateSummaryResult;
 
+import java.math.BigDecimal;
+
 public record ProductReviewAggregateSummaryResponse(
         Long productId,
         int totalCount,
-        float averageRating
+        BigDecimal averageRating
 ) {
     public static ProductReviewAggregateSummaryResponse from(
             ProductReviewAggregateSummaryResult result

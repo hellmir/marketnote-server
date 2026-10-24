@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -18,9 +19,8 @@ public class ProductReviewAggregateSnapshotState {
     private final Integer threePointCount;
     private final Integer twoPointCount;
     private final Integer onePointCount;
-    private final Float totalRating;
-    private final Float averageRating;
+    private final Long totalRating;
+    private final BigDecimal averageRating;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 }
-

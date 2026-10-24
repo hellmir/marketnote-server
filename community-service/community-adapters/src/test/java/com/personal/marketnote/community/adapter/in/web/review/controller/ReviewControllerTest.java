@@ -327,8 +327,8 @@ class ReviewControllerTest {
                             .threePointCount(0)
                             .twoPointCount(0)
                             .onePointCount(0)
-                            .totalRating(23f)
-                            .averageRating(4.6f)
+                            .totalRating(23L)
+                            .averageRating(new java.math.BigDecimal("4.60"))
                             .build()
             );
             when(getReviewUseCase.getProductReviewAggregate(1000L)).thenReturn(aggregate);

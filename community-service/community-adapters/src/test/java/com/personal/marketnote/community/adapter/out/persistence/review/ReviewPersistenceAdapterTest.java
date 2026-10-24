@@ -360,8 +360,8 @@ class ReviewPersistenceAdapterTest {
                             .threePointCount(0)
                             .twoPointCount(0)
                             .onePointCount(0)
-                            .totalRating(15f)
-                            .averageRating(5f)
+                            .totalRating(15L)
+                            .averageRating(new java.math.BigDecimal("5.00"))
                             .build()
             );
             ProductReviewAggregateJpaEntity entity2000 = ProductReviewAggregateJpaEntity.from(other);

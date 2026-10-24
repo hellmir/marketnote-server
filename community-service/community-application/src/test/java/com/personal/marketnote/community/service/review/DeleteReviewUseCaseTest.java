@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.*;
@@ -47,7 +49,7 @@ class DeleteReviewUseCaseTest {
         Float rating = 5.0f;
 
         Review review = buildReview(reviewId, reviewerId, productId, rating);
-        ProductReviewAggregate aggregate = buildProductReviewAggregate(productId, 10, 50.0f);
+        ProductReviewAggregate aggregate = buildProductReviewAggregate(productId, 10, 50L);
 
         doNothing().when(getReviewUseCase).validateAuthor(reviewId, reviewerId);
         when(getReviewUseCase.getReview(reviewId)).thenReturn(review);
@@ -65,7 +67,7 @@ class DeleteReviewUseCaseTest {
         inOrder.verify(updateReviewPort).update(aggregate);
         inOrder.verify(publishReviewEventPort).publishReviewDeletedEvent(
                 eq(reviewId), eq(productId),
-                eq(aggregate.getTotalCount()), eq(aggregate.getAverageRating()),
+                eq(aggregate.getTotalCount()), eq(aggregate.getAverageRating().floatValue()),
                 eq(reviewerId)
         );
     }
@@ -96,7 +98,9 @@ class DeleteReviewUseCaseTest {
         );
     }
 
-    private ProductReviewAggregate buildProductReviewAggregate(Long productId, int totalCount, float totalRating) {
+    private ProductReviewAggregate buildProductReviewAggregate(Long productId, int totalCount, long totalRating) {
+        BigDecimal average = BigDecimal.valueOf(totalRating)
+                .divide(BigDecimal.valueOf(totalCount), 2, RoundingMode.HALF_UP);
         return ProductReviewAggregate.from(
                 ProductReviewAggregateSnapshotState.builder()
                         .productId(productId)
@@ -107,7 +111,7 @@ class DeleteReviewUseCaseTest {
                         .twoPointCount(0)
                         .onePointCount(0)
                         .totalRating(totalRating)
-                        .averageRating(totalRating / totalCount)
+                        .averageRating(average)
                         .createdAt(LocalDateTime.now())
                         .modifiedAt(LocalDateTime.now())
                         .build()

@@ -39,7 +39,7 @@ public class DeleteReviewService implements DeleteReviewUseCase {
         // 리뷰 삭제 이벤트 발행
         publishReviewEventPort.publishReviewDeletedEvent(
                 review.getId(), productId,
-                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating(),
+                productReviewAggregate.getTotalCount(), productReviewAggregate.getAverageRating().floatValue(),
                 reviewerId
         );
     }

@@ -3,6 +3,8 @@ package com.personal.marketnote.community.domain.review;
 import com.personal.marketnote.community.domain.review.exception.InvalidRatingPointException;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 @Builder(access = AccessLevel.PRIVATE)
 @Getter
 public class ProductReviewAggregate {
+    private static final int AVERAGE_RATING_SCALE = 2;
+
     private Long productId;
     private int totalCount;
     private int fivePointCount;
@@ -17,8 +21,8 @@ public class ProductReviewAggregate {
     private int threePointCount;
     private int twoPointCount;
     private int onePointCount;
-    private float totalRating;
-    private float averageRating;
+    private long totalRating;
+    private BigDecimal averageRating;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -41,10 +45,12 @@ public class ProductReviewAggregate {
     public static ProductReviewAggregate from(Review review) {
         ProductReviewAggregate productReviewAggregate = ProductReviewAggregate.builder()
                 .productId(review.getProductId())
+                .totalRating(0L)
+                .averageRating(BigDecimal.ZERO)
                 .build();
-        Rating totalRating = review.getRating();
-        productReviewAggregate.addPoint(totalRating.getValue());
-        productReviewAggregate.computeRating(totalRating.getValue());
+        Rating rating = review.getRating();
+        productReviewAggregate.addPoint(rating.getValue());
+        productReviewAggregate.computeRating(rating.getValue());
 
         return productReviewAggregate;
     }
@@ -119,11 +125,11 @@ public class ProductReviewAggregate {
     public void computeRating(int point) {
         totalRating += point;
         if (totalCount == 0) {
-            totalRating = 0.0f;
-            averageRating = 0.0f;
+            totalRating = 0L;
+            averageRating = BigDecimal.ZERO;
             return;
         }
-        averageRating = totalRating / totalCount;
+        averageRating = BigDecimal.valueOf(totalRating)
+                .divide(BigDecimal.valueOf(totalCount), AVERAGE_RATING_SCALE, RoundingMode.HALF_UP);
     }
 }
-

@@ -4,11 +4,11 @@ import com.personal.marketnote.community.domain.review.exception.InvalidRatingPo
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.within;
 
 class ProductReviewAggregateTest {
 
@@ -25,8 +25,8 @@ class ProductReviewAggregateTest {
                 .threePointCount(1)
                 .twoPointCount(1)
                 .onePointCount(1)
-                .totalRating(40.0f)
-                .averageRating(4.0f)
+                .totalRating(40L)
+                .averageRating(new BigDecimal("4.00"))
                 .createdAt(createdAt)
                 .modifiedAt(modifiedAt)
                 .build();
@@ -40,8 +40,8 @@ class ProductReviewAggregateTest {
         assertThat(aggregate.getThreePointCount()).isEqualTo(1);
         assertThat(aggregate.getTwoPointCount()).isEqualTo(1);
         assertThat(aggregate.getOnePointCount()).isEqualTo(1);
-        assertThat(aggregate.getTotalRating()).isEqualTo(40.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(4.0f);
+        assertThat(aggregate.getTotalRating()).isEqualTo(40L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.00"));
         assertThat(aggregate.getCreatedAt()).isEqualTo(createdAt);
         assertThat(aggregate.getModifiedAt()).isEqualTo(modifiedAt);
     }
@@ -60,8 +60,8 @@ class ProductReviewAggregateTest {
         assertThat(aggregate.getThreePointCount()).isEqualTo(0);
         assertThat(aggregate.getTwoPointCount()).isEqualTo(0);
         assertThat(aggregate.getOnePointCount()).isEqualTo(0);
-        assertThat(aggregate.getTotalRating()).isEqualTo(5.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(5.0f);
+        assertThat(aggregate.getTotalRating()).isEqualTo(5L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("5.00"));
     }
 
     @Test
@@ -73,8 +73,8 @@ class ProductReviewAggregateTest {
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
         assertThat(aggregate.getFivePointCount()).isEqualTo(1);
-        assertThat(aggregate.getTotalRating()).isEqualTo(0.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(0.0f);
+        assertThat(aggregate.getTotalRating()).isEqualTo(0L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -171,8 +171,8 @@ class ProductReviewAggregateTest {
         assertThat(aggregate.getTotalCount()).isEqualTo(5);
         assertThat(aggregate.getFivePointCount()).isEqualTo(0);
         assertThat(aggregate.getOnePointCount()).isEqualTo(2);
-        assertThat(aggregate.getTotalRating()).isEqualTo(15.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(3.0f);
+        assertThat(aggregate.getTotalRating()).isEqualTo(15L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("3.00"));
     }
 
     @Test
@@ -184,8 +184,8 @@ class ProductReviewAggregateTest {
         aggregate.addPoint(3);
         aggregate.computeRating(3);
 
-        assertThat(aggregate.getTotalRating()).isEqualTo(8.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(4.0f);
+        assertThat(aggregate.getTotalRating()).isEqualTo(8L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.00"));
     }
 
     @Test
@@ -199,18 +199,16 @@ class ProductReviewAggregateTest {
                 .threePointCount(0)
                 .twoPointCount(0)
                 .onePointCount(0)
-                .totalRating(5.0f)
-                .averageRating(5.0f)
+                .totalRating(5L)
+                .averageRating(new BigDecimal("5.00"))
                 .build());
 
         aggregate.reducePoint(5);
         aggregate.computeRating(-5);
 
         assertThat(aggregate.getTotalCount()).isEqualTo(0);
-        assertThat(aggregate.getTotalRating()).isEqualTo(0.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(0.0f);
-        assertThat(Float.isFinite(aggregate.getAverageRating())).isTrue();
-        assertThat(Float.isNaN(aggregate.getAverageRating())).isFalse();
+        assertThat(aggregate.getTotalRating()).isEqualTo(0L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -222,8 +220,8 @@ class ProductReviewAggregateTest {
         aggregate.computeRating(-5);
 
         assertThat(aggregate.getTotalCount()).isEqualTo(4);
-        assertThat(aggregate.getTotalRating()).isEqualTo(10.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(2.5f);
+        assertThat(aggregate.getTotalRating()).isEqualTo(10L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("2.50"));
     }
 
     @Test
@@ -239,14 +237,14 @@ class ProductReviewAggregateTest {
         aggregate.computeRating(3);
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
-        assertThat(aggregate.getTotalRating()).isEqualTo(3.0f);
-        assertThat(aggregate.getAverageRating()).isEqualTo(3.0f);
+        assertThat(aggregate.getTotalRating()).isEqualTo(3L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("3.00"));
         assertThat(aggregate.getFourPointCount()).isEqualTo(0);
         assertThat(aggregate.getThreePointCount()).isEqualTo(1);
     }
 
     @Test
-    @DisplayName("여러 리뷰 추가 후 평균 별점이 정확하게 계산된다")
+    @DisplayName("여러 리뷰 추가 후 평균 별점이 scale=2 HALF_UP 반올림으로 정확하게 계산된다")
     void shouldCalculateCorrectAverageAfterMultipleReviews() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
@@ -258,8 +256,9 @@ class ProductReviewAggregateTest {
         aggregate.computeRating(3);
 
         assertThat(aggregate.getTotalCount()).isEqualTo(3);
-        assertThat(aggregate.getTotalRating()).isEqualTo(12.0f);
-        assertThat(aggregate.getAverageRating()).isCloseTo(4.0f, within(0.01f));
+        assertThat(aggregate.getTotalRating()).isEqualTo(12L);
+        // 12/3 = 4.00 정확. scale=2
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.00"));
         assertThat(aggregate.getFivePointCount()).isEqualTo(1);
         assertThat(aggregate.getFourPointCount()).isEqualTo(1);
         assertThat(aggregate.getThreePointCount()).isEqualTo(1);
@@ -274,8 +273,8 @@ class ProductReviewAggregateTest {
                 .threePointCount(0)
                 .twoPointCount(0)
                 .onePointCount(0)
-                .totalRating(0.0f)
-                .averageRating(0.0f)
+                .totalRating(0L)
+                .averageRating(BigDecimal.ZERO)
                 .build());
     }
 
@@ -288,8 +287,8 @@ class ProductReviewAggregateTest {
                 .threePointCount(1)
                 .twoPointCount(1)
                 .onePointCount(1)
-                .totalRating(15.0f)
-                .averageRating(3.0f)
+                .totalRating(15L)
+                .averageRating(new BigDecimal("3.00"))
                 .build());
     }
 

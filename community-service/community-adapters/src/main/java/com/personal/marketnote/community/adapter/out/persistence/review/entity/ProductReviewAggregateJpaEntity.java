@@ -10,6 +10,8 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "product_review_aggregate")
 @DynamicInsert
@@ -42,10 +44,10 @@ public class ProductReviewAggregateJpaEntity extends BaseEntity {
     private Integer onePointCount;
 
     @Column(name = "total_rating")
-    private Float totalRating;
+    private Long totalRating;
 
-    @Column(name = "average_rating", nullable = false)
-    private Float averageRating;
+    @Column(name = "average_rating", nullable = false, precision = 3, scale = 2)
+    private BigDecimal averageRating;
 
     public static ProductReviewAggregateJpaEntity from(ProductReviewAggregate aggregate) {
         return ProductReviewAggregateJpaEntity.builder()
@@ -72,4 +74,3 @@ public class ProductReviewAggregateJpaEntity extends BaseEntity {
         averageRating = aggregate.getAverageRating();
     }
 }
-

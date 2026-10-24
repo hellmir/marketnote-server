@@ -57,7 +57,7 @@ import java.lang.annotation.*;
                 | threePointCount | number | 3점 리뷰 개수 | 10 |
                 | twoPointCount | number | 2점 리뷰 개수 | 10 |
                 | onePointCount | number | 1점 리뷰 개수 | 10 |
-                | averageRating | number | 평점 평균 | 4.5 |
+                | averageRating | number(소수점 2자리) | 평점 평균 (scale=2, 0.00~9.99) | 4.50 |
                 """,
         parameters = {
                 @Parameter(
@@ -84,7 +84,7 @@ import java.lang.annotation.*;
                                             "threePointCount": 1,
                                             "twoPointCount": 0,
                                             "onePointCount": 1,
-                                            "averageRating": 3.6
+                                            "averageRating": 3.60
                                           },
                                           "message": "상품 리뷰 평점 평균 및 점수별 개수 현황 조회 성공"
                                         }
