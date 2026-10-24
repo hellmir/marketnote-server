@@ -287,7 +287,7 @@ class AligoBrandTalkTemplateTest {
     @DisplayName("COMMERCE 정상 생성된다")
     void shouldCreateCommerceTemplate() {
         // given
-        BrandTalkCommerceInfo commerceInfo = BrandTalkCommerceInfo.of("상품명", "10000", "8000", "20", null);
+        BrandTalkCommerceInfo commerceInfo = BrandTalkCommerceInfo.from(BrandTalkCommerceInfoCreateState.builder().title("상품명").regularPrice("10000").discountPrice("8000").discountRate("20").discountFixed(null).build());
         AligoBrandTalkTemplateCreateState state = AligoBrandTalkTemplateCreateState.builder()
                 .senderKey("sender")
                 .templateCode("BT_CM_002")

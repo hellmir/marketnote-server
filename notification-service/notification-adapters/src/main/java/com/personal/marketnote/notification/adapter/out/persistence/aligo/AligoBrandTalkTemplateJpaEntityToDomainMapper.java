@@ -180,10 +180,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         }
         try {
             CommerceInfoDto dto = objectMapper.readValue(json, CommerceInfoDto.class);
-            return BrandTalkCommerceInfo.of(
-                    dto.title(), dto.regularPrice(),
-                    dto.discountPrice(), dto.discountRate(), dto.discountFixed()
-            );
+            return BrandTalkCommerceInfo.from(BrandTalkCommerceInfoCreateState.builder().title(dto.title()).regularPrice(dto.regularPrice()).discountPrice(dto.discountPrice()).discountRate(dto.discountRate()).discountFixed(dto.discountFixed()).build());
         } catch (JsonProcessingException e) {
             return null;
         }

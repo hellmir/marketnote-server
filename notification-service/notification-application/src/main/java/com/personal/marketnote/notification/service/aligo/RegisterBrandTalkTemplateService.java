@@ -127,9 +127,6 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
         if (FormatValidator.hasNoValue(command)) {
             return null;
         }
-        return BrandTalkCommerceInfo.of(
-                command.title(), command.regularPrice(),
-                command.discountPrice(), command.discountRate(), command.discountFixed()
-        );
+        return BrandTalkCommerceInfo.from(BrandTalkCommerceInfoCreateState.builder().title(command.title()).regularPrice(command.regularPrice()).discountPrice(command.discountPrice()).discountRate(command.discountRate()).discountFixed(command.discountFixed()).build());
     }
 }
