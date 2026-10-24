@@ -959,7 +959,7 @@ class PaymentCancelTransactionHelperTest {
             );
             OrderSnapshotState orderState = OrderSnapshotState.builder()
                     .id(1L).buyerId(BUYER_ID).orderKey(ORDER_KEY).orderStatus(OrderStatus.PAID)
-                    .amount(OrderAmount.of(70000L, null, null, 0L, null))
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(70000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
                     .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                     .orderProductStates(productStates).build();
             Order order = Order.from(orderState);
@@ -1476,9 +1476,7 @@ class PaymentCancelTransactionHelperTest {
                     .buyerId(buyerId)
                     .orderKey(ORDER_KEY)
                     .orderStatus(OrderStatus.PAID)
-                    .amount(OrderAmount.of(
-                            unitAmounts.stream().mapToLong(Long::longValue).sum(),
-                            null, null, 0L, null))
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(unitAmounts.stream().mapToLong(Long::longValue).sum()).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
                     .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                     .orderProductStates(productStates)
                     .build();
@@ -1554,7 +1552,7 @@ class PaymentCancelTransactionHelperTest {
                 .buyerId(buyerId)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(totalAmount, null, null, 0L, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(productState))
                 .build();
@@ -1610,7 +1608,7 @@ class PaymentCancelTransactionHelperTest {
                 .buyerId(buyerId)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(50000L, null, null, pointAmount, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(productState))
                 .build();
@@ -1634,7 +1632,7 @@ class PaymentCancelTransactionHelperTest {
                 .buyerId(buyerId)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(50000L, null, null, pointAmount, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(pointAmount).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)
                 .build();
@@ -1690,7 +1688,7 @@ class PaymentCancelTransactionHelperTest {
                 .buyerId(buyerId)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(50000L, null, null, 0L, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)
                 .build();
@@ -1715,7 +1713,7 @@ class PaymentCancelTransactionHelperTest {
                 .buyerId(buyerId)
                 .orderKey(ORDER_KEY)
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(totalAmount, null, null, 0L, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(totalAmount).paidAmount(null).couponAmount(null).pointAmount(0L).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(productStates)
                 .build();

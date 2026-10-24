@@ -2,6 +2,7 @@ package com.personal.marketnote.commerce.port.in.result.order;
 
 import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderAmount;
+import com.personal.marketnote.commerce.domain.order.OrderAmountCreateState;
 import com.personal.marketnote.commerce.domain.order.OrderNumber;
 import com.personal.marketnote.commerce.domain.order.OrderProductSnapshotState;
 import com.personal.marketnote.commerce.domain.order.OrderSnapshotState;
@@ -52,7 +53,7 @@ class GetOrderResultTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber(OrderNumber.of("ORD-1"))
                 .orderStatus(OrderStatus.PAID)
-                .amount(OrderAmount.of(110000L, null, 0L, 0L, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(110000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
                 .shippingAddress(ShippingAddress.of("수령인", "010-1234-5678", "12345", "서울시 강남구", "상세주소", null, null))
                 .orderProductStates(List.of(first, second))
                 .createdAt(LocalDateTime.now())

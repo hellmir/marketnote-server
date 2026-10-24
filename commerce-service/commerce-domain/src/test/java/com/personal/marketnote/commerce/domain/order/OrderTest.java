@@ -467,7 +467,7 @@ class OrderTest {
 
     @SuppressWarnings("deprecation")
     private OrderAmount createOrderAmount() {
-        return OrderAmount.of(50000L, 45000L, 3000L, 2000L, 0L);
+        return OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(3000L).pointAmount(2000L).shippingFee(0L).build());
     }
 
     private ShippingAddress createShippingAddress() {

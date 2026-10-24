@@ -114,7 +114,7 @@ class OrderPickupAddressTest {
                     .orderKey(UUID.randomUUID())
                     .orderNumber(OrderNumber.of("ORD-1"))
                     .orderStatus(OrderStatus.RETURN_REQUESTED)
-                    .amount(OrderAmount.of(50000L, null, null, null, null))
+                    .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
                     .shippingAddress(
                             ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", null, null)
                     )
@@ -143,7 +143,7 @@ class OrderPickupAddressTest {
                 .orderKey(UUID.randomUUID())
                 .orderNumber(OrderNumber.of("ORD-1"))
                 .orderStatus(OrderStatus.DELIVERED)
-                .amount(OrderAmount.of(50000L, null, null, null, null))
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build()))
                 .shippingAddress(
                         ShippingAddress.of("배송 수령인", "010-1234-5678", "12345", "서울시 강남구", "테헤란로 123", DeliveryRequestType.LEAVE_AT_DOOR, null)
                 )

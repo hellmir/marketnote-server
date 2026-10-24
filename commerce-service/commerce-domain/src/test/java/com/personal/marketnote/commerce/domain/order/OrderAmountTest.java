@@ -18,7 +18,7 @@ class OrderAmountTest {
         @DisplayName("모든 금액 필드가 정상적으로 설정된다")
         void shouldCreateWithAllFields() {
             // given & when
-            OrderAmount orderAmount = OrderAmount.of(50000L, 45000L, 3000L, 2000L, 3000L);
+            OrderAmount orderAmount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(45000L).couponAmount(3000L).pointAmount(2000L).shippingFee(3000L).build());
 
             // then
             assertThat(orderAmount.getTotalAmount()).isEqualTo(Money.of(50000L));
@@ -32,7 +32,7 @@ class OrderAmountTest {
         @DisplayName("할인 금액과 배송비가 null이어도 정상 생성되고 paidAmount는 Money.zero()로 초기화된다")
         void shouldCreateWithNullDiscountsAndShippingFee() {
             // given & when
-            OrderAmount orderAmount = OrderAmount.of(50000L, null, null, null, null);
+            OrderAmount orderAmount = OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(null).pointAmount(null).shippingFee(null).build());
 
             // then
             assertThat(orderAmount.getTotalAmount()).isEqualTo(Money.of(50000L));
