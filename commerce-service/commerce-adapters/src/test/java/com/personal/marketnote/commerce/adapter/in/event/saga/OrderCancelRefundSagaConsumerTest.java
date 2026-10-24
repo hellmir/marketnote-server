@@ -255,6 +255,86 @@ class OrderCancelRefundSagaConsumerTest {
     }
 
     @Nested
+    @DisplayName("OrderCancelFailedEvent 재발행")
+    class OrderCancelFailedEventPublishing {
+
+        @Test
+        @DisplayName("PG 환불 처리 실패 시 OrderCancelFailedEvent를 재발행한다")
+        void shouldPublishOrderCancelFailedEventOnRefundError() throws Exception {
+            String actionPayload = buildFullPayload();
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
+
+            doThrow(new RuntimeException("PG 통신 실패"))
+                    .when(refundPaymentUseCase).refund(any(RefundPaymentCommand.class));
+
+            consumer.handleRefundPaymentStep(record, acknowledgment);
+
+            verify(publishOrderEventPort).publishOrderCancelFailedEvent(1L, 100L);
+            verify(acknowledgment).acknowledge();
+        }
+
+        @Test
+        @DisplayName("페이로드 검증 실패(orderKey 누락)에서 buyerId가 있으면 OrderCancelFailedEvent를 재발행한다")
+        void shouldPublishOrderCancelFailedEventOnValidationFailureWithBuyerId() throws Exception {
+            Map<String, Object> payloadMap = new HashMap<>(Map.of(
+                    "orderId", 1L,
+                    "buyerId", 100L,
+                    "cancelAmount", 50000L,
+                    "paymentAmount", 50000L,
+                    "pointAmount", 0L,
+                    "shippingFee", 3000L,
+                    "isFullCancel", true,
+                    "alreadyRefunded", 0L
+            ));
+            String invalidPayload = TEST_OBJECT_MAPPER.writeValueAsString(payloadMap);
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
+
+            consumer.handleRefundPaymentStep(record, acknowledgment);
+
+            verify(publishOrderEventPort).publishOrderCancelFailedEvent(1L, 100L);
+        }
+
+        @Test
+        @DisplayName("PG 환불 성공 시 OrderCancelFailedEvent는 발행하지 않는다")
+        void shouldNotPublishOrderCancelFailedEventOnSuccess() throws Exception {
+            String actionPayload = buildFullPayload();
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, actionPayload);
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
+
+            consumer.handleRefundPaymentStep(record, acknowledgment);
+
+            verifyNoInteractions(publishOrderEventPort);
+        }
+
+        @Test
+        @DisplayName("페이로드에 buyerId가 없으면 OrderCancelFailedEvent를 발행하지 않는다")
+        void shouldNotPublishOrderCancelFailedEventWhenBuyerIdMissing() throws Exception {
+            Map<String, Object> payloadMap = new HashMap<>(Map.of(
+                    "orderId", 1L,
+                    "cancelAmount", 50000L,
+                    "paymentAmount", 50000L,
+                    "pointAmount", 0L,
+                    "shippingFee", 3000L,
+                    "isFullCancel", true,
+                    "alreadyRefunded", 0L
+            ));
+            String invalidPayload = TEST_OBJECT_MAPPER.writeValueAsString(payloadMap);
+            SagaStepMessage stepMessage = new SagaStepMessage(
+                    SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.ACTION, invalidPayload);
+            ConsumerRecord<String, EventEnvelope<?>> record = createRecord(stepMessage);
+
+            consumer.handleRefundPaymentStep(record, acknowledgment);
+
+            verifyNoInteractions(publishOrderEventPort);
+        }
+    }
+
+    @Nested
     @DisplayName("봉투/메시지 타입 검증")
     class EnvelopeAndMessageType {
 

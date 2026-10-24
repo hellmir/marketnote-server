@@ -530,6 +530,61 @@ class CancelOrderUseCaseTest {
 
             verifyNoInteractions(updateOrderPort);
         }
+
+        @Test
+        @DisplayName("결제 대기 상태에서 일부 상품만 부분 취소하면 SAGA 없이 즉시 CANCELLED 처리된다")
+        void cancelOrder_partialFromPaymentPending_persistsImmediatelyWithoutSaga() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("부분 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L))
+                    .build();
+
+            cancelOrderService.cancelOrder(command);
+
+            ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+            verify(updateOrderPort).update(orderCaptor.capture(), any(OrderStatusHistory.class));
+
+            Order updated = orderCaptor.getValue();
+            OrderProduct cancelledProduct = updated.getOrderProducts().stream()
+                    .filter(op -> op.getPricePolicyId().equals(100L))
+                    .findFirst()
+                    .orElseThrow();
+            assertThat(cancelledProduct.isCancelled()).isTrue();
+            verifyNoInteractions(orderCancelSagaStarter);
+        }
+
+        @Test
+        @DisplayName("결제 대기 상태에서 모든 상품을 부분 취소 지정하면 전체 취소로 위임되어 SAGA 없이 즉시 CANCELLED 처리된다")
+        void cancelOrder_partialAllFromPaymentPending_delegatesToFullCancelWithoutSaga() {
+            Long orderId = 1L;
+            Long buyerId = 100L;
+            Order order = createOrderWithMultipleProducts(orderId, buyerId, OrderStatus.PAYMENT_PENDING);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            CancelOrderCommand command = CancelOrderCommand.builder()
+                    .id(orderId)
+                    .reasonCategory(OrderStatusReasonCategory.CANCEL_ORDER)
+                    .reason("부분 취소")
+                    .buyerId(buyerId)
+                    .pricePolicyIds(List.of(100L, 200L))
+                    .build();
+
+            cancelOrderService.cancelOrder(command);
+
+            ArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);
+            verify(updateOrderPort).update(orderCaptor.capture(), any(OrderStatusHistory.class));
+
+            assertThat(orderCaptor.getValue().getOrderStatus()).isEqualTo(OrderStatus.CANCELLED);
+            verifyNoInteractions(orderCancelSagaStarter);
+        }
     }
 
     // ==================================================================================
