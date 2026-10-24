@@ -3,6 +3,7 @@ package com.personal.marketnote.commerce.adapter.in.event.saga;
 import com.personal.marketnote.commerce.adapter.in.event.saga.payload.PaymentCompletedSagaPayload;
 import com.personal.marketnote.commerce.domain.order.OrderProduct;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.port.in.command.saga.OrderPaymentCompletedSagaContext;
 import com.personal.marketnote.commerce.port.out.event.PublishOrderEventPort;
 import com.personal.marketnote.commerce.service.saga.OrderPaymentCompletedSagaStarter;
@@ -50,14 +51,6 @@ public class OrderPaymentCompletedSagaActionDispatcher {
                 && FormatValidator.hasNoValue(payload.address())) {
             return null;
         }
-        return ShippingAddress.of(
-                payload.recipientName(),
-                payload.recipientPhoneNumber(),
-                payload.zipCode(),
-                payload.address(),
-                payload.addressDetail(),
-                null,
-                payload.deliveryRequestMessage()
-        );
+        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(payload.recipientName()).recipientPhoneNumber(payload.recipientPhoneNumber()).zipCode(payload.zipCode()).address(payload.address()).addressDetail(payload.addressDetail()).deliveryRequestType(null).deliveryRequestMessage(payload.deliveryRequestMessage()).build());
     }
 }

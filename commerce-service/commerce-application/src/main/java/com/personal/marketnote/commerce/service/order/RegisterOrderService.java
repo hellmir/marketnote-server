@@ -5,6 +5,7 @@ import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderAmount;
 import com.personal.marketnote.commerce.domain.order.OrderProductCreateState;
 import com.personal.marketnote.commerce.domain.order.ShippingAddress;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.domain.payment.Payment;
 import com.personal.marketnote.commerce.domain.settlement.PaymentAllocation;
 import com.personal.marketnote.commerce.domain.shipping.ShippingFeeCalculator;
@@ -403,15 +404,7 @@ public class RegisterOrderService implements RegisterOrderUseCase {
     private ShippingAddress resolveShippingAddress(
             RegisterOrderCommand command, ShippingAddressInfoResult addressInfo
     ) {
-        return ShippingAddress.of(
-                addressInfo.recipientName(),
-                addressInfo.recipientPhoneNumber(),
-                null,
-                addressInfo.address(),
-                addressInfo.addressDetail(),
-                command.deliveryRequestType(),
-                command.deliveryRequestMessage()
-        );
+        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(addressInfo.recipientName()).recipientPhoneNumber(addressInfo.recipientPhoneNumber()).zipCode(null).address(addressInfo.address()).addressDetail(addressInfo.addressDetail()).deliveryRequestType(command.deliveryRequestType()).deliveryRequestMessage(command.deliveryRequestMessage()).build());
     }
 
     private long resolveAmount(Long amount) {

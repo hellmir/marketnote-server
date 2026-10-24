@@ -22,23 +22,15 @@ public class ShippingAddress {
     private DeliveryRequestMessage deliveryRequestMessage;
     private PickupRequestType pickupRequestType;
 
-    public static ShippingAddress of(
-            String recipientName,
-            String recipientPhoneNumber,
-            String zipCode,
-            String address,
-            String addressDetail,
-            DeliveryRequestType deliveryRequestType,
-            String deliveryRequestMessage
-    ) {
+    public static ShippingAddress from(ShippingAddressCreateState state) {
         return ShippingAddress.builder()
-                .recipientName(toNullableRecipientName(recipientName))
-                .recipientPhoneNumber(toNullablePhoneNumber(recipientPhoneNumber))
-                .zipCode(zipCode)
-                .address(address)
-                .addressDetail(addressDetail)
-                .deliveryRequestType(deliveryRequestType)
-                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(deliveryRequestMessage))
+                .recipientName(toNullableRecipientName(state.getRecipientName()))
+                .recipientPhoneNumber(toNullablePhoneNumber(state.getRecipientPhoneNumber()))
+                .zipCode(state.getZipCode())
+                .address(state.getAddress())
+                .addressDetail(state.getAddressDetail())
+                .deliveryRequestType(state.getDeliveryRequestType())
+                .deliveryRequestMessage(toDeliveryRequestMessageOrNull(state.getDeliveryRequestMessage()))
                 .build();
     }
 

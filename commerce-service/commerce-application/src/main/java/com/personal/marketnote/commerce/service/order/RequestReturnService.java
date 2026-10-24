@@ -1,6 +1,7 @@
 package com.personal.marketnote.commerce.service.order;
 
 import com.personal.marketnote.commerce.domain.order.*;
+import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.InvalidReasonCategoryException;
 import com.personal.marketnote.commerce.exception.InvalidReturnTargetPricePolicyException;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
@@ -156,15 +157,7 @@ public class RequestReturnService implements RequestReturnUseCase {
     }
 
     private ShippingAddress buildPickupAddress(RequestReturnCommand command) {
-        return ShippingAddress.of(
-                command.pickupRecipientName(),
-                command.pickupRecipientPhoneNumber(),
-                command.pickupZipCode(),
-                command.pickupAddress(),
-                command.pickupAddressDetail(),
-                null,
-                command.pickupRequestMessage()
-        );
+        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(command.pickupRecipientName()).recipientPhoneNumber(command.pickupRecipientPhoneNumber()).zipCode(command.pickupZipCode()).address(command.pickupAddress()).addressDetail(command.pickupAddressDetail()).deliveryRequestType(null).deliveryRequestMessage(command.pickupRequestMessage()).build());
     }
 
     private RegisterFulfillmentReturnDeliveryCommand buildReturnDeliveryCommand(

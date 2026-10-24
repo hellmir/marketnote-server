@@ -146,10 +146,7 @@ class OrderTest {
     @DisplayName("applyPickupAddress에 수령인이 있는 주소를 전달하면 해당 주소가 설정된다")
     void shouldApplyPickupAddressWhenRecipientNameExists() {
         Order order = createOrderWithStatus(OrderStatus.DELIVERED);
-        ShippingAddress pickupAddress = ShippingAddress.of(
-                "회수 담당자", "010-9999-8888", "12345", "회수 주소", "201호",
-                null, null
-        );
+        ShippingAddress pickupAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("회수 담당자").recipientPhoneNumber("010-9999-8888").zipCode("12345").address("회수 주소").addressDetail("201호").deliveryRequestType(null).deliveryRequestMessage(null).build());
 
         order.applyPickupAddress(pickupAddress);
 
@@ -161,9 +158,7 @@ class OrderTest {
     @DisplayName("applyPickupAddress에 수령인이 없는 주소를 전달하면 배송지에서 배송 요청 제거한 주소가 설정된다")
     void shouldFallbackToShippingAddressWithoutDeliveryRequestWhenNoRecipientName() {
         Order order = createOrderWithStatus(OrderStatus.DELIVERED);
-        ShippingAddress pickupAddress = ShippingAddress.of(
-                null, null, null, null, null, null, null
-        );
+        ShippingAddress pickupAddress = ShippingAddress.from(ShippingAddressCreateState.builder().recipientName(null).recipientPhoneNumber(null).zipCode(null).address(null).addressDetail(null).deliveryRequestType(null).deliveryRequestMessage(null).build());
 
         order.applyPickupAddress(pickupAddress);
 
@@ -471,9 +466,6 @@ class OrderTest {
     }
 
     private ShippingAddress createShippingAddress() {
-        return ShippingAddress.of(
-                "홍길동", "010-1234-5678", "06000", "서울시 강남구", "101동 202호",
-                DeliveryRequestType.LEAVE_AT_DOOR, "문 앞에 놓아주세요"
-        );
+        return ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("홍길동").recipientPhoneNumber("010-1234-5678").zipCode("06000").address("서울시 강남구").addressDetail("101동 202호").deliveryRequestType(DeliveryRequestType.LEAVE_AT_DOOR).deliveryRequestMessage("문 앞에 놓아주세요").build());
     }
 }
