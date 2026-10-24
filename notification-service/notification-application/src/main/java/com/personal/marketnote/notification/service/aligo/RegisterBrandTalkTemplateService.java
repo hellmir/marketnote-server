@@ -86,10 +86,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
         if (FormatValidator.hasNoValue(command)) {
             return null;
         }
-        return BrandTalkWideItem.of(
-                command.title(), command.imageUrl(),
-                command.linkM(), command.linkP(), command.linkI(), command.linkA()
-        );
+        return BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title(command.title()).imageUrl(command.imageUrl()).linkM(command.linkM()).linkP(command.linkP()).linkI(command.linkI()).linkA(command.linkA()).build());
     }
 
     private List<BrandTalkWideItem> mapWideItems(List<BrandTalkWideItemCommand> commands) {

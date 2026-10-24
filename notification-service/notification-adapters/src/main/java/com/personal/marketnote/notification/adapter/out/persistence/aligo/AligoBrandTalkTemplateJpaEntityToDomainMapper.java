@@ -81,7 +81,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         }
         try {
             WideItemDto dto = objectMapper.readValue(json, WideItemDto.class);
-            return BrandTalkWideItem.of(dto.title(), dto.imageUrl(), dto.linkM(), dto.linkP(), dto.linkI(), dto.linkA());
+            return BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title(dto.title()).imageUrl(dto.imageUrl()).linkM(dto.linkM()).linkP(dto.linkP()).linkI(dto.linkI()).linkA(dto.linkA()).build());
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -94,7 +94,7 @@ public class AligoBrandTalkTemplateJpaEntityToDomainMapper {
         try {
             List<WideItemDto> dtos = objectMapper.readValue(json, new TypeReference<>() {});
             return dtos.stream()
-                    .map(dto -> BrandTalkWideItem.of(dto.title(), dto.imageUrl(), dto.linkM(), dto.linkP(), dto.linkI(), dto.linkA()))
+                    .map(dto -> BrandTalkWideItem.from(BrandTalkWideItemCreateState.builder().title(dto.title()).imageUrl(dto.imageUrl()).linkM(dto.linkM()).linkP(dto.linkP()).linkI(dto.linkI()).linkA(dto.linkA()).build()))
                     .toList();
         } catch (JsonProcessingException e) {
             return List.of();
