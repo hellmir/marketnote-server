@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
+import com.personal.marketnote.commerce.configuration.AutoConfirmSchedulerProperties;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.exception.OrderStatusAlreadyChangedException;
@@ -43,6 +44,8 @@ class ChangeOrderStatusUseCaseTest {
     private ModifyUserPointPort modifyUserPointPort;
     @Mock
     private PublishOrderEventPort publishOrderEventPort;
+    @Spy
+    private AutoConfirmSchedulerProperties autoConfirmSchedulerProperties = new AutoConfirmSchedulerProperties();
     @Spy
     private Clock clock = Clock.fixed(Instant.parse("2026-03-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 
@@ -256,7 +259,7 @@ class ChangeOrderStatusUseCaseTest {
             Order order = createOrderWithMultipleProducts(orderId, 100L, OrderStatus.RETURN_IN_PROGRESS,
                     pricePolicyId1, pricePolicyId2);
             // 개별 상품도 RETURN_IN_PROGRESS로 설정
-            order.changeAllProductsStatus(OrderStatus.RETURN_IN_PROGRESS, LocalDateTime.now(clock));
+            order.changeAllProductsStatus(OrderStatus.RETURN_IN_PROGRESS, LocalDateTime.now(clock), 0L);
             when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
 
             ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()

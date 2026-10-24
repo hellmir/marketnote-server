@@ -1,5 +1,6 @@
 package com.personal.marketnote.commerce.service.order;
 
+import com.personal.marketnote.commerce.configuration.AutoConfirmSchedulerProperties;
 import com.personal.marketnote.commerce.domain.order.*;
 import com.personal.marketnote.commerce.domain.order.ShippingAddressCreateState;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
@@ -42,6 +43,8 @@ class ChangeOrderStatusPaidProcessUseCaseTest {
     private ModifyUserPointPort modifyUserPointPort;
     @Mock
     private PublishOrderEventPort publishOrderEventPort;
+    @Spy
+    private AutoConfirmSchedulerProperties autoConfirmSchedulerProperties = new AutoConfirmSchedulerProperties();
     @Spy
     private Clock clock = Clock.fixed(Instant.parse("2026-03-01T00:00:00Z"), ZoneId.of("Asia/Seoul"));
 

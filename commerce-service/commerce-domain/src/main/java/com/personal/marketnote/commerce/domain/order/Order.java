@@ -99,10 +99,12 @@ public class Order {
         return orderStatus.isReviewable();
     }
 
-    public void changeProductsStatus(List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now) {
+    public void changeProductsStatus(
+            List<Long> pricePolicyIds, OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays
+    ) {
         orderProducts.stream()
                 .filter(orderProduct -> pricePolicyIds.contains(orderProduct.getPricePolicyId()))
-                .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
+                .forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now, autoConfirmDays));
 
         if (
                 orderStatus.isCancelRequested()
@@ -166,11 +168,11 @@ public class Order {
         this.amount = amount.withPaidAmount(paidAmount);
     }
 
-    public void changeAllProductsStatus(OrderStatus orderStatus, LocalDateTime now) {
+    public void changeAllProductsStatus(OrderStatus orderStatus, LocalDateTime now, long autoConfirmDays) {
         if (this.orderStatus != orderStatus && !this.orderStatus.canTransitionTo(orderStatus)) {
             throw new InvalidOrderStatusTransitionException(this.orderStatus, orderStatus);
         }
-        orderProducts.forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now));
+        orderProducts.forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now, autoConfirmDays));
         this.orderStatus = orderStatus;
     }
 

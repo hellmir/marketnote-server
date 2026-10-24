@@ -47,7 +47,7 @@ public class RejectReturnService implements RejectReturnUseCase {
             log.warn("반품 요청 상태 상품이 없어 반품 불가 전이를 생략합니다. orderId={}", command.id());
             return;
         }
-        order.changeProductsStatus(returnRequestedPricePolicyIds, TARGET_STATUS, now);
+        order.changeProductsStatus(returnRequestedPricePolicyIds, TARGET_STATUS, now, 0L);
 
         OrderStatusHistory orderStatusHistory = OrderStatusHistory.from(
                 OrderStatusHistoryCreateState.builder()

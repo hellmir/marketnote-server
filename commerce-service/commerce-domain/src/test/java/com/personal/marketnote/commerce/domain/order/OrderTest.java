@@ -184,7 +184,7 @@ class OrderTest {
         Order order = createOrderWithProducts(OrderStatus.PAYMENT_EXECUTING);
         LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
 
-        order.changeAllProductsStatus(OrderStatus.PAID, now);
+        order.changeAllProductsStatus(OrderStatus.PAID, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAID);
         order.getOrderProducts().forEach(product ->
@@ -198,7 +198,7 @@ class OrderTest {
         Order order = createOrderWithProducts(OrderStatus.PAYMENT_PENDING);
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.PAID, now))
+        assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.PAID, now, 0L))
                 .isInstanceOf(InvalidOrderStatusTransitionException.class);
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_PENDING);
     }
@@ -209,7 +209,7 @@ class OrderTest {
         Order order = createOrderWithProducts(OrderStatus.PAYMENT_PENDING);
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        order.changeAllProductsStatus(OrderStatus.PAYMENT_EXECUTING, now);
+        order.changeAllProductsStatus(OrderStatus.PAYMENT_EXECUTING, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_EXECUTING);
         order.getOrderProducts().forEach(product ->
@@ -223,7 +223,7 @@ class OrderTest {
         Order order = createOrderWithProducts(OrderStatus.PAYMENT_EXECUTING);
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        order.changeAllProductsStatus(OrderStatus.FAILED, now);
+        order.changeAllProductsStatus(OrderStatus.FAILED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.FAILED);
     }
@@ -234,7 +234,7 @@ class OrderTest {
         Order order = createOrderWithProducts(OrderStatus.CONFIRMED);
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.CANCELLED, now))
+        assertThatThrownBy(() -> order.changeAllProductsStatus(OrderStatus.CANCELLED, now, 0L))
                 .isInstanceOf(InvalidOrderStatusTransitionException.class);
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
     }
@@ -245,7 +245,7 @@ class OrderTest {
         Order order = createOrderWithProducts(OrderStatus.RETURN_IN_PROGRESS);
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        order.changeAllProductsStatus(OrderStatus.RETURN_IN_PROGRESS, now);
+        order.changeAllProductsStatus(OrderStatus.RETURN_IN_PROGRESS, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_IN_PROGRESS);
         order.getOrderProducts().forEach(product ->
@@ -259,7 +259,7 @@ class OrderTest {
         Order order = createOrderWithProducts(OrderStatus.RETURNED);
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        order.changeAllProductsStatus(OrderStatus.RETURNED, now);
+        order.changeAllProductsStatus(OrderStatus.RETURNED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURNED);
     }
@@ -270,7 +270,7 @@ class OrderTest {
         Order order = createOrderWithReturnInProgressProducts();
         LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
 
-        order.changeProductsStatus(List.of(1L), OrderStatus.RETURNED, now);
+        order.changeProductsStatus(List.of(1L), OrderStatus.RETURNED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_RETURNED);
         assertThat(order.getOrderProducts().get(0).getOrderStatus()).isEqualTo(OrderStatus.RETURNED);
@@ -283,7 +283,7 @@ class OrderTest {
         Order order = createOrderWithDeliveredProducts();
         LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
 
-        order.changeProductsStatus(List.of(1L), OrderStatus.CONFIRMED, now);
+        order.changeProductsStatus(List.of(1L), OrderStatus.CONFIRMED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_CONFIRMED);
         assertThat(order.getOrderProducts().get(0).getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
@@ -296,7 +296,7 @@ class OrderTest {
         Order order = createOrderWithDeliveredProducts();
         LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
 
-        order.changeProductsStatus(List.of(1L, 2L), OrderStatus.CONFIRMED, now);
+        order.changeProductsStatus(List.of(1L, 2L), OrderStatus.CONFIRMED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.CONFIRMED);
         order.getOrderProducts().forEach(product ->
@@ -310,7 +310,7 @@ class OrderTest {
         Order order = createOrderWithDeliveredProducts();
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        order.changeProductsStatus(List.of(1L), OrderStatus.RETURN_REQUESTED, now);
+        order.changeProductsStatus(List.of(1L), OrderStatus.RETURN_REQUESTED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_RETURN_REQUESTED);
         assertThat(order.getOrderProducts().get(0).getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
@@ -323,7 +323,7 @@ class OrderTest {
         Order order = createOrderWithDeliveredProducts();
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        order.changeProductsStatus(List.of(1L, 2L), OrderStatus.RETURN_REQUESTED, now);
+        order.changeProductsStatus(List.of(1L, 2L), OrderStatus.RETURN_REQUESTED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.RETURN_REQUESTED);
         order.getOrderProducts().forEach(product ->
@@ -337,7 +337,7 @@ class OrderTest {
         Order order = createOrderWithPartiallyReturnRequestedProducts();
         LocalDateTime now = LocalDateTime.of(2026, 4, 18, 12, 0);
 
-        order.changeProductsStatus(List.of(1L), OrderStatus.RETURN_REJECTED, now);
+        order.changeProductsStatus(List.of(1L), OrderStatus.RETURN_REJECTED, now, 0L);
 
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_RETURN_REQUESTED);
         assertThat(order.getOrderProducts().get(0).getOrderStatus()).isEqualTo(OrderStatus.RETURN_REJECTED);

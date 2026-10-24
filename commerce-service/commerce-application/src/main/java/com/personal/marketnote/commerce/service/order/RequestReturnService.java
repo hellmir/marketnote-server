@@ -150,10 +150,10 @@ public class RequestReturnService implements RequestReturnUseCase {
 
     private void transitionOrderStatus(RequestReturnCommand command, Order order, LocalDateTime now) {
         if (command.isPartialReturn()) {
-            order.changeProductsStatus(command.pricePolicyIds(), TARGET_STATUS, now);
+            order.changeProductsStatus(command.pricePolicyIds(), TARGET_STATUS, now, 0L);
             return;
         }
-        order.changeAllProductsStatus(TARGET_STATUS, now);
+        order.changeAllProductsStatus(TARGET_STATUS, now, 0L);
     }
 
     private ShippingAddress buildPickupAddress(RequestReturnCommand command) {

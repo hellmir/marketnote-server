@@ -94,8 +94,8 @@ public class CompleteReturnService implements CompleteReturnUseCase {
     }
 
     private void transitionToReturned(Order order, List<Long> returnPricePolicyIds, LocalDateTime now) {
-        order.changeProductsStatus(returnPricePolicyIds, OrderStatus.RETURN_IN_PROGRESS, now);
-        order.changeProductsStatus(returnPricePolicyIds, OrderStatus.RETURNED, now);
+        order.changeProductsStatus(returnPricePolicyIds, OrderStatus.RETURN_IN_PROGRESS, now, 0L);
+        order.changeProductsStatus(returnPricePolicyIds, OrderStatus.RETURNED, now, 0L);
     }
 
     private OrderStatusHistory createReturnedHistory(Long orderId, Order order) {
