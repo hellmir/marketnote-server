@@ -5,6 +5,9 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,13 +31,17 @@ import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DisplayName("GlobalExceptionHandler 테스트")
 class GlobalExceptionHandlerTest {
@@ -559,6 +566,60 @@ class GlobalExceptionHandlerTest {
             assertThat(Modifier.isPrivate(logField.getModifiers())).isTrue();
             assertThat(Modifier.isStatic(logField.getModifiers())).isTrue();
             assertThat(Modifier.isFinal(logField.getModifiers())).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("ConstraintViolationException 핸들러")
+    class ConstraintViolationExceptionHandlerTest {
+
+        @SuppressWarnings("unchecked")
+        private ConstraintViolation<Object> mockViolation(String propertyPath, String message) {
+            ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+            Path path = mock(Path.class);
+            when(path.toString()).thenReturn(propertyPath);
+            when(violation.getPropertyPath()).thenReturn(path);
+            when(violation.getMessage()).thenReturn(message);
+            return violation;
+        }
+
+        @Test
+        @DisplayName("ConstraintViolationException이 발생하면 400 상태로 응답한다")
+        void shouldReturn400ForConstraintViolationException() {
+            Set<ConstraintViolation<?>> violations = new HashSet<>();
+            violations.add(mockViolation("getMyGifticonOrders.pageSize", "100 이하여야 합니다"));
+            ConstraintViolationException exception = new ConstraintViolationException(violations);
+
+            ResponseEntity<ErrorResponse> response = handler.handleConstraintViolationException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("ConstraintViolationException 메시지에 위반 내용이 포함된다")
+        void shouldIncludeViolationDetailsInMessage() {
+            Set<ConstraintViolation<?>> violations = new HashSet<>();
+            violations.add(mockViolation("getMyGifticonOrders.pageSize", "100 이하여야 합니다"));
+            ConstraintViolationException exception = new ConstraintViolationException(violations);
+
+            ResponseEntity<ErrorResponse> response = handler.handleConstraintViolationException(exception);
+
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).contains("getMyGifticonOrders.pageSize");
+            assertThat(response.getBody().getMessage()).contains("100 이하여야 합니다");
+        }
+
+        @Test
+        @DisplayName("ConstraintViolationException 위반 집합이 비어있으면 기본 메시지를 반환한다")
+        void shouldReturnDefaultMessageWhenViolationsEmpty() {
+            ConstraintViolationException exception = new ConstraintViolationException(new HashSet<>());
+
+            ResponseEntity<ErrorResponse> response = handler.handleConstraintViolationException(exception);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody().getMessage()).isEqualTo("요청 파라미터가 올바르지 않습니다.");
         }
     }
 
