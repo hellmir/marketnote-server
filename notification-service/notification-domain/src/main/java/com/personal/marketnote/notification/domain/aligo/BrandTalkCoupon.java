@@ -18,18 +18,15 @@ public class BrandTalkCoupon {
     private String linkI;
     private String linkA;
 
-    public static BrandTalkCoupon of(
-            String title, String description,
-            String linkM, String linkP, String linkI, String linkA
-    ) {
-        validate(title, description);
+    public static BrandTalkCoupon from(BrandTalkCouponCreateState state) {
+        validate(state.getTitle(), state.getDescription());
         return BrandTalkCoupon.builder()
-                .title(title)
-                .description(description)
-                .linkM(linkM)
-                .linkP(linkP)
-                .linkI(linkI)
-                .linkA(linkA)
+                .title(state.getTitle())
+                .description(state.getDescription())
+                .linkM(state.getLinkM())
+                .linkP(state.getLinkP())
+                .linkI(state.getLinkI())
+                .linkA(state.getLinkA())
                 .build();
     }
 

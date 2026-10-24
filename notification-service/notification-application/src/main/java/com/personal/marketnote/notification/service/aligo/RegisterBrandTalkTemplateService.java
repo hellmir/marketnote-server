@@ -79,11 +79,7 @@ public class RegisterBrandTalkTemplateService implements RegisterBrandTalkTempla
         if (FormatValidator.hasNoValue(couponCommand)) {
             return null;
         }
-        return BrandTalkCoupon.of(
-                couponCommand.title(), couponCommand.description(),
-                couponCommand.linkM(), couponCommand.linkP(),
-                couponCommand.linkI(), couponCommand.linkA()
-        );
+        return BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title(couponCommand.title()).description(couponCommand.description()).linkM(couponCommand.linkM()).linkP(couponCommand.linkP()).linkI(couponCommand.linkI()).linkA(couponCommand.linkA()).build());
     }
 
     private BrandTalkWideItem mapWideItem(BrandTalkWideItemCommand command) {

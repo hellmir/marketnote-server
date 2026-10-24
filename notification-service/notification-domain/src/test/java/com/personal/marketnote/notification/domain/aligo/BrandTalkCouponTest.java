@@ -15,10 +15,7 @@ class BrandTalkCouponTest {
         String longDescription = "가".repeat(129);
 
         // when & then
-        assertThatThrownBy(() -> BrandTalkCoupon.of(
-                "할인 쿠폰", longDescription,
-                "https://m.example.com", "https://www.example.com", null, null
-        )).isInstanceOf(InvalidBrandTalkCouponException.class);
+        assertThatThrownBy(() -> BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title("할인 쿠폰").description(longDescription).linkM("https://m.example.com").linkP("https://www.example.com").linkI(null).linkA(null).build())).isInstanceOf(InvalidBrandTalkCouponException.class);
     }
 
     @Test
@@ -28,10 +25,7 @@ class BrandTalkCouponTest {
         String validDescription = "가".repeat(128);
 
         // when
-        BrandTalkCoupon coupon = BrandTalkCoupon.of(
-                "할인 쿠폰", validDescription,
-                "https://m.example.com", "https://www.example.com", null, null
-        );
+        BrandTalkCoupon coupon = BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title("할인 쿠폰").description(validDescription).linkM("https://m.example.com").linkP("https://www.example.com").linkI(null).linkA(null).build());
 
         // then
         assertThat(coupon.getTitle()).isEqualTo("할인 쿠폰");
@@ -41,9 +35,6 @@ class BrandTalkCouponTest {
     @Test
     @DisplayName("BrandTalkCoupon — title 필수 검증")
     void shouldThrowExceptionWhenTitleIsEmpty() {
-        assertThatThrownBy(() -> BrandTalkCoupon.of(
-                null, "설명",
-                null, null, null, null
-        )).isInstanceOf(InvalidBrandTalkCouponException.class);
+        assertThatThrownBy(() -> BrandTalkCoupon.from(BrandTalkCouponCreateState.builder().title(null).description("설명").linkM(null).linkP(null).linkI(null).linkA(null).build())).isInstanceOf(InvalidBrandTalkCouponException.class);
     }
 }
