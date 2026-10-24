@@ -14,6 +14,7 @@ import com.personal.marketnote.fulfillment.exception.FulfillmentDeliveryRegistra
 import com.personal.marketnote.fulfillment.port.in.command.CancelInternalFulfillmentDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.result.CancelInternalFulfillmentDeliveryResult;
 import com.personal.marketnote.fulfillment.port.in.usecase.CancelInternalFulfillmentDeliveryUseCase;
+import com.personal.marketnote.fulfillment.port.out.event.PublishOrderCancelFailedEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -46,6 +47,7 @@ public class OrderCancelFulfillmentSagaConsumer {
     private final ObjectMapper objectMapper;
     private final CancelInternalFulfillmentDeliveryUseCase cancelInternalFulfillmentDeliveryUseCase;
     private final SagaResponsePublisher sagaResponsePublisher;
+    private final PublishOrderCancelFailedEventPort publishOrderCancelFailedEventPort;
 
     @KafkaListener(
             topics = KafkaTopicConstants.SAGA_ORDER_CANCEL_FULFILLMENT,
@@ -92,21 +94,23 @@ public class OrderCancelFulfillmentSagaConsumer {
 
     private void handleAction(SagaStepMessage stepMessage) {
         Long orderId = null;
+        Long buyerId = null;
         try {
             OrderCancelFulfillmentSagaPayload payload = objectMapper.readValue(
                     stepMessage.payload(), OrderCancelFulfillmentSagaPayload.class
             );
 
             if (FormatValidator.hasNoValue(payload.orderId())) {
-                publishValidationFailure(stepMessage, "orderId 누락");
+                publishValidationFailure(stepMessage, null, null, "orderId 누락");
                 return;
             }
             if (FormatValidator.hasNoValue(payload.originalStatus())) {
-                publishValidationFailure(stepMessage, "originalStatus 누락");
+                publishValidationFailure(stepMessage, payload.orderId(), payload.buyerId(), "originalStatus 누락");
                 return;
             }
 
             orderId = payload.orderId();
+            buyerId = payload.buyerId();
 
             if (!REQUIRES_FULFILLMENT_CANCEL.equals(payload.originalStatus())) {
                 log.info("풀필먼트 취소 불필요 (originalStatus={}). sagaId={}, orderId={}",
@@ -136,6 +140,7 @@ public class OrderCancelFulfillmentSagaConsumer {
                         stepMessage.messageType(),
                         "주문 취소 풀필먼트 처리 거부: orderId=" + orderId + ", " + result.message()
                 );
+                publishOrderCancelFailedSafely(orderId, buyerId);
                 return;
             }
 
@@ -173,6 +178,7 @@ public class OrderCancelFulfillmentSagaConsumer {
                     stepMessage.messageType(),
                     "주문 취소 풀필먼트 처리 실패: orderId=" + orderId
             );
+            publishOrderCancelFailedSafely(orderId, buyerId);
         }
     }
 
@@ -192,7 +198,7 @@ public class OrderCancelFulfillmentSagaConsumer {
         }
     }
 
-    private void publishValidationFailure(SagaStepMessage stepMessage, String reason) {
+    private void publishValidationFailure(SagaStepMessage stepMessage, Long orderId, Long buyerId, String reason) {
         log.warn("SAGA 주문 취소 풀필먼트 스텝 페이로드 검증 실패. sagaId={}, reason={}",
                 stepMessage.sagaId(), reason
         );
@@ -200,5 +206,19 @@ public class OrderCancelFulfillmentSagaConsumer {
                 stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
                 stepMessage.messageType(), "페이로드 검증 실패: " + reason
         );
+        publishOrderCancelFailedSafely(orderId, buyerId);
+    }
+
+    private void publishOrderCancelFailedSafely(Long orderId, Long buyerId) {
+        if (FormatValidator.hasNoValue(orderId) || FormatValidator.hasNoValue(buyerId)) {
+            return;
+        }
+        try {
+            publishOrderCancelFailedEventPort.publish(orderId, buyerId);
+        } catch (Exception e) {
+            log.error("OrderCancelFailedEvent 발행 실패. orderId={}, buyerId={}",
+                    orderId, buyerId, e
+            );
+        }
     }
 }
