@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
+import com.personal.marketnote.reward.configuration.RewardProperties;
 import com.personal.marketnote.reward.domain.point.PointAmount;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointSnapshotState;
@@ -24,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -72,12 +72,15 @@ class OrderPaymentCompletedSharedPointSagaConsumerTest {
     @Mock
     private SagaResponsePublisher sagaResponsePublisher;
 
+    @Spy
+    private RewardProperties rewardProperties = new RewardProperties();
+
     @Mock
     private Acknowledgment acknowledgment;
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(consumer, "sharePointRate", new BigDecimal("0.1"));
+        rewardProperties.setSharePointRate(new BigDecimal("0.1"));
     }
 
     @Nested

@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent;
 import com.personal.marketnote.common.kafka.event.OrderPaymentCompletedEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.configuration.RewardProperties;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
@@ -15,7 +16,6 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingSharedP
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -36,9 +36,7 @@ public class OrderPaymentCompletedSharedPointConsumer {
 
     private final ModifyPendingSharedPointUseCase modifyPendingSharedPointUseCase;
     private final ObjectMapper objectMapper;
-
-    @Value("${reward.share-point-rate:0.1}")
-    private BigDecimal sharePointRate;
+    private final RewardProperties rewardProperties;
 
     @KafkaListener(
             topics = KafkaTopicConstants.ORDER_PAYMENT_COMPLETED,
@@ -89,6 +87,7 @@ public class OrderPaymentCompletedSharedPointConsumer {
                 return;
             }
 
+            BigDecimal sharePointRate = rewardProperties.getSharePointRate();
             long sharePointAmount = calculateSharedPoint(payload.totalAmount(), sharePointRate);
             if (sharePointAmount <= 0) {
                 log.info("공유 포인트 적립 금액이 0 이하 (적립 생략). orderId={}, totalAmount={}, sharePointRate={}",
