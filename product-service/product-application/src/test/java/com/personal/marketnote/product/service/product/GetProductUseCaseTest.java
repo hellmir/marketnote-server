@@ -118,11 +118,11 @@ class GetProductUseCaseTest {
     @DisplayName("첫 페이지 상품 목록 조회 시 ReadModel 기반으로 전체 개수와 Next Cursor를 반환한다")
     void getProducts_firstPage_returnsTotalElementsAndNextCursor() {
         ProductCatalogItemResult item1 = buildCatalogItem(100L, 10L, "상품10",
-                "https://cdn/c10.jpg", List.of("https://cdn/c10-sm.jpg"), 7, 4.2f, 5);
+                "https://cdn/c10.jpg", List.of("https://cdn/c10-sm.jpg"), 7, new BigDecimal("4.20"), 5);
         ProductCatalogItemResult item2 = buildCatalogItem(200L, 20L, "상품20",
-                null, null, 0, 0f, 0);
+                null, null, 0, BigDecimal.ZERO, 0);
         ProductCatalogItemResult itemOverflow = buildCatalogItem(300L, 30L, "상품30",
-                null, null, 0, 0f, 0);
+                null, null, 0, BigDecimal.ZERO, 0);
 
         when(findProductCatalogReadModelPort.findCatalogItems(
                 isNull(), isNull(), eq(-1L), eq(3), eq(false),
@@ -149,14 +149,14 @@ class GetProductUseCaseTest {
         assertThat(first.getCatalogImage().storageUrl()).isEqualTo("https://cdn/c10.jpg");
         assertThat(first.getCatalogImage().resizedStorageUrls()).containsExactly("https://cdn/c10-sm.jpg");
         assertThat(first.getStock()).isEqualTo(7);
-        assertThat(first.getAverageRating()).isEqualTo(4.2f);
+        assertThat(first.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.20"));
         assertThat(first.getTotalCount()).isEqualTo(5);
 
         ProductItemResult second = result.products().get(1);
         assertThat(second.getId()).isEqualTo(20L);
         assertThat(second.getCatalogImage()).isNull();
         assertThat(second.getStock()).isZero();
-        assertThat(second.getAverageRating()).isZero();
+        assertThat(second.getAverageRating()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(second.getTotalCount()).isZero();
     }
 
@@ -164,7 +164,7 @@ class GetProductUseCaseTest {
     @DisplayName("첫 페이지가 아니면(Cursor 값 존재) 총 개수 조회를 생략한다")
     void getProducts_withCursor_skipsTotalElements() {
         ProductCatalogItemResult item = buildCatalogItem(400L, 40L, "상품40",
-                null, null, 3, 0f, 0);
+                null, null, 3, BigDecimal.ZERO, 0);
 
         when(findProductCatalogReadModelPort.findCatalogItems(
                 eq(5L), isNull(), eq(100L), eq(3), eq(true),
@@ -189,7 +189,7 @@ class GetProductUseCaseTest {
     @DisplayName("가격 정책 ID 목록으로 조회 시 ReadModel Port 로 필터링한다")
     void getProducts_withPricePolicyIds_passesFilter() {
         ProductCatalogItemResult item = buildCatalogItem(500L, 50L, "상품50",
-                "https://cdn/c50.jpg", List.of(), 9, 0f, 0);
+                "https://cdn/c50.jpg", List.of(), 9, BigDecimal.ZERO, 0);
 
         when(findProductCatalogReadModelPort.findCatalogItems(
                 isNull(), eq(List.of(500L)), eq(-1L), eq(2), eq(false),
@@ -238,7 +238,7 @@ class GetProductUseCaseTest {
     @DisplayName("카테고리 첫 페이지 조회 시 카테고리 필터를 Port 에 전달한다")
     void getProducts_categoryFirstPage_passesCategoryFilter() {
         ProductCatalogItemResult item = buildCatalogItem(701L, 70L, "상품70",
-                null, null, 4, 0f, 0);
+                null, null, 4, BigDecimal.ZERO, 0);
 
         when(findProductCatalogReadModelPort.findCatalogItems(
                 eq(7L), any(), eq(-1L), anyInt(), anyBoolean(), any(), any(), any()
@@ -263,11 +263,11 @@ class GetProductUseCaseTest {
     @DisplayName("ACCUMULATED_POINT_RATE 정렬로 첫 페이지 조회 시 정렬 속성을 Port 에 전달한다")
     void getProducts_accumulatedPointRateDescFirstPage() {
         ProductCatalogItemResult item1 = buildCatalogItem(1201L, 120L, "상품120",
-                null, null, 5, 0f, 0);
+                null, null, 5, BigDecimal.ZERO, 0);
         ProductCatalogItemResult item2 = buildCatalogItem(1301L, 130L, "상품130",
-                null, null, 3, 0f, 0);
+                null, null, 3, BigDecimal.ZERO, 0);
         ProductCatalogItemResult itemOverflow = buildCatalogItem(1401L, 140L, "상품140",
-                null, null, 0, 0f, 0);
+                null, null, 0, BigDecimal.ZERO, 0);
 
         when(findProductCatalogReadModelPort.findCatalogItems(
                 isNull(), isNull(), eq(-1L), anyInt(), anyBoolean(),
@@ -388,7 +388,7 @@ class GetProductUseCaseTest {
     private ProductCatalogItemResult buildCatalogItem(
             Long pricePolicyId, Long productId, String name,
             String representativeImageUrl, List<String> resizedImageUrls,
-            int stockQuantity, float reviewAverageRating, int reviewCount
+            int stockQuantity, BigDecimal reviewAverageRating, int reviewCount
     ) {
         return new ProductCatalogItemResult(
                 pricePolicyId,

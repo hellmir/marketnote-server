@@ -104,7 +104,7 @@ class ProductItemResultTest {
                 List.of("https://cdn.example/sm.jpg", "https://cdn.example/md.jpg"),
                 50,
                 12,
-                4.5f, 0L, java.util.List.of(), java.util.List.of(),
+                new BigDecimal("4.50"), 0L, java.util.List.of(), java.util.List.of(),
                 EntityStatus.ACTIVE.name()
         );
 
@@ -123,7 +123,7 @@ class ProductItemResultTest {
         assertThat(result.getCatalogImage().resizedStorageUrls())
                 .containsExactly("https://cdn.example/sm.jpg", "https://cdn.example/md.jpg");
         assertThat(result.getStock()).isEqualTo(50);
-        assertThat(result.getAverageRating()).isEqualTo(4.5f);
+        assertThat(result.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.50"));
         assertThat(result.getTotalCount()).isEqualTo(12);
         assertThat(result.getOrderNum()).isEqualTo(5L);
         assertThat(result.getStatus()).isEqualTo(EntityStatus.ACTIVE.name());
@@ -137,7 +137,7 @@ class ProductItemResultTest {
         ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
                 200L, 20L, 2L, null, "이미지없음", null,
                 5_000L, 5_000L, BigDecimal.ZERO, 0L, BigDecimal.ZERO, 0L, 0L,
-                null, List.of(), 0, 0, 0f, 0L, java.util.List.of(), java.util.List.of(), EntityStatus.ACTIVE.name()
+                null, List.of(), 0, 0, BigDecimal.ZERO, 0L, java.util.List.of(), java.util.List.of(), EntityStatus.ACTIVE.name()
         );
 
         // when
@@ -146,7 +146,7 @@ class ProductItemResultTest {
         // then
         assertThat(result.getCatalogImage()).isNull();
         assertThat(result.getStock()).isZero();
-        assertThat(result.getAverageRating()).isZero();
+        assertThat(result.getAverageRating()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(result.getTotalCount()).isZero();
     }
 
@@ -157,7 +157,7 @@ class ProductItemResultTest {
         ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
                 100L, 10L, 1L, 7L, "태그 상품", "브랜드",
                 10_000L, 9_000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.ONE, 5L, 3L,
-                null, List.of(), 0, 0, 0f,
+                null, List.of(), 0, 0, BigDecimal.ZERO,
                 250L,
                 List.of(
                         new ProductCatalogTagSnapshot(10L, "NEW", 1L),
@@ -195,7 +195,7 @@ class ProductItemResultTest {
         ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
                 100L, 10L, 1L, null, "상품", null,
                 1L, 1L, BigDecimal.ZERO, 0L, BigDecimal.ZERO, 0L, 0L,
-                null, List.of(), 0, 0, 0f,
+                null, List.of(), 0, 0, BigDecimal.ZERO,
                 ((long) Integer.MAX_VALUE) + 100L,
                 java.util.List.of(), java.util.List.of(),
                 EntityStatus.ACTIVE.name()
@@ -215,7 +215,7 @@ class ProductItemResultTest {
         ProductCatalogItemResult catalogItem = new ProductCatalogItemResult(
                 300L, 30L, 3L, 9L, "리사이즈 없음", "브랜드",
                 1_000L, 900L, BigDecimal.valueOf(10.0), 10L, BigDecimal.ONE, 1L, 1L,
-                "https://cdn.example/main.jpg", null, 1, 1, 3.0f, 0L, java.util.List.of(), java.util.List.of(), EntityStatus.ACTIVE.name()
+                "https://cdn.example/main.jpg", null, 1, 1, new BigDecimal("3.00"), 0L, java.util.List.of(), java.util.List.of(), EntityStatus.ACTIVE.name()
         );
 
         // when

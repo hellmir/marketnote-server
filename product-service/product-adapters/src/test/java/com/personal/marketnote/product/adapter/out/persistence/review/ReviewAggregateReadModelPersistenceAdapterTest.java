@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,14 +46,14 @@ class ReviewAggregateReadModelPersistenceAdapterTest {
         @DisplayName("신규 상품의 리뷰 집계를 저장한다")
         void insertsNewReviewAggregate() {
             // when
-            adapter.upsert(100L, 10, 4.5f);
+            adapter.upsert(100L, 10, new BigDecimal("4.50"));
 
             // then
             Optional<ReviewAggregateReadModelJpaEntity> entity = repository.findByProductId(100L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getProductId()).isEqualTo(100L);
             assertThat(entity.get().getTotalCount()).isEqualTo(10);
-            assertThat(entity.get().getAverageRating()).isEqualTo(4.5f);
+            assertThat(entity.get().getAverageRating()).isEqualByComparingTo(new BigDecimal("4.50"));
             assertThat(entity.get().getStatus()).isEqualTo(EntityStatus.ACTIVE);
         }
 
@@ -60,32 +61,32 @@ class ReviewAggregateReadModelPersistenceAdapterTest {
         @DisplayName("동일한 productId로 upsert 시 기존 데이터를 업데이트한다")
         void updatesExistingReviewAggregate() {
             // given
-            adapter.upsert(100L, 10, 4.5f);
+            adapter.upsert(100L, 10, new BigDecimal("4.50"));
 
             // when
-            adapter.upsert(100L, 11, 4.6f);
+            adapter.upsert(100L, 11, new BigDecimal("4.60"));
 
             // then
             Optional<ReviewAggregateReadModelJpaEntity> entity = repository.findByProductId(100L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getTotalCount()).isEqualTo(11);
-            assertThat(entity.get().getAverageRating()).isEqualTo(4.6f);
+            assertThat(entity.get().getAverageRating()).isEqualByComparingTo(new BigDecimal("4.60"));
         }
 
         @Test
         @DisplayName("동일한 값으로 upsert 시 멱등하게 처리된다")
         void idempotentUpsert() {
             // given
-            adapter.upsert(100L, 10, 4.5f);
+            adapter.upsert(100L, 10, new BigDecimal("4.50"));
 
             // when
-            adapter.upsert(100L, 10, 4.5f);
+            adapter.upsert(100L, 10, new BigDecimal("4.50"));
 
             // then
             Optional<ReviewAggregateReadModelJpaEntity> entity = repository.findByProductId(100L);
             assertThat(entity).isPresent();
             assertThat(entity.get().getTotalCount()).isEqualTo(10);
-            assertThat(entity.get().getAverageRating()).isEqualTo(4.5f);
+            assertThat(entity.get().getAverageRating()).isEqualByComparingTo(new BigDecimal("4.50"));
         }
     }
 
@@ -97,9 +98,9 @@ class ReviewAggregateReadModelPersistenceAdapterTest {
         @DisplayName("ACTIVE 상태의 리뷰 집계를 productId 목록으로 조회한다")
         void returnsActiveReviewAggregates() {
             // given
-            adapter.upsert(100L, 10, 4.5f);
-            adapter.upsert(200L, 5, 3.8f);
-            adapter.upsert(300L, 20, 4.9f);
+            adapter.upsert(100L, 10, new BigDecimal("4.50"));
+            adapter.upsert(200L, 5, new BigDecimal("3.80"));
+            adapter.upsert(300L, 20, new BigDecimal("4.90"));
 
             // when
             Map<Long, ProductReviewAggregateResult> result =
@@ -108,18 +109,18 @@ class ReviewAggregateReadModelPersistenceAdapterTest {
             // then
             assertThat(result).hasSize(3);
             assertThat(result.get(100L).totalCount()).isEqualTo(10);
-            assertThat(result.get(100L).averageRating()).isEqualTo(4.5f);
+            assertThat(result.get(100L).averageRating()).isEqualByComparingTo(new BigDecimal("4.50"));
             assertThat(result.get(200L).totalCount()).isEqualTo(5);
-            assertThat(result.get(200L).averageRating()).isEqualTo(3.8f);
+            assertThat(result.get(200L).averageRating()).isEqualByComparingTo(new BigDecimal("3.80"));
             assertThat(result.get(300L).totalCount()).isEqualTo(20);
-            assertThat(result.get(300L).averageRating()).isEqualTo(4.9f);
+            assertThat(result.get(300L).averageRating()).isEqualByComparingTo(new BigDecimal("4.90"));
         }
 
         @Test
         @DisplayName("존재하지 않는 productId는 결과에 포함되지 않는다")
         void excludesNonExistentProductIds() {
             // given
-            adapter.upsert(100L, 10, 4.5f);
+            adapter.upsert(100L, 10, new BigDecimal("4.50"));
 
             // when
             Map<Long, ProductReviewAggregateResult> result =

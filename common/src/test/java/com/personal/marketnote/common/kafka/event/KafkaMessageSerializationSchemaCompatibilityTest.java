@@ -22,6 +22,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.EmbeddedKafkaKraftBroker;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
@@ -204,7 +205,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
         @DisplayName("ReviewRegisteredEvent를 EventEnvelope에 담아 직렬화/역직렬화 라운드트립 시 모든 필드가 보존된다")
         void reviewRegisteredEvent_roundTrip_preservesAllFields() throws Exception {
             // given
-            ReviewRegisteredEvent event = new ReviewRegisteredEvent(50L, 60L, 100L, 10, 4.5f, 1L, 200L);
+            ReviewRegisteredEvent event = new ReviewRegisteredEvent(50L, 60L, 100L, 10, new BigDecimal("4.50"), 1L, 200L);
             EventEnvelope<ReviewRegisteredEvent> envelope = EventEnvelope.of(
                     "community.review.registered", "community-service", event, FIXED_CLOCK);
 
@@ -217,7 +218,7 @@ class KafkaMessageSerializationSchemaCompatibilityTest {
             assertThat(result.pricePolicyId()).isEqualTo(60L);
             assertThat(result.productId()).isEqualTo(100L);
             assertThat(result.totalCount()).isEqualTo(10);
-            assertThat(result.averageRating()).isEqualTo(4.5f);
+            assertThat(result.averageRating()).isEqualByComparingTo(new BigDecimal("4.50"));
         }
 
         @Test

@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class ProductItemResult {
     private GetFileResult catalogImage;
     private List<ProductOptionItemResult> selectedOptions;
     private Integer stock;
-    private Float averageRating;
+    private BigDecimal averageRating;
     private Integer totalCount;
     private String status;
     private Long orderNum;
@@ -110,7 +111,7 @@ public class ProductItemResult {
             ProductItemResult productItemResult,
             GetFileResult catalogImage,
             Integer stock,
-            Float averageRating,
+            BigDecimal averageRating,
             Integer totalCount
     ) {
         return ProductItemResult.builder()
@@ -144,7 +145,7 @@ public class ProductItemResult {
                 .selectedOptions(toSelectedOptions(catalogItem.selectedOptions()))
                 .stock(FormatValidator.hasValue(catalogItem.stockQuantity()) ? catalogItem.stockQuantity() : 0)
                 .averageRating(FormatValidator.hasValue(catalogItem.reviewAverageRating())
-                        ? catalogItem.reviewAverageRating() : 0f)
+                        ? catalogItem.reviewAverageRating() : BigDecimal.ZERO)
                 .totalCount(FormatValidator.hasValue(catalogItem.reviewCount())
                         ? catalogItem.reviewCount() : 0)
                 .status(catalogItem.status())

@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -26,7 +27,7 @@ public class ProductItemResponse {
     private GetFileResult catalogImage;
     private List<ProductOptionItemResult> selectedOptions;
     private Integer stock;
-    private Float averageRating;
+    private BigDecimal averageRating;
     private Integer totalCount;
     private String status;
     private Long orderNum;

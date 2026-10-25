@@ -32,7 +32,7 @@ public interface SaveProductCatalogReadModelPort {
 
     void updateRepresentativeImage(Long productId, String representativeImageUrl, List<String> resizedImageUrls);
 
-    void updateReviewAggregate(Long productId, Integer reviewCount, Float reviewAverageRating);
+    void updateReviewAggregate(Long productId, Integer reviewCount, BigDecimal reviewAverageRating);
 
     void deleteByPricePolicyId(Long pricePolicyId);
 

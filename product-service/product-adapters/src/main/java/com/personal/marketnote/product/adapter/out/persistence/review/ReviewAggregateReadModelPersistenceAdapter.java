@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +50,7 @@ public class ReviewAggregateReadModelPersistenceAdapter implements FindProductRe
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void upsert(Long productId, Integer totalCount, Float averageRating) {
+    public void upsert(Long productId, Integer totalCount, BigDecimal averageRating) {
         Optional<ReviewAggregateReadModelJpaEntity> existing =
                 reviewAggregateReadModelJpaRepository.findByProductId(productId);
 

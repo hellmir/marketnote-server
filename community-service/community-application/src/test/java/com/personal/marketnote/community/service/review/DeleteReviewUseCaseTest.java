@@ -67,7 +67,7 @@ class DeleteReviewUseCaseTest {
         inOrder.verify(updateReviewPort).update(aggregate);
         inOrder.verify(publishReviewEventPort).publishReviewDeletedEvent(
                 eq(reviewId), eq(productId),
-                eq(aggregate.getTotalCount()), eq(aggregate.getAverageRating().floatValue()),
+                eq(aggregate.getTotalCount()), eq(aggregate.getAverageRating()),
                 eq(reviewerId)
         );
     }

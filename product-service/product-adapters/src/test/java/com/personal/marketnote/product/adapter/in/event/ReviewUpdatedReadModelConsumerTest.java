@@ -15,6 +15,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -58,7 +59,7 @@ class ReviewUpdatedReadModelConsumerTest {
     @DisplayName("정상 이벤트 수신 시 Read Model을 upsert한다")
     void handleReviewUpdatedEvent_validEvent_upsertsReadModel() {
         // given
-        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, 50L, 10, 4.5f);
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, 50L, 10, new BigDecimal("4.50"));
         EventEnvelope<ReviewUpdatedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -66,7 +67,7 @@ class ReviewUpdatedReadModelConsumerTest {
         consumer.handleReviewUpdatedEvent(record, acknowledgment);
 
         // then
-        verify(saveReviewAggregateReadModelPort).upsert(50L, 10, 4.5f);
+        verify(saveReviewAggregateReadModelPort).upsert(50L, 10, new BigDecimal("4.50"));
         verify(acknowledgment).acknowledge();
     }
 
@@ -90,7 +91,7 @@ class ReviewUpdatedReadModelConsumerTest {
     @DisplayName("이벤트 타입이 불일치하면 즉시 acknowledge한다")
     void handleReviewUpdatedEvent_eventTypeMismatch_acknowledges() {
         // given
-        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, 50L, 10, 4.5f);
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, 50L, 10, new BigDecimal("4.50"));
         EventEnvelope<ReviewUpdatedEvent> envelope = new EventEnvelope<>(
                 "test-event-id",
                 "wrong.event.type",
@@ -112,7 +113,7 @@ class ReviewUpdatedReadModelConsumerTest {
     @DisplayName("reviewId가 유효하지 않으면 즉시 acknowledge한다")
     void handleReviewUpdatedEvent_invalidReviewId_acknowledges() {
         // given
-        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(-1L, 50L, 10, 4.5f);
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(-1L, 50L, 10, new BigDecimal("4.50"));
         EventEnvelope<ReviewUpdatedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -128,7 +129,7 @@ class ReviewUpdatedReadModelConsumerTest {
     @DisplayName("productId가 유효하지 않으면 즉시 acknowledge한다")
     void handleReviewUpdatedEvent_invalidProductId_acknowledges() {
         // given
-        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, 0L, 10, 4.5f);
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, 0L, 10, new BigDecimal("4.50"));
         EventEnvelope<ReviewUpdatedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -144,7 +145,7 @@ class ReviewUpdatedReadModelConsumerTest {
     @DisplayName("reviewId가 null이면 즉시 acknowledge한다")
     void handleReviewUpdatedEvent_nullReviewId_acknowledges() {
         // given
-        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(null, 50L, 10, 4.5f);
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(null, 50L, 10, new BigDecimal("4.50"));
         EventEnvelope<ReviewUpdatedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 
@@ -160,7 +161,7 @@ class ReviewUpdatedReadModelConsumerTest {
     @DisplayName("productId가 null이면 즉시 acknowledge한다")
     void handleReviewUpdatedEvent_nullProductId_acknowledges() {
         // given
-        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, null, 10, 4.5f);
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(1L, null, 10, new BigDecimal("4.50"));
         EventEnvelope<ReviewUpdatedEvent> envelope = createEnvelope(payload);
         ConsumerRecord<String, EventEnvelope<?>> record = createRecord(envelope);
 

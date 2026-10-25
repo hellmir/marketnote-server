@@ -334,7 +334,7 @@ public class ProductCatalogReadModelSyncConsumer {
                 && payload.sortOrder() == 0;
     }
 
-    private boolean hasInvalidReviewAggregate(Long productId, Integer totalCount, Float averageRating) {
+    private boolean hasInvalidReviewAggregate(Long productId, Integer totalCount, BigDecimal averageRating) {
         if (FormatValidator.hasNoValue(productId) || productId <= 0) {
             return true;
         }
