@@ -105,8 +105,8 @@ class ReviewStatsQueryRepositoryImplTest {
     class CountByReviewerId {
 
         @Test
-        @DisplayName("해당 사용자의 전체 리뷰 수를 반환한다(INACTIVE 포함)")
-        void countsAllIncludingInactive() {
+        @DisplayName("해당 사용자의 ACTIVE 리뷰 수만 반환한다 (INACTIVE 제외)")
+        void countsOnlyActive() {
             saveReview(PRODUCT_ID, REVIEWER_ID, 3.0f, false);
             saveReview(PRODUCT_ID, REVIEWER_ID, 3.0f, false);
             ReviewJpaEntity inactive = saveReview(PRODUCT_ID, REVIEWER_ID, 3.0f, false);
@@ -116,7 +116,7 @@ class ReviewStatsQueryRepositoryImplTest {
 
             long count = reviewRepository.countByReviewerId(REVIEWER_ID);
 
-            assertThat(count).isEqualTo(3L);
+            assertThat(count).isEqualTo(2L);
         }
 
         @Test
