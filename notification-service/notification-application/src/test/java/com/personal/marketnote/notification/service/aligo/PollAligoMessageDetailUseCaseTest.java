@@ -270,8 +270,8 @@ class PollAligoMessageDetailUseCaseTest {
     }
 
     @Test
-    @DisplayName("외부 API 호출 실패 시 해당 메시지를 건너뛰고 나머지를 계속 처리한다")
-    void shouldSkipMessageWhenExternalApiFailsAndContinueProcessing() {
+    @DisplayName("AligoApiException 발생 시 해당 메시지를 건너뛰고 DB 갱신 없이 나머지 메시지를 계속 처리한다")
+    void shouldSkipMessageWhenAligoApiExceptionOccursAndContinueProcessing() {
         // given
         setupClock();
         AligoMessage message1 = createSentMessageWithRecipients("MID_FAIL", List.of("01011111111"));
@@ -291,12 +291,33 @@ class PollAligoMessageDetailUseCaseTest {
 
         // then
         assertThat(result).isEqualTo(1);
-        verify(updateAligoMessagePort, times(1)).update(any(AligoMessage.class));
+        ArgumentCaptor<AligoMessage> captor = ArgumentCaptor.forClass(AligoMessage.class);
+        verify(updateAligoMessagePort, times(1)).update(captor.capture());
+        assertThat(captor.getValue().getAligoMid()).isEqualTo("MID_OK");
     }
 
     @Test
-    @DisplayName("DB 갱신이 실패하면 예외를 상위로 전파한다")
-    void shouldPropagateExceptionWhenDatabaseUpdateFails() {
+    @DisplayName("AligoApiException 발생 메시지는 DB 갱신을 수행하지 않는다")
+    void shouldNotUpdateDatabaseWhenAligoApiExceptionOccurs() {
+        // given
+        setupClock();
+        AligoMessage message = createSentMessageWithRecipients("MID_API_FAIL", List.of("01011111111"));
+        when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
+                .thenReturn(List.of(message));
+        when(getAligoMessageDetailExternalPort.getMessageDetail("MID_API_FAIL"))
+                .thenThrow(new AligoApiRequestFailedException("외부 API 오류"));
+
+        // when
+        int result = pollAligoMessageDetailService.poll();
+
+        // then
+        assertThat(result).isZero();
+        verifyNoInteractions(updateAligoMessagePort);
+    }
+
+    @Test
+    @DisplayName("DataAccessException 발생 시 예외를 상위로 전파한다")
+    void shouldPropagateExceptionWhenDataAccessExceptionOccurs() {
         // given
         setupClock();
         AligoMessage message = createSentMessageWithRecipients("MID_DB_FAIL", List.of("01011111111"));
@@ -317,8 +338,34 @@ class PollAligoMessageDetailUseCaseTest {
     }
 
     @Test
-    @DisplayName("매핑/예상치 못한 오류가 발생하면 해당 메시지를 건너뛰고 나머지를 계속 처리한다")
-    void shouldSkipMessageWhenUnexpectedErrorOccursAndContinueProcessing() {
+    @DisplayName("DataAccessException 발생 시 폴링 루프가 중단되어 후속 메시지를 처리하지 않는다")
+    void shouldHaltPollingLoopWhenDataAccessExceptionOccurs() {
+        // given
+        setupClock();
+        AligoMessage message1 = createSentMessageWithRecipients("MID_DB_FAIL", List.of("01011111111"));
+        AligoMessage message2 = createSentMessageWithRecipients("MID_AFTER", List.of("01022222222"));
+        when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
+                .thenReturn(List.of(message1, message2));
+        when(getAligoMessageDetailExternalPort.getMessageDetail("MID_DB_FAIL"))
+                .thenReturn(List.of(new AligoRecipientDetailResult(
+                        "MSG_DB", "01011111111", "0", "성공",
+                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+                )));
+        doThrow(new DataIntegrityViolationException("DB 제약 위반"))
+                .when(updateAligoMessagePort).update(any(AligoMessage.class));
+
+        // when & then
+        assertThatThrownBy(() -> pollAligoMessageDetailService.poll())
+                .isInstanceOf(DataIntegrityViolationException.class);
+
+        verify(getAligoMessageDetailExternalPort).getMessageDetail("MID_DB_FAIL");
+        verify(getAligoMessageDetailExternalPort, never()).getMessageDetail("MID_AFTER");
+        verify(updateAligoMessagePort, times(1)).update(any(AligoMessage.class));
+    }
+
+    @Test
+    @DisplayName("매핑 등 예상치 못한 RuntimeException 발생 시 해당 메시지를 건너뛰고 나머지를 계속 처리한다")
+    void shouldSkipMessageWhenUnexpectedRuntimeExceptionOccursAndContinueProcessing() {
         // given
         setupClock();
         AligoMessage message1 = createSentMessageWithRecipients("MID_UNEXPECTED", List.of("01011111111"));
@@ -338,7 +385,28 @@ class PollAligoMessageDetailUseCaseTest {
 
         // then
         assertThat(result).isEqualTo(1);
-        verify(updateAligoMessagePort, times(1)).update(any(AligoMessage.class));
+        ArgumentCaptor<AligoMessage> captor = ArgumentCaptor.forClass(AligoMessage.class);
+        verify(updateAligoMessagePort, times(1)).update(captor.capture());
+        assertThat(captor.getValue().getAligoMid()).isEqualTo("MID_OK2");
+    }
+
+    @Test
+    @DisplayName("예상치 못한 RuntimeException 발생 메시지는 DB 갱신을 수행하지 않는다")
+    void shouldNotUpdateDatabaseWhenUnexpectedRuntimeExceptionOccurs() {
+        // given
+        setupClock();
+        AligoMessage message = createSentMessageWithRecipients("MID_NPE", List.of("01011111111"));
+        when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
+                .thenReturn(List.of(message));
+        when(getAligoMessageDetailExternalPort.getMessageDetail("MID_NPE"))
+                .thenThrow(new NullPointerException("예상치 못한 매핑 오류"));
+
+        // when
+        int result = pollAligoMessageDetailService.poll();
+
+        // then
+        assertThat(result).isZero();
+        verifyNoInteractions(updateAligoMessagePort);
     }
 
     @Test
