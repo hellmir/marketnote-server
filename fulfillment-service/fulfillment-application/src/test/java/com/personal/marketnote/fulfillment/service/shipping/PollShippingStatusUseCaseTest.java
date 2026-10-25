@@ -35,6 +35,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -89,11 +91,16 @@ class PollShippingStatusUseCaseTest {
         });
     }
 
+    private void stubMinCreatedAt() {
+        when(findShippingTrackerPort.findMinCreatedAtOfPollingActive())
+                .thenReturn(Optional.of(LocalDateTime.of(2026, 4, 8, 10, 0)));
+    }
+
     @Test
     @DisplayName("폴링 대상이 없으면 파스토 API를 호출하지 않는다")
     void skipWhenNoActiveTrackers() {
         // given
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(Collections.emptyList());
+        when(findShippingTrackerPort.findMinCreatedAtOfPollingActive()).thenReturn(Optional.empty());
         PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
 
         // when
@@ -103,6 +110,7 @@ class PollShippingStatusUseCaseTest {
         verifyNoInteractions(fulfillmentAuthenticatedCaller);
         verifyNoInteractions(getDeliveryStatusesPort);
         verifyNoInteractions(updateShippingTrackerPort);
+        verify(findShippingTrackerPort, never()).findPollingActiveChunk(anyLong(), anyInt());
     }
 
     @Test
@@ -110,7 +118,8 @@ class PollShippingStatusUseCaseTest {
     void transitionToShippingWithTrackingInfo() {
         // given
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -146,7 +155,8 @@ class PollShippingStatusUseCaseTest {
     void transitionToShippingWithoutTrackingInfo() {
         // given
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -173,7 +183,8 @@ class PollShippingStatusUseCaseTest {
     void transitionToDelivered() {
         // given
         ShippingTracker tracker = createShippingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -202,7 +213,8 @@ class PollShippingStatusUseCaseTest {
     void transitionToDeliveryFailed() {
         // given
         ShippingTracker tracker = createShippingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -231,7 +243,8 @@ class PollShippingStatusUseCaseTest {
     void sendSlackAlertWhenDeliveryFailed() {
         // given
         ShippingTracker tracker = createShippingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -252,7 +265,8 @@ class PollShippingStatusUseCaseTest {
     void noSlackAlertWhenNotDeliveryFailed() {
         // given
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -273,7 +287,8 @@ class PollShippingStatusUseCaseTest {
         // given
         ShippingTracker tracker1 = createShippingTrackerWithId(1L, 100L);
         ShippingTracker tracker2 = createPreparingTrackerWithId(2L, 200L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker1, tracker2));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker1, tracker2));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker1));
         when(findShippingTrackerPort.findByOrderId(200L)).thenReturn(Optional.of(tracker2));
         stubAuthenticatedCaller();
@@ -311,7 +326,8 @@ class PollShippingStatusUseCaseTest {
     void noTransitionWhenSameStatus() {
         // given
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -338,7 +354,8 @@ class PollShippingStatusUseCaseTest {
     void noMatchingOrderInFasstoResponse() {
         // given
         ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -364,7 +381,8 @@ class PollShippingStatusUseCaseTest {
         // given
         ShippingTracker tracker1 = createPreparingTrackerWithId(1L, 100L);
         ShippingTracker tracker2 = createPreparingTrackerWithId(2L, 200L);
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker1, tracker2));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker1, tracker2));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker1));
         when(findShippingTrackerPort.findByOrderId(200L)).thenReturn(Optional.of(tracker2));
         stubAuthenticatedCaller();
@@ -399,7 +417,8 @@ class PollShippingStatusUseCaseTest {
                 .createdAt(LocalDateTime.of(2026, 4, 8, 10, 0))
                 .modifiedAt(LocalDateTime.of(2026, 4, 8, 10, 0))
                 .build());
-        when(findShippingTrackerPort.findAllPollingActive()).thenReturn(List.of(tracker));
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
         when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
         stubAuthenticatedCaller();
         when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
@@ -420,6 +439,73 @@ class PollShippingStatusUseCaseTest {
         assertThat(updated.getCarrierCodeValue()).isEqualTo("CJ");
 
         verifyNoInteractions(publishShippingStatusChangedEventPort);
+    }
+
+    @Test
+    @DisplayName("여러 청크가 존재해도 파스토 API는 1회만 호출한다")
+    void fasstoApiCalledOnceAcrossMultipleChunks() {
+        // given - 청크 크기(100건) 이상이므로 두 번째 청크 조회 발생
+        List<ShippingTracker> firstChunk = new java.util.ArrayList<>();
+        for (long i = 1L; i <= 100L; i++) {
+            firstChunk.add(createPreparingTrackerWithId(i, 100L + i));
+        }
+        List<ShippingTracker> secondChunk = List.of(
+                createPreparingTrackerWithId(101L, 201L),
+                createPreparingTrackerWithId(102L, 202L)
+        );
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(firstChunk);
+        when(findShippingTrackerPort.findPollingActiveChunk(100L, 100)).thenReturn(secondChunk);
+        lenient().when(findShippingTrackerPort.findByOrderId(anyLong())).thenAnswer(invocation -> {
+            Long orderId = invocation.getArgument(0);
+            return firstChunk.stream()
+                    .filter(t -> t.getOrderId().equals(orderId))
+                    .findFirst()
+                    .or(() -> secondChunk.stream()
+                            .filter(t -> t.getOrderId().equals(orderId))
+                            .findFirst());
+        });
+        stubAuthenticatedCaller();
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
+                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then - Fassto API는 1회만 호출
+        verify(fulfillmentAuthenticatedCaller, times(1)).call(any());
+        verify(getDeliveryStatusesPort, times(1)).getDeliveryStatuses(any());
+
+        // 두 청크 조회 모두 수행
+        verify(findShippingTrackerPort).findPollingActiveChunk(0L, 100);
+        verify(findShippingTrackerPort).findPollingActiveChunk(100L, 100);
+
+        // 총 102건 업데이트
+        verify(updateShippingTrackerPort, times(102)).update(any(ShippingTracker.class));
+    }
+
+    @Test
+    @DisplayName("단일 청크 처리 시에도 파스토 API는 1회만 호출한다")
+    void fasstoApiCalledOnceInSingleChunk() {
+        // given
+        ShippingTracker tracker = createPreparingTrackerWithId(1L, 100L);
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(List.of(tracker));
+        when(findShippingTrackerPort.findByOrderId(100L)).thenReturn(Optional.of(tracker));
+        stubAuthenticatedCaller();
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
+                .thenReturn(createDeliveryStatusResult("100", "집하완료", "INV001", "CJ"));
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then
+        verify(fulfillmentAuthenticatedCaller, times(1)).call(any());
+        verify(getDeliveryStatusesPort, times(1)).getDeliveryStatuses(any());
     }
 
     // --- 테스트 헬퍼 ---

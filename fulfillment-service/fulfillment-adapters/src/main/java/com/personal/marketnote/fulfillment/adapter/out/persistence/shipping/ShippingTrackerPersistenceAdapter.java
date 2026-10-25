@@ -12,7 +12,9 @@ import com.personal.marketnote.fulfillment.port.out.shipping.SaveShippingTracker
 import com.personal.marketnote.fulfillment.port.out.shipping.UpdateShippingTrackerPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,8 +37,8 @@ public class ShippingTrackerPersistenceAdapter implements
     }
 
     @Override
-    public List<ShippingTracker> findAllPollingActive() {
-        return repository.findByPollingActiveTrue().stream()
+    public List<ShippingTracker> findPollingActiveChunk(Long lastId, int limit) {
+        return repository.findPollingActiveChunk(lastId, PageRequest.of(0, limit)).stream()
                 .map(ShippingTrackerJpaEntity::toDomain)
                 .toList();
     }
@@ -45,6 +47,11 @@ public class ShippingTrackerPersistenceAdapter implements
     public Optional<ShippingTracker> findByOrderId(Long orderId) {
         return repository.findByOrderId(orderId)
                 .map(ShippingTrackerJpaEntity::toDomain);
+    }
+
+    @Override
+    public Optional<LocalDateTime> findMinCreatedAtOfPollingActive() {
+        return repository.findMinCreatedAtOfPollingActive();
     }
 
     @Override
