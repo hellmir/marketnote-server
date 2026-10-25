@@ -27,6 +27,7 @@ public class OrderSnapshotState {
     @Builder.Default
     private final ShippingRegionType shippingRegionType = ShippingRegionType.NORMAL;
     private final List<OrderProductSnapshotState> orderProductStates;
+    private final LocalDateTime scheduledAutoConfirmAt;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 }

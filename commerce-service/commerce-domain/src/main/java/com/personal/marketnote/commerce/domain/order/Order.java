@@ -27,6 +27,7 @@ public class Order {
     private ShippingAddress pickupAddress;
     private ShippingRegionType shippingRegionType;
     private List<OrderProduct> orderProducts;
+    private LocalDateTime scheduledAutoConfirmAt;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -69,6 +70,7 @@ public class Order {
                 .pickupAddress(state.getPickupAddress())
                 .shippingRegionType(state.getShippingRegionType())
                 .orderProducts(orderProducts)
+                .scheduledAutoConfirmAt(state.getScheduledAutoConfirmAt())
                 .createdAt(state.getCreatedAt())
                 .modifiedAt(state.getModifiedAt())
                 .build();
@@ -162,6 +164,7 @@ public class Order {
         }
 
         this.orderStatus = orderStatus;
+        applyScheduledAutoConfirmAt(orderStatus, now, autoConfirmDays);
     }
 
     public void recordPaidAmount(Money paidAmount) {
@@ -174,9 +177,17 @@ public class Order {
         }
         orderProducts.forEach(orderProduct -> orderProduct.changeOrderStatus(orderStatus, now, autoConfirmDays));
         this.orderStatus = orderStatus;
+        applyScheduledAutoConfirmAt(orderStatus, now, autoConfirmDays);
     }
 
     public boolean isBuyer(Long buyerId) {
         return FormatValidator.equals(this.buyerId, buyerId);
+    }
+
+    private void applyScheduledAutoConfirmAt(OrderStatus target, LocalDateTime now, long autoConfirmDays) {
+        if (!target.isDelivered()) {
+            return;
+        }
+        this.scheduledAutoConfirmAt = now.plusDays(autoConfirmDays);
     }
 }

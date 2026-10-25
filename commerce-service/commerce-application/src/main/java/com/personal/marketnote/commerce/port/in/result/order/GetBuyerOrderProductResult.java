@@ -31,7 +31,8 @@ public record GetBuyerOrderProductResult(
         String productName,
         List<ProductOptionInfoResult> selectedOptions,
         Boolean isReviewed,
-        LocalDateTime reviewDeadline
+        LocalDateTime reviewDeadline,
+        LocalDateTime scheduledAutoConfirmAt
 ) {
     public static GetBuyerOrderProductResult from(
             Order order,
@@ -64,6 +65,7 @@ public record GetBuyerOrderProductResult(
                 .selectedOptions(orderProductResult.selectedOptions())
                 .isReviewed(orderProductResult.isReviewed())
                 .reviewDeadline(orderProduct.calculateReviewDeadline())
+                .scheduledAutoConfirmAt(orderProduct.getScheduledAutoConfirmAt())
                 .build();
     }
 }

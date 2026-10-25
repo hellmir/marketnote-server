@@ -79,6 +79,7 @@ import java.lang.annotation.*;
                 | selectedOptions | array | 선택 옵션 목록 | [ ... ] |
                 | isReviewed | boolean | 리뷰 작성 여부 | false |
                 | reviewDeadline | string(datetime) | 리뷰 작성기한 (구매 확정 후 30일) | "2026-02-25T14:30:00" |
+                | scheduledAutoConfirmAt | string(datetime) | 자동 구매 확정 예정 일시 (배송 완료 후 N일). DELIVERED 전이 전에는 null | "2026-02-20T14:30:00" |
                 
                 ---
                 
@@ -134,7 +135,8 @@ import java.lang.annotation.*;
                                                   }
                                                 ],
                                                 "isReviewed": false,
-                                                "reviewDeadline": "2026-02-25T14:30:00"
+                                                "reviewDeadline": "2026-02-25T14:30:00",
+                                                "scheduledAutoConfirmAt": "2026-02-20T14:30:00"
                                               }
                                             ]
                                           },

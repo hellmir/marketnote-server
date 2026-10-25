@@ -118,6 +118,7 @@ import java.lang.annotation.*;
                 | pickupAddressDetail | string | 회수지 상세 주소 | "101동 202호" |
                 | pickupDeliveryRequestType | string | 회수 요청사항 유형 | "LEAVE_AT_DOOR" |
                 | pickupDeliveryRequestMessage | string | 회수 요청사항 메시지 | "문 앞에 놓아주세요" |
+                | scheduledAutoConfirmAt | string(datetime) | 자동 구매 확정 예정 일시 (배송 완료 후 N일). DELIVERED 전이 전에는 null | "2026-02-20T14:30:00" |
                 | orderProducts | array | 주문 상품 목록 | [ ... ] |
                 
                 ---
@@ -138,9 +139,10 @@ import java.lang.annotation.*;
                 | brandName | string | 브랜드명 | "브랜드명1" |
                 | productName | string | 상품명 | "스프링노트1234" |
                 | selectedOptions | array | 선택 옵션 목록 | [ ... ] |
-                
+                | scheduledAutoConfirmAt | string(datetime) | 자동 구매 확정 예정 일시 (배송 완료 후 N일). DELIVERED 전이 전에는 null | "2026-02-20T14:30:00" |
+
                 ---
-                
+
                 ### Response > orderProducts > selectedOptions
                 
                 | **키** | **타입** | **설명** | **예시** |
@@ -196,6 +198,7 @@ import java.lang.annotation.*;
                                               "pickupAddressDetail": "101동 202호",
                                               "pickupDeliveryRequestType": "LEAVE_AT_DOOR",
                                               "pickupDeliveryRequestMessage": "문 앞에 놓아주세요",
+                                              "scheduledAutoConfirmAt": null,
                                               "orderProducts": [
                                                 {
                                                   "sellerId": 12,
@@ -221,7 +224,8 @@ import java.lang.annotation.*;
                                                       "status": "ACTIVE"
                                                     }
                                                   ],
-                                                  "isReviewed": false
+                                                  "isReviewed": false,
+                                                  "scheduledAutoConfirmAt": null
                                                 },
                                                 {
                                                   "sellerId": 11,
@@ -247,7 +251,8 @@ import java.lang.annotation.*;
                                                       "status": "ACTIVE"
                                                     }
                                                   ],
-                                                  "isReviewed": false
+                                                  "isReviewed": false,
+                                                  "scheduledAutoConfirmAt": null
                                                 }
                                               ]
                                             }

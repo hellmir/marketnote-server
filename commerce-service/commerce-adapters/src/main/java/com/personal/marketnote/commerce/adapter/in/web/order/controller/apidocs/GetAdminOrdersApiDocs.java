@@ -61,6 +61,7 @@ import java.lang.annotation.*;
                 | orders[].orderInfo.addressDetail | string | 배송지 상세 주소 | "101동 202호" |
                 | orders[].orderInfo.deliveryRequestType | string | 배송 요청사항 유형 | "LEAVE_AT_DOOR" |
                 | orders[].orderInfo.deliveryRequestMessage | string | 배송 요청사항 메시지 | "문 앞에 놓아주세요" |
+                | orders[].orderInfo.scheduledAutoConfirmAt | string(datetime) | 자동 구매 확정 예정 일시 (배송 완료 후 N일). DELIVERED 전이 전에는 null | "2026-02-20T14:30:00" |
                 | orders[].orderInfo.orderProducts | array | 주문 상품 목록 | - |
                 """,
         security = {@SecurityRequirement(name = "bearer")},
