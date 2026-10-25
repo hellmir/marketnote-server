@@ -69,7 +69,7 @@ public class AligoMessageJpaEntity extends BaseGeneralEntity {
 
     private LocalDateTime sentAt;
 
-    @OneToMany(mappedBy = "aligoMessage", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "aligoMessage", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private List<AligoMessageRecipientJpaEntity> recipients = new ArrayList<>();
 
     public void updateSendResult(
