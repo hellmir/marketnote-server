@@ -15,16 +15,18 @@ import com.personal.marketnote.user.security.token.dto.OAuth2UserInfo;
 import com.personal.marketnote.user.security.token.support.TokenSupport;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 import static com.personal.marketnote.common.domain.exception.ExceptionCode.FIRST_ERROR_CODE;
-import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
+/**
+ * 외부 OAuth2 서버 호출이 DB 트랜잭션 경계 안에서 수행되면 응답 지연 시 DB 커넥션이 점유된 채 대기하여
+ * 커넥션 풀 고갈 위험이 있다. 따라서 서비스 레벨 {@code @Transactional}을 두지 않고,
+ * DB 조회는 어댑터({@code UserPersistenceAdapter})에 위임하여 짧은 자체 트랜잭션으로만 수행한다.
+ */
 @UseCase
 @RequiredArgsConstructor
-@Transactional(isolation = READ_COMMITTED, timeout = 180)
 public class Oauth2LoginService implements Oauth2LoginUseCase {
     private final TokenSupport tokenSupport;
     private final FindUserPort findUserPort;
