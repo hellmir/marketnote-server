@@ -134,6 +134,19 @@ class ShippingTrackerPersistenceAdapterTest {
             // then
             assertThat(result).isEmpty();
         }
+
+        @Test
+        @DisplayName("lastId와 limit 값을 Pageable과 함께 그대로 repository에 전달한다")
+        void shouldDelegateLastIdAndLimitToRepository() {
+            // given
+            when(repository.findPollingActiveChunk(eq(500L), any(Pageable.class))).thenReturn(List.of());
+
+            // when
+            adapter.findPollingActiveChunk(500L, 50);
+
+            // then - cursor 값과 limit 페이지 사이즈가 정확히 전파됨
+            verify(repository).findPollingActiveChunk(500L, PageRequest.of(0, 50));
+        }
     }
 
     @Nested
