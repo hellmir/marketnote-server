@@ -9,6 +9,8 @@ import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperti
 import com.personal.marketnote.fulfillment.domain.FulfillmentAccessToken;
 import com.personal.marketnote.fulfillment.exception.FulfillmentAuthDisconnectFailedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentAuthRequestFailedException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
@@ -180,14 +182,14 @@ class FulfillmentAuthClientTest {
         }
 
         @Test
-        @DisplayName("baseUrl이 누락되면 IllegalStateException이 발생한다")
-        void shouldThrowIllegalStateExceptionWhenBaseUrlMissing() {
+        @DisplayName("baseUrl이 누락되면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowFulfillmentConfigurationExceptionWhenBaseUrlMissing() {
             // given
             when(properties.getBaseUrl()).thenReturn(null);
 
             // when & then
             assertThatThrownBy(() -> client.requestAccessToken())
-                    .isInstanceOf(IllegalStateException.class);
+                    .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 
@@ -225,11 +227,11 @@ class FulfillmentAuthClientTest {
     class DisconnectAccessTokenFailure {
 
         @Test
-        @DisplayName("accessToken이 null이면 IllegalArgumentException이 발생한다")
-        void shouldThrowIllegalArgumentExceptionWhenTokenIsNull() {
+        @DisplayName("accessToken이 null이면 FulfillmentClientInvalidRequestException이 발생한다")
+        void shouldThrowFulfillmentClientInvalidRequestExceptionWhenTokenIsNull() {
             // when & then
             assertThatThrownBy(() -> client.disconnectAccessToken(null))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(FulfillmentClientInvalidRequestException.class);
         }
 
         @SuppressWarnings("unchecked")

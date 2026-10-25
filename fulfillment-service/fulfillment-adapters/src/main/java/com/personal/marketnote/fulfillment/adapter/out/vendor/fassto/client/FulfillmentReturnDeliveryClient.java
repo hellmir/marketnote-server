@@ -14,6 +14,8 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentReturnGodDetailFailedException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentReturnDeliveryFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentReturnGodDetailCommand;
@@ -82,7 +84,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
     public GetFulfillmentReturnGodDetailResult getReturnGodDetail(GetFulfillmentReturnGodDetailCommand command) {
         FulfillmentReturnGodDetailQuery query = FasstoReturnDeliveryCommandToRequestMapper.mapToReturnGodDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment return god detail query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment return god detail query is required.");
         }
 
         URI uri = buildReturnGodDetailUri(query);
@@ -197,7 +199,7 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
             String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment return delivery request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment return delivery request is required.");
         }
 
         URI uri = buildReturnDeliveryUri(request.getCustomerCode());
@@ -377,25 +379,25 @@ public class FulfillmentReturnDeliveryClient implements RegisterFulfillmentRetur
 
     private void validateReturnDeliveryProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getReturnDeliveryPath())) {
-            throw new IllegalStateException("Fulfillment return delivery path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment return delivery path is required.");
         }
         if (!properties.getReturnDeliveryPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment return delivery path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment return delivery path must include {customerCode}.");
         }
     }
 
     private void validateReturnGodDetailProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getReturnGodDetailPath())) {
-            throw new IllegalStateException("Fulfillment return god detail path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment return god detail path is required.");
         }
         if (!properties.getReturnGodDetailPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment return god detail path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment return god detail path must include {customerCode}.");
         }
     }
 

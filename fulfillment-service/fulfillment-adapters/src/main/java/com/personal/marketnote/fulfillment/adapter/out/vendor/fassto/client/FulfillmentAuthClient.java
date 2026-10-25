@@ -16,6 +16,8 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
 import com.personal.marketnote.fulfillment.exception.FulfillmentAuthDisconnectFailedException;
 import com.personal.marketnote.fulfillment.exception.FulfillmentAuthRequestFailedException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RequestFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
@@ -174,7 +176,7 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
     @Override
     public void disconnectAccessToken(String accessToken) {
         if (FormatValidator.hasNoValue(accessToken)) {
-            throw new IllegalArgumentException("Fulfillment access token is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment access token is required.");
         }
 
         URI uri = buildDisconnectUri();
@@ -307,25 +309,25 @@ public class FulfillmentAuthClient implements RequestFulfillmentAuthPort, Discon
 
     private void validateAuthProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getApiCd())) {
-            throw new IllegalStateException("Fulfillment apiCd is required.");
+            throw new FulfillmentConfigurationException("Fulfillment apiCd is required.");
         }
         if (FormatValidator.hasNoValue(properties.getApiKey())) {
-            throw new IllegalStateException("Fulfillment apiKey is required.");
+            throw new FulfillmentConfigurationException("Fulfillment apiKey is required.");
         }
         if (FormatValidator.hasNoValue(properties.getConnectPath())) {
-            throw new IllegalStateException("Fulfillment auth connect path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment auth connect path is required.");
         }
     }
 
     private void validateDisconnectProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDisconnectPath())) {
-            throw new IllegalStateException("Fulfillment auth disconnect path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment auth disconnect path is required.");
         }
     }
 

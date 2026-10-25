@@ -17,6 +17,8 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentShopsFailedException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentShopFailedException;
 import com.personal.marketnote.fulfillment.exception.UpdateFulfillmentShopFailedException;
@@ -96,7 +98,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
     @Override
     public GetFulfillmentShopsResult getShops(GetFulfillmentShopsCommand command) {
         if (FormatValidator.hasNoValue(command)) {
-            throw new IllegalArgumentException("Fulfillment shop command is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment shop command is required.");
         }
 
         FulfillmentShopQuery query = FasstoShopCommandToRequestMapper.mapToShopsQuery(command);
@@ -233,13 +235,13 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
 
     private void validateShopProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getShopPath())) {
-            throw new IllegalStateException("Fulfillment shop path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment shop path is required.");
         }
         if (!properties.getShopPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment shop path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment shop path must include {customerCode}.");
         }
     }
 
@@ -359,7 +361,7 @@ public class FulfillmentShopClient implements RegisterFulfillmentShopPort, GetFu
             boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment shop request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment shop request is required.");
         }
 
         URI uri = buildShopUri(request.getCustomerCode());
