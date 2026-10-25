@@ -487,6 +487,116 @@ class PollShippingStatusUseCaseTest {
     }
 
     @Test
+    @DisplayName("3개 청크 연속 순회 시 lastId가 마지막 원소 id로 정확히 갱신되며 전달된다")
+    void lastIdPropagatesCorrectlyAcrossThreeChunks() {
+        // given - 3개 청크: [id 1..100], [id 101..200], [id 201..202]
+        List<ShippingTracker> firstChunk = new java.util.ArrayList<>();
+        for (long i = 1L; i <= 100L; i++) {
+            firstChunk.add(createPreparingTrackerWithId(i, 1000L + i));
+        }
+        List<ShippingTracker> secondChunk = new java.util.ArrayList<>();
+        for (long i = 101L; i <= 200L; i++) {
+            secondChunk.add(createPreparingTrackerWithId(i, 1000L + i));
+        }
+        List<ShippingTracker> thirdChunk = List.of(
+                createPreparingTrackerWithId(201L, 1201L),
+                createPreparingTrackerWithId(202L, 1202L)
+        );
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(firstChunk);
+        when(findShippingTrackerPort.findPollingActiveChunk(100L, 100)).thenReturn(secondChunk);
+        when(findShippingTrackerPort.findPollingActiveChunk(200L, 100)).thenReturn(thirdChunk);
+        lenient().when(findShippingTrackerPort.findByOrderId(anyLong())).thenAnswer(invocation -> {
+            Long orderId = invocation.getArgument(0);
+            return java.util.stream.Stream.of(firstChunk, secondChunk, thirdChunk)
+                    .flatMap(List::stream)
+                    .filter(t -> t.getOrderId().equals(orderId))
+                    .findFirst();
+        });
+        stubAuthenticatedCaller();
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
+                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then - 청크 조회 cursor 전파 검증
+        verify(findShippingTrackerPort).findPollingActiveChunk(0L, 100);
+        verify(findShippingTrackerPort).findPollingActiveChunk(100L, 100);
+        verify(findShippingTrackerPort).findPollingActiveChunk(200L, 100);
+        verify(findShippingTrackerPort, times(3)).findPollingActiveChunk(anyLong(), anyInt());
+
+        // Fassto API는 여전히 1회만 호출
+        verify(fulfillmentAuthenticatedCaller, times(1)).call(any());
+        verify(getDeliveryStatusesPort, times(1)).getDeliveryStatuses(any());
+
+        // 총 202건 업데이트
+        verify(updateShippingTrackerPort, times(202)).update(any(ShippingTracker.class));
+    }
+
+    @Test
+    @DisplayName("청크 크기가 정확히 100이면 빈 청크 조회로 종료한다")
+    void exactChunkSizeTriggersAdditionalEmptyQuery() {
+        // given - 정확히 100건. size == CHUNK_SIZE이므로 다음 청크 조회 발생
+        List<ShippingTracker> firstChunk = new java.util.ArrayList<>();
+        for (long i = 1L; i <= 100L; i++) {
+            firstChunk.add(createPreparingTrackerWithId(i, 1000L + i));
+        }
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(firstChunk);
+        when(findShippingTrackerPort.findPollingActiveChunk(100L, 100)).thenReturn(Collections.emptyList());
+        lenient().when(findShippingTrackerPort.findByOrderId(anyLong())).thenAnswer(invocation -> {
+            Long orderId = invocation.getArgument(0);
+            return firstChunk.stream()
+                    .filter(t -> t.getOrderId().equals(orderId))
+                    .findFirst();
+        });
+        stubAuthenticatedCaller();
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
+                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then - 100건 정확히 처리되고 다음 청크 조회(빈 청크)로 종료
+        verify(findShippingTrackerPort).findPollingActiveChunk(0L, 100);
+        verify(findShippingTrackerPort).findPollingActiveChunk(100L, 100);
+        verify(findShippingTrackerPort, times(2)).findPollingActiveChunk(anyLong(), anyInt());
+
+        verify(updateShippingTrackerPort, times(100)).update(any(ShippingTracker.class));
+
+        // Fassto API는 1회만 호출
+        verify(fulfillmentAuthenticatedCaller, times(1)).call(any());
+    }
+
+    @Test
+    @DisplayName("폴링 대상이 존재하지만 첫 청크 조회가 비면 즉시 종료한다")
+    void firstChunkEmptyTerminatesImmediately() {
+        // given - minCreatedAt은 존재하지만 경합으로 첫 청크가 비는 경우
+        stubMinCreatedAt();
+        when(findShippingTrackerPort.findPollingActiveChunk(0L, 100)).thenReturn(Collections.emptyList());
+        stubAuthenticatedCaller();
+        when(getDeliveryStatusesPort.getDeliveryStatuses(any()))
+                .thenReturn(GetFulfillmentDeliveryStatusesResult.of(0, Collections.emptyList()));
+
+        PollShippingStatusCommand command = new PollShippingStatusCommand("CUST001");
+
+        // when
+        pollShippingStatusService.pollShippingStatuses(command);
+
+        // then - 첫 조회만 수행, 업데이트 없음
+        verify(findShippingTrackerPort, times(1)).findPollingActiveChunk(anyLong(), anyInt());
+        verifyNoInteractions(updateShippingTrackerPort);
+
+        // Fassto API는 minCreatedAt이 있으면 조회 직전에 이미 호출됨
+        verify(fulfillmentAuthenticatedCaller, times(1)).call(any());
+    }
+
+    @Test
     @DisplayName("단일 청크 처리 시에도 파스토 API는 1회만 호출한다")
     void fasstoApiCalledOnceInSingleChunk() {
         // given
