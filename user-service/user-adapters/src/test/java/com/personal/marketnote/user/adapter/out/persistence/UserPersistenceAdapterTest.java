@@ -41,7 +41,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -668,6 +671,37 @@ class UserPersistenceAdapterTest {
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().get(0).getStatusAction()).isEqualTo(UserStatusAction.DEACTIVATE);
             assertThat(result.getTotalElements()).isEqualTo(1);
+        }
+    }
+
+    @Nested
+    @DisplayName("OAuth2 로그인 조회 어댑터 트랜잭션 경계 검증")
+    class OAuth2FindUserTransactionBoundary {
+
+        @Test
+        @DisplayName("findAllStatusUserByAuthVendorAndOidcId 는 READ_COMMITTED readOnly 트랜잭션으로 수행된다")
+        void findAllStatusUserByAuthVendorAndOidcId_isReadOnlyTransaction() throws NoSuchMethodException {
+            // given
+            Method method = UserPersistenceAdapter.class.getMethod(
+                    "findAllStatusUserByAuthVendorAndOidcId", AuthVendor.class, String.class
+            );
+
+            // when
+            Transactional transactional = method.getAnnotation(Transactional.class);
+
+            // then
+            assertThat(transactional)
+                    .as("서비스 레벨 트랜잭션이 제거되었으므로 DB 조회는 어댑터 자체 트랜잭션으로 수행되어야 한다")
+                    .isNotNull();
+            assertThat(transactional.readOnly())
+                    .as("OAuth2 로그인 조회는 변경이 없으므로 readOnly=true 로 최적화되어야 한다")
+                    .isTrue();
+            assertThat(transactional.isolation())
+                    .as("프로젝트 표준에 따라 READ_COMMITTED 격리 수준을 사용해야 한다")
+                    .isEqualTo(Isolation.READ_COMMITTED);
+            assertThat(transactional.timeout())
+                    .as("외부 API 호출과 분리된 짧은 자체 트랜잭션이어야 한다")
+                    .isLessThan(180);
         }
     }
 }
