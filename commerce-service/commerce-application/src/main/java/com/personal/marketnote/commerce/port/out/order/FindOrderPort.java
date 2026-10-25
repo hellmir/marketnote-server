@@ -58,5 +58,17 @@ public interface FindOrderPort {
             OrderStatus orderStatus
     );
 
-    List<Long> findOrderIdsEligibleForAutoConfirm(LocalDateTime deliveredBefore);
+    /**
+     * @param now    현재 시각
+     * @param lastId 커서 기준 마지막 ID (첫 청크는 0L)
+     * @param limit  청크 크기
+     * @return 자동 확정 대상 주문 ID 목록 (id ASC)
+     * @Date 2026-10-24
+     * @Author 성효빈
+     * @Description 자동 구매 확정 예정일이 도래한 주문을 커서 기반 청크로 조회합니다.
+     * 조건: order.orderStatus == DELIVERED AND orderProduct.orderStatus == DELIVERED
+     * AND orderProduct.scheduledAutoConfirmAt IS NOT NULL
+     * AND orderProduct.scheduledAutoConfirmAt <= now AND order.id > lastId.
+     */
+    List<Long> findOrderIdsScheduledForAutoConfirm(LocalDateTime now, Long lastId, int limit);
 }

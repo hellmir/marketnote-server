@@ -24,5 +24,5 @@ public interface OrderQueryRepository {
 
     List<OrderJpaEntity> findWithProductsByIds(List<Long> ids);
 
-    List<Long> findOrderIdsEligibleForAutoConfirm(LocalDateTime deliveredBefore);
+    List<Long> findOrderIdsScheduledForAutoConfirm(LocalDateTime now, Long lastId, int limit);
 }

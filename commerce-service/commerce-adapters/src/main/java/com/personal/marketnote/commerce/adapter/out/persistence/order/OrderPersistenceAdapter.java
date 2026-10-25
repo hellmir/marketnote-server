@@ -182,8 +182,8 @@ public class OrderPersistenceAdapter implements SaveOrderPort, FindOrderPort, Fi
     }
 
     @Override
-    public List<Long> findOrderIdsEligibleForAutoConfirm(LocalDateTime deliveredBefore) {
-        return orderJpaRepository.findOrderIdsEligibleForAutoConfirm(deliveredBefore);
+    public List<Long> findOrderIdsScheduledForAutoConfirm(LocalDateTime now, Long lastId, int limit) {
+        return orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, lastId, limit);
     }
 
     private OrderProductJpaEntity findEntityByOrderIdAndPricePolicyId(
