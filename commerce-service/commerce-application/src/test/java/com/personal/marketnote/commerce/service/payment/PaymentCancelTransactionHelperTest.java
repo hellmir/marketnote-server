@@ -1541,9 +1541,7 @@ class PaymentCancelTransactionHelperTest {
         );
 
         if (!vendorResult.success()) {
-            throw new PaymentCancelException(
-                    "결제 취소 실패 [" + vendorResult.resultCode() + "]: " + vendorResult.resultMessage()
-            );
+            throw new PaymentCancelException("결제 취소에 실패했습니다.");
         }
 
         txHelper.commitPspEventCancel(context, vendorResult);

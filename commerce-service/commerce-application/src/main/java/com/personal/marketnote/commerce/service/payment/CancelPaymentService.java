@@ -52,9 +52,10 @@ public class CancelPaymentService implements CancelPaymentUseCase {
         );
 
         if (!vendorResult.success()) {
-            throw new PaymentCancelException(
-                    "결제 취소 실패 [" + vendorResult.resultCode() + "]: " + vendorResult.resultMessage()
+            log.error("PG 결제 취소 실패 - transactionNumber: {}, resultCode: {}, resultMessage: {}",
+                    context.transactionNumber(), vendorResult.resultCode(), vendorResult.resultMessage()
             );
+            throw new PaymentCancelException("결제 취소에 실패했습니다.");
         }
 
         // TX-2A: PSP Event만 커밋 (PG 취소 완료 근거 확보)
