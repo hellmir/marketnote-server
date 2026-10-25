@@ -2,6 +2,7 @@ package com.personal.marketnote.notification.service.aligo;
 
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.domain.aligo.AligoApiException;
 import com.personal.marketnote.notification.domain.aligo.AligoMessage;
 import com.personal.marketnote.notification.domain.aligo.AligoMessageRecipientStatus;
 import com.personal.marketnote.notification.port.in.usecase.aligo.PollAligoMessageDetailUseCase;
@@ -11,6 +12,7 @@ import com.personal.marketnote.notification.port.out.aligo.GetAligoMessageDetail
 import com.personal.marketnote.notification.port.out.aligo.UpdateAligoMessagePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
@@ -60,9 +62,23 @@ public class PollAligoMessageDetailService implements PollAligoMessageDetailUseC
                 return null;
             });
             return true;
-        } catch (Exception e) {
-            log.warn("알리고 메시지 폴링 실패: messageId={}, aligoMid={}",
-                    message.getId(), message.getAligoMid(), e);
+        } catch (AligoApiException e) {
+            log.warn(
+                    "알리고 메시지 폴링 외부 API 호출 실패: messageId={}, aligoMid={}",
+                    message.getId(), message.getAligoMid(), e
+            );
+            return false;
+        } catch (DataAccessException e) {
+            log.error(
+                    "알리고 메시지 폴링 DB 갱신 실패: messageId={}, aligoMid={}",
+                    message.getId(), message.getAligoMid(), e
+            );
+            throw e;
+        } catch (RuntimeException e) {
+            log.error(
+                    "알리고 메시지 폴링 예상치 못한 오류: messageId={}, aligoMid={}",
+                    message.getId(), message.getAligoMid(), e
+            );
             return false;
         }
     }

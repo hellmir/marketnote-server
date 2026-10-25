@@ -14,6 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -24,6 +25,7 @@ import java.time.ZoneId;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -281,6 +283,53 @@ class PollAligoMessageDetailUseCaseTest {
         when(getAligoMessageDetailExternalPort.getMessageDetail("MID_OK"))
                 .thenReturn(List.of(new AligoRecipientDetailResult(
                         "MSG_OK1", "01022222222", "0", "성공",
+                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+                )));
+
+        // when
+        int result = pollAligoMessageDetailService.poll();
+
+        // then
+        assertThat(result).isEqualTo(1);
+        verify(updateAligoMessagePort, times(1)).update(any(AligoMessage.class));
+    }
+
+    @Test
+    @DisplayName("DB 갱신이 실패하면 예외를 상위로 전파한다")
+    void shouldPropagateExceptionWhenDatabaseUpdateFails() {
+        // given
+        setupClock();
+        AligoMessage message = createSentMessageWithRecipients("MID_DB_FAIL", List.of("01011111111"));
+        when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
+                .thenReturn(List.of(message));
+        when(getAligoMessageDetailExternalPort.getMessageDetail("MID_DB_FAIL"))
+                .thenReturn(List.of(new AligoRecipientDetailResult(
+                        "MSG_DB", "01011111111", "0", "성공",
+                        NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
+                )));
+        doThrow(new DataIntegrityViolationException("DB 제약 위반"))
+                .when(updateAligoMessagePort).update(any(AligoMessage.class));
+
+        // when & then
+        assertThatThrownBy(() -> pollAligoMessageDetailService.poll())
+                .isInstanceOf(DataIntegrityViolationException.class);
+        verify(updateAligoMessagePort).update(any(AligoMessage.class));
+    }
+
+    @Test
+    @DisplayName("매핑/예상치 못한 오류가 발생하면 해당 메시지를 건너뛰고 나머지를 계속 처리한다")
+    void shouldSkipMessageWhenUnexpectedErrorOccursAndContinueProcessing() {
+        // given
+        setupClock();
+        AligoMessage message1 = createSentMessageWithRecipients("MID_UNEXPECTED", List.of("01011111111"));
+        AligoMessage message2 = createSentMessageWithRecipients("MID_OK2", List.of("01022222222"));
+        when(findPendingAligoMessagesPort.findPendingMessages(any(LocalDateTime.class)))
+                .thenReturn(List.of(message1, message2));
+        when(getAligoMessageDetailExternalPort.getMessageDetail("MID_UNEXPECTED"))
+                .thenThrow(new NullPointerException("예상치 못한 매핑 오류"));
+        when(getAligoMessageDetailExternalPort.getMessageDetail("MID_OK2"))
+                .thenReturn(List.of(new AligoRecipientDetailResult(
+                        "MSG_OK2", "01022222222", "0", "성공",
                         NOW.minusMinutes(5), NOW.minusMinutes(3), NOW.minusMinutes(2)
                 )));
 
