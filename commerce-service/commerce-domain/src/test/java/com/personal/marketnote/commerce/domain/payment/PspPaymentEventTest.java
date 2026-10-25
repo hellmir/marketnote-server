@@ -280,6 +280,29 @@ class PspPaymentEventTest {
             assertThatThrownBy(() -> event.cancel("{}"))
                     .isInstanceOf(IllegalStateException.class);
         }
+
+        @Test
+        @DisplayName("이미 CANCELLED 상태에서 cancel 재호출 시 예외가 발생한다 (동시 요청 방어)")
+        void shouldThrowWhenAlreadyCancelled() {
+            PspPaymentEvent event = createCompletedEvent();
+            event.cancel("{\"first\"}");
+
+            assertThatThrownBy(() -> event.cancel("{\"second\"}"))
+                    .isInstanceOf(IllegalStateException.class);
+            assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.CANCELLED);
+            assertThat(event.getPgCancelApprovalResult()).isEqualTo("{\"first\"}");
+        }
+
+        @Test
+        @DisplayName("이미 REFUNDED 상태에서 cancel 호출 시 예외가 발생한다 (동시 요청 방어)")
+        void shouldThrowWhenAlreadyRefunded() {
+            PspPaymentEvent event = createCompletedEvent();
+            event.refund("{\"refund\"}");
+
+            assertThatThrownBy(() -> event.cancel("{}"))
+                    .isInstanceOf(IllegalStateException.class);
+            assertThat(event.getPoStatus()).isEqualTo(PaymentEventStatus.REFUNDED);
+        }
     }
 
     @Nested
