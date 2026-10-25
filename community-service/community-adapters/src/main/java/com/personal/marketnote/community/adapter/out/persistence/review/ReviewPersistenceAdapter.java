@@ -11,6 +11,7 @@ import com.personal.marketnote.community.adapter.out.persistence.review.reposito
 import com.personal.marketnote.community.adapter.out.persistence.review.repository.ReviewVersionHistoryJpaRepository;
 import com.personal.marketnote.community.domain.review.*;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
+import com.personal.marketnote.community.exception.ReviewAlreadyExistsException;
 import com.personal.marketnote.community.exception.ReviewNotFoundException;
 import com.personal.marketnote.community.port.out.review.FindReviewPort;
 import com.personal.marketnote.community.port.out.review.SaveReviewPort;
@@ -18,6 +19,7 @@ import com.personal.marketnote.community.port.out.review.UpdateReviewPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -37,10 +39,14 @@ public class ReviewPersistenceAdapter implements SaveReviewPort, FindReviewPort,
     @Override
     @CacheEvict(value = "review:photo:list:first", allEntries = true, condition = "T(java.lang.Boolean).TRUE.equals(#review.isPhoto)")
     public Review save(Review review) {
-        ReviewJpaEntity savedEntity = reviewJpaRepository.save(ReviewJpaEntity.from(review));
-        savedEntity.setIdToOrderNum();
+        try {
+            ReviewJpaEntity savedEntity = reviewJpaRepository.save(ReviewJpaEntity.from(review));
+            savedEntity.setIdToOrderNum();
 
-        return ReviewJpaEntityToDomainMapper.mapToDomain(savedEntity).orElse(null);
+            return ReviewJpaEntityToDomainMapper.mapToDomain(savedEntity).orElse(null);
+        } catch (DataIntegrityViolationException e) {
+            throw new ReviewAlreadyExistsException(review.getOrderId(), review.getPricePolicyId());
+        }
     }
 
     @Override
