@@ -15,6 +15,7 @@ public final class KafkaTopicConstants {
     public static final String SETTLEMENT_EXECUTED = "commerce.settlement.executed";
     public static final String ORDER_CANCELLED = "commerce.order.cancelled";
     public static final String ORDER_CANCEL_FAILED = "commerce.order.cancel-failed";
+    public static final String ORDER_AUTO_CONFIRM_FAILED = "commerce.order.auto-confirm-failed";
     public static final String ORDER_PURCHASE_CONFIRMED = "commerce.order.purchase-confirmed";
     public static final String ORDER_RETURNED = "commerce.order.returned";
     public static final String RETURN_REQUESTED = "commerce.order.return-requested";
@@ -106,6 +107,7 @@ public final class KafkaTopicConstants {
                 SETTLEMENT_EXECUTED,
                 ORDER_CANCELLED,
                 ORDER_CANCEL_FAILED,
+                ORDER_AUTO_CONFIRM_FAILED,
                 ORDER_PURCHASE_CONFIRMED,
                 ORDER_RETURNED,
                 RETURN_REQUESTED,
