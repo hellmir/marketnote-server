@@ -32,8 +32,7 @@ public class DeleteReviewService implements DeleteReviewUseCase {
 
         // 상품 평점 집계 업데이트
         ProductReviewAggregate productReviewAggregate = getReviewUseCase.getProductReviewAggregate(productId);
-        productReviewAggregate.reducePoint(rating.getValue());
-        productReviewAggregate.computeRating(-rating.getValue());
+        productReviewAggregate.removeReview(rating);
         updateReviewPort.update(productReviewAggregate);
 
         // 리뷰 삭제 이벤트 발행

@@ -65,82 +65,85 @@ class ProductReviewAggregateTest {
     }
 
     @Test
-    @DisplayName("addPoint는 5점 카운트를 증가시키고 totalRating/averageRating은 변경하지 않는다")
-    void shouldIncrementFivePointCount() {
+    @DisplayName("addReview(5점)는 5점 카운트를 증가시키고 totalRating과 평균을 갱신한다")
+    void shouldIncrementFivePointCountAndRecomputeAverageOnAdd() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
-        aggregate.addPoint(5);
+        aggregate.addReview(Rating.of(5.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
         assertThat(aggregate.getFivePointCount()).isEqualTo(1);
-        assertThat(aggregate.getTotalRating()).isEqualTo(0L);
-        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(aggregate.getTotalRating()).isEqualTo(5L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("5.00"));
     }
 
     @Test
-    @DisplayName("addPoint는 4점 카운트를 증가시킨다")
-    void shouldIncrementFourPointCount() {
+    @DisplayName("addReview(4점)는 4점 카운트를 증가시킨다")
+    void shouldIncrementFourPointCountOnAdd() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
-        aggregate.addPoint(4);
+        aggregate.addReview(Rating.of(4.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
         assertThat(aggregate.getFourPointCount()).isEqualTo(1);
+        assertThat(aggregate.getTotalRating()).isEqualTo(4L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.00"));
     }
 
     @Test
-    @DisplayName("addPoint는 3점 카운트를 증가시킨다")
-    void shouldIncrementThreePointCount() {
+    @DisplayName("addReview(3점)는 3점 카운트를 증가시킨다")
+    void shouldIncrementThreePointCountOnAdd() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
-        aggregate.addPoint(3);
+        aggregate.addReview(Rating.of(3.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
         assertThat(aggregate.getThreePointCount()).isEqualTo(1);
+        assertThat(aggregate.getTotalRating()).isEqualTo(3L);
     }
 
     @Test
-    @DisplayName("addPoint는 2점 카운트를 증가시킨다")
-    void shouldIncrementTwoPointCount() {
+    @DisplayName("addReview(2점)는 2점 카운트를 증가시킨다")
+    void shouldIncrementTwoPointCountOnAdd() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
-        aggregate.addPoint(2);
+        aggregate.addReview(Rating.of(2.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
         assertThat(aggregate.getTwoPointCount()).isEqualTo(1);
+        assertThat(aggregate.getTotalRating()).isEqualTo(2L);
     }
 
     @Test
-    @DisplayName("addPoint는 1점 카운트를 증가시킨다")
-    void shouldIncrementOnePointCount() {
+    @DisplayName("addReview(1점)는 1점 카운트를 증가시킨다")
+    void shouldIncrementOnePointCountOnAdd() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
-        aggregate.addPoint(1);
+        aggregate.addReview(Rating.of(1.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
         assertThat(aggregate.getOnePointCount()).isEqualTo(1);
+        assertThat(aggregate.getTotalRating()).isEqualTo(1L);
     }
 
     @Test
-    @DisplayName("addPoint에 유효하지 않은 점수를 전달하면 InvalidRatingPointException이 발생한다")
-    void shouldThrowExceptionWhenAddingInvalidPoint() {
-        ProductReviewAggregate aggregate = createEmptyAggregate();
-
-        assertThatThrownBy(() -> aggregate.addPoint(0))
+    @DisplayName("Rating.of에 유효하지 않은 점수를 전달하면 InvalidRatingPointException이 발생한다")
+    void shouldThrowExceptionWhenCreatingInvalidRating() {
+        assertThatThrownBy(() -> Rating.of(0.0f))
                 .isInstanceOf(InvalidRatingPointException.class);
-        assertThatThrownBy(() -> aggregate.addPoint(6))
+        assertThatThrownBy(() -> Rating.of(6.0f))
                 .isInstanceOf(InvalidRatingPointException.class);
-        assertThatThrownBy(() -> aggregate.addPoint(-1))
+        assertThatThrownBy(() -> Rating.of(-1.0f))
                 .isInstanceOf(InvalidRatingPointException.class);
     }
 
     @Test
-    @DisplayName("reducePoint는 해당 별점 카운트를 감소시킨다")
-    void shouldDecrementPointCount() {
+    @DisplayName("removeReview는 해당 별점 카운트를 감소시키고 totalRating과 평균을 갱신한다")
+    void shouldDecrementPointCountAndRecomputeAverageOnRemove() {
         ProductReviewAggregate aggregate = createAggregateWithAllPoints();
 
-        aggregate.reducePoint(5);
-        aggregate.reducePoint(3);
+        aggregate.removeReview(Rating.of(5.0f));
+        aggregate.removeReview(Rating.of(3.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(3);
         assertThat(aggregate.getFivePointCount()).isEqualTo(0);
@@ -148,41 +151,46 @@ class ProductReviewAggregateTest {
         assertThat(aggregate.getFourPointCount()).isEqualTo(1);
         assertThat(aggregate.getTwoPointCount()).isEqualTo(1);
         assertThat(aggregate.getOnePointCount()).isEqualTo(1);
+        // 15 - 5 - 3 = 7, 7/3 = 2.33 (HALF_UP)
+        assertThat(aggregate.getTotalRating()).isEqualTo(7L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("2.33"));
     }
 
     @Test
-    @DisplayName("reducePoint에 유효하지 않은 점수를 전달하면 InvalidRatingPointException이 발생한다")
-    void shouldThrowExceptionWhenReducingInvalidPoint() {
-        ProductReviewAggregate aggregate = createEmptyAggregate();
-
-        assertThatThrownBy(() -> aggregate.reducePoint(0))
-                .isInstanceOf(InvalidRatingPointException.class);
-        assertThatThrownBy(() -> aggregate.reducePoint(6))
-                .isInstanceOf(InvalidRatingPointException.class);
-    }
-
-    @Test
-    @DisplayName("changePoint는 이전 별점을 감소시키고 새 별점을 증가시킨다")
-    void shouldReducePreviousAndAddNewPoint() {
+    @DisplayName("changeReview는 이전 별점을 감소시키고 새 별점을 증가시키며 평균을 갱신한다")
+    void shouldReducePreviousAndAddNewRatingOnChange() {
         ProductReviewAggregate aggregate = createAggregateWithAllPoints();
 
-        aggregate.changePoint(Rating.of(5.0f), Rating.of(1.0f));
+        aggregate.changeReview(Rating.of(5.0f), Rating.of(1.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(5);
         assertThat(aggregate.getFivePointCount()).isEqualTo(0);
         assertThat(aggregate.getOnePointCount()).isEqualTo(2);
+        // 15 - 5 + 1 = 11, 11/5 = 2.20
+        assertThat(aggregate.getTotalRating()).isEqualTo(11L);
+        assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("2.20"));
+    }
+
+    @Test
+    @DisplayName("changeReview 이전/새 별점이 동일하면 상태를 변경하지 않는다")
+    void shouldNoOpWhenPreviousAndNextRatingsAreEqual() {
+        ProductReviewAggregate aggregate = createAggregateWithAllPoints();
+
+        aggregate.changeReview(Rating.of(5.0f), Rating.of(5.0f));
+
+        assertThat(aggregate.getTotalCount()).isEqualTo(5);
+        assertThat(aggregate.getFivePointCount()).isEqualTo(1);
+        assertThat(aggregate.getFourPointCount()).isEqualTo(1);
         assertThat(aggregate.getTotalRating()).isEqualTo(15L);
         assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("3.00"));
     }
 
     @Test
-    @DisplayName("computeRating은 totalRating을 누적하고 averageRating을 계산한다")
-    void shouldAccumulateTotalRatingAndComputeAverage() {
+    @DisplayName("addReview를 여러 번 호출하면 totalRating을 누적하고 평균을 재계산한다")
+    void shouldAccumulateTotalRatingAndComputeAverageOnMultipleAdds() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
-        aggregate.addPoint(5);
-        aggregate.computeRating(5);
-        aggregate.addPoint(3);
-        aggregate.computeRating(3);
+        aggregate.addReview(Rating.of(5.0f));
+        aggregate.addReview(Rating.of(3.0f));
 
         assertThat(aggregate.getTotalRating()).isEqualTo(8L);
         assertThat(aggregate.getAverageRating()).isEqualByComparingTo(new BigDecimal("4.00"));
@@ -203,8 +211,7 @@ class ProductReviewAggregateTest {
                 .averageRating(new BigDecimal("5.00"))
                 .build());
 
-        aggregate.reducePoint(5);
-        aggregate.computeRating(-5);
+        aggregate.removeReview(Rating.of(5.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(0);
         assertThat(aggregate.getTotalRating()).isEqualTo(0L);
@@ -216,8 +223,7 @@ class ProductReviewAggregateTest {
     void shouldRecomputeAverageAfterPartialDeletion() {
         ProductReviewAggregate aggregate = createAggregateWithAllPoints();
 
-        aggregate.reducePoint(5);
-        aggregate.computeRating(-5);
+        aggregate.removeReview(Rating.of(5.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(4);
         assertThat(aggregate.getTotalRating()).isEqualTo(10L);
@@ -229,12 +235,9 @@ class ProductReviewAggregateTest {
     void shouldStayConsistentAcrossAddDeleteAddCycle() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
-        aggregate.addPoint(4);
-        aggregate.computeRating(4);
-        aggregate.reducePoint(4);
-        aggregate.computeRating(-4);
-        aggregate.addPoint(3);
-        aggregate.computeRating(3);
+        aggregate.addReview(Rating.of(4.0f));
+        aggregate.removeReview(Rating.of(4.0f));
+        aggregate.addReview(Rating.of(3.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(1);
         assertThat(aggregate.getTotalRating()).isEqualTo(3L);
@@ -248,12 +251,9 @@ class ProductReviewAggregateTest {
     void shouldCalculateCorrectAverageAfterMultipleReviews() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
-        aggregate.addPoint(5);
-        aggregate.computeRating(5);
-        aggregate.addPoint(4);
-        aggregate.computeRating(4);
-        aggregate.addPoint(3);
-        aggregate.computeRating(3);
+        aggregate.addReview(Rating.of(5.0f));
+        aggregate.addReview(Rating.of(4.0f));
+        aggregate.addReview(Rating.of(3.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(3);
         assertThat(aggregate.getTotalRating()).isEqualTo(12L);
@@ -270,9 +270,9 @@ class ProductReviewAggregateTest {
         ProductReviewAggregate aggregate = createEmptyAggregate();
 
         int count = 100_000;
+        Rating fivePoint = Rating.of(5.0f);
         for (int i = 0; i < count; i++) {
-            aggregate.addPoint(5);
-            aggregate.computeRating(5);
+            aggregate.addReview(fivePoint);
         }
 
         assertThat(aggregate.getTotalCount()).isEqualTo(count);
@@ -284,12 +284,9 @@ class ProductReviewAggregateTest {
     @DisplayName("나눗셈이 무한소수가 되면 scale=2 HALF_UP로 반올림된다")
     void shouldRoundToScaleTwoWithHalfUp() {
         ProductReviewAggregate aggregate = createEmptyAggregate();
-        aggregate.addPoint(4);
-        aggregate.computeRating(4);
-        aggregate.addPoint(3);
-        aggregate.computeRating(3);
-        aggregate.addPoint(3);
-        aggregate.computeRating(3);
+        aggregate.addReview(Rating.of(4.0f));
+        aggregate.addReview(Rating.of(3.0f));
+        aggregate.addReview(Rating.of(3.0f));
 
         assertThat(aggregate.getTotalCount()).isEqualTo(3);
         assertThat(aggregate.getTotalRating()).isEqualTo(10L);

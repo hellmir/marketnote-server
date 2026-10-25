@@ -55,8 +55,7 @@ public class UpdateReviewService implements UpdateReviewUseCase {
                 review.getProductId()
         );
         if (!previousRating.equals(newRating)) {
-            productReviewAggregate.changePoint(previousRating, newRating);
-            productReviewAggregate.computeRating(newRating.getValue() - previousRating.getValue());
+            productReviewAggregate.changeReview(previousRating, newRating);
             updateReviewPort.update(productReviewAggregate);
         }
 

@@ -506,8 +506,7 @@ class ReviewPersistenceAdapterTest {
             ProductReviewAggregateJpaEntity entity = ProductReviewAggregateJpaEntity.from(aggregate);
             when(productReviewAggregateJpaRepository.findByProductId(1000L))
                     .thenReturn(Optional.of(entity));
-            aggregate.addPoint(4);
-            aggregate.computeRating(4);
+            aggregate.addReview(Rating.of(4.0f));
 
             adapter.update(aggregate);
 

@@ -48,50 +48,36 @@ public class ProductReviewAggregate {
                 .totalRating(0L)
                 .averageRating(BigDecimal.ZERO)
                 .build();
-        Rating rating = review.getRating();
-        productReviewAggregate.addPoint(rating.getValue());
-        productReviewAggregate.computeRating(rating.getValue());
+        productReviewAggregate.addReview(review.getRating());
 
         return productReviewAggregate;
     }
 
-    public void changePoint(Rating previousRating, Rating newRating) {
-        reducePoint(previousRating.getValue());
-        addPoint(newRating.getValue());
+    public void addReview(Rating rating) {
+        int point = rating.getValue();
+        incrementPointCount(point);
+        totalRating += point;
+        recomputeAverage();
     }
 
-    public void reducePoint(int point) {
-        --totalCount;
-
-        if (RatingPoint.isFive(point)) {
-            --fivePointCount;
-            return;
-        }
-
-        if (RatingPoint.isFour(point)) {
-            --fourPointCount;
-            return;
-        }
-
-        if (RatingPoint.isThree(point)) {
-            --threePointCount;
-            return;
-        }
-
-        if (RatingPoint.isTwo(point)) {
-            --twoPointCount;
-            return;
-        }
-
-        if (RatingPoint.isOne(point)) {
-            --onePointCount;
-            return;
-        }
-
-        throw new InvalidRatingPointException(point);
+    public void removeReview(Rating rating) {
+        int point = rating.getValue();
+        decrementPointCount(point);
+        totalRating -= point;
+        recomputeAverage();
     }
 
-    public void addPoint(int point) {
+    public void changeReview(Rating previous, Rating next) {
+        if (previous.equals(next)) {
+            return;
+        }
+        decrementPointCount(previous.getValue());
+        incrementPointCount(next.getValue());
+        totalRating += (next.getValue() - previous.getValue());
+        recomputeAverage();
+    }
+
+    private void incrementPointCount(int point) {
         ++totalCount;
 
         if (RatingPoint.isFive(point)) {
@@ -122,8 +108,38 @@ public class ProductReviewAggregate {
         throw new InvalidRatingPointException(point);
     }
 
-    public void computeRating(int point) {
-        totalRating += point;
+    private void decrementPointCount(int point) {
+        --totalCount;
+
+        if (RatingPoint.isFive(point)) {
+            --fivePointCount;
+            return;
+        }
+
+        if (RatingPoint.isFour(point)) {
+            --fourPointCount;
+            return;
+        }
+
+        if (RatingPoint.isThree(point)) {
+            --threePointCount;
+            return;
+        }
+
+        if (RatingPoint.isTwo(point)) {
+            --twoPointCount;
+            return;
+        }
+
+        if (RatingPoint.isOne(point)) {
+            --onePointCount;
+            return;
+        }
+
+        throw new InvalidRatingPointException(point);
+    }
+
+    private void recomputeAverage() {
         if (totalCount == 0) {
             totalRating = 0L;
             averageRating = BigDecimal.ZERO;
