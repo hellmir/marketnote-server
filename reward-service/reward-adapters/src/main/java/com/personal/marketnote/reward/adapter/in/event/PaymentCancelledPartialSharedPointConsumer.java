@@ -7,6 +7,7 @@ import com.personal.marketnote.common.kafka.event.EventPayloadValidator;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.reward.configuration.RewardProperties;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
@@ -15,7 +16,6 @@ import com.personal.marketnote.reward.port.in.usecase.point.ModifyPendingSharedP
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -34,9 +34,7 @@ public class PaymentCancelledPartialSharedPointConsumer {
 
     private final ModifyPendingSharedPointUseCase modifyPendingSharedPointUseCase;
     private final ObjectMapper objectMapper;
-
-    @Value("${reward.share-point-rate:0.1}")
-    private BigDecimal sharePointRate;
+    private final RewardProperties rewardProperties;
 
     @KafkaListener(
             topics = KafkaTopicConstants.PAYMENT_CANCELLED,
@@ -155,7 +153,7 @@ public class PaymentCancelledPartialSharedPointConsumer {
             return null;
         }
 
-        long originalSharePoint = calculateSharedPoint(paymentAmount, sharePointRate);
+        long originalSharePoint = calculateSharedPoint(paymentAmount, rewardProperties.getSharePointRate());
         if (originalSharePoint <= 0) {
             return null;
         }

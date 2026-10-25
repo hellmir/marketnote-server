@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent;
 import com.personal.marketnote.common.kafka.event.PaymentCancelledEvent.OrderProductItem;
+import com.personal.marketnote.reward.configuration.RewardProperties;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
 import com.personal.marketnote.reward.exception.DuplicateUserPointHistoryException;
@@ -20,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -48,12 +48,15 @@ class PaymentCancelledPartialSharedPointConsumerTest {
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Spy
+    private RewardProperties rewardProperties = new RewardProperties();
+
     @Mock
     private Acknowledgment acknowledgment;
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(consumer, "sharePointRate", new BigDecimal("0.1"));
+        rewardProperties.setSharePointRate(new BigDecimal("0.1"));
     }
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long orderId, boolean isFullCancel,

@@ -8,6 +8,7 @@ import com.personal.marketnote.common.saga.SagaResponsePublisher;
 import com.personal.marketnote.common.saga.SagaStepMessage;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.adapter.in.event.saga.payload.SharedPointSagaPayload;
+import com.personal.marketnote.reward.configuration.RewardProperties;
 import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointChangeType;
 import com.personal.marketnote.reward.domain.point.UserPointSourceType;
@@ -21,7 +22,6 @@ import com.personal.marketnote.reward.port.out.point.FindUserPointPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -46,9 +46,7 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
     private final CancelPendingPointUseCase cancelPendingPointUseCase;
     private final FindUserPointPort findUserPointPort;
     private final SagaResponsePublisher sagaResponsePublisher;
-
-    @Value("${reward.share-point-rate:0.1}")
-    private BigDecimal sharePointRate;
+    private final RewardProperties rewardProperties;
 
     @KafkaListener(
             topics = KafkaTopicConstants.SAGA_ORDER_PAYMENT_DOWNSTREAM_SHARED_POINT,
@@ -116,7 +114,7 @@ public class OrderPaymentCompletedSharedPointSagaConsumer {
                 return;
             }
 
-            long sharePointAmount = calculateSharedPoint(payload.totalAmount(), sharePointRate);
+            long sharePointAmount = calculateSharedPoint(payload.totalAmount(), rewardProperties.getSharePointRate());
             if (sharePointAmount <= 0) {
                 skipSuccess(stepMessage, "공유 포인트 금액 0 이하");
                 return;
