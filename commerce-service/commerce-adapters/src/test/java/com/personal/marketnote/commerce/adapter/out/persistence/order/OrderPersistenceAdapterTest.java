@@ -633,11 +633,11 @@ class OrderPersistenceAdapterTest {
     }
 
     @Nested
-    @DisplayName("findOrderIdsEligibleForAutoConfirm")
-    class FindOrderIdsEligibleForAutoConfirm {
+    @DisplayName("findOrderIdsScheduledForAutoConfirm")
+    class FindOrderIdsScheduledForAutoConfirm {
 
         @Test
-        @DisplayName("배송완료 상태이며 기준일 이전에 배송된 주문 ID를 조회한다")
+        @DisplayName("배송완료 상태이며 scheduledAutoConfirmAt <= now 주문 ID를 조회한다")
         void shouldFindEligibleOrderIds() {
             // given
             OrderJpaEntity orderEntity = persistOrder(1L, OrderStatus.DELIVERED);
@@ -645,21 +645,21 @@ class OrderPersistenceAdapterTest {
             entityManager.createNativeQuery("""
                     INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
                         quantity, unit_amount, accumulated_point, order_status, review_yn,
-                        delivered_at, created_at, modified_at)
+                        scheduled_auto_confirm_at, created_at, modified_at)
                     VALUES (:orderId, 100, 10, :orderProductKey,
                         1, 25000, 500, 'DELIVERED', false,
-                        :deliveredAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                     """)
                     .setParameter("orderId", orderEntity.getId())
                     .setParameter("orderProductKey", UUID.randomUUID().toString())
-                    .setParameter("deliveredAt", LocalDateTime.of(2026, 4, 1, 10, 0))
+                    .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 1, 10, 0))
                     .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             // when
-            List<Long> eligibleIds = adapter.findOrderIdsEligibleForAutoConfirm(
-                    LocalDateTime.of(2026, 4, 10, 0, 0)
+            List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
+                    LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 100
             );
 
             // then
@@ -667,29 +667,29 @@ class OrderPersistenceAdapterTest {
         }
 
         @Test
-        @DisplayName("배송일이 기준일 이후이면 조회되지 않는다")
-        void shouldNotFindOrdersDeliveredAfterCutoff() {
+        @DisplayName("scheduledAutoConfirmAt이 기준일 이후이면 조회되지 않는다")
+        void shouldNotFindOrdersScheduledAfterNow() {
             // given
             OrderJpaEntity orderEntity = persistOrder(1L, OrderStatus.DELIVERED);
 
             entityManager.createNativeQuery("""
                     INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
                         quantity, unit_amount, accumulated_point, order_status, review_yn,
-                        delivered_at, created_at, modified_at)
+                        scheduled_auto_confirm_at, created_at, modified_at)
                     VALUES (:orderId, 100, 10, :orderProductKey,
                         1, 25000, 500, 'DELIVERED', false,
-                        :deliveredAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                     """)
                     .setParameter("orderId", orderEntity.getId())
                     .setParameter("orderProductKey", UUID.randomUUID().toString())
-                    .setParameter("deliveredAt", LocalDateTime.of(2026, 4, 15, 10, 0))
+                    .setParameter("scheduledAutoConfirmAt", LocalDateTime.of(2026, 4, 15, 10, 0))
                     .executeUpdate();
             entityManager.flush();
             entityManager.clear();
 
             // when
-            List<Long> eligibleIds = adapter.findOrderIdsEligibleForAutoConfirm(
-                    LocalDateTime.of(2026, 4, 10, 0, 0)
+            List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
+                    LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 100
             );
 
             // then
@@ -700,12 +700,76 @@ class OrderPersistenceAdapterTest {
         @DisplayName("조건에 맞는 주문이 없으면 빈 리스트를 반환한다")
         void shouldReturnEmptyListWhenNoEligible() {
             // when
-            List<Long> eligibleIds = adapter.findOrderIdsEligibleForAutoConfirm(
-                    LocalDateTime.of(2020, 1, 1, 0, 0)
+            List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
+                    LocalDateTime.of(2020, 1, 1, 0, 0), 0L, 100
             );
 
             // then
             assertThat(eligibleIds).isEmpty();
+        }
+
+        @Test
+        @DisplayName("lastId 커서를 초과하는 주문만 반환한다")
+        void shouldReturnOrdersAboveCursor() {
+            // given
+            OrderJpaEntity firstOrder = persistOrder(1L, OrderStatus.DELIVERED);
+            OrderJpaEntity secondOrder = persistOrder(1L, OrderStatus.DELIVERED);
+            LocalDateTime scheduledAt = LocalDateTime.of(2026, 4, 1, 10, 0);
+
+            insertOrderProductRow(firstOrder.getId(), scheduledAt);
+            insertOrderProductRow(secondOrder.getId(), scheduledAt);
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
+                    LocalDateTime.of(2026, 4, 10, 0, 0), firstOrder.getId(), 100
+            );
+
+            // then
+            assertThat(eligibleIds)
+                    .containsExactly(secondOrder.getId())
+                    .doesNotContain(firstOrder.getId());
+        }
+
+        @Test
+        @DisplayName("limit만큼만 조회된다")
+        void shouldRespectLimit() {
+            // given
+            OrderJpaEntity firstOrder = persistOrder(1L, OrderStatus.DELIVERED);
+            OrderJpaEntity secondOrder = persistOrder(1L, OrderStatus.DELIVERED);
+            OrderJpaEntity thirdOrder = persistOrder(1L, OrderStatus.DELIVERED);
+            LocalDateTime scheduledAt = LocalDateTime.of(2026, 4, 1, 10, 0);
+
+            insertOrderProductRow(firstOrder.getId(), scheduledAt);
+            insertOrderProductRow(secondOrder.getId(), scheduledAt);
+            insertOrderProductRow(thirdOrder.getId(), scheduledAt);
+            entityManager.flush();
+            entityManager.clear();
+
+            // when
+            List<Long> eligibleIds = adapter.findOrderIdsScheduledForAutoConfirm(
+                    LocalDateTime.of(2026, 4, 10, 0, 0), 0L, 2
+            );
+
+            // then
+            assertThat(eligibleIds).containsExactly(firstOrder.getId(), secondOrder.getId());
+        }
+
+        private void insertOrderProductRow(Long orderId, LocalDateTime scheduledAutoConfirmAt) {
+            entityManager.createNativeQuery("""
+                    INSERT INTO order_product (order_id, price_policy_id, seller_id, order_product_key,
+                        quantity, unit_amount, accumulated_point, order_status, review_yn,
+                        scheduled_auto_confirm_at, created_at, modified_at)
+                    VALUES (:orderId, :pricePolicyId, 10, :orderProductKey,
+                        1, 25000, 500, 'DELIVERED', false,
+                        :scheduledAutoConfirmAt, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    """)
+                    .setParameter("orderId", orderId)
+                    .setParameter("pricePolicyId", System.nanoTime())
+                    .setParameter("orderProductKey", UUID.randomUUID().toString())
+                    .setParameter("scheduledAutoConfirmAt", scheduledAutoConfirmAt)
+                    .executeUpdate();
         }
     }
 }

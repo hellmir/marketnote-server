@@ -248,31 +248,31 @@ class OrderQueryRepositoryImplTest {
     }
 
     @Nested
-    @DisplayName("findOrderIdsEligibleForAutoConfirm - 자동 구매 확정 대상 조회")
-    class FindOrderIdsEligibleForAutoConfirm {
+    @DisplayName("findOrderIdsScheduledForAutoConfirm - 자동 구매 확정 대상 청크 조회")
+    class FindOrderIdsScheduledForAutoConfirm {
 
         @Test
-        @DisplayName("주문/상품 모두 DELIVERED이고 deliveredAt <= deliveredBefore인 주문 ID가 id ASC로 반환된다")
-        void returnsDeliveredOrdersWithinThreshold() {
-            LocalDateTime threshold = LocalDateTime.of(2026, 4, 1, 0, 0);
-            Long first = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, threshold.minusDays(3));
-            Long second = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, threshold.minusDays(1));
+        @DisplayName("주문/상품 모두 DELIVERED이고 scheduledAutoConfirmAt <= now인 주문 ID가 id ASC로 반환된다")
+        void returnsDeliveredOrdersWithScheduledAutoConfirm() {
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
+            Long first = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(3));
+            Long second = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(1));
             flushAndClear();
 
-            List<Long> results = orderJpaRepository.findOrderIdsEligibleForAutoConfirm(threshold);
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, 0L, 100);
 
             assertThat(results).containsExactly(first, second);
         }
 
         @Test
-        @DisplayName("deliveredAt > deliveredBefore 주문은 제외한다")
-        void excludesOrdersDeliveredAfterThreshold() {
-            LocalDateTime threshold = LocalDateTime.of(2026, 4, 1, 0, 0);
-            Long eligible = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, threshold.minusDays(1));
-            saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, threshold.plusDays(1));
+        @DisplayName("scheduledAutoConfirmAt > now 주문은 제외한다")
+        void excludesOrdersScheduledAfterNow() {
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
+            Long eligible = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(1));
+            saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.plusDays(1));
             flushAndClear();
 
-            List<Long> results = orderJpaRepository.findOrderIdsEligibleForAutoConfirm(threshold);
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, 0L, 100);
 
             assertThat(results).containsExactly(eligible);
         }
@@ -280,14 +280,14 @@ class OrderQueryRepositoryImplTest {
         @Test
         @DisplayName("주문이 DELIVERED가 아니면 제외한다")
         void excludesOrdersNotDelivered() {
-            LocalDateTime threshold = LocalDateTime.of(2026, 4, 1, 0, 0);
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
             saveOrderAndProduct(
                     DEFAULT_BUYER_ID, OrderStatus.SHIPPING, DEFAULT_SELLER_ID,
-                    LocalDateTime.now(), OrderStatus.DELIVERED, threshold.minusDays(1)
+                    LocalDateTime.now(), OrderStatus.DELIVERED, now.minusDays(1)
             );
             flushAndClear();
 
-            List<Long> results = orderJpaRepository.findOrderIdsEligibleForAutoConfirm(threshold);
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, 0L, 100);
 
             assertThat(results).isEmpty();
         }
@@ -295,29 +295,66 @@ class OrderQueryRepositoryImplTest {
         @Test
         @DisplayName("상품이 DELIVERED가 아니면 제외한다")
         void excludesOrdersWithProductNotDelivered() {
-            LocalDateTime threshold = LocalDateTime.of(2026, 4, 1, 0, 0);
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
             saveOrderAndProduct(
                     DEFAULT_BUYER_ID, OrderStatus.DELIVERED, DEFAULT_SELLER_ID,
-                    LocalDateTime.now(), OrderStatus.SHIPPING, threshold.minusDays(1)
+                    LocalDateTime.now(), OrderStatus.SHIPPING, now.minusDays(1)
             );
             flushAndClear();
 
-            List<Long> results = orderJpaRepository.findOrderIdsEligibleForAutoConfirm(threshold);
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, 0L, 100);
 
             assertThat(results).isEmpty();
         }
 
         @Test
-        @DisplayName("deliveredAt이 null이면 제외한다")
-        void excludesOrdersWithNullDeliveredAt() {
-            LocalDateTime threshold = LocalDateTime.of(2026, 4, 1, 0, 0);
+        @DisplayName("scheduledAutoConfirmAt이 null이면 제외한다")
+        void excludesOrdersWithNullScheduledAutoConfirmAt() {
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
             saveOrderAndProduct(
                     DEFAULT_BUYER_ID, OrderStatus.DELIVERED, DEFAULT_SELLER_ID,
                     LocalDateTime.now(), OrderStatus.DELIVERED, null
             );
             flushAndClear();
 
-            List<Long> results = orderJpaRepository.findOrderIdsEligibleForAutoConfirm(threshold);
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, 0L, 100);
+
+            assertThat(results).isEmpty();
+        }
+
+        @Test
+        @DisplayName("lastId를 커서로 사용해 id > lastId 주문만 반환한다")
+        void returnsOrdersWithIdGreaterThanCursor() {
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
+            Long first = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(2));
+            Long second = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(1));
+            flushAndClear();
+
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, first, 100);
+
+            assertThat(results).containsExactly(second);
+        }
+
+        @Test
+        @DisplayName("limit만큼만 조회된다")
+        void respectsLimit() {
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
+            Long first = saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(3));
+            saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(2));
+            saveDeliveredOrder(DEFAULT_BUYER_ID, DEFAULT_SELLER_ID, now.minusDays(1));
+            flushAndClear();
+
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, 0L, 1);
+
+            assertThat(results).containsExactly(first);
+        }
+
+        @Test
+        @DisplayName("대상이 없으면 빈 리스트를 반환한다")
+        void returnsEmptyWhenNoEligible() {
+            LocalDateTime now = LocalDateTime.of(2026, 4, 1, 0, 0);
+
+            List<Long> results = orderJpaRepository.findOrderIdsScheduledForAutoConfirm(now, 0L, 100);
 
             assertThat(results).isEmpty();
         }
@@ -333,9 +370,9 @@ class OrderQueryRepositoryImplTest {
         return orderId;
     }
 
-    private Long saveDeliveredOrder(Long buyerId, Long sellerId, LocalDateTime deliveredAt) {
+    private Long saveDeliveredOrder(Long buyerId, Long sellerId, LocalDateTime scheduledAutoConfirmAt) {
         Long orderId = insertOrderRow(buyerId, OrderStatus.DELIVERED, LocalDateTime.now());
-        insertOrderProductRow(orderId, sellerId, OrderStatus.DELIVERED, deliveredAt);
+        insertOrderProductRow(orderId, sellerId, OrderStatus.DELIVERED, scheduledAutoConfirmAt);
         return orderId;
     }
 
@@ -345,10 +382,10 @@ class OrderQueryRepositoryImplTest {
             Long sellerId,
             LocalDateTime createdAt,
             OrderStatus productStatus,
-            LocalDateTime deliveredAt
+            LocalDateTime scheduledAutoConfirmAt
     ) {
         Long orderId = insertOrderRow(buyerId, orderStatus, createdAt);
-        insertOrderProductRow(orderId, sellerId, productStatus, deliveredAt);
+        insertOrderProductRow(orderId, sellerId, productStatus, scheduledAutoConfirmAt);
         return orderId;
     }
 
@@ -382,17 +419,17 @@ class OrderQueryRepositoryImplTest {
     }
 
     private void insertOrderProductRow(
-            Long orderId, Long sellerId, OrderStatus status, LocalDateTime deliveredAt
+            Long orderId, Long sellerId, OrderStatus status, LocalDateTime scheduledAutoConfirmAt
     ) {
         String sql = """
                 INSERT INTO order_product (
                     price_policy_id, order_id, seller_id, order_product_key,
-                    quantity, unit_amount, order_status, review_yn, delivered_at,
-                    created_at, modified_at
+                    quantity, unit_amount, order_status, review_yn,
+                    scheduled_auto_confirm_at, created_at, modified_at
                 ) VALUES (
                     :pricePolicyId, :orderId, :sellerId, :orderProductKey,
-                    :quantity, :unitAmount, :orderStatus, FALSE, :deliveredAt,
-                    :createdAt, :modifiedAt
+                    :quantity, :unitAmount, :orderStatus, FALSE,
+                    :scheduledAutoConfirmAt, :createdAt, :modifiedAt
                 )
                 """;
         LocalDateTime now = LocalDateTime.now();
@@ -404,7 +441,7 @@ class OrderQueryRepositoryImplTest {
                 .setParameter("quantity", 1)
                 .setParameter("unitAmount", 10000L)
                 .setParameter("orderStatus", status.name())
-                .setParameter("deliveredAt", deliveredAt)
+                .setParameter("scheduledAutoConfirmAt", scheduledAutoConfirmAt)
                 .setParameter("createdAt", now)
                 .setParameter("modifiedAt", now)
                 .executeUpdate();
