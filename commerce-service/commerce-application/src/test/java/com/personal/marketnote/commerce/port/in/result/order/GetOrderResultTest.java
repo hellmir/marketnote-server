@@ -69,4 +69,65 @@ class GetOrderResultTest {
         assertThat(result.orderProducts().get(0).orderProductKey()).isEqualTo(firstKey);
         assertThat(result.orderProducts().get(1).orderProductKey()).isEqualTo(secondKey);
     }
+
+    @Test
+    @DisplayName("Order의 scheduledAutoConfirmAt이 결과에 매핑된다")
+    void shouldMapScheduledAutoConfirmAtFromOrder() {
+        // given
+        LocalDateTime scheduledAutoConfirmAt = LocalDateTime.of(2026, 4, 18, 12, 0);
+        OrderProductSnapshotState productState = OrderProductSnapshotState.builder()
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .orderProductKey(UUID.randomUUID())
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED)
+                .build();
+
+        Order order = Order.from(OrderSnapshotState.builder()
+                .id(1L)
+                .buyerId(100L)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-1"))
+                .orderStatus(OrderStatus.DELIVERED)
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .orderProductStates(List.of(productState))
+                .scheduledAutoConfirmAt(scheduledAutoConfirmAt)
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+
+        // when
+        GetOrderResult result = GetOrderResult.from(order, Map.of());
+
+        // then
+        assertThat(result.scheduledAutoConfirmAt()).isEqualTo(scheduledAutoConfirmAt);
+    }
+
+    @Test
+    @DisplayName("Order.scheduledAutoConfirmAt이 null이면 결과에서도 null이다")
+    void shouldReturnNullScheduledAutoConfirmAtWhenOrderHasNone() {
+        // given
+        Order order = Order.from(OrderSnapshotState.builder()
+                .id(1L)
+                .buyerId(100L)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-1"))
+                .orderStatus(OrderStatus.PAID)
+                .amount(OrderAmount.from(OrderAmountCreateState.builder().totalAmount(50000L).paidAmount(null).couponAmount(0L).pointAmount(0L).shippingFee(null).build()))
+                .shippingAddress(ShippingAddress.from(ShippingAddressCreateState.builder().recipientName("수령인").recipientPhoneNumber("010-1234-5678").zipCode("12345").address("서울시 강남구").addressDetail("상세주소").deliveryRequestType(null).deliveryRequestMessage(null).build()))
+                .orderProductStates(List.of())
+                .createdAt(LocalDateTime.now())
+                .modifiedAt(LocalDateTime.now())
+                .build());
+
+        // when
+        GetOrderResult result = GetOrderResult.from(order, Map.of());
+
+        // then
+        assertThat(result.scheduledAutoConfirmAt()).isNull();
+    }
 }

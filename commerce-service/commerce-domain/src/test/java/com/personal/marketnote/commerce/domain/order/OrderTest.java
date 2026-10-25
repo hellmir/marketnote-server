@@ -379,6 +379,76 @@ class OrderTest {
         assertThat(untouched.getScheduledAutoConfirmAt()).isNull();
     }
 
+    @Test
+    @DisplayName("changeAllProductsStatus에서 DELIVERED 전이 시 Order에도 scheduledAutoConfirmAt이 now + autoConfirmDays로 설정된다")
+    void shouldSetScheduledAutoConfirmAtOnOrderWhenDeliveredViaChangeAllProductsStatus() {
+        Order order = createOrderWithProducts(OrderStatus.SHIPPING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
+        long autoConfirmDays = 7L;
+
+        order.changeAllProductsStatus(OrderStatus.DELIVERED, now, autoConfirmDays);
+
+        assertThat(order.getScheduledAutoConfirmAt()).isEqualTo(now.plusDays(autoConfirmDays));
+    }
+
+    @Test
+    @DisplayName("changeAllProductsStatus에서 DELIVERED가 아닌 상태 전이 시 Order의 scheduledAutoConfirmAt은 설정되지 않는다")
+    void shouldNotSetScheduledAutoConfirmAtOnOrderWhenNotDelivered() {
+        Order order = createOrderWithProducts(OrderStatus.PAYMENT_EXECUTING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
+
+        order.changeAllProductsStatus(OrderStatus.PAID, now, 7L);
+
+        assertThat(order.getScheduledAutoConfirmAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("changeProductsStatus에서 모든 상품이 DELIVERED로 전이되어 Order가 DELIVERED가 되면 Order에도 scheduledAutoConfirmAt이 설정된다")
+    void shouldSetScheduledAutoConfirmAtOnOrderWhenAllProductsDeliveredViaPartialChange() {
+        Order order = createOrderWithProducts(OrderStatus.SHIPPING);
+        LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
+        long autoConfirmDays = 7L;
+
+        order.changeProductsStatus(List.of(1L, 2L), OrderStatus.DELIVERED, now, autoConfirmDays);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
+        assertThat(order.getScheduledAutoConfirmAt()).isEqualTo(now.plusDays(autoConfirmDays));
+    }
+
+    @Test
+    @DisplayName("changeProductsStatus에서 일부만 CONFIRMED되어 Order가 PARTIALLY_CONFIRMED로 전이되면 Order의 scheduledAutoConfirmAt은 설정되지 않는다")
+    void shouldNotSetScheduledAutoConfirmAtOnOrderWhenPartiallyConfirmed() {
+        Order order = createOrderWithDeliveredProducts();
+        LocalDateTime now = LocalDateTime.of(2026, 4, 11, 12, 0);
+        long autoConfirmDays = 7L;
+
+        order.changeProductsStatus(List.of(1L), OrderStatus.CONFIRMED, now, autoConfirmDays);
+
+        assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PARTIALLY_CONFIRMED);
+        assertThat(order.getScheduledAutoConfirmAt()).isNull();
+    }
+
+    @Test
+    @DisplayName("SnapshotState로 복원하면 scheduledAutoConfirmAt이 매핑된다")
+    void shouldRestoreScheduledAutoConfirmAtFromSnapshotState() {
+        LocalDateTime scheduledAutoConfirmAt = LocalDateTime.of(2026, 4, 18, 12, 0);
+        OrderSnapshotState state = OrderSnapshotState.builder()
+                .id(1L)
+                .buyerId(100L)
+                .orderKey(UUID.randomUUID())
+                .orderNumber(OrderNumber.of("ORD-20260101-001"))
+                .orderStatus(OrderStatus.DELIVERED)
+                .amount(createOrderAmount())
+                .shippingAddress(createShippingAddress())
+                .orderProductStates(List.of())
+                .scheduledAutoConfirmAt(scheduledAutoConfirmAt)
+                .build();
+
+        Order order = Order.from(state);
+
+        assertThat(order.getScheduledAutoConfirmAt()).isEqualTo(scheduledAutoConfirmAt);
+    }
+
     private OrderCreateState createDefaultOrderCreateState() {
         return OrderCreateState.builder()
                 .buyerId(1L)

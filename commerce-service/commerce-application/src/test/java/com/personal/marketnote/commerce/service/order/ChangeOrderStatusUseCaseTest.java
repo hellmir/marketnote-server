@@ -192,6 +192,49 @@ class ChangeOrderStatusUseCaseTest {
             });
             verify(autoConfirmSchedulerProperties, atLeastOnce()).getAutoConfirmDays();
         }
+
+        @Test
+        @DisplayName("SHIPPING에서 DELIVERED로 전이 시 Order에도 scheduledAutoConfirmAt이 properties.autoConfirmDays 기준으로 설정된다")
+        void shouldSetOrderScheduledAutoConfirmAtWhenChangingFromShippingToDelivered() {
+            // given
+            Long orderId = 1L;
+            Order order = createOrder(orderId, 100L, OrderStatus.SHIPPING, 10L);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+            autoConfirmSchedulerProperties.setAutoConfirmDays(5L);
+
+            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
+                    .id(orderId)
+                    .orderStatus(OrderStatus.DELIVERED)
+                    .build();
+
+            // when
+            changeOrderStatusService.changeOrderStatus(command);
+
+            // then
+            LocalDateTime now = LocalDateTime.now(clock);
+            assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.DELIVERED);
+            assertThat(order.getScheduledAutoConfirmAt()).isEqualTo(now.plusDays(5L));
+        }
+
+        @Test
+        @DisplayName("DELIVERED가 아닌 상태로 전이하면 Order.scheduledAutoConfirmAt은 설정되지 않는다")
+        void shouldNotSetOrderScheduledAutoConfirmAtWhenNotDelivered() {
+            // given
+            Long orderId = 1L;
+            Order order = createOrder(orderId, 100L, OrderStatus.PAID, 10L);
+            when(getOrderUseCase.getOrder(orderId)).thenReturn(order);
+
+            ChangeOrderStatusCommand command = ChangeOrderStatusCommand.builder()
+                    .id(orderId)
+                    .orderStatus(OrderStatus.PREPARING)
+                    .build();
+
+            // when
+            changeOrderStatusService.changeOrderStatus(command);
+
+            // then
+            assertThat(order.getScheduledAutoConfirmAt()).isNull();
+        }
     }
 
     @Nested
