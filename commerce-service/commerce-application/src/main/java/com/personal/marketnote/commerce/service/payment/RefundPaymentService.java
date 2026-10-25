@@ -166,9 +166,10 @@ public class RefundPaymentService implements RefundPaymentUseCase {
         PaymentCancelVendorResult vendorResult = paymentVendorPort.cancelPayment(vendorCommand);
 
         if (!vendorResult.success()) {
-            throw new PaymentCancelException(
-                    "결제 취소 실패 [" + vendorResult.resultCode() + "]: " + vendorResult.resultMessage()
+            log.error("PG 결제 환불 실패 - transactionNumber: {}, resultCode: {}, resultMessage: {}",
+                    transactionNumber, vendorResult.resultCode(), vendorResult.resultMessage()
             );
+            throw new PaymentCancelException("결제 환불에 실패했습니다.");
         }
 
         return vendorResult;
