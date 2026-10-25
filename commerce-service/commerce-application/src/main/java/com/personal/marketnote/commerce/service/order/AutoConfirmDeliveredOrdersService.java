@@ -1,9 +1,11 @@
 package com.personal.marketnote.commerce.service.order;
 
+import com.personal.marketnote.commerce.domain.order.Order;
 import com.personal.marketnote.commerce.domain.order.OrderStatus;
 import com.personal.marketnote.commerce.port.in.command.order.ChangeOrderStatusCommand;
 import com.personal.marketnote.commerce.port.in.usecase.order.AutoConfirmDeliveredOrdersUseCase;
 import com.personal.marketnote.commerce.port.in.usecase.order.ChangeOrderStatusUseCase;
+import com.personal.marketnote.commerce.port.out.event.PublishOrderAutoConfirmFailedEventPort;
 import com.personal.marketnote.commerce.port.out.order.FindOrderPort;
 import com.personal.marketnote.common.application.UseCase;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @UseCase
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class AutoConfirmDeliveredOrdersService implements AutoConfirmDeliveredOr
 
     private final FindOrderPort findOrderPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
+    private final PublishOrderAutoConfirmFailedEventPort publishOrderAutoConfirmFailedEventPort;
     private final Clock clock;
 
     @Override
@@ -59,6 +63,20 @@ public class AutoConfirmDeliveredOrdersService implements AutoConfirmDeliveredOr
             log.info("주문 자동 확정 완료 - orderId: {}", orderId);
         } catch (Exception e) {
             log.error("주문 자동 확정 실패 - orderId: {}, error: {}", orderId, e.getMessage(), e);
+            publishAutoConfirmFailedEvent(orderId, e.getMessage());
         }
+    }
+
+    private void publishAutoConfirmFailedEvent(Long orderId, String reason) {
+        Optional<Order> orderOptional = findOrderPort.findById(orderId);
+        if (orderOptional.isEmpty()) {
+            log.warn("자동 확정 실패 이벤트 발행 skip - 주문 조회 불가. orderId: {}", orderId);
+            return;
+        }
+        Order order = orderOptional.get();
+        LocalDateTime failedAt = LocalDateTime.now(clock);
+        publishOrderAutoConfirmFailedEventPort.publish(
+                orderId, order.getBuyerId(), reason, failedAt
+        );
     }
 }

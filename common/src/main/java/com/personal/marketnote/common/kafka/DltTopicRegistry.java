@@ -11,6 +11,7 @@ public final class DltTopicRegistry {
             KafkaTopicConstants.PAYMENT_FAILED,
             KafkaTopicConstants.PAYMENT_CANCELLED,
             KafkaTopicConstants.SETTLEMENT_EXECUTED,
+            KafkaTopicConstants.ORDER_AUTO_CONFIRM_FAILED,
             KafkaTopicConstants.ORDER_PURCHASE_CONFIRMED,
             KafkaTopicConstants.PRODUCT_REGISTERED,
             KafkaTopicConstants.PRICE_POLICY_CREATED,
