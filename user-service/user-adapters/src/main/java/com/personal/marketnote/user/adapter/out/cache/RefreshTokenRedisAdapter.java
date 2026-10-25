@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +45,9 @@ public class RefreshTokenRedisAdapter implements DeleteRefreshTokenPort, SaveRef
             return false;
         }
         String expected = VALUE_PREFIX + Sha256HashUtils.encode(rawRefreshToken);
-        return expected.equals(stored);
+        return MessageDigest.isEqual(
+                expected.getBytes(StandardCharsets.UTF_8),
+                stored.getBytes(StandardCharsets.UTF_8)
+        );
     }
 }
