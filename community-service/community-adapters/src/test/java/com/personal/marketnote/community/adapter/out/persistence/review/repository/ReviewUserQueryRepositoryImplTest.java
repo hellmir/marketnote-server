@@ -85,8 +85,8 @@ class ReviewUserQueryRepositoryImplTest {
         }
 
         @Test
-        @DisplayName("사용자 리뷰 조회는 INACTIVE 상태도 포함한다")
-        void includesInactiveForUser() {
+        @DisplayName("사용자 리뷰 조회는 ACTIVE 상태만 포함한다")
+        void excludesInactiveForUser() {
             ReviewJpaEntity active = saveReview(101L, USER_ID, 3.0f, false);
             ReviewJpaEntity inactive = saveReview(102L, USER_ID, 3.0f, false);
             deactivate(inactive.getId());
@@ -98,7 +98,7 @@ class ReviewUserQueryRepositoryImplTest {
 
             assertThat(results)
                     .extracting(ReviewJpaEntity::getId)
-                    .containsExactlyInAnyOrder(active.getId(), inactive.getId());
+                    .containsExactly(active.getId());
         }
     }
 

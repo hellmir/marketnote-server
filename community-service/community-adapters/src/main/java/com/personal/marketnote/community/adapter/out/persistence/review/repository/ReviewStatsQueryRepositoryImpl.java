@@ -45,7 +45,10 @@ public class ReviewStatsQueryRepositoryImpl implements ReviewStatsQueryRepositor
         Long count = queryFactory
                 .select(review.count())
                 .from(review)
-                .where(review.reviewerId.eq(reviewerId))
+                .where(
+                        review.reviewerId.eq(reviewerId),
+                        review.status.eq(EntityStatus.ACTIVE)
+                )
                 .fetchOne();
         return FormatValidator.hasValue(count) ? count : 0L;
     }
