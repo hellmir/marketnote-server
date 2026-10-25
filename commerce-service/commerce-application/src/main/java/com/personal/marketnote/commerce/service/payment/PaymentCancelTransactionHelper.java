@@ -14,6 +14,7 @@ import com.personal.marketnote.commerce.domain.shipping.ShippingFeeContext;
 import com.personal.marketnote.commerce.exception.InvalidCancelAmountException;
 import com.personal.marketnote.commerce.exception.InvalidCancelProductException;
 import com.personal.marketnote.commerce.exception.OrderNotFoundException;
+import com.personal.marketnote.commerce.exception.PaymentCancelRetryExhaustedException;
 import com.personal.marketnote.commerce.exception.PaymentNotFoundException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.in.usecase.inventory.RestoreProductInventoryUseCase;
@@ -36,8 +37,11 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.RetryContext;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.retry.support.RetrySynchronizationManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -175,10 +179,16 @@ public class PaymentCancelTransactionHelper {
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 3,
-            backoff = @Backoff(delay = 50)
+            backoff = @Backoff(delay = 50, maxDelay = 200, random = true)
     )
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
     public void commitPaymentAndPostProcess(PaymentCancelContext context, PaymentCancelVendorResult vendorResult) {
+        int retryCount = resolveRetryCount();
+        if (retryCount > 0) {
+            log.warn("결제 취소 재시도 진입 - orderKey: {}, attempt: {}/3",
+                    context.originalCommand().orderKey(), retryCount + 1);
+        }
+
         Payment payment = findPaymentPort.findByOrderKey(context.payment().getOrderKey())
                 .orElseThrow(() -> new PaymentNotFoundException(context.originalCommand().orderKey()));
         Order order = context.order();
@@ -222,6 +232,40 @@ public class PaymentCancelTransactionHelper {
                 context.cancelId(), order.getOrderProducts(), cancelTargetProducts,
                 partialProductPendingDeduction
         );
+    }
+
+    /**
+     * @Recover — {@link #commitPaymentAndPostProcess} 전용 복구 메서드.
+     * 재시도 3회 소진 시 호출. PSP Event는 TX-2A에서 이미 커밋된 상태이므로
+     * 운영자가 payment/refund/재고/포인트/Outbox를 수동 보정하도록 가이드 로그를 남긴다.
+     * Spring Retry가 파라미터 시그니처로 매칭하므로 파라미터 타입/순서는 원 메서드와 동일하게 유지한다.
+     */
+    @Recover
+    public void recoverCommitPaymentAndPostProcess(
+            OptimisticLockingFailureException ex,
+            PaymentCancelContext context,
+            PaymentCancelVendorResult vendorResult
+    ) {
+        String orderKey = context.originalCommand().orderKey();
+        log.error(
+                "결제 취소 재시도 3회 소진 - 수동 복구 필요. orderKey: {}, cancelAmount: {}, isFullCancel: {}, "
+                        + "PSP Event: {} 커밋 완료(pgPaymentKey: {}), payment/refund/재고/포인트/Outbox 수동 보정 필요",
+                orderKey,
+                context.adjustedCancelAmount(),
+                context.isFullCancel(),
+                context.isFullCancel() ? "cancel" : "partialRefund",
+                context.transactionNumber(),
+                ex
+        );
+        throw new PaymentCancelRetryExhaustedException(orderKey, ex);
+    }
+
+    private int resolveRetryCount() {
+        RetryContext retryContext = RetrySynchronizationManager.getContext();
+        if (retryContext == null) {
+            return 0;
+        }
+        return retryContext.getRetryCount();
     }
 
     /**
