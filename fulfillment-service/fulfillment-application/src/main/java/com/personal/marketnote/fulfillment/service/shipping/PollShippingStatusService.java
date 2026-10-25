@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,8 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final String OUTBOUND_RELEASE_TYPE = "1";
+    private static final int CHUNK_SIZE = 100;
+    private static final long INITIAL_CURSOR = 0L;
 
     private final FindShippingTrackerPort findShippingTrackerPort;
     private final UpdateShippingTrackerPort updateShippingTrackerPort;
@@ -71,13 +74,44 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
 
     @Override
     public void pollShippingStatuses(PollShippingStatusCommand command) {
-        List<ShippingTracker> activeTrackers = findShippingTrackerPort.findAllPollingActive();
-        if (activeTrackers.isEmpty()) {
-            log.debug("폴링 대상 ShippingTracker가 없습니다.");
+        Optional<LocalDateTime> minCreatedAt = findShippingTrackerPort.findMinCreatedAtOfPollingActive();
+        if (minCreatedAt.isEmpty()) {
+            logCompletion(0L);
             return;
         }
 
-        LocalDate startDate = resolveStartDate(activeTrackers);
+        Map<String, FulfillmentDeliveryStatusInfoResult> statusMap = fetchDeliveryStatusMap(
+                command,
+                minCreatedAt.get().toLocalDate()
+        );
+        LocalDateTime now = LocalDateTime.now(clock);
+
+        long lastId = INITIAL_CURSOR;
+        long totalProcessed = 0L;
+
+        while (true) {
+            List<ShippingTracker> chunk = findShippingTrackerPort.findPollingActiveChunk(lastId, CHUNK_SIZE);
+            if (chunk.isEmpty()) {
+                logCompletion(totalProcessed);
+                return;
+            }
+
+            log.info("배송 상태 폴링 청크 처리 시작 - lastId: {}, size: {}", lastId, chunk.size());
+            processChunk(chunk, statusMap, now);
+            totalProcessed += chunk.size();
+            lastId = chunk.get(chunk.size() - 1).getId();
+
+            if (chunk.size() < CHUNK_SIZE) {
+                logCompletion(totalProcessed);
+                return;
+            }
+        }
+    }
+
+    private Map<String, FulfillmentDeliveryStatusInfoResult> fetchDeliveryStatusMap(
+            PollShippingStatusCommand command,
+            LocalDate startDate
+    ) {
         LocalDate endDate = LocalDate.now(clock);
 
         GetFulfillmentDeliveryStatusesResult result = fulfillmentAuthenticatedCaller.call(token ->
@@ -92,16 +126,29 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
                 )
         );
 
-        Map<String, FulfillmentDeliveryStatusInfoResult> statusMap = buildStatusMap(result);
-        LocalDateTime now = LocalDateTime.now(clock);
+        return buildStatusMap(result);
+    }
 
-        for (ShippingTracker tracker : activeTrackers) {
+    private void processChunk(
+            List<ShippingTracker> chunk,
+            Map<String, FulfillmentDeliveryStatusInfoResult> statusMap,
+            LocalDateTime now
+    ) {
+        for (ShippingTracker tracker : chunk) {
             try {
                 transactionTemplate.executeWithoutResult(status -> processTracker(tracker, statusMap, now));
             } catch (Exception e) {
                 log.error("배송 상태 폴링 처리 실패: orderId={}", tracker.getOrderId(), e);
             }
         }
+    }
+
+    private void logCompletion(long totalProcessed) {
+        if (totalProcessed == 0L) {
+            log.debug("폴링 대상 ShippingTracker가 없습니다.");
+            return;
+        }
+        log.info("배송 상태 폴링 처리 완료 - 총 {}건", totalProcessed);
     }
 
     private void processTracker(
@@ -215,15 +262,6 @@ public class PollShippingStatusService implements PollShippingStatusUseCase {
                     CarrierCode.of(deliveryStatus.courierCode())
             );
         }
-    }
-
-    private LocalDate resolveStartDate(List<ShippingTracker> trackers) {
-        return trackers.stream()
-                .map(ShippingTracker::getCreatedAt)
-                .filter(FormatValidator::hasValue)
-                .min(LocalDateTime::compareTo)
-                .map(LocalDateTime::toLocalDate)
-                .orElse(LocalDate.now(clock));
     }
 
     private Map<String, FulfillmentDeliveryStatusInfoResult> buildStatusMap(GetFulfillmentDeliveryStatusesResult result) {

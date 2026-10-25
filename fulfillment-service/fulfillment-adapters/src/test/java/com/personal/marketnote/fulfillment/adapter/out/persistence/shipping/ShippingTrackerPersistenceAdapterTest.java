@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -97,34 +100,36 @@ class ShippingTrackerPersistenceAdapterTest {
     }
 
     @Nested
-    @DisplayName("findAllPollingActive")
-    class FindAllPollingActive {
+    @DisplayName("findPollingActiveChunk")
+    class FindPollingActiveChunk {
 
         @Test
-        @DisplayName("폴링 활성화된 배송 추적 목록을 도메인 객체로 변환하여 반환한다")
-        void shouldReturnPollingActiveTrackersAsDomainObjects() {
+        @DisplayName("lastId 이후 폴링 활성화된 청크를 도메인 객체로 변환하여 반환한다")
+        void shouldReturnPollingActiveChunkAsDomainObjects() {
             // given
             ShippingTrackerJpaEntity entity1 = buildEntity(1L, 100L, ShippingStatus.SHIPPING, true);
             ShippingTrackerJpaEntity entity2 = buildEntity(2L, 200L, ShippingStatus.PREPARING, true);
-            when(repository.findByPollingActiveTrue()).thenReturn(List.of(entity1, entity2));
+            when(repository.findPollingActiveChunk(eq(0L), any(Pageable.class)))
+                    .thenReturn(List.of(entity1, entity2));
 
             // when
-            List<ShippingTracker> result = adapter.findAllPollingActive();
+            List<ShippingTracker> result = adapter.findPollingActiveChunk(0L, 100);
 
             // then
             assertThat(result).hasSize(2);
             assertThat(result.get(0).getOrderId()).isEqualTo(100L);
             assertThat(result.get(1).getOrderId()).isEqualTo(200L);
+            verify(repository).findPollingActiveChunk(0L, PageRequest.of(0, 100));
         }
 
         @Test
-        @DisplayName("폴링 활성화된 배송 추적이 없으면 빈 목록을 반환한다")
-        void shouldReturnEmptyListWhenNoPollingActiveTrackers() {
+        @DisplayName("폴링 활성화된 청크가 없으면 빈 목록을 반환한다")
+        void shouldReturnEmptyListWhenChunkEmpty() {
             // given
-            when(repository.findByPollingActiveTrue()).thenReturn(List.of());
+            when(repository.findPollingActiveChunk(eq(0L), any(Pageable.class))).thenReturn(List.of());
 
             // when
-            List<ShippingTracker> result = adapter.findAllPollingActive();
+            List<ShippingTracker> result = adapter.findPollingActiveChunk(0L, 100);
 
             // then
             assertThat(result).isEmpty();
@@ -159,6 +164,38 @@ class ShippingTrackerPersistenceAdapterTest {
 
             // when
             Optional<ShippingTracker> result = adapter.findByOrderId(999L);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayName("findMinCreatedAtOfPollingActive")
+    class FindMinCreatedAtOfPollingActive {
+
+        @Test
+        @DisplayName("폴링 활성화된 가장 빠른 createdAt을 반환한다")
+        void shouldReturnMinCreatedAt() {
+            // given
+            LocalDateTime minCreatedAt = LocalDateTime.of(2026, 4, 8, 9, 0);
+            when(repository.findMinCreatedAtOfPollingActive()).thenReturn(Optional.of(minCreatedAt));
+
+            // when
+            Optional<LocalDateTime> result = adapter.findMinCreatedAtOfPollingActive();
+
+            // then
+            assertThat(result).contains(minCreatedAt);
+        }
+
+        @Test
+        @DisplayName("폴링 활성화된 대상이 없으면 빈 Optional을 반환한다")
+        void shouldReturnEmptyWhenNoActiveTracker() {
+            // given
+            when(repository.findMinCreatedAtOfPollingActive()).thenReturn(Optional.empty());
+
+            // when
+            Optional<LocalDateTime> result = adapter.findMinCreatedAtOfPollingActive();
 
             // then
             assertThat(result).isEmpty();
