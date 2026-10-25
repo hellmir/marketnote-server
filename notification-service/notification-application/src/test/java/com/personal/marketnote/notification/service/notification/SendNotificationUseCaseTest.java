@@ -1,49 +1,39 @@
 package com.personal.marketnote.notification.service.notification;
 
-import com.personal.marketnote.notification.domain.device.DeviceToken;
-import com.personal.marketnote.notification.domain.device.Platform;
-import com.personal.marketnote.notification.domain.notification.FcmSendFailedException;
 import com.personal.marketnote.notification.domain.notification.Notification;
 import com.personal.marketnote.notification.domain.notification.NotificationSnapshotState;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
 import com.personal.marketnote.notification.domain.template.*;
 import com.personal.marketnote.notification.port.in.command.SendNotificationCommand;
+import com.personal.marketnote.notification.port.in.event.PushNotificationRequestedEvent;
 import com.personal.marketnote.notification.port.in.result.notification.SendNotificationResult;
-import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
-import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
-import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
-import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
-import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
-import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
-import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,19 +49,7 @@ class SendNotificationUseCaseTest {
     private FindNotificationPreferencePort findNotificationPreferencePort;
 
     @Mock
-    private FindDeviceTokenPort findDeviceTokenPort;
-
-    @Mock
     private SaveNotificationPort saveNotificationPort;
-
-    @Mock
-    private UpdateNotificationPort updateNotificationPort;
-
-    @Mock
-    private SendPushNotificationPort sendPushNotificationPort;
-
-    @Mock
-    private DeleteDeviceTokenPort deleteDeviceTokenPort;
 
     @Mock
     private FindNotificationPort findNotificationPort;
@@ -80,10 +58,7 @@ class SendNotificationUseCaseTest {
     private PublishSseEventPort publishSseEventPort;
 
     @Mock
-    private com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort publishNotificationSentEventPort;
-
-    @Mock
-    private VendorCommunicationRecorder vendorCommunicationRecorder;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Spy
     private Clock clock = Clock.fixed(
@@ -117,42 +92,42 @@ class SendNotificationUseCaseTest {
     class ConsentCheck {
 
         @Test
-        @DisplayName("MANDATORY 카테고리는 수신 설정 조회 없이 발송 성공한다")
-        void shouldSendWithoutConsentCheckForMandatory() {
+        @DisplayName("MANDATORY 카테고리는 수신 설정 조회 없이 PENDING 상태로 저장 후 FCM 이벤트를 발행한다")
+        void shouldPublishEventWithoutConsentCheckForMandatory() {
             // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
             setupTemplateAndSave(template);
-            setupDeviceTokensAndPush(1, true);
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
 
             // then
-            assertThat(result.sendStatus()).isEqualTo("SENT");
+            assertThat(result.sendStatus()).isEqualTo("PENDING");
             verifyNoInteractions(findNotificationPreferencePort);
+            verify(applicationEventPublisher).publishEvent(any(PushNotificationRequestedEvent.class));
         }
 
         @Test
-        @DisplayName("INFORMATIONAL 카테고리는 수신 설정 조회 없이 발송 성공한다")
-        void shouldSendWithoutConsentCheckForInformational() {
+        @DisplayName("INFORMATIONAL 카테고리는 수신 설정 조회 없이 PENDING 상태로 저장 후 FCM 이벤트를 발행한다")
+        void shouldPublishEventWithoutConsentCheckForInformational() {
             // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
             NotificationTemplate template = createTemplate(NotificationCategory.INFORMATIONAL);
             setupTemplateAndSave(template);
-            setupDeviceTokensAndPush(1, true);
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
 
             // then
-            assertThat(result.sendStatus()).isEqualTo("SENT");
+            assertThat(result.sendStatus()).isEqualTo("PENDING");
             verifyNoInteractions(findNotificationPreferencePort);
+            verify(applicationEventPublisher).publishEvent(any(PushNotificationRequestedEvent.class));
         }
 
         @Test
-        @DisplayName("PROMOTIONAL 카테고리에서 수신 동의 상태면 발송 성공하고 광고 라벨이 적용된다")
-        void shouldSendWithAdLabelForConsentedPromotional() {
+        @DisplayName("PROMOTIONAL 카테고리에서 수신 동의 상태면 광고 라벨 적용 후 PENDING 상태로 저장한다")
+        void shouldSaveWithAdLabelForConsentedPromotional() {
             // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
             NotificationTemplate template = createTemplate(NotificationCategory.PROMOTIONAL);
@@ -165,17 +140,17 @@ class SendNotificationUseCaseTest {
                         assertThat(notification.getBody()).endsWith("\n[수신거부:더보기>설정]");
                         return withId(notification, 100L);
                     });
-            setupDeviceTokensAndPush(1, true);
 
             // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
 
             // then
-            assertThat(result.sendStatus()).isEqualTo("SENT");
+            assertThat(result.sendStatus()).isEqualTo("PENDING");
+            verify(applicationEventPublisher).publishEvent(any(PushNotificationRequestedEvent.class));
         }
 
         @Test
-        @DisplayName("PROMOTIONAL 카테고리에서 수신 미동의(enabled=false)이면 SKIPPED 반환한다")
+        @DisplayName("PROMOTIONAL 카테고리에서 수신 미동의(enabled=false)이면 SKIPPED 반환하고 이벤트를 발행하지 않는다")
         void shouldReturnSkippedForDisabledPromotional() {
             // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
@@ -190,12 +165,11 @@ class SendNotificationUseCaseTest {
 
             // then
             assertThat(result.sendStatus()).isEqualTo("SKIPPED");
-            assertThat(result.sentDeviceCount()).isZero();
-            verifyNoInteractions(sendPushNotificationPort);
+            verifyNoInteractions(applicationEventPublisher);
         }
 
         @Test
-        @DisplayName("PROMOTIONAL 카테고리에서 수신 설정 미존재이면 SKIPPED 반환한다")
+        @DisplayName("PROMOTIONAL 카테고리에서 수신 설정 미존재이면 SKIPPED 반환하고 이벤트를 발행하지 않는다")
         void shouldReturnSkippedWhenPreferenceNotFound() {
             // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
@@ -212,6 +186,7 @@ class SendNotificationUseCaseTest {
 
             // then
             assertThat(result.sendStatus()).isEqualTo("SKIPPED");
+            verifyNoInteractions(applicationEventPublisher);
         }
     }
 
@@ -220,7 +195,7 @@ class SendNotificationUseCaseTest {
     class NightTimeDelay {
 
         @Test
-        @DisplayName("PROMOTIONAL 카테고리 야간 시간대면 SCHEDULED 상태로 저장한다")
+        @DisplayName("PROMOTIONAL 카테고리 야간 시간대면 SCHEDULED 상태로 저장하고 이벤트를 발행하지 않는다")
         void shouldScheduleForPromotionalAtNight() {
             // given
             Clock nightClock = Clock.fixed(
@@ -246,111 +221,7 @@ class SendNotificationUseCaseTest {
 
             // then
             assertThat(result.sendStatus()).isEqualTo("SCHEDULED");
-            verifyNoInteractions(sendPushNotificationPort);
-        }
-    }
-
-    @Nested
-    @DisplayName("FCM 푸시 발송")
-    class PushSending {
-
-        @Test
-        @DisplayName("2개 디바이스 모두 발송 성공하면 SENT 상태와 sentDeviceCount=2를 반환한다")
-        void shouldReturnSentWhenAllDevicesSucceed() {
-            // given
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            setupDeviceTokensAndPush(2, true);
-
-            // when
-            SendNotificationResult result = sendNotificationService.sendNotification(command);
-
-            // then
-            assertThat(result.sendStatus()).isEqualTo("SENT");
-            assertThat(result.sentDeviceCount()).isEqualTo(2);
-            assertThat(result.failedDeviceCount()).isZero();
-        }
-
-        @Test
-        @DisplayName("2개 디바이스 중 1개 실패하면 SENT 상태와 failedDeviceCount=1을 반환한다")
-        void shouldReturnSentWhenPartiallySucceeds() {
-            // given
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            List<DeviceToken> tokens = List.of(
-                    createDeviceToken(1L, "token1", Platform.ANDROID),
-                    createDeviceToken(2L, "token2", Platform.IOS)
-            );
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
-            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg1"))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
-
-            // when
-            SendNotificationResult result = sendNotificationService.sendNotification(command);
-
-            // then
-            assertThat(result.sendStatus()).isEqualTo("SENT");
-            assertThat(result.sentDeviceCount()).isEqualTo(1);
-            assertThat(result.failedDeviceCount()).isEqualTo(1);
-        }
-
-        @Test
-        @DisplayName("전부 실패하면 FAILED 상태를 반환한다")
-        void shouldReturnFailedWhenAllFail() {
-            // given
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            List<DeviceToken> tokens = List.of(createDeviceToken(1L, "token1", Platform.ANDROID));
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
-            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
-
-            // when
-            SendNotificationResult result = sendNotificationService.sendNotification(command);
-
-            // then
-            assertThat(result.sendStatus()).isEqualTo("FAILED");
-            assertThat(result.failedDeviceCount()).isEqualTo(1);
-        }
-
-        @Test
-        @DisplayName("tokenInvalid 시 해당 디바이스 토큰을 삭제한다")
-        void shouldDeleteInvalidToken() {
-            // given
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            List<DeviceToken> tokens = List.of(createDeviceToken(1L, "invalid-token", Platform.ANDROID));
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
-            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
-
-            // when
-            sendNotificationService.sendNotification(command);
-
-            // then
-            verify(deleteDeviceTokenPort).deleteById(1L);
-        }
-
-        @Test
-        @DisplayName("활성 디바이스 토큰이 없으면 FAILED 상태를 반환한다")
-        void shouldReturnFailedWhenNoDeviceTokens() {
-            // given
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(List.of());
-
-            // when
-            SendNotificationResult result = sendNotificationService.sendNotification(command);
-
-            // then
-            assertThat(result.sendStatus()).isEqualTo("FAILED");
-            verifyNoInteractions(sendPushNotificationPort);
+            verifyNoInteractions(applicationEventPublisher);
         }
     }
 
@@ -359,8 +230,8 @@ class SendNotificationUseCaseTest {
     class DeliveryChannelRouting {
 
         @Test
-        @DisplayName("IN_APP_ONLY 채널이면 FCM 발송을 수행하지 않고 PENDING 상태를 유지한다")
-        void shouldNotSendPushForInAppOnly() {
+        @DisplayName("IN_APP_ONLY 채널이면 FCM 이벤트를 발행하지 않고 PENDING 상태를 유지한다")
+        void shouldNotPublishEventForInAppOnly() {
             // given
             SendNotificationCommand command = createCommand("IN_APP_ONLY");
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
@@ -373,134 +244,52 @@ class SendNotificationUseCaseTest {
 
             // then
             assertThat(result.sendStatus()).isEqualTo("PENDING");
-            verifyNoInteractions(findDeviceTokenPort);
-            verifyNoInteractions(sendPushNotificationPort);
+            verifyNoInteractions(applicationEventPublisher);
         }
     }
 
     @Nested
-    @DisplayName("FCM 벤더 통신 이력 기록")
-    class VendorCommunicationRecording {
+    @DisplayName("FCM 발송 이벤트 발행")
+    class PushEventPublish {
 
         @Test
-        @DisplayName("푸시 발송 성공 시 디바이스 토큰 수만큼 recordFcmSendResult가 호출된다")
-        void shouldRecordPerDeviceTokenOnSuccess() {
+        @DisplayName("PUSH_ONLY 채널이면 저장 후 PushNotificationRequestedEvent를 발행한다")
+        void shouldPublishEventForPushOnly() {
+            // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
             setupTemplateAndSave(template);
-            setupDeviceTokensAndPush(3, true);
 
+            // when
             sendNotificationService.sendNotification(command);
 
-            verify(vendorCommunicationRecorder, times(3)).recordFcmSendResult(
-                    any(Notification.class), any(DeviceToken.class),
-                    anyString(), anyString(), anyString(),
-                    argThat(SendPushNotificationResult::success)
-            );
-            verify(vendorCommunicationRecorder, never()).recordFcmSendException(
-                    any(), any(), any(), any(), any(), any()
-            );
+            // then
+            ArgumentCaptor<PushNotificationRequestedEvent> captor =
+                    ArgumentCaptor.forClass(PushNotificationRequestedEvent.class);
+            verify(applicationEventPublisher).publishEvent(captor.capture());
+
+            PushNotificationRequestedEvent event = captor.getValue();
+            assertThat(event.notificationId()).isEqualTo(100L);
+            assertThat(event.userId()).isEqualTo(USER_ID);
+            assertThat(event.title()).isEqualTo("알림 제목");
+            assertThat(event.body()).isEqualTo("알림 본문");
+            assertThat(event.landingUrl()).isEqualTo("/test");
         }
 
         @Test
-        @DisplayName("푸시 발송 실패 시 recordFcmSendResult가 failure 결과로 호출된다")
-        void shouldRecordFailureAsSendResult() {
+        @DisplayName("이벤트 발행 시점에는 FCM 호출이 발생하지 않는다(트랜잭션 내부에서 외부 API 호출 분리)")
+        void shouldNotInvokeFcmInsideServiceTransaction() {
+            // given
             SendNotificationCommand command = createCommand("PUSH_ONLY");
             NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
             setupTemplateAndSave(template);
-            List<DeviceToken> tokens = List.of(createDeviceToken(1L, "token1", Platform.ANDROID));
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
-            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.failure("INTERNAL"));
 
-            sendNotificationService.sendNotification(command);
-
-            verify(vendorCommunicationRecorder).recordFcmSendResult(
-                    any(Notification.class), any(DeviceToken.class),
-                    anyString(), anyString(), anyString(),
-                    argThat(r -> !r.success() && "INTERNAL".equals(r.errorCode()) && !r.tokenInvalid())
-            );
-        }
-
-        @Test
-        @DisplayName("FCM 예외 발생 시 recordFcmSendException이 호출되고 다음 디바이스 토큰 발송을 계속한다")
-        void shouldRecordAndContinueOnFcmException() {
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            List<DeviceToken> tokens = List.of(
-                    createDeviceToken(1L, "token1", Platform.ANDROID),
-                    createDeviceToken(2L, "token2", Platform.IOS)
-            );
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
-            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenThrow(new FcmSendFailedException("타임아웃"))
-                    .thenReturn(SendPushNotificationResult.success("msg2"));
-
+            // when
             SendNotificationResult result = sendNotificationService.sendNotification(command);
 
-            assertThat(result.sentDeviceCount()).isEqualTo(1);
-            assertThat(result.failedDeviceCount()).isEqualTo(1);
-            verify(vendorCommunicationRecorder).recordFcmSendException(
-                    any(Notification.class),
-                    argThat(dt -> dt.getId().equals(1L)),
-                    anyString(), anyString(), anyString(),
-                    any(FcmSendFailedException.class)
-            );
-            verify(vendorCommunicationRecorder).recordFcmSendResult(
-                    any(Notification.class),
-                    argThat(dt -> dt.getId().equals(2L)),
-                    anyString(), anyString(), anyString(),
-                    argThat(SendPushNotificationResult::success)
-            );
-        }
-
-        @Test
-        @DisplayName("tokenInvalid 응답 시 device_token 삭제와 함께 tokenInvalid=true 결과로 기록된다")
-        void shouldRecordTokenInvalidWithDeletion() {
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            List<DeviceToken> tokens = List.of(createDeviceToken(1L, "invalid-token", Platform.ANDROID));
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
-            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.tokenInvalid("UNREGISTERED"));
-
-            sendNotificationService.sendNotification(command);
-
-            verify(deleteDeviceTokenPort).deleteById(1L);
-            verify(vendorCommunicationRecorder).recordFcmSendResult(
-                    any(Notification.class), any(DeviceToken.class),
-                    anyString(), anyString(), anyString(),
-                    argThat(r -> !r.success() && r.tokenInvalid() && "UNREGISTERED".equals(r.errorCode()))
-            );
-        }
-
-        @Test
-        @DisplayName("디바이스 토큰이 없으면 VendorCommunicationRecorder가 호출되지 않는다")
-        void shouldNotRecordWhenNoDeviceTokens() {
-            SendNotificationCommand command = createCommand("PUSH_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateAndSave(template);
-            when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(List.of());
-
-            sendNotificationService.sendNotification(command);
-
-            verifyNoInteractions(vendorCommunicationRecorder);
-        }
-
-        @Test
-        @DisplayName("IN_APP_ONLY 알림은 FCM 호출이 없으므로 VendorCommunicationRecorder가 호출되지 않는다")
-        void shouldNotRecordForInAppOnly() {
-            SendNotificationCommand command = createCommand("IN_APP_ONLY");
-            NotificationTemplate template = createTemplate(NotificationCategory.MANDATORY);
-            setupTemplateFound(template);
-            when(saveNotificationPort.save(any(Notification.class)))
-                    .thenAnswer(invocation -> withId(invocation.getArgument(0), 100L));
-
-            sendNotificationService.sendNotification(command);
-
-            verifyNoInteractions(vendorCommunicationRecorder);
+            // then
+            assertThat(result.sendStatus()).isEqualTo("PENDING");
+            verify(applicationEventPublisher).publishEvent(any(PushNotificationRequestedEvent.class));
         }
     }
 
@@ -509,7 +298,7 @@ class SendNotificationUseCaseTest {
     class TemplateRendering {
 
         @Test
-        @DisplayName("템플릿 변수가 정상적으로 렌더링된다")
+        @DisplayName("템플릿 변수가 정상적으로 렌더링되고 이벤트에 반영된다")
         void shouldRenderTemplateVariables() {
             // given
             SendNotificationCommand command = new SendNotificationCommand(
@@ -532,13 +321,18 @@ class SendNotificationUseCaseTest {
                         assertThat(notification.getLandingUrl()).isEqualTo("/order/ORD-001");
                         return withId(notification, 100L);
                     });
-            setupDeviceTokensAndPush(1, true);
 
             // when
-            SendNotificationResult result = sendNotificationService.sendNotification(command);
+            sendNotificationService.sendNotification(command);
 
             // then
-            assertThat(result.sendStatus()).isEqualTo("SENT");
+            ArgumentCaptor<PushNotificationRequestedEvent> captor =
+                    ArgumentCaptor.forClass(PushNotificationRequestedEvent.class);
+            verify(applicationEventPublisher).publishEvent(captor.capture());
+            PushNotificationRequestedEvent event = captor.getValue();
+            assertThat(event.title()).isEqualTo("주문 완료");
+            assertThat(event.body()).isEqualTo("주문번호 ORD-001이 50,000원에 결제되었습니다.");
+            assertThat(event.landingUrl()).isEqualTo("/order/ORD-001");
         }
     }
 
@@ -598,34 +392,6 @@ class SendNotificationUseCaseTest {
         when(findNotificationPreferencePort.findByUserIdAndNotificationType(
                 USER_ID, NotificationType.ORDER_PAYMENT_COMPLETED
         )).thenReturn(Optional.of(preference));
-    }
-
-    private void setupDeviceTokensAndPush(int count, boolean success) {
-        List<DeviceToken> tokens = new java.util.ArrayList<>();
-        for (int i = 1; i <= count; i++) {
-            tokens.add(createDeviceToken((long) i, "token" + i, Platform.ANDROID));
-        }
-        when(findDeviceTokenPort.findActiveByUserId(USER_ID)).thenReturn(tokens);
-        if (success) {
-            when(sendPushNotificationPort.send(any(SendPushNotificationCommand.class)))
-                    .thenReturn(SendPushNotificationResult.success("msg-id"));
-        }
-    }
-
-    private DeviceToken createDeviceToken(Long id, String token, Platform platform) {
-        return DeviceToken.from(
-                com.personal.marketnote.notification.domain.device.DeviceTokenSnapshotState.builder()
-                        .id(id)
-                        .userId(USER_ID)
-                        .token(token)
-                        .platform(platform)
-                        .deviceId("device-" + id)
-                        .lastUsedAt(LocalDateTime.now())
-                        .status(com.personal.marketnote.common.domain.EntityStatus.ACTIVE)
-                        .createdAt(LocalDateTime.now())
-                        .modifiedAt(LocalDateTime.now())
-                        .build()
-        );
     }
 
     private Notification withId(Notification notification, Long id) {

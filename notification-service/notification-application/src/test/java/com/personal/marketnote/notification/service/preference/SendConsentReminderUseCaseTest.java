@@ -71,7 +71,7 @@ class SendConsentReminderUseCaseTest {
         when(findNotificationPreferencePort.findConsentReminderDue(any(LocalDateTime.class)))
                 .thenReturn(duePrefs);
         when(sendNotificationUseCase.sendNotification(any(SendNotificationCommand.class)))
-                .thenReturn(new SendNotificationResult(1L, "SENT", 1, 0));
+                .thenReturn(new SendNotificationResult(1L, "SENT"));
 
         // when
         int result = sendConsentReminderService.sendConsentReminders();
@@ -108,7 +108,7 @@ class SendConsentReminderUseCaseTest {
         when(findNotificationPreferencePort.findConsentReminderDue(any(LocalDateTime.class)))
                 .thenReturn(duePrefs);
         when(sendNotificationUseCase.sendNotification(any(SendNotificationCommand.class)))
-                .thenReturn(new SendNotificationResult(1L, "SENT", 1, 0));
+                .thenReturn(new SendNotificationResult(1L, "SENT"));
 
         // when
         sendConsentReminderService.sendConsentReminders();
@@ -135,7 +135,7 @@ class SendConsentReminderUseCaseTest {
                 .thenReturn(duePrefs);
         when(sendNotificationUseCase.sendNotification(any(SendNotificationCommand.class)))
                 .thenThrow(new RuntimeException("template not found"))
-                .thenReturn(new SendNotificationResult(2L, "SENT", 1, 0));
+                .thenReturn(new SendNotificationResult(2L, "SENT"));
 
         // when
         int result = sendConsentReminderService.sendConsentReminders();
