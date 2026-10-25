@@ -8,6 +8,7 @@ import com.personal.marketnote.file.domain.file.FileDomain;
 import com.personal.marketnote.file.domain.file.ResizedFile;
 import com.personal.marketnote.file.domain.file.ResizedFileCreateState;
 import com.personal.marketnote.file.domain.file.exception.InvalidFileRoleException;
+import com.personal.marketnote.file.domain.file.exception.InvalidSvgFileException;
 import com.personal.marketnote.file.exception.InvalidFileCountLimitException;
 import com.personal.marketnote.file.mapper.FileCommandToDomainMapper;
 import com.personal.marketnote.file.port.in.command.UpdateFileCommand;
@@ -28,13 +29,25 @@ import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.imageio.ImageIO;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -268,11 +281,23 @@ public class UpdateFilesService implements UpdateFileUseCase {
     }
 
     private BufferedImage readImageOrThrow(MultipartFile original) throws IOException {
-        if (isSvg(original)) {
-            return readSvgToBufferedImage(original);
+        if (FormatValidator.hasNoValue(original)) {
+            throw new IOException("Unsupported image format.");
         }
 
-        try (InputStream inputStream = original.getInputStream()) {
+        byte[] bytes = original.getBytes();
+        boolean hintedSvg = isSvgHinted(original);
+        boolean magicSvg = isSvgByMagicBytes(bytes);
+
+        if (magicSvg) {
+            return readSvgToBufferedImage(bytes);
+        }
+
+        if (hintedSvg) {
+            throw new InvalidSvgFileException();
+        }
+
+        try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
             BufferedImage source = ImageIO.read(inputStream);
             if (FormatValidator.hasNoValue(source)) {
                 throw new IOException("Unsupported image format.");
@@ -281,11 +306,7 @@ public class UpdateFilesService implements UpdateFileUseCase {
         }
     }
 
-    private boolean isSvg(MultipartFile original) {
-        if (FormatValidator.hasNoValue(original)) {
-            return false;
-        }
-
+    private boolean isSvgHinted(MultipartFile original) {
         String contentType = original.getContentType();
         if (FormatValidator.hasValue(contentType) && contentType.toLowerCase().contains("svg")) {
             return true;
@@ -295,8 +316,33 @@ public class UpdateFilesService implements UpdateFileUseCase {
         return FormatValidator.equalsIgnoreCase(extension, "svg");
     }
 
-    private BufferedImage readSvgToBufferedImage(MultipartFile original) throws IOException {
-        try (InputStream inputStream = original.getInputStream()) {
+    private boolean isSvgByMagicBytes(byte[] bytes) {
+        if (FormatValidator.hasNoValue(bytes) || bytes.length < 4) {
+            return false;
+        }
+
+        int offset = detectBomOffset(bytes);
+        int readLen = Math.min(bytes.length - offset, 1024);
+        String header = new String(bytes, offset, readLen, StandardCharsets.UTF_8);
+        String normalized = header.replaceAll("^[\\s\\uFEFF]+", "").toLowerCase();
+
+        return normalized.startsWith("<?xml") || normalized.startsWith("<svg") || normalized.startsWith("<!--");
+    }
+
+    private int detectBomOffset(byte[] bytes) {
+        if (bytes.length >= 3
+                && (bytes[0] & 0xFF) == 0xEF
+                && (bytes[1] & 0xFF) == 0xBB
+                && (bytes[2] & 0xFF) == 0xBF) {
+            return 3;
+        }
+        return 0;
+    }
+
+    private BufferedImage readSvgToBufferedImage(byte[] bytes) throws IOException {
+        validateSvgXmlSafely(bytes);
+
+        try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
             TranscoderInput input = new TranscoderInput(inputStream);
             BufferedImageTranscoder transcoder = new BufferedImageTranscoder();
             transcoder.transcode(input, null);
@@ -307,6 +353,48 @@ public class UpdateFilesService implements UpdateFileUseCase {
             return image;
         } catch (TranscoderException e) {
             throw new IOException("Failed to read SVG image.", e);
+        }
+    }
+
+    /**
+     * XXE/billion-laughs 방지를 위해 Batik에 전달하기 전에 엄격한 SAX 파서로 선검증한다.
+     * DOCTYPE 선언을 완전 차단(disallow-doctype-decl=true)하여 외부/내부 엔티티 공격을 봉쇄한다.
+     * 파싱 실패 또는 DOCTYPE 검출 시 InvalidSvgFileException을 던져 어댑터/트랜스코더까지 입력이 전달되지 않도록 한다.
+     * SSRF(&lt;image xlink:href&gt; 원격 로드)는 Batik 기본 NoLoadExternalResourceSecurity로 차단된다.
+     */
+    private void validateSvgXmlSafely(byte[] bytes) {
+        try {
+            SAXParser parser = createSecureSaxParser();
+            parser.parse(new InputSource(new ByteArrayInputStream(bytes)), new DefaultHandler() {
+                @Override
+                public InputSource resolveEntity(String publicId, String systemId) {
+                    return new InputSource(new StringReader(""));
+                }
+            });
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+            log.warn("SVG 보안 검증 실패 - 공격 시도 가능성 (DOCTYPE/외부 엔티티 등): {}", e.getMessage(), e);
+            throw new InvalidSvgFileException();
+        }
+    }
+
+    private SAXParser createSecureSaxParser() throws ParserConfigurationException, SAXException {
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(false);
+        factory.setXIncludeAware(false);
+        setFeatureQuietly(factory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+        setFeatureQuietly(factory, "http://xml.org/sax/features/external-general-entities", false);
+        setFeatureQuietly(factory, "http://xml.org/sax/features/external-parameter-entities", false);
+        setFeatureQuietly(factory, "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        setFeatureQuietly(factory, XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        return factory.newSAXParser();
+    }
+
+    private void setFeatureQuietly(SAXParserFactory factory, String feature, boolean value) {
+        try {
+            factory.setFeature(feature, value);
+        } catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException ignored) {
+            // 파서가 해당 feature를 지원하지 않으면 다른 feature만으로도 방어가 충분하므로 무시한다.
         }
     }
 
