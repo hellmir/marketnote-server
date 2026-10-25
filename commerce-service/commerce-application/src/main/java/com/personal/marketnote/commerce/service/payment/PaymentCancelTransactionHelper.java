@@ -331,24 +331,19 @@ public class PaymentCancelTransactionHelper {
             Payment payment, boolean isFullCancel, Long cancelAmount,
             String cancelReason, PaymentCancelVendorResult vendorResult
     ) {
-        try {
-            RefundType refundType = isFullCancel ? RefundType.FULL_REFUND : RefundType.PARTIAL_REFUND;
-            RefundCreateState createState = RefundCreateState.builder()
-                    .paymentId(payment.getId())
-                    .orderId(payment.getOrderId())
-                    .refundType(refundType)
-                    .refundAmount(cancelAmount)
-                    .cancelReason(cancelReason)
-                    .processedBy("SYSTEM")
-                    .pgRefundKey(payment.getPgPaymentKey())
-                    .pgRawResponse(vendorResult.rawResponse())
-                    .build();
-            Refund refund = Refund.from(createState);
-            saveRefundPort.save(refund);
-        } catch (Exception e) {
-            log.error("환불 상세 기록 저장 실패 - orderId: {}, error: {}",
-                    payment.getOrderId(), e.getMessage(), e);
-        }
+        RefundType refundType = isFullCancel ? RefundType.FULL_REFUND : RefundType.PARTIAL_REFUND;
+        RefundCreateState createState = RefundCreateState.builder()
+                .paymentId(payment.getId())
+                .orderId(payment.getOrderId())
+                .refundType(refundType)
+                .refundAmount(cancelAmount)
+                .cancelReason(cancelReason)
+                .processedBy("SYSTEM")
+                .pgRefundKey(payment.getPgPaymentKey())
+                .pgRawResponse(vendorResult.rawResponse())
+                .build();
+        Refund refund = Refund.from(createState);
+        saveRefundPort.save(refund);
     }
 
     private long calculateShippingFeeDeductionForPartialCancel(Order order, CancelPaymentCommand command) {
@@ -441,21 +436,16 @@ public class PaymentCancelTransactionHelper {
     private void saveRefundRecordWithoutPg(
             Payment payment, Long originalCancelAmount, long shippingFeeDeduction, String cancelReason
     ) {
-        try {
-            RefundCreateState createState = RefundCreateState.builder()
-                    .paymentId(payment.getId())
-                    .orderId(payment.getOrderId())
-                    .refundType(RefundType.PARTIAL_REFUND)
-                    .refundAmount(0L)
-                    .cancelReason(cancelReason)
-                    .processedBy("SYSTEM")
-                    .build();
-            Refund refund = Refund.from(createState);
-            saveRefundPort.save(refund);
-        } catch (Exception e) {
-            log.error("배송비 차감 환불 기록 저장 실패 - orderId: {}, error: {}",
-                    payment.getOrderId(), e.getMessage(), e);
-        }
+        RefundCreateState createState = RefundCreateState.builder()
+                .paymentId(payment.getId())
+                .orderId(payment.getOrderId())
+                .refundType(RefundType.PARTIAL_REFUND)
+                .refundAmount(0L)
+                .cancelReason(cancelReason)
+                .processedBy("SYSTEM")
+                .build();
+        Refund refund = Refund.from(createState);
+        saveRefundPort.save(refund);
     }
 
     private Order findVerifiedOrder(Long orderId, Long buyerId) {
