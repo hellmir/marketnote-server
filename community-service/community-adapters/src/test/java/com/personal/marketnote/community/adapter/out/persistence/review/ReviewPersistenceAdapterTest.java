@@ -16,6 +16,7 @@ import com.personal.marketnote.community.domain.review.ReviewVersionHistory;
 import com.personal.marketnote.community.domain.review.ReviewVersionHistoryCreateState;
 import com.personal.marketnote.community.domain.review.Reviews;
 import com.personal.marketnote.community.exception.ProductReviewAggregateNotFoundException;
+import com.personal.marketnote.community.exception.ReviewAlreadyExistsException;
 import com.personal.marketnote.community.exception.ReviewNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -100,6 +102,18 @@ class ReviewPersistenceAdapterTest {
             assertThat(result.getId()).isEqualTo(77L);
             assertThat(result.getOrderNum()).isEqualTo(77L);
             assertThat(savedEntity.getOrderNum()).isEqualTo(77L);
+        }
+
+        @Test
+        @DisplayName("UNIQUE 제약 위반 시 ReviewAlreadyExistsException으로 변환한다")
+        void throwsReviewAlreadyExistsWhenUniqueConstraintViolated() {
+            when(reviewJpaRepository.save(any(ReviewJpaEntity.class)))
+                    .thenThrow(new DataIntegrityViolationException("duplicate order_id/price_policy_id"));
+
+            assertThatThrownBy(() -> adapter.save(sampleReview))
+                    .isInstanceOf(ReviewAlreadyExistsException.class)
+                    .hasMessageContaining("100")
+                    .hasMessageContaining("10000");
         }
     }
 
