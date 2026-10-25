@@ -107,6 +107,7 @@ import java.lang.annotation.*;
                 | paidAmount | number | 결제 금액(원) | 100000 |
                 | couponAmount | number | 쿠폰 할인 금액(원) | 5000 |
                 | pointAmount | number | 포인트 사용 금액(원) | 5000 |
+                | scheduledAutoConfirmAt | string(datetime) | 자동 구매 확정 예정 일시 (배송 완료 후 N일). DELIVERED 전이 전에는 null | "2026-02-20T14:30:00" |
                 | orderProducts | array | 주문 상품 목록 | [ ... ] |
                 
                 ---
@@ -128,6 +129,7 @@ import java.lang.annotation.*;
                 | productName | string | 상품명 | "공책" |
                 | selectedOptions | array | 선택 옵션 목록 | [ ... ] |
                 | isReviewed | boolean | 리뷰 작성 여부 | true |
+                | scheduledAutoConfirmAt | string(datetime) | 자동 구매 확정 예정 일시 (배송 완료 후 N일). DELIVERED 전이 전에는 null | "2026-02-20T14:30:00" |
                 
                 ---
                 

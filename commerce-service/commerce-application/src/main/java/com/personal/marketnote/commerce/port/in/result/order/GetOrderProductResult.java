@@ -8,6 +8,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.AccessLevel;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +27,8 @@ public record GetOrderProductResult(
         String brandName,
         String productName,
         List<ProductOptionInfoResult> selectedOptions,
-        Boolean isReviewed
+        Boolean isReviewed,
+        LocalDateTime scheduledAutoConfirmAt
 ) {
     public static GetOrderProductResult from(
             OrderProduct orderProduct,
@@ -66,6 +68,7 @@ public record GetOrderProductResult(
                                 : new ArrayList<>()
                 )
                 .isReviewed(orderProduct.getIsReviewed())
+                .scheduledAutoConfirmAt(orderProduct.getScheduledAutoConfirmAt())
                 .build();
     }
 

@@ -17,6 +17,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,9 @@ public class OrderJpaEntity extends BaseEntity {
     @Column(name = "shipping_region_type", nullable = false, length = 20)
     private ShippingRegionType shippingRegionType;
 
+    @Column(name = "scheduled_auto_confirm_at")
+    private LocalDateTime scheduledAutoConfirmAt;
+
     @OneToMany(mappedBy = "orderJpaEntity", cascade = {PERSIST, MERGE}, orphanRemoval = true)
     @Builder.Default
     private List<OrderProductJpaEntity> orderProductJpaEntities = new ArrayList<>();
@@ -154,6 +158,7 @@ public class OrderJpaEntity extends BaseEntity {
                         resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
                 ))
                 .shippingRegionType(order.getShippingRegionType())
+                .scheduledAutoConfirmAt(order.getScheduledAutoConfirmAt())
                 .build();
     }
 
@@ -179,6 +184,7 @@ public class OrderJpaEntity extends BaseEntity {
         pickupDeliveryRequestMessage = toDeliveryRequestMessageValue(
                 resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
         );
+        scheduledAutoConfirmAt = order.getScheduledAutoConfirmAt();
 
         Map<Long, OrderProduct> orderProductsByPricePolicyId = order.getOrderProducts()
                 .stream()

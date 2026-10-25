@@ -13,6 +13,7 @@ import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.AccessLevel;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -44,6 +45,7 @@ public record GetOrderResult(
         String pickupAddressDetail,
         DeliveryRequestType pickupDeliveryRequestType,
         String pickupDeliveryRequestMessage,
+        LocalDateTime scheduledAutoConfirmAt,
         List<GetOrderProductResult> orderProducts
 ) {
     public static GetOrderResult from(
@@ -83,6 +85,7 @@ public record GetOrderResult(
                 .pickupDeliveryRequestMessage(toDeliveryRequestMessageValue(
                         resolvePickupField(order, ShippingAddress::getDeliveryRequestMessage)
                 ))
+                .scheduledAutoConfirmAt(order.getScheduledAutoConfirmAt())
                 .orderProducts(order.getOrderProducts().stream()
                         .map(orderProduct -> GetOrderProductResult.from(
                                         orderProduct,
