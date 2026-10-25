@@ -79,8 +79,8 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private Integer reviewCount;
 
-    @Column(nullable = false)
-    private Float reviewAverageRating;
+    @Column(nullable = false, precision = 3, scale = 2)
+    private BigDecimal reviewAverageRating;
 
     @Column(nullable = false)
     private Long sales;
@@ -127,7 +127,7 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
                 .resizedImageUrls(null)
                 .stockQuantity(0)
                 .reviewCount(0)
-                .reviewAverageRating(0f)
+                .reviewAverageRating(BigDecimal.ZERO)
                 .sales(sales)
                 .productTags(productTags)
                 .selectedOptions(selectedOptions)
@@ -169,7 +169,7 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
         this.resizedImageUrls = resizedImageUrls;
     }
 
-    public void updateReviewAggregate(Integer reviewCount, Float reviewAverageRating) {
+    public void updateReviewAggregate(Integer reviewCount, BigDecimal reviewAverageRating) {
         this.reviewCount = reviewCount;
         this.reviewAverageRating = reviewAverageRating;
     }

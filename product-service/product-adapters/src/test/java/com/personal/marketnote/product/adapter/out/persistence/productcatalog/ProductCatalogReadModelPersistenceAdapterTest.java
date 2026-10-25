@@ -179,10 +179,10 @@ class ProductCatalogReadModelPersistenceAdapterTest {
                     2L, 100L, 200L, 10L, "상품", "브랜드",
                     11000L, 10000L, BigDecimal.valueOf(9.1), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
 
-            adapter.updateReviewAggregate(100L, 12, 4.5f);
+            adapter.updateReviewAggregate(100L, 12, new BigDecimal("4.50"));
 
             assertThat(repository.findByPricePolicyId(1L).get().getReviewCount()).isEqualTo(12);
-            assertThat(repository.findByPricePolicyId(1L).get().getReviewAverageRating()).isEqualTo(4.5f);
+            assertThat(repository.findByPricePolicyId(1L).get().getReviewAverageRating()).isEqualByComparingTo(new BigDecimal("4.50"));
             assertThat(repository.findByPricePolicyId(2L).get().getReviewCount()).isEqualTo(12);
         }
     }

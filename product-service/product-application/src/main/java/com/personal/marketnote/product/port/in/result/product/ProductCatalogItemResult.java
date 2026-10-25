@@ -21,7 +21,7 @@ public record ProductCatalogItemResult(
         List<String> resizedImageUrls,
         Integer stockQuantity,
         Integer reviewCount,
-        Float reviewAverageRating,
+        BigDecimal reviewAverageRating,
         Long sales,
         List<ProductCatalogTagSnapshot> productTags,
         List<ProductCatalogOptionSnapshot> selectedOptions,

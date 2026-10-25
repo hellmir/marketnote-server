@@ -94,7 +94,7 @@ import java.lang.annotation.*;
                 | catalogImage | object | 상품 카탈로그 이미지 | { ... } |
                 | selectedOptions | array | 선택된 옵션 목록 | [ ... ] |
                 | stock | number | 재고 수량(재고 서버와 통신 실패한 경우 -1 반환) | 10 |
-                | averageRating | number | 평점 평균 | 4.5 |
+                | averageRating | number | 평점 평균 (소수점 2자리) | 4.50 |
                 | totalCount | number | 리뷰 총 개수 | 8 |
                 | status | string | 상태 | "ACTIVE" |
                 | orderNum | number | 정렬 순서 | 1 |
@@ -267,7 +267,7 @@ import java.lang.annotation.*;
                                                   "catalogImage": null,
                                                   "selectedOptions": null,
                                                   "stock": 99990,
-                                                  "averageRating": 4.5,
+                                                  "averageRating": 4.50,
                                                   "totalCount": 8,
                                                   "orderNum": 36,
                                                   "status": "ACTIVE"
@@ -304,7 +304,7 @@ import java.lang.annotation.*;
                                                   "catalogImage": null,
                                                   "selectedOptions": null,
                                                   "stock": null,
-                                                  "averageRating": 0,
+                                                  "averageRating": 0.00,
                                                   "totalCount": 0,
                                                   "orderNum": 35,
                                                   "status": "ACTIVE"
@@ -362,7 +362,7 @@ import java.lang.annotation.*;
                                                     }
                                                   ],
                                                   "stock": 2100,
-                                                  "averageRating": 4.3,
+                                                  "averageRating": 4.30,
                                                   "totalCount": 12,
                                                   "orderNum": 30,
                                                   "status": "ACTIVE"
@@ -420,7 +420,7 @@ import java.lang.annotation.*;
                                                     }
                                                   ],
                                                   "stock": 2000,
-                                                  "averageRating": 4.3,
+                                                  "averageRating": 4.30,
                                                   "totalCount": 12,
                                                   "orderNum": 30,
                                                   "status": "ACTIVE"

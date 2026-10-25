@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(
         name = "review_aggregate_read_models",
@@ -24,10 +26,10 @@ public class ReviewAggregateReadModelJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private Integer totalCount;
 
-    @Column(nullable = false)
-    private Float averageRating;
+    @Column(nullable = false, precision = 3, scale = 2)
+    private BigDecimal averageRating;
 
-    public static ReviewAggregateReadModelJpaEntity of(Long productId, Integer totalCount, Float averageRating) {
+    public static ReviewAggregateReadModelJpaEntity of(Long productId, Integer totalCount, BigDecimal averageRating) {
         return ReviewAggregateReadModelJpaEntity.builder()
                 .productId(productId)
                 .totalCount(totalCount)
@@ -35,7 +37,7 @@ public class ReviewAggregateReadModelJpaEntity extends BaseGeneralEntity {
                 .build();
     }
 
-    public void updateFrom(Integer totalCount, Float averageRating) {
+    public void updateFrom(Integer totalCount, BigDecimal averageRating) {
         this.totalCount = totalCount;
         this.averageRating = averageRating;
         activate();

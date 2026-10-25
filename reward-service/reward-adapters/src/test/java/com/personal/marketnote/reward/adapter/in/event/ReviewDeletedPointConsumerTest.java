@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import com.personal.marketnote.common.kafka.KafkaTopicConstants;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ReviewDeletedEvent;
@@ -45,7 +46,7 @@ class ReviewDeletedPointConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long reviewerId, Long reviewId) {
         ReviewDeletedEvent event = new ReviewDeletedEvent(
-                reviewId, 50L, 9, 4.2f, reviewerId
+                reviewId, 50L, 9, new BigDecimal("4.20"), reviewerId
         );
         EventEnvelope<ReviewDeletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", KafkaTopicConstants.REVIEW_DELETED, "community-service",
@@ -114,7 +115,7 @@ class ReviewDeletedPointConsumerTest {
     @DisplayName("eventType이 불일치하면 차감 없이 acknowledge한다")
     void handleReviewDeletedEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
-        ReviewDeletedEvent event = new ReviewDeletedEvent(200L, 50L, 9, 4.2f, 100L);
+        ReviewDeletedEvent event = new ReviewDeletedEvent(200L, 50L, 9, new BigDecimal("4.20"), 100L);
         EventEnvelope<ReviewDeletedEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "community-service",
                 LocalDateTime.of(2026, 4, 16, 10, 0), event

@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -54,7 +55,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewRegisteredEvent(1L, 2L, 50L, 10, 4.5f, 100L, 200L);
+        communityEventKafkaProducer.publishReviewRegisteredEvent(1L, 2L, 50L, 10, new BigDecimal("4.50"), 100L, 200L);
 
         // then
         ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -76,7 +77,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewRegisteredEvent(10L, 20L, 50L, 5, 4.2f, 100L, 300L);
+        communityEventKafkaProducer.publishReviewRegisteredEvent(10L, 20L, 50L, 5, new BigDecimal("4.20"), 100L, 300L);
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
@@ -93,7 +94,7 @@ class CommunityEventKafkaProducerTest {
         assertThat(payload.pricePolicyId()).isEqualTo(20L);
         assertThat(payload.productId()).isEqualTo(50L);
         assertThat(payload.totalCount()).isEqualTo(5);
-        assertThat(payload.averageRating()).isEqualTo(4.2f);
+        assertThat(payload.averageRating()).isEqualByComparingTo(new BigDecimal("4.20"));
     }
 
     @Test
@@ -104,7 +105,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewUpdatedEvent(1L, 50L, 10, 4.5f);
+        communityEventKafkaProducer.publishReviewUpdatedEvent(1L, 50L, 10, new BigDecimal("4.50"));
 
         // then
         ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -126,7 +127,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewUpdatedEvent(1L, 50L, 8, 3.9f);
+        communityEventKafkaProducer.publishReviewUpdatedEvent(1L, 50L, 8, new BigDecimal("3.90"));
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
@@ -140,7 +141,7 @@ class CommunityEventKafkaProducerTest {
         assertThat(payload.reviewId()).isEqualTo(1L);
         assertThat(payload.productId()).isEqualTo(50L);
         assertThat(payload.totalCount()).isEqualTo(8);
-        assertThat(payload.averageRating()).isEqualTo(3.9f);
+        assertThat(payload.averageRating()).isEqualByComparingTo(new BigDecimal("3.90"));
     }
 
     @Test
@@ -151,7 +152,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewDeletedEvent(1L, 50L, 9, 4.1f, 100L);
+        communityEventKafkaProducer.publishReviewDeletedEvent(1L, 50L, 9, new BigDecimal("4.10"), 100L);
 
         // then
         ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
@@ -173,7 +174,7 @@ class CommunityEventKafkaProducerTest {
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
         // when
-        communityEventKafkaProducer.publishReviewDeletedEvent(1L, 50L, 7, 3.8f, 100L);
+        communityEventKafkaProducer.publishReviewDeletedEvent(1L, 50L, 7, new BigDecimal("3.80"), 100L);
 
         // then
         ArgumentCaptor<EventEnvelope> envelopeCaptor = ArgumentCaptor.forClass(EventEnvelope.class);
@@ -187,7 +188,7 @@ class CommunityEventKafkaProducerTest {
         assertThat(payload.reviewId()).isEqualTo(1L);
         assertThat(payload.productId()).isEqualTo(50L);
         assertThat(payload.totalCount()).isEqualTo(7);
-        assertThat(payload.averageRating()).isEqualTo(3.8f);
+        assertThat(payload.averageRating()).isEqualByComparingTo(new BigDecimal("3.80"));
         assertThat(payload.reviewerId()).isEqualTo(100L);
     }
 

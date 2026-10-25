@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import com.personal.marketnote.common.kafka.event.EventEnvelope;
 import com.personal.marketnote.common.kafka.event.ReviewRegisteredEvent;
 import com.personal.marketnote.common.utility.AccrualPointAmountConstant;
@@ -44,7 +45,7 @@ class ReviewRegisteredPointConsumerTest {
 
     private ConsumerRecord<String, EventEnvelope<?>> buildRecord(Long reviewerId, Long reviewId) {
         ReviewRegisteredEvent event = new ReviewRegisteredEvent(
-                1L, 2L, 50L, 10, 4.5f, reviewerId, reviewId
+                1L, 2L, 50L, 10, new BigDecimal("4.50"), reviewerId, reviewId
         );
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "community.review.registered", "community-service",
@@ -142,7 +143,7 @@ class ReviewRegisteredPointConsumerTest {
     void handleReviewRegisteredEvent_eventTypeMismatch_skipsAndAcknowledges() {
         // given
         ReviewRegisteredEvent event = new ReviewRegisteredEvent(
-                1L, 2L, 50L, 10, 4.5f, 100L, 200L
+                1L, 2L, 50L, 10, new BigDecimal("4.50"), 100L, 200L
         );
         EventEnvelope<ReviewRegisteredEvent> envelope = new EventEnvelope<>(
                 "test-event-id", "wrong.event.type", "community-service",

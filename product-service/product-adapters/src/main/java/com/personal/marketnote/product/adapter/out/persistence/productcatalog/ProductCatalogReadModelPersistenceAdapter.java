@@ -173,7 +173,7 @@ public class ProductCatalogReadModelPersistenceAdapter
 
     @Override
     @Transactional(isolation = READ_COMMITTED)
-    public void updateReviewAggregate(Long productId, Integer reviewCount, Float reviewAverageRating) {
+    public void updateReviewAggregate(Long productId, Integer reviewCount, BigDecimal reviewAverageRating) {
         List<ProductCatalogReadModelJpaEntity> entities = repository.findAllByProductId(productId);
         if (FormatValidator.hasNoValue(entities)) {
             return;

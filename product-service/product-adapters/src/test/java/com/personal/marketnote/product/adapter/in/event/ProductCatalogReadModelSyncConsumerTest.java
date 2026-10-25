@@ -275,7 +275,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("ReviewRegistered 이벤트 수신 시 updateReviewAggregate를 호출한다")
     void handleReviewRegistered_validPayload_updatesAggregate() {
         ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
-                700L, 1L, 100L, 10, 4.5f, 300L, 500L
+                700L, 1L, 100L, 10, new BigDecimal("4.50"), 300L, 500L
         );
         EventEnvelope<ReviewRegisteredEvent> envelope =
                 envelopeOf(KafkaTopicConstants.REVIEW_REGISTERED, "community-service", payload);
@@ -284,7 +284,7 @@ class ProductCatalogReadModelSyncConsumerTest {
 
         consumer.handleReviewRegistered(record, acknowledgment);
 
-        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 10, 4.5f);
+        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 10, new BigDecimal("4.50"));
         verify(acknowledgment).acknowledge();
     }
 
@@ -292,7 +292,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @DisplayName("ReviewRegistered totalCount가 null이면 updateReviewAggregate를 호출하지 않는다")
     void handleReviewRegistered_nullTotalCount_acknowledges() {
         ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
-                700L, 1L, 100L, null, 4.5f, 300L, 500L
+                700L, 1L, 100L, null, new BigDecimal("4.50"), 300L, 500L
         );
         EventEnvelope<ReviewRegisteredEvent> envelope =
                 envelopeOf(KafkaTopicConstants.REVIEW_REGISTERED, "community-service", payload);
@@ -308,7 +308,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @Test
     @DisplayName("ReviewUpdated 이벤트 수신 시 updateReviewAggregate를 호출한다")
     void handleReviewUpdated_validPayload_updatesAggregate() {
-        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(500L, 100L, 12, 4.3f);
+        ReviewUpdatedEvent payload = new ReviewUpdatedEvent(500L, 100L, 12, new BigDecimal("4.30"));
         EventEnvelope<ReviewUpdatedEvent> envelope =
                 envelopeOf(KafkaTopicConstants.REVIEW_UPDATED, "community-service", payload);
         ConsumerRecord<String, EventEnvelope<?>> record =
@@ -316,14 +316,14 @@ class ProductCatalogReadModelSyncConsumerTest {
 
         consumer.handleReviewUpdated(record, acknowledgment);
 
-        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 12, 4.3f);
+        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 12, new BigDecimal("4.30"));
         verify(acknowledgment).acknowledge();
     }
 
     @Test
     @DisplayName("ReviewDeleted 이벤트 수신 시 updateReviewAggregate를 호출한다")
     void handleReviewDeleted_validPayload_updatesAggregate() {
-        ReviewDeletedEvent payload = new ReviewDeletedEvent(500L, 100L, 8, 4.2f, 300L);
+        ReviewDeletedEvent payload = new ReviewDeletedEvent(500L, 100L, 8, new BigDecimal("4.20"), 300L);
         EventEnvelope<ReviewDeletedEvent> envelope =
                 envelopeOf(KafkaTopicConstants.REVIEW_DELETED, "community-service", payload);
         ConsumerRecord<String, EventEnvelope<?>> record =
@@ -331,7 +331,7 @@ class ProductCatalogReadModelSyncConsumerTest {
 
         consumer.handleReviewDeleted(record, acknowledgment);
 
-        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 8, 4.2f);
+        verify(saveProductCatalogReadModelPort).updateReviewAggregate(100L, 8, new BigDecimal("4.20"));
         verify(acknowledgment).acknowledge();
     }
 

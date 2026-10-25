@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -195,18 +196,18 @@ public class GetAdminProductsService implements GetAdminProductsUseCase {
         return filesResult.images().getFirst();
     }
 
-    private Float getAverageRating(
+    private BigDecimal getAverageRating(
             Map<Long, ProductReviewAggregateResult> reviewAggregatesByProductId,
             Long productId
     ) {
         if (FormatValidator.hasNoValue(reviewAggregatesByProductId)
                 || FormatValidator.hasNoValue(productId)) {
-            return 0f;
+            return BigDecimal.ZERO;
         }
 
         ProductReviewAggregateResult result = reviewAggregatesByProductId.get(productId);
         if (FormatValidator.hasNoValue(result) || FormatValidator.hasNoValue(result.averageRating())) {
-            return 0f;
+            return BigDecimal.ZERO;
         }
 
         return result.averageRating();

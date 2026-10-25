@@ -11,6 +11,7 @@ import com.personal.marketnote.community.port.out.event.PublishReviewEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 
 @Slf4j
@@ -26,7 +27,7 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     @Override
     public void publishReviewRegisteredEvent(
             Long orderId, Long pricePolicyId, Long productId,
-            Integer totalCount, Float averageRating,
+            Integer totalCount, BigDecimal averageRating,
             Long reviewerId, Long reviewId
     ) {
         ReviewRegisteredEvent payload = new ReviewRegisteredEvent(
@@ -40,7 +41,7 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     }
 
     @Override
-    public void publishReviewUpdatedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating) {
+    public void publishReviewUpdatedEvent(Long reviewId, Long productId, Integer totalCount, BigDecimal averageRating) {
         ReviewUpdatedEvent payload = new ReviewUpdatedEvent(reviewId, productId, totalCount, averageRating);
         String topic = KafkaTopicConstants.REVIEW_UPDATED;
         EventEnvelope<ReviewUpdatedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
@@ -49,7 +50,7 @@ public class CommunityEventKafkaProducer implements PublishReviewEventPort, Publ
     }
 
     @Override
-    public void publishReviewDeletedEvent(Long reviewId, Long productId, Integer totalCount, Float averageRating, Long reviewerId) {
+    public void publishReviewDeletedEvent(Long reviewId, Long productId, Integer totalCount, BigDecimal averageRating, Long reviewerId) {
         ReviewDeletedEvent payload = new ReviewDeletedEvent(reviewId, productId, totalCount, averageRating, reviewerId);
         String topic = KafkaTopicConstants.REVIEW_DELETED;
         EventEnvelope<ReviewDeletedEvent> envelope = EventEnvelope.of(topic, SOURCE, payload, clock);
