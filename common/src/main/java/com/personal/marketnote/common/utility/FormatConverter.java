@@ -123,6 +123,9 @@ public class FormatConverter {
     }
 
     public static String sanitizeFileName(String filename) {
+        if (filename == null) {
+            return null;
+        }
         return filename.replaceAll("\\s+", "-")
                 .replaceAll("[^a-zA-Z0-9._-]", "");
     }
