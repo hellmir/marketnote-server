@@ -17,27 +17,36 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class AutoConfirmDeliveredOrdersService implements AutoConfirmDeliveredOrdersUseCase {
+    private static final int CHUNK_SIZE = 100;
+    private static final long INITIAL_CURSOR = 0L;
+
     private final FindOrderPort findOrderPort;
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final Clock clock;
 
     @Override
-    public void autoConfirmDeliveredOrders(long autoConfirmDays) {
-        LocalDateTime deliveredBefore = LocalDateTime.now(clock).minusDays(autoConfirmDays);
-        List<Long> orderIds = findOrderPort.findOrderIdsEligibleForAutoConfirm(deliveredBefore);
+    public void autoConfirmDeliveredOrders() {
+        LocalDateTime now = LocalDateTime.now(clock);
+        long lastId = INITIAL_CURSOR;
+        long totalProcessed = 0L;
 
-        if (orderIds.isEmpty()) {
-            log.info("자동 확정 대상 주문 없음");
-            return;
+        while (true) {
+            List<Long> chunk = findOrderPort.findOrderIdsScheduledForAutoConfirm(now, lastId, CHUNK_SIZE);
+            if (chunk.isEmpty()) {
+                log.info("자동 확정 처리 완료 - 총 {}건", totalProcessed);
+                return;
+            }
+
+            log.info("자동 확정 청크 처리 시작 - lastId: {}, size: {}", lastId, chunk.size());
+            chunk.forEach(this::confirmOrderSafely);
+            totalProcessed += chunk.size();
+            lastId = chunk.get(chunk.size() - 1);
+
+            if (chunk.size() < CHUNK_SIZE) {
+                log.info("자동 확정 처리 완료 - 총 {}건", totalProcessed);
+                return;
+            }
         }
-
-        log.info("자동 확정 대상 주문 {}건 처리 시작", orderIds.size());
-
-        for (Long orderId : orderIds) {
-            confirmOrderSafely(orderId);
-        }
-
-        log.info("자동 확정 처리 완료");
     }
 
     private void confirmOrderSafely(Long orderId) {

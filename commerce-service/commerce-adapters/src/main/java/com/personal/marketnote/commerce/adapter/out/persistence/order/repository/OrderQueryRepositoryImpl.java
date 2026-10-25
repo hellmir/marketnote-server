@@ -82,7 +82,7 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
     }
 
     @Override
-    public List<Long> findOrderIdsEligibleForAutoConfirm(LocalDateTime deliveredBefore) {
+    public List<Long> findOrderIdsScheduledForAutoConfirm(LocalDateTime now, Long lastId, int limit) {
         return queryFactory
                 .select(order.id)
                 .distinct()
@@ -91,10 +91,12 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository {
                 .where(
                         order.orderStatus.eq(OrderStatus.DELIVERED),
                         orderProduct.orderStatus.eq(OrderStatus.DELIVERED),
-                        orderProduct.deliveredAt.isNotNull(),
-                        orderProduct.deliveredAt.loe(deliveredBefore)
+                        orderProduct.scheduledAutoConfirmAt.isNotNull(),
+                        orderProduct.scheduledAutoConfirmAt.loe(now),
+                        order.id.gt(lastId)
                 )
                 .orderBy(order.id.asc())
+                .limit(limit)
                 .fetch();
     }
 
