@@ -853,8 +853,8 @@ class PaymentCancelTransactionHelperTest {
         }
 
         @Test
-        @DisplayName("환불 기록 저장 실패 시에도 결제 취소는 정상 완료된다")
-        void shouldCompleteCancelEvenWhenRefundRecordSaveFails() {
+        @DisplayName("환불 기록 저장 실패 시 예외가 전파되어 TX-2B 후속 처리가 중단된다")
+        void shouldPropagateExceptionAndAbortPostProcessWhenRefundRecordSaveFails() {
             Payment payment = createPaymentWithId(5L, 1L, ORDER_KEY, 50000L, "tno_123");
             PspPaymentEvent event = createCompleteEvent(ORDER_KEY_STR, "tno_123", 50000L);
             CancelPaymentCommand command = createFullCancelCommand(ORDER_KEY_STR);
@@ -866,11 +866,15 @@ class PaymentCancelTransactionHelperTest {
             when(paymentVendorPort.cancelPayment(any())).thenReturn(vendorResult);
             doThrow(new RuntimeException("환불 기록 저장 실패")).when(saveRefundPort).save(any(Refund.class));
 
-            invokeCancel(command);
+            assertThatThrownBy(() -> invokeCancel(command))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("환불 기록 저장 실패");
 
-            verify(updatePaymentPort).update(any());
-            verify(updatePspPaymentEventPort).update(any());
-
+            verify(saveRefundPort).save(any(Refund.class));
+            verify(publishPaymentEventPort, never()).publishPaymentCancelledEvent(
+                    anyLong(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(),
+                    anyBoolean(), anyLong(), any(), any(), any(), any()
+            );
         }
     }
 
@@ -1581,14 +1585,19 @@ class PaymentCancelTransactionHelperTest {
     }
 
     private Payment createSuccessPayment(Long orderId, UUID orderKey, Long amount, String pgPaymentKey) {
-        PaymentCreateState state = PaymentCreateState.builder()
+        PaymentSnapshotState state = PaymentSnapshotState.builder()
+                .id(orderId)
                 .orderId(orderId)
                 .orderKey(orderKey)
+                .pgPaymentKey(pgPaymentKey)
                 .paymentAmount(amount)
+                .successYn(true)
+                .refundedYn(false)
+                .refundAmount(0L)
+                .createdAt(LocalDateTime.of(2026, 2, 24, 10, 0))
+                .modifiedAt(LocalDateTime.of(2026, 2, 24, 10, 0))
                 .build();
-        Payment payment = Payment.from(state);
-        payment.markAsSuccess(pgPaymentKey);
-        return payment;
+        return Payment.from(state);
     }
 
     private PspPaymentEvent createCompleteEvent(String orderKey, String tno, Long amount) {
