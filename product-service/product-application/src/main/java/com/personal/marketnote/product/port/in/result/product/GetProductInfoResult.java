@@ -3,7 +3,6 @@ package com.personal.marketnote.product.port.in.result.product;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.domain.pricepolicy.PricePolicy;
 import com.personal.marketnote.product.domain.product.Product;
-import com.personal.marketnote.product.domain.product.ProductTag;
 import com.personal.marketnote.product.domain.shipping.ShippingPolicy;
 import com.personal.marketnote.product.port.in.result.pricepolicy.GetProductPricePolicyResult;
 import com.personal.marketnote.product.port.in.result.shipping.GetShippingPolicyResult;
@@ -23,7 +22,7 @@ public record GetProductInfoResult(
         Long viewCount,
         Long popularity,
         boolean findAllOptionsYn,
-        List<ProductTag> productTags,
+        List<ProductTagItem> productTags,
         Integer stock,
         Long orderNum,
         String status,
@@ -43,7 +42,11 @@ public record GetProductInfoResult(
                 .viewCount(product.getViewCount())
                 .popularity(product.getPopularity())
                 .findAllOptionsYn(product.isFindAllOptionsYn())
-                .productTags(product.getProductTags())
+                .productTags(
+                        FormatValidator.hasValue(product.getProductTags())
+                                ? product.getProductTags().stream().map(ProductTagItem::from).toList()
+                                : List.of()
+                )
                 .stock(stock)
                 .orderNum(product.getOrderNum())
                 .status(product.getStatus().name())
