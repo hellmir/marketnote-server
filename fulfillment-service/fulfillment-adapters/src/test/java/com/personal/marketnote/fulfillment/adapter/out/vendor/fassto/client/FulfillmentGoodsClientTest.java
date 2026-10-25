@@ -2,6 +2,7 @@ package com.personal.marketnote.fulfillment.adapter.out.vendor.fassto.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.fulfillment.configuration.FulfillmentAuthProperties;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentGoodsFailedException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentGoodsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentGoodsCommand;
@@ -162,8 +163,8 @@ class FulfillmentGoodsClientTest {
     class PropertyValidationFailure {
 
         @Test
-        @DisplayName("baseUrl이 누락되면 IllegalStateException이 발생한다")
-        void shouldThrowIllegalStateExceptionWhenBaseUrlMissing() {
+        @DisplayName("baseUrl이 누락되면 FulfillmentConfigurationException이 발생한다")
+        void shouldThrowFulfillmentConfigurationExceptionWhenBaseUrlMissing() {
             // given
             when(properties.getBaseUrl()).thenReturn(null);
 
@@ -171,7 +172,7 @@ class FulfillmentGoodsClientTest {
 
             // when & then
             assertThatThrownBy(() -> client.getGoods(command))
-                    .isInstanceOf(IllegalStateException.class);
+                    .isInstanceOf(FulfillmentConfigurationException.class);
         }
     }
 }

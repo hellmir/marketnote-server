@@ -95,7 +95,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     public GetFulfillmentWarehousingResult getWarehousing(GetFulfillmentWarehousingCommand command) {
         FulfillmentWarehousingQuery query = FasstoWarehousingCommandToRequestMapper.mapToQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment warehousing query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing query is required.");
         }
 
         URI uri = buildWarehousingListUri(
@@ -220,7 +220,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     public GetFulfillmentWarehousingDetailResult getWarehousingDetail(GetFulfillmentWarehousingDetailCommand command) {
         FulfillmentWarehousingDetailQuery query = FasstoWarehousingCommandToRequestMapper.mapToDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment warehousing detail query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing detail query is required.");
         }
 
         URI uri = buildWarehousingDetailUri(query.getCustomerCode(), query.getSlipNo(), query.getOrdNo());
@@ -339,7 +339,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     public GetFulfillmentWarehousingInspecDetailResult getWarehousingInspecDetail(GetFulfillmentWarehousingInspecDetailCommand command) {
         FulfillmentWarehousingInspecDetailQuery query = FasstoWarehousingCommandToRequestMapper.mapToInspecDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment warehousing inspection detail query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing inspection detail query is required.");
         }
 
         URI uri = buildWarehousingInspecDetailUri(query.getCustomerCode(), query.getSlipNo(), query.getWhCd());
@@ -452,7 +452,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     public GetFulfillmentWarehousingAbnormalResult getWarehousingAbnormal(GetFulfillmentWarehousingAbnormalCommand command) {
         FulfillmentWarehousingAbnormalQuery query = FasstoWarehousingCommandToRequestMapper.mapToAbnormalQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment warehousing abnormal query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing abnormal query is required.");
         }
 
         URI uri = buildWarehousingAbnormalUri(query.getCustomerCode(), query.getWhCd(), query.getSlipNo());
@@ -566,7 +566,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
     public GetFulfillmentWarehousingAbnormalImageResult getWarehousingAbnormalImage(GetFulfillmentWarehousingAbnormalImageCommand command) {
         FulfillmentWarehousingAbnormalImageQuery query = FasstoWarehousingCommandToRequestMapper.mapToAbnormalImageQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment warehousing abnormal image query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing abnormal image query is required.");
         }
 
         URI uri = buildWarehousingAbnormalImageUri(
@@ -688,7 +688,7 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
             boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment warehousing request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment warehousing request is required.");
         }
 
         URI uri = buildWarehousingUri(request.getCustomerCode());
@@ -921,106 +921,106 @@ public class FulfillmentWarehousingClient implements RegisterFulfillmentWarehous
 
     private void validateWarehousingProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getWarehousingPath())) {
-            throw new IllegalStateException("Fulfillment warehousing path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing path is required.");
         }
         if (!properties.getWarehousingPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment warehousing path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing path must include {customerCode}.");
         }
     }
 
     private void validateWarehousingListProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getWarehousingListPath())) {
-            throw new IllegalStateException("Fulfillment warehousing list path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing list path is required.");
         }
         if (!properties.getWarehousingListPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment warehousing list path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing list path must include {customerCode}.");
         }
         if (!properties.getWarehousingListPath().contains("{startDate}")) {
-            throw new IllegalStateException("Fulfillment warehousing list path must include {startDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing list path must include {startDate}.");
         }
         if (!properties.getWarehousingListPath().contains("{endDate}")) {
-            throw new IllegalStateException("Fulfillment warehousing list path must include {endDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing list path must include {endDate}.");
         }
     }
 
     private void validateWarehousingDetailProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getWarehousingDetailPath())) {
-            throw new IllegalStateException("Fulfillment warehousing detail path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing detail path is required.");
         }
         if (!properties.getWarehousingDetailPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment warehousing detail path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing detail path must include {customerCode}.");
         }
         if (!properties.getWarehousingDetailPath().contains("{slipNo}")) {
-            throw new IllegalStateException("Fulfillment warehousing detail path must include {slipNo}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing detail path must include {slipNo}.");
         }
     }
 
     private void validateWarehousingInspecDetailProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getWarehousingInspecDetailPath())) {
-            throw new IllegalStateException("Fulfillment warehousing inspection detail path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing inspection detail path is required.");
         }
         if (!properties.getWarehousingInspecDetailPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment warehousing inspection detail path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing inspection detail path must include {customerCode}.");
         }
         if (!properties.getWarehousingInspecDetailPath().contains("{slipNo}")) {
-            throw new IllegalStateException("Fulfillment warehousing inspection detail path must include {slipNo}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing inspection detail path must include {slipNo}.");
         }
         if (!properties.getWarehousingInspecDetailPath().contains("{whCd}")) {
-            throw new IllegalStateException("Fulfillment warehousing inspection detail path must include {whCd}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing inspection detail path must include {whCd}.");
         }
     }
 
     private void validateWarehousingAbnormalProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getWarehousingAbnormalPath())) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal path is required.");
         }
         if (!properties.getWarehousingAbnormalPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal path must include {customerCode}.");
         }
         if (!properties.getWarehousingAbnormalPath().contains("{whCd}")) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal path must include {whCd}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal path must include {whCd}.");
         }
         if (!properties.getWarehousingAbnormalPath().contains("{slipNo}")) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal path must include {slipNo}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal path must include {slipNo}.");
         }
     }
 
     private void validateWarehousingAbnormalImageProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getWarehousingAbnormalImagePath())) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal image path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal image path is required.");
         }
         if (!properties.getWarehousingAbnormalImagePath().contains("{slipNo}")) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal image path must include {slipNo}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal image path must include {slipNo}.");
         }
         if (!properties.getWarehousingAbnormalImagePath().contains("{godCd}")) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal image path must include {godCd}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal image path must include {godCd}.");
         }
         if (!properties.getWarehousingAbnormalImagePath().contains("{goodsSerialNo}")) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal image path must include {goodsSerialNo}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal image path must include {goodsSerialNo}.");
         }
         if (!properties.getWarehousingAbnormalImagePath().contains("{fileSeq}")) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal image path must include {fileSeq}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal image path must include {fileSeq}.");
         }
         if (!properties.getWarehousingAbnormalImagePath().contains("{imgNo}")) {
-            throw new IllegalStateException("Fulfillment warehousing abnormal image path must include {imgNo}.");
+            throw new FulfillmentConfigurationException("Fulfillment warehousing abnormal image path must include {imgNo}.");
         }
     }
 

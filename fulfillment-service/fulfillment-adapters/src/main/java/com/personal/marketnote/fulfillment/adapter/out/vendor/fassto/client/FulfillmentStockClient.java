@@ -16,6 +16,8 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStockDetailFailedException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentStocksFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
@@ -77,7 +79,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     @Override
     public GetFulfillmentStocksResult getStocks(GetFulfillmentStocksCommand command) {
         if (FormatValidator.hasNoValue(command)) {
-            throw new IllegalArgumentException("Fulfillment stock command is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment stock command is required.");
         }
 
         FulfillmentStockQuery query = FasstoStockCommandToRequestMapper.mapToQuery(command);
@@ -96,7 +98,7 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
     @Override
     public GetFulfillmentStocksResult getStockDetail(GetFulfillmentStockDetailCommand command) {
         if (FormatValidator.hasNoValue(command)) {
-            throw new IllegalArgumentException("Fulfillment stock detail command is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment stock detail command is required.");
         }
 
         FulfillmentStockDetailQuery query = FasstoStockCommandToRequestMapper.mapToDetailQuery(command);
@@ -284,13 +286,13 @@ public class FulfillmentStockClient implements GetFulfillmentStocksPort, GetFulf
 
     private void validateStockListProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getStockListPath())) {
-            throw new IllegalStateException("Fulfillment stock list path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment stock list path is required.");
         }
         if (!properties.getStockListPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment stock list path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment stock list path must include {customerCode}.");
         }
     }
 

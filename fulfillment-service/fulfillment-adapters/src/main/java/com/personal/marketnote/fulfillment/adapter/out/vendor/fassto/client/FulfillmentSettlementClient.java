@@ -15,6 +15,8 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentSettlementDailyCostsFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentSettlementDailyCostsCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.FulfillmentSettlementDailyCostInfoResult;
@@ -75,7 +77,7 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
     @Override
     public GetFulfillmentSettlementDailyCostsResult getDailyCosts(GetFulfillmentSettlementDailyCostsCommand command) {
         if (FormatValidator.hasNoValue(command)) {
-            throw new IllegalArgumentException("Fulfillment settlement daily cost command is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment settlement daily cost command is required.");
         }
 
         FulfillmentSettlementDailyCostQuery query = FasstoSettlementCommandToRequestMapper.mapToQuery(command);
@@ -197,14 +199,14 @@ public class FulfillmentSettlementClient implements GetFulfillmentSettlementDail
 
     private void validateSettlementDailyCostProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getSettlementDailyCostPath())) {
-            throw new IllegalStateException("Fulfillment settlement daily cost path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment settlement daily cost path is required.");
         }
         String path = properties.getSettlementDailyCostPath();
         if (!path.contains(YEAR_MONTH_PLACEHOLDER) || !path.contains(WH_CODE_PLACEHOLDER) || !path.contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment settlement daily cost path must include {yearMonth}, {whCd}, {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment settlement daily cost path must include {yearMonth}, {whCd}, {customerCode}.");
         }
     }
 

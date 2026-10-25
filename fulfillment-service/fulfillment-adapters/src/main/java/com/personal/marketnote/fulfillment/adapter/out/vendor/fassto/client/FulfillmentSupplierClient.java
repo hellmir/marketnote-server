@@ -17,6 +17,8 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.GetFulfillmentSuppliersFailedException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentSupplierFailedException;
 import com.personal.marketnote.fulfillment.exception.UpdateFulfillmentSupplierFailedException;
@@ -96,7 +98,7 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
     @Override
     public GetFulfillmentSuppliersResult getSuppliers(GetFulfillmentSuppliersCommand command) {
         if (FormatValidator.hasNoValue(command)) {
-            throw new IllegalArgumentException("Fulfillment supplier command is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment supplier command is required.");
         }
 
         FulfillmentSupplierQuery query = FasstoSupplierCommandToRequestMapper.mapToSuppliersQuery(command);
@@ -215,7 +217,7 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
             boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment supplier request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment supplier request is required.");
         }
 
         URI uri = buildSupplierUri(request.getCustomerCode());
@@ -360,13 +362,13 @@ public class FulfillmentSupplierClient implements RegisterFulfillmentSupplierPor
 
     private void validateSupplierProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getSupplierPath())) {
-            throw new IllegalStateException("Fulfillment supplier path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment supplier path is required.");
         }
         if (!properties.getSupplierPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment supplier path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment supplier path must include {customerCode}.");
         }
     }
 

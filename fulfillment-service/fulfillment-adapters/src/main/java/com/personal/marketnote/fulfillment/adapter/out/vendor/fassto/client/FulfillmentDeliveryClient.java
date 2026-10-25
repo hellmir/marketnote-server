@@ -120,7 +120,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     public GetFulfillmentDeliveriesResult getDeliveries(GetFulfillmentDeliveriesCommand command) {
         FulfillmentDeliveryQuery query = FasstoDeliveryCommandToRequestMapper.mapToQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment delivery query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery query is required.");
         }
 
         URI uri = buildDeliveryListUri(
@@ -240,7 +240,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     public GetFulfillmentDeliveryStatusesResult getDeliveryStatuses(GetFulfillmentDeliveryStatusesCommand command) {
         FulfillmentDeliveryStatusQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryStatusQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment delivery status query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery status query is required.");
         }
 
         URI uri = buildDeliveryStatusUri(
@@ -358,7 +358,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     public GetFulfillmentDeliveryOutOrdGoodsDetailResult getOutOrdGoodsDetail(GetFulfillmentDeliveryOutOrdGoodsDetailCommand command) {
         FulfillmentDeliveryOutOrdGoodsDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment out-ord goods detail query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment out-ord goods detail query is required.");
         }
 
         URI uri = buildOutOrdGoodsDetailUri(query.getCustomerCode(), query.getOutOrdSlipNo());
@@ -476,7 +476,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     public GetFulfillmentDeliveryOutOrdGoodsByOrdNoResult getOutOrdGoodsByOrdNo(GetFulfillmentDeliveryOutOrdGoodsByOrdNoCommand command) {
         FulfillmentDeliveryOutOrdGoodsByOrdNoQuery query = FasstoDeliveryCommandToRequestMapper.mapToOutOrdGoodsByOrdNoQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment out-ord goods by ordNo query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment out-ord goods by ordNo query is required.");
         }
 
         URI uri = buildOutOrdGoodsByOrdNoUri(
@@ -594,7 +594,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     public GetFulfillmentDeliveryGoodDetailResult getDeliveryGoodDetail(GetFulfillmentDeliveryGoodDetailCommand command) {
         FulfillmentDeliveryGoodDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToDeliveryGoodDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment delivery good detail query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery good detail query is required.");
         }
 
         URI uri = buildDeliveryGoodDetailUri(
@@ -712,7 +712,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
     public GetFulfillmentDeliveryDetailResult getDeliveryDetail(GetFulfillmentDeliveryDetailCommand command) {
         FulfillmentDeliveryDetailQuery query = FasstoDeliveryCommandToRequestMapper.mapToDetailQuery(command);
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment delivery detail query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery detail query is required.");
         }
 
         URI uri = buildDeliveryDetailUri(query.getCustomerCode(), query.getSlipNo(), query.getOrdNo());
@@ -828,7 +828,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment delivery request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery request is required.");
         }
 
         URI uri = buildDeliveryUri(request.getCustomerCode());
@@ -965,7 +965,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             boolean isUpdate
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment delivery car request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery car request is required.");
         }
 
         URI uri = buildDeliveryCarUri(request.getCustomerCode());
@@ -1099,7 +1099,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             HttpMethod method
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment delivery ics request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery ics request is required.");
         }
 
         URI uri = buildDeliveryIcsUri(request.getCustomerCode());
@@ -1229,7 +1229,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment delivery ics completion request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery ics completion request is required.");
         }
 
         URI uri = buildDeliveryIcsCompletedUri(request.getCustomerCode());
@@ -1359,7 +1359,7 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
             String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment delivery cancel request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment delivery cancel request is required.");
         }
 
         URI uri = buildDeliveryCancelUri(request.getCustomerCode());
@@ -1632,169 +1632,169 @@ public class FulfillmentDeliveryClient implements RegisterFulfillmentDeliveryPor
 
     private void validateDeliveryProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryPath())) {
-            throw new IllegalStateException("Fulfillment delivery path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery path is required.");
         }
         if (!properties.getDeliveryPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery path must include {customerCode}.");
         }
     }
 
     private void validateDeliveryCarProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryCarPath())) {
-            throw new IllegalStateException("Fulfillment delivery car path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery car path is required.");
         }
         if (!properties.getDeliveryCarPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery car path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery car path must include {customerCode}.");
         }
     }
 
     private void validateDeliveryIcsProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryIcsPath())) {
-            throw new IllegalStateException("Fulfillment delivery ics path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery ics path is required.");
         }
         if (!properties.getDeliveryIcsPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery ics path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery ics path must include {customerCode}.");
         }
     }
 
     private void validateDeliveryIcsCompletedProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryIcsCompletedPath())) {
-            throw new IllegalStateException("Fulfillment delivery ics completed path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery ics completed path is required.");
         }
         if (!properties.getDeliveryIcsCompletedPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery ics completed path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery ics completed path must include {customerCode}.");
         }
     }
 
     private void validateDeliveryListProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryListPath())) {
-            throw new IllegalStateException("Fulfillment delivery list path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery list path is required.");
         }
         if (!properties.getDeliveryListPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery list path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery list path must include {customerCode}.");
         }
         if (!properties.getDeliveryListPath().contains("{startDate}")) {
-            throw new IllegalStateException("Fulfillment delivery list path must include {startDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery list path must include {startDate}.");
         }
         if (!properties.getDeliveryListPath().contains("{endDate}")) {
-            throw new IllegalStateException("Fulfillment delivery list path must include {endDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery list path must include {endDate}.");
         }
         if (!properties.getDeliveryListPath().contains("{status}")) {
-            throw new IllegalStateException("Fulfillment delivery list path must include {status}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery list path must include {status}.");
         }
         if (!properties.getDeliveryListPath().contains("{outDiv}")) {
-            throw new IllegalStateException("Fulfillment delivery list path must include {outDiv}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery list path must include {outDiv}.");
         }
     }
 
     private void validateDeliveryStatusProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryStatusPath())) {
-            throw new IllegalStateException("Fulfillment delivery status path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery status path is required.");
         }
         if (!properties.getDeliveryStatusPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery status path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery status path must include {customerCode}.");
         }
         if (!properties.getDeliveryStatusPath().contains("{startDate}")) {
-            throw new IllegalStateException("Fulfillment delivery status path must include {startDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery status path must include {startDate}.");
         }
         if (!properties.getDeliveryStatusPath().contains("{endDate}")) {
-            throw new IllegalStateException("Fulfillment delivery status path must include {endDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery status path must include {endDate}.");
         }
         if (!properties.getDeliveryStatusPath().contains("{outDiv}")) {
-            throw new IllegalStateException("Fulfillment delivery status path must include {outDiv}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery status path must include {outDiv}.");
         }
     }
 
     private void validateDeliveryDetailProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryDetailPath())) {
-            throw new IllegalStateException("Fulfillment delivery detail path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery detail path is required.");
         }
         if (!properties.getDeliveryDetailPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery detail path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery detail path must include {customerCode}.");
         }
         if (!properties.getDeliveryDetailPath().contains("{slipNo}")) {
-            throw new IllegalStateException("Fulfillment delivery detail path must include {slipNo}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery detail path must include {slipNo}.");
         }
     }
 
     private void validateDeliveryOutOrdGoodsDetailProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryOutOrdGoodsDetailPath())) {
-            throw new IllegalStateException("Fulfillment delivery out-ord goods detail path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery out-ord goods detail path is required.");
         }
         if (!properties.getDeliveryOutOrdGoodsDetailPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery out-ord goods detail path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery out-ord goods detail path must include {customerCode}.");
         }
     }
 
     private void validateDeliveryOutOrdGoodsByOrdNoProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryOutOrdGoodsByOrdNoPath())) {
-            throw new IllegalStateException("Fulfillment delivery out-ord goods by ordNo path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery out-ord goods by ordNo path is required.");
         }
         if (!properties.getDeliveryOutOrdGoodsByOrdNoPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery out-ord goods by ordNo path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery out-ord goods by ordNo path must include {customerCode}.");
         }
         if (!properties.getDeliveryOutOrdGoodsByOrdNoPath().contains("{startDate}")) {
-            throw new IllegalStateException("Fulfillment delivery out-ord goods by ordNo path must include {startDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery out-ord goods by ordNo path must include {startDate}.");
         }
         if (!properties.getDeliveryOutOrdGoodsByOrdNoPath().contains("{endDate}")) {
-            throw new IllegalStateException("Fulfillment delivery out-ord goods by ordNo path must include {endDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery out-ord goods by ordNo path must include {endDate}.");
         }
     }
 
     private void validateDeliveryGoodDetailProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryGoodDetailPath())) {
-            throw new IllegalStateException("Fulfillment delivery good detail path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery good detail path is required.");
         }
         if (!properties.getDeliveryGoodDetailPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery good detail path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery good detail path must include {customerCode}.");
         }
         if (!properties.getDeliveryGoodDetailPath().contains("{startDate}")) {
-            throw new IllegalStateException("Fulfillment delivery good detail path must include {startDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery good detail path must include {startDate}.");
         }
         if (!properties.getDeliveryGoodDetailPath().contains("{endDate}")) {
-            throw new IllegalStateException("Fulfillment delivery good detail path must include {endDate}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery good detail path must include {endDate}.");
         }
     }
 
     private void validateDeliveryCancelProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getDeliveryCancelPath())) {
-            throw new IllegalStateException("Fulfillment delivery cancel path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery cancel path is required.");
         }
         if (!properties.getDeliveryCancelPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment delivery cancel path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment delivery cancel path must include {customerCode}.");
         }
     }
 

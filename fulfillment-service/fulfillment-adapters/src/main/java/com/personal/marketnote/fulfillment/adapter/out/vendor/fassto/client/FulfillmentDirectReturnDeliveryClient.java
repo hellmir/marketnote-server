@@ -14,6 +14,8 @@ import com.personal.marketnote.fulfillment.domain.vendorcommunication.Fulfillmen
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorName;
+import com.personal.marketnote.fulfillment.exception.FulfillmentClientInvalidRequestException;
+import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationException;
 import com.personal.marketnote.fulfillment.exception.RegisterFulfillmentDirectReturnDeliveryFailedException;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.RegisterFulfillmentDirectReturnDeliveryCommand;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentDeliveryItemResult;
@@ -81,7 +83,7 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
             String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment direct return delivery request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment direct return delivery request is required.");
         }
 
         URI uri = buildDirectReturnDeliveryUri(request.getCustomerCode());
@@ -224,13 +226,13 @@ public class FulfillmentDirectReturnDeliveryClient implements RegisterFulfillmen
 
     private void validateDirectReturnDeliveryProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getReturnDirectDeliveryPath())) {
-            throw new IllegalStateException("Fulfillment direct return delivery path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment direct return delivery path is required.");
         }
         if (!properties.getReturnDirectDeliveryPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment direct return delivery path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment direct return delivery path must include {customerCode}.");
         }
     }
 

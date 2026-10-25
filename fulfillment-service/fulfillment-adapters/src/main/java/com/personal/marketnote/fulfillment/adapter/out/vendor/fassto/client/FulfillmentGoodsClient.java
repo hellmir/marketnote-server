@@ -81,7 +81,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         FulfillmentGoodsQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsQuery(command);
 
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment goods query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment goods query is required.");
         }
 
         URI uri = buildGoodsUri(query.getCustomerCode());
@@ -93,7 +93,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         FulfillmentGoodsDetailQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsDetailQuery(command);
 
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment goods detail query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment goods detail query is required.");
         }
 
         URI uri = buildGoodsDetailUri(query.getCustomerCode(), query.getGodNm());
@@ -105,7 +105,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
         FulfillmentGoodsElementQuery query = FasstoGoodsCommandToRequestMapper.mapToGoodsElementsQuery(command);
 
         if (FormatValidator.hasNoValue(query)) {
-            throw new IllegalArgumentException("Fulfillment goods element query is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment goods element query is required.");
         }
 
         URI uri = buildGoodsElementUri(query.getCustomerCode());
@@ -350,7 +350,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment goods request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment goods request is required.");
         }
 
         URI uri = buildGoodsUri(request.getCustomerCode());
@@ -474,7 +474,7 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
             String action
     ) {
         if (FormatValidator.hasNoValue(request)) {
-            throw new IllegalArgumentException("Fulfillment goods request is required.");
+            throw new FulfillmentClientInvalidRequestException("Fulfillment goods request is required.");
         }
 
         URI uri = buildGoodsUri(request.getCustomerCode());
@@ -634,25 +634,25 @@ public class FulfillmentGoodsClient implements RegisterFulfillmentGoodsPort, Get
 
     private void validateGoodsProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getGoodsPath())) {
-            throw new IllegalStateException("Fulfillment goods path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment goods path is required.");
         }
         if (!properties.getGoodsPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment goods path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment goods path must include {customerCode}.");
         }
     }
 
     private void validateGoodsElementProperties() {
         if (FormatValidator.hasNoValue(properties.getBaseUrl())) {
-            throw new IllegalStateException("Fulfillment base URL is required.");
+            throw new FulfillmentConfigurationException("Fulfillment base URL is required.");
         }
         if (FormatValidator.hasNoValue(properties.getGoodsElementPath())) {
-            throw new IllegalStateException("Fulfillment goods element path is required.");
+            throw new FulfillmentConfigurationException("Fulfillment goods element path is required.");
         }
         if (!properties.getGoodsElementPath().contains(CUSTOMER_CODE_PLACEHOLDER)) {
-            throw new IllegalStateException("Fulfillment goods element path must include {customerCode}.");
+            throw new FulfillmentConfigurationException("Fulfillment goods element path must include {customerCode}.");
         }
     }
 
