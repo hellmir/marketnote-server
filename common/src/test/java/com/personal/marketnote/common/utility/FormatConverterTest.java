@@ -403,10 +403,9 @@ class FormatConverterTest {
         }
 
         @Test
-        @DisplayName("null 입력 시 NullPointerException이 발생한다 (현재 동작 고정)")
-        void throwsNpeWhenNull() {
-            assertThatThrownBy(() -> FormatConverter.sanitizeFileName(null))
-                    .isInstanceOf(NullPointerException.class);
+        @DisplayName("null 입력 시 null을 반환한다")
+        void returnsNullWhenNull() {
+            assertThat(FormatConverter.sanitizeFileName(null)).isNull();
         }
 
         @Test

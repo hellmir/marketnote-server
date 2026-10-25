@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.in.web.aligo.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.utility.FormatConverter;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.adapter.in.web.aligo.request.RegisterBrandTalkTemplateRequest;
 import com.personal.marketnote.notification.adapter.in.web.aligo.response.GetBrandTalkTemplateListResponse;
@@ -70,7 +71,9 @@ public class AligoBrandTalkTemplateController {
         BrandTalkCouponCommand couponCommand = mapCoupon(request.coupon());
 
         byte[] imageFile = FormatValidator.hasValue(image) ? image.getBytes() : null;
-        String imageFileName = FormatValidator.hasValue(image) ? image.getOriginalFilename() : null;
+        String imageFileName = FormatValidator.hasValue(image)
+                ? FormatConverter.sanitizeFileName(image.getOriginalFilename())
+                : null;
 
         List<byte[]> carouselItemImageFiles = mapCarouselItemImageFiles(carouselItemImages);
         List<String> carouselItemImageFileNames = mapCarouselItemImageFileNames(carouselItemImages);
@@ -200,6 +203,9 @@ public class AligoBrandTalkTemplateController {
         if (FormatValidator.hasNoValue(files)) {
             return List.of();
         }
-        return files.stream().map(MultipartFile::getOriginalFilename).toList();
+        return files.stream()
+                .map(MultipartFile::getOriginalFilename)
+                .map(FormatConverter::sanitizeFileName)
+                .toList();
     }
 }
