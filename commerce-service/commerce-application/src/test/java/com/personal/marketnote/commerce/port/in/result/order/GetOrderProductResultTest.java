@@ -9,6 +9,7 @@ import com.personal.marketnote.commerce.port.out.result.product.ProductInfoResul
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,5 +62,51 @@ class GetOrderProductResultTest {
         // then
         assertThat(result.orderProductKey()).isNotNull();
         assertThat(result.orderProductKey()).isEqualTo(orderProduct.getOrderProductKey());
+    }
+
+    @Test
+    @DisplayName("OrderProduct의 scheduledAutoConfirmAt이 결과에 매핑된다")
+    void shouldMapScheduledAutoConfirmAtFromOrderProduct() {
+        // given
+        LocalDateTime scheduledAutoConfirmAt = LocalDateTime.of(2026, 4, 18, 12, 0);
+        OrderProduct orderProduct = OrderProduct.from(OrderProductSnapshotState.builder()
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .orderProductKey(UUID.randomUUID())
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.DELIVERED)
+                .scheduledAutoConfirmAt(scheduledAutoConfirmAt)
+                .build());
+
+        // when
+        GetOrderProductResult result = GetOrderProductResult.from(orderProduct, null, OrderStatus.DELIVERED);
+
+        // then
+        assertThat(result.scheduledAutoConfirmAt()).isEqualTo(scheduledAutoConfirmAt);
+    }
+
+    @Test
+    @DisplayName("OrderProduct.scheduledAutoConfirmAt이 null이면 결과에서도 null이다")
+    void shouldReturnNullScheduledAutoConfirmAtWhenOrderProductHasNone() {
+        // given
+        OrderProduct orderProduct = OrderProduct.from(OrderProductSnapshotState.builder()
+                .orderId(1L)
+                .sellerId(10L)
+                .pricePolicyId(100L)
+                .orderProductKey(UUID.randomUUID())
+                .quantity(1)
+                .unitAmount(50000L)
+                .accumulatedPoint(0L)
+                .orderStatus(OrderStatus.PAID)
+                .build());
+
+        // when
+        GetOrderProductResult result = GetOrderProductResult.from(orderProduct, null, OrderStatus.PAID);
+
+        // then
+        assertThat(result.scheduledAutoConfirmAt()).isNull();
     }
 }
