@@ -1,8 +1,6 @@
 package com.personal.marketnote.notification.service.notification;
 
 import com.personal.marketnote.common.application.UseCase;
-import com.personal.marketnote.common.kafka.event.PushNotificationSentEvent;
-import com.personal.marketnote.notification.domain.device.DeviceToken;
 import com.personal.marketnote.notification.domain.notification.*;
 import com.personal.marketnote.notification.domain.preference.NotificationPreference;
 import com.personal.marketnote.notification.domain.template.NotificationCategory;
@@ -10,28 +8,21 @@ import com.personal.marketnote.notification.domain.template.NotificationTemplate
 import com.personal.marketnote.notification.domain.template.NotificationTemplateNotFoundException;
 import com.personal.marketnote.notification.domain.template.TemplateRenderer;
 import com.personal.marketnote.notification.port.in.command.SendNotificationCommand;
+import com.personal.marketnote.notification.port.in.event.PushNotificationRequestedEvent;
 import com.personal.marketnote.notification.port.in.result.notification.SendNotificationResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.SendNotificationUseCase;
-import com.personal.marketnote.notification.port.out.command.SendPushNotificationCommand;
-import com.personal.marketnote.notification.port.out.device.DeleteDeviceTokenPort;
-import com.personal.marketnote.notification.port.out.device.FindDeviceTokenPort;
-import com.personal.marketnote.notification.port.out.event.PublishNotificationSentEventPort;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
-import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
-import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
-import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
-import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
@@ -43,15 +34,10 @@ public class SendNotificationService implements SendNotificationUseCase {
 
     private final FindNotificationTemplatePort findNotificationTemplatePort;
     private final FindNotificationPreferencePort findNotificationPreferencePort;
-    private final FindDeviceTokenPort findDeviceTokenPort;
     private final SaveNotificationPort saveNotificationPort;
-    private final UpdateNotificationPort updateNotificationPort;
-    private final SendPushNotificationPort sendPushNotificationPort;
-    private final DeleteDeviceTokenPort deleteDeviceTokenPort;
     private final FindNotificationPort findNotificationPort;
     private final PublishSseEventPort publishSseEventPort;
-    private final PublishNotificationSentEventPort publishNotificationSentEventPort;
-    private final VendorCommunicationRecorder vendorCommunicationRecorder;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final Clock clock;
 
     @Override
@@ -87,18 +73,19 @@ public class SendNotificationService implements SendNotificationUseCase {
 
         if (!notification.getSendStatus().isPending()) {
             publishUnreadCountChangedEvent(command.userId());
-            return toResult(notification, 0, 0);
+            return toResult(notification);
         }
 
         if (!deliveryChannel.hasPush()) {
             publishUnreadCountChangedEvent(command.userId());
-            return toResult(notification, 0, 0);
+            return toResult(notification);
         }
 
-        SendNotificationResult result = sendPushNotifications(notification, title, body, landingUrl, command.userId());
-        publishUnreadCountChangedEvent(command.userId());
+        applicationEventPublisher.publishEvent(new PushNotificationRequestedEvent(
+                notification.getId(), command.userId(), title, body, landingUrl
+        ));
 
-        return result;
+        return toResult(notification);
     }
 
     private NotificationTemplate findTemplate(String templateCode) {
@@ -133,7 +120,7 @@ public class SendNotificationService implements SendNotificationUseCase {
         notification.markAsSkipped();
         Notification saved = saveNotificationPort.save(notification);
 
-        return toResult(saved, 0, 0);
+        return toResult(saved);
     }
 
     private Notification createAndSaveNotification(
@@ -155,84 +142,12 @@ public class SendNotificationService implements SendNotificationUseCase {
         return saveNotificationPort.save(notification);
     }
 
-    private SendNotificationResult sendPushNotifications(
-            Notification notification, String title, String body, String landingUrl, Long userId
-    ) {
-        List<DeviceToken> deviceTokens = findDeviceTokenPort.findActiveByUserId(userId);
-
-        if (deviceTokens.isEmpty()) {
-            notification.markAsFailed();
-            updateNotificationPort.update(notification);
-            return toResult(notification, 0, 0);
-        }
-
-        int sentCount = 0;
-        int failedCount = 0;
-
-        for (DeviceToken deviceToken : deviceTokens) {
-            SendPushNotificationCommand pushCommand = new SendPushNotificationCommand(
-                    deviceToken.getToken(), title, body, landingUrl, deviceToken.getPlatform());
-            try {
-                SendPushNotificationResult pushResult = sendPushNotificationPort.send(pushCommand);
-                vendorCommunicationRecorder.recordFcmSendResult(
-                        notification, deviceToken, title, body, landingUrl, pushResult
-                );
-                if (pushResult.success()) {
-                    sentCount++;
-                    continue;
-                }
-                failedCount++;
-                if (pushResult.tokenInvalid()) {
-                    deleteDeviceTokenPort.deleteById(deviceToken.getId());
-                }
-            } catch (FcmSendFailedException fsfe) {
-                log.error("FCM 발송 중 예외 발생: userId={}, deviceId={}", userId, deviceToken.getDeviceId());
-                vendorCommunicationRecorder.recordFcmSendException(
-                        notification, deviceToken, title, body, landingUrl, fsfe
-                );
-                failedCount++;
-            }
-        }
-
-        if (sentCount > 0) {
-            notification.markAsSent();
-        }
-        if (sentCount == 0) {
-            notification.markAsFailed();
-        }
-        updateNotificationPort.update(notification);
-
-        if (notification.getSendStatus().isSent()) {
-            publishNotificationSentEvent(notification, sentCount, failedCount);
-        }
-
-        return toResult(notification, sentCount, failedCount);
-    }
-
     private void publishUnreadCountChangedEvent(Long userId) {
         long unreadCount = findNotificationPort.countUnreadByUserId(userId);
         publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
     }
 
-    private void publishNotificationSentEvent(Notification notification, int sentCount, int failedCount) {
-        PushNotificationSentEvent event = new PushNotificationSentEvent(
-                notification.getId(),
-                notification.getUserId(),
-                notification.getNotificationType().name(),
-                notification.getSendStatus().name(),
-                sentCount,
-                failedCount,
-                LocalDateTime.now(clock)
-        );
-        publishNotificationSentEventPort.publish(event);
-    }
-
-    private SendNotificationResult toResult(Notification notification, int sentCount, int failedCount) {
-        return new SendNotificationResult(
-                notification.getId(),
-                notification.getSendStatus().name(),
-                sentCount,
-                failedCount
-        );
+    private SendNotificationResult toResult(Notification notification) {
+        return new SendNotificationResult(notification.getId(), notification.getSendStatus().name());
     }
 }
