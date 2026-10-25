@@ -93,8 +93,7 @@ class CancelPaymentUseCaseTest {
 
             assertThatThrownBy(() -> cancelPaymentService.cancel(command))
                     .isInstanceOf(PaymentCancelException.class)
-                    .hasMessageContaining("8001")
-                    .hasMessageContaining("취소 불가");
+                    .hasMessage("결제 취소에 실패했습니다.");
 
             verify(txHelper, never()).commitPspEventCancel(any(), any());
             verify(txHelper, never()).commitPaymentAndPostProcess(any(), any());
