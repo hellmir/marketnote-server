@@ -10,7 +10,6 @@ import com.personal.marketnote.commerce.port.out.settlement.FindSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.SaveSettlementPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdatePaymentAllocationPort;
 import com.personal.marketnote.commerce.port.out.settlement.UpdateSettlementPort;
-import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -75,8 +74,7 @@ public class ProcessSellerSettlementService {
         );
 
         long totalShippingFee = calculateNetAmount(
-                sellerAllocations,
-                allocation -> FormatValidator.hasValue(allocation.getShippingFee()) ? allocation.getShippingFee().getValue() : 0L
+                sellerAllocations, PaymentAllocation::getShippingFeeValueOrZero
         );
 
         long feeBase = Math.addExact(totalAllocatedAmount, totalShippingFee);

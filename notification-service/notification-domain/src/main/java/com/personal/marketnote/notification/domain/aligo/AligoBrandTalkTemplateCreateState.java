@@ -1,5 +1,6 @@
 package com.personal.marketnote.notification.domain.aligo;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,6 +9,9 @@ import java.util.List;
 @Builder
 @Getter
 public class AligoBrandTalkTemplateCreateState {
+
+    private static final int SUB_WIDE_ITEMS_MIN_SIZE = 2;
+    private static final int SUB_WIDE_ITEMS_MAX_SIZE = 3;
 
     private String senderKey;
     private String templateCode;
@@ -30,4 +34,11 @@ public class AligoBrandTalkTemplateCreateState {
     private String videoUrl;
     private String videoThumbnailUrl;
     private BrandTalkCommerceInfo commerceInfo;
+
+    public boolean hasInvalidSubWideItemsSize() {
+        if (FormatValidator.hasNoValue(subWideItems)) {
+            return false;
+        }
+        return subWideItems.size() < SUB_WIDE_ITEMS_MIN_SIZE || subWideItems.size() > SUB_WIDE_ITEMS_MAX_SIZE;
+    }
 }

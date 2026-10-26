@@ -171,8 +171,7 @@ public class AligoBrandTalkTemplate extends BaseDomain {
         if (FormatValidator.hasValue(state.getTemplateHeader()) && state.getTemplateHeader().contains("\n")) {
             throw new InvalidBrandTalkTemplateException("templateHeader에 줄바꿈을 포함할 수 없습니다.");
         }
-        List<BrandTalkWideItem> subWideItems = state.getSubWideItems();
-        if (FormatValidator.hasValue(subWideItems) && (subWideItems.size() < 2 || subWideItems.size() > 3)) {
+        if (state.hasInvalidSubWideItemsSize()) {
             throw new InvalidBrandTalkTemplateException("WIDE_ITEM_LIST의 subWideItems는 최소 2개, 최대 3개입니다.");
         }
     }
