@@ -14,12 +14,23 @@ public interface LedgerTransactionJpaRepository extends JpaRepository<LedgerTran
 
     @Query("""
             SELECT t FROM LedgerTransactionJpaEntity t
-            WHERE (:startDate IS NULL OR t.createdAt >= :startDate)
-            AND (:endDate IS NULL OR t.createdAt <= :endDate)
-            AND (:transactionType IS NULL OR t.transactionType = :transactionType)
+            WHERE t.createdAt >= :startDate
+            AND t.createdAt <= :endDate
             ORDER BY t.createdAt DESC
             """)
-    List<LedgerTransactionJpaEntity> findByFilters(
+    List<LedgerTransactionJpaEntity> findByDateRange(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
+
+    @Query("""
+            SELECT t FROM LedgerTransactionJpaEntity t
+            WHERE t.createdAt >= :startDate
+            AND t.createdAt <= :endDate
+            AND t.transactionType = :transactionType
+            ORDER BY t.createdAt DESC
+            """)
+    List<LedgerTransactionJpaEntity> findByDateRangeAndType(
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             @Param("transactionType") LedgerTransactionType transactionType
