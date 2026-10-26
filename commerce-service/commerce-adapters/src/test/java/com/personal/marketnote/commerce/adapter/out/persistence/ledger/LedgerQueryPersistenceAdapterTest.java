@@ -119,6 +119,99 @@ class LedgerQueryPersistenceAdapterTest {
             // then
             assertThat(result).hasSize(2);
         }
+
+        @Test
+        @DisplayName("날짜 범위 필터만 주면 범위 내 거래만 반환한다")
+        void shouldFilterByDateRangeOnly() {
+            // given
+            saveTransaction(LedgerTransactionType.PAYMENT_APPROVAL, "PAYMENT_APPROVAL:1");
+            saveTransaction(LedgerTransactionType.PG_SETTLEMENT, "PG_SETTLEMENT:1");
+            entityManager.flush();
+            entityManager.clear();
+
+            LocalDateTime start = LocalDateTime.now().minusDays(1);
+            LocalDateTime end = LocalDateTime.now().plusDays(1);
+
+            // when
+            List<LedgerTransaction> result = queryAdapter.findByFilters(start, end, null);
+
+            // then
+            assertThat(result).hasSize(2);
+        }
+
+        @Test
+        @DisplayName("날짜 범위 밖의 거래는 반환되지 않는다")
+        void shouldExcludeOutOfRangeTransactions() {
+            // given
+            saveTransaction(LedgerTransactionType.PAYMENT_APPROVAL, "PAYMENT_APPROVAL:1");
+            entityManager.flush();
+            entityManager.clear();
+
+            LocalDateTime start = LocalDateTime.now().plusDays(1);
+            LocalDateTime end = LocalDateTime.now().plusDays(2);
+
+            // when
+            List<LedgerTransaction> result = queryAdapter.findByFilters(start, end, null);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("날짜 범위와 거래 유형을 함께 주면 둘 다 만족하는 거래만 반환한다")
+        void shouldFilterByDateRangeAndType() {
+            // given
+            saveTransaction(LedgerTransactionType.PAYMENT_APPROVAL, "PAYMENT_APPROVAL:1");
+            saveTransaction(LedgerTransactionType.SELLER_SETTLEMENT, "SELLER_SETTLEMENT:1");
+            entityManager.flush();
+            entityManager.clear();
+
+            LocalDateTime start = LocalDateTime.now().minusDays(1);
+            LocalDateTime end = LocalDateTime.now().plusDays(1);
+
+            // when
+            List<LedgerTransaction> result = queryAdapter.findByFilters(
+                    start, end, LedgerTransactionType.SELLER_SETTLEMENT
+            );
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getTransactionType()).isEqualTo(LedgerTransactionType.SELLER_SETTLEMENT);
+        }
+
+        @Test
+        @DisplayName("startDate만 null이면 FAR_PAST sentinel로 endDate 이전 거래 전체를 반환한다")
+        void shouldUseFarPastWhenStartDateIsNull() {
+            // given
+            saveTransaction(LedgerTransactionType.PAYMENT_APPROVAL, "PAYMENT_APPROVAL:1");
+            entityManager.flush();
+            entityManager.clear();
+
+            LocalDateTime end = LocalDateTime.now().plusDays(1);
+
+            // when
+            List<LedgerTransaction> result = queryAdapter.findByFilters(null, end, null);
+
+            // then
+            assertThat(result).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("endDate만 null이면 FAR_FUTURE sentinel로 startDate 이후 거래 전체를 반환한다")
+        void shouldUseFarFutureWhenEndDateIsNull() {
+            // given
+            saveTransaction(LedgerTransactionType.PAYMENT_APPROVAL, "PAYMENT_APPROVAL:1");
+            entityManager.flush();
+            entityManager.clear();
+
+            LocalDateTime start = LocalDateTime.now().minusDays(1);
+
+            // when
+            List<LedgerTransaction> result = queryAdapter.findByFilters(start, null, null);
+
+            // then
+            assertThat(result).hasSize(1);
+        }
     }
 
     @Nested

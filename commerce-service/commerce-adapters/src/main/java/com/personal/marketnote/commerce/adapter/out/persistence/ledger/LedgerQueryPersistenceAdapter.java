@@ -12,6 +12,7 @@ import com.personal.marketnote.commerce.port.out.ledger.FindLedgerEntryPort;
 import com.personal.marketnote.commerce.port.out.ledger.FindLedgerTransactionPort;
 import com.personal.marketnote.commerce.port.out.ledger.dto.AccountBalanceDto;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.utility.FormatValidator;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,9 @@ import java.util.Map;
 @PersistenceAdapter
 @RequiredArgsConstructor
 public class LedgerQueryPersistenceAdapter implements FindLedgerTransactionPort, FindLedgerEntryPort {
+    private static final LocalDateTime FAR_PAST = LocalDateTime.of(1970, 1, 1, 0, 0);
+    private static final LocalDateTime FAR_FUTURE = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+
     private final LedgerTransactionJpaRepository ledgerTransactionJpaRepository;
     private final LedgerEntryJpaRepository ledgerEntryJpaRepository;
 
@@ -38,7 +42,16 @@ public class LedgerQueryPersistenceAdapter implements FindLedgerTransactionPort,
             LocalDateTime endDate,
             LedgerTransactionType transactionType
     ) {
-        return ledgerTransactionJpaRepository.findByFilters(startDate, endDate, transactionType)
+        LocalDateTime safeStart = FormatValidator.hasValue(startDate) ? startDate : FAR_PAST;
+        LocalDateTime safeEnd = FormatValidator.hasValue(endDate) ? endDate : FAR_FUTURE;
+
+        if (FormatValidator.hasValue(transactionType)) {
+            return ledgerTransactionJpaRepository.findByDateRangeAndType(safeStart, safeEnd, transactionType)
+                    .stream()
+                    .map(LedgerTransactionEntityToDomainMapper::toDomain)
+                    .toList();
+        }
+        return ledgerTransactionJpaRepository.findByDateRange(safeStart, safeEnd)
                 .stream()
                 .map(LedgerTransactionEntityToDomainMapper::toDomain)
                 .toList();
