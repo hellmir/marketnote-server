@@ -266,13 +266,7 @@ public class GiftishowApiClient {
             TypeReference<GiftishowApiResponse<T>> typeReference
     ) {
         String responseBody = rawResponse.getBody();
-        if (isSensitivePath(path)) {
-            log.debug("기프티쇼 API 응답: path={}, status={} (body 로깅 생략 — 민감 데이터 포함)",
-                    path, rawResponse.getStatusCode());
-        } else {
-            log.debug("기프티쇼 API 응답: path={}, status={}, body={}",
-                    path, rawResponse.getStatusCode(), responseBody);
-        }
+        logApiResponse(path, rawResponse, responseBody);
 
         if (FormatValidator.hasNoValue(responseBody)) {
             throw new GiftishowCommunicationException(
@@ -288,6 +282,16 @@ public class GiftishowApiClient {
                     "기프티쇼 API 응답 파싱 실패. path=" + path, e
             );
         }
+    }
+
+    private void logApiResponse(String path, ResponseEntity<String> rawResponse, String responseBody) {
+        if (isSensitivePath(path)) {
+            log.debug("기프티쇼 API 응답: path={}, status={} (body 로깅 생략 — 민감 데이터 포함)",
+                    path, rawResponse.getStatusCode());
+            return;
+        }
+        log.debug("기프티쇼 API 응답: path={}, status={}, body={}",
+                path, rawResponse.getStatusCode(), responseBody);
     }
 
     private boolean isSensitivePath(String path) {

@@ -91,16 +91,7 @@ public class InventoryController {
             @Valid @RequestParam List<Long> pricePolicyIds,
             @RequestParam(required = false) List<Long> productIds
     ) {
-        Set<Inventory> inventories;
-        if (FormatValidator.hasValue(productIds) && productIds.size() == pricePolicyIds.size()) {
-            Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
-            for (int i = 0; i < pricePolicyIds.size(); i++) {
-                productIdsByPricePolicyId.put(pricePolicyIds.get(i), productIds.get(i));
-            }
-            inventories = getInventoryUseCase.getOrCreateInventories(productIdsByPricePolicyId);
-        } else {
-            inventories = getInventoryUseCase.getInventories(pricePolicyIds);
-        }
+        Set<Inventory> inventories = resolveInventories(pricePolicyIds, productIds);
 
         GetInventoriesResult getInventoriesResult = GetInventoriesResult.from(inventories);
 
@@ -142,5 +133,16 @@ public class InventoryController {
                 ),
                 HttpStatus.OK
         );
+    }
+
+    private Set<Inventory> resolveInventories(List<Long> pricePolicyIds, List<Long> productIds) {
+        if (FormatValidator.hasValue(productIds) && productIds.size() == pricePolicyIds.size()) {
+            Map<Long, Long> productIdsByPricePolicyId = new HashMap<>();
+            for (int i = 0; i < pricePolicyIds.size(); i++) {
+                productIdsByPricePolicyId.put(pricePolicyIds.get(i), productIds.get(i));
+            }
+            return getInventoryUseCase.getOrCreateInventories(productIdsByPricePolicyId);
+        }
+        return getInventoryUseCase.getInventories(pricePolicyIds);
     }
 }

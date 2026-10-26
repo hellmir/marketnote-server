@@ -35,12 +35,16 @@ public class UpdateNotificationPreferenceService implements UpdateNotificationPr
 
         LocalDateTime now = LocalDateTime.now(clock);
 
-        if (command.enabled()) {
-            preference.enable(now);
-        } else {
-            preference.disable(now);
-        }
+        togglePreference(preference, command.enabled(), now);
 
         updateNotificationPreferencePort.update(preference);
+    }
+
+    private void togglePreference(NotificationPreference preference, boolean enabled, LocalDateTime now) {
+        if (enabled) {
+            preference.enable(now);
+            return;
+        }
+        preference.disable(now);
     }
 }

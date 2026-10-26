@@ -34,17 +34,18 @@ public class GetSellerSettlementsService implements GetSellerSettlementsUseCase 
     public GetSettlementsResult getSellerSettlements(GetSellerSettlementsQuery query) {
         log.info("판매자 정산 조회 - sellerId={}, year={}, month={}", query.sellerId(), query.year(), query.month());
 
-        List<Settlement> settlements;
+        List<Settlement> settlements = resolveSellerSettlements(query);
 
+        return GetSettlementsResult.from(settlements);
+    }
+
+    private List<Settlement> resolveSellerSettlements(GetSellerSettlementsQuery query) {
         if (FormatValidator.hasValue(query.month())) {
             Optional<Settlement> settlement = findSettlementPort.findBySellerIdAndYearAndMonth(
                     query.sellerId(), query.year(), query.month()
             );
-            settlements = settlement.map(List::of).orElse(List.of());
-        } else {
-            settlements = findSettlementPort.findAllBySellerIdAndYear(query.sellerId(), query.year());
+            return settlement.map(List::of).orElse(List.of());
         }
-
-        return GetSettlementsResult.from(settlements);
+        return findSettlementPort.findAllBySellerIdAndYear(query.sellerId(), query.year());
     }
 }
