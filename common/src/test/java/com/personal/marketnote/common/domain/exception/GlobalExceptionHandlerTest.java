@@ -644,11 +644,10 @@ class GlobalExceptionHandlerTest {
                         IllegalArgumentException exception =
                                 new IllegalArgumentException("ERR_ARG_" + index + "::인자 에러 " + index);
                         return handler.handleIllegalArgumentException(exception);
-                    } else {
-                        IllegalStateException exception =
-                                new IllegalStateException("ERR_STATE_" + index + "::상태 에러 " + index);
-                        return handler.handleIllegalStateException(exception);
                     }
+                    IllegalStateException exception =
+                            new IllegalStateException("ERR_STATE_" + index + "::상태 에러 " + index);
+                    return handler.handleIllegalStateException(exception);
                 }));
             }
 
@@ -662,11 +661,8 @@ class GlobalExceptionHandlerTest {
                 assertThat(body.getCode()).isEqualTo(i % 2 == 0 ? "ERR_ARG_" + i : "ERR_STATE_" + i);
                 assertThat(body.getMessage()).isEqualTo(i % 2 == 0 ? "인자 에러 " + i : "상태 에러 " + i);
 
-                if (i % 2 == 0) {
-                    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-                } else {
-                    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-                }
+                HttpStatus expectedStatus = i % 2 == 0 ? HttpStatus.BAD_REQUEST : HttpStatus.CONFLICT;
+                assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
             }
 
             executor.shutdown();

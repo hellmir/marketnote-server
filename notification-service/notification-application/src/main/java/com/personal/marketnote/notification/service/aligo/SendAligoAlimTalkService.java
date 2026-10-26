@@ -101,15 +101,20 @@ public class SendAligoAlimTalkService implements SendAligoAlimTalkUseCase {
     }
 
     private void updateMessageAfterSend(AligoMessage message, AligoAlimTalkSendResponse response) {
+        applySendResult(message, response);
+        updateAligoMessagePort.update(message);
+    }
+
+    private void applySendResult(AligoMessage message, AligoAlimTalkSendResponse response) {
+        LocalDateTime now = LocalDateTime.now();
         if (FormatValidator.hasValue(response.smid())) {
             message.markAsFailovered(
                     response.mid(), response.smid(),
-                    response.successCount(), response.failCount(), LocalDateTime.now()
+                    response.successCount(), response.failCount(), now
             );
-        } else {
-            message.markAsSent(response.mid(), response.successCount(), response.failCount(), LocalDateTime.now());
+            return;
         }
-        updateAligoMessagePort.update(message);
+        message.markAsSent(response.mid(), response.successCount(), response.failCount(), now);
     }
 
     private void markMessageFailed(AligoMessage message) {

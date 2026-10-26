@@ -66,9 +66,9 @@ public class LedgerQueryPersistenceAdapter implements FindLedgerTransactionPort,
 
             if (transactionType.isDebit()) {
                 debitMap.put(accountId, totalAmount);
-            } else {
-                creditMap.put(accountId, totalAmount);
+                continue;
             }
+            creditMap.put(accountId, totalAmount);
         }
 
         List<Long> accountIds = new ArrayList<>(debitMap.keySet());

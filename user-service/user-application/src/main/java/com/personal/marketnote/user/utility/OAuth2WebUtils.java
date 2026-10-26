@@ -27,14 +27,17 @@ public class OAuth2WebUtils {
                 .queryParam("is-guest", loginResult.isNewUser())
                 .queryParam("auth-vendor", authVendor);
 
-        if (loginResult.isNewUser()) {
-            // 소셜 로그인 개인정보 동의항목 정보 세팅
-            uriComponentsBuilder = addParameterIfNotNull(uriComponentsBuilder, "user-name", loginResult.getNickname());
-        } else {
-            uriComponentsBuilder = uriComponentsBuilder.queryParam("user-id");
-        }
+        uriComponentsBuilder = addUserParam(uriComponentsBuilder, loginResult);
 
         return uriComponentsBuilder.encode().toUriString();
+    }
+
+    private static UriComponentsBuilder addUserParam(UriComponentsBuilder builder, LoginResult loginResult) {
+        if (loginResult.isNewUser()) {
+            // 소셜 로그인 개인정보 동의항목 정보 세팅
+            return addParameterIfNotNull(builder, "user-name", loginResult.getNickname());
+        }
+        return builder.queryParam("user-id");
     }
 
     private static UriComponentsBuilder addParameterIfNotNull(UriComponentsBuilder builder, String name, String value) {
