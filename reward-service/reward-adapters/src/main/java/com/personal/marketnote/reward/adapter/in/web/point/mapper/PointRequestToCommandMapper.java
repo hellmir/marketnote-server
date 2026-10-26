@@ -16,11 +16,11 @@ public class PointRequestToCommandMapper {
     ) {
         return ModifyUserPointCommand.builder()
                 .userId(userId)
-                .changeType(request.getChangeType())
-                .amount(request.getAmount())
-                .sourceType(request.getSourceType())
-                .sourceId(request.getSourceId())
-                .reason(request.getReason())
+                .changeType(request.changeType())
+                .amount(request.amount())
+                .sourceType(request.sourceType())
+                .sourceId(request.sourceId())
+                .reason(request.reason())
                 .build();
     }
 
@@ -30,11 +30,11 @@ public class PointRequestToCommandMapper {
     ) {
         return ModifyPendingPointCommand.builder()
                 .userId(userId)
-                .changeType(request.getChangeType())
-                .amount(request.getAmount())
-                .sourceType(request.getSourceType())
-                .sourceId(request.getSourceId())
-                .reason(request.getReason())
+                .changeType(request.changeType())
+                .amount(request.amount())
+                .sourceType(request.sourceType())
+                .sourceId(request.sourceId())
+                .reason(request.reason())
                 .build();
     }
 
@@ -44,9 +44,9 @@ public class PointRequestToCommandMapper {
     ) {
         return ConfirmPendingPointCommand.builder()
                 .userId(userId)
-                .sourceType(request.getSourceType())
-                .sourceId(request.getSourceId())
-                .reason(request.getReason())
+                .sourceType(request.sourceType())
+                .sourceId(request.sourceId())
+                .reason(request.reason())
                 .build();
     }
 
@@ -56,10 +56,9 @@ public class PointRequestToCommandMapper {
     ) {
         return CancelPendingPointCommand.builder()
                 .userId(userId)
-                .sourceType(request.getSourceType())
-                .sourceId(request.getSourceId())
-                .reason(request.getReason())
+                .sourceType(request.sourceType())
+                .sourceId(request.sourceId())
+                .reason(request.reason())
                 .build();
     }
 }
-

@@ -19,15 +19,15 @@ class FileRequestToCommandMapperTest {
     private UpdateFilesRequest createRequest(
             List<MultipartFile> files, List<String> sorts, List<String> extensions, List<String> names
     ) {
-        UpdateFilesRequest request = new UpdateFilesRequest();
-        request.setFile(files);
-        request.setSort(sorts);
-        request.setExtension(extensions);
-        request.setName(names);
-        request.setOwnerType("PRODUCT");
-        request.setOwnerId(1L);
-        request.setOwnerKey("owner-key-1");
-        return request;
+        return new UpdateFilesRequest(
+                files,
+                sorts,
+                extensions,
+                names,
+                "PRODUCT",
+                1L,
+                "owner-key-1"
+        );
     }
 
     @Nested

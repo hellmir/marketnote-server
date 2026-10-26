@@ -76,14 +76,15 @@ class FileControllerTest {
             MockMultipartFile multipartFile = new MockMultipartFile(
                     "file", "image.jpg", "image/jpeg", "payload".getBytes()
             );
-            UpdateFilesRequest request = new UpdateFilesRequest();
-            request.setFile(List.of(multipartFile));
-            request.setSort(List.of("PRODUCT_CATALOG_IMAGE"));
-            request.setExtension(List.of("jpg"));
-            request.setName(List.of("상품-이미지"));
-            request.setOwnerType("PRODUCT");
-            request.setOwnerId(1L);
-            request.setOwnerKey("owner-key-1");
+            UpdateFilesRequest request = new UpdateFilesRequest(
+                    List.of(multipartFile),
+                    List.of("PRODUCT_CATALOG_IMAGE"),
+                    List.of("jpg"),
+                    List.of("상품-이미지"),
+                    "PRODUCT",
+                    1L,
+                    "owner-key-1"
+            );
 
             // when
             ResponseEntity<BaseResponse<Void>> response = controller.updateFiles(request, buyerPrincipal(10L));
@@ -112,10 +113,15 @@ class FileControllerTest {
         @DisplayName("업로드 파일이 null이어도 ownerType/ownerId/ownerKey 메타데이터만 담은 Command로 위임한다")
         void delegatesUpdateFilesWithEmptyFileList() {
             // given
-            UpdateFilesRequest request = new UpdateFilesRequest();
-            request.setOwnerType("REVIEW");
-            request.setOwnerId(200L);
-            request.setOwnerKey("owner-key-review");
+            UpdateFilesRequest request = new UpdateFilesRequest(
+                    null,
+                    null,
+                    null,
+                    null,
+                    "REVIEW",
+                    200L,
+                    "owner-key-review"
+            );
 
             // when
             ResponseEntity<BaseResponse<Void>> response = controller.updateFiles(request, buyerPrincipal(55L));
@@ -138,10 +144,15 @@ class FileControllerTest {
         @DisplayName("principal 이름이 -1이면 AuthenticationFailedException이 발생한다")
         void throwsWhenPrincipalIsAnonymous() {
             // given
-            UpdateFilesRequest request = new UpdateFilesRequest();
-            request.setOwnerType("PRODUCT");
-            request.setOwnerId(1L);
-            request.setOwnerKey("owner-key");
+            UpdateFilesRequest request = new UpdateFilesRequest(
+                    null,
+                    null,
+                    null,
+                    null,
+                    "PRODUCT",
+                    1L,
+                    "owner-key"
+            );
             OAuth2AuthenticatedPrincipal anonymous = new DefaultOAuth2AuthenticatedPrincipal(
                     "-1", Map.of("name", "-1"), List.of()
             );

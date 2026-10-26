@@ -13,17 +13,17 @@ public class FileRequestToCommandMapper {
     public static UpdateFilesCommand mapToCommand(
             UpdateFilesRequest updateFilesRequest, Long requesterId, String requesterRole
     ) {
-        List<MultipartFile> files = updateFilesRequest.getFile();
-        List<String> sorts = updateFilesRequest.getSort();
-        List<String> extensions = updateFilesRequest.getExtension();
-        List<String> names = updateFilesRequest.getName();
+        List<MultipartFile> files = updateFilesRequest.file();
+        List<String> sorts = updateFilesRequest.sort();
+        List<String> extensions = updateFilesRequest.extension();
+        List<String> names = updateFilesRequest.name();
 
         if (FormatValidator.hasNoValue(files)) {
             return UpdateFilesCommand.builder()
                     .fileInfo(new ArrayList<>(0))
-                    .ownerType(updateFilesRequest.getOwnerType())
-                    .ownerId(updateFilesRequest.getOwnerId())
-                    .ownerKey(updateFilesRequest.getOwnerKey())
+                    .ownerType(updateFilesRequest.ownerType())
+                    .ownerId(updateFilesRequest.ownerId())
+                    .ownerKey(updateFilesRequest.ownerKey())
                     .requesterId(requesterId)
                     .requesterRole(requesterRole)
                     .build();
@@ -42,9 +42,9 @@ public class FileRequestToCommandMapper {
 
         return UpdateFilesCommand.builder()
                 .fileInfo(fileInfo)
-                .ownerType(updateFilesRequest.getOwnerType())
-                .ownerId(updateFilesRequest.getOwnerId())
-                .ownerKey(updateFilesRequest.getOwnerKey())
+                .ownerType(updateFilesRequest.ownerType())
+                .ownerId(updateFilesRequest.ownerId())
+                .ownerKey(updateFilesRequest.ownerKey())
                 .requesterId(requesterId)
                 .requesterRole(requesterRole)
                 .build();
