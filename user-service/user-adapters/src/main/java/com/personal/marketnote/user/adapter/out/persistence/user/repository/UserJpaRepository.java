@@ -165,8 +165,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
             FROM UserJpaEntity u
             WHERE u.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
-                    :searchKeyword IS NULL
-                 OR :searchKeyword = ''
+                    :searchKeyword = ''
                  OR (
                         ( :byId = true AND str(u.id) LIKE CONCAT('%', :searchKeyword, '%') )
                      OR ( :byNickname = true AND LOWER(u.nickname) LIKE CONCAT('%', LOWER(:searchKeyword), '%') )

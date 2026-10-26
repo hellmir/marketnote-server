@@ -20,8 +20,7 @@ public interface LoginHistoryJpaRepository extends JpaRepository<LoginHistoryJpa
             FROM LoginHistoryJpaEntity lh
             WHERE 1 = 1
               AND (
-                    :searchKeyword IS NULL
-                 OR :searchKeyword = ''
+                    :searchKeyword = ''
                  OR (
                         ( :byUserId = true AND str(lh.userJpaEntity.id) LIKE CONCAT('%', :searchKeyword, '%') )
                      OR ( :byIp = true AND LOWER(lh.ipAddress) LIKE CONCAT('%', LOWER(:searchKeyword), '%') )
