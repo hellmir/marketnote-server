@@ -84,12 +84,13 @@ class InternalPointControllerTest {
         @DisplayName("회원 포인트를 수정하고 200 OK를 반환한다")
         void shouldModifyUserPointAndReturnOkStatus() {
             // given
-            ModifyUserPointRequest request = new ModifyUserPointRequest();
-            request.setChangeType(UserPointChangeType.ACCRUAL);
-            request.setAmount(1000L);
-            request.setSourceType(UserPointSourceType.ORDER);
-            request.setSourceId(100L);
-            request.setReason("주문 포인트 적립");
+            ModifyUserPointRequest request = new ModifyUserPointRequest(
+                    UserPointChangeType.ACCRUAL,
+                    1000L,
+                    UserPointSourceType.ORDER,
+                    100L,
+                    "주문 포인트 적립"
+            );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
                     USER_ID, 6000L, 1000L, 0L, NOW, NOW
@@ -112,12 +113,13 @@ class InternalPointControllerTest {
         @DisplayName("적립 예정 포인트를 수정하고 200 OK를 반환한다")
         void shouldModifyPendingPointAndReturnOkStatus() {
             // given
-            ModifyPendingPointRequest request = new ModifyPendingPointRequest();
-            request.setChangeType(UserPointChangeType.ACCRUAL);
-            request.setAmount(500L);
-            request.setSourceType(UserPointSourceType.ORDER);
-            request.setSourceId(200L);
-            request.setReason("상품 구매 적립");
+            ModifyPendingPointRequest request = new ModifyPendingPointRequest(
+                    UserPointChangeType.ACCRUAL,
+                    500L,
+                    UserPointSourceType.ORDER,
+                    200L,
+                    "상품 구매 적립"
+            );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
                     USER_ID, 5000L, 1500L, 0L, NOW, NOW
@@ -140,10 +142,11 @@ class InternalPointControllerTest {
         @DisplayName("적립 예정 포인트를 확정하고 200 OK를 반환한다")
         void shouldConfirmPendingPointAndReturnOkStatus() {
             // given
-            ConfirmPendingPointRequest request = new ConfirmPendingPointRequest();
-            request.setSourceType(UserPointSourceType.ORDER);
-            request.setSourceId(300L);
-            request.setReason("구매 확정 포인트 적립");
+            ConfirmPendingPointRequest request = new ConfirmPendingPointRequest(
+                    UserPointSourceType.ORDER,
+                    300L,
+                    "구매 확정 포인트 적립"
+            );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
                     USER_ID, 6500L, 500L, 0L, NOW, NOW
@@ -166,10 +169,11 @@ class InternalPointControllerTest {
         @DisplayName("적립 예정 포인트를 취소하고 200 OK를 반환한다")
         void shouldCancelPendingPointAndReturnOkStatus() {
             // given
-            CancelPendingPointRequest request = new CancelPendingPointRequest();
-            request.setSourceType(UserPointSourceType.ORDER);
-            request.setSourceId(400L);
-            request.setReason("결제 취소 적립 예정 포인트 회수");
+            CancelPendingPointRequest request = new CancelPendingPointRequest(
+                    UserPointSourceType.ORDER,
+                    400L,
+                    "결제 취소 적립 예정 포인트 회수"
+            );
 
             UpdateUserPointResult result = new UpdateUserPointResult(
                     USER_ID, 5000L, 0L, 0L, NOW, NOW
