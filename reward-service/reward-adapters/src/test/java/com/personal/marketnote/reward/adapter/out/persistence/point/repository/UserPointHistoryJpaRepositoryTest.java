@@ -74,7 +74,7 @@ class UserPointHistoryJpaRepositoryTest {
                 1L,
                 LocalDateTime.of(2026, 4, 1, 0, 0),
                 LocalDateTime.of(2026, 4, 30, 0, 0),
-                null,
+                -1L,
                 PageRequest.of(0, 10)
         );
 
@@ -95,7 +95,7 @@ class UserPointHistoryJpaRepositoryTest {
                 LocalDateTime.of(2026, 4, 1, 0, 0),
                 LocalDateTime.of(2026, 4, 30, 0, 0),
                 UserPointChangeType.ACCRUAL,
-                null,
+                -1L,
                 PageRequest.of(0, 10)
         );
 

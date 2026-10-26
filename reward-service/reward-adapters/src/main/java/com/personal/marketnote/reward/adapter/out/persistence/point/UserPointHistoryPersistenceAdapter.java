@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.out.persistence.point;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.adapter.out.persistence.point.entity.UserPointHistoryJpaEntity;
 import com.personal.marketnote.reward.adapter.out.persistence.point.repository.UserPointHistoryJpaRepository;
 import com.personal.marketnote.reward.domain.point.ReferralBonusTier;
@@ -50,11 +51,12 @@ public class UserPointHistoryPersistenceAdapter implements SaveUserPointHistoryP
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
         PageRequest pageable = PageRequest.of(0, pageSize);
+        Long safeCursor = FormatValidator.hasValue(cursor) ? cursor : -1L;
 
         List<UserPointHistoryJpaEntity> histories = filter.isAll()
-                ? repository.findByUserIdAndDateRange(userId, startDateTime, endDateTime, cursor, pageable)
+                ? repository.findByUserIdAndDateRange(userId, startDateTime, endDateTime, safeCursor, pageable)
                 : repository.findByUserIdAndDateRangeAndChangeType(
-                        userId, startDateTime, endDateTime, filter.toChangeType(), cursor, pageable
+                        userId, startDateTime, endDateTime, filter.toChangeType(), safeCursor, pageable
                 );
 
         return histories.stream()
