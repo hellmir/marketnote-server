@@ -82,6 +82,17 @@ class CategoryPersistenceAdapterTest {
 
             assertThat(result).isEmpty();
         }
+
+        @Test
+        @DisplayName("parentCategoryId가 null이면 -1L sentinel로 repository를 호출한다")
+        void callsRepositoryWithSentinelWhenNull() {
+            when(categoryJpaRepository.findActiveByParentId(-1L)).thenReturn(List.of());
+
+            List<Category> result = adapter.findActiveByParentId(null);
+
+            assertThat(result).isEmpty();
+            verify(categoryJpaRepository).findActiveByParentId(-1L);
+        }
     }
 
     @Nested

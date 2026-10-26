@@ -34,15 +34,15 @@ class CategoryJpaRepositoryTest {
     class FindActiveByParentId {
 
         @Test
-        @DisplayName("parentId가 null이면 최상위 카테고리를 조회한다")
-        void returnsRootCategoriesWhenParentIdIsNull() {
+        @DisplayName("parentId가 -1이면 최상위 카테고리를 조회한다")
+        void returnsRootCategoriesWhenParentIdIsSentinel() {
             CategoryJpaEntity root1 = saveCategory(null, "루트1");
             CategoryJpaEntity root2 = saveCategory(null, "루트2");
             saveCategory(root1.getId(), "자식1");
             entityManager.flush();
             entityManager.clear();
 
-            List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(null);
+            List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(-1L);
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
                     .containsExactly(root1.getId(), root2.getId());
@@ -75,7 +75,7 @@ class CategoryJpaRepositoryTest {
             entityManager.flush();
             entityManager.clear();
 
-            List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(null);
+            List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(-1L);
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
                     .containsExactly(active.getId());
@@ -90,7 +90,7 @@ class CategoryJpaRepositoryTest {
             entityManager.flush();
             entityManager.clear();
 
-            List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(null);
+            List<CategoryJpaEntity> results = categoryJpaRepository.findActiveByParentId(-1L);
 
             assertThat(results).extracting(CategoryJpaEntity::getId)
                     .containsExactly(c1.getId(), c2.getId(), c3.getId());
