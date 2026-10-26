@@ -2,6 +2,7 @@ package com.personal.marketnote.product.adapter.out.persistence.category;
 
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.product.adapter.out.mapper.CategoryJpaEntityToDomainMapper;
 import com.personal.marketnote.product.adapter.out.persistence.category.entity.CategoryJpaEntity;
 import com.personal.marketnote.product.adapter.out.persistence.category.repository.CategoryJpaRepository;
@@ -30,8 +31,9 @@ public class CategoryPersistenceAdapter implements FindCategoryPort, SaveCategor
 
     @Override
     public List<Category> findActiveByParentId(Long parentCategoryId) {
+        Long safeParentId = FormatValidator.hasValue(parentCategoryId) ? parentCategoryId : -1L;
         return CategoryJpaEntityToDomainMapper.mapToDomainList(
-                categoryJpaRepository.findActiveByParentId(parentCategoryId)
+                categoryJpaRepository.findActiveByParentId(safeParentId)
         );
     }
 

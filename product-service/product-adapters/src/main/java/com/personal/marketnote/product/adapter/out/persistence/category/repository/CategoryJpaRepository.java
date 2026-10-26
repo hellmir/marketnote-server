@@ -15,8 +15,8 @@ public interface CategoryJpaRepository extends JpaRepository<CategoryJpaEntity, 
             WHERE 1 = 1
               AND c.status = com.personal.marketnote.common.domain.EntityStatus.ACTIVE
               AND (
-                    (:parentId IS NULL AND c.parentCategoryId IS NULL)
-                    OR (:parentId IS NOT NULL AND c.parentCategoryId = :parentId)
+                    (:parentId = -1 AND c.parentCategoryId IS NULL)
+                    OR (:parentId <> -1 AND c.parentCategoryId = :parentId)
                   )
             ORDER BY c.id ASC
             """)
