@@ -84,10 +84,10 @@ public class AligoTemplateExternalAdapter
         params.add("tpl_name", template.getTemplateName());
         params.add("tpl_content", template.getTemplateContent());
 
-        if (FormatValidator.hasValue(template.getTemplateTitle())) {
+        if (template.hasTemplateTitle()) {
             params.add("tpl_title", template.getTemplateTitle());
         }
-        if (FormatValidator.hasValue(template.getTemplateSubtitle())) {
+        if (template.hasTemplateSubtitle()) {
             params.add("tpl_subtitle", template.getTemplateSubtitle());
         }
 

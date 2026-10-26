@@ -82,6 +82,14 @@ public class AligoTemplate extends BaseDomain {
         return template;
     }
 
+    public boolean hasTemplateTitle() {
+        return FormatValidator.hasValue(templateTitle);
+    }
+
+    public boolean hasTemplateSubtitle() {
+        return FormatValidator.hasValue(templateSubtitle);
+    }
+
     public boolean canModify() {
         if (FormatValidator.hasNoValue(inspStatus)) {
             return false;
@@ -175,7 +183,7 @@ public class AligoTemplate extends BaseDomain {
         if (FormatValidator.hasNoValue(state.getTemplateContent())) {
             throw new InvalidAligoTemplateException("templateContent는 필수입니다.");
         }
-        if (FormatValidator.hasValue(state.getButtons()) && state.getButtons().size() > 5) {
+        if (state.hasTooManyButtons()) {
             throw new InvalidAligoTemplateException("버튼은 최대 5개까지 등록할 수 있습니다.");
         }
     }

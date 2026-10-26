@@ -147,7 +147,7 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
             try {
                 return firebaseMessaging.sendEach(messages);
             } catch (FirebaseMessagingException fme) {
-                if (fme.getMessagingErrorCode() != MessagingErrorCode.QUOTA_EXCEEDED) {
+                if (!isQuotaExceeded(fme)) {
                     log.error("FCM 대량 발송 실패 (재시도 불가): errorCode={}", fme.getMessagingErrorCode());
                     return null;
                 }
@@ -170,5 +170,9 @@ public class FcmPushNotificationClient implements SendPushNotificationPort {
             Thread.currentThread().interrupt();
             throw new FcmSendFailedException("FCM 재시도 중 인터럽트 발생");
         }
+    }
+
+    private static boolean isQuotaExceeded(FirebaseMessagingException fme) {
+        return MessagingErrorCode.QUOTA_EXCEEDED == fme.getMessagingErrorCode();
     }
 }

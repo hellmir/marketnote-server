@@ -72,6 +72,13 @@ public class PaymentAllocation {
         return FormatValidator.hasValue(settlementId);
     }
 
+    public long getShippingFeeValueOrZero() {
+        if (FormatValidator.hasNoValue(shippingFee)) {
+            return 0L;
+        }
+        return shippingFee.getValue();
+    }
+
     public void assignSettlement(Long settlementId) {
         this.settlementId = settlementId;
     }

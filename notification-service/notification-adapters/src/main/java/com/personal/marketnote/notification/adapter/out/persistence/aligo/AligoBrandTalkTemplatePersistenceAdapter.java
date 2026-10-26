@@ -168,10 +168,10 @@ public class AligoBrandTalkTemplatePersistenceAdapter
         map.put("header", item.getHeader());
         map.put("content", item.getContent());
         map.put("imageUrl", item.getImageUrl());
-        if (FormatValidator.hasValue(item.getButtons())) {
+        if (item.hasButtons()) {
             map.put("buttons", item.getButtons().stream().map(this::buttonToMap).toList());
         }
-        if (FormatValidator.hasValue(item.getCoupon())) {
+        if (item.hasCoupon()) {
             Map<String, String> couponMap = new LinkedHashMap<>();
             couponMap.put("title", item.getCoupon().getTitle());
             couponMap.put("description", item.getCoupon().getDescription());

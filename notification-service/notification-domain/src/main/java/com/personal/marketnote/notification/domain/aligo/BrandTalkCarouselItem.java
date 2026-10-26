@@ -32,6 +32,14 @@ public class BrandTalkCarouselItem {
                 .build();
     }
 
+    public boolean hasButtons() {
+        return FormatValidator.hasValue(buttons);
+    }
+
+    public boolean hasCoupon() {
+        return FormatValidator.hasValue(coupon);
+    }
+
     private static void validate(List<BrandTalkButton> buttons) {
         if (FormatValidator.hasNoValue(buttons) || buttons.size() < MIN_BUTTONS) {
             throw new InvalidBrandTalkTemplateException(
