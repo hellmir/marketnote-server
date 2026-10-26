@@ -3,6 +3,7 @@ package com.personal.marketnote.user.adapter.out.persistence;
 import com.personal.marketnote.common.adapter.out.PersistenceAdapter;
 import com.personal.marketnote.common.domain.ipaddress.IpAddress;
 import com.personal.marketnote.common.exception.UserNotFoundException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.user.adapter.out.mapper.UserJpaEntityToDomainMapper;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.LoginHistoryJpaEntity;
 import com.personal.marketnote.user.adapter.out.persistence.user.entity.UserJpaEntity;
@@ -159,8 +160,9 @@ public class UserPersistenceAdapter
         boolean byPhone = searchTarget == UserSearchTarget.PHONE_NUMBER;
         boolean byRefCode = searchTarget == UserSearchTarget.REFERENCE_CODE;
 
+        String safeKeyword = FormatValidator.hasValue(searchKeyword) ? searchKeyword : "";
         Page<UserJpaEntity> userJpaEntityPage = userJpaRepository.findAllStatusUsersByPage(
-                pageable, byId, byNickname, byEmail, byPhone, byRefCode, searchKeyword
+                pageable, byId, byNickname, byEmail, byPhone, byRefCode, safeKeyword
         );
 
         List<User> users = userJpaEntityPage
