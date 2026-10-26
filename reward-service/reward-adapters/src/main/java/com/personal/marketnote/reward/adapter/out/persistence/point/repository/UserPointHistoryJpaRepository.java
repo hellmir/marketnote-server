@@ -19,7 +19,7 @@ public interface UserPointHistoryJpaRepository extends JpaRepository<UserPointHi
             WHERE h.userId = :userId
               AND h.accumulatedAt >= :startDateTime
               AND h.accumulatedAt < :endDateTime
-              AND (:cursor IS NULL
+              AND (:cursor = -1
                 OR h.accumulatedAt < (SELECT h2.accumulatedAt FROM UserPointHistoryJpaEntity h2 WHERE h2.id = :cursor AND h2.userId = :userId)
                 OR (h.accumulatedAt = (SELECT h2.accumulatedAt FROM UserPointHistoryJpaEntity h2 WHERE h2.id = :cursor AND h2.userId = :userId) AND h.id < :cursor))
             ORDER BY h.accumulatedAt DESC, h.id DESC
@@ -38,7 +38,7 @@ public interface UserPointHistoryJpaRepository extends JpaRepository<UserPointHi
               AND h.accumulatedAt >= :startDateTime
               AND h.accumulatedAt < :endDateTime
               AND h.changeType = :changeType
-              AND (:cursor IS NULL
+              AND (:cursor = -1
                 OR h.accumulatedAt < (SELECT h2.accumulatedAt FROM UserPointHistoryJpaEntity h2 WHERE h2.id = :cursor AND h2.userId = :userId)
                 OR (h.accumulatedAt = (SELECT h2.accumulatedAt FROM UserPointHistoryJpaEntity h2 WHERE h2.id = :cursor AND h2.userId = :userId) AND h.id < :cursor))
             ORDER BY h.accumulatedAt DESC, h.id DESC
