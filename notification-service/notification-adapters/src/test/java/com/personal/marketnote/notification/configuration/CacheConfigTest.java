@@ -1,5 +1,6 @@
 package com.personal.marketnote.notification.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.CacheManager;
@@ -16,7 +17,7 @@ class CacheConfigTest {
     @DisplayName("RedisConnectionFactory 빈이 설정된 호스트/포트로 정상 생성된다")
     void shouldCreateRedisConnectionFactory() {
         // given
-        CacheConfig config = new CacheConfig();
+        CacheConfig config = new CacheConfig(new ObjectMapper());
         ReflectionTestUtils.setField(config, "host", "localhost");
         ReflectionTestUtils.setField(config, "port", 6379);
         ReflectionTestUtils.setField(config, "password", "test-password");
@@ -35,7 +36,7 @@ class CacheConfigTest {
     @DisplayName("CacheManager 빈이 RedisConnectionFactory로부터 정상 생성된다")
     void shouldCreateCacheManager() {
         // given
-        CacheConfig config = new CacheConfig();
+        CacheConfig config = new CacheConfig(new ObjectMapper());
         ReflectionTestUtils.setField(config, "host", "localhost");
         ReflectionTestUtils.setField(config, "port", 6379);
         ReflectionTestUtils.setField(config, "password", "test-password");

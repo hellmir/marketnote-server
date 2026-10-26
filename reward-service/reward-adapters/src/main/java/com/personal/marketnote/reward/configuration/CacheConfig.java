@@ -32,6 +32,8 @@ import static org.springframework.data.redis.cache.RedisCacheConfiguration.defau
 @EnableCaching
 @RequiredArgsConstructor
 public class CacheConfig {
+    private final ObjectMapper objectMapper;
+
     @Value("${spring.data.redis.host}")
     private String host;
 
@@ -41,8 +43,8 @@ public class CacheConfig {
     @Value("${spring.data.redis.password}")
     private String password;
 
-    private ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper redisObjectMapper() {
+        ObjectMapper mapper = objectMapper.copy();
 
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
@@ -69,7 +71,7 @@ public class CacheConfig {
                 .serializeKeysWith(RedisSerializationContext
                         .SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext
-                        .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper())))
+                        .SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper())))
                 .entryTtl(Duration.ofMinutes(10));
 
         return RedisCacheManager.builder(redisConnectionFactory)

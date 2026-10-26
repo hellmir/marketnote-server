@@ -17,7 +17,12 @@ public class RegisterFulfillmentDeliveryDataDeserializer extends JsonDeserialize
     public List<RegisterFulfillmentDeliveryItemResponse> deserialize(JsonParser parser, DeserializationContext ctxt)
             throws IOException {
         ObjectCodec codec = parser.getCodec();
-        ObjectMapper mapper = codec instanceof ObjectMapper objectMapper ? objectMapper : new ObjectMapper();
+        if (!(codec instanceof ObjectMapper mapper)) {
+            throw new IOException(
+                    "Jackson codec must be ObjectMapper, got: " +
+                            (FormatValidator.hasNoValue(codec) ? "null" : codec.getClass().getName())
+            );
+        }
         JsonNode node = mapper.readTree(parser);
 
         if (FormatValidator.hasNoValue(node) || node.isNull()) {
