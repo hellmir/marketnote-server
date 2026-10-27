@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.in.web.notification.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
 import com.personal.marketnote.notification.port.in.result.notification.GetUnreadNotificationCountResult;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -111,6 +113,27 @@ class NotificationControllerTest {
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody().getContent().unreadCount()).isEqualTo(5);
+        }
+    }
+
+    @Nested
+    @DisplayName("RateLimited 어노테이션 부착 검증")
+    class RateLimitedAnnotation {
+
+        @Test
+        @DisplayName("getNotificationHistory 메서드에 @RateLimited(key=my-notifications, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void getNotificationHistoryHasRateLimited() throws NoSuchMethodException {
+            Method method = NotificationController.class.getMethod(
+                    "getNotificationHistory",
+                    OAuth2AuthenticatedPrincipal.class, Long.class, int.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("my-notifications");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
         }
     }
 }

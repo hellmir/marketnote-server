@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.web.point;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
@@ -26,6 +27,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
+import java.lang.reflect.Method;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -120,5 +123,22 @@ class PointControllerTest {
         assertThatThrownBy(() -> controller.getUserPointHistories(
                 999L, seller, UserPointHistoryFilter.ALL, null, null, null, 20
         )).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    @DisplayName("getUserPointHistories 메서드에 @RateLimited(key=user-point-histories, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+    void getUserPointHistoriesHasRateLimited() throws NoSuchMethodException {
+        Method method = PointController.class.getMethod(
+                "getUserPointHistories",
+                Long.class, OAuth2AuthenticatedPrincipal.class, UserPointHistoryFilter.class,
+                LocalDate.class, LocalDate.class, Long.class, int.class
+        );
+
+        RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+        assertThat(rateLimited).isNotNull();
+        assertThat(rateLimited.key()).isEqualTo("user-point-histories");
+        assertThat(rateLimited.maxRequests()).isEqualTo(60);
+        assertThat(rateLimited.windowSeconds()).isEqualTo(60);
     }
 }

@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.request.PurchaseGifticonRequest;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetMyGifticonOrderDetailResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetMyGifticonOrdersResponse;
@@ -28,6 +29,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -136,6 +138,27 @@ class GifticonOrderControllerTest {
             verify(getMyGifticonOrderDetailUseCase).getMyGifticonOrderDetail(captor.capture());
             assertThat(captor.getValue().userId()).isEqualTo(42L);
             assertThat(captor.getValue().orderId()).isEqualTo(100L);
+        }
+    }
+
+    @Nested
+    @DisplayName("RateLimited 어노테이션 부착 검증")
+    class RateLimitedAnnotation {
+
+        @Test
+        @DisplayName("getMyGifticonOrders 메서드에 @RateLimited(key=gifticon-orders-me, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void getMyGifticonOrdersHasRateLimited() throws NoSuchMethodException {
+            Method method = GifticonOrderController.class.getMethod(
+                    "getMyGifticonOrders",
+                    OAuth2AuthenticatedPrincipal.class, String.class, String.class, Long.class, int.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("gifticon-orders-me");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
         }
     }
 }

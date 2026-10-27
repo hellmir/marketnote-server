@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.adapter.in.web.review.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.community.adapter.in.web.review.request.RegisterReviewRequest;
 import com.personal.marketnote.community.adapter.in.web.review.request.UpdateReviewRequest;
 import com.personal.marketnote.community.adapter.in.web.review.response.GetMyReviewsResponse;
@@ -52,6 +53,7 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -376,5 +378,27 @@ class ReviewControllerTest {
 
     private static <T> T any(Class<T> type) {
         return org.mockito.ArgumentMatchers.any(type);
+    }
+
+    @Nested
+    @DisplayName("RateLimited 어노테이션 부착 검증")
+    class RateLimitedAnnotation {
+
+        @Test
+        @DisplayName("getMyReviews 메서드에 @RateLimited(key=my-reviews, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void getMyReviewsHasRateLimited() throws NoSuchMethodException {
+            Method method = ReviewController.class.getMethod(
+                    "getMyReviews",
+                    Long.class, int.class, Sort.Direction.class, ReviewSortProperty.class,
+                    OAuth2AuthenticatedPrincipal.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("my-reviews");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
+        }
     }
 }

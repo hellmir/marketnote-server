@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.web.point;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.utility.Role;
@@ -149,6 +150,7 @@ public class PointController {
      */
     @GetMapping("/{userId}/points/histories")
     @GetUserPointHistoriesApiDocs
+    @RateLimited(key = "user-point-histories", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetUserPointHistoryResponse>> getUserPointHistories(
             @PathVariable("userId") Long userId,
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
