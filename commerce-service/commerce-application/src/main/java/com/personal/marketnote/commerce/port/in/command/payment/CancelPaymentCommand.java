@@ -12,7 +12,8 @@ public record CancelPaymentCommand(
         CancelType cancelType,
         Long cancelAmount,
         String cancelReason,
-        List<CancelProductItem> cancelProducts
+        List<CancelProductItem> cancelProducts,
+        String idempotencyKey
 ) {
     public enum CancelType {
         FULL, PARTIAL

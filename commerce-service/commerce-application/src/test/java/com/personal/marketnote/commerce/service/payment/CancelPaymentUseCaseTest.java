@@ -7,6 +7,10 @@ import com.personal.marketnote.commerce.exception.PaymentCancelException;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.port.out.payment.PaymentVendorPort;
 import com.personal.marketnote.commerce.port.out.payment.vendor.PaymentCancelVendorResult;
+import com.personal.marketnote.commerce.service.payment.idempotency.PaymentCancelIdempotencyHelper;
+import com.personal.marketnote.commerce.service.payment.idempotency.PaymentCancelIdempotencyResolution;
+import com.personal.marketnote.commerce.service.payment.idempotency.PaymentCancelResultSerializer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +26,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -48,9 +51,27 @@ class CancelPaymentUseCaseTest {
     @Mock
     private PaymentVendorPort paymentVendorPort;
 
+    @Mock
+    private PaymentCancelIdempotencyHelper idempotencyHelper;
+
+    @Mock
+    private PaymentCancelResultSerializer resultSerializer;
+
     private static final Long BUYER_ID = 100L;
     private static final UUID ORDER_KEY = UUID.randomUUID();
     private static final String ORDER_KEY_STR = ORDER_KEY.toString();
+    private static final String IDEMPOTENCY_KEY = "11111111-2222-4333-8444-555555555555";
+
+    @BeforeEach
+    void setUpIdempotency() {
+        org.mockito.Mockito.lenient().when(
+                idempotencyHelper.findOrCreate(org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyString(),
+                        org.mockito.ArgumentMatchers.anyLong())
+        ).thenReturn(PaymentCancelIdempotencyResolution.newlyCreated());
+        org.mockito.Mockito.lenient().when(resultSerializer.serialize(org.mockito.ArgumentMatchers.any()))
+                .thenReturn("{}");
+    }
 
     @Nested
     @DisplayName("일반 취소 경로 (PG 호출)")
@@ -305,6 +326,7 @@ class CancelPaymentUseCaseTest {
                 .orderKey(ORDER_KEY_STR)
                 .cancelType(CancelPaymentCommand.CancelType.FULL)
                 .cancelReason("고객 요청")
+                .idempotencyKey(IDEMPOTENCY_KEY)
                 .build();
     }
 
@@ -315,6 +337,7 @@ class CancelPaymentUseCaseTest {
                 .cancelType(CancelPaymentCommand.CancelType.PARTIAL)
                 .cancelAmount(20000L)
                 .cancelReason("부분 취소")
+                .idempotencyKey(IDEMPOTENCY_KEY)
                 .build();
     }
 

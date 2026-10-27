@@ -33,7 +33,9 @@ public class PaymentRequestToCommandMapper {
                 .build();
     }
 
-    public static CancelPaymentCommand mapToCommand(String orderKey, CancelPaymentRequest request, Long buyerId) {
+    public static CancelPaymentCommand mapToCommand(
+            String orderKey, CancelPaymentRequest request, Long buyerId, String idempotencyKey
+    ) {
         List<CancelPaymentCommand.CancelProductItem> cancelProducts =
                 FormatValidator.hasValue(request.getCancelProducts())
                 ? request.getCancelProducts().stream()
@@ -49,6 +51,7 @@ public class PaymentRequestToCommandMapper {
                 .cancelAmount(request.getCancelAmount())
                 .cancelReason(request.getCancelReason())
                 .cancelProducts(cancelProducts)
+                .idempotencyKey(idempotencyKey)
                 .build();
     }
 }
