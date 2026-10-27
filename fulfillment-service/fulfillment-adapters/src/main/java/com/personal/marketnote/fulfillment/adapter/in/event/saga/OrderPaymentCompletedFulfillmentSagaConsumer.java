@@ -170,12 +170,12 @@ public class OrderPaymentCompletedFulfillmentSagaConsumer {
             );
 
             if (!result.cancelled()) {
-                log.warn("SAGA 풀필먼트 출고 취소 거부. sagaId={}, orderId={}, message={}",
+                log.warn("SAGA 풀필먼트 출고 취소 보상 거부. sagaId={}, orderId={}, message={}",
                         stepMessage.sagaId(), payload.orderId(), result.message()
                 );
                 sagaResponsePublisher.publishFailure(
                         stepMessage.sagaId(), stepMessage.sagaType(), stepMessage.stepName(),
-                        stepMessage.messageType(), "풀필먼트 출고 취소 거부: " + result.message()
+                        stepMessage.messageType(), "풀필먼트 출고 취소 보상 거부: " + result.message()
                 );
                 return;
             }

@@ -249,7 +249,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
         }
 
         @Test
-        @DisplayName("출고 취소 거부 시 실패 응답을 발행한다")
+        @DisplayName("출고 취소 보상 거부 시 실패 응답을 발행한다")
         void shouldPublishFailureOnCompensationRejected() {
             SagaStepMessage stepMessage = new SagaStepMessage(
                     SAGA_ID, SAGA_TYPE, STEP_NAME, SagaStepMessage.COMPENSATION, compensationPayload);
@@ -262,7 +262,7 @@ class OrderPaymentCompletedFulfillmentSagaConsumerTest {
 
             verify(sagaResponsePublisher).publishFailure(
                     eq(SAGA_ID), eq(SAGA_TYPE), eq(STEP_NAME),
-                    eq(SagaStepMessage.COMPENSATION), contains("풀필먼트 출고 취소 거부")
+                    eq(SagaStepMessage.COMPENSATION), contains("풀필먼트 출고 취소 보상 거부")
             );
             verify(acknowledgment).acknowledge();
         }
