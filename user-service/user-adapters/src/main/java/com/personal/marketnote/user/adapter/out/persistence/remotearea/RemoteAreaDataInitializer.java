@@ -47,6 +47,7 @@ public class RemoteAreaDataInitializer implements ApplicationRunner {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
+            // Java IO 표준 idiom — readLine()은 EOF에서만 null 반환. FormatValidator.hasValue(Object)는 blank도 false로 반환하여 빈 줄에서 루프 종료 버그 유발
             while ((line = reader.readLine()) != null) {
                 if (isFirstLine) {
                     isFirstLine = false;

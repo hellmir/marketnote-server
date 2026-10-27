@@ -45,6 +45,7 @@ class UserJpaRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        // 순수 null 체크 — em.find() 반환 Entity에 FormatValidator.hasValue(Object) 사용 시 toString() 평가로 의미 왜곡 가능
         if (em.find(RoleJpaEntity.class, "ROLE_BUYER") == null) {
             em.persist(RoleJpaEntity.from(Role.getBuyer()));
             em.flush();
@@ -67,6 +68,7 @@ class UserJpaRepositoryTest {
                         .password("encoded-password")
                         .fullName("테스트")
                         .phoneNumber(phoneNumber)
+                        // 순수 null 체크 — 빈 문자열은 ReferenceCode.of()의 도메인 검증을 통과해야 하므로 blank 검사 포함 FormatValidator는 부적합
                         .referenceCode(referenceCode != null ? com.personal.marketnote.user.domain.user.ReferenceCode.of(referenceCode) : null)
                         .role(Role.getBuyer())
                         .userAuthProviders(List.of(UserAuthProvider.of(vendor, oidcId)))

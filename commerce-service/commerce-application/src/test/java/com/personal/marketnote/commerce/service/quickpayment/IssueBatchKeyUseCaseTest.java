@@ -128,6 +128,7 @@ class IssueBatchKeyUseCaseTest {
 
             when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
             when(saveQuickPaymentCardPort.save(argThat(card ->
+                    // 순수 null 체크 — FormatValidator.hasValue(Object)는 VO toString() 평가로 의도와 다를 수 있음
                     card.getMaskedCardNumber() != null
                             && "123412******1234".equals(card.getMaskedCardNumber().getValue())
             ))).thenReturn(savedCard);
@@ -135,6 +136,7 @@ class IssueBatchKeyUseCaseTest {
             issueBatchKeyService.issueBatchKey(command);
 
             verify(saveQuickPaymentCardPort).save(argThat(card ->
+                    // 순수 null 체크 — FormatValidator.hasValue(Object)는 VO toString() 평가로 의도와 다를 수 있음
                     card.getMaskedCardNumber() != null
                             && "123412******1234".equals(card.getMaskedCardNumber().getValue())
             ));
@@ -149,12 +151,14 @@ class IssueBatchKeyUseCaseTest {
 
             when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
             when(saveQuickPaymentCardPort.save(argThat(card ->
+                    // 순수 null 체크 — FormatValidator.hasValue(Object)는 VO toString() 평가로 의도와 다를 수 있음
                     card.getMaskedCardNumber() == null
             ))).thenReturn(savedCard);
 
             issueBatchKeyService.issueBatchKey(command);
 
             verify(saveQuickPaymentCardPort).save(argThat(card ->
+                    // 순수 null 체크 — FormatValidator.hasValue(Object)는 VO toString() 평가로 의도와 다를 수 있음
                     card.getMaskedCardNumber() == null
             ));
         }
@@ -168,12 +172,14 @@ class IssueBatchKeyUseCaseTest {
 
             when(issueBatchKeyPort.issueBatchKey(any())).thenReturn(portResult);
             when(saveQuickPaymentCardPort.save(argThat(card ->
+                    // 순수 null 체크 — FormatValidator.hasValue(Object)는 VO toString() 평가로 의도와 다를 수 있음
                     card.getMaskedCardNumber() == null
             ))).thenReturn(savedCard);
 
             issueBatchKeyService.issueBatchKey(command);
 
             verify(saveQuickPaymentCardPort).save(argThat(card ->
+                    // 순수 null 체크 — FormatValidator.hasValue(Object)는 VO toString() 평가로 의도와 다를 수 있음
                     card.getMaskedCardNumber() == null
             ));
         }

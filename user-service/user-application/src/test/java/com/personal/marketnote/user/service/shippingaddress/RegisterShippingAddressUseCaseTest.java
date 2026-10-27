@@ -436,6 +436,7 @@ class RegisterShippingAddressUseCaseTest {
         verify(classifyShippingAddressRegionPort).classify("서울시 강남구 테헤란로 123");
         verify(saveShippingAddressPort).save(argThat(sa ->
                 sa.getDeliveryRequestType() == DeliveryRequestType.LEAVE_AT_DOOR
+                        // 순수 null 체크 — FormatValidator.hasValue(Object)는 blank 검사 포함되어 String 필드 원본 값과 동치 아님
                         && sa.getDeliveryRequestMessage() == null
         ));
         verify(publishShippingAddressEventPort).publishShippingAddressChangedEvent(

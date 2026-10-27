@@ -50,6 +50,7 @@ class LoginHistoryJpaRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        // 순수 null 체크 — em.find() 반환 Entity에 FormatValidator.hasValue(Object) 사용 시 toString() 평가로 의미 왜곡 가능
         if (em.find(RoleJpaEntity.class, "ROLE_BUYER") == null) {
             em.persist(RoleJpaEntity.from(Role.getBuyer()));
             em.flush();

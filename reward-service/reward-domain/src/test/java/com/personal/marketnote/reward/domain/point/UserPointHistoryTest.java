@@ -1,5 +1,6 @@
 package com.personal.marketnote.reward.domain.point;
 
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.reward.domain.exception.InvalidPointAmountException;
 import com.personal.marketnote.reward.domain.exception.UserPointHistoryAmountNoValueException;
 import com.personal.marketnote.reward.domain.exception.UserPointHistoryChangeTypeNoValueException;
@@ -21,7 +22,7 @@ class UserPointHistoryTest {
     private static final LocalDateTime CREATED_AT = LocalDateTime.of(2026, 4, 13, 10, 0);
 
     private UserPointHistoryCreateState createState(UserPointChangeType changeType, Long amount) {
-        return createStateWithPointAmount(changeType, amount == null ? null : PointAmount.of(amount));
+        return createStateWithPointAmount(changeType, FormatValidator.hasNoValue(amount) ? null : PointAmount.of(amount));
     }
 
     private UserPointHistoryCreateState createStateWithPointAmount(UserPointChangeType changeType, PointAmount amount) {

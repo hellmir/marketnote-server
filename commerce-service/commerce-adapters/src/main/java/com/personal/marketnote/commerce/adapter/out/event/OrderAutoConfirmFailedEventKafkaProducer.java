@@ -58,6 +58,7 @@ public class OrderAutoConfirmFailedEventKafkaProducer implements PublishOrderAut
     }
 
     private static String truncate(String value) {
+        // 순수 null 체크 — FormatValidator.hasValue(Object)는 blank 검사가 포함되어 빈 문자열도 null로 취급되므로 부적합
         if (value == null || value.length() <= MAX_REASON_LENGTH) {
             return value;
         }

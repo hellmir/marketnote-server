@@ -108,6 +108,7 @@ class GetShippingStatusUseCaseTest {
         return ShippingTracker.from(ShippingTrackerSnapshotState.builder()
                 .id(1L)
                 .orderId(orderId)
+                // 순수 null 체크 — 빈 문자열은 TrackingNumber/CarrierCode의 도메인 검증을 통과해야 하므로 blank 검사 포함 FormatValidator는 부적합
                 .trackingNumber(trackingNumber != null ? TrackingNumber.of(trackingNumber) : null)
                 .carrierCode(carrierCode != null ? CarrierCode.of(carrierCode) : null)
                 .shippingStatus(status)

@@ -34,6 +34,7 @@ class KcpSignatureGeneratorTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        // 순수 null 체크 — KeyPair 객체에 FormatValidator.hasValue(Object) 사용 시 toString() 평가로 의미 왜곡 가능
         if (keyPair == null) {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
             kpg.initialize(2048);
