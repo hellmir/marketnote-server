@@ -45,7 +45,7 @@ public class ImageReadModelResizedFileJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false, length = 63)
     private String size;
 
-    @Column(nullable = false, length = 511)
+    @Column(nullable = false, length = 2048)
     private String storageUrl;
 
     @Column(nullable = false)

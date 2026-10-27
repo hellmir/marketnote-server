@@ -26,7 +26,7 @@ public class GifticonCategoryJpaEntity extends BaseEntity {
     @Column(name = "display_name")
     private String displayName;
 
-    @Column(name = "icon_url")
+    @Column(name = "icon_url", length = 2048)
     private String iconUrl;
 
     @Column(name = "exposed", nullable = false)

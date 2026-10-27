@@ -1,0 +1,12 @@
+-- URL 컬럼 길이 상한을 VARCHAR(2048) 표준으로 정렬
+ALTER TABLE notification ALTER COLUMN landing_url TYPE VARCHAR(2048);
+ALTER TABLE notification_template ALTER COLUMN url_template TYPE VARCHAR(2048);
+ALTER TABLE aligo_template ALTER COLUMN image_url TYPE VARCHAR(2048);
+ALTER TABLE aligo_brand_talk_template ALTER COLUMN image_url TYPE VARCHAR(2048);
+ALTER TABLE aligo_brand_talk_template ALTER COLUMN image_link TYPE VARCHAR(2048);
+ALTER TABLE aligo_brand_talk_template ALTER COLUMN video_url TYPE VARCHAR(2048);
+ALTER TABLE aligo_brand_talk_template ALTER COLUMN video_thumbnail_url TYPE VARCHAR(2048);
+ALTER TABLE aligo_template_button ALTER COLUMN link_mo TYPE VARCHAR(2048);
+ALTER TABLE aligo_template_button ALTER COLUMN link_pc TYPE VARCHAR(2048);
+ALTER TABLE aligo_template_button ALTER COLUMN link_ios TYPE VARCHAR(2048);
+ALTER TABLE aligo_template_button ALTER COLUMN link_and TYPE VARCHAR(2048);

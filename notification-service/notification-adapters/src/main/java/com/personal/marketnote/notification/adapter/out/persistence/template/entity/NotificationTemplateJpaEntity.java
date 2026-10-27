@@ -36,7 +36,7 @@ public class NotificationTemplateJpaEntity extends BaseGeneralEntity {
     @Column(name = "body_template", nullable = false, length = 500)
     private String bodyTemplate;
 
-    @Column(name = "url_template", length = 500)
+    @Column(name = "url_template", length = 2048)
     private String urlTemplate;
 
     public static NotificationTemplateJpaEntity from(NotificationTemplate template) {

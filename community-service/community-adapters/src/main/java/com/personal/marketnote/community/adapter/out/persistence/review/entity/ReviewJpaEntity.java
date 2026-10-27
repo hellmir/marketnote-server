@@ -39,7 +39,7 @@ public class ReviewJpaEntity extends BaseOrderedGeneralEntity {
     @Column(name = "price_policy_id", nullable = false)
     private Long pricePolicyId;
 
-    @Column(name = "product_image_url", length = 2047)
+    @Column(name = "product_image_url", length = 2048)
     private String productImageUrl;
 
     @Column(name = "selected_options", length = 127)

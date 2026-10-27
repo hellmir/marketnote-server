@@ -51,7 +51,7 @@ public class OrderProductJpaEntity extends BaseEntity {
     @Column(name = "unit_amount", nullable = false)
     private Long unitAmount;
 
-    @Column(name = "image_url", length = 511)
+    @Column(name = "image_url", length = 2048)
     private String imageUrl;
 
     @Column(name = "accumulated_point")

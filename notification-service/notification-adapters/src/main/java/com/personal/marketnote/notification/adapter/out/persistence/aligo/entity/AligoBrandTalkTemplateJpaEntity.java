@@ -33,8 +33,10 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private boolean adult;
 
+    @Column(length = 2048)
     private String imageUrl;
 
+    @Column(length = 2048)
     private String imageLink;
 
     @Column(columnDefinition = "TEXT")
@@ -62,10 +64,10 @@ public class AligoBrandTalkTemplateJpaEntity extends BaseGeneralEntity {
     @Column(columnDefinition = "TEXT")
     private String carouselTailJson;
 
-    @Column(length = 1024)
+    @Column(length = 2048)
     private String videoUrl;
 
-    @Column(length = 1024)
+    @Column(length = 2048)
     private String videoThumbnailUrl;
 
     @Column(columnDefinition = "TEXT")

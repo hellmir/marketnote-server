@@ -27,7 +27,7 @@ public class CartProductJpaEntity extends BaseEntity {
     @Column(name = "sharer_key")
     private UUID sharerKey;
 
-    @Column(name = "image_url", length = 511)
+    @Column(name = "image_url", length = 2048)
     private String imageUrl;
 
     @Column(name = "quantity", nullable = false)

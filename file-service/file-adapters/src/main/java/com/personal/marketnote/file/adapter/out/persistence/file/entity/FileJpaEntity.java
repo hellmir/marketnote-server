@@ -37,7 +37,7 @@ public class FileJpaEntity extends BaseGeneralEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "s3_url", nullable = false, length = 511)
+    @Column(name = "s3_url", nullable = false, length = 2048)
     private String storageUrl;
 
     private Long orderNum;

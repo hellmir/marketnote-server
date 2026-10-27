@@ -35,7 +35,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
     @Column(name = "brand_name", nullable = false)
     private String brandName;
 
-    @Column(name = "brand_image_url")
+    @Column(name = "brand_image_url", length = 2048)
     private String brandImageUrl;
 
     @Column(name = "category_code")
@@ -50,7 +50,7 @@ public class GifticonGoodsJpaEntity extends BaseEntity {
     @Column(name = "cash_price", nullable = false)
     private Long cashPrice;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 2048)
     private String imageUrl;
 
     @Column(name = "description", columnDefinition = "TEXT")

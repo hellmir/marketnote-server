@@ -30,9 +30,16 @@ public class AligoTemplateButtonJpaEntity {
     @Column(nullable = false)
     private AligoTemplateButtonLinkType linkType;
 
+    @Column(length = 2048)
     private String linkMo;
+
+    @Column(length = 2048)
     private String linkPc;
+
+    @Column(length = 2048)
     private String linkIos;
+
+    @Column(length = 2048)
     private String linkAnd;
 
     public void assignTemplate(AligoTemplateJpaEntity template) {
