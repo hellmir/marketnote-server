@@ -23,7 +23,9 @@ import com.personal.marketnote.common.utility.ElementExtractor;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +52,10 @@ import static com.personal.marketnote.common.utility.ApiConstant.ADMIN_POINTCUT;
 @RequiredArgsConstructor
 @Validated
 public class PaymentController {
+    private static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
+    private static final String UUID_V4_REGEX =
+            "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$";
+
     private final ReadyPaymentUseCase readyPaymentUseCase;
     private final ApprovePaymentUseCase approvePaymentUseCase;
     private final CancelPaymentUseCase cancelPaymentUseCase;
@@ -162,11 +168,15 @@ public class PaymentController {
     public ResponseEntity<BaseResponse<Void>> cancelPayment(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @PathVariable("orderKey") String orderKey,
+            @RequestHeader(IDEMPOTENCY_KEY_HEADER)
+            @NotBlank(message = "Idempotency-Key 헤더는 필수입니다")
+            @Pattern(regexp = UUID_V4_REGEX, message = "Idempotency-Key 는 UUID v4 형식이어야 합니다")
+            String idempotencyKey,
             @Valid @RequestBody CancelPaymentRequest request
     ) {
         Long buyerId = ElementExtractor.extractUserId(principal);
         cancelPaymentUseCase.cancel(
-                PaymentRequestToCommandMapper.mapToCommand(orderKey, request, buyerId)
+                PaymentRequestToCommandMapper.mapToCommand(orderKey, request, buyerId, idempotencyKey)
         );
 
         return new ResponseEntity<>(

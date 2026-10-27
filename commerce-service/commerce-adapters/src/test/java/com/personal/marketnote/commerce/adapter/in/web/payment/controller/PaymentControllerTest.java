@@ -197,6 +197,7 @@ class PaymentControllerTest {
             // given
             OAuth2AuthenticatedPrincipal principal = buildPrincipal(200L);
             String orderKey = "ORDER_KEY_1";
+            String idempotencyKey = "11111111-2222-4333-8444-555555555555";
             CancelPaymentRequest request = mock(CancelPaymentRequest.class);
             when(request.getCancelType()).thenReturn(CancelPaymentCommand.CancelType.FULL);
             when(request.getCancelAmount()).thenReturn(10_000L);
@@ -205,7 +206,7 @@ class PaymentControllerTest {
 
             // when
             ResponseEntity<BaseResponse<Void>> response =
-                    paymentController.cancelPayment(principal, orderKey, request);
+                    paymentController.cancelPayment(principal, orderKey, idempotencyKey, request);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -214,6 +215,7 @@ class PaymentControllerTest {
             assertThat(captor.getValue().buyerId()).isEqualTo(200L);
             assertThat(captor.getValue().orderKey()).isEqualTo(orderKey);
             assertThat(captor.getValue().cancelAmount()).isEqualTo(10_000L);
+            assertThat(captor.getValue().idempotencyKey()).isEqualTo(idempotencyKey);
         }
     }
 
