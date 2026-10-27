@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.adapter.in.web.review.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.adapter.in.web.review.controller.apidocs.*;
@@ -148,6 +149,7 @@ public class ReviewController {
      */
     @GetMapping("/reviews/me")
     @GetMyReviewsApiDocs
+    @RateLimited(key = "my-reviews", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetMyReviewsResponse>> getMyReviews(
             @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "pageSize", required = false, defaultValue = GET_PRODUCT_REVIEWS_DEFAULT_PAGE_SIZE) int pageSize,

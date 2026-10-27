@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetMyGifticonOrderDetailApiDocs;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.controller.apidocs.GetMyGifticonOrdersApiDocs;
@@ -65,6 +66,7 @@ public class GifticonOrderController {
 
     @GetMapping("/me")
     @GetMyGifticonOrdersApiDocs
+    @RateLimited(key = "gifticon-orders-me", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetMyGifticonOrdersResponse>> getMyGifticonOrders(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @RequestParam(name = "status", defaultValue = "AVAILABLE") String status,

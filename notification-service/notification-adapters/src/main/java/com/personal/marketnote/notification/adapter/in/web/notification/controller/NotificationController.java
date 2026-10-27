@@ -1,6 +1,7 @@
 package com.personal.marketnote.notification.adapter.in.web.notification.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetNotificationHistoryApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetUnreadNotificationCountApiDocs;
@@ -57,6 +58,7 @@ public class NotificationController {
      */
     @GetMapping
     @GetNotificationHistoryApiDocs
+    @RateLimited(key = "my-notifications", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetNotificationHistoryResponse>> getNotificationHistory(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @RequestParam(value = "cursor", required = false) Long cursor,

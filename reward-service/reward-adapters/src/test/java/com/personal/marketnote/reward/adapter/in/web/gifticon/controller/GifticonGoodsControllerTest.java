@@ -1,6 +1,7 @@
 package com.personal.marketnote.reward.adapter.in.web.gifticon.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetGifticonGoodsDetailResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetGifticonGoodsResponse;
 import com.personal.marketnote.reward.adapter.in.web.gifticon.response.GetPopularGifticonGoodsResponse;
@@ -26,6 +27,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -138,6 +140,26 @@ class GifticonGoodsControllerTest {
             verify(getGifticonGoodsDetailUseCase).getGoodsDetail(captor.capture());
             assertThat(captor.getValue().goodsCode()).isEqualTo("G-01");
             assertThat(captor.getValue().userId()).isEqualTo(42L);
+        }
+    }
+
+    @Nested
+    @DisplayName("RateLimited 어노테이션 부착 검증")
+    class RateLimitedAnnotation {
+
+        @Test
+        @DisplayName("getGoods 메서드에 @RateLimited(key=gifticon-goods, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void getGoodsHasRateLimited() throws NoSuchMethodException {
+            Method method = GifticonGoodsController.class.getMethod(
+                    "getGoods", String.class, String.class, Long.class, int.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("gifticon-goods");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
         }
     }
 }
