@@ -8,6 +8,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -15,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class GifticonPinEncryptAdapterTest {
 
     private static final String AES_256_KEY = "0123456789ABCDEF0123456789ABCDEF";
+    private static final byte[] GCM_MAGIC = "GCM1".getBytes(StandardCharsets.US_ASCII);
 
     private final GifticonPinEncryptAdapter adapter = buildAdapter(AES_256_KEY);
 
@@ -74,6 +81,197 @@ class GifticonPinEncryptAdapterTest {
 
             // then
             assertThat(encrypted).matches("^[A-Za-z0-9+/]+={0,2}$");
+        }
+    }
+
+    @Nested
+    @DisplayName("GCM 포맷 (AEAD)")
+    class GcmFormat {
+
+        @Test
+        @DisplayName("GCM으로 암호화한 암호문을 복호화하면 원본과 동일하다")
+        void gcmRoundTripReturnsOriginal() {
+            // given
+            String plainPin = "PIN1234";
+
+            // when
+            String encrypted = adapter.encrypt(plainPin);
+            String decrypted = adapter.decrypt(encrypted);
+
+            // then
+            assertThat(decrypted).isEqualTo(plainPin);
+        }
+
+        @Test
+        @DisplayName("GCM 암호문의 첫 4바이트는 매직 프리픽스 GCM1이다")
+        void gcmCiphertextStartsWithMagicPrefix() {
+            // given
+            String encrypted = adapter.encrypt("test-pin");
+
+            // when
+            byte[] decoded = Base64.getDecoder().decode(encrypted);
+
+            // then
+            assertThat(decoded).hasSizeGreaterThanOrEqualTo(4);
+            byte[] prefix = new byte[4];
+            System.arraycopy(decoded, 0, prefix, 0, 4);
+            assertThat(prefix).isEqualTo(GCM_MAGIC);
+        }
+
+        @Test
+        @DisplayName("GCM 암호문 바이트 레이아웃은 MAGIC(4) + IV(12) + Ciphertext+Tag(16바이트 이상)이다")
+        void gcmCiphertextLayoutMatchesSpec() {
+            // given
+            String encrypted = adapter.encrypt("A");
+
+            // when
+            byte[] decoded = Base64.getDecoder().decode(encrypted);
+
+            // then
+            // MAGIC(4) + IV(12) + Ciphertext(1) + Tag(16) = 33
+            assertThat(decoded).hasSize(4 + 12 + 1 + 16);
+        }
+
+        @Test
+        @DisplayName("GCM 암호문의 태그(마지막 16바이트)를 변조하면 GifticonPinDecryptionFailedException이 발생한다")
+        void gcmDecryptFailsWhenTagTampered() {
+            // given
+            String encrypted = adapter.encrypt("PIN1234");
+            byte[] decoded = Base64.getDecoder().decode(encrypted);
+            decoded[decoded.length - 1] ^= (byte) 0x01;
+            String tampered = Base64.getEncoder().encodeToString(decoded);
+
+            // when & then
+            assertThatThrownBy(() -> adapter.decrypt(tampered))
+                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+        }
+
+        @Test
+        @DisplayName("GCM 암호문의 IV 바이트를 변조하면 GifticonPinDecryptionFailedException이 발생한다")
+        void gcmDecryptFailsWhenIvTampered() {
+            // given
+            String encrypted = adapter.encrypt("PIN1234");
+            byte[] decoded = Base64.getDecoder().decode(encrypted);
+            // IV는 MAGIC(4) 이후 12바이트
+            decoded[4] ^= (byte) 0x01;
+            String tampered = Base64.getEncoder().encodeToString(decoded);
+
+            // when & then
+            assertThatThrownBy(() -> adapter.decrypt(tampered))
+                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+        }
+
+        @Test
+        @DisplayName("GCM 암호문의 본문(Ciphertext) 바이트를 변조하면 GifticonPinDecryptionFailedException이 발생한다")
+        void gcmDecryptFailsWhenCiphertextTampered() {
+            // given
+            String encrypted = adapter.encrypt("PIN1234-안녕");
+            byte[] decoded = Base64.getDecoder().decode(encrypted);
+            // MAGIC(4) + IV(12) = 16 이후가 ciphertext 시작
+            decoded[16] ^= (byte) 0x01;
+            String tampered = Base64.getEncoder().encodeToString(decoded);
+
+            // when & then
+            assertThatThrownBy(() -> adapter.decrypt(tampered))
+                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+        }
+
+        @Test
+        @DisplayName("GCM 암호문 길이(PIN '1234')가 pin_no VARCHAR(2048) 제한 내에 들어온다")
+        void gcmCiphertextLengthFitsWithinColumnLimit() {
+            // given
+            String plainPin = "1234";
+
+            // when
+            String encrypted = adapter.encrypt(plainPin);
+
+            // then
+            assertThat(encrypted.length()).isLessThanOrEqualTo(2048);
+            // 실제 크기: base64(4+12+4+16=36) = 48자
+            assertThat(encrypted.length()).isLessThanOrEqualTo(48);
+        }
+    }
+
+    @Nested
+    @DisplayName("레거시 CBC 호환")
+    class LegacyCbcCompatibility {
+
+        @Test
+        @DisplayName("레거시 CBC 방식으로 암호화된 기존 데이터를 정상 복호화한다")
+        void decryptsLegacyCbcCiphertext() throws Exception {
+            // given
+            String plainPin = "LEGACY-PIN-1234";
+            String legacyEncrypted = legacyCbcEncrypt(plainPin, AES_256_KEY);
+
+            // when
+            String decrypted = adapter.decrypt(legacyEncrypted);
+
+            // then
+            assertThat(decrypted).isEqualTo(plainPin);
+        }
+
+        @Test
+        @DisplayName("레거시 CBC 암호문은 GCM1 매직 프리픽스로 시작하지 않는다")
+        void legacyCbcCiphertextDoesNotStartWithGcmMagic() throws Exception {
+            // given
+            String legacyEncrypted = legacyCbcEncrypt("PIN", AES_256_KEY);
+
+            // when
+            byte[] decoded = Base64.getDecoder().decode(legacyEncrypted);
+
+            // then
+            assertThat(decoded).hasSizeGreaterThanOrEqualTo(4);
+            byte[] prefix = new byte[4];
+            System.arraycopy(decoded, 0, prefix, 0, 4);
+            assertThat(prefix).isNotEqualTo(GCM_MAGIC);
+        }
+
+        @Test
+        @DisplayName("레거시 CBC 암호문을 다른 키로 복호화하면 GifticonPinDecryptionFailedException이 발생한다")
+        void decryptingLegacyCbcWithWrongKeyFails() throws Exception {
+            // given
+            String legacyEncrypted = legacyCbcEncrypt("PIN1234", "FEDCBA9876543210FEDCBA9876543210");
+
+            // when & then
+            assertThatThrownBy(() -> adapter.decrypt(legacyEncrypted))
+                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+        }
+
+        @Test
+        @DisplayName("레거시 CBC 한글/특수문자 암호문도 복호화한다")
+        void decryptsLegacyCbcUtf8Ciphertext() throws Exception {
+            // given
+            String plainPin = "핀-@#$%-🎁";
+            String legacyEncrypted = legacyCbcEncrypt(plainPin, AES_256_KEY);
+
+            // when
+            String decrypted = adapter.decrypt(legacyEncrypted);
+
+            // then
+            assertThat(decrypted).isEqualTo(plainPin);
+        }
+
+        /**
+         * 기존 AES/CBC/PKCS5Padding 방식 암호화를 그대로 재현한 헬퍼.
+         * 레거시 호환 테스트용으로만 사용한다.
+         */
+        private String legacyCbcEncrypt(String plainPin, String key) throws Exception {
+            byte[] iv = new byte[16];
+            // 테스트 재현성을 위해 고정 IV 사용 (실제 프로덕션 CBC 코드는 랜덤 IV)
+            for (int i = 0; i < iv.length; i++) {
+                iv[i] = (byte) i;
+            }
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
+            SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+            byte[] encrypted = cipher.doFinal(plainPin.getBytes(StandardCharsets.UTF_8));
+
+            byte[] combined = new byte[iv.length + encrypted.length];
+            System.arraycopy(iv, 0, combined, 0, iv.length);
+            System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
+            return Base64.getEncoder().encodeToString(combined);
         }
     }
 
