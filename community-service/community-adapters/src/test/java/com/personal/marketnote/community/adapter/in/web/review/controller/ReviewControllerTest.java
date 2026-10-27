@@ -400,5 +400,22 @@ class ReviewControllerTest {
             assertThat(rateLimited.maxRequests()).isEqualTo(60);
             assertThat(rateLimited.windowSeconds()).isEqualTo(60);
         }
+
+        @Test
+        @DisplayName("getProductReviews 메서드에 @RateLimited(key=product-reviews, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void getProductReviewsHasRateLimited() throws NoSuchMethodException {
+            Method method = ReviewController.class.getMethod(
+                    "getProductReviews",
+                    Long.class, Boolean.class, Long.class, int.class, Sort.Direction.class,
+                    ReviewSortProperty.class, OAuth2AuthenticatedPrincipal.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("product-reviews");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.personal.marketnote.community.adapter.in.web.post.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.domain.exception.token.AuthenticationFailedException;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatConverter;
@@ -128,6 +129,7 @@ public class PostController {
      */
     @GetMapping
     @GetPostsApiDocs
+    @RateLimited(key = "posts-cursor", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetPostsResponse>> getPosts(
             @RequestParam("board") Board board,
             @RequestParam(value = "category", required = false) String category,
