@@ -262,6 +262,7 @@ public class PaymentCancelTransactionHelper {
 
     private int resolveRetryCount() {
         RetryContext retryContext = RetrySynchronizationManager.getContext();
+        // 순수 null 체크 — FormatValidator.hasValue(Object)는 toString().isBlank() 검사가 포함되어 RetryContext 판별에 부적합
         if (retryContext == null) {
             return 0;
         }

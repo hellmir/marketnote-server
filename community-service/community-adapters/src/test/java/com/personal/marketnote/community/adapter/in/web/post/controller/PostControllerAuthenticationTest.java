@@ -2,6 +2,7 @@ package com.personal.marketnote.community.adapter.in.web.post.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.domain.exception.token.AuthenticationFailedException;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.community.adapter.in.web.post.request.RegisterPostRequest;
 import com.personal.marketnote.community.adapter.in.web.post.response.GetPostsResponse;
 import com.personal.marketnote.community.adapter.in.web.post.response.PostItemResponse;
@@ -300,7 +301,7 @@ class PostControllerAuthenticationTest {
         ReflectionTestUtils.setField(request, "content", "내용");
         ReflectionTestUtils.setField(request, "isPrivate", false);
         ReflectionTestUtils.setField(request, "isPhoto", false);
-        if (parentId != null) {
+        if (FormatValidator.hasValue(parentId)) {
             ReflectionTestUtils.setField(request, "parentId", parentId);
         }
         return request;

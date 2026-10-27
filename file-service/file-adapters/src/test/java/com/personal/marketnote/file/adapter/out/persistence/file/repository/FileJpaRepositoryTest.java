@@ -2,6 +2,7 @@ package com.personal.marketnote.file.adapter.out.persistence.file.repository;
 
 import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.common.domain.file.FileSort;
 import com.personal.marketnote.common.domain.file.OwnerType;
 import com.personal.marketnote.file.adapter.out.persistence.file.entity.FileJpaEntity;
@@ -346,7 +347,7 @@ class FileJpaRepositoryTest {
         FileJpaEntity entity = FileJpaEntity.from(domain, domain.getStorageUrl());
         FileJpaEntity saved = fileJpaRepository.saveAndFlush(entity);
         saved.setIdToOrderNum();
-        if (orderNum != null) {
+        if (FormatValidator.hasValue(orderNum)) {
             entityManager.createNativeQuery("UPDATE files SET order_num = :orderNum WHERE id = :id")
                     .setParameter("orderNum", orderNum)
                     .setParameter("id", saved.getId())
