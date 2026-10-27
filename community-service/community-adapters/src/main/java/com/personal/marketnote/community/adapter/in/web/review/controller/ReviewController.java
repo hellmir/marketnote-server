@@ -100,6 +100,7 @@ public class ReviewController {
      */
     @GetMapping("/products/{productId}/reviews")
     @GetProductReviewsApiDocs
+    @RateLimited(key = "product-reviews", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetReviewsResponse>> getProductReviews(
             @PathVariable("productId") Long productId,
             @RequestParam(value = "isPhoto", required = false, defaultValue = FALSE) Boolean isPhoto,

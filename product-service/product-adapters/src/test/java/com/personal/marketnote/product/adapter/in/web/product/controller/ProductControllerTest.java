@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.in.web.product.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.product.adapter.in.web.product.response.GetProductKeyResponse;
 import com.personal.marketnote.product.adapter.in.web.product.response.GetProductSearchTargetsResponse;
 import com.personal.marketnote.product.adapter.in.web.product.response.GetProductSortPropertiesResponse;
@@ -36,6 +37,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 
@@ -198,6 +200,29 @@ class ProductControllerTest {
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             verify(deleteProductImageUseCase).delete(any(), anyBoolean(), any(DeleteProductImageCommand.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("RateLimited 어노테이션 부착 검증")
+    class RateLimitedAnnotation {
+
+        @Test
+        @DisplayName("getProducts 메서드에 @RateLimited(key=products-cursor, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void getProductsHasRateLimited() throws NoSuchMethodException {
+            Method method = ProductController.class.getMethod(
+                    "getProducts",
+                    Long.class, List.class, Long.class, int.class,
+                    Sort.Direction.class, ProductSortProperty.class,
+                    ProductSearchTarget.class, String.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("products-cursor");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
         }
     }
 }

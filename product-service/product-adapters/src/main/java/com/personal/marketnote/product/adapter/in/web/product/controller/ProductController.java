@@ -1,6 +1,7 @@
 package com.personal.marketnote.product.adapter.in.web.product.controller;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
+import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.utility.AuthorityValidator;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatValidator;
@@ -153,6 +154,7 @@ public class ProductController {
      */
     @GetMapping
     @GetProductsApiDocs
+    @RateLimited(key = "products-cursor", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetProductsResponse>> getProducts(
             @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "pricePolicyIds", required = false) List<Long> pricePolicyIds,
