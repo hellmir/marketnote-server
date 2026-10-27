@@ -27,7 +27,7 @@ public class ResizedFileJpaEntity extends BaseGeneralEntity {
     @Column(name = "size", nullable = false, length = 255)
     private String size;
 
-    @Column(name = "s3_url", nullable = false, length = 1024)
+    @Column(name = "s3_url", nullable = false, length = 2048)
     private String storageUrl;
 
     public static ResizedFileJpaEntity of(FileJpaEntity file, String size) {

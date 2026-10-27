@@ -45,7 +45,7 @@ public class NotificationJpaEntity extends BaseGeneralEntity {
     @Column(name = "is_read", nullable = false)
     private boolean isRead;
 
-    @Column(name = "landing_url", length = 500)
+    @Column(name = "landing_url", length = 2048)
     private String landingUrl;
 
     @Column(name = "send_status", nullable = false, length = 20)

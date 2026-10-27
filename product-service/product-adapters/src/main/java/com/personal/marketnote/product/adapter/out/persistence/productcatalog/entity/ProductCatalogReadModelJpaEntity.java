@@ -67,7 +67,7 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private Long popularity;
 
-    @Column(length = 511)
+    @Column(length = 2048)
     private String representativeImageUrl;
 
     @Column(columnDefinition = "TEXT")

@@ -49,6 +49,7 @@ public class AligoTemplateJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false)
     private boolean templateAdvert;
 
+    @Column(length = 2048)
     private String imageUrl;
 
     private String imageName;

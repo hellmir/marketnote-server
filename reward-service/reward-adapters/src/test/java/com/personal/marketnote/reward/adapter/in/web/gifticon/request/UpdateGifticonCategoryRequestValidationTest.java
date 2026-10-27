@@ -61,10 +61,10 @@ class UpdateGifticonCategoryRequestValidationTest {
     }
 
     @Test
-    @DisplayName("iconUrl이 256자이면 검증에 실패한다")
+    @DisplayName("iconUrl이 2049자이면 검증에 실패한다")
     void shouldFailWhenIconUrlExceedsMaxLength() {
         // given
-        String longIconUrl = "https://" + "a".repeat(248);
+        String longIconUrl = "https://" + "a".repeat(2041);
         UpdateGifticonCategoryRequest request = new UpdateGifticonCategoryRequest();
         request.setIconUrl(longIconUrl);
 
@@ -72,7 +72,7 @@ class UpdateGifticonCategoryRequestValidationTest {
         Set<ConstraintViolation<UpdateGifticonCategoryRequest>> violations = validator.validate(request);
 
         // then
-        assertThat(longIconUrl.length()).isEqualTo(256);
+        assertThat(longIconUrl.length()).isEqualTo(2049);
         assertThat(violations).isNotEmpty();
         assertThat(violations)
                 .anyMatch(v -> v.getPropertyPath().toString().equals("iconUrl"));
@@ -170,10 +170,10 @@ class UpdateGifticonCategoryRequestValidationTest {
     }
 
     @Test
-    @DisplayName("iconUrl이 정확히 255자이면 검증에 성공한다")
+    @DisplayName("iconUrl이 정확히 2048자이면 검증에 성공한다")
     void shouldPassWhenIconUrlIsExactlyMaxLength() {
         // given
-        String iconUrl = "https://" + "a".repeat(247);
+        String iconUrl = "https://" + "a".repeat(2040);
         UpdateGifticonCategoryRequest request = new UpdateGifticonCategoryRequest();
         request.setIconUrl(iconUrl);
 
@@ -181,7 +181,7 @@ class UpdateGifticonCategoryRequestValidationTest {
         Set<ConstraintViolation<UpdateGifticonCategoryRequest>> violations = validator.validate(request);
 
         // then
-        assertThat(iconUrl.length()).isEqualTo(255);
+        assertThat(iconUrl.length()).isEqualTo(2048);
         assertThat(violations).isEmpty();
     }
 

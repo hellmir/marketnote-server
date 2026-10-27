@@ -23,7 +23,7 @@ public class GifticonBrandJpaEntity extends BaseEntity {
     @Column(name = "brand_name", nullable = false)
     private String brandName;
 
-    @Column(name = "brand_image_url")
+    @Column(name = "brand_image_url", length = 2048)
     private String brandImageUrl;
 
     public static GifticonBrandJpaEntity from(GifticonBrand domain) {

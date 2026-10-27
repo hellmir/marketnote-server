@@ -32,7 +32,7 @@ public class GifticonOrderJpaEntity extends BaseEntity {
     @Column(name = "brand_name")
     private String brandName;
 
-    @Column(name = "product_image_url")
+    @Column(name = "product_image_url", length = 2048)
     private String productImageUrl;
 
     @Column(name = "tr_id", nullable = false, unique = true)
@@ -48,7 +48,7 @@ public class GifticonOrderJpaEntity extends BaseEntity {
     @Column(name = "order_status", nullable = false)
     private GifticonOrderStatus orderStatus;
 
-    @Column(name = "coupon_image_url")
+    @Column(name = "coupon_image_url", length = 2048)
     private String couponImageUrl;
 
     @Column(name = "pin_no")

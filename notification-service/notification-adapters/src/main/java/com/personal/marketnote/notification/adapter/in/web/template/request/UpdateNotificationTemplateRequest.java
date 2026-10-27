@@ -15,7 +15,7 @@ public record UpdateNotificationTemplateRequest(
         @Schema(description = "본문 템플릿 ({변수명} 형식)", example = "수정된 본문 {productName}")
         String bodyTemplate,
 
-        @Size(max = 500, message = "URL 템플릿은 500자 이하여야 합니다")
+        @Size(max = 2048, message = "URL 템플릿은 2048자 이하여야 합니다")
         @Schema(description = "URL 템플릿 ({변수명} 형식)", example = "/order/{orderId}")
         String urlTemplate
 ) {

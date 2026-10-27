@@ -28,7 +28,7 @@ public class ImageReadModelJpaEntity extends BaseGeneralEntity {
     @Column(nullable = false, length = 63)
     private String fileSort;
 
-    @Column(nullable = false, length = 511)
+    @Column(nullable = false, length = 2048)
     private String imageUrl;
 
     @Column(nullable = false)

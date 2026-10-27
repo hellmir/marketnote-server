@@ -15,7 +15,7 @@ public class UpdateGifticonCategoryRequest {
     private String displayName;
     private boolean displayNameProvided;
 
-    @Size(max = 255, message = "iconUrl은 255자 이하여야 합니다.")
+    @Size(max = 2048, message = "iconUrl은 2048자 이하여야 합니다.")
     @Pattern(regexp = "^https://.+", message = "iconUrl은 https://로 시작해야 합니다.")
     private String iconUrl;
     private boolean iconUrlProvided;
