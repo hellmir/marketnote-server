@@ -20,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessResourceFailureException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -185,12 +186,25 @@ class PaymentCancelIdempotencyHelperTest {
         }
 
         @Test
-        @DisplayName("내부 예외가 발생해도 전파되지 않는다 (원본 실패 원인 가림 방지)")
-        void shouldSwallowInternalException() {
+        @DisplayName("DataAccessException 은 삼켜서 원본 실패 원인을 가리지 않는다")
+        void shouldSwallowDataAccessException() {
             when(findIdempotencyPort.findByIdempotencyKey(KEY))
-                    .thenThrow(new RuntimeException("조회 실패"));
+                    .thenThrow(new DataAccessResourceFailureException("조회 실패"));
 
             helper.markFailed(KEY, "reason");
+
+            verify(updateIdempotencyPort, never()).update(any());
+        }
+
+        @Test
+        @DisplayName("예기치 못한 RuntimeException 은 전파하여 조용히 삼키지 않는다")
+        void shouldPropagateUnexpectedRuntimeException() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenThrow(new RuntimeException("예기치 못한 결함"));
+
+            assertThatThrownBy(() -> helper.markFailed(KEY, "reason"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("예기치 못한 결함");
 
             verify(updateIdempotencyPort, never()).update(any());
         }
