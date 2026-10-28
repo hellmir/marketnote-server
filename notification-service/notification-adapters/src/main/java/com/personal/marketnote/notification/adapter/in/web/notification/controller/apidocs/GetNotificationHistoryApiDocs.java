@@ -38,6 +38,7 @@ import java.lang.annotation.*;
                 | --- | --- | --- | --- | --- |
                 | cursor | number | N | - | 이전 페이지 마지막 항목의 ID |
                 | page-size | number | N | 20 | 페이지 크기 (1~100) |
+                | category | string | N | - | 카테고리 필터 (ORDER_SHIPPING / NOTICE_EVENT / CUSTOMER_SERVICE). 미전달 시 전체 조회 |
                 
                 ---
                 

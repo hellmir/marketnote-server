@@ -7,6 +7,7 @@ import com.personal.marketnote.notification.adapter.in.web.notification.controll
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetUnreadNotificationCountApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.MarkNotificationAsReadApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
+import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
 import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
 import com.personal.marketnote.notification.port.in.command.MarkNotificationAsReadCommand;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
@@ -62,12 +63,14 @@ public class NotificationController {
     public ResponseEntity<BaseResponse<GetNotificationHistoryResponse>> getNotificationHistory(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize
+            @RequestParam(value = "page-size", required = false, defaultValue = "20") @Min(1) @Max(100) int pageSize,
+            @RequestParam(value = "category", required = false) NotificationDisplayCategory category
     ) {
         GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(
                 ElementExtractor.extractUserId(principal),
                 cursor,
-                pageSize
+                pageSize,
+                category
         );
 
         GetNotificationHistoryResult result = getNotificationHistoryUseCase.getNotificationHistory(command);

@@ -39,11 +39,11 @@ class GetNotificationHistoryUseCaseTest {
         // given
         Long userId = 1L;
         int pageSize = 2;
-        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize);
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize, null);
 
         List<Notification> notifications = createNotifications(3, userId);
-        when(findNotificationPort.findByUserId(userId, null, 3)).thenReturn(notifications);
-        when(findNotificationPort.countByUserId(userId)).thenReturn(10L);
+        when(findNotificationPort.findByUserId(userId, null, 3, null)).thenReturn(notifications);
+        when(findNotificationPort.countByUserId(userId, null)).thenReturn(10L);
 
         // when
         GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);
@@ -54,8 +54,8 @@ class GetNotificationHistoryUseCaseTest {
         assertThat(result.notifications()).hasSize(2);
         assertThat(result.nextCursor()).isEqualTo(2L);
 
-        verify(findNotificationPort).findByUserId(userId, null, 3);
-        verify(findNotificationPort).countByUserId(userId);
+        verify(findNotificationPort).findByUserId(userId, null, 3, null);
+        verify(findNotificationPort).countByUserId(userId, null);
     }
 
     @Test
@@ -65,10 +65,10 @@ class GetNotificationHistoryUseCaseTest {
         Long userId = 1L;
         Long cursor = 5L;
         int pageSize = 2;
-        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, cursor, pageSize);
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, cursor, pageSize, null);
 
         List<Notification> notifications = createNotifications(3, userId);
-        when(findNotificationPort.findByUserId(userId, cursor, 3)).thenReturn(notifications);
+        when(findNotificationPort.findByUserId(userId, cursor, 3, null)).thenReturn(notifications);
 
         // when
         GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);
@@ -78,7 +78,7 @@ class GetNotificationHistoryUseCaseTest {
         assertThat(result.hasNext()).isTrue();
         assertThat(result.notifications()).hasSize(2);
 
-        verify(findNotificationPort).findByUserId(userId, cursor, 3);
+        verify(findNotificationPort).findByUserId(userId, cursor, 3, null);
         verifyNoMoreInteractions(findNotificationPort);
     }
 
@@ -88,10 +88,10 @@ class GetNotificationHistoryUseCaseTest {
         // given
         Long userId = 1L;
         int pageSize = 20;
-        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize);
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize, null);
 
         List<Notification> notifications = createNotifications(5, userId);
-        when(findNotificationPort.findByUserId(userId, null, 21)).thenReturn(notifications);
+        when(findNotificationPort.findByUserId(userId, null, 21, null)).thenReturn(notifications);
 
         // when
         GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);
@@ -101,7 +101,7 @@ class GetNotificationHistoryUseCaseTest {
         assertThat(result.totalElements()).isEqualTo(5L);
         assertThat(result.notifications()).hasSize(5);
 
-        verify(findNotificationPort).findByUserId(userId, null, 21);
+        verify(findNotificationPort).findByUserId(userId, null, 21, null);
         verifyNoMoreInteractions(findNotificationPort);
     }
 
@@ -111,9 +111,9 @@ class GetNotificationHistoryUseCaseTest {
         // given
         Long userId = 1L;
         int pageSize = 20;
-        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize);
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize, null);
 
-        when(findNotificationPort.findByUserId(userId, null, 21)).thenReturn(List.of());
+        when(findNotificationPort.findByUserId(userId, null, 21, null)).thenReturn(List.of());
 
         // when
         GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);
@@ -124,7 +124,7 @@ class GetNotificationHistoryUseCaseTest {
         assertThat(result.hasNext()).isFalse();
         assertThat(result.totalElements()).isEqualTo(0L);
 
-        verify(findNotificationPort).findByUserId(userId, null, 21);
+        verify(findNotificationPort).findByUserId(userId, null, 21, null);
         verifyNoMoreInteractions(findNotificationPort);
     }
 
@@ -134,7 +134,7 @@ class GetNotificationHistoryUseCaseTest {
         // given
         Long userId = 1L;
         int pageSize = 20;
-        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize);
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize, null);
 
         LocalDateTime now = LocalDateTime.of(2026, 4, 9, 12, 0);
         Notification notification = Notification.from(
@@ -154,7 +154,7 @@ class GetNotificationHistoryUseCaseTest {
                         .build()
         );
 
-        when(findNotificationPort.findByUserId(userId, null, 21)).thenReturn(List.of(notification));
+        when(findNotificationPort.findByUserId(userId, null, 21, null)).thenReturn(List.of(notification));
 
         // when
         GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);

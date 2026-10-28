@@ -8,6 +8,7 @@ import com.personal.marketnote.notification.adapter.out.persistence.notification
 import com.personal.marketnote.notification.adapter.out.persistence.notification.repository.NotificationJpaRepository;
 import com.personal.marketnote.notification.domain.notification.Notification;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
+import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
 import com.personal.marketnote.notification.port.out.notification.DeleteNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
@@ -34,19 +35,33 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
     }
 
     @Override
-    public List<Notification> findByUserId(Long userId, Long cursor, int fetchSize) {
+    public List<Notification> findByUserId(Long userId, Long cursor, int fetchSize, NotificationDisplayCategory category) {
         Long effectiveCursor = FormatValidator.hasValue(cursor) ? cursor : -1L;
+        PageRequest pageRequest = PageRequest.of(0, fetchSize);
 
-        return notificationJpaRepository.findByUserIdWithCursor(
-                        userId, EntityStatus.ACTIVE, effectiveCursor, PageRequest.of(0, fetchSize)
+        if (FormatValidator.hasNoValue(category)) {
+            return notificationJpaRepository.findByUserIdWithCursor(
+                            userId, EntityStatus.ACTIVE, effectiveCursor, pageRequest
+                    ).stream()
+                    .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
+                    .toList();
+        }
+
+        return notificationJpaRepository.findByUserIdWithCursorAndTypes(
+                        userId, EntityStatus.ACTIVE, effectiveCursor, category.types(), pageRequest
                 ).stream()
                 .flatMap(entity -> NotificationJpaEntityToDomainMapper.mapToDomain(entity).stream())
                 .toList();
     }
 
     @Override
-    public long countByUserId(Long userId) {
-        return notificationJpaRepository.countByUserIdAndStatus(userId, EntityStatus.ACTIVE);
+    public long countByUserId(Long userId, NotificationDisplayCategory category) {
+        if (FormatValidator.hasNoValue(category)) {
+            return notificationJpaRepository.countByUserIdAndStatus(userId, EntityStatus.ACTIVE);
+        }
+        return notificationJpaRepository.countByUserIdAndStatusAndTypes(
+                userId, EntityStatus.ACTIVE, category.types()
+        );
     }
 
     @Override

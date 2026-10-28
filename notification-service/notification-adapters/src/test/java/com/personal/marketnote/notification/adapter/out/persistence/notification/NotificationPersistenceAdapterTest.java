@@ -81,7 +81,7 @@ class NotificationPersistenceAdapterTest {
             )).thenReturn(List.of(entity));
 
             // when
-            List<Notification> result = adapter.findByUserId(100L, 50L, 10);
+            List<Notification> result = adapter.findByUserId(100L, 50L, 10, null);
 
             // then
             assertThat(result).hasSize(1);
