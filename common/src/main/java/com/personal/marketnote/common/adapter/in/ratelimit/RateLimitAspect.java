@@ -37,6 +37,8 @@ import java.util.concurrent.TimeUnit;
  * <ul>
  *   <li>{@code rate_limit.hit.total} — Rate Limit이 적용된 모든 요청 건수 (초과/비초과 포함).</li>
  *   <li>{@code rate_limit.exceeded.total} — 제한을 초과하여 거부된 요청 건수.</li>
+ *   <li>{@code rate_limit.untracked.total} — Redis {@code increment}가 {@code null}을 반환한 무추적 요청 건수
+ *       (해시태그/클러스터 라우팅 이슈 등). Redis 연결 예외 등 {@code Exception} 분기는 이 카운터에 포함되지 않으며 warn 로그로만 남는다. 요청 자체는 허용된다.</li>
  * </ul>
  *
  * <p><b>태그 규약:</b>
@@ -79,6 +81,7 @@ public class RateLimitAspect {
         try {
             Long currentCount = redisTemplate.opsForValue().increment(redisKey);
             if (FormatValidator.hasNoValue(currentCount)) {
+                incrementUntrackedCounter(rateLimited.key());
                 return joinPoint.proceed();
             }
 
@@ -135,6 +138,17 @@ public class RateLimitAspect {
         Counter.builder("rate_limit.exceeded.total")
                 .tag("key", key)
                 .description("RateLimited 초과 요청 건수 (키별)")
+                .register(meterRegistry)
+                .increment();
+    }
+
+    private void incrementUntrackedCounter(String key) {
+        if (FormatValidator.hasNoValue(meterRegistry)) {
+            return;
+        }
+        Counter.builder("rate_limit.untracked.total")
+                .tag("key", key)
+                .description("RateLimited 추적 실패 요청 건수 (Redis increment null 반환)")
                 .register(meterRegistry)
                 .increment();
     }
