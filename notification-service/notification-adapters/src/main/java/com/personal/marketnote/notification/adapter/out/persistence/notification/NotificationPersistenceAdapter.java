@@ -126,4 +126,9 @@ public class NotificationPersistenceAdapter implements FindNotificationPort, Sav
                 threshold, EntityStatus.ACTIVE, EntityStatus.INACTIVE
         );
     }
+
+    @Override
+    public int markAllAsReadByUserId(Long userId) {
+        return notificationJpaRepository.markAllAsReadByUserIdAndStatus(userId, EntityStatus.ACTIVE);
+    }
 }

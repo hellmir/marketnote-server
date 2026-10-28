@@ -8,4 +8,6 @@ public interface UpdateNotificationPort {
     void update(Notification notification);
 
     void updateAll(List<Notification> notifications);
+
+    int markAllAsReadByUserId(Long userId);
 }
