@@ -90,4 +90,17 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
             @Param("activeStatus") EntityStatus activeStatus,
             @Param("inactiveStatus") EntityStatus inactiveStatus
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            UPDATE NotificationJpaEntity n
+            SET n.isRead = true
+            WHERE n.userId = :userId
+              AND n.status = :status
+              AND n.isRead = false
+            """)
+    int markAllAsReadByUserIdAndStatus(
+            @Param("userId") Long userId,
+            @Param("status") EntityStatus status
+    );
 }

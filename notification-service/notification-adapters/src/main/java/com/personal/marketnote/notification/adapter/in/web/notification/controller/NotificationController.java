@@ -5,6 +5,7 @@ import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetNotificationHistoryApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.GetUnreadNotificationCountApiDocs;
+import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.MarkAllNotificationAsReadApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.controller.apidocs.MarkNotificationAsReadApiDocs;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
 import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
@@ -14,6 +15,7 @@ import com.personal.marketnote.notification.port.in.result.notification.GetNotif
 import com.personal.marketnote.notification.port.in.result.notification.GetUnreadNotificationCountResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.GetNotificationHistoryUseCase;
 import com.personal.marketnote.notification.port.in.usecase.notification.GetUnreadNotificationCountUseCase;
+import com.personal.marketnote.notification.port.in.usecase.notification.MarkAllNotificationAsReadUseCase;
 import com.personal.marketnote.notification.port.in.usecase.notification.MarkNotificationAsReadUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
@@ -44,6 +46,7 @@ public class NotificationController {
 
     private final GetNotificationHistoryUseCase getNotificationHistoryUseCase;
     private final MarkNotificationAsReadUseCase markNotificationAsReadUseCase;
+    private final MarkAllNotificationAsReadUseCase markAllNotificationAsReadUseCase;
     private final GetUnreadNotificationCountUseCase getUnreadNotificationCountUseCase;
 
     /**
@@ -105,6 +108,25 @@ public class NotificationController {
                         HttpStatus.OK,
                         DEFAULT_SUCCESS_CODE,
                         "알림 읽음 처리 성공"
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PatchMapping("/read-all")
+    @MarkAllNotificationAsReadApiDocs
+    @RateLimited(key = "notifications-read-all", maxRequests = 10, windowSeconds = 60)
+    public ResponseEntity<BaseResponse<Void>> markAllNotificationAsRead(
+            @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
+    ) {
+        markAllNotificationAsReadUseCase.markAllAsRead(ElementExtractor.extractUserId(principal));
+
+        return new ResponseEntity<>(
+                BaseResponse.of(
+                        null,
+                        HttpStatus.OK,
+                        DEFAULT_SUCCESS_CODE,
+                        "알림 전체 읽음 처리 성공"
                 ),
                 HttpStatus.OK
         );
