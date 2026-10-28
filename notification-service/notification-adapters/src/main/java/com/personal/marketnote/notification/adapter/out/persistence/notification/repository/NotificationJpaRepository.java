@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.out.persistence.notificatio
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.entity.NotificationJpaEntity;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
+import com.personal.marketnote.notification.domain.template.NotificationType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface NotificationJpaRepository extends JpaRepository<NotificationJpaEntity, Long> {
 
@@ -31,7 +33,35 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
             Pageable pageable
     );
 
+    @Query("""
+            SELECT n FROM NotificationJpaEntity n
+            WHERE n.userId = :userId
+              AND n.status = :status
+              AND (:cursor = -1L OR n.id < :cursor)
+              AND n.notificationType IN :types
+            ORDER BY n.id DESC
+            """)
+    List<NotificationJpaEntity> findByUserIdWithCursorAndTypes(
+            @Param("userId") Long userId,
+            @Param("status") EntityStatus status,
+            @Param("cursor") Long cursor,
+            @Param("types") Set<NotificationType> types,
+            Pageable pageable
+    );
+
     long countByUserIdAndStatus(Long userId, EntityStatus status);
+
+    @Query("""
+            SELECT COUNT(n) FROM NotificationJpaEntity n
+            WHERE n.userId = :userId
+              AND n.status = :status
+              AND n.notificationType IN :types
+            """)
+    long countByUserIdAndStatusAndTypes(
+            @Param("userId") Long userId,
+            @Param("status") EntityStatus status,
+            @Param("types") Set<NotificationType> types
+    );
 
     long countByUserIdAndStatusAndIsRead(Long userId, EntityStatus status, boolean isRead);
 

@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.in.web.notification.control
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
+import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
 import com.personal.marketnote.notification.port.in.result.notification.GetUnreadNotificationCountResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.GetNotificationHistoryUseCase;
@@ -66,7 +67,7 @@ class NotificationControllerTest {
 
             // when
             ResponseEntity<BaseResponse<GetNotificationHistoryResponse>> response =
-                    controller.getNotificationHistory(principal, null, 20);
+                    controller.getNotificationHistory(principal, null, 20, null);
 
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -125,7 +126,7 @@ class NotificationControllerTest {
         void getNotificationHistoryHasRateLimited() throws NoSuchMethodException {
             Method method = NotificationController.class.getMethod(
                     "getNotificationHistory",
-                    OAuth2AuthenticatedPrincipal.class, Long.class, int.class
+                    OAuth2AuthenticatedPrincipal.class, Long.class, int.class, NotificationDisplayCategory.class
             );
 
             RateLimited rateLimited = method.getAnnotation(RateLimited.class);
