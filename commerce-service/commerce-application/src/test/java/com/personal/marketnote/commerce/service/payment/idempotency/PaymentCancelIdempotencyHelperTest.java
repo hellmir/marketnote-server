@@ -21,13 +21,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.UnexpectedRollbackException;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -207,6 +211,34 @@ class PaymentCancelIdempotencyHelperTest {
                     .hasMessage("예기치 못한 결함");
 
             verify(updateIdempotencyPort, never()).update(any());
+        }
+
+        @Test
+        @DisplayName("TransactionSystemException 발생 시 삼키고 로그만 남긴다")
+        void shouldSwallowTransactionSystemException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new TransactionSystemException("flush failure"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markFailed(KEY, "reason"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
+        }
+
+        @Test
+        @DisplayName("UnexpectedRollbackException 발생 시 삼키고 로그만 남긴다")
+        void shouldSwallowUnexpectedRollbackException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new UnexpectedRollbackException("rolled back"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markFailed(KEY, "reason"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
         }
     }
 
