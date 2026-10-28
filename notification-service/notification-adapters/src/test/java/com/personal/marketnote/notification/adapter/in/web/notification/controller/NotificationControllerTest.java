@@ -4,6 +4,7 @@ import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
 import com.personal.marketnote.notification.adapter.in.web.notification.response.GetNotificationHistoryResponse;
 import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
+import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
 import com.personal.marketnote.notification.port.in.result.notification.GetUnreadNotificationCountResult;
 import com.personal.marketnote.notification.port.in.usecase.notification.GetNotificationHistoryUseCase;
@@ -27,6 +28,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,6 +74,45 @@ class NotificationControllerTest {
             // then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("category 파라미터를 Command에 전파한다")
+        void shouldPropagateCategoryToCommand() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
+            NotificationDisplayCategory category = NotificationDisplayCategory.ORDER_SHIPPING;
+            GetNotificationHistoryResult result = new GetNotificationHistoryResult(
+                    0L, false, -1L, List.of()
+            );
+            when(getNotificationHistoryUseCase.getNotificationHistory(any())).thenReturn(result);
+
+            // when
+            controller.getNotificationHistory(principal, null, 20, category);
+
+            // then
+            verify(getNotificationHistoryUseCase).getNotificationHistory(
+                    argThat((GetNotificationHistoryCommand cmd) -> cmd.category() == category)
+            );
+        }
+
+        @Test
+        @DisplayName("category 미전달 시 Command의 category는 null이다")
+        void shouldSetNullCategoryWhenNotProvided() {
+            // given
+            OAuth2AuthenticatedPrincipal principal = buildPrincipal(100L);
+            GetNotificationHistoryResult result = new GetNotificationHistoryResult(
+                    0L, false, -1L, List.of()
+            );
+            when(getNotificationHistoryUseCase.getNotificationHistory(any())).thenReturn(result);
+
+            // when
+            controller.getNotificationHistory(principal, null, 20, null);
+
+            // then
+            verify(getNotificationHistoryUseCase).getNotificationHistory(
+                    argThat((GetNotificationHistoryCommand cmd) -> cmd.category() == null)
+            );
         }
     }
 

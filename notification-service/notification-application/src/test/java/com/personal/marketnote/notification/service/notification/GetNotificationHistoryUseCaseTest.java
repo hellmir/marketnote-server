@@ -5,6 +5,7 @@ import com.personal.marketnote.notification.domain.notification.DeliveryChannel;
 import com.personal.marketnote.notification.domain.notification.Notification;
 import com.personal.marketnote.notification.domain.notification.NotificationSnapshotState;
 import com.personal.marketnote.notification.domain.notification.SendStatus;
+import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import com.personal.marketnote.notification.port.in.command.GetNotificationHistoryCommand;
 import com.personal.marketnote.notification.port.in.result.notification.GetNotificationHistoryResult;
@@ -172,6 +173,80 @@ class GetNotificationHistoryUseCaseTest {
         assertThat(item.landingUrl()).isEqualTo("/order/123");
         assertThat(item.sendStatus()).isEqualTo(SendStatus.SENT);
         assertThat(item.createdAt()).isEqualTo(now);
+    }
+
+    @Test
+    @DisplayName("카테고리 전달 시 FindNotificationPort에 카테고리가 전파된다")
+    void shouldPropagateCategoryToPort() {
+        // given
+        Long userId = 1L;
+        int pageSize = 20;
+        NotificationDisplayCategory category = NotificationDisplayCategory.ORDER_SHIPPING;
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize, category);
+
+        List<Notification> notifications = createNotifications(5, userId);
+        when(findNotificationPort.findByUserId(userId, null, 21, category)).thenReturn(notifications);
+
+        // when
+        GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);
+
+        // then
+        assertThat(result.notifications()).hasSize(5);
+        assertThat(result.hasNext()).isFalse();
+        assertThat(result.totalElements()).isEqualTo(5L);
+
+        verify(findNotificationPort).findByUserId(userId, null, 21, category);
+        verifyNoMoreInteractions(findNotificationPort);
+    }
+
+    @Test
+    @DisplayName("카테고리 전달 + hasNext이면 countByUserId에 카테고리가 전파된다")
+    void shouldPropagateCategoryToCountWhenHasNext() {
+        // given
+        Long userId = 1L;
+        int pageSize = 2;
+        NotificationDisplayCategory category = NotificationDisplayCategory.NOTICE_EVENT;
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, null, pageSize, category);
+
+        List<Notification> notifications = createNotifications(3, userId);
+        when(findNotificationPort.findByUserId(userId, null, 3, category)).thenReturn(notifications);
+        when(findNotificationPort.countByUserId(userId, category)).thenReturn(7L);
+
+        // when
+        GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);
+
+        // then
+        assertThat(result.totalElements()).isEqualTo(7L);
+        assertThat(result.hasNext()).isTrue();
+        assertThat(result.notifications()).hasSize(2);
+
+        verify(findNotificationPort).findByUserId(userId, null, 3, category);
+        verify(findNotificationPort).countByUserId(userId, category);
+    }
+
+    @Test
+    @DisplayName("카테고리 + 커서 조합 시 totalElements는 null이다")
+    void shouldReturnNullTotalElementsWithCategoryAndCursor() {
+        // given
+        Long userId = 1L;
+        Long cursor = 5L;
+        int pageSize = 2;
+        NotificationDisplayCategory category = NotificationDisplayCategory.CUSTOMER_SERVICE;
+        GetNotificationHistoryCommand command = new GetNotificationHistoryCommand(userId, cursor, pageSize, category);
+
+        List<Notification> notifications = createNotifications(3, userId);
+        when(findNotificationPort.findByUserId(userId, cursor, 3, category)).thenReturn(notifications);
+
+        // when
+        GetNotificationHistoryResult result = getNotificationHistoryService.getNotificationHistory(command);
+
+        // then
+        assertThat(result.totalElements()).isNull();
+        assertThat(result.hasNext()).isTrue();
+        assertThat(result.notifications()).hasSize(2);
+
+        verify(findNotificationPort).findByUserId(userId, cursor, 3, category);
+        verifyNoMoreInteractions(findNotificationPort);
     }
 
     private List<Notification> createNotifications(int count, Long userId) {
