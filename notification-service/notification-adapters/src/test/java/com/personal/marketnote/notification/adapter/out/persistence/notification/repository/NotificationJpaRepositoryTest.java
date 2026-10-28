@@ -148,6 +148,75 @@ class NotificationJpaRepositoryTest {
     }
 
     @Test
+    @DisplayName("사용자의 미읽음 알림을 전체 읽음 처리한다")
+    void shouldMarkAllAsReadByUserIdAndStatus() {
+        // given
+        persistNotification(100L, SendStatus.SENT);
+        persistNotification(100L, SendStatus.SENT);
+        persistNotification(100L, SendStatus.SENT);
+
+        // when
+        int updated = repository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE);
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        assertThat(updated).isEqualTo(3);
+        long unreadCount = repository.countByUserIdAndStatusAndIsRead(100L, EntityStatus.ACTIVE, false);
+        assertThat(unreadCount).isZero();
+    }
+
+    @Test
+    @DisplayName("다른 사용자의 알림은 영향받지 않는다")
+    void shouldNotAffectOtherUsersWhenMarkingAllAsRead() {
+        // given
+        persistNotification(100L, SendStatus.SENT);
+        persistNotification(100L, SendStatus.SENT);
+        persistNotification(200L, SendStatus.SENT);
+
+        // when
+        int updated = repository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE);
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        assertThat(updated).isEqualTo(2);
+        long otherUserUnread = repository.countByUserIdAndStatusAndIsRead(200L, EntityStatus.ACTIVE, false);
+        assertThat(otherUserUnread).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("이미 읽은 알림은 UPDATE 대상에서 제외된다 (멱등)")
+    void shouldSkipAlreadyReadNotifications() {
+        // given
+        NotificationJpaEntity entity1 = persistNotification(100L, SendStatus.SENT);
+        persistNotification(100L, SendStatus.SENT);
+        entityManager.createNativeQuery("UPDATE notification SET is_read = true WHERE id = :id")
+                .setParameter("id", entity1.getId())
+                .executeUpdate();
+        entityManager.flush();
+        entityManager.clear();
+
+        // when
+        int updated = repository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE);
+        entityManager.flush();
+        entityManager.clear();
+
+        // then
+        assertThat(updated).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("미읽음 알림이 0건이면 0을 반환한다 (멱등)")
+    void shouldReturnZeroWhenNoUnread() {
+        // when
+        int updated = repository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE);
+
+        // then
+        assertThat(updated).isZero();
+    }
+
+    @Test
     @DisplayName("만료 알림을 비활성화한다")
     void shouldDeactivateExpiredNotifications() {
         // given

@@ -240,6 +240,40 @@ class NotificationPersistenceAdapterTest {
     }
 
     @Nested
+    @DisplayName("markAllAsReadByUserId")
+    class MarkAllAsReadByUserId {
+
+        @Test
+        @DisplayName("JpaRepository markAllAsReadByUserIdAndStatus 호출 결과를 그대로 반환한다")
+        void delegatesToRepositoryAndReturnsCount() {
+            // given
+            when(notificationJpaRepository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE))
+                    .thenReturn(4);
+
+            // when
+            int updated = adapter.markAllAsReadByUserId(100L);
+
+            // then
+            assertThat(updated).isEqualTo(4);
+            verify(notificationJpaRepository).markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE);
+        }
+
+        @Test
+        @DisplayName("미읽음이 없으면 0을 반환한다")
+        void returnsZeroWhenNoUnread() {
+            // given
+            when(notificationJpaRepository.markAllAsReadByUserIdAndStatus(100L, EntityStatus.ACTIVE))
+                    .thenReturn(0);
+
+            // when
+            int updated = adapter.markAllAsReadByUserId(100L);
+
+            // then
+            assertThat(updated).isEqualTo(0);
+        }
+    }
+
+    @Nested
     @DisplayName("deactivateExpiredNotifications")
     class DeactivateExpiredNotifications {
 
