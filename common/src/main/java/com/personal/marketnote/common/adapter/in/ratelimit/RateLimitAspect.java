@@ -3,8 +3,7 @@ package com.personal.marketnote.common.adapter.in.ratelimit;
 import com.personal.marketnote.common.domain.exception.RateLimitExceededException;
 import com.personal.marketnote.common.utility.ElementExtractor;
 import com.personal.marketnote.common.utility.FormatValidator;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -59,14 +58,14 @@ public class RateLimitAspect {
     private static final String KEY_PREFIX = "rate_limit:";
 
     private final StringRedisTemplate redisTemplate;
-    private final MeterRegistry meterRegistry;
+    private final CounterRegistryHelper counterRegistryHelper;
 
     public RateLimitAspect(
             StringRedisTemplate redisTemplate,
-            @Autowired(required = false) @Nullable MeterRegistry meterRegistry
+            @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
     ) {
         this.redisTemplate = redisTemplate;
-        this.meterRegistry = meterRegistry;
+        this.counterRegistryHelper = counterRegistryHelper;
     }
 
     @Around("@annotation(rateLimited)")
@@ -121,35 +120,35 @@ public class RateLimitAspect {
     }
 
     private void incrementHitCounter(String key) {
-        if (FormatValidator.hasNoValue(meterRegistry)) {
+        if (FormatValidator.hasNoValue(counterRegistryHelper)) {
             return;
         }
-        Counter.builder("rate_limit.hit.total")
-                .tag("key", key)
-                .description("RateLimited 적용 요청 건수 (키별, 초과/비초과 포함)")
-                .register(meterRegistry)
-                .increment();
+        counterRegistryHelper.increment(
+                "rate_limit.hit.total",
+                "RateLimited 적용 요청 건수 (키별, 초과/비초과 포함)",
+                "key", key
+        );
     }
 
     private void incrementExceededCounter(String key) {
-        if (FormatValidator.hasNoValue(meterRegistry)) {
+        if (FormatValidator.hasNoValue(counterRegistryHelper)) {
             return;
         }
-        Counter.builder("rate_limit.exceeded.total")
-                .tag("key", key)
-                .description("RateLimited 초과 요청 건수 (키별)")
-                .register(meterRegistry)
-                .increment();
+        counterRegistryHelper.increment(
+                "rate_limit.exceeded.total",
+                "RateLimited 초과 요청 건수 (키별)",
+                "key", key
+        );
     }
 
     private void incrementUntrackedCounter(String key) {
-        if (FormatValidator.hasNoValue(meterRegistry)) {
+        if (FormatValidator.hasNoValue(counterRegistryHelper)) {
             return;
         }
-        Counter.builder("rate_limit.untracked.total")
-                .tag("key", key)
-                .description("RateLimited 추적 실패 요청 건수 (Redis increment null 반환)")
-                .register(meterRegistry)
-                .increment();
+        counterRegistryHelper.increment(
+                "rate_limit.untracked.total",
+                "RateLimited 추적 실패 요청 건수 (Redis increment null 반환)",
+                "key", key
+        );
     }
 }

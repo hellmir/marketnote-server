@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.service.payment.PaymentCancelContext;
 import com.personal.marketnote.common.utility.FormatValidator;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import lombok.RequiredArgsConstructor;
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -32,14 +32,21 @@ import java.util.Map;
  * 시계열 폭발을 방지하기 위함. 개별 실패 식별은 로그로만 수행한다.
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class PaymentCancelResultSerializer {
 
     private static final String SERIALIZER_FAILURE_METRIC = "payment.cancel.idempotency.serializer.failure";
 
     private final ObjectMapper objectMapper;
-    private final MeterRegistry meterRegistry;
+    private final CounterRegistryHelper counterRegistryHelper;
+
+    public PaymentCancelResultSerializer(
+            ObjectMapper objectMapper,
+            @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
+    ) {
+        this.objectMapper = objectMapper;
+        this.counterRegistryHelper = counterRegistryHelper;
+    }
 
     public String serialize(PaymentCancelContext context) {
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -62,12 +69,9 @@ public class PaymentCancelResultSerializer {
     }
 
     private void incrementSerializerFailureCounter() {
-        if (FormatValidator.hasNoValue(meterRegistry)) {
+        if (FormatValidator.hasNoValue(counterRegistryHelper)) {
             return;
         }
-        Counter.builder(SERIALIZER_FAILURE_METRIC)
-                .description("결제 취소 result 직렬화 실패 건수")
-                .register(meterRegistry)
-                .increment();
+        counterRegistryHelper.increment(SERIALIZER_FAILURE_METRIC, "결제 취소 result 직렬화 실패 건수");
     }
 }
