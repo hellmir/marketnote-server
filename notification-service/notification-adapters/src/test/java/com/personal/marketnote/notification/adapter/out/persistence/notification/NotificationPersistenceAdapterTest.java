@@ -4,6 +4,7 @@ import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.entity.NotificationJpaEntity;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.repository.NotificationJpaRepository;
 import com.personal.marketnote.notification.domain.notification.*;
+import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -85,6 +86,84 @@ class NotificationPersistenceAdapterTest {
 
             // then
             assertThat(result).hasSize(1);
+            verify(notificationJpaRepository).findByUserIdWithCursor(
+                    eq(100L), eq(EntityStatus.ACTIVE), eq(50L), any(PageRequest.class)
+            );
+        }
+
+        @Test
+        @DisplayName("카테고리 전달 시 카테고리 전용 쿼리를 호출한다")
+        void callsTypesQueryWhenCategoryGiven() {
+            // given
+            NotificationJpaEntity entity = createMockEntity(1L);
+            NotificationDisplayCategory category = NotificationDisplayCategory.ORDER_SHIPPING;
+            when(notificationJpaRepository.findByUserIdWithCursorAndTypes(
+                    eq(100L), eq(EntityStatus.ACTIVE), eq(50L), eq(category.types()), any(PageRequest.class)
+            )).thenReturn(List.of(entity));
+
+            // when
+            List<Notification> result = adapter.findByUserId(100L, 50L, 10, category);
+
+            // then
+            assertThat(result).hasSize(1);
+            verify(notificationJpaRepository).findByUserIdWithCursorAndTypes(
+                    eq(100L), eq(EntityStatus.ACTIVE), eq(50L), eq(category.types()), any(PageRequest.class)
+            );
+        }
+
+        @Test
+        @DisplayName("null 커서 전달 시 -1L로 치환하여 쿼리를 호출한다")
+        void translatesNullCursorToMinusOne() {
+            // given
+            when(notificationJpaRepository.findByUserIdWithCursor(
+                    eq(100L), eq(EntityStatus.ACTIVE), eq(-1L), any(PageRequest.class)
+            )).thenReturn(List.of());
+
+            // when
+            adapter.findByUserId(100L, null, 10, null);
+
+            // then
+            verify(notificationJpaRepository).findByUserIdWithCursor(
+                    eq(100L), eq(EntityStatus.ACTIVE), eq(-1L), any(PageRequest.class)
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("countByUserId")
+    class CountByUserId {
+
+        @Test
+        @DisplayName("카테고리 미전달 시 전체 카운트 쿼리를 호출한다")
+        void callsFullCountWhenNoCategory() {
+            // given
+            when(notificationJpaRepository.countByUserIdAndStatus(100L, EntityStatus.ACTIVE)).thenReturn(9L);
+
+            // when
+            long count = adapter.countByUserId(100L, null);
+
+            // then
+            assertThat(count).isEqualTo(9L);
+            verify(notificationJpaRepository).countByUserIdAndStatus(100L, EntityStatus.ACTIVE);
+        }
+
+        @Test
+        @DisplayName("카테고리 전달 시 카테고리 전용 카운트 쿼리를 호출한다")
+        void callsTypesCountWhenCategoryGiven() {
+            // given
+            NotificationDisplayCategory category = NotificationDisplayCategory.NOTICE_EVENT;
+            when(notificationJpaRepository.countByUserIdAndStatusAndTypes(
+                    100L, EntityStatus.ACTIVE, category.types()
+            )).thenReturn(3L);
+
+            // when
+            long count = adapter.countByUserId(100L, category);
+
+            // then
+            assertThat(count).isEqualTo(3L);
+            verify(notificationJpaRepository).countByUserIdAndStatusAndTypes(
+                    100L, EntityStatus.ACTIVE, category.types()
+            );
         }
     }
 

@@ -4,6 +4,7 @@ import com.personal.marketnote.common.configuration.AuditConfig;
 import com.personal.marketnote.common.domain.EntityStatus;
 import com.personal.marketnote.notification.adapter.out.persistence.notification.entity.NotificationJpaEntity;
 import com.personal.marketnote.notification.domain.notification.*;
+import com.personal.marketnote.notification.domain.template.NotificationDisplayCategory;
 import com.personal.marketnote.notification.domain.template.NotificationType;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
@@ -92,6 +93,46 @@ class NotificationJpaRepositoryTest {
     }
 
     @Test
+    @DisplayName("카테고리(NotificationType IN) 조건으로 사용자별 알림 목록을 조회한다")
+    void shouldFindByUserIdWithCursorAndTypes() {
+        // given
+        persistNotificationWithType(100L, NotificationType.ORDER_PAYMENT_COMPLETED);
+        persistNotificationWithType(100L, NotificationType.SHIPPING_STARTED);
+        persistNotificationWithType(100L, NotificationType.NOTICE);
+
+        // when
+        List<NotificationJpaEntity> result = repository.findByUserIdWithCursorAndTypes(
+                100L, EntityStatus.ACTIVE, -1L,
+                NotificationDisplayCategory.ORDER_SHIPPING.types(),
+                PageRequest.of(0, 10)
+        );
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(NotificationJpaEntity::getNotificationType)
+                .containsExactlyInAnyOrder(
+                        NotificationType.SHIPPING_STARTED, NotificationType.ORDER_PAYMENT_COMPLETED
+                );
+    }
+
+    @Test
+    @DisplayName("카테고리(NotificationType IN) 조건으로 사용자별 알림 수를 반환한다")
+    void shouldCountByUserIdAndStatusAndTypes() {
+        // given
+        persistNotificationWithType(100L, NotificationType.NOTICE);
+        persistNotificationWithType(100L, NotificationType.EVENT);
+        persistNotificationWithType(100L, NotificationType.ORDER_PAYMENT_COMPLETED);
+
+        // when
+        long count = repository.countByUserIdAndStatusAndTypes(
+                100L, EntityStatus.ACTIVE, NotificationDisplayCategory.NOTICE_EVENT.types()
+        );
+
+        // then
+        assertThat(count).isEqualTo(2);
+    }
+
+    @Test
     @DisplayName("예약 발송 대상 알림을 조회한다")
     void shouldFindScheduledNotificationsDue() {
         // given
@@ -133,6 +174,22 @@ class NotificationJpaRepositoryTest {
                         .notificationType(NotificationType.ORDER_PAYMENT_COMPLETED)
                         .title("테스트 알림")
                         .body("테스트 알림 본문")
+                        .deliveryChannel(DeliveryChannel.PUSH_ONLY)
+                        .build()
+        );
+        NotificationJpaEntity entity = NotificationJpaEntity.from(domain);
+        NotificationJpaEntity saved = repository.saveAndFlush(entity);
+        entityManager.clear();
+        return saved;
+    }
+
+    private NotificationJpaEntity persistNotificationWithType(Long userId, NotificationType type) {
+        Notification domain = Notification.from(
+                NotificationCreateState.builder()
+                        .userId(userId)
+                        .notificationType(type)
+                        .title("테스트 알림 " + type.name())
+                        .body("테스트 본문")
                         .deliveryChannel(DeliveryChannel.PUSH_ONLY)
                         .build()
         );
