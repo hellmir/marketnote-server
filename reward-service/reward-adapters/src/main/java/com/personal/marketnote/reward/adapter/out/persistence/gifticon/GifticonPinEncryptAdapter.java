@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -28,9 +27,7 @@ public class GifticonPinEncryptAdapter implements EncryptGifticonPinPort, Decryp
     private static final int GCM_MAGIC_LENGTH = 4;
     private static final int GCM_IV_LENGTH = 12;
     private static final int GCM_TAG_BIT_LENGTH = 128;
-    private static final int CBC_IV_LENGTH = 16;
     private static final String GCM_TRANSFORMATION = "AES/GCM/NoPadding";
-    private static final String CBC_TRANSFORMATION = "AES/CBC/PKCS5Padding";
 
     private final SecretKeySpec keySpec;
     private final SecureRandom secureRandom = new SecureRandom();
@@ -78,11 +75,13 @@ public class GifticonPinEncryptAdapter implements EncryptGifticonPinPort, Decryp
     public String decrypt(String encryptedPin) {
         try {
             byte[] decoded = Base64.getDecoder().decode(encryptedPin);
-            if (hasGcmMagic(decoded)) {
-                return decryptGcm(decoded);
+            if (!hasGcmMagic(decoded)) {
+                log.error("PIN 복호화 실패: GCM1 매직 프리픽스 없음 (레거시 CBC 암호문)");
+                throw new GifticonPinDecryptionFailedException();
             }
-            return decryptLegacyCbc(decoded);
+            return decryptGcm(decoded);
         } catch (GifticonPinDecryptionFailedException e) {
+            // 도메인 예외 이중 래핑 방지 — 아래 Exception catch로 다시 잡혀 cause로 감싸지지 않도록 먼저 재전파
             throw e;
         } catch (Exception e) {
             log.error("PIN 복호화 실패: error={}", e.getMessage(), e);
@@ -115,23 +114,6 @@ public class GifticonPinEncryptAdapter implements EncryptGifticonPinPort, Decryp
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
             log.error("PIN 복호화 실패(GCM): error={}", e.getMessage(), e);
-            throw new GifticonPinDecryptionFailedException(e);
-        }
-    }
-
-    private String decryptLegacyCbc(byte[] decoded) {
-        try {
-            byte[] iv = Arrays.copyOfRange(decoded, 0, CBC_IV_LENGTH);
-            byte[] ciphertext = Arrays.copyOfRange(decoded, CBC_IV_LENGTH, decoded.length);
-
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            Cipher cipher = Cipher.getInstance(CBC_TRANSFORMATION);
-            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
-            byte[] decrypted = cipher.doFinal(ciphertext);
-
-            return new String(decrypted, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            log.error("PIN 복호화 실패(CBC 레거시): error={}", e.getMessage(), e);
             throw new GifticonPinDecryptionFailedException(e);
         }
     }
