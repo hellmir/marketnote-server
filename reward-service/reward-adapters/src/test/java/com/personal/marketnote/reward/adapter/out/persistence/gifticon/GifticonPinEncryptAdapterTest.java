@@ -193,71 +193,27 @@ class GifticonPinEncryptAdapterTest {
     }
 
     @Nested
-    @DisplayName("레거시 CBC 호환")
-    class LegacyCbcCompatibility {
+    @DisplayName("레거시 CBC 차단")
+    class LegacyCbcRejection {
 
         @Test
-        @DisplayName("레거시 CBC 방식으로 암호화된 기존 데이터를 정상 복호화한다")
-        void decryptsLegacyCbcCiphertext() throws Exception {
+        @DisplayName("GCM1 매직 프리픽스가 없는 (레거시 CBC-like) 암호문은 복호화 실패 예외를 던진다")
+        void rejectsCiphertextWithoutGcmMagic() throws Exception {
             // given
-            String plainPin = "LEGACY-PIN-1234";
-            String legacyEncrypted = legacyCbcEncrypt(plainPin, AES_256_KEY);
-
-            // when
-            String decrypted = adapter.decrypt(legacyEncrypted);
-
-            // then
-            assertThat(decrypted).isEqualTo(plainPin);
-        }
-
-        @Test
-        @DisplayName("레거시 CBC 암호문은 GCM1 매직 프리픽스로 시작하지 않는다")
-        void legacyCbcCiphertextDoesNotStartWithGcmMagic() throws Exception {
-            // given
-            String legacyEncrypted = legacyCbcEncrypt("PIN", AES_256_KEY);
-
-            // when
-            byte[] decoded = Base64.getDecoder().decode(legacyEncrypted);
-
-            // then
-            assertThat(decoded).hasSizeGreaterThanOrEqualTo(4);
-            byte[] prefix = new byte[4];
-            System.arraycopy(decoded, 0, prefix, 0, 4);
-            assertThat(prefix).isNotEqualTo(GCM_MAGIC);
-        }
-
-        @Test
-        @DisplayName("레거시 CBC 암호문을 다른 키로 복호화하면 GifticonPinDecryptionFailedException이 발생한다")
-        void decryptingLegacyCbcWithWrongKeyFails() throws Exception {
-            // given
-            String legacyEncrypted = legacyCbcEncrypt("PIN1234", "FEDCBA9876543210FEDCBA9876543210");
+            String legacyEncrypted = legacyCbcEncrypt("LEGACY-PIN-1234", AES_256_KEY);
 
             // when & then
             assertThatThrownBy(() -> adapter.decrypt(legacyEncrypted))
-                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
-        }
-
-        @Test
-        @DisplayName("레거시 CBC 한글/특수문자 암호문도 복호화한다")
-        void decryptsLegacyCbcUtf8Ciphertext() throws Exception {
-            // given
-            String plainPin = "핀-@#$%-🎁";
-            String legacyEncrypted = legacyCbcEncrypt(plainPin, AES_256_KEY);
-
-            // when
-            String decrypted = adapter.decrypt(legacyEncrypted);
-
-            // then
-            assertThat(decrypted).isEqualTo(plainPin);
+                    .isInstanceOf(GifticonPinDecryptionFailedException.class)
+                    .hasNoCause();
         }
 
         /**
-         * 기존 AES/CBC/PKCS5Padding 방식 암호화를 그대로 재현한 헬퍼.
-         * 레거시 호환 테스트용으로만 사용한다.
+         * 기존 AES/CBC/PKCS5Padding 방식 암호화를 재현한 헬퍼.
+         * CBC 경로 제거 후 "GCM1 프리픽스 없음 → 차단"을 검증하기 위해서만 사용한다.
          */
         private String legacyCbcEncrypt(String plainPin, String key) throws Exception {
             byte[] iv = new byte[16];
-            // 테스트 재현성을 위해 고정 IV 사용 (실제 프로덕션 CBC 코드는 랜덤 IV)
             for (int i = 0; i < iv.length; i++) {
                 iv[i] = (byte) i;
             }
