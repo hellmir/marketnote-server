@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -115,9 +116,9 @@ public class PaymentCancelIdempotencyHelper {
     /**
      * 비즈니스 TX 실패 후 멱등성 레코드를 FAILED 로 전이한다.
      *
-     * <p>실패 마킹 자체가 예외를 던지면 원본 실패 원인이 가려질 수 있으므로 DB 접근 실패만 삼킨다.
+     * <p>실패 마킹 자체가 예외를 던지면 원본 실패 원인이 가려질 수 있으므로 DB 접근/트랜잭션 실패만 삼킨다.
      *
-     * <h3>catch 범위를 {@link DataAccessException} 으로 좁힌 이유</h3>
+     * <h3>catch 범위 ({@link DataAccessException}, {@link TransactionException})</h3>
      * <ul>
      *   <li>DB 접근 실패({@link DataAccessException})만 삼킨다 — 원본 비즈니스 실패 원인을 가리지
      *       않기 위함이며, 조회/업데이트 커넥션 장애가 이 경계의 주된 실패 모드다.</li>
@@ -125,10 +126,12 @@ public class PaymentCancelIdempotencyHelper {
      *       {@code isInProgress()} 가드로 상태 전이 이전에 이미 차단되어 도달 불가하다.</li>
      *   <li>예기치 못한 {@link RuntimeException} 은 상위로 전파하여 조용히 삼키지 않는다 —
      *       알 수 없는 결함을 감추면 운영 시 디버깅이 불가능해진다.</li>
-     *   <li>{@code REQUIRES_NEW} 커밋 단계에서 발생하는
-     *       {@link org.springframework.transaction.TransactionException}(예: {@code TransactionSystemException},
-     *       {@code UnexpectedRollbackException})은 메서드 프레임 밖에서 던져지므로 본 catch 로 잡히지 않고
-     *       호출자에게 전파된다.</li>
+     *   <li>flush 시점에 메서드 프레임 내부에서 던져지는 {@link TransactionException}
+     *       (예: {@code TransactionSystemException}, JPA flush 실패에 수반되는 {@code UnexpectedRollbackException})은
+     *       본 catch 로 삼킨다 — {@code update(...)} 호출 중 flush 가 트리거될 수 있고, 이때 예외가 상위로
+     *       전파되면 원본 비즈니스 실패 원인이 가려진다. 단, {@code REQUIRES_NEW} 커밋 단계에서 Spring
+     *       트랜잭션 AOP 가 프록시 외부로 던지는 {@link TransactionException} 은 메서드 프레임 밖에서
+     *       발생하므로 본 catch 로 잡히지 않고 여전히 호출자에게 전파된다.</li>
      * </ul>
      */
     @Transactional(propagation = REQUIRES_NEW, isolation = READ_COMMITTED)
@@ -148,8 +151,11 @@ public class PaymentCancelIdempotencyHelper {
             }
             idempotency.fail(reason);
             updatePaymentCancelIdempotencyPort.update(idempotency);
-        } catch (DataAccessException e) {
-            log.error("멱등성 FAILED 마킹 실패 — key: {}, reason: {}", idempotencyKey, reason, e);
+        } catch (DataAccessException | TransactionException e) {
+            log.error(
+                    "멱등성 FAILED 마킹 실패 — type: {}, key: {}, reason: {}",
+                    e.getClass().getSimpleName(), idempotencyKey, reason, e
+            );
         }
     }
 
