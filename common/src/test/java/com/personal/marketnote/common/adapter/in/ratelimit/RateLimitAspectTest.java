@@ -261,6 +261,53 @@ class RateLimitAspectTest {
     }
 
     @Test
+    @DisplayName("Redis increment가 null 반환 시 untracked 카운터를 증가시키고 요청을 허용한다")
+    void shouldIncrementUntrackedCounterAndProceedWhenIncrementReturnsNull() throws Throwable {
+        // given
+        setUpOAuth2Authentication(1L);
+        when(rateLimited.key()).thenReturn("test-api");
+
+        ValueOperations<String, String> valueOps = mock(ValueOperations.class);
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.increment("rate_limit:test-api:1")).thenReturn(null);
+
+        Object expected = "result";
+        when(joinPoint.proceed()).thenReturn(expected);
+
+        // when
+        Object result = rateLimitAspect.checkRateLimit(joinPoint, rateLimited);
+
+        // then
+        assertThat(result).isEqualTo(expected);
+        verify(joinPoint).proceed();
+
+        double untrackedCount = meterRegistry.counter("rate_limit.untracked.total", "key", "test-api").count();
+        assertThat(untrackedCount).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("MeterRegistry가 null일 때 Redis increment null 반환이어도 NPE 없이 요청을 허용한다")
+    void shouldProceedWithoutUntrackedCounterWhenMeterRegistryIsNullAndIncrementReturnsNull() throws Throwable {
+        // given
+        RateLimitAspect aspectWithoutMetrics = new RateLimitAspect(redisTemplate, null);
+        setUpOAuth2Authentication(1L);
+        when(rateLimited.key()).thenReturn("test-api");
+
+        ValueOperations<String, String> valueOps = mock(ValueOperations.class);
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(valueOps.increment("rate_limit:test-api:1")).thenReturn(null);
+
+        Object expected = "result";
+        when(joinPoint.proceed()).thenReturn(expected);
+
+        // when
+        Object result = aspectWithoutMetrics.checkRateLimit(joinPoint, rateLimited);
+
+        // then
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
     @DisplayName("MeterRegistry가 null이어도 NPE 없이 정상 동작한다")
     void shouldWorkWithoutNullPointerExceptionWhenMeterRegistryIsNull() throws Throwable {
         // given
