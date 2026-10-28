@@ -161,6 +161,12 @@ order:
       cron: ${ORDER_AUTO_CONFIRM_SCHEDULER_CRON:0 59 23 * * ?}
       auto-confirm-days: ${ORDER_AUTO_CONFIRM_DAYS:7}
 
+commerce:
+  payment:
+    idempotency-cleanup:
+      ttl-hours: ${COMMERCE_PAYMENT_IDEMPOTENCY_CLEANUP_TTL_HOURS:24}
+      cron: ${COMMERCE_PAYMENT_IDEMPOTENCY_CLEANUP_CRON:0 0 3 * * *}
+
 return-inspection:
   scheduler:
     enabled: ${RETURN_INSPECTION_SCHEDULER_ENABLED:false}
