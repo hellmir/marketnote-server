@@ -1,6 +1,7 @@
 package com.personal.marketnote.common.adapter.in.ratelimit;
 
 import com.personal.marketnote.common.domain.exception.RateLimitExceededException;
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -43,7 +44,7 @@ class RateLimitAspectTest {
     @BeforeEach
     void setUp() {
         meterRegistry = new SimpleMeterRegistry();
-        rateLimitAspect = new RateLimitAspect(redisTemplate, meterRegistry);
+        rateLimitAspect = new RateLimitAspect(redisTemplate, new CounterRegistryHelper(meterRegistry));
     }
 
     @AfterEach
@@ -286,8 +287,8 @@ class RateLimitAspectTest {
     }
 
     @Test
-    @DisplayName("MeterRegistry가 null일 때 Redis increment null 반환이어도 NPE 없이 요청을 허용한다")
-    void shouldProceedWithoutUntrackedCounterWhenMeterRegistryIsNullAndIncrementReturnsNull() throws Throwable {
+    @DisplayName("CounterRegistryHelper가 null일 때 Redis increment null 반환이어도 NPE 없이 요청을 허용한다")
+    void shouldProceedWithoutUntrackedCounterWhenCounterRegistryHelperIsNullAndIncrementReturnsNull() throws Throwable {
         // given
         RateLimitAspect aspectWithoutMetrics = new RateLimitAspect(redisTemplate, null);
         setUpOAuth2Authentication(1L);
@@ -308,8 +309,8 @@ class RateLimitAspectTest {
     }
 
     @Test
-    @DisplayName("MeterRegistry가 null이어도 NPE 없이 정상 동작한다")
-    void shouldWorkWithoutNullPointerExceptionWhenMeterRegistryIsNull() throws Throwable {
+    @DisplayName("CounterRegistryHelper가 null이어도 NPE 없이 정상 동작한다")
+    void shouldWorkWithoutNullPointerExceptionWhenCounterRegistryHelperIsNull() throws Throwable {
         // given
         RateLimitAspect aspectWithoutMetrics = new RateLimitAspect(redisTemplate, null);
         setUpOAuth2Authentication(1L);
@@ -328,8 +329,8 @@ class RateLimitAspectTest {
     }
 
     @Test
-    @DisplayName("MeterRegistry가 null일 때 제한 초과도 카운터 기록 없이 예외만 던진다")
-    void shouldThrowExceededExceptionWithoutMetricsWhenMeterRegistryIsNull() throws Throwable {
+    @DisplayName("CounterRegistryHelper가 null일 때 제한 초과도 카운터 기록 없이 예외만 던진다")
+    void shouldThrowExceededExceptionWithoutMetricsWhenCounterRegistryHelperIsNull() throws Throwable {
         // given
         RateLimitAspect aspectWithoutMetrics = new RateLimitAspect(redisTemplate, null);
         setUpOAuth2Authentication(1L);

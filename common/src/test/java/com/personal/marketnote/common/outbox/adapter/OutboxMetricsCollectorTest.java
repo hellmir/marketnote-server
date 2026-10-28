@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.outbox.adapter;
 
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -17,7 +18,7 @@ class OutboxMetricsCollectorTest {
     void incrementFailedCount_incrementsCounter() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        OutboxMetricsCollector collector = new OutboxMetricsCollector(meterRegistry);
+        OutboxMetricsCollector collector = new OutboxMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementFailedCount("commerce.payment.approved");
@@ -36,7 +37,7 @@ class OutboxMetricsCollectorTest {
     void incrementResolvedCount_incrementsCounter() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        OutboxMetricsCollector collector = new OutboxMetricsCollector(meterRegistry);
+        OutboxMetricsCollector collector = new OutboxMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementResolvedCount("commerce.payment.approved", "retry");
@@ -51,8 +52,8 @@ class OutboxMetricsCollectorTest {
     }
 
     @Test
-    @DisplayName("MeterRegistry가 null이어도 예외가 발생하지 않는다")
-    void nullMeterRegistry_noException() {
+    @DisplayName("CounterRegistryHelper가 null이어도 예외가 발생하지 않는다")
+    void nullCounterRegistryHelper_noException() {
         // given
         OutboxMetricsCollector collector = new OutboxMetricsCollector(null);
 
