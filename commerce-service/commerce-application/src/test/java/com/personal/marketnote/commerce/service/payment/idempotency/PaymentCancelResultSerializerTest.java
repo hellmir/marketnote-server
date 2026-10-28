@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.commerce.port.in.command.payment.CancelPaymentCommand;
 import com.personal.marketnote.commerce.service.payment.PaymentCancelContext;
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +42,7 @@ class PaymentCancelResultSerializerTest {
         void shouldReturnJsonContainingExpectedFieldsOnSuccess() {
             // given
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(objectMapper, meterRegistry);
+                    new PaymentCancelResultSerializer(objectMapper, new CounterRegistryHelper(meterRegistry));
             String orderKey = UUID.randomUUID().toString();
             PaymentCancelContext context = createContext(orderKey, 10000L, 8000L, 2000L, false);
 
@@ -64,7 +64,7 @@ class PaymentCancelResultSerializerTest {
         void shouldReturnJsonWithNullCancelIdOnFullCancel() {
             // given
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(objectMapper, meterRegistry);
+                    new PaymentCancelResultSerializer(objectMapper, new CounterRegistryHelper(meterRegistry));
             String orderKey = UUID.randomUUID().toString();
             PaymentCancelContext context = createContext(orderKey, 50000L, 50000L, 0L, true);
 
@@ -89,7 +89,7 @@ class PaymentCancelResultSerializerTest {
             when(failingMapper.writeValueAsString(any()))
                     .thenThrow(new JsonProcessingException("boom") {});
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(failingMapper, meterRegistry);
+                    new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
             PaymentCancelContext context = createContext(
                     UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
             );
@@ -110,7 +110,7 @@ class PaymentCancelResultSerializerTest {
             when(failingMapper.writeValueAsString(any()))
                     .thenThrow(new JsonProcessingException("boom") {});
             PaymentCancelResultSerializer serializer =
-                    new PaymentCancelResultSerializer(failingMapper, meterRegistry);
+                    new PaymentCancelResultSerializer(failingMapper, new CounterRegistryHelper(meterRegistry));
             PaymentCancelContext context = createContext(
                     UUID.randomUUID().toString(), 10000L, 8000L, 2000L, false
             );

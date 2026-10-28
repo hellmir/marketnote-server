@@ -1,5 +1,6 @@
 package com.personal.marketnote.common.configuration.kafka;
 
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -16,7 +17,7 @@ class DltMetricsCollectorTest {
     void incrementDltMessageCount_incrementsCounter() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+        DltMetricsCollector collector = new DltMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementDltMessageCount("commerce.order.payment-completed");
@@ -35,7 +36,7 @@ class DltMetricsCollectorTest {
     void incrementDltMessageCount_differentTopics_independentCounters() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+        DltMetricsCollector collector = new DltMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementDltMessageCount("commerce.order.payment-completed");
@@ -61,7 +62,7 @@ class DltMetricsCollectorTest {
     void incrementDltReprocessCount_success_incrementsCounter() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+        DltMetricsCollector collector = new DltMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementDltReprocessCount("commerce.order.payment-completed", "success");
@@ -80,7 +81,7 @@ class DltMetricsCollectorTest {
     void incrementDltReprocessCount_failure_incrementsCounter() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+        DltMetricsCollector collector = new DltMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementDltReprocessCount("commerce.payment.cancelled", "failure");
@@ -95,8 +96,8 @@ class DltMetricsCollectorTest {
     }
 
     @Test
-    @DisplayName("MeterRegistry가 null이면 카운터를 증가시키지 않는다")
-    void incrementDltMessageCount_nullMeterRegistry_noOp() {
+    @DisplayName("CounterRegistryHelper가 null이면 카운터를 증가시키지 않는다")
+    void incrementDltMessageCount_nullCounterRegistryHelper_noOp() {
         // given
         DltMetricsCollector collector = new DltMetricsCollector(null);
 
@@ -111,7 +112,7 @@ class DltMetricsCollectorTest {
     void incrementDltResolveCount_retry_incrementsCounter() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+        DltMetricsCollector collector = new DltMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementDltResolveCount("commerce.order.payment-completed", "retry");
@@ -130,7 +131,7 @@ class DltMetricsCollectorTest {
     void incrementDltResolveCount_discard_incrementsCounter() {
         // given
         MeterRegistry meterRegistry = new SimpleMeterRegistry();
-        DltMetricsCollector collector = new DltMetricsCollector(meterRegistry);
+        DltMetricsCollector collector = new DltMetricsCollector(new CounterRegistryHelper(meterRegistry));
 
         // when
         collector.incrementDltResolveCount("commerce.payment.cancelled", "discard");
