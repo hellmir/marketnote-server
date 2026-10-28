@@ -11,9 +11,11 @@ import com.personal.marketnote.commerce.port.out.payment.idempotency.FindPayment
 import com.personal.marketnote.commerce.port.out.payment.idempotency.SavePaymentCancelIdempotencyPort;
 import com.personal.marketnote.commerce.port.out.payment.idempotency.UpdatePaymentCancelIdempotencyPort;
 import com.personal.marketnote.common.utility.FormatValidator;
-import lombok.RequiredArgsConstructor;
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +39,6 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
  * </pre>
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class PaymentCancelIdempotencyHelper {
 
@@ -45,6 +46,21 @@ public class PaymentCancelIdempotencyHelper {
     private final FindPaymentCancelIdempotencyPort findPaymentCancelIdempotencyPort;
     private final SavePaymentCancelIdempotencyPort savePaymentCancelIdempotencyPort;
     private final UpdatePaymentCancelIdempotencyPort updatePaymentCancelIdempotencyPort;
+    private final CounterRegistryHelper counterRegistryHelper;
+
+    public PaymentCancelIdempotencyHelper(
+            FindPaymentPort findPaymentPort,
+            FindPaymentCancelIdempotencyPort findPaymentCancelIdempotencyPort,
+            SavePaymentCancelIdempotencyPort savePaymentCancelIdempotencyPort,
+            UpdatePaymentCancelIdempotencyPort updatePaymentCancelIdempotencyPort,
+            @Autowired(required = false) @Nullable CounterRegistryHelper counterRegistryHelper
+    ) {
+        this.findPaymentPort = findPaymentPort;
+        this.findPaymentCancelIdempotencyPort = findPaymentCancelIdempotencyPort;
+        this.savePaymentCancelIdempotencyPort = savePaymentCancelIdempotencyPort;
+        this.updatePaymentCancelIdempotencyPort = updatePaymentCancelIdempotencyPort;
+        this.counterRegistryHelper = counterRegistryHelper;
+    }
 
     /**
      * 멱등성 키를 조회하거나 신규로 생성한다.
@@ -156,7 +172,19 @@ public class PaymentCancelIdempotencyHelper {
                     "멱등성 FAILED 마킹 실패 — type: {}, key: {}, reason: {}",
                     e.getClass().getSimpleName(), idempotencyKey, reason, e
             );
+            incrementSwallowedCounter(e);
         }
+    }
+
+    private void incrementSwallowedCounter(Exception e) {
+        if (FormatValidator.hasNoValue(counterRegistryHelper)) {
+            return;
+        }
+        counterRegistryHelper.increment(
+                "idempotency.mark_failed.swallowed.total",
+                "멱등성 FAILED 마킹 삼킨 이벤트 총 건수",
+                "exception_type", e.getClass().getSimpleName()
+        );
     }
 
     private PaymentCancelIdempotencyResolution resolveExisting(PaymentCancelIdempotency idempotency) {

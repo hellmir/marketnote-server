@@ -12,6 +12,7 @@ import com.personal.marketnote.commerce.port.out.payment.FindPaymentPort;
 import com.personal.marketnote.commerce.port.out.payment.idempotency.FindPaymentCancelIdempotencyPort;
 import com.personal.marketnote.commerce.port.out.payment.idempotency.SavePaymentCancelIdempotencyPort;
 import com.personal.marketnote.commerce.port.out.payment.idempotency.UpdatePaymentCancelIdempotencyPort;
+import com.personal.marketnote.common.utility.metrics.CounterRegistryHelper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,9 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,6 +58,9 @@ class PaymentCancelIdempotencyHelperTest {
 
     @Mock
     private UpdatePaymentCancelIdempotencyPort updateIdempotencyPort;
+
+    @Mock
+    private CounterRegistryHelper counterRegistryHelper;
 
     private static final String KEY = "11111111-2222-4333-8444-555555555555";
     private static final Long BUYER_ID = 100L;
@@ -179,6 +186,17 @@ class PaymentCancelIdempotencyHelperTest {
         }
 
         @Test
+        @DisplayName("markFailed 정상 처리 시 swallowed 카운터는 증가하지 않는다")
+        void shouldNotIncrementSwallowedCounterWhenSuccess() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+
+            helper.markFailed(KEY, "DB 오류");
+
+            verifyNoInteractions(counterRegistryHelper);
+        }
+
+        @Test
         @DisplayName("이미 COMPLETED 인 레코드는 업데이트 스킵")
         void shouldSkipWhenAlreadyCompleted() {
             PaymentCancelIdempotency completed = snapshot(PaymentCancelIdempotencyStatus.COMPLETED, "{}");
@@ -198,6 +216,12 @@ class PaymentCancelIdempotencyHelperTest {
             helper.markFailed(KEY, "reason");
 
             verify(updateIdempotencyPort, never()).update(any());
+            verify(counterRegistryHelper).increment(
+                    eq("idempotency.mark_failed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("DataAccessResourceFailureException")
+            );
         }
 
         @Test
@@ -211,11 +235,12 @@ class PaymentCancelIdempotencyHelperTest {
                     .hasMessage("예기치 못한 결함");
 
             verify(updateIdempotencyPort, never()).update(any());
+            verifyNoInteractions(counterRegistryHelper);
         }
 
         @Test
-        @DisplayName("TransactionSystemException 발생 시 삼키고 로그만 남긴다")
-        void shouldSwallowTransactionSystemException() {
+        @DisplayName("markFailed 중 TransactionException 발생 시 swallowed 카운터가 TransactionException 타입으로 증가한다")
+        void shouldIncrementSwallowedCounterWhenTransactionSystemException() {
             PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
             when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
             doThrow(new TransactionSystemException("flush failure"))
@@ -225,10 +250,16 @@ class PaymentCancelIdempotencyHelperTest {
                     .doesNotThrowAnyException();
 
             verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("idempotency.mark_failed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("TransactionSystemException")
+            );
         }
 
         @Test
-        @DisplayName("UnexpectedRollbackException 발생 시 삼키고 로그만 남긴다")
+        @DisplayName("UnexpectedRollbackException 발생 시 삼키고 swallowed 카운터가 UnexpectedRollbackException 타입으로 증가한다")
         void shouldSwallowUnexpectedRollbackException() {
             PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
             when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
@@ -239,6 +270,12 @@ class PaymentCancelIdempotencyHelperTest {
                     .doesNotThrowAnyException();
 
             verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("idempotency.mark_failed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("UnexpectedRollbackException")
+            );
         }
     }
 
