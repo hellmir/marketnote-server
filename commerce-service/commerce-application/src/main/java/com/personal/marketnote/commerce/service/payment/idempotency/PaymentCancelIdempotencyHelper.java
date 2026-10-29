@@ -42,6 +42,8 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 @Slf4j
 public class PaymentCancelIdempotencyHelper {
 
+    private static final String MARK_FAILED_SWALLOWED_METRIC = "payment.cancel.idempotency.mark_failed.swallowed.total";
+
     private final FindPaymentPort findPaymentPort;
     private final FindPaymentCancelIdempotencyPort findPaymentCancelIdempotencyPort;
     private final SavePaymentCancelIdempotencyPort savePaymentCancelIdempotencyPort;
@@ -181,7 +183,7 @@ public class PaymentCancelIdempotencyHelper {
             return;
         }
         counterRegistryHelper.increment(
-                "idempotency.mark_failed.swallowed.total",
+                MARK_FAILED_SWALLOWED_METRIC,
                 "멱등성 FAILED 마킹 삼킨 이벤트 총 건수",
                 "exception_type", e.getClass().getSimpleName()
         );

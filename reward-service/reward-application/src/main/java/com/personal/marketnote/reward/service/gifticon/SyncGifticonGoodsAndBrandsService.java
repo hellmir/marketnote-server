@@ -24,7 +24,7 @@ public class SyncGifticonGoodsAndBrandsService implements SyncGifticonGoodsAndBr
 
     private static final int PAGE_SIZE = 20;
     private static final int MAX_PAGES = 500;
-    private static final String INVALID_ITEM_METRIC = "gifticon.sync.invalid_item";
+    private static final String INVALID_ITEM_METRIC = "gifticon.sync.invalid_item.total";
 
     private final TransactionTemplate transactionTemplate;
     private final FetchGifticonBrandPort fetchGifticonBrandPort;
