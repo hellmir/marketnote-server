@@ -4,6 +4,8 @@ import com.personal.marketnote.reward.configuration.GifticonPinProperties;
 import com.personal.marketnote.reward.domain.exception.GifticonPinDecryptionFailedException;
 import com.personal.marketnote.reward.domain.exception.GifticonPinEncryptKeyNoValueException;
 import com.personal.marketnote.reward.domain.exception.InvalidGifticonPinEncryptKeyException;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,8 +24,10 @@ class GifticonPinEncryptAdapterTest {
 
     private static final String AES_256_KEY = "0123456789ABCDEF0123456789ABCDEF";
     private static final byte[] GCM_MAGIC = "GCM1".getBytes(StandardCharsets.US_ASCII);
+    private static final String LEGACY_CBC_REJECTED_COUNTER = "gifticon.pin.decrypt.legacy_cbc.rejected.total";
 
-    private final GifticonPinEncryptAdapter adapter = buildAdapter(AES_256_KEY);
+    private final MeterRegistry meterRegistry = new SimpleMeterRegistry();
+    private final GifticonPinEncryptAdapter adapter = buildAdapter(AES_256_KEY, meterRegistry);
 
     @Nested
     @DisplayName("encrypt / decrypt 왕복")
@@ -207,28 +211,6 @@ class GifticonPinEncryptAdapterTest {
                     .isInstanceOf(GifticonPinDecryptionFailedException.class)
                     .hasNoCause();
         }
-
-        /**
-         * 기존 AES/CBC/PKCS5Padding 방식 암호화를 재현한 헬퍼.
-         * CBC 경로 제거 후 "GCM1 프리픽스 없음 → 차단"을 검증하기 위해서만 사용한다.
-         */
-        private String legacyCbcEncrypt(String plainPin, String key) throws Exception {
-            byte[] iv = new byte[16];
-            for (int i = 0; i < iv.length; i++) {
-                iv[i] = (byte) i;
-            }
-            IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
-
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-            byte[] encrypted = cipher.doFinal(plainPin.getBytes(StandardCharsets.UTF_8));
-
-            byte[] combined = new byte[iv.length + encrypted.length];
-            System.arraycopy(iv, 0, combined, 0, iv.length);
-            System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
-            return Base64.getEncoder().encodeToString(combined);
-        }
     }
 
     @Nested
@@ -246,7 +228,9 @@ class GifticonPinEncryptAdapterTest {
         @DisplayName("다른 키로 암호화된 값을 복호화하면 GifticonPinDecryptionFailedException이 발생한다")
         void throwsWhenDecryptingWithDifferentKey() {
             // given
-            GifticonPinEncryptAdapter otherAdapter = buildAdapter("FEDCBA9876543210FEDCBA9876543210");
+            GifticonPinEncryptAdapter otherAdapter = buildAdapter(
+                    "FEDCBA9876543210FEDCBA9876543210", new SimpleMeterRegistry()
+            );
             String encrypted = otherAdapter.encrypt("비밀-핀");
 
             // when & then
@@ -263,7 +247,7 @@ class GifticonPinEncryptAdapterTest {
         @DisplayName("16바이트 키(AES-128)로 어댑터가 정상 생성되고 encrypt/decrypt 왕복이 성공한다")
         void acceptsAes128Key() {
             // given
-            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF");
+            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF", new SimpleMeterRegistry());
 
             // when
             String encrypted = adapter.encrypt("test-pin");
@@ -277,7 +261,7 @@ class GifticonPinEncryptAdapterTest {
         @DisplayName("24바이트 키(AES-192)로 어댑터가 정상 생성되고 encrypt/decrypt 왕복이 성공한다")
         void acceptsAes192Key() {
             // given
-            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF01234567");
+            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF01234567", new SimpleMeterRegistry());
 
             // when
             String encrypted = adapter.encrypt("test-pin");
@@ -291,7 +275,9 @@ class GifticonPinEncryptAdapterTest {
         @DisplayName("32바이트 키(AES-256)로 어댑터가 정상 생성되고 encrypt/decrypt 왕복이 성공한다")
         void acceptsAes256Key() {
             // given
-            GifticonPinEncryptAdapter adapter = buildAdapter("0123456789ABCDEF0123456789ABCDEF");
+            GifticonPinEncryptAdapter adapter = buildAdapter(
+                    "0123456789ABCDEF0123456789ABCDEF", new SimpleMeterRegistry()
+            );
 
             // when
             String encrypted = adapter.encrypt("test-pin");
@@ -304,7 +290,7 @@ class GifticonPinEncryptAdapterTest {
         @Test
         @DisplayName("15바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=15가 포함된다")
         void rejectsFifteenByteKey() {
-            assertThatThrownBy(() -> buildAdapter("0123456789ABCDE"))
+            assertThatThrownBy(() -> buildAdapter("0123456789ABCDE", new SimpleMeterRegistry()))
                     .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
                     .hasMessageContaining("actualLength=15");
         }
@@ -312,7 +298,7 @@ class GifticonPinEncryptAdapterTest {
         @Test
         @DisplayName("17바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=17이 포함된다")
         void rejectsSeventeenByteKey() {
-            assertThatThrownBy(() -> buildAdapter("0123456789ABCDEF0"))
+            assertThatThrownBy(() -> buildAdapter("0123456789ABCDEF0", new SimpleMeterRegistry()))
                     .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
                     .hasMessageContaining("actualLength=17");
         }
@@ -320,7 +306,7 @@ class GifticonPinEncryptAdapterTest {
         @Test
         @DisplayName("21바이트 키이면 InvalidGifticonPinEncryptKeyException이 발생하고 메시지에 actualLength=21이 포함된다 (기존 기본값 부적절 증명)")
         void rejectsLegacyDefaultKey() {
-            assertThatThrownBy(() -> buildAdapter("dev-pin-key-change-me"))
+            assertThatThrownBy(() -> buildAdapter("dev-pin-key-change-me", new SimpleMeterRegistry()))
                     .isInstanceOf(InvalidGifticonPinEncryptKeyException.class)
                     .hasMessageContaining("actualLength=21");
         }
@@ -328,21 +314,76 @@ class GifticonPinEncryptAdapterTest {
         @Test
         @DisplayName("빈 문자열 키이면 GifticonPinEncryptKeyNoValueException이 발생한다")
         void rejectsEmptyKey() {
-            assertThatThrownBy(() -> buildAdapter(""))
+            assertThatThrownBy(() -> buildAdapter("", new SimpleMeterRegistry()))
                     .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
         }
 
         @Test
         @DisplayName("null 키이면 GifticonPinEncryptKeyNoValueException이 발생한다")
         void rejectsNullKey() {
-            assertThatThrownBy(() -> buildAdapter(null))
+            assertThatThrownBy(() -> buildAdapter(null, new SimpleMeterRegistry()))
                     .isInstanceOf(GifticonPinEncryptKeyNoValueException.class);
         }
     }
 
-    private static GifticonPinEncryptAdapter buildAdapter(String key) {
+    @Nested
+    @DisplayName("legacy CBC rejected 메트릭")
+    class LegacyCbcRejectedMetric {
+
+        @Test
+        @DisplayName("GCM1 매직 프리픽스 없는 암호문 복호화 시 legacy CBC rejected 카운터가 증가한다")
+        void incrementsCounterWhenGcmMagicMissing() throws Exception {
+            // given
+            String legacyEncrypted = legacyCbcEncrypt("LEGACY-PIN-1234", AES_256_KEY);
+
+            // when
+            assertThatThrownBy(() -> adapter.decrypt(legacyEncrypted))
+                    .isInstanceOf(GifticonPinDecryptionFailedException.class);
+
+            // then
+            assertThat(meterRegistry.counter(LEGACY_CBC_REJECTED_COUNTER).count()).isEqualTo(1.0);
+        }
+
+        @Test
+        @DisplayName("정상 GCM1 암호문 복호화 시 legacy CBC rejected 카운터는 증가하지 않는다")
+        void doesNotIncrementCounterOnNormalGcmRoundTrip() {
+            // given
+            String encrypted = adapter.encrypt("정상-PIN");
+
+            // when
+            String decrypted = adapter.decrypt(encrypted);
+
+            // then
+            assertThat(decrypted).isEqualTo("정상-PIN");
+            assertThat(meterRegistry.counter(LEGACY_CBC_REJECTED_COUNTER).count()).isEqualTo(0.0);
+        }
+    }
+
+    private static GifticonPinEncryptAdapter buildAdapter(String key, MeterRegistry meterRegistry) {
         GifticonPinProperties properties = new GifticonPinProperties();
         properties.setEncryptKey(key);
-        return new GifticonPinEncryptAdapter(properties);
+        return new GifticonPinEncryptAdapter(properties, meterRegistry);
+    }
+
+    /**
+     * 기존 AES/CBC/PKCS5Padding 방식 암호화를 재현한 헬퍼.
+     * CBC 경로 제거 후 "GCM1 프리픽스 없음 → 차단" 검증용.
+     */
+    private static String legacyCbcEncrypt(String plainPin, String key) throws Exception {
+        byte[] iv = new byte[16];
+        for (int i = 0; i < iv.length; i++) {
+            iv[i] = (byte) i;
+        }
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] encrypted = cipher.doFinal(plainPin.getBytes(StandardCharsets.UTF_8));
+
+        byte[] combined = new byte[iv.length + encrypted.length];
+        System.arraycopy(iv, 0, combined, 0, iv.length);
+        System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
+        return Base64.getEncoder().encodeToString(combined);
     }
 }
