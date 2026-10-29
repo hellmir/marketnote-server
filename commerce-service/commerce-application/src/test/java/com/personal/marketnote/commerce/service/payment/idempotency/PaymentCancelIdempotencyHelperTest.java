@@ -165,6 +165,89 @@ class PaymentCancelIdempotencyHelperTest {
 
             verify(updateIdempotencyPort, never()).update(any());
         }
+
+        @Test
+        @DisplayName("markCompleted 정상 처리 시 swallowed 카운터는 증가하지 않는다")
+        void shouldNotIncrementSwallowedCounterWhenSuccess() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+
+            helper.markCompleted(KEY, "{\"done\":true}");
+
+            verifyNoInteractions(counterRegistryHelper);
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 DataAccessException 은 삼켜서 원본 성공 흐름을 가리지 않는다")
+        void shouldSwallowDataAccessException() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenThrow(new DataAccessResourceFailureException("조회 실패"));
+
+            assertThatCode(() -> helper.markCompleted(KEY, "{}"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort, never()).update(any());
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_completed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("DataAccessResourceFailureException")
+            );
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 TransactionSystemException 발생 시 swallowed 카운터가 TransactionSystemException 타입으로 증가한다")
+        void shouldIncrementSwallowedCounterWhenTransactionSystemException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new TransactionSystemException("flush failure"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markCompleted(KEY, "{\"done\":true}"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_completed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("TransactionSystemException")
+            );
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 UnexpectedRollbackException 발생 시 삼키고 swallowed 카운터가 UnexpectedRollbackException 타입으로 증가한다")
+        void shouldSwallowUnexpectedRollbackException() {
+            PaymentCancelIdempotency inProgress = snapshot(PaymentCancelIdempotencyStatus.IN_PROGRESS, null);
+            when(findIdempotencyPort.findByIdempotencyKey(KEY)).thenReturn(Optional.of(inProgress));
+            doThrow(new UnexpectedRollbackException("rolled back"))
+                    .when(updateIdempotencyPort).update(inProgress);
+
+            assertThatCode(() -> helper.markCompleted(KEY, "{\"done\":true}"))
+                    .doesNotThrowAnyException();
+
+            verify(updateIdempotencyPort).update(inProgress);
+            verify(counterRegistryHelper).increment(
+                    eq("payment.cancel.idempotency.mark_completed.swallowed.total"),
+                    anyString(),
+                    eq("exception_type"),
+                    eq("UnexpectedRollbackException")
+            );
+        }
+
+        @Test
+        @DisplayName("markCompleted 중 예기치 못한 RuntimeException 은 전파하여 조용히 삼키지 않는다")
+        void shouldPropagateUnexpectedRuntimeException() {
+            when(findIdempotencyPort.findByIdempotencyKey(KEY))
+                    .thenThrow(new RuntimeException("예기치 못한 결함"));
+
+            assertThatThrownBy(() -> helper.markCompleted(KEY, "{}"))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("예기치 못한 결함");
+
+            verify(updateIdempotencyPort, never()).update(any());
+            verifyNoInteractions(counterRegistryHelper);
+        }
     }
 
     @Nested
