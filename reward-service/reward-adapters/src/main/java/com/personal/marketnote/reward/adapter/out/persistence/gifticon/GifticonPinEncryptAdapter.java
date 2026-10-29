@@ -8,6 +8,8 @@ import com.personal.marketnote.reward.domain.exception.GifticonPinEncryptionFail
 import com.personal.marketnote.reward.domain.exception.InvalidGifticonPinEncryptKeyException;
 import com.personal.marketnote.reward.port.out.gifticon.DecryptGifticonPinPort;
 import com.personal.marketnote.reward.port.out.gifticon.EncryptGifticonPinPort;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -31,10 +33,15 @@ public class GifticonPinEncryptAdapter implements EncryptGifticonPinPort, Decryp
 
     private final SecretKeySpec keySpec;
     private final SecureRandom secureRandom = new SecureRandom();
+    private final Counter legacyCbcRejectedCounter;
 
-    public GifticonPinEncryptAdapter(GifticonPinProperties properties) {
+    // MeterRegistry는 Spring actuator 빈으로 항상 존재하며 @Component는 컨텍스트 외 인스턴스화가 없으므로 null 가드 불필요.
+    public GifticonPinEncryptAdapter(GifticonPinProperties properties, MeterRegistry meterRegistry) {
         byte[] keyBytes = validateAndResolveKey(properties.getEncryptKey());
         this.keySpec = new SecretKeySpec(keyBytes, "AES");
+        this.legacyCbcRejectedCounter = Counter.builder("gifticon.pin.decrypt.legacy_cbc.rejected.total")
+                .description("기프티콘 PIN 복호화 시 GCM1 매직 프리픽스 미존재로 거부된 건수")
+                .register(meterRegistry);
     }
 
     private static byte[] validateAndResolveKey(String encryptKey) {
@@ -76,6 +83,7 @@ public class GifticonPinEncryptAdapter implements EncryptGifticonPinPort, Decryp
         try {
             byte[] decoded = Base64.getDecoder().decode(encryptedPin);
             if (!hasGcmMagic(decoded)) {
+                legacyCbcRejectedCounter.increment();
                 log.error("PIN 복호화 실패: GCM1 매직 프리픽스 없음 (레거시 CBC 암호문)");
                 throw new GifticonPinDecryptionFailedException();
             }
