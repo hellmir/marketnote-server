@@ -495,7 +495,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
         }
 
         @Test
-        @DisplayName("이상치 발생 시 gifticon.sync.invalid_item 메트릭이 증가한다")
+        @DisplayName("이상치 발생 시 gifticon.sync.invalid_item.total 메트릭이 증가한다")
         void shouldIncrementInvalidItemMetric() {
             stubEmptyBrandSync();
             FetchedGifticonGoodsItem invalidItem = createGoodsItem(
@@ -508,7 +508,7 @@ class SyncGifticonGoodsAndBrandsUseCaseTest {
 
             syncGifticonGoodsAndBrandsService.syncAll();
 
-            double counterValue = meterRegistry.counter("gifticon.sync.invalid_item").count();
+            double counterValue = meterRegistry.counter("gifticon.sync.invalid_item.total").count();
             assertThat(counterValue).isEqualTo(1.0);
         }
 

@@ -25,7 +25,7 @@ import java.util.Map;
  * 멱등 레코드가 IN_PROGRESS 로 남아 재요청이 409 로 실패한다. 따라서 멱등성 완료 전환을 보장하기 위해
  * 예외를 삼키고 빈 객체를 반환한다.
  *
- * <p>실패는 {@code payment.cancel.idempotency.serializer.failure} 카운터로 관찰되어 재발 감지가 가능하다.
+ * <p>실패는 {@code payment.cancel.idempotency.serializer.failure.total} 카운터로 관찰되어 재발 감지가 가능하다.
  * 구체적인 실패 컨텍스트(orderKey 등)는 로그로 남긴다.
  *
  * <p><b>카운터 태그 정책:</b> orderKey 등 고카디널리티 식별자를 태그로 부착하지 않는다 — Prometheus
@@ -35,7 +35,7 @@ import java.util.Map;
 @Slf4j
 public class PaymentCancelResultSerializer {
 
-    private static final String SERIALIZER_FAILURE_METRIC = "payment.cancel.idempotency.serializer.failure";
+    private static final String SERIALIZER_FAILURE_METRIC = "payment.cancel.idempotency.serializer.failure.total";
 
     private final ObjectMapper objectMapper;
     private final CounterRegistryHelper counterRegistryHelper;

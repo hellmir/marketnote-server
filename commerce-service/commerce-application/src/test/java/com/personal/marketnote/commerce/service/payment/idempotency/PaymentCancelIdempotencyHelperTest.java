@@ -217,7 +217,7 @@ class PaymentCancelIdempotencyHelperTest {
 
             verify(updateIdempotencyPort, never()).update(any());
             verify(counterRegistryHelper).increment(
-                    eq("idempotency.mark_failed.swallowed.total"),
+                    eq("payment.cancel.idempotency.mark_failed.swallowed.total"),
                     anyString(),
                     eq("exception_type"),
                     eq("DataAccessResourceFailureException")
@@ -251,7 +251,7 @@ class PaymentCancelIdempotencyHelperTest {
 
             verify(updateIdempotencyPort).update(inProgress);
             verify(counterRegistryHelper).increment(
-                    eq("idempotency.mark_failed.swallowed.total"),
+                    eq("payment.cancel.idempotency.mark_failed.swallowed.total"),
                     anyString(),
                     eq("exception_type"),
                     eq("TransactionSystemException")
@@ -271,7 +271,7 @@ class PaymentCancelIdempotencyHelperTest {
 
             verify(updateIdempotencyPort).update(inProgress);
             verify(counterRegistryHelper).increment(
-                    eq("idempotency.mark_failed.swallowed.total"),
+                    eq("payment.cancel.idempotency.mark_failed.swallowed.total"),
                     anyString(),
                     eq("exception_type"),
                     eq("UnexpectedRollbackException")

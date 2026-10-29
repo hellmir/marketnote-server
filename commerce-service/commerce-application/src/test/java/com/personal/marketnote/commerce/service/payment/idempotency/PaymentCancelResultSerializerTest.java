@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 @DisplayName("PaymentCancelResultSerializer 테스트")
 class PaymentCancelResultSerializerTest {
 
-    private static final String SERIALIZER_FAILURE_METRIC = "payment.cancel.idempotency.serializer.failure";
+    private static final String SERIALIZER_FAILURE_METRIC = "payment.cancel.idempotency.serializer.failure.total";
 
     private ObjectMapper objectMapper;
     private SimpleMeterRegistry meterRegistry;
