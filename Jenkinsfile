@@ -214,6 +214,13 @@ def buildGrafanaTaskDefinition(env) {
     ]
 }
 
+// Flyway 마이그레이션이 분리된 서비스 (Jenkins stage가 마이그레이션 담당, ECS는 SPRING_FLYWAY_ENABLED=false)
+def FLYWAY_MIGRATED_SERVICES = [
+    'notification-service', 'commerce-service', 'community-service',
+    'user-service', 'fulfillment-service', 'reward-service',
+    'product-service', 'file-service'
+]
+
 pipeline {
 	agent any
 
@@ -575,21 +582,38 @@ pipeline {
 
 		stage('Run Flyway Migration') {
 			when {
-				expression { return env.SERVICE_NAME == 'notification-service' }
+				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
 			}
 			steps {
 				timeout(time: 30, unit: 'MINUTES') {
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',      variable: 'DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD', variable: 'DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',      variable: 'NOTIFICATION_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD', variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_URL',          variable: 'COMMERCE_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_PASSWORD',     variable: 'COMMERCE_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_URL',         variable: 'COMMUNITY_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_PASSWORD',    variable: 'COMMUNITY_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_URL',              variable: 'USER_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_PASSWORD',         variable: 'USER_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',       variable: 'FULFILLMENT_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',  variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_URL',            variable: 'REWARD_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_PASSWORD',       variable: 'REWARD_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_URL',           variable: 'PRODUCT_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_PASSWORD',      variable: 'PRODUCT_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_URL',              variable: 'FILE_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_PASSWORD',         variable: 'FILE_SERVICE_DB_PASSWORD'),
 						string(credentialsId: 'MARKETNOTE_DB_USERNAME',                          variable: 'DB_USERNAME')
 					]) {
 						script {
+							def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
 							def migrationDir = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
+							def dbUrlVar = "${svcUpper}_DB_URL"
+							def dbPwVar = "${svcUpper}_DB_PASSWORD"
 							def dockerCmd = "docker run --rm -v ${migrationDir}:/flyway/sql " +
-								'-e FLYWAY_URL="$DB_URL" ' +
+								"-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
 								'-e FLYWAY_USER="$DB_USERNAME" ' +
-								'-e FLYWAY_PASSWORD="$DB_PASSWORD" ' +
+								"-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
 								'-e FLYWAY_BASELINE_ON_MIGRATE=true ' +
 								'-e FLYWAY_BASELINE_VERSION=0 ' +
 								'-e FLYWAY_MIXED=true ' +
@@ -602,9 +626,9 @@ pipeline {
 			}
 		}
 
-		stage('Set Flyway Disabled For Notification') {
+		stage('Override Spring Flyway Enabled=false') {
 			when {
-				expression { return env.SERVICE_NAME == 'notification-service' }
+				expression { return env.SERVICE_NAME in FLYWAY_MIGRATED_SERVICES }
 			}
 			steps {
 				script {
