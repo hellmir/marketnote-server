@@ -81,6 +81,7 @@ def buildMarketnoteTaskDefinition(env) {
                 [name: "GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED",    value: env.GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED],
                 [name: "GIFTICON_COUPON_SYNC_SCHEDULER_CRON",       value: env.GIFTICON_COUPON_SYNC_SCHEDULER_CRON],
                 [name: "FIREBASE_SERVICE_ACCOUNT_JSON",             value: env.FIREBASE_SERVICE_ACCOUNT_JSON],
+                [name: "SPRING_FLYWAY_ENABLED",                     value: env.SPRING_FLYWAY_ENABLED ?: "true"],
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -568,6 +569,47 @@ pipeline {
                         '''
 						env.IMAGE_URI = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_DEFAULT_REGION}.amazonaws.com/${env.ECR_REPOSITORY}:${env.PROJECT_VERSION}"
 					}
+				}
+			}
+		}
+
+		stage('Run Flyway Migration') {
+			when {
+				expression { return env.SERVICE_NAME == 'notification-service' }
+			}
+			steps {
+				timeout(time: 30, unit: 'MINUTES') {
+					withCredentials([
+						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',      variable: 'DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD', variable: 'DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_DB_USERNAME',                          variable: 'DB_USERNAME')
+					]) {
+						script {
+							def migrationDir = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
+							def dockerCmd = "docker run --rm -v ${migrationDir}:/flyway/sql " +
+								'-e FLYWAY_URL="$DB_URL" ' +
+								'-e FLYWAY_USER="$DB_USERNAME" ' +
+								'-e FLYWAY_PASSWORD="$DB_PASSWORD" ' +
+								'-e FLYWAY_BASELINE_ON_MIGRATE=true ' +
+								'-e FLYWAY_BASELINE_VERSION=0 ' +
+								'-e FLYWAY_MIXED=true ' +
+								'flyway/flyway:11.7 migrate'
+							sh dockerCmd
+						}
+					}
+				}
+				echo 'Flyway migration complete'
+			}
+		}
+
+		stage('Set Flyway Disabled For Notification') {
+			when {
+				expression { return env.SERVICE_NAME == 'notification-service' }
+			}
+			steps {
+				script {
+					env.SPRING_FLYWAY_ENABLED = "false"
+					echo "Set SPRING_FLYWAY_ENABLED=false for ${env.SERVICE_NAME}"
 				}
 			}
 		}
