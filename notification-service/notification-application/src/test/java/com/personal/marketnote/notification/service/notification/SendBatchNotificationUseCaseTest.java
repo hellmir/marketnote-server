@@ -22,7 +22,9 @@ import com.personal.marketnote.notification.port.out.notification.SendPushNotifi
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.result.SendBatchPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -512,9 +514,15 @@ class SendBatchNotificationUseCaseTest {
             sendBatchNotificationService.sendBatchNotification(command);
 
             // then
-            verify(publishSseEventPort).publish(1L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":5}");
-            verify(publishSseEventPort).publish(2L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":3}");
-            verify(publishSseEventPort).publish(3L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":1}");
+            verify(publishSseEventPort).publish(
+                    1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(5L)
+            );
+            verify(publishSseEventPort).publish(
+                    2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(3L)
+            );
+            verify(publishSseEventPort).publish(
+                    3L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
+            );
             verify(findNotificationPort).countUnreadByUserId(1L);
             verify(findNotificationPort).countUnreadByUserId(2L);
             verify(findNotificationPort).countUnreadByUserId(3L);
@@ -537,8 +545,12 @@ class SendBatchNotificationUseCaseTest {
             sendBatchNotificationService.sendBatchNotification(command);
 
             // then
-            verify(publishSseEventPort).publish(1L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":2}");
-            verify(publishSseEventPort).publish(2L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":4}");
+            verify(publishSseEventPort).publish(
+                    1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(2L)
+            );
+            verify(publishSseEventPort).publish(
+                    2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(4L)
+            );
         }
 
         @Test
@@ -568,9 +580,15 @@ class SendBatchNotificationUseCaseTest {
             sendBatchNotificationService.sendBatchNotification(command);
 
             // then
-            verify(publishSseEventPort).publish(1L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":1}");
-            verify(publishSseEventPort).publish(2L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":0}");
-            verify(publishSseEventPort).publish(3L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":0}");
+            verify(publishSseEventPort).publish(
+                    1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
+            );
+            verify(publishSseEventPort).publish(
+                    2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
+            );
+            verify(publishSseEventPort).publish(
+                    3L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
+            );
         }
 
         @Test

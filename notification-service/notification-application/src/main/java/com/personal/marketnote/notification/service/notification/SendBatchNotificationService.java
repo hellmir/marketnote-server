@@ -23,7 +23,9 @@ import com.personal.marketnote.notification.port.out.notification.SendPushNotifi
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
 import com.personal.marketnote.notification.port.out.result.SendBatchPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -316,7 +318,11 @@ public class SendBatchNotificationService implements SendBatchNotificationUseCas
         for (Long userId : userIds) {
             try {
                 long unreadCount = findNotificationPort.countUnreadByUserId(userId);
-                publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
+                publishSseEventPort.publish(
+                        userId,
+                        NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                        UnreadCountChangedPayload.of(unreadCount)
+                );
             } catch (Exception e) {
                 log.error("SSE unreadCount 이벤트 발행 실패: userId={}", userId, e);
             }

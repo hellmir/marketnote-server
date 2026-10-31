@@ -1,7 +1,9 @@
 package com.personal.marketnote.notification.service.notification;
 
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +39,9 @@ class MarkAllNotificationAsReadUseCaseTest {
 
         // then
         verify(updateNotificationPort).markAllAsReadByUserId(userId);
-        verify(publishSseEventPort).publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":0}");
+        verify(publishSseEventPort).publish(
+                userId, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(0L)
+        );
     }
 
     @Test

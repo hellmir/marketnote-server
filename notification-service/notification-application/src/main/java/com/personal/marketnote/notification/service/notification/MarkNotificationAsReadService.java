@@ -7,7 +7,9 @@ import com.personal.marketnote.notification.port.in.command.MarkNotificationAsRe
 import com.personal.marketnote.notification.port.in.usecase.notification.MarkNotificationAsReadUseCase;
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,10 @@ public class MarkNotificationAsReadService implements MarkNotificationAsReadUseC
         updateNotificationPort.update(notification);
 
         long unreadCount = findNotificationPort.countUnreadByUserId(command.userId());
-        publishSseEventPort.publish(command.userId(), "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
+        publishSseEventPort.publish(
+                command.userId(),
+                NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                UnreadCountChangedPayload.of(unreadCount)
+        );
     }
 }
