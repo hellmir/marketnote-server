@@ -1,9 +1,11 @@
 package com.personal.marketnote.user.adapter.out.vendor.authentication;
 
 import com.personal.marketnote.common.domain.exception.token.InvalidRefreshTokenException;
+import com.personal.marketnote.common.domain.exception.token.UnsupportedCodeException;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieName;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieObject;
 import com.personal.marketnote.common.utility.http.cookie.HttpCookieUtils;
+import com.personal.marketnote.user.adapter.in.web.authentication.request.OAuth2LoginRequest;
 import com.personal.marketnote.user.adapter.in.web.authentication.response.WebBasedTokenRefreshResponse;
 import com.personal.marketnote.user.port.in.usecase.authentication.Oauth2LoginUseCase;
 import com.personal.marketnote.user.port.out.authentication.SaveRefreshTokenPort;
@@ -12,6 +14,7 @@ import com.personal.marketnote.user.security.token.support.TokenSupport;
 import com.personal.marketnote.user.security.token.vendor.AuthVendor;
 import com.personal.marketnote.user.utility.jwt.JwtUtil;
 import com.personal.marketnote.user.utility.jwt.claims.TokenClaims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -159,6 +165,92 @@ class WebBasedAuthenticationServiceAdapterTest {
         void shouldThrowExceptionWhenRefreshTokenIsEmpty() {
             // when & then
             assertThatThrownBy(() -> adapter.issueNewAccessToken(""))
+                    .isInstanceOf(InvalidRefreshTokenException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("HTTP 4xx/5xx 응답 예외 전파")
+    class HttpErrorPropagationTest {
+
+        @Test
+        @DisplayName("리프레시 토큰 갱신 시 하위 토큰 공급자의 HTTP 4xx 응답이 InvalidRefreshTokenException으로 변환되어 전파된다")
+        void shouldPropagateInvalidRefreshTokenWhenVendorRespondsWith4xx() {
+            // given
+            String refreshToken = "invalid-refresh-token";
+            InvalidRefreshTokenException vendor4xx = new InvalidRefreshTokenException(
+                    "vendor responded with 401",
+                    HttpClientErrorException.create(
+                            HttpStatus.UNAUTHORIZED, "Unauthorized", null, null, null
+                    )
+            );
+            when(tokenSupport.refreshToken(refreshToken)).thenThrow(vendor4xx);
+
+            // when & then
+            assertThatThrownBy(() -> adapter.issueNewAccessToken(refreshToken))
+                    .isInstanceOf(InvalidRefreshTokenException.class);
+            verify(tokenSupport).refreshToken(refreshToken);
+            verifyNoInteractions(saveRefreshTokenPort);
+        }
+
+        @Test
+        @DisplayName("리프레시 토큰 갱신 시 하위 토큰 공급자의 HTTP 5xx 응답이 런타임 예외로 전파된다")
+        void shouldPropagateServerErrorWhenVendorRespondsWith5xx() {
+            // given
+            String refreshToken = "any-refresh-token";
+            HttpServerErrorException vendor5xx = HttpServerErrorException.create(
+                    HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", null, null, null
+            );
+            when(tokenSupport.refreshToken(refreshToken)).thenThrow(vendor5xx);
+
+            // when & then
+            assertThatThrownBy(() -> adapter.issueNewAccessToken(refreshToken))
+                    .isInstanceOf(HttpServerErrorException.class);
+            verify(tokenSupport).refreshToken(refreshToken);
+            verifyNoInteractions(saveRefreshTokenPort);
+        }
+
+        @Test
+        @DisplayName("OAuth2 로그인 시 하위 UseCase의 UnsupportedCodeException이 그대로 전파된다")
+        void shouldPropagateUnsupportedCodeExceptionFromLoginUseCase() {
+            // given
+            HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+            when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
+
+            OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
+                    "KAKAO", "bad-code", null, servletRequest
+            );
+
+            when(oauth2LoginUseCase.loginByOAuth2("bad-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.KAKAO))
+                    .thenThrow(new UnsupportedCodeException("invalid auth code"));
+
+            // when & then
+            assertThatThrownBy(() -> adapter.loginByOAuth2(loginRequest))
+                    .isInstanceOf(UnsupportedCodeException.class);
+        }
+
+        @Test
+        @DisplayName("OAuth2 로그인 시 하위 UseCase의 InvalidRefreshTokenException이 그대로 전파된다")
+        void shouldPropagateInvalidRefreshTokenExceptionFromLoginUseCase() {
+            // given
+            HttpServletRequest servletRequest = mock(HttpServletRequest.class);
+            when(servletRequest.getRequestURI()).thenReturn("/api/v1/oauth2/login");
+
+            OAuth2LoginRequest loginRequest = new OAuth2LoginRequest(
+                    "GOOGLE", "auth-code", null, servletRequest
+            );
+
+            InvalidRefreshTokenException vendor4xx = new InvalidRefreshTokenException(
+                    "google responded with 400",
+                    HttpClientErrorException.create(
+                            HttpStatus.BAD_REQUEST, "Bad Request", null, null, null
+                    )
+            );
+            when(oauth2LoginUseCase.loginByOAuth2("auth-code", "https://api.example.com/api/v1/oauth2/login", AuthVendor.GOOGLE))
+                    .thenThrow(vendor4xx);
+
+            // when & then
+            assertThatThrownBy(() -> adapter.loginByOAuth2(loginRequest))
                     .isInstanceOf(InvalidRefreshTokenException.class);
         }
     }
