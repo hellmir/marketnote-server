@@ -135,9 +135,15 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
     }
 
     public void updateProductInfo(String name, String brandName, Long primaryCategoryId) {
-        this.name = name;
-        this.brandName = brandName;
-        this.primaryCategoryId = primaryCategoryId;
+        if (FormatValidator.hasValue(name)) {
+            this.name = name;
+        }
+        if (FormatValidator.hasValue(brandName)) {
+            this.brandName = brandName;
+        }
+        if (FormatValidator.hasValue(primaryCategoryId)) {
+            this.primaryCategoryId = primaryCategoryId;
+        }
         activate();
     }
 
@@ -145,36 +151,64 @@ public class ProductCatalogReadModelJpaEntity extends BaseGeneralEntity {
             Long price, Long discountPrice, BigDecimal discountRate,
             Long accumulatedPoint, BigDecimal accumulatedPointRate
     ) {
-        this.price = price;
-        this.discountPrice = discountPrice;
-        this.discountRate = discountRate;
-        this.accumulatedPoint = accumulatedPoint;
-        this.accumulatedPointRate = accumulatedPointRate;
+        if (FormatValidator.hasValue(price)) {
+            this.price = price;
+        }
+        if (FormatValidator.hasValue(discountPrice)) {
+            this.discountPrice = discountPrice;
+        }
+        if (FormatValidator.hasValue(discountRate)) {
+            this.discountRate = discountRate;
+        }
+        if (FormatValidator.hasValue(accumulatedPoint)) {
+            this.accumulatedPoint = accumulatedPoint;
+        }
+        if (FormatValidator.hasValue(accumulatedPointRate)) {
+            this.accumulatedPointRate = accumulatedPointRate;
+        }
     }
 
     public void updateOrderNum(Long orderNum) {
+        if (FormatValidator.hasNoValue(orderNum)) {
+            return;
+        }
         this.orderNum = orderNum;
     }
 
     public void updatePopularity(Long popularity) {
+        if (FormatValidator.hasNoValue(popularity)) {
+            return;
+        }
         this.popularity = popularity;
     }
 
     public void updateStockQuantity(Integer stockQuantity) {
+        if (FormatValidator.hasNoValue(stockQuantity)) {
+            return;
+        }
         this.stockQuantity = stockQuantity;
     }
 
     public void updateRepresentativeImage(String representativeImageUrl, String resizedImageUrls) {
+        if (FormatValidator.hasNoValue(representativeImageUrl)) {
+            return;
+        }
         this.representativeImageUrl = representativeImageUrl;
         this.resizedImageUrls = resizedImageUrls;
     }
 
     public void updateReviewAggregate(Integer reviewCount, BigDecimal reviewAverageRating) {
+        if (FormatValidator.hasNoValue(reviewCount) || FormatValidator.hasNoValue(reviewAverageRating)) {
+            return;
+        }
         this.reviewCount = reviewCount;
         this.reviewAverageRating = reviewAverageRating;
     }
 
     public void updateSales(Long sales) {
+        if (FormatValidator.hasNoValue(sales)) {
+            return;
+        }
         this.sales = sales;
     }
 

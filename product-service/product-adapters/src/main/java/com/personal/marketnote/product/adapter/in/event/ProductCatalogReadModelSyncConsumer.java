@@ -63,6 +63,15 @@ public class ProductCatalogReadModelSyncConsumer {
             return;
         }
 
+        if (FormatValidator.hasNoValue(payload.productName())) {
+            log.warn(
+                    "ProductRegistered 이벤트 productName 누락 — skip. eventId={}, pricePolicyId={}, productId={}",
+                    envelope.eventId(), payload.pricePolicyId(), payload.productId()
+            );
+            ack.acknowledge();
+            return;
+        }
+
         saveProductCatalogReadModelPort.upsertCatalog(
                 payload.pricePolicyId(),
                 payload.productId(),
@@ -172,6 +181,15 @@ public class ProductCatalogReadModelSyncConsumer {
         if (EventPayloadValidator.hasInvalidIds(envelope.eventId(),
                 EventPayloadValidator.id("productId", payload.productId()),
                 EventPayloadValidator.id("pricePolicyId", payload.pricePolicyId()))) {
+            ack.acknowledge();
+            return;
+        }
+
+        if (FormatValidator.hasNoValue(payload.productName())) {
+            log.warn(
+                    "PricePolicyCreated 이벤트 productName 누락 (구 스키마 추정) — skip. eventId={}, pricePolicyId={}, productId={}",
+                    envelope.eventId(), payload.pricePolicyId(), payload.productId()
+            );
             ack.acknowledge();
             return;
         }

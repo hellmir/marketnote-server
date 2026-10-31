@@ -90,12 +90,25 @@ public class ProductCatalogReadModelPersistenceAdapter
             return;
         }
 
+        if (FormatValidator.hasNoValue(name)) {
+            log.warn(
+                    "상품 카탈로그 Read Model 신규 저장 skip — 필수 필드(name) 누락. pricePolicyId={}, productId={}",
+                    pricePolicyId, productId
+            );
+            return;
+        }
+
         try {
             ProductCatalogReadModelJpaEntity entity = ProductCatalogReadModelJpaEntity.of(
                     pricePolicyId, productId, sellerId, primaryCategoryId,
-                    name, brandName, price, discountPrice, discountRate,
-                    accumulatedPoint, accumulatedPointRate,
-                    orderNum, popularity,
+                    name, brandName,
+                    zeroIfNull(price),
+                    zeroIfNull(discountPrice),
+                    zeroIfNull(discountRate),
+                    zeroIfNull(accumulatedPoint),
+                    zeroIfNull(accumulatedPointRate),
+                    zeroIfNull(orderNum),
+                    zeroIfNull(popularity),
                     safeSales, productTagsJson, selectedOptionsJson
             );
             repository.saveAndFlush(entity);
@@ -192,6 +205,14 @@ public class ProductCatalogReadModelPersistenceAdapter
     @Transactional(isolation = READ_COMMITTED)
     public void deleteByProductId(Long productId) {
         repository.deleteByProductId(productId);
+    }
+
+    private static Long zeroIfNull(Long value) {
+        return FormatValidator.hasValue(value) ? value : 0L;
+    }
+
+    private static BigDecimal zeroIfNull(BigDecimal value) {
+        return FormatValidator.hasValue(value) ? value : BigDecimal.ZERO;
     }
 
     private String serializeResizedImageUrls(List<String> resizedImageUrls) {
