@@ -226,6 +226,7 @@ pipeline {
 
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','user-service','product-service','commerce-service','community-service','reward-service','fulfillment-service','file-service','notification-service'], description: '배포 대상 서비스')
+		choice(name: 'ENVIRONMENT', choices: ['qa','stage','prod'], description: '배포 대상 환경')
 	}
 
 	environment {
@@ -309,6 +310,12 @@ pipeline {
 					env.PROJECT_VERSION = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectVersion", returnStdout: true).trim()
 					env.DOCKERFILE_PATH = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/Dockerfile"
 					env.BUILD_CONTEXT = "${WORKSPACE}/${env.SERVICE_DIRECTORY}"
+					def environment = (params.ENVIRONMENT ?: 'qa').toUpperCase()
+					if (!(environment in ['QA','STAGE','PROD'])) {
+						error "Unknown ENVIRONMENT '${environment}'. Allowed: QA, STAGE, PROD"
+					}
+					env.ENVIRONMENT_UPPER = environment
+					env.ENV_PREFIX = "MARKETNOTE_${environment}"
 				}
 
 				echo 'Environment variables set'
@@ -318,6 +325,8 @@ pipeline {
 				echo "SERVICE_DIRECTORY         = ${env.SERVICE_DIRECTORY}"
 				echo "PROJECT_NAME              = ${env.PROJECT_NAME}"
 				echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
+				echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
+				echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
 			}
 		}
 
@@ -380,7 +389,7 @@ pipeline {
                         slackSend(
                             channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
                             color:   "${env.SLACK_GENERAL_COLOR}",
-                            message: "[QA] Start a build\n"
+                            message: "[${env.ENVIRONMENT_UPPER}] Start a build\n"
                                 + "SERVICE: ${env.SERVICE_NAME}\n"
                                 + "PROJECT_NAME: ${env.PROJECT_NAME}\n"
                                 + "VERSION: ${env.PROJECT_VERSION}\n"
@@ -416,7 +425,7 @@ pipeline {
 			steps {
 				script {
 					def helper = load 'jenkins/resolve-and-register.groovy'
-					helper.resolveServiceMappings(this)
+					helper.resolveServiceMappings(this, env.ENV_PREFIX)
 				}
 			}
 		}
@@ -588,7 +597,7 @@ pipeline {
 				timeout(time: 30, unit: 'MINUTES') {
 					script {
 						def helper = load 'jenkins/resolve-and-register.groovy'
-						withCredentials(helper.dbCredentialBindings() + [
+						withCredentials(helper.dbCredentialBindings(env.ENV_PREFIX) + [
 							string(credentialsId: 'MARKETNOTE_DB_USERNAME', variable: 'DB_USERNAME')
 						]) {
 							def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
@@ -627,7 +636,7 @@ pipeline {
             steps {
                 script {
                     def helper = load 'jenkins/resolve-and-register.groovy'
-                    helper.registerTaskDefinition(this)
+                    helper.registerTaskDefinition(this, env.ENV_PREFIX)
                 }
             }
         }
@@ -804,10 +813,10 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
 						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',               variable: 'ECS_TASK_ROLE_ARN'),
 						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_PROMETHEUS', variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
-						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_PRIVATE_IP',       variable: 'FULFILLMENT_PRIVATE_IP'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_1_PRIVATE_IP',    variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_2_PRIVATE_IP',    variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BROKER_3_PRIVATE_IP',    variable: 'KAFKA_BROKER_3_PRIVATE_IP')
+						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_PRIVATE_IP",       variable: 'FULFILLMENT_PRIVATE_IP'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_1_PRIVATE_IP",    variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_2_PRIVATE_IP",    variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_3_PRIVATE_IP",    variable: 'KAFKA_BROKER_3_PRIVATE_IP')
 					]) {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_PROMETHEUS" --region "$AWS_DEFAULT_REGION" || true
@@ -892,7 +901,7 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_GRAFANA_DOMAIN',                 variable: 'GRAFANA_DOMAIN'),
 						string(credentialsId: 'MARKETNOTE_GRAFANA_ROOT_URL',               variable: 'GRAFANA_ROOT_URL'),
 						string(credentialsId: 'MARKETNOTE_GRAFANA_SERVE_FROM_SUB_PATH',    variable: 'GRAFANA_SERVE_FROM_SUB_PATH'),
-						string(credentialsId: 'MARKETNOTE_QA_PROMETHEUS_URL',              variable: 'PROMETHEUS_URL')
+						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_URL",              variable: 'PROMETHEUS_URL')
 					]) {
 						sh '''
                         aws logs create-log-group --log-group-name "$CLOUDWATCH_LOG_GROUP_GRAFANA" --region "$AWS_DEFAULT_REGION" || true
