@@ -14,10 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,5 +80,32 @@ class GetShippingPolicyUseCaseTest {
                 .isInstanceOf(ShippingPolicyNotFoundException.class);
 
         verify(findShippingPolicyPort).findActiveBySellerId(sellerId);
+    }
+
+    @Test
+    @DisplayName("getShippingPolicies는 sellerIds가 null이면 빈 리스트를 반환하고 포트를 호출하지 않는다")
+    void shouldReturnEmptyListWhenSellerIdsNull() {
+        assertThat(getShippingPolicyService.getShippingPolicies(null)).isEmpty();
+
+        verify(findShippingPolicyPort, never()).findActiveBySellerIds(List.of());
+    }
+
+    @Test
+    @DisplayName("getShippingPolicies는 sellerIds가 비어 있으면 빈 리스트를 반환하고 포트를 호출하지 않는다")
+    void shouldReturnEmptyListWhenSellerIdsEmpty() {
+        assertThat(getShippingPolicyService.getShippingPolicies(List.of())).isEmpty();
+
+        verify(findShippingPolicyPort, never()).findActiveBySellerIds(List.of());
+    }
+
+    @Test
+    @DisplayName("getShippingPolicies는 조회된 정책 수만큼 결과를 매핑하여 반환한다")
+    void shouldMapPoliciesToResults() {
+        when(findShippingPolicyPort.findActiveBySellerIds(List.of(10L, 11L)))
+                .thenReturn(List.of(createExistingPolicy(10L), createExistingPolicy(11L)));
+
+        List<?> results = getShippingPolicyService.getShippingPolicies(List.of(10L, 11L));
+
+        assertThat(results).hasSize(2);
     }
 }
