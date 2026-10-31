@@ -1,0 +1,33 @@
+# prod profile 전용 공통 설정. 서비스 application.yml의 prod 섹션에서만 spring.config.import로 로드한다.
+# 비-prod (local/qa) 프로필에서 직접 import하지 말 것.
+spring:
+  flyway:
+    enabled: false
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN
+    com.personal: INFO
+management:
+  endpoints:
+    web:
+      exposure:
+        # metrics 엔드포인트는 prod에서 미공개 (prometheus 스크레이프로 대체)
+        include: health,info,prometheus
+server:
+  error:
+    include-stacktrace: NEVER
+    include-message: NEVER
+    include-exception: false
+    whitelabel:
+      enabled: false

@@ -204,11 +204,4 @@ spring:
   config:
     activate:
       on-profile: prod
-  flyway:
-    enabled: false
-
-springdoc:
-  api-docs:
-    enabled: false
-  swagger-ui:
-    enabled: false
+    import: classpath:config/common-prod.yml
