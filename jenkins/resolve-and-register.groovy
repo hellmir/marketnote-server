@@ -100,6 +100,28 @@ def dbCredentialBindings(String envPrefix) {
     ]
 }
 
+def runConcurrentIndexes(parentScript, String envPrefix) {
+    withCredentials(dbCredentialBindings(envPrefix) + [
+        string(credentialsId: "${envPrefix}_DB_USERNAME", variable: 'DB_USERNAME')
+    ]) {
+        def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
+        def indexDir = "${env.WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/concurrent-indexes"
+        def scriptPath = "${env.WORKSPACE}/jenkins/run-concurrent-indexes.sh"
+        def dbUrlVar = "${svcUpper}_DB_URL"
+        def dbPwVar = "${svcUpper}_DB_PASSWORD"
+        def dockerCmd = "docker run --rm " +
+            "-v ${indexDir}:/concurrent-indexes:ro " +
+            "-v ${scriptPath}:/run.sh:ro " +
+            "-e DB_URL=\"\$${dbUrlVar}\" " +
+            '-e DB_USER="$DB_USERNAME" ' +
+            "-e DB_PASSWORD=\"\$${dbPwVar}\" " +
+            '--entrypoint bash ' +
+            'postgres:17-alpine ' +
+            '/run.sh /concurrent-indexes'
+        sh dockerCmd
+    }
+}
+
 def registerTaskDefinition(parentScript, String envPrefix) {
     withCredentials([
         string(credentialsId: "${envPrefix}_DB_USERNAME",                           variable: 'DB_USERNAME'),

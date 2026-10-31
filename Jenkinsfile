@@ -641,25 +641,7 @@ pipeline {
 				timeout(time: 30, unit: 'MINUTES') {
 					script {
 						def helper = load 'jenkins/resolve-and-register.groovy'
-						withCredentials(helper.dbCredentialBindings(env.ENV_PREFIX) + [
-							string(credentialsId: "${env.ENV_PREFIX}_DB_USERNAME", variable: 'DB_USERNAME')
-						]) {
-							def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
-							def indexDir = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/concurrent-indexes"
-							def scriptPath = "${WORKSPACE}/jenkins/run-concurrent-indexes.sh"
-							def dbUrlVar = "${svcUpper}_DB_URL"
-							def dbPwVar = "${svcUpper}_DB_PASSWORD"
-							def dockerCmd = "docker run --rm " +
-								"-v ${indexDir}:/concurrent-indexes:ro " +
-								"-v ${scriptPath}:/run.sh:ro " +
-								"-e DB_URL=\"\$${dbUrlVar}\" " +
-								'-e DB_USER="$DB_USERNAME" ' +
-								"-e DB_PASSWORD=\"\$${dbPwVar}\" " +
-								'--entrypoint bash ' +
-								'postgres:17-alpine ' +
-								'/run.sh /concurrent-indexes'
-							sh dockerCmd
-						}
+						helper.runConcurrentIndexes(this, env.ENV_PREFIX)
 					}
 				}
 				echo 'Concurrent indexes applied'
