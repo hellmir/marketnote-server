@@ -12,6 +12,7 @@ pipeline {
 
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','fulfillment-service','notification-service'], description: '배포 대상 서비스 (Lightsail)')
+		choice(name: 'ENVIRONMENT', choices: ['qa','stage','prod'], description: '배포 대상 환경')
 	}
 
 	environment {
@@ -89,6 +90,12 @@ pipeline {
 					env.PROJECT_VERSION = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectVersion", returnStdout: true).trim()
 					env.DOCKERFILE_PATH = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/Dockerfile"
 					env.BUILD_CONTEXT = "${WORKSPACE}/${env.SERVICE_DIRECTORY}"
+					def environment = (params.ENVIRONMENT ?: 'qa').toUpperCase()
+					if (!(environment in ['QA','STAGE','PROD'])) {
+						error "Unknown ENVIRONMENT '${environment}'. Allowed: QA, STAGE, PROD"
+					}
+					env.ENVIRONMENT_UPPER = environment
+					env.ENV_PREFIX = "MARKETNOTE_${environment}"
 
 					if (env.SERVICE_NAME == 'fulfillment-service') {
 						env.COMPOSE_SERVICE_NAME = 'fulfillment-adapters'
@@ -101,7 +108,7 @@ pipeline {
 					}
 
                     withCredentials([
-                    	string(credentialsId: 'MARKETNOTE_QA_LIGHTSAIL_APP_DIR', variable: 'LIGHTSAIL_APP_DIR_CRED')
+                    	string(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_APP_DIR", variable: 'LIGHTSAIL_APP_DIR_CRED')
                     ]) {
                     	def appDir = LIGHTSAIL_APP_DIR_CRED?.trim()
                     	env.LIGHTSAIL_APP_DIR = appDir ? appDir : '/opt/marketnote'
@@ -120,6 +127,8 @@ pipeline {
 				echo "PROJECT_VERSION           = ${env.PROJECT_VERSION}"
 				echo "LIGHTSAIL_APP_DIR         = ${env.LIGHTSAIL_APP_DIR}"
 				echo "COMPOSE_SERVICE_NAME      = ${env.COMPOSE_SERVICE_NAME}"
+				echo "ENVIRONMENT               = ${env.ENVIRONMENT_UPPER}"
+				echo "ENV_PREFIX                = ${env.ENV_PREFIX}"
 			}
 		}
 
@@ -182,7 +191,7 @@ pipeline {
 						slackSend(
 							channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
 							color:   "${env.SLACK_GENERAL_COLOR}",
-							message: "[QA] Start a build (Lightsail)\n"
+							message: "[${env.ENVIRONMENT_UPPER}] Start a build (Lightsail)\n"
 								+ "SERVICE: ${env.SERVICE_NAME}\n"
 								+ "PROJECT_NAME: ${env.PROJECT_NAME}\n"
 								+ "VERSION: ${env.PROJECT_VERSION}\n"
@@ -223,23 +232,23 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_CLIENT_ORIGIN',                  variable: 'CLIENT_ORIGIN'),
 						string(credentialsId: 'MARKETNOTE_COOKIE_DOMAIN',                  variable: 'COOKIE_DOMAIN'),
 						string(credentialsId: 'MARKETNOTE_ACCESS_CONTROL_ALLOWED_ORIGINS', variable: 'ACCESS_CONTROL_ALLOWED_ORIGINS'),
-						string(credentialsId: 'MARKETNOTE_QA_SPRING_PROFILE',               variable: 'SPRING_PROFILE'),
-						string(credentialsId: 'MARKETNOTE_QA_JWT_ADMIN_ACCESS_TOKEN',       variable: 'JWT_ADMIN_ACCESS_TOKEN'),
-						string(credentialsId: 'MARKETNOTE_QA_FASSTO_BASE_URL',              variable: 'FASSTO_BASE_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_FASSTO_API_CD',                variable: 'FASSTO_API_CD'),
-						string(credentialsId: 'MARKETNOTE_QA_FASSTO_API_KEY',               variable: 'FASSTO_API_KEY'),
-						string(credentialsId: 'MARKETNOTE_QA_FASSTO_CUSTOMER_CODE',          variable: 'FASSTO_CUSTOMER_CODE'),
-						string(credentialsId: 'MARKETNOTE_QA_HMAC_SECRET_KEY',               variable: 'HMAC_SECRET_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_SPRING_PROFILE",               variable: 'SPRING_PROFILE'),
+						string(credentialsId: "${env.ENV_PREFIX}_JWT_ADMIN_ACCESS_TOKEN",       variable: 'JWT_ADMIN_ACCESS_TOKEN'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_BASE_URL",              variable: 'FASSTO_BASE_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_API_CD",                variable: 'FASSTO_API_CD'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_API_KEY",               variable: 'FASSTO_API_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_CUSTOMER_CODE",          variable: 'FASSTO_CUSTOMER_CODE'),
+						string(credentialsId: "${env.ENV_PREFIX}_HMAC_SECRET_KEY",               variable: 'HMAC_SECRET_KEY'),
 						string(credentialsId: 'MARKETNOTE_REDIS_HOST_NAME',                  variable: 'REDIS_HOST_NAME'),
 						string(credentialsId: 'MARKETNOTE_REDIS_PASSWORD',                   variable: 'REDIS_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_BOOTSTRAP_SERVERS',       variable: 'KAFKA_BOOTSTRAP_SERVERS'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SLACK_WEBHOOK_URL',       variable: 'KAFKA_SLACK_WEBHOOK_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_ENABLED',            variable: 'KAFKA_SASL_ENABLED'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_MECHANISM',          variable: 'KAFKA_SASL_MECHANISM'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PROTOCOL',           variable: 'KAFKA_SASL_PROTOCOL'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_USERNAME',           variable: 'KAFKA_SASL_USERNAME'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SASL_PASSWORD',           variable: 'KAFKA_SASL_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_KAFKA_SSL_TRUSTSTORE_PASSWORD', variable: 'KAFKA_SSL_TRUSTSTORE_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BOOTSTRAP_SERVERS",       variable: 'KAFKA_BOOTSTRAP_SERVERS'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SLACK_WEBHOOK_URL",       variable: 'KAFKA_SLACK_WEBHOOK_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_ENABLED",            variable: 'KAFKA_SASL_ENABLED'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_MECHANISM",          variable: 'KAFKA_SASL_MECHANISM'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_PROTOCOL",           variable: 'KAFKA_SASL_PROTOCOL'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_USERNAME",           variable: 'KAFKA_SASL_USERNAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_PASSWORD",           variable: 'KAFKA_SASL_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SSL_TRUSTSTORE_PASSWORD", variable: 'KAFKA_SSL_TRUSTSTORE_PASSWORD'),
 					]) {
 						env.DB_USERNAME = DB_USERNAME
 						env.JWT_SECRET_KEY = JWT_SECRET_KEY
@@ -267,16 +276,16 @@ pipeline {
 						def svc = env.SERVICE_NAME
 						if (svc == 'fulfillment-service') {
 							withCredentials([
-								string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_ECR_REPOSITORY', variable: 'FULFILLMENT_SERVICE_ECR_REPOSITORY'),
-								string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_SERVER_ORIGIN', variable: 'FULFILLMENT_SERVICE_SERVER_ORIGIN'),
+								string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_ECR_REPOSITORY", variable: 'FULFILLMENT_SERVICE_ECR_REPOSITORY'),
+								string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_SERVER_ORIGIN", variable: 'FULFILLMENT_SERVICE_SERVER_ORIGIN'),
 							]) {
 								env.ECR_REPOSITORY = FULFILLMENT_SERVICE_ECR_REPOSITORY
 								env.SERVER_ORIGIN = FULFILLMENT_SERVICE_SERVER_ORIGIN
 							}
 						} else if (svc == 'notification-service') {
 							withCredentials([
-								string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_ECR_REPOSITORY', variable: 'NOTIFICATION_SERVICE_ECR_REPOSITORY'),
-								string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_SERVER_ORIGIN', variable: 'NOTIFICATION_SERVICE_SERVER_ORIGIN'),
+								string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_ECR_REPOSITORY", variable: 'NOTIFICATION_SERVICE_ECR_REPOSITORY'),
+								string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_SERVER_ORIGIN", variable: 'NOTIFICATION_SERVICE_SERVER_ORIGIN'),
 							]) {
 								env.ECR_REPOSITORY = NOTIFICATION_SERVICE_ECR_REPOSITORY
 								env.SERVER_ORIGIN = NOTIFICATION_SERVICE_SERVER_ORIGIN
@@ -354,12 +363,12 @@ pipeline {
 					env.LIGHTSAIL_REMOTE_COMPOSE_PATH = "${env.LIGHTSAIL_APP_DIR}/docker-compose.yml"
 
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',        variable: 'FULFILLMENT_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',   variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',       variable: 'NOTIFICATION_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD',  variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
-						sshUserPrivateKey(credentialsId: 'MARKETNOTE_QA_LIGHTSAIL_SERVER_JENKINS_PRIVATE_KEY', keyFileVariable: 'LIGHTSAIL_SSH_KEY', usernameVariable: 'LIGHTSAIL_SSH_USER'),
-						string(credentialsId: 'MARKETNOTE_QA_LIGHTSAIL_SERVER_HOST', variable: 'LIGHTSAIL_SERVER_HOST'),
+						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_DB_URL",        variable: 'FULFILLMENT_SERVICE_DB_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_SERVICE_DB_PASSWORD",   variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_DB_URL",       variable: 'NOTIFICATION_SERVICE_DB_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_DB_PASSWORD",  variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
+						sshUserPrivateKey(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_SERVER_JENKINS_PRIVATE_KEY", keyFileVariable: 'LIGHTSAIL_SSH_KEY', usernameVariable: 'LIGHTSAIL_SSH_USER'),
+						string(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_SERVER_HOST", variable: 'LIGHTSAIL_SERVER_HOST'),
 						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',        variable: 'AWS_ACCOUNT_ID'),
 						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
 						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
