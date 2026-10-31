@@ -13,7 +13,9 @@ import com.personal.marketnote.notification.port.out.notification.FindNotificati
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -382,7 +384,9 @@ class PushNotificationEventListenerTest {
 
             // then
             verify(publishSseEventPort).publish(
-                    eq(USER_ID), eq("UNREAD_COUNT_CHANGED"), eq("{\"unreadCount\":5}")
+                    eq(USER_ID),
+                    eq(NotificationSseEventType.UNREAD_COUNT_CHANGED),
+                    eq(UnreadCountChangedPayload.of(5L))
             );
         }
 

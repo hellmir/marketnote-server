@@ -3,7 +3,9 @@ package com.personal.marketnote.notification.service.notification;
 import com.personal.marketnote.common.application.UseCase;
 import com.personal.marketnote.notification.port.in.usecase.notification.MarkAllNotificationAsReadUseCase;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,10 @@ public class MarkAllNotificationAsReadService implements MarkAllNotificationAsRe
         if (updated == 0) {
             return;
         }
-        publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":0}");
+        publishSseEventPort.publish(
+                userId,
+                NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                UnreadCountChangedPayload.of(0L)
+        );
     }
 }

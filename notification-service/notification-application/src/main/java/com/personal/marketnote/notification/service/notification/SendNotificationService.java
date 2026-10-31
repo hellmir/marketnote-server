@@ -14,7 +14,9 @@ import com.personal.marketnote.notification.port.in.usecase.notification.SendNot
 import com.personal.marketnote.notification.port.out.notification.FindNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.SaveNotificationPort;
 import com.personal.marketnote.notification.port.out.preference.FindNotificationPreferencePort;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import com.personal.marketnote.notification.port.out.template.FindNotificationTemplatePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -144,7 +146,11 @@ public class SendNotificationService implements SendNotificationUseCase {
 
     private void publishUnreadCountChangedEvent(Long userId) {
         long unreadCount = findNotificationPort.countUnreadByUserId(userId);
-        publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
+        publishSseEventPort.publish(
+                userId,
+                NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                UnreadCountChangedPayload.of(unreadCount)
+        );
     }
 
     private SendNotificationResult toResult(Notification notification) {

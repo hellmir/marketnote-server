@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.notification.adapter.in.web.sse.registry.SseConnectionRegistry;
 import com.personal.marketnote.notification.adapter.out.sse.SseEventMessage;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +35,12 @@ class SseEventRedisSubscriberTest {
     @DisplayName("Redis 메시지 수신 시 SseConnectionRegistry에 이벤트를 전달한다")
     void shouldDeliverEventToSseConnectionRegistry() throws Exception {
         // given
-        String messageBody = "{\"userId\":1,\"eventType\":\"UNREAD_COUNT_CHANGED\",\"payload\":\"{\\\"unreadCount\\\":5}\"}";
+        String messageBody = "{\"userId\":1,\"eventType\":\"" + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
+                + "\",\"payload\":\"{\\\"unreadCount\\\":5}\"}";
         Message message = new DefaultMessage("sse:notification-events".getBytes(), messageBody.getBytes());
-        SseEventMessage sseEventMessage = new SseEventMessage(1L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":5}");
+        SseEventMessage sseEventMessage = new SseEventMessage(
+                1L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), "{\"unreadCount\":5}"
+        );
 
         when(objectMapper.readValue(messageBody, SseEventMessage.class)).thenReturn(sseEventMessage);
 
@@ -69,9 +73,12 @@ class SseEventRedisSubscriberTest {
     @DisplayName("해당 userId의 SSE 커넥션이 없으면 무시한다")
     void shouldIgnoreWhenNoSseConnectionForUser() throws Exception {
         // given
-        String messageBody = "{\"userId\":999,\"eventType\":\"UNREAD_COUNT_CHANGED\",\"payload\":\"{}\"}";
+        String messageBody = "{\"userId\":999,\"eventType\":\"" + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
+                + "\",\"payload\":\"{}\"}";
         Message message = new DefaultMessage("sse:notification-events".getBytes(), messageBody.getBytes());
-        SseEventMessage sseEventMessage = new SseEventMessage(999L, "UNREAD_COUNT_CHANGED", "{}");
+        SseEventMessage sseEventMessage = new SseEventMessage(
+                999L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), "{}"
+        );
 
         when(objectMapper.readValue(messageBody, SseEventMessage.class)).thenReturn(sseEventMessage);
 

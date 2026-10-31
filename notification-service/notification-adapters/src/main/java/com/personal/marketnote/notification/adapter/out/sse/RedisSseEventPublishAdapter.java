@@ -3,6 +3,7 @@ package com.personal.marketnote.notification.adapter.out.sse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.utility.FormatValidator;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +21,15 @@ public class RedisSseEventPublishAdapter implements PublishSseEventPort {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void publish(Long userId, String eventType, String payload) {
-        SseEventMessage message = new SseEventMessage(userId, eventType, payload);
+    public void publish(Long userId, NotificationSseEventType eventType, Object payload) {
+        String payloadJson = serializePayload(userId, eventType, payload);
+        if (FormatValidator.hasNoValue(payloadJson)) {
+            return;
+        }
 
-        String serialized = serialize(message);
+        SseEventMessage message = new SseEventMessage(userId, eventType.name(), payloadJson);
+
+        String serialized = serializeMessage(message);
         if (FormatValidator.hasNoValue(serialized)) {
             return;
         }
@@ -32,7 +38,16 @@ public class RedisSseEventPublishAdapter implements PublishSseEventPort {
         log.debug("SSE 이벤트 Redis 발행: userId={}, eventType={}", userId, eventType);
     }
 
-    private String serialize(SseEventMessage message) {
+    private String serializePayload(Long userId, NotificationSseEventType eventType, Object payload) {
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException exception) {
+            log.error("SSE 이벤트 payload 직렬화 실패: userId={}, eventType={}", userId, eventType, exception);
+            return null;
+        }
+    }
+
+    private String serializeMessage(SseEventMessage message) {
         try {
             return objectMapper.writeValueAsString(message);
         } catch (JsonProcessingException exception) {

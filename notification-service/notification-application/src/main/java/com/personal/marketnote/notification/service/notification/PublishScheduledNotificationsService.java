@@ -12,7 +12,9 @@ import com.personal.marketnote.notification.port.out.notification.FindNotificati
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +77,11 @@ public class PublishScheduledNotificationsService implements PublishScheduledNot
     private void publishUnreadCountChangedEvent(Long userId) {
         try {
             long unreadCount = findNotificationPort.countUnreadByUserId(userId);
-            publishSseEventPort.publish(userId, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":" + unreadCount + "}");
+            publishSseEventPort.publish(
+                    userId,
+                    NotificationSseEventType.UNREAD_COUNT_CHANGED,
+                    UnreadCountChangedPayload.of(unreadCount)
+            );
         } catch (Exception e) {
             log.error("SSE unreadCount 이벤트 발행 실패: userId={}", userId, e);
         }

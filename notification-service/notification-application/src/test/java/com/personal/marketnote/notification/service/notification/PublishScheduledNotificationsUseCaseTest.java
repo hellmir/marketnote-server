@@ -16,7 +16,9 @@ import com.personal.marketnote.notification.port.out.notification.FindNotificati
 import com.personal.marketnote.notification.port.out.notification.SendPushNotificationPort;
 import com.personal.marketnote.notification.port.out.notification.UpdateNotificationPort;
 import com.personal.marketnote.notification.port.out.result.SendPushNotificationResult;
+import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.UnreadCountChangedPayload;
 import com.personal.marketnote.notification.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -265,7 +267,9 @@ class PublishScheduledNotificationsUseCaseTest {
             publishScheduledNotificationsService.publishScheduledNotifications();
 
             // then
-            verify(publishSseEventPort).publish(100L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":3}");
+            verify(publishSseEventPort).publish(
+                    100L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(3L)
+            );
         }
 
         @Test
@@ -281,7 +285,9 @@ class PublishScheduledNotificationsUseCaseTest {
             publishScheduledNotificationsService.publishScheduledNotifications();
 
             // then
-            verify(publishSseEventPort).publish(200L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":1}");
+            verify(publishSseEventPort).publish(
+                    200L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(1L)
+            );
         }
 
         @Test
@@ -304,8 +310,12 @@ class PublishScheduledNotificationsUseCaseTest {
             publishScheduledNotificationsService.publishScheduledNotifications();
 
             // then
-            verify(publishSseEventPort).publish(100L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":5}");
-            verify(publishSseEventPort).publish(200L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":2}");
+            verify(publishSseEventPort).publish(
+                    100L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(5L)
+            );
+            verify(publishSseEventPort).publish(
+                    200L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(2L)
+            );
         }
 
         @Test
@@ -340,7 +350,9 @@ class PublishScheduledNotificationsUseCaseTest {
             publishScheduledNotificationsService.publishScheduledNotifications();
 
             // then
-            verify(publishSseEventPort).publish(400L, "UNREAD_COUNT_CHANGED", "{\"unreadCount\":7}");
+            verify(publishSseEventPort).publish(
+                    400L, NotificationSseEventType.UNREAD_COUNT_CHANGED, UnreadCountChangedPayload.of(7L)
+            );
         }
     }
 
