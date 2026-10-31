@@ -92,6 +92,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher") // JUnit 테스트 런처
     testImplementation("org.awaitility:awaitility:4.2.0") // 비동기,스케줄링 테스트 지원
     testImplementation("org.springframework.kafka:spring-kafka-test")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0") // HTTP 루프백 기반 외부 서비스 클라이언트 테스트
 
     // 🔹 추가 라이브러리
     // dotenv
