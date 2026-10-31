@@ -12,7 +12,6 @@ pipeline {
 
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','fulfillment-service','notification-service'], description: '배포 대상 서비스 (Lightsail)')
-		choice(name: 'ENVIRONMENT', choices: ['qa','stage','prod'], description: '배포 대상 환경')
 	}
 
 	environment {
@@ -90,10 +89,14 @@ pipeline {
 					env.PROJECT_VERSION = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectVersion", returnStdout: true).trim()
 					env.DOCKERFILE_PATH = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/Dockerfile"
 					env.BUILD_CONTEXT = "${WORKSPACE}/${env.SERVICE_DIRECTORY}"
-					def environment = (params.ENVIRONMENT ?: 'qa').toUpperCase()
-					if (!(environment in ['QA','STAGE','PROD'])) {
-						error "Unknown ENVIRONMENT '${environment}'. Allowed: QA, STAGE, PROD"
+					def jobName = env.JOB_NAME ?: ''
+					def projectName = jobName.split('/')[0]
+					def matcher = (projectName =~ /-(qa|stage|prod)$/)
+					if (!matcher.find()) {
+						error "JOB_NAME '${jobName}' (project='${projectName}') must end with one of: -qa, -stage, -prod"
 					}
+					def environment = matcher.group(1).toUpperCase()
+					matcher = null
 					env.ENVIRONMENT_UPPER = environment
 					env.ENV_PREFIX = "MARKETNOTE_${environment}"
 
@@ -135,7 +138,7 @@ pipeline {
 		stage('Notify Start') {
 			steps {
 				withCredentials([
-					string(credentialsId: 'MARKETNOTE_SLACK_NOTIFICATION_CHANNEL', variable: 'SLACK_NOTIFICATION_CHANNEL')
+					string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
 				]) {
 					script {
 						env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
@@ -227,11 +230,11 @@ pipeline {
 			steps {
 				script {
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_DB_USERNAME',                    variable: 'DB_USERNAME'),
-						string(credentialsId: 'MARKETNOTE_JWT_SECRET_KEY',                 variable: 'JWT_SECRET_KEY'),
-						string(credentialsId: 'MARKETNOTE_CLIENT_ORIGIN',                  variable: 'CLIENT_ORIGIN'),
-						string(credentialsId: 'MARKETNOTE_COOKIE_DOMAIN',                  variable: 'COOKIE_DOMAIN'),
-						string(credentialsId: 'MARKETNOTE_ACCESS_CONTROL_ALLOWED_ORIGINS', variable: 'ACCESS_CONTROL_ALLOWED_ORIGINS'),
+						string(credentialsId: "${env.ENV_PREFIX}_DB_USERNAME",                    variable: 'DB_USERNAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_JWT_SECRET_KEY",                 variable: 'JWT_SECRET_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_CLIENT_ORIGIN",                  variable: 'CLIENT_ORIGIN'),
+						string(credentialsId: "${env.ENV_PREFIX}_COOKIE_DOMAIN",                  variable: 'COOKIE_DOMAIN'),
+						string(credentialsId: "${env.ENV_PREFIX}_ACCESS_CONTROL_ALLOWED_ORIGINS", variable: 'ACCESS_CONTROL_ALLOWED_ORIGINS'),
 						string(credentialsId: "${env.ENV_PREFIX}_SPRING_PROFILE",               variable: 'SPRING_PROFILE'),
 						string(credentialsId: "${env.ENV_PREFIX}_JWT_ADMIN_ACCESS_TOKEN",       variable: 'JWT_ADMIN_ACCESS_TOKEN'),
 						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_BASE_URL",              variable: 'FASSTO_BASE_URL'),
@@ -239,8 +242,8 @@ pipeline {
 						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_API_KEY",               variable: 'FASSTO_API_KEY'),
 						string(credentialsId: "${env.ENV_PREFIX}_FASSTO_CUSTOMER_CODE",          variable: 'FASSTO_CUSTOMER_CODE'),
 						string(credentialsId: "${env.ENV_PREFIX}_HMAC_SECRET_KEY",               variable: 'HMAC_SECRET_KEY'),
-						string(credentialsId: 'MARKETNOTE_REDIS_HOST_NAME',                  variable: 'REDIS_HOST_NAME'),
-						string(credentialsId: 'MARKETNOTE_REDIS_PASSWORD',                   variable: 'REDIS_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_HOST_NAME",                  variable: 'REDIS_HOST_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_PASSWORD",                   variable: 'REDIS_PASSWORD'),
 						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BOOTSTRAP_SERVERS",       variable: 'KAFKA_BOOTSTRAP_SERVERS'),
 						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SLACK_WEBHOOK_URL",       variable: 'KAFKA_SLACK_WEBHOOK_URL'),
 						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_SASL_ENABLED",            variable: 'KAFKA_SASL_ENABLED'),
@@ -328,10 +331,10 @@ pipeline {
 			steps {
 				script {
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',        variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
 					]) {
 						env.AWS_ACCOUNT_ID = AWS_ACCOUNT_ID
 						env.AWS_DEFAULT_REGION = AWS_DEFAULT_REGION
@@ -369,10 +372,10 @@ pipeline {
 						string(credentialsId: "${env.ENV_PREFIX}_NOTIFICATION_SERVICE_DB_PASSWORD",  variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
 						sshUserPrivateKey(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_SERVER_JENKINS_PRIVATE_KEY", keyFileVariable: 'LIGHTSAIL_SSH_KEY', usernameVariable: 'LIGHTSAIL_SSH_USER'),
 						string(credentialsId: "${env.ENV_PREFIX}_LIGHTSAIL_SERVER_HOST", variable: 'LIGHTSAIL_SERVER_HOST'),
-						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',        variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
 					]) {
 						def dbCreds = [
 							FULFILLMENT_SERVICE_DB_URL: FULFILLMENT_SERVICE_DB_URL, FULFILLMENT_SERVICE_DB_PASSWORD: FULFILLMENT_SERVICE_DB_PASSWORD,
@@ -502,24 +505,38 @@ REMOTE
 
 		success {
 			echo '====================================Build Success====================================='
-			slackSend(
-				channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
-				color:   "${env.SLACK_SUCCESS_COLOR}",
-				message: "Build Success!!\n"
-				+ "SERVICE: ${env.SERVICE_NAME}\n"
-				+ "SERVER_ORIGIN: ${env.SERVER_ORIGIN?:'N/A'}\n"
-				+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
-				+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
-			)
+			script {
+				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+				if (ch) {
+					slackSend(
+						channel: ch,
+						color:   "${env.SLACK_SUCCESS_COLOR}",
+						message: "Build Success!!\n"
+						+ "SERVICE: ${env.SERVICE_NAME}\n"
+						+ "SERVER_ORIGIN: ${env.SERVER_ORIGIN?:'N/A'}\n"
+						+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
+						+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
+					)
+				} else {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack success notification"
+				}
+			}
 		}
 
 		failure {
 			echo '====================================Build Failed======================================='
-			slackSend (
-				channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
-				color:   "${env.SLACK_FAIL_COLOR}",
-				message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
-			)
+			script {
+				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+				if (ch) {
+					slackSend(
+						channel: ch,
+						color:   "${env.SLACK_FAIL_COLOR}",
+						message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+					)
+				} else {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
+				}
+			}
 		}
 	}
 }
