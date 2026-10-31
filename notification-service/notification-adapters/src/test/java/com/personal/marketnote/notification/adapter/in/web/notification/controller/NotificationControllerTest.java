@@ -217,5 +217,37 @@ class NotificationControllerTest {
             assertThat(rateLimited.maxRequests()).isEqualTo(10);
             assertThat(rateLimited.windowSeconds()).isEqualTo(60);
         }
+
+        @Test
+        @DisplayName("markNotificationAsRead 메서드에 @RateLimited(key=notifications-read, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void markNotificationAsReadHasRateLimited() throws NoSuchMethodException {
+            Method method = NotificationController.class.getMethod(
+                    "markNotificationAsRead",
+                    OAuth2AuthenticatedPrincipal.class, Long.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("notifications-read");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
+        }
+
+        @Test
+        @DisplayName("getUnreadNotificationCount 메서드에 @RateLimited(key=notifications-unread-count, maxRequests=60, windowSeconds=60)이 부착되어 있다")
+        void getUnreadNotificationCountHasRateLimited() throws NoSuchMethodException {
+            Method method = NotificationController.class.getMethod(
+                    "getUnreadNotificationCount",
+                    OAuth2AuthenticatedPrincipal.class
+            );
+
+            RateLimited rateLimited = method.getAnnotation(RateLimited.class);
+
+            assertThat(rateLimited).isNotNull();
+            assertThat(rateLimited.key()).isEqualTo("notifications-unread-count");
+            assertThat(rateLimited.maxRequests()).isEqualTo(60);
+            assertThat(rateLimited.windowSeconds()).isEqualTo(60);
+        }
     }
 }
