@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.utility.FormatValidator;
 import com.personal.marketnote.notification.port.out.sse.NotificationSseEventType;
 import com.personal.marketnote.notification.port.out.sse.PublishSseEventPort;
+import com.personal.marketnote.notification.port.out.sse.payload.SseEventPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -21,13 +22,8 @@ public class RedisSseEventPublishAdapter implements PublishSseEventPort {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void publish(Long userId, NotificationSseEventType eventType, Object payload) {
-        String payloadJson = serializePayload(userId, eventType, payload);
-        if (FormatValidator.hasNoValue(payloadJson)) {
-            return;
-        }
-
-        SseEventMessage message = new SseEventMessage(userId, eventType.name(), payloadJson);
+    public void publish(Long userId, NotificationSseEventType eventType, SseEventPayload payload) {
+        SseEventMessage message = new SseEventMessage(userId, eventType.name(), payload);
 
         String serialized = serializeMessage(message);
         if (FormatValidator.hasNoValue(serialized)) {
@@ -36,15 +32,6 @@ public class RedisSseEventPublishAdapter implements PublishSseEventPort {
 
         stringRedisTemplate.convertAndSend(SSE_NOTIFICATION_EVENTS_CHANNEL, serialized);
         log.debug("SSE 이벤트 Redis 발행: userId={}, eventType={}", userId, eventType);
-    }
-
-    private String serializePayload(Long userId, NotificationSseEventType eventType, Object payload) {
-        try {
-            return objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException exception) {
-            log.error("SSE 이벤트 payload 직렬화 실패: userId={}, eventType={}", userId, eventType, exception);
-            return null;
-        }
     }
 
     private String serializeMessage(SseEventMessage message) {
