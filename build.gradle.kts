@@ -20,7 +20,6 @@ subprojects {
     tasks.withType<Test>().configureEach {
         maxHeapSize = "512m"
         minHeapSize = "256m"
-        forkEvery = 20
     }
 }
 
