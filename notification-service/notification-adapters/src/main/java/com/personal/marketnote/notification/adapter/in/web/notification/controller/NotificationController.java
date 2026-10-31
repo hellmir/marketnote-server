@@ -92,6 +92,7 @@ public class NotificationController {
 
     @PatchMapping("/{id}/read")
     @MarkNotificationAsReadApiDocs
+    @RateLimited(key = "notifications-read", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<Void>> markNotificationAsRead(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal,
             @PathVariable("id") Long id
@@ -134,6 +135,7 @@ public class NotificationController {
 
     @GetMapping("/unread-count")
     @GetUnreadNotificationCountApiDocs
+    @RateLimited(key = "notifications-unread-count", maxRequests = 60, windowSeconds = 60)
     public ResponseEntity<BaseResponse<GetUnreadNotificationCountResult>> getUnreadNotificationCount(
             @AuthenticationPrincipal OAuth2AuthenticatedPrincipal principal
     ) {
