@@ -11,7 +11,7 @@ import com.personal.marketnote.reward.exception.DuplicateOfferwallRewardExceptio
 import com.personal.marketnote.reward.port.in.command.offerwall.RegisterOfferwallRewardCommand;
 import com.personal.marketnote.reward.port.in.usecase.offerwall.HandleOfferwallRewardUseCase;
 import com.personal.marketnote.reward.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.reward.utility.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.reward.utility.OfferwallVendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +50,7 @@ class OfferwallControllerTest {
     @Mock
     private VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
     @Mock
-    private VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
+    private OfferwallVendorCommunicationPayloadGenerator offerwallVendorCommunicationPayloadGenerator;
 
     @InjectMocks
     private OfferwallController controller;
@@ -59,7 +59,7 @@ class OfferwallControllerTest {
 
     @BeforeEach
     void setUp() {
-        given(vendorCommunicationPayloadGenerator.buildResponsePayloadJson(true, 1, "success"))
+        given(offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(true, 1, "success"))
                 .willReturn(emptyNode);
     }
 
@@ -69,7 +69,7 @@ class OfferwallControllerTest {
 
         @BeforeEach
         void setUp() {
-            given(vendorCommunicationPayloadGenerator.buildAdpopcornPayloadJson(
+            given(offerwallVendorCommunicationPayloadGenerator.buildAdpopcornPayloadJson(
                     any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
             )).willReturn(emptyNode);
         }
@@ -159,7 +159,7 @@ class OfferwallControllerTest {
 
         @BeforeEach
         void setUp() {
-            given(vendorCommunicationPayloadGenerator.buildTnkPayloadJson(
+            given(offerwallVendorCommunicationPayloadGenerator.buildTnkPayloadJson(
                     any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
             )).willReturn(emptyNode);
         }
@@ -200,7 +200,7 @@ class OfferwallControllerTest {
 
         @BeforeEach
         void setUp() {
-            given(vendorCommunicationPayloadGenerator.buildAdiscopePayloadJson(
+            given(offerwallVendorCommunicationPayloadGenerator.buildAdiscopePayloadJson(
                     any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()
             )).willReturn(emptyNode);
         }

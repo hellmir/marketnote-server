@@ -9,7 +9,7 @@ import com.personal.marketnote.community.domain.servicecommunication.CommunitySe
 import com.personal.marketnote.community.exception.InvalidOrderStatusForReviewException;
 import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
 import com.personal.marketnote.community.port.out.order.VerifyOrderOwnershipPort;
-import com.personal.marketnote.community.utility.ServiceCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.community.utility.ServiceCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

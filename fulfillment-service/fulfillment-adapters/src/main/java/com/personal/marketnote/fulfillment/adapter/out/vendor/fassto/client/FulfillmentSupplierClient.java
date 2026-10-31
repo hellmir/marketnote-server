@@ -33,7 +33,7 @@ import com.personal.marketnote.fulfillment.port.out.vendor.GetFulfillmentSupplie
 import com.personal.marketnote.fulfillment.port.out.vendor.RegisterFulfillmentSupplierPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.UpdateFulfillmentSupplierPort;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.fulfillment.utility.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

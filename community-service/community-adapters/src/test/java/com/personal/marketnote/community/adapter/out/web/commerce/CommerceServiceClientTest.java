@@ -3,7 +3,7 @@ package com.personal.marketnote.community.adapter.out.web.commerce;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.community.exception.UnauthorizedOrderAccessException;
-import com.personal.marketnote.community.utility.ServiceCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.community.utility.ServiceCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,97 +1,37 @@
 package com.personal.marketnote.file.utility;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.personal.marketnote.file.domain.servicecommunication.FileServiceCommunicationSenderType;
 import com.personal.marketnote.file.domain.servicecommunication.FileServiceCommunicationTargetType;
 import com.personal.marketnote.file.domain.servicecommunication.FileServiceCommunicationType;
 import com.personal.marketnote.file.port.in.command.servicecommunication.FileServiceCommunicationHistoryCommand;
 import com.personal.marketnote.file.port.in.usecase.servicecommunication.RecordFileServiceCommunicationHistoryUseCase;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * 파일 서비스 간 통신 이력 기록기.
+ *
+ * <p>공통 {@link com.personal.marketnote.common.utility.audit.ServiceCommunicationRecorder}를 상속하여
+ * 4종 오버로드를 제공하고, 서비스별 Command 조립은 dispatcher 람다에서 수행한다.</p>
+ */
 @Component
-@RequiredArgsConstructor
-public class ServiceCommunicationRecorder {
-    private final RecordFileServiceCommunicationHistoryUseCase recordServiceCommunicationHistoryUseCase;
-
-    public void record(
-            FileServiceCommunicationTargetType targetType,
-            FileServiceCommunicationType communicationType,
-            FileServiceCommunicationSenderType sender,
-            String payload,
-            JsonNode payloadJson
-    ) {
-        recordServiceCommunicationHistoryUseCase.record(
-                FileServiceCommunicationHistoryCommand.builder()
-                        .targetType(targetType)
-                        .targetId(null)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .build()
-        );
-    }
-
-    public void record(
-            FileServiceCommunicationTargetType targetType,
-            FileServiceCommunicationType communicationType,
-            FileServiceCommunicationSenderType sender,
-            String targetId,
-            String payload,
-            JsonNode payloadJson
-    ) {
-        recordServiceCommunicationHistoryUseCase.record(
-                FileServiceCommunicationHistoryCommand.builder()
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .build()
-        );
-    }
-
-    public void record(
-            FileServiceCommunicationTargetType targetType,
-            FileServiceCommunicationType communicationType,
-            FileServiceCommunicationSenderType sender,
-            String payload,
-            JsonNode payloadJson,
-            String exception
-    ) {
-        recordServiceCommunicationHistoryUseCase.record(
-                FileServiceCommunicationHistoryCommand.builder()
-                        .targetType(targetType)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .build()
-        );
-    }
-
-    public void record(
-            FileServiceCommunicationTargetType targetType,
-            FileServiceCommunicationType communicationType,
-            FileServiceCommunicationSenderType sender,
-            String targetId,
-            String payload,
-            JsonNode payloadJson,
-            String exception
-    ) {
-        recordServiceCommunicationHistoryUseCase.record(
-                FileServiceCommunicationHistoryCommand.builder()
-                        .targetType(targetType)
-                        .targetId(targetId)
-                        .communicationType(communicationType)
-                        .sender(sender)
-                        .exception(exception)
-                        .payload(payload)
-                        .payloadJson(payloadJson)
-                        .build()
+public class ServiceCommunicationRecorder extends com.personal.marketnote.common.utility.audit.ServiceCommunicationRecorder<
+        FileServiceCommunicationTargetType,
+        FileServiceCommunicationType,
+        FileServiceCommunicationSenderType
+> {
+    public ServiceCommunicationRecorder(RecordFileServiceCommunicationHistoryUseCase useCase) {
+        super((targetType, targetId, communicationType, sender, exception, payload, payloadJson) ->
+                useCase.record(
+                        FileServiceCommunicationHistoryCommand.builder()
+                                .targetType(targetType)
+                                .targetId(targetId)
+                                .communicationType(communicationType)
+                                .sender(sender)
+                                .exception(exception)
+                                .payload(payload)
+                                .payloadJson(payloadJson)
+                                .build()
+                )
         );
     }
 }

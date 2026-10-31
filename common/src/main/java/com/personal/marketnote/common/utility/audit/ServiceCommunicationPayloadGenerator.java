@@ -1,4 +1,4 @@
-package com.personal.marketnote.commerce.utility;
+package com.personal.marketnote.common.utility.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +12,11 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * 서비스 간 통신 페이로드를 {@link JsonNode}로 빌드하는 공통 유틸리티.
+ *
+ * <p>HTTP 요청/응답/에러 페이로드를 attempt 번호와 함께 표준 형태로 조립한다.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class ServiceCommunicationPayloadGenerator {
@@ -21,11 +26,9 @@ public class ServiceCommunicationPayloadGenerator {
         if (FormatValidator.hasNoValue(payload)) {
             return objectMapper.createObjectNode();
         }
-
         if (payload instanceof JsonNode jsonNode) {
             return jsonNode;
         }
-
         return objectMapper.valueToTree(payload);
     }
 

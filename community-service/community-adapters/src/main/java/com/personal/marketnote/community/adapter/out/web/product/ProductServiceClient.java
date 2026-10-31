@@ -2,7 +2,7 @@ package com.personal.marketnote.community.adapter.out.web.product;
 
 import com.personal.marketnote.common.adapter.out.ServiceAdapter;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
-import com.personal.marketnote.community.utility.ServiceCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.community.utility.ServiceCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
