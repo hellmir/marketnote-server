@@ -226,7 +226,6 @@ pipeline {
 
 	parameters {
 		choice(name: 'SERVICE', choices: ['auto','user-service','product-service','commerce-service','community-service','reward-service','fulfillment-service','file-service','notification-service'], description: '배포 대상 서비스')
-		choice(name: 'ENVIRONMENT', choices: ['qa','stage','prod'], description: '배포 대상 환경')
 	}
 
 	environment {
@@ -310,10 +309,14 @@ pipeline {
 					env.PROJECT_VERSION = sh(script: "./gradlew -p ${env.SERVICE_DIRECTORY} -q printProjectVersion", returnStdout: true).trim()
 					env.DOCKERFILE_PATH = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/Dockerfile"
 					env.BUILD_CONTEXT = "${WORKSPACE}/${env.SERVICE_DIRECTORY}"
-					def environment = (params.ENVIRONMENT ?: 'qa').toUpperCase()
-					if (!(environment in ['QA','STAGE','PROD'])) {
-						error "Unknown ENVIRONMENT '${environment}'. Allowed: QA, STAGE, PROD"
+					def jobName = env.JOB_NAME ?: ''
+					def projectName = jobName.split('/')[0]
+					def matcher = (projectName =~ /-(qa|stage|prod)$/)
+					if (!matcher.find()) {
+						error "JOB_NAME '${jobName}' (project='${projectName}') must end with one of: -qa, -stage, -prod"
 					}
+					def environment = matcher.group(1).toUpperCase()
+					matcher = null
 					env.ENVIRONMENT_UPPER = environment
 					env.ENV_PREFIX = "MARKETNOTE_${environment}"
 				}
@@ -333,7 +336,7 @@ pipeline {
         stage('Notify Start') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'MARKETNOTE_SLACK_NOTIFICATION_CHANNEL', variable: 'SLACK_NOTIFICATION_CHANNEL')
+                    string(credentialsId: "${env.ENV_PREFIX}_SLACK_NOTIFICATION_CHANNEL", variable: 'SLACK_NOTIFICATION_CHANNEL')
                 ]) {
                     script {
                         env.SLACK_NOTIFICATION_CHANNEL = SLACK_NOTIFICATION_CHANNEL
@@ -458,14 +461,14 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',           variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',       variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',          variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN', variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',           variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_REDIS',  variable: 'CLOUDWATCH_LOG_GROUP_REDIS'),
-						string(credentialsId: 'MARKETNOTE_REDIS_SERVICE_NAME',          variable: 'REDIS_SERVICE_NAME'),
-						string(credentialsId: 'MARKETNOTE_REDIS_PASSWORD',              variable: 'REDIS_PASSWORD')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",           variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",       variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",          variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN", variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",           variable: 'ECS_TASK_ROLE_ARN'),
+						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_REDIS",  variable: 'CLOUDWATCH_LOG_GROUP_REDIS'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",          variable: 'REDIS_SERVICE_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_PASSWORD",              variable: 'REDIS_PASSWORD')
 					]) {
 						sh '''
 				          LG="$CLOUDWATCH_LOG_GROUP_REDIS"
@@ -502,13 +505,13 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',       variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',   variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',      variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',        variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: 'MARKETNOTE_REDIS_SERVICE_NAME',      variable: 'REDIS_SERVICE_NAME'),
-						string(credentialsId: 'MARKETNOTE_SUBNET_IDS',              variable: 'SUBNET_IDS'),
-						string(credentialsId: 'MARKETNOTE_SECURITY_GROUP_IDS',      variable: 'SECURITY_GROUP_IDS')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",       variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",   variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",      variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",        variable: 'ECS_CLUSTER_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",      variable: 'REDIS_SERVICE_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",              variable: 'SUBNET_IDS'),
+						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",      variable: 'SECURITY_GROUP_IDS')
 					]) {
 						def latestTask = env.REDIS_TASK_DEF_ARN?.trim()
 						if (!latestTask) {
@@ -571,10 +574,10 @@ pipeline {
 			steps {
 				script {
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',        variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
 					]) {
 						sh '''
                         aws --version
@@ -598,7 +601,7 @@ pipeline {
 					script {
 						def helper = load 'jenkins/resolve-and-register.groovy'
 						withCredentials(helper.dbCredentialBindings(env.ENV_PREFIX) + [
-							string(credentialsId: 'MARKETNOTE_DB_USERNAME', variable: 'DB_USERNAME')
+							string(credentialsId: "${env.ENV_PREFIX}_DB_USERNAME", variable: 'DB_USERNAME')
 						]) {
 							def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
 							def migrationDir = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
@@ -645,13 +648,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                        string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',        variable: 'AWS_ACCOUNT_ID'),
-                        string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
-                        string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-                        string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
-                        string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',      variable: 'ECS_CLUSTER_NAME'),
-                        string(credentialsId: 'MARKETNOTE_SUBNET_IDS',            variable: 'SUBNET_IDS'),
-                        string(credentialsId: 'MARKETNOTE_SECURITY_GROUP_IDS',    variable: 'SECURITY_GROUP_IDS'),
+                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+                        string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+                        string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+                        string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",      variable: 'ECS_CLUSTER_NAME'),
+                        string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",            variable: 'SUBNET_IDS'),
+                        string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",    variable: 'SECURITY_GROUP_IDS'),
                     ]) {
                         if (!env.APP_TASK_DEF_ARN?.trim()) {
                             error 'No application TaskDefinition ARN (APP_TASK_DEF_ARN) found to deploy'
@@ -735,11 +738,11 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',        variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_PROMETHEUS_ECR_REPOSITORY',   variable: 'PROMETHEUS_ECR_REPOSITORY')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",        variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_ECR_REPOSITORY",   variable: 'PROMETHEUS_ECR_REPOSITORY')
 					]) {
 						sh '''
                         aws ecr describe-repositories --repository-names $PROMETHEUS_ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $PROMETHEUS_ECR_REPOSITORY --region $AWS_DEFAULT_REGION
@@ -781,11 +784,11 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',             variable: 'AWS_ACCOUNT_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',          variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',      variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',         variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_ECR_REPOSITORY',     variable: 'GRAFANA_ECR_REPOSITORY')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCOUNT_ID",             variable: 'AWS_ACCOUNT_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",          variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",      variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",         variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ECR_REPOSITORY",     variable: 'GRAFANA_ECR_REPOSITORY')
 					]) {
 						sh '''
                         aws ecr describe-repositories --repository-names $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name $GRAFANA_ECR_REPOSITORY --region $AWS_DEFAULT_REGION
@@ -807,12 +810,12 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',               variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',           variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',              variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',               variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_PROMETHEUS', variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",               variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",           variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",              variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",     variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",               variable: 'ECS_TASK_ROLE_ARN'),
+						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_PROMETHEUS", variable: 'CLOUDWATCH_LOG_GROUP_PROMETHEUS'),
 						string(credentialsId: "${env.ENV_PREFIX}_FULFILLMENT_PRIVATE_IP",       variable: 'FULFILLMENT_PRIVATE_IP'),
 						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_1_PRIVATE_IP",    variable: 'KAFKA_BROKER_1_PRIVATE_IP'),
 						string(credentialsId: "${env.ENV_PREFIX}_KAFKA_BROKER_2_PRIVATE_IP",    variable: 'KAFKA_BROKER_2_PRIVATE_IP'),
@@ -838,13 +841,13 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',       variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',   variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',      variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',        variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: 'MARKETNOTE_PROMETHEUS_SERVICE_NAME', variable: 'PROMETHEUS_SERVICE_NAME'),
-						string(credentialsId: 'MARKETNOTE_SUBNET_IDS',              variable: 'SUBNET_IDS'),
-						string(credentialsId: 'MARKETNOTE_SECURITY_GROUP_IDS',      variable: 'SECURITY_GROUP_IDS')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",       variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",   variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",      variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",        variable: 'ECS_CLUSTER_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_SERVICE_NAME", variable: 'PROMETHEUS_SERVICE_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",              variable: 'SUBNET_IDS'),
+						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",      variable: 'SECURITY_GROUP_IDS')
 					]) {
 						def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix prometheus --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
 						if (!latestTask || latestTask == 'None') {
@@ -891,16 +894,16 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',              variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY',          variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',             variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_EXECUTION_ROLE_ARN',    variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_ECS_TASK_ROLE_ARN',              variable: 'ECS_TASK_ROLE_ARN'),
-						string(credentialsId: 'MARKETNOTE_CLOUDWATCH_LOG_GROUP_GRAFANA',   variable: 'CLOUDWATCH_LOG_GROUP_GRAFANA'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_ADMIN_PASSWORD',         variable: 'GRAFANA_ADMIN_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_DOMAIN',                 variable: 'GRAFANA_DOMAIN'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_ROOT_URL',               variable: 'GRAFANA_ROOT_URL'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_SERVE_FROM_SUB_PATH',    variable: 'GRAFANA_SERVE_FROM_SUB_PATH'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",              variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",          variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",             variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_EXECUTION_ROLE_ARN",    variable: 'ECS_TASK_EXECUTION_ROLE_ARN'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_TASK_ROLE_ARN",              variable: 'ECS_TASK_ROLE_ARN'),
+						string(credentialsId: "${env.ENV_PREFIX}_CLOUDWATCH_LOG_GROUP_GRAFANA",   variable: 'CLOUDWATCH_LOG_GROUP_GRAFANA'),
+						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ADMIN_PASSWORD",         variable: 'GRAFANA_ADMIN_PASSWORD'),
+						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_DOMAIN",                 variable: 'GRAFANA_DOMAIN'),
+						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_ROOT_URL",               variable: 'GRAFANA_ROOT_URL'),
+						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_SERVE_FROM_SUB_PATH",    variable: 'GRAFANA_SERVE_FROM_SUB_PATH'),
 						string(credentialsId: "${env.ENV_PREFIX}_PROMETHEUS_URL",              variable: 'PROMETHEUS_URL')
 					]) {
 						sh '''
@@ -923,13 +926,13 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: 'MARKETNOTE_AWS_ACCESS_KEY_ID',     variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: 'MARKETNOTE_ECS_CLUSTER_NAME',      variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: 'MARKETNOTE_GRAFANA_SERVICE_NAME',  variable: 'GRAFANA_SERVICE_NAME'),
-						string(credentialsId: 'MARKETNOTE_SUBNET_IDS',            variable: 'SUBNET_IDS'),
-						string(credentialsId: 'MARKETNOTE_SECURITY_GROUP_IDS',    variable: 'SECURITY_GROUP_IDS')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",     variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY", variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",    variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",      variable: 'ECS_CLUSTER_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_GRAFANA_SERVICE_NAME",  variable: 'GRAFANA_SERVICE_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",            variable: 'SUBNET_IDS'),
+						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",    variable: 'SECURITY_GROUP_IDS')
 					]) {
 						def latestTask = sh(script: 'aws ecs list-task-definitions --family-prefix grafana --sort DESC --region $AWS_DEFAULT_REGION --query \'taskDefinitionArns[0]\' --output text', returnStdout: true).trim()
 						if (!latestTask || latestTask == 'None') {
@@ -984,24 +987,38 @@ pipeline {
 
 		success {
 			echo '====================================Build Success====================================='
-			slackSend(
-				channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
-				color:   "${env.SLACK_SUCCESS_COLOR}",
-				message: "Build Success!!\n"
-				+ "SERVICE: ${env.SERVICE_NAME}\n"
-				+ "ECS_SERVICE: ${env.ECS_SERVICE_NAME}\n"
-				+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
-				+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
-			)
+			script {
+				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+				if (ch) {
+					slackSend(
+						channel: ch,
+						color:   "${env.SLACK_SUCCESS_COLOR}",
+						message: "Build Success!!\n"
+						+ "SERVICE: ${env.SERVICE_NAME}\n"
+						+ "ECS_SERVICE: ${env.ECS_SERVICE_NAME}\n"
+						+ "IMAGE: ${env.IMAGE_URI?:'N/A'}\n"
+						+ "BUILD_NUMBER: ${env.BUILD_NUMBER}"
+					)
+				} else {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack success notification"
+				}
+			}
 		}
 
 		failure {
 			echo '====================================Build Failed======================================='
-			slackSend (
-				channel: "${env.SLACK_NOTIFICATION_CHANNEL}",
-				color:   "${env.SLACK_FAIL_COLOR}",
-				message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
-			)
+			script {
+				def ch = env.SLACK_NOTIFICATION_CHANNEL?.trim()
+				if (ch) {
+					slackSend(
+						channel: ch,
+						color:   "${env.SLACK_FAIL_COLOR}",
+						message: "Build Failed...\nBUILD_NUMBER: ${env.BUILD_NUMBER}"
+					)
+				} else {
+					echo "SLACK_NOTIFICATION_CHANNEL unresolved; skipping Slack failure notification"
+				}
+			}
 		}
 	}
 }
