@@ -269,25 +269,17 @@ pipeline {
 							withCredentials([
 								string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_ECR_REPOSITORY', variable: 'FULFILLMENT_SERVICE_ECR_REPOSITORY'),
 								string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_SERVER_ORIGIN', variable: 'FULFILLMENT_SERVICE_SERVER_ORIGIN'),
-								string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',        variable: 'FULFILLMENT_SERVICE_DB_URL'),
-								string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',   variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
 							]) {
 								env.ECR_REPOSITORY = FULFILLMENT_SERVICE_ECR_REPOSITORY
 								env.SERVER_ORIGIN = FULFILLMENT_SERVICE_SERVER_ORIGIN
-								env.DB_URL = FULFILLMENT_SERVICE_DB_URL
-								env.DB_PASSWORD = FULFILLMENT_SERVICE_DB_PASSWORD
 							}
 						} else if (svc == 'notification-service') {
 							withCredentials([
 								string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_ECR_REPOSITORY', variable: 'NOTIFICATION_SERVICE_ECR_REPOSITORY'),
 								string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_SERVER_ORIGIN', variable: 'NOTIFICATION_SERVICE_SERVER_ORIGIN'),
-								string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',        variable: 'NOTIFICATION_SERVICE_DB_URL'),
-								string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD',   variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
 							]) {
 								env.ECR_REPOSITORY = NOTIFICATION_SERVICE_ECR_REPOSITORY
 								env.SERVER_ORIGIN = NOTIFICATION_SERVICE_SERVER_ORIGIN
-								env.DB_URL = NOTIFICATION_SERVICE_DB_URL
-								env.DB_PASSWORD = NOTIFICATION_SERVICE_DB_PASSWORD
 							}
 						} else {
 							error "SERVICE_NAME not mapped: ${svc}"
@@ -361,41 +353,11 @@ pipeline {
 					env.LIGHTSAIL_REMOTE_ENV_PATH = "${env.LIGHTSAIL_APP_DIR}/${envFileName}"
 					env.LIGHTSAIL_REMOTE_COMPOSE_PATH = "${env.LIGHTSAIL_APP_DIR}/docker-compose.yml"
 
-					def envText = [
-						envLine(env.IMAGE_ENV_KEY, env.IMAGE_URI),
-						envLine('SERVICE_NAME', env.SERVICE_NAME),
-						envLine('SPRING_PROFILE', env.SPRING_PROFILE),
-						envLine('JWT_SECRET_KEY', env.JWT_SECRET_KEY),
-						envLine('ACCESS_CONTROL_ALLOWED_ORIGINS', env.ACCESS_CONTROL_ALLOWED_ORIGINS),
-						envLine('SERVER_ORIGIN', env.SERVER_ORIGIN),
-						envLine('CLIENT_ORIGIN', env.CLIENT_ORIGIN),
-						envLine('COOKIE_DOMAIN', env.COOKIE_DOMAIN),
-						envLine('DB_URL', env.DB_URL),
-						envLine('DB_USERNAME', env.DB_USERNAME),
-						envLine('DB_PASSWORD', env.DB_PASSWORD),
-						envLine('JWT_ADMIN_ACCESS_TOKEN', env.JWT_ADMIN_ACCESS_TOKEN),
-						envLine('JAVA_TOOL_OPTIONS', '-Duser.timezone=Asia/Seoul'),
-						envLine('FASSTO_BASE_URL', env.FASSTO_BASE_URL),
-						envLine('FASSTO_API_CD', env.FASSTO_API_CD),
-						envLine('FASSTO_API_KEY', env.FASSTO_API_KEY),
-						envLine('FASSTO_CUSTOMER_CODE', env.FASSTO_CUSTOMER_CODE),
-						envLine('HMAC_SECRET_KEY', env.HMAC_SECRET_KEY),
-						envLine('REDIS_HOST_NAME', env.REDIS_HOST_NAME),
-						envLine('REDIS_PASSWORD', env.REDIS_PASSWORD),
-						envLine('KAFKA_BOOTSTRAP_SERVERS', env.KAFKA_BOOTSTRAP_SERVERS),
-						envLine('KAFKA_SLACK_WEBHOOK_URL', env.KAFKA_SLACK_WEBHOOK_URL),
-						envLine('KAFKA_SASL_ENABLED', env.KAFKA_SASL_ENABLED),
-						envLine('KAFKA_SASL_MECHANISM', env.KAFKA_SASL_MECHANISM),
-						envLine('KAFKA_SASL_PROTOCOL', env.KAFKA_SASL_PROTOCOL),
-						envLine('KAFKA_SASL_USERNAME', env.KAFKA_SASL_USERNAME),
-						envLine('KAFKA_SASL_PASSWORD', env.KAFKA_SASL_PASSWORD),
-						envLine('KAFKA_SSL_TRUSTSTORE_PASSWORD', env.KAFKA_SSL_TRUSTSTORE_PASSWORD),
-					].join('\n') + '\n'
-
-					writeFile file: env.LIGHTSAIL_ENV_PATH, text: envText
-					sh "chmod 600 '${env.LIGHTSAIL_ENV_PATH}'"
-
 					withCredentials([
+						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',        variable: 'FULFILLMENT_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',   variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
+						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',       variable: 'NOTIFICATION_SERVICE_DB_URL'),
+						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD',  variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
 						sshUserPrivateKey(credentialsId: 'MARKETNOTE_QA_LIGHTSAIL_SERVER_JENKINS_PRIVATE_KEY', keyFileVariable: 'LIGHTSAIL_SSH_KEY', usernameVariable: 'LIGHTSAIL_SSH_USER'),
 						string(credentialsId: 'MARKETNOTE_QA_LIGHTSAIL_SERVER_HOST', variable: 'LIGHTSAIL_SERVER_HOST'),
 						string(credentialsId: 'MARKETNOTE_AWS_ACCOUNT_ID',        variable: 'AWS_ACCOUNT_ID'),
@@ -403,6 +365,50 @@ pipeline {
 						string(credentialsId: 'MARKETNOTE_AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY'),
 						string(credentialsId: 'MARKETNOTE_AWS_DEFAULT_REGION',    variable: 'AWS_DEFAULT_REGION'),
 					]) {
+						def dbCreds = [
+							FULFILLMENT_SERVICE_DB_URL: FULFILLMENT_SERVICE_DB_URL, FULFILLMENT_SERVICE_DB_PASSWORD: FULFILLMENT_SERVICE_DB_PASSWORD,
+							NOTIFICATION_SERVICE_DB_URL: NOTIFICATION_SERVICE_DB_URL, NOTIFICATION_SERVICE_DB_PASSWORD: NOTIFICATION_SERVICE_DB_PASSWORD,
+						]
+						def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
+						def dbUrl = dbCreds["${svcUpper}_DB_URL"]
+						def dbPassword = dbCreds["${svcUpper}_DB_PASSWORD"]
+						if (!dbUrl?.trim())      error "${svcUpper}_DB_URL credential not resolved for ${env.SERVICE_NAME}"
+						if (!dbPassword?.trim()) error "${svcUpper}_DB_PASSWORD credential not resolved for ${env.SERVICE_NAME}"
+
+						def envText = [
+							envLine(env.IMAGE_ENV_KEY, env.IMAGE_URI),
+							envLine('SERVICE_NAME', env.SERVICE_NAME),
+							envLine('SPRING_PROFILE', env.SPRING_PROFILE),
+							envLine('JWT_SECRET_KEY', env.JWT_SECRET_KEY),
+							envLine('ACCESS_CONTROL_ALLOWED_ORIGINS', env.ACCESS_CONTROL_ALLOWED_ORIGINS),
+							envLine('SERVER_ORIGIN', env.SERVER_ORIGIN),
+							envLine('CLIENT_ORIGIN', env.CLIENT_ORIGIN),
+							envLine('COOKIE_DOMAIN', env.COOKIE_DOMAIN),
+							envLine('DB_URL', dbUrl),
+							envLine('DB_USERNAME', env.DB_USERNAME),
+							envLine('DB_PASSWORD', dbPassword),
+							envLine('JWT_ADMIN_ACCESS_TOKEN', env.JWT_ADMIN_ACCESS_TOKEN),
+							envLine('JAVA_TOOL_OPTIONS', '-Duser.timezone=Asia/Seoul'),
+							envLine('FASSTO_BASE_URL', env.FASSTO_BASE_URL),
+							envLine('FASSTO_API_CD', env.FASSTO_API_CD),
+							envLine('FASSTO_API_KEY', env.FASSTO_API_KEY),
+							envLine('FASSTO_CUSTOMER_CODE', env.FASSTO_CUSTOMER_CODE),
+							envLine('HMAC_SECRET_KEY', env.HMAC_SECRET_KEY),
+							envLine('REDIS_HOST_NAME', env.REDIS_HOST_NAME),
+							envLine('REDIS_PASSWORD', env.REDIS_PASSWORD),
+							envLine('KAFKA_BOOTSTRAP_SERVERS', env.KAFKA_BOOTSTRAP_SERVERS),
+							envLine('KAFKA_SLACK_WEBHOOK_URL', env.KAFKA_SLACK_WEBHOOK_URL),
+							envLine('KAFKA_SASL_ENABLED', env.KAFKA_SASL_ENABLED),
+							envLine('KAFKA_SASL_MECHANISM', env.KAFKA_SASL_MECHANISM),
+							envLine('KAFKA_SASL_PROTOCOL', env.KAFKA_SASL_PROTOCOL),
+							envLine('KAFKA_SASL_USERNAME', env.KAFKA_SASL_USERNAME),
+							envLine('KAFKA_SASL_PASSWORD', env.KAFKA_SASL_PASSWORD),
+							envLine('KAFKA_SSL_TRUSTSTORE_PASSWORD', env.KAFKA_SSL_TRUSTSTORE_PASSWORD),
+						].join('\n') + '\n'
+
+						writeFile file: env.LIGHTSAIL_ENV_PATH, text: envText
+						sh "chmod 600 '${env.LIGHTSAIL_ENV_PATH}'"
+
 						sh '''#!/usr/bin/env bash
 						  set -euo pipefail
 

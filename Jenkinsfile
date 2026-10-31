@@ -1,7 +1,7 @@
 import com.cloudbees.groovy.cps.NonCPS
 
 @NonCPS
-def buildMarketnoteTaskDefinition(env) {
+def buildMarketnoteTaskDefinition(env, dbUrl, dbPassword) {
     [
         family: env.PROJECT_NAME,
         networkMode: "awsvpc",
@@ -18,9 +18,9 @@ def buildMarketnoteTaskDefinition(env) {
             environment: [
                 [name: "SERVICE_NAME",                              value: env.ECS_SERVICE_NAME],
                 [name: "JAVA_TOOL_OPTIONS",                         value: "-Duser.timezone=Asia/Seoul"],
-                [name: "DB_URL",                                    value: env.DB_URL],
+                [name: "DB_URL",                                    value: dbUrl],
                 [name: "DB_USERNAME",                               value: env.DB_USERNAME],
-                [name: "DB_PASSWORD",                               value: env.DB_PASSWORD],
+                [name: "DB_PASSWORD",                               value: dbPassword],
                 [name: "JWT_SECRET_KEY",                            value: env.JWT_SECRET_KEY],
                 [name: "ACCESS_TOKEN_EXPIRATION_TIME",              value: env.ACCESS_TOKEN_EXPIRATION_TIME],
                 [name: "REFRESH_TOKEN_EXPIRATION_TIME",             value: env.REFRESH_TOKEN_EXPIRATION_TIME],
