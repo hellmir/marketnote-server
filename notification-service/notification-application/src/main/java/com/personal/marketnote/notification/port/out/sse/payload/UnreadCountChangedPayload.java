@@ -1,6 +1,6 @@
 package com.personal.marketnote.notification.port.out.sse.payload;
 
-public record UnreadCountChangedPayload(long unreadCount) {
+public record UnreadCountChangedPayload(long unreadCount) implements SseEventPayload {
 
     public static UnreadCountChangedPayload of(long unreadCount) {
         return new UnreadCountChangedPayload(unreadCount);
