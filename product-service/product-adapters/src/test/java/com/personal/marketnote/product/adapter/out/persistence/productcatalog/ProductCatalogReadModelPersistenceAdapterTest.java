@@ -94,6 +94,47 @@ class ProductCatalogReadModelPersistenceAdapterTest {
             assertThat(entity.get().getOrderNum()).isEqualTo(5L);
             assertThat(entity.get().getPopularity()).isEqualTo(10L);
         }
+
+        @Test
+        @DisplayName("기존 row 에 대해 brandName 이 null 인 upsert 가 들어오면 기존 brandName 이 유지된다")
+        void preservesBrandNameWhenNull() {
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품A", null,
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 0L, 0L, 0L, null, null);
+
+            Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
+            assertThat(entity).isPresent();
+            assertThat(entity.get().getBrandName()).isEqualTo("브랜드A");
+        }
+
+        @Test
+        @DisplayName("기존 row 에 대해 price/discountPrice/accumulatedPoint/orderNum/popularity 가 null 로 오면 기존 값이 유지된다 (partial update)")
+        void preservesFieldsWhenNullPartialUpdate() {
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, 10L, "상품A", "브랜드A",
+                    10000L, 9000L, BigDecimal.valueOf(10.0), 100L, BigDecimal.valueOf(1.0), 5L, 7L, 0L, null, null);
+
+            adapter.upsertCatalog(
+                    1L, 100L, 200L, null, "상품A", null,
+                    null, null, null, null, null, null, null, 0L, null, null);
+
+            Optional<ProductCatalogReadModelJpaEntity> entity = repository.findByPricePolicyId(1L);
+            assertThat(entity).isPresent();
+            assertThat(entity.get().getName()).isEqualTo("상품A");
+            assertThat(entity.get().getBrandName()).isEqualTo("브랜드A");
+            assertThat(entity.get().getPrimaryCategoryId()).isEqualTo(10L);
+            assertThat(entity.get().getPrice()).isEqualTo(10000L);
+            assertThat(entity.get().getDiscountPrice()).isEqualTo(9000L);
+            assertThat(entity.get().getDiscountRate()).isEqualByComparingTo(BigDecimal.valueOf(10.0));
+            assertThat(entity.get().getAccumulatedPoint()).isEqualTo(100L);
+            assertThat(entity.get().getAccumulatedPointRate()).isEqualByComparingTo(BigDecimal.valueOf(1.0));
+            assertThat(entity.get().getOrderNum()).isEqualTo(5L);
+            assertThat(entity.get().getPopularity()).isEqualTo(7L);
+        }
     }
 
     @Nested

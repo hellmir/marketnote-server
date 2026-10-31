@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -338,7 +339,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @Test
     @DisplayName("ProductTagChanged 이벤트 수신 시 SyncProductTagChangeUseCase 에 위임한다")
     void handleProductTagChanged_validPayload_delegatesToUseCase() {
-        java.util.UUID eventId = java.util.UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
         ProductTagChangedEvent payload = new ProductTagChangedEvent(
                 777L,
                 List.of(new ProductTagChangedEvent.ProductTagSnapshot(1L, "봄", 1L)),
@@ -409,7 +410,7 @@ class ProductCatalogReadModelSyncConsumerTest {
     @Test
     @DisplayName("PricePolicyCreated 이벤트 수신 시 SyncPricePolicyCreatedUseCase 에 위임한다")
     void handlePricePolicyCreated_validPayload_delegatesToUseCase() {
-        java.util.UUID eventId = java.util.UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
         PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
                 100L, 200L, 300L, "테스트 상품", "브랜드",
                 10000L, 9000L, 100L, 0L,
@@ -494,6 +495,27 @@ class ProductCatalogReadModelSyncConsumerTest {
         consumer.handlePricePolicyCreated(record, acknowledgment);
 
         verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verify(acknowledgment).acknowledge();
+    }
+
+    @Test
+    @DisplayName("PricePolicyCreated 이벤트 productName 이 null 이면 ack skip 하고 ReadModel 수정 호출을 하지 않는다")
+    void handlePricePolicyCreated_nullProductName_acknowledgesAndSkips() {
+        PricePolicyCreatedEvent payload = new PricePolicyCreatedEvent(
+                100L, 200L, 300L, null, "브랜드",
+                10000L, 9000L, 100L, 0L, List.of(), List.of()
+        );
+        EventEnvelope<PricePolicyCreatedEvent> envelope = new EventEnvelope<>(
+                UUID.randomUUID().toString(), KafkaTopicConstants.PRICE_POLICY_CREATED,
+                "product-service", FIXED_TIME, payload
+        );
+        ConsumerRecord<String, EventEnvelope<?>> record =
+                recordOf(KafkaTopicConstants.PRICE_POLICY_CREATED, envelope);
+
+        consumer.handlePricePolicyCreated(record, acknowledgment);
+
+        verifyNoInteractions(syncPricePolicyCreatedUseCase);
+        verifyNoInteractions(saveProductCatalogReadModelPort);
         verify(acknowledgment).acknowledge();
     }
 }
