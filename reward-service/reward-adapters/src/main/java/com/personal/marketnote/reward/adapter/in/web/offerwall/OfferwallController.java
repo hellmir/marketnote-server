@@ -19,8 +19,8 @@ import com.personal.marketnote.reward.domain.vendorcommunication.RewardVendorNam
 import com.personal.marketnote.reward.exception.DuplicateOfferwallRewardException;
 import com.personal.marketnote.reward.port.in.command.offerwall.RegisterOfferwallRewardCommand;
 import com.personal.marketnote.reward.port.in.usecase.offerwall.HandleOfferwallRewardUseCase;
+import com.personal.marketnote.reward.utility.OfferwallVendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.reward.utility.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.reward.utility.VendorCommunicationRecorder;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class OfferwallController {
     private final HandleOfferwallRewardUseCase handleOfferwallRewardUseCase;
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
     private final VendorCommunicationFailureHandler vendorCommunicationFailureHandler;
-    private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
+    private final OfferwallVendorCommunicationPayloadGenerator offerwallVendorCommunicationPayloadGenerator;
 
     /**
      * 애드팝콘 리워드 지급 콜백 엔드포인트
@@ -84,7 +84,7 @@ public class OfferwallController {
     ) {
         LocalDateTime parsedAttendedAt = FormatConverter.parseToLocalDateTime(attendedAt);
 
-        JsonNode payloadJson = vendorCommunicationPayloadGenerator.buildAdpopcornPayloadJson(
+        JsonNode payloadJson = offerwallVendorCommunicationPayloadGenerator.buildAdpopcornPayloadJson(
                 rewardKey,
                 userKey,
                 userDeviceType,
@@ -123,7 +123,7 @@ public class OfferwallController {
 
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
-            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(
+            JsonNode successPayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
                     true, 1, "success"
             );
             String successPayload = successPayloadJson.toString();
@@ -203,7 +203,7 @@ public class OfferwallController {
     ) {
         LocalDateTime parsedAttendedAt = FormatConverter.parseToLocalDateTime(attendedAt);
 
-        JsonNode payloadJson = vendorCommunicationPayloadGenerator.buildTnkPayloadJson(
+        JsonNode payloadJson = offerwallVendorCommunicationPayloadGenerator.buildTnkPayloadJson(
                 rewardKey,
                 userKey,
                 userDeviceType,
@@ -236,7 +236,7 @@ public class OfferwallController {
 
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
-            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(
+            JsonNode successPayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
                     true, 1, "success"
             );
             String successPayload = successPayloadJson.toString();
@@ -328,7 +328,7 @@ public class OfferwallController {
     ) {
         LocalDateTime attendedAt = LocalDateTime.now();
 
-        JsonNode payloadJson = vendorCommunicationPayloadGenerator.buildAdiscopePayloadJson(
+        JsonNode payloadJson = offerwallVendorCommunicationPayloadGenerator.buildAdiscopePayloadJson(
                 rewardKey,
                 userKey,
                 userDeviceType,
@@ -368,7 +368,7 @@ public class OfferwallController {
 
         try {
             Long id = handleOfferwallRewardUseCase.handle(command);
-            JsonNode successPayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(
+            JsonNode successPayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
                     true, 1, "success"
             );
             String successPayload = successPayloadJson.toString();

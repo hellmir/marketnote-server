@@ -8,7 +8,7 @@ import com.personal.marketnote.fulfillment.exception.GetFulfillmentStocksFailedE
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStockDetailCommand;
 import com.personal.marketnote.fulfillment.port.in.command.vendor.GetFulfillmentStocksCommand;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.fulfillment.utility.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

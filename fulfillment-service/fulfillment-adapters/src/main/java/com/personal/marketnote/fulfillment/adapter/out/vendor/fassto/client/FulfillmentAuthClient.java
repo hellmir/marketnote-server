@@ -21,7 +21,7 @@ import com.personal.marketnote.fulfillment.exception.FulfillmentConfigurationExc
 import com.personal.marketnote.fulfillment.port.out.vendor.DisconnectFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.port.out.vendor.RequestFulfillmentAuthPort;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.fulfillment.utility.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

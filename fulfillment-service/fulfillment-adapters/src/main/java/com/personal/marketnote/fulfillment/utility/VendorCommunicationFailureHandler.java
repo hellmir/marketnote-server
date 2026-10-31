@@ -1,6 +1,7 @@
 package com.personal.marketnote.fulfillment.utility;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationSenderType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationTargetType;
 import com.personal.marketnote.fulfillment.domain.vendorcommunication.FulfillmentVendorCommunicationType;

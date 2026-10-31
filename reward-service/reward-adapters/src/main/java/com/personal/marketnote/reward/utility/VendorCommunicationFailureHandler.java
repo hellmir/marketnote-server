@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class VendorCommunicationFailureHandler {
     private final VendorCommunicationRecorder vendorCommunicationRecorder;
-    private final VendorCommunicationPayloadGenerator vendorCommunicationPayloadGenerator;
+    private final OfferwallVendorCommunicationPayloadGenerator offerwallVendorCommunicationPayloadGenerator;
 
     public ResponseEntity<String> handleFailure(
             RewardVendorCommunicationTargetType targetType,
@@ -38,7 +38,7 @@ public class VendorCommunicationFailureHandler {
                 exceptionName
         );
 
-        JsonNode responsePayloadJson = vendorCommunicationPayloadGenerator.buildResponsePayloadJson(
+        JsonNode responsePayloadJson = offerwallVendorCommunicationPayloadGenerator.buildResponsePayloadJson(
                 false, resultCode, resultMessage
         );
         String responsePayload = responsePayloadJson.toString();

@@ -43,7 +43,7 @@ import com.personal.marketnote.fulfillment.port.in.result.vendor.GetFulfillmentW
 import com.personal.marketnote.fulfillment.port.in.result.vendor.RegisterFulfillmentWarehousingResult;
 import com.personal.marketnote.fulfillment.port.in.result.vendor.UpdateFulfillmentWarehousingResult;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationFailureHandler;
-import com.personal.marketnote.fulfillment.utility.VendorCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator;
 import com.personal.marketnote.fulfillment.utility.VendorCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

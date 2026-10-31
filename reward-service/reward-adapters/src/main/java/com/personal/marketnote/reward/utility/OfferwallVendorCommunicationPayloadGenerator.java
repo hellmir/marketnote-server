@@ -11,9 +11,15 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 
+/**
+ * 오퍼월(Adpopcorn/Tnk/Adiscope) 벤더 통신 페이로드 생성기.
+ *
+ * <p>광고 네트워크별 고유 필드 포맷을 가진 페이로드를 조립한다. 공통 벤더 통신 페이로드(error/message)는
+ * {@link com.personal.marketnote.common.utility.audit.VendorCommunicationPayloadGenerator}를 사용한다.</p>
+ */
 @Component
 @RequiredArgsConstructor
-public class VendorCommunicationPayloadGenerator {
+public class OfferwallVendorCommunicationPayloadGenerator {
     private final ObjectMapper objectMapper;
 
     public JsonNode buildResponsePayloadJson(boolean isSuccess, int resultCode, String resultMessage) {

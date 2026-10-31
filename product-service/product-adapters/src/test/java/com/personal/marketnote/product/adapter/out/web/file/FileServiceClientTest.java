@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.marketnote.common.exception.FileServiceRequestFailedException;
 import com.personal.marketnote.common.security.hmac.HmacServiceAuthHeaderBuilder;
 import com.personal.marketnote.common.utility.http.client.restclient.RestClientErrorHandler;
-import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -10,7 +10,7 @@ import com.personal.marketnote.product.domain.servicecommunication.ProductServic
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationTargetType;
 import com.personal.marketnote.product.domain.servicecommunication.ProductServiceCommunicationType;
 import com.personal.marketnote.product.port.out.inventory.RegisterInventoryPort;
-import com.personal.marketnote.product.utility.ServiceCommunicationPayloadGenerator;
+import com.personal.marketnote.common.utility.audit.ServiceCommunicationPayloadGenerator;
 import com.personal.marketnote.product.utility.ServiceCommunicationRecorder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
