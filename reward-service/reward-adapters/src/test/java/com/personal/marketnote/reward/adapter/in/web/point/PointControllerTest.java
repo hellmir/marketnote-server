@@ -2,8 +2,12 @@ package com.personal.marketnote.reward.adapter.in.web.point;
 
 import com.personal.marketnote.common.adapter.in.api.format.BaseResponse;
 import com.personal.marketnote.common.adapter.in.ratelimit.RateLimited;
+import com.personal.marketnote.reward.adapter.in.web.point.response.GetMyPointReponse;
 import com.personal.marketnote.reward.adapter.in.web.point.response.GetUserPointHistoryResponse;
+import com.personal.marketnote.reward.domain.point.PointAmount;
+import com.personal.marketnote.reward.domain.point.UserPoint;
 import com.personal.marketnote.reward.domain.point.UserPointHistoryFilter;
+import com.personal.marketnote.reward.port.in.command.point.RegisterUserPointCommand;
 import com.personal.marketnote.reward.port.in.result.point.GetUserPointHistoryResult;
 import com.personal.marketnote.reward.port.in.usecase.point.CancelPendingPointUseCase;
 import com.personal.marketnote.reward.port.in.usecase.point.ClaimReferralBonusUseCase;
@@ -36,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PointController 권한 검증 테스트")
@@ -140,5 +145,42 @@ class PointControllerTest {
         assertThat(rateLimited.key()).isEqualTo("user-point-histories");
         assertThat(rateLimited.maxRequests()).isEqualTo(60);
         assertThat(rateLimited.windowSeconds()).isEqualTo(60);
+    }
+
+    @Test
+    @DisplayName("registerUserPoint는 RegisterUserPointUseCase에 userId/userKey Command를 위임하고 201을 반환한다")
+    void registerUserPointDelegatesWithCommandAndReturnsCreated() {
+        org.mockito.ArgumentCaptor<RegisterUserPointCommand> captor =
+                org.mockito.ArgumentCaptor.forClass(RegisterUserPointCommand.class);
+
+        ResponseEntity<BaseResponse<Void>> response = controller.registerUserPoint(999L, "user-key-abc");
+
+        verify(registerUserPointUseCase).register(captor.capture());
+        RegisterUserPointCommand command = captor.getValue();
+        assertThat(command.userId()).isEqualTo(999L);
+        assertThat(command.userKey()).isEqualTo("user-key-abc");
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
+    @DisplayName("getMyPoint는 인증 주체의 userId로 조회한 포인트 정보를 반환한다")
+    void getMyPointReturnsPrincipalUserInfo() {
+        OAuth2AuthenticatedPrincipal principal = buildPrincipal("123", "ROLE_BUYER");
+        UserPoint userPoint = UserPoint.from(
+                com.personal.marketnote.reward.domain.point.UserPointSnapshotState.builder()
+                        .userId(123L)
+                        .userKey("user-key")
+                        .amount(PointAmount.of(1000L))
+                        .addExpectedAmount(PointAmount.of(200L))
+                        .expireExpectedAmount(PointAmount.of(0L))
+                        .build()
+        );
+        org.mockito.BDDMockito.given(getUserPointUseCase.getUserPoint(123L)).willReturn(userPoint);
+
+        ResponseEntity<BaseResponse<GetMyPointReponse>> response = controller.getMyPoint(principal);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getContent()).isNotNull();
     }
 }

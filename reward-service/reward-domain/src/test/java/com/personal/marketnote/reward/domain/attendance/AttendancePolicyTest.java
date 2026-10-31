@@ -1,6 +1,8 @@
 package com.personal.marketnote.reward.domain.attendance;
 
 import com.personal.marketnote.common.domain.EntityStatus;
+import com.personal.marketnote.reward.domain.exception.InvalidContinuousPeriodException;
+import com.personal.marketnote.reward.domain.exception.InvalidRewardQuantityException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AttendancePolicyTest {
 
@@ -60,6 +63,81 @@ class AttendancePolicyTest {
         // then
         assertThat(policy.isInactive()).isTrue();
         assertThat(policy.isActive()).isFalse();
+    }
+
+    @Test
+    @DisplayName("ContinuousPeriod 최소값(1)로 정책을 생성할 수 있다")
+    void shouldCreatePolicyWithMinContinuousPeriod() {
+        AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
+                .continuousPeriod(ContinuousPeriod.of((short) 1))
+                .rewardType(AttendanceRewardType.POINT)
+                .rewardQuantity(RewardQuantity.of(1L))
+                .attendenceDate(ATTENDANCE_DATE)
+                .build();
+
+        AttendancePolicy policy = AttendancePolicy.from(state);
+
+        assertThat(policy.getContinuousPeriodValue()).isEqualTo((short) 1);
+    }
+
+    @Test
+    @DisplayName("ContinuousPeriod에 Short.MAX_VALUE까지 정책 생성이 허용된다")
+    void shouldCreatePolicyWithMaxShortContinuousPeriod() {
+        AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
+                .continuousPeriod(ContinuousPeriod.of(Short.MAX_VALUE))
+                .rewardType(AttendanceRewardType.POINT)
+                .rewardQuantity(RewardQuantity.of(100L))
+                .attendenceDate(ATTENDANCE_DATE)
+                .build();
+
+        AttendancePolicy policy = AttendancePolicy.from(state);
+
+        assertThat(policy.getContinuousPeriodValue()).isEqualTo(Short.MAX_VALUE);
+    }
+
+    @Test
+    @DisplayName("ContinuousPeriod가 0 이하이면 InvalidContinuousPeriodException을 던진다")
+    void shouldThrowWhenContinuousPeriodZeroOrNegative() {
+        assertThatThrownBy(() -> ContinuousPeriod.of((short) 0))
+                .isInstanceOf(InvalidContinuousPeriodException.class);
+        assertThatThrownBy(() -> ContinuousPeriod.of((short) -1))
+                .isInstanceOf(InvalidContinuousPeriodException.class);
+    }
+
+    @Test
+    @DisplayName("RewardQuantity 최소값(0)로 정책을 생성할 수 있다")
+    void shouldCreatePolicyWithZeroRewardQuantity() {
+        AttendancePolicyCreateState state = AttendancePolicyCreateState.builder()
+                .continuousPeriod(ContinuousPeriod.of((short) 1))
+                .rewardType(AttendanceRewardType.POINT)
+                .rewardQuantity(RewardQuantity.of(0L))
+                .attendenceDate(ATTENDANCE_DATE)
+                .build();
+
+        AttendancePolicy policy = AttendancePolicy.from(state);
+
+        assertThat(policy.getRewardQuantityValue()).isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("RewardQuantity가 음수이면 InvalidRewardQuantityException을 던진다")
+    void shouldThrowWhenRewardQuantityNegative() {
+        assertThatThrownBy(() -> RewardQuantity.of(-1L))
+                .isInstanceOf(InvalidRewardQuantityException.class);
+    }
+
+    @Test
+    @DisplayName("withStatus는 상태만 변경된 새 인스턴스를 반환한다")
+    void shouldReturnNewInstanceWithUpdatedStatus() {
+        AttendancePolicy original = createActivePolicy();
+
+        AttendancePolicy updated = original.withStatus(EntityStatus.INACTIVE);
+
+        assertThat(updated).isNotSameAs(original);
+        assertThat(updated.isInactive()).isTrue();
+        assertThat(original.isActive()).isTrue();
+        assertThat(updated.getId()).isEqualTo(original.getId());
+        assertThat(updated.getContinuousPeriodValue()).isEqualTo(original.getContinuousPeriodValue());
     }
 
     private AttendancePolicy createActivePolicy() {
