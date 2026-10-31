@@ -79,6 +79,27 @@ def resolveServiceMappings(parentScript) {
     }
 }
 
+def dbCredentialBindings() {
+    return [
+        string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_URL',              variable: 'USER_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_PASSWORD',         variable: 'USER_SERVICE_DB_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_URL',           variable: 'PRODUCT_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_PASSWORD',      variable: 'PRODUCT_SERVICE_DB_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_URL',          variable: 'COMMERCE_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_PASSWORD',     variable: 'COMMERCE_SERVICE_DB_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_URL',         variable: 'COMMUNITY_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_PASSWORD',    variable: 'COMMUNITY_SERVICE_DB_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_URL',            variable: 'REWARD_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_PASSWORD',       variable: 'REWARD_SERVICE_DB_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',       variable: 'FULFILLMENT_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',  variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_URL',              variable: 'FILE_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_PASSWORD',         variable: 'FILE_SERVICE_DB_PASSWORD'),
+        string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',      variable: 'NOTIFICATION_SERVICE_DB_URL'),
+        string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD', variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
+    ]
+}
+
 def registerTaskDefinition(parentScript) {
     withCredentials([
         string(credentialsId: 'MARKETNOTE_DB_USERNAME',                           variable: 'DB_USERNAME'),
@@ -148,23 +169,7 @@ def registerTaskDefinition(parentScript) {
         string(credentialsId: 'MARKETNOTE_QA_GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED', variable: 'GIFTICON_COUPON_SYNC_SCHEDULER_ENABLED'),
         string(credentialsId: 'MARKETNOTE_QA_GIFTICON_COUPON_SYNC_SCHEDULER_CRON',    variable: 'GIFTICON_COUPON_SYNC_SCHEDULER_CRON'),
         string(credentialsId: 'MARKETNOTE_QA_FIREBASE_SERVICE_ACCOUNT_JSON',           variable: 'FIREBASE_SERVICE_ACCOUNT_JSON'),
-        string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_URL',              variable: 'USER_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_PASSWORD',         variable: 'USER_SERVICE_DB_PASSWORD'),
-        string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_URL',           variable: 'PRODUCT_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_PASSWORD',      variable: 'PRODUCT_SERVICE_DB_PASSWORD'),
-        string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_URL',          variable: 'COMMERCE_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_PASSWORD',     variable: 'COMMERCE_SERVICE_DB_PASSWORD'),
-        string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_URL',         variable: 'COMMUNITY_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_PASSWORD',    variable: 'COMMUNITY_SERVICE_DB_PASSWORD'),
-        string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_URL',            variable: 'REWARD_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_PASSWORD',       variable: 'REWARD_SERVICE_DB_PASSWORD'),
-        string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',       variable: 'FULFILLMENT_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',  variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
-        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_URL',              variable: 'FILE_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_PASSWORD',         variable: 'FILE_SERVICE_DB_PASSWORD'),
-        string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',      variable: 'NOTIFICATION_SERVICE_DB_URL'),
-        string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD', variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
-    ]) {
+    ] + dbCredentialBindings()) {
         sh '''
           LG="$CLOUDWATCH_LOG_GROUP"
           EXISTS=$(aws logs describe-log-groups --log-group-name-prefix "$LG" --region "$AWS_DEFAULT_REGION" --query "length(logGroups[?logGroupName=='$LG'])" --output text || echo 0)
