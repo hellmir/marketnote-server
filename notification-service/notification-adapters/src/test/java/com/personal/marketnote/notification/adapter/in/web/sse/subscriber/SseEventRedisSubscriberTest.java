@@ -15,9 +15,14 @@ import org.springframework.data.redis.connection.DefaultMessage;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SseEventRedisSubscriberTest {
@@ -32,14 +37,17 @@ class SseEventRedisSubscriberTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("Redis 메시지 수신 시 SseConnectionRegistry에 이벤트를 전달한다")
-    void shouldDeliverEventToSseConnectionRegistry() throws Exception {
+    @DisplayName("payload가 JSON object인 메시지를 수신하면 SseConnectionRegistry에 이벤트를 전달한다")
+    void shouldDeliverEventWithJsonObjectPayloadToSseConnectionRegistry() throws Exception {
         // given
-        String messageBody = "{\"userId\":1,\"eventType\":\"" + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
-                + "\",\"payload\":\"{\\\"unreadCount\\\":5}\"}";
+        String messageBody = "{\"userId\":1,\"eventType\":\""
+                + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
+                + "\",\"payload\":{\"unreadCount\":5}}";
         Message message = new DefaultMessage("sse:notification-events".getBytes(), messageBody.getBytes());
+        Map<String, Object> payloadMap = new LinkedHashMap<>();
+        payloadMap.put("unreadCount", 5);
         SseEventMessage sseEventMessage = new SseEventMessage(
-                1L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), "{\"unreadCount\":5}"
+                1L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), payloadMap
         );
 
         when(objectMapper.readValue(messageBody, SseEventMessage.class)).thenReturn(sseEventMessage);
@@ -70,14 +78,17 @@ class SseEventRedisSubscriberTest {
     }
 
     @Test
-    @DisplayName("해당 userId의 SSE 커넥션이 없으면 무시한다")
-    void shouldIgnoreWhenNoSseConnectionForUser() throws Exception {
+    @DisplayName("해당 userId의 SSE 커넥션이 없어도 sendToUser는 호출된다 (Registry 내부에서 무시)")
+    void shouldInvokeSendToUserEvenWhenNoConnection() throws Exception {
         // given
-        String messageBody = "{\"userId\":999,\"eventType\":\"" + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
-                + "\",\"payload\":\"{}\"}";
+        String messageBody = "{\"userId\":999,\"eventType\":\""
+                + NotificationSseEventType.UNREAD_COUNT_CHANGED.name()
+                + "\",\"payload\":{\"unreadCount\":0}}";
         Message message = new DefaultMessage("sse:notification-events".getBytes(), messageBody.getBytes());
+        Map<String, Object> payloadMap = new LinkedHashMap<>();
+        payloadMap.put("unreadCount", 0);
         SseEventMessage sseEventMessage = new SseEventMessage(
-                999L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), "{}"
+                999L, NotificationSseEventType.UNREAD_COUNT_CHANGED.name(), payloadMap
         );
 
         when(objectMapper.readValue(messageBody, SseEventMessage.class)).thenReturn(sseEventMessage);
@@ -85,7 +96,7 @@ class SseEventRedisSubscriberTest {
         // when
         sseEventRedisSubscriber.onMessage(message, null);
 
-        // then - sendToUser 호출은 되지만 내부에서 커넥션 없으면 무시
+        // then
         verify(sseConnectionRegistry).sendToUser(eq(999L), any(SseEmitter.SseEventBuilder.class));
     }
 }

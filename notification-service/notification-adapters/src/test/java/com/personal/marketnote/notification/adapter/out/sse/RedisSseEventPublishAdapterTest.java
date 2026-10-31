@@ -18,7 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RedisSseEventPublishAdapterTest {
@@ -33,16 +35,14 @@ class RedisSseEventPublishAdapterTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("publish 호출 시 payload를 JSON으로 직렬화한 뒤 SseEventMessage를 Redis 채널에 발행한다")
-    void shouldPublishSerializedMessageToRedisChannel() throws JsonProcessingException {
+    @DisplayName("SseEventPayload를 JSON object로 단일 직렬화하여 Redis 채널에 발행한다")
+    void shouldPublishPayloadAsJsonObjectWithSingleSerialization() throws JsonProcessingException {
         // given
         Long userId = 1L;
         NotificationSseEventType eventType = NotificationSseEventType.UNREAD_COUNT_CHANGED;
         UnreadCountChangedPayload payload = UnreadCountChangedPayload.of(5L);
-        String payloadJson = "{\"unreadCount\":5}";
-        String serialized = "{\"userId\":1,\"eventType\":\"UNREAD_COUNT_CHANGED\",\"payload\":\"{\\\"unreadCount\\\":5}\"}";
+        String serialized = "{\"userId\":1,\"eventType\":\"UNREAD_COUNT_CHANGED\",\"payload\":{\"unreadCount\":5}}";
 
-        when(objectMapper.writeValueAsString(payload)).thenReturn(payloadJson);
         ArgumentCaptor<SseEventMessage> messageCaptor = ArgumentCaptor.forClass(SseEventMessage.class);
         when(objectMapper.writeValueAsString(messageCaptor.capture())).thenReturn(serialized);
 
@@ -53,24 +53,29 @@ class RedisSseEventPublishAdapterTest {
         SseEventMessage captured = messageCaptor.getValue();
         assertThat(captured.userId()).isEqualTo(userId);
         assertThat(captured.eventType()).isEqualTo("UNREAD_COUNT_CHANGED");
-        assertThat(captured.payload()).isEqualTo(payloadJson);
+        assertThat(captured.payload()).isSameAs(payload);
         verify(stringRedisTemplate).convertAndSend(eq(SSE_NOTIFICATION_EVENTS_CHANNEL), eq(serialized));
     }
 
     @Test
-    @DisplayName("payload 직렬화 실패 시 Redis 발행을 수행하지 않는다")
-    void shouldNotPublishWhenPayloadSerializationFails() throws JsonProcessingException {
+    @DisplayName("직렬화된 메시지에 payload가 JSON object로 포함되고 문자열 이중 인코딩이 없다")
+    void shouldNotDoubleEncodePayloadAsString() throws JsonProcessingException {
         // given
-        UnreadCountChangedPayload payload = UnreadCountChangedPayload.of(5L);
-        when(objectMapper.writeValueAsString(payload))
-                .thenThrow(new JsonProcessingException("payload serialization error") {
-                });
+        UnreadCountChangedPayload payload = UnreadCountChangedPayload.of(7L);
+        ObjectMapper realObjectMapper = new ObjectMapper();
+        RedisSseEventPublishAdapter adapter =
+                new RedisSseEventPublishAdapter(stringRedisTemplate, realObjectMapper);
+        ArgumentCaptor<String> wireCaptor = ArgumentCaptor.forClass(String.class);
 
         // when
-        redisSseEventPublishAdapter.publish(1L, NotificationSseEventType.UNREAD_COUNT_CHANGED, payload);
+        adapter.publish(2L, NotificationSseEventType.UNREAD_COUNT_CHANGED, payload);
 
         // then
-        verify(stringRedisTemplate, never()).convertAndSend(anyString(), anyString());
+        verify(stringRedisTemplate)
+                .convertAndSend(eq(SSE_NOTIFICATION_EVENTS_CHANNEL), wireCaptor.capture());
+        String wire = wireCaptor.getValue();
+        assertThat(wire).contains("\"payload\":{\"unreadCount\":7}");
+        assertThat(wire).doesNotContain("\"payload\":\"");
     }
 
     @Test
@@ -78,7 +83,6 @@ class RedisSseEventPublishAdapterTest {
     void shouldNotPublishWhenMessageSerializationFails() throws JsonProcessingException {
         // given
         UnreadCountChangedPayload payload = UnreadCountChangedPayload.of(5L);
-        when(objectMapper.writeValueAsString(payload)).thenReturn("{\"unreadCount\":5}");
         when(objectMapper.writeValueAsString(any(SseEventMessage.class)))
                 .thenThrow(new JsonProcessingException("message serialization error") {
                 });
