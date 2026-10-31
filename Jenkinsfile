@@ -586,26 +586,11 @@ pipeline {
 			}
 			steps {
 				timeout(time: 30, unit: 'MINUTES') {
-					withCredentials([
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_URL',      variable: 'NOTIFICATION_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_NOTIFICATION_SERVICE_DB_PASSWORD', variable: 'NOTIFICATION_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_URL',          variable: 'COMMERCE_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_COMMERCE_SERVICE_DB_PASSWORD',     variable: 'COMMERCE_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_URL',         variable: 'COMMUNITY_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_COMMUNITY_SERVICE_DB_PASSWORD',    variable: 'COMMUNITY_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_URL',              variable: 'USER_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_USER_SERVICE_DB_PASSWORD',         variable: 'USER_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_URL',       variable: 'FULFILLMENT_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_FULFILLMENT_SERVICE_DB_PASSWORD',  variable: 'FULFILLMENT_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_URL',            variable: 'REWARD_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_REWARD_SERVICE_DB_PASSWORD',       variable: 'REWARD_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_URL',           variable: 'PRODUCT_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_PRODUCT_SERVICE_DB_PASSWORD',      variable: 'PRODUCT_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_URL',              variable: 'FILE_SERVICE_DB_URL'),
-						string(credentialsId: 'MARKETNOTE_QA_FILE_SERVICE_DB_PASSWORD',         variable: 'FILE_SERVICE_DB_PASSWORD'),
-						string(credentialsId: 'MARKETNOTE_DB_USERNAME',                          variable: 'DB_USERNAME')
-					]) {
-						script {
+					script {
+						def helper = load 'jenkins/resolve-and-register.groovy'
+						withCredentials(helper.dbCredentialBindings() + [
+							string(credentialsId: 'MARKETNOTE_DB_USERNAME', variable: 'DB_USERNAME')
+						]) {
 							def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
 							def migrationDir = "${WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
 							def dbUrlVar = "${svcUpper}_DB_URL"
