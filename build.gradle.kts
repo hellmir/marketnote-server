@@ -16,6 +16,11 @@ subprojects {
     configure<JacocoPluginExtension> {
         toolVersion = "0.8.12"
     }
+
+    tasks.withType<Test>().configureEach {
+        maxHeapSize = "512m"
+        minHeapSize = "256m"
+    }
 }
 
 tasks.register<JacocoReport>("jacocoAggregatedReport") {
