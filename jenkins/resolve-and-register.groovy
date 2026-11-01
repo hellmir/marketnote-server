@@ -100,6 +100,26 @@ def dbCredentialBindings(String envPrefix) {
     ]
 }
 
+def runFlywayMigration(parentScript, String envPrefix) {
+    withCredentials(dbCredentialBindings(envPrefix) + [
+        string(credentialsId: "${envPrefix}_DB_USERNAME", variable: 'DB_USERNAME')
+    ]) {
+        def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
+        def migrationDir = "${env.WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
+        def dbUrlVar = "${svcUpper}_DB_URL"
+        def dbPwVar = "${svcUpper}_DB_PASSWORD"
+        def dockerCmd = "docker run --rm -v ${migrationDir}:/flyway/sql " +
+            "-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
+            '-e FLYWAY_USER="$DB_USERNAME" ' +
+            "-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
+            '-e FLYWAY_BASELINE_ON_MIGRATE=true ' +
+            '-e FLYWAY_BASELINE_VERSION=0 ' +
+            '-e FLYWAY_MIXED=true ' +
+            'flyway/flyway:11.7 migrate'
+        sh dockerCmd
+    }
+}
+
 def runConcurrentIndexes(parentScript, String envPrefix) {
     withCredentials(dbCredentialBindings(envPrefix) + [
         string(credentialsId: "${envPrefix}_DB_USERNAME", variable: 'DB_USERNAME')
