@@ -125,7 +125,8 @@ def buildRedisTaskDefinition(env) {
             ],
             environment: [
                 [name: "REDIS_SERVICE_NAME", value: "${env.REDIS_SERVICE_NAME}"],
-                [name: "REDIS_PASSWORD",     value: "${env.REDIS_PASSWORD}"]
+                [name: "REDIS_PASSWORD",     value: "${env.REDIS_PASSWORD}"],
+                [name: "REDISCLI_AUTH",      value: "${env.REDIS_PASSWORD}"]
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -134,6 +135,14 @@ def buildRedisTaskDefinition(env) {
                     "awslogs-region": "${env.AWS_DEFAULT_REGION}",
                     "awslogs-stream-prefix": "redis"
                 ]
+            ],
+            healthCheck: [
+                command: ["CMD-SHELL",
+                    "redis-cli ping | grep -q PONG"],
+                interval: 15,
+                timeout: 5,
+                retries: 3,
+                startPeriod: 30
             ]
         ]]
     ]
@@ -175,6 +184,14 @@ def buildPrometheusTaskDefinition(env) {
                     "awslogs-region": "${env.AWS_DEFAULT_REGION}",
                     "awslogs-stream-prefix": "prometheus"
                 ]
+            ],
+            healthCheck: [
+                command: ["CMD-SHELL",
+                    "wget -qO- http://localhost:9090/-/healthy || exit 1"],
+                interval: 15,
+                timeout: 5,
+                retries: 3,
+                startPeriod: 60
             ]
         ]]
     ]
@@ -209,6 +226,14 @@ def buildGrafanaTaskDefinition(env) {
                     "awslogs-region": "${env.AWS_DEFAULT_REGION}",
                     "awslogs-stream-prefix": "grafana"
                 ]
+            ],
+            healthCheck: [
+                command: ["CMD-SHELL",
+                    "wget -qO- http://localhost:3000/api/health || exit 1"],
+                interval: 15,
+                timeout: 5,
+                retries: 3,
+                startPeriod: 90
             ]
         ]]
     ]
@@ -447,6 +472,12 @@ pipeline {
 						p ->
 						p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/CacheConfig\.java/ ||
 						p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/SessionConfig\.java/
+					}
+					if (!redisChanged && changed.contains('Jenkinsfile')) {
+						redisChanged = sh(
+							script: "git diff --unified=0 ${base} HEAD -- Jenkinsfile | grep -E '^[+-]' | grep -Eq 'buildRedisTaskDefinition|stage\\(.Register Redis|stage\\(.Deploy Redis|name: \"redis\"|image: \"redis:' && echo match || true",
+							returnStdout: true
+						).trim() == 'match'
 					}
 					env.REDIS_CHANGED = redisChanged ? "true" : "false"
 					echo "REDIS_CHANGED              = ${env.REDIS_CHANGED}"
