@@ -139,7 +139,7 @@ def getPendingMigrationFiles(parentScript, String envPrefix) {
         def migrationDir = "${env.WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
         def dbUrlVar = "${svcUpper}_DB_URL"
         def dbPwVar = "${svcUpper}_DB_PASSWORD"
-        def dockerCmd = "docker run --rm -v ${migrationDir}:/flyway/sql " +
+        def dockerCmd = "docker run --rm -v '${migrationDir}':/flyway/sql " +
             "-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
             '-e FLYWAY_USER="$DB_USERNAME" ' +
             "-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
@@ -179,7 +179,7 @@ def runFlywayMigration(parentScript, String envPrefix) {
         def migrationDir = "${env.WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
         def dbUrlVar = "${svcUpper}_DB_URL"
         def dbPwVar = "${svcUpper}_DB_PASSWORD"
-        def dockerCmd = "docker run --rm -v ${migrationDir}:/flyway/sql " +
+        def dockerCmd = "docker run --rm -v '${migrationDir}':/flyway/sql " +
             "-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
             '-e FLYWAY_USER="$DB_USERNAME" ' +
             "-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
@@ -201,8 +201,8 @@ def runConcurrentIndexes(parentScript, String envPrefix) {
         def dbUrlVar = "${svcUpper}_DB_URL"
         def dbPwVar = "${svcUpper}_DB_PASSWORD"
         def dockerCmd = "docker run --rm " +
-            "-v ${indexDir}:/concurrent-indexes:ro " +
-            "-v ${scriptPath}:/run.sh:ro " +
+            "-v '${indexDir}':/concurrent-indexes:ro " +
+            "-v '${scriptPath}':/run.sh:ro " +
             "-e DB_URL=\"\$${dbUrlVar}\" " +
             '-e DB_USER="$DB_USERNAME" ' +
             "-e DB_PASSWORD=\"\$${dbPwVar}\" " +
