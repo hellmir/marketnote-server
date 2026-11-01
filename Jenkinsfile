@@ -121,7 +121,7 @@ def buildRedisTaskDefinition(env) {
             command: [
                 "sh",
                 "-c",
-                "exec redis-server --appendonly yes --requirepass \\\"\$REDIS_PASSWORD\\\""
+                "exec redis-server --appendonly yes --requirepass \"\$REDIS_PASSWORD\""
             ],
             environment: [
                 [name: "REDIS_SERVICE_NAME", value: "${env.REDIS_SERVICE_NAME}"],
