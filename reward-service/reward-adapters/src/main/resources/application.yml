@@ -181,6 +181,10 @@ management:
 saga:
   enabled: ${SAGA_ENABLED:true}
 
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
 ---
 spring:
   config:

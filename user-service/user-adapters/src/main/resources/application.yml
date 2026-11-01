@@ -196,6 +196,10 @@ user:
       enabled: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_ENABLED:true}
       cron: ${USER_ACTIVATE_EXPIRED_DEACTIVATION_SCHEDULER_CRON:0 0 * * * *}
 
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
 ---
 spring:
   config:

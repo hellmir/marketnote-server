@@ -140,6 +140,10 @@ file:
       static: ${S3_REGION:ap-northeast-2}
     bucket-name: ${S3_BUCKET_NAME:ghi}
 
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
 ---
 spring:
   config:
