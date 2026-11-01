@@ -137,7 +137,7 @@ def buildRedisTaskDefinition(env) {
             ],
             healthCheck: [
                 command: ["CMD-SHELL",
-                    "redis-cli ping 2>&1 | grep -qE 'PONG|NOAUTH'"],
+                    "redis-cli -a \"\$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"],
                 interval: 15,
                 timeout: 5,
                 retries: 3,
