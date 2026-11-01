@@ -535,13 +535,14 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",       variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",   variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",      variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",        variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",      variable: 'REDIS_SERVICE_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",              variable: 'SUBNET_IDS'),
-						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",      variable: 'SECURITY_GROUP_IDS')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",            variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",        variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",           variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",             variable: 'ECS_CLUSTER_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",           variable: 'REDIS_SERVICE_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",                   variable: 'SUBNET_IDS'),
+						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",           variable: 'SECURITY_GROUP_IDS'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_DISCOVERY_ARN",  variable: 'REDIS_SERVICE_DISCOVERY_ARN')
 					]) {
 						def latestTask = env.REDIS_TASK_DEF_ARN?.trim()
 						if (!latestTask) {
@@ -575,6 +576,7 @@ pipeline {
           					    --desired-count 1 \
           					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
           					    --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
+          					    --service-registries registryArn=\$REDIS_SERVICE_DISCOVERY_ARN \
           					    --region \$AWS_DEFAULT_REGION
           					"""
 						}
