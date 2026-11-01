@@ -125,8 +125,7 @@ def buildRedisTaskDefinition(env) {
             ],
             environment: [
                 [name: "REDIS_SERVICE_NAME", value: "${env.REDIS_SERVICE_NAME}"],
-                [name: "REDIS_PASSWORD",     value: "${env.REDIS_PASSWORD}"],
-                [name: "REDISCLI_AUTH",      value: "${env.REDIS_PASSWORD}"]
+                [name: "REDIS_PASSWORD",     value: "${env.REDIS_PASSWORD}"]
             ],
             logConfiguration: [
                 logDriver: "awslogs",
@@ -138,7 +137,7 @@ def buildRedisTaskDefinition(env) {
             ],
             healthCheck: [
                 command: ["CMD-SHELL",
-                    "redis-cli ping | grep -q PONG"],
+                    "redis-cli -a \"\$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"],
                 interval: 15,
                 timeout: 5,
                 retries: 3,
