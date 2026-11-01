@@ -121,7 +121,7 @@ def buildRedisTaskDefinition(env) {
             command: [
                 "sh",
                 "-c",
-                "exec redis-server --appendonly yes --requirepass \\\"\$REDIS_PASSWORD\\\""
+                "exec redis-server --appendonly yes --requirepass \"\$REDIS_PASSWORD\""
             ],
             environment: [
                 [name: "REDIS_SERVICE_NAME", value: "${env.REDIS_SERVICE_NAME}"],
@@ -134,6 +134,14 @@ def buildRedisTaskDefinition(env) {
                     "awslogs-region": "${env.AWS_DEFAULT_REGION}",
                     "awslogs-stream-prefix": "redis"
                 ]
+            ],
+            healthCheck: [
+                command: ["CMD-SHELL",
+                    "redis-cli -a \"\$REDIS_PASSWORD\" --no-auth-warning ping | grep -q PONG"],
+                interval: 15,
+                timeout: 5,
+                retries: 3,
+                startPeriod: 30
             ]
         ]]
     ]
@@ -175,6 +183,14 @@ def buildPrometheusTaskDefinition(env) {
                     "awslogs-region": "${env.AWS_DEFAULT_REGION}",
                     "awslogs-stream-prefix": "prometheus"
                 ]
+            ],
+            healthCheck: [
+                command: ["CMD-SHELL",
+                    "wget -qO- http://localhost:9090/-/healthy || exit 1"],
+                interval: 15,
+                timeout: 5,
+                retries: 3,
+                startPeriod: 60
             ]
         ]]
     ]
@@ -209,6 +225,14 @@ def buildGrafanaTaskDefinition(env) {
                     "awslogs-region": "${env.AWS_DEFAULT_REGION}",
                     "awslogs-stream-prefix": "grafana"
                 ]
+            ],
+            healthCheck: [
+                command: ["CMD-SHELL",
+                    "wget -qO- http://localhost:3000/api/health || exit 1"],
+                interval: 15,
+                timeout: 5,
+                retries: 3,
+                startPeriod: 90
             ]
         ]]
     ]
@@ -448,6 +472,12 @@ pipeline {
 						p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/CacheConfig\.java/ ||
 						p ==~ /.*user-service\/.*\/src\/.*\/com\/personal\/marketnote\/user\/configuration\/SessionConfig\.java/
 					}
+					if (!redisChanged && changed.contains('Jenkinsfile')) {
+						redisChanged = sh(
+							script: "git diff --unified=0 ${base} HEAD -- Jenkinsfile | grep -E '^[+-]' | grep -iq 'redis' && echo match || true",
+							returnStdout: true
+						).trim() == 'match'
+					}
 					env.REDIS_CHANGED = redisChanged ? "true" : "false"
 					echo "REDIS_CHANGED              = ${env.REDIS_CHANGED}"
 				}
@@ -505,13 +535,14 @@ pipeline {
 						sleep time: 1, unit: 'SECONDS'; return
 					}
 					withCredentials([
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",       variable: 'AWS_ACCESS_KEY_ID'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",   variable: 'AWS_SECRET_ACCESS_KEY'),
-						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",      variable: 'AWS_DEFAULT_REGION'),
-						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",        variable: 'ECS_CLUSTER_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",      variable: 'REDIS_SERVICE_NAME'),
-						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",              variable: 'SUBNET_IDS'),
-						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",      variable: 'SECURITY_GROUP_IDS')
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_ACCESS_KEY_ID",            variable: 'AWS_ACCESS_KEY_ID'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_SECRET_ACCESS_KEY",        variable: 'AWS_SECRET_ACCESS_KEY'),
+						string(credentialsId: "${env.ENV_PREFIX}_AWS_DEFAULT_REGION",           variable: 'AWS_DEFAULT_REGION'),
+						string(credentialsId: "${env.ENV_PREFIX}_ECS_CLUSTER_NAME",             variable: 'ECS_CLUSTER_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_NAME",           variable: 'REDIS_SERVICE_NAME'),
+						string(credentialsId: "${env.ENV_PREFIX}_SUBNET_IDS",                   variable: 'SUBNET_IDS'),
+						string(credentialsId: "${env.ENV_PREFIX}_SECURITY_GROUP_IDS",           variable: 'SECURITY_GROUP_IDS'),
+						string(credentialsId: "${env.ENV_PREFIX}_REDIS_SERVICE_DISCOVERY_ARN",  variable: 'REDIS_SERVICE_DISCOVERY_ARN')
 					]) {
 						def latestTask = env.REDIS_TASK_DEF_ARN?.trim()
 						if (!latestTask) {
@@ -545,6 +576,7 @@ pipeline {
           					    --desired-count 1 \
           					    --capacity-provider-strategy capacityProvider=FARGATE,weight=0 capacityProvider=FARGATE_SPOT,weight=1 \
           					    --network-configuration "awsvpcConfiguration={subnets=[${subnets}],securityGroups=[${sgs}],assignPublicIp=ENABLED}" \
+          					    --service-registries registryArn=\$REDIS_SERVICE_DISCOVERY_ARN \
           					    --region \$AWS_DEFAULT_REGION
           					"""
 						}
