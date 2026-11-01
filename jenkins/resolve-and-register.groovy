@@ -130,6 +130,19 @@ def formatPendingMigrationList(List pending) {
     return pending.collect { "  - ${it.version} ${it.description}".toString() }.join('\n')
 }
 
+def buildFlywayDockerCmd(String svcUpper, String migrationDir, String lastArg) {
+    def dbUrlVar = "${svcUpper}_DB_URL"
+    def dbPwVar = "${svcUpper}_DB_PASSWORD"
+    return "docker run --rm -v '${migrationDir}':/flyway/sql " +
+        "-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
+        '-e FLYWAY_USER="$DB_USERNAME" ' +
+        "-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
+        '-e FLYWAY_BASELINE_ON_MIGRATE=true ' +
+        '-e FLYWAY_BASELINE_VERSION=0 ' +
+        '-e FLYWAY_MIXED=true ' +
+        "flyway/flyway:11.7 ${lastArg}"
+}
+
 def getPendingMigrationFiles(parentScript, String envPrefix) {
     def pending = []
     withCredentials(dbCredentialBindings(envPrefix) + [
@@ -137,16 +150,7 @@ def getPendingMigrationFiles(parentScript, String envPrefix) {
     ]) {
         def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
         def migrationDir = "${env.WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
-        def dbUrlVar = "${svcUpper}_DB_URL"
-        def dbPwVar = "${svcUpper}_DB_PASSWORD"
-        def dockerCmd = "docker run --rm -v '${migrationDir}':/flyway/sql " +
-            "-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
-            '-e FLYWAY_USER="$DB_USERNAME" ' +
-            "-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
-            '-e FLYWAY_BASELINE_ON_MIGRATE=true ' +
-            '-e FLYWAY_BASELINE_VERSION=0 ' +
-            '-e FLYWAY_MIXED=true ' +
-            'flyway/flyway:11.7 -outputType=json info'
+        def dockerCmd = buildFlywayDockerCmd(svcUpper, migrationDir, '-outputType=json info')
         // fail-secure: returnStdout=true는 exit≠0이면 throw → stage abort. returnStatus로 변경 금지(prod input 게이트 우회 회귀 방지).
         def stdout = sh(script: dockerCmd, returnStdout: true).trim()
         try {
@@ -177,16 +181,7 @@ def runFlywayMigration(parentScript, String envPrefix) {
     ]) {
         def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
         def migrationDir = "${env.WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
-        def dbUrlVar = "${svcUpper}_DB_URL"
-        def dbPwVar = "${svcUpper}_DB_PASSWORD"
-        def dockerCmd = "docker run --rm -v '${migrationDir}':/flyway/sql " +
-            "-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
-            '-e FLYWAY_USER="$DB_USERNAME" ' +
-            "-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
-            '-e FLYWAY_BASELINE_ON_MIGRATE=true ' +
-            '-e FLYWAY_BASELINE_VERSION=0 ' +
-            '-e FLYWAY_MIXED=true ' +
-            'flyway/flyway:11.7 migrate'
+        def dockerCmd = buildFlywayDockerCmd(svcUpper, migrationDir, 'migrate')
         sh dockerCmd
     }
 }
