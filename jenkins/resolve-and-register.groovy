@@ -100,6 +100,77 @@ def dbCredentialBindings(String envPrefix) {
     ]
 }
 
+def runFlywayMigrationStage(parentScript, String envPrefix) {
+    def pending = getPendingMigrationFiles(parentScript, envPrefix)
+    if (pending.isEmpty()) {
+        echo "No pending Flyway migrations for ${env.SERVICE_NAME}. Skipping migration."
+        return
+    }
+    def fileList = formatPendingMigrationList(pending)
+    echo "Pending Flyway migrations (${pending.size()}):\n${fileList}"
+
+    if (envPrefix == 'MARKETNOTE_PROD') {
+        confirmFlywayMigrationOnProd(pending.size(), fileList)
+    }
+    timeout(time: 30, unit: 'MINUTES') {
+        runFlywayMigration(parentScript, envPrefix)
+    }
+    echo 'Flyway migration complete'
+}
+
+def confirmFlywayMigrationOnProd(int pendingCount, String fileList) {
+    timeout(time: 15, unit: 'MINUTES') {
+        input message: "prod Flyway 마이그레이션 ${pendingCount}건을 실행합니다. (서비스: ${env.SERVICE_NAME}, 버전: ${env.PROJECT_VERSION})\n적용 예정:\n${fileList}",
+              ok: 'Proceed'
+    }
+}
+
+@NonCPS
+def formatPendingMigrationList(List pending) {
+    return pending.collect { "  - ${it.version} ${it.description}".toString() }.join('\n')
+}
+
+def getPendingMigrationFiles(parentScript, String envPrefix) {
+    def pending = []
+    withCredentials(dbCredentialBindings(envPrefix) + [
+        string(credentialsId: "${envPrefix}_DB_USERNAME", variable: 'DB_USERNAME')
+    ]) {
+        def svcUpper = env.SERVICE_NAME.toUpperCase().replace('-', '_')
+        def migrationDir = "${env.WORKSPACE}/${env.SERVICE_DIRECTORY}/src/main/resources/db/migration"
+        def dbUrlVar = "${svcUpper}_DB_URL"
+        def dbPwVar = "${svcUpper}_DB_PASSWORD"
+        def dockerCmd = "docker run --rm -v ${migrationDir}:/flyway/sql " +
+            "-e FLYWAY_URL=\"\$${dbUrlVar}\" " +
+            '-e FLYWAY_USER="$DB_USERNAME" ' +
+            "-e FLYWAY_PASSWORD=\"\$${dbPwVar}\" " +
+            '-e FLYWAY_BASELINE_ON_MIGRATE=true ' +
+            '-e FLYWAY_BASELINE_VERSION=0 ' +
+            '-e FLYWAY_MIXED=true ' +
+            'flyway/flyway:11.7 -outputType=json info'
+        // fail-secure: returnStdout=true는 exit≠0이면 throw → stage abort. returnStatus로 변경 금지(prod input 게이트 우회 회귀 방지).
+        def stdout = sh(script: dockerCmd, returnStdout: true).trim()
+        try {
+            pending = parsePendingMigrations(stdout)
+        } catch (Exception e) {
+            error "Failed to parse Flyway info JSON output: ${e.message}\nStdout (first 500 chars): ${stdout.take(500)}"
+        }
+    }
+    return pending
+}
+
+@NonCPS
+def parsePendingMigrations(String jsonOutput) {
+    def parsed = new groovy.json.JsonSlurper().parseText(jsonOutput)
+    def migrations = parsed?.migrations ?: []
+    return migrations
+        .findAll { it.state == 'Pending' }
+        .collect { [
+            version: it.version?.toString(),
+            description: it.description?.toString(),
+            filename: (it.filepath ?: it.description)?.toString()
+        ] }
+}
+
 def runFlywayMigration(parentScript, String envPrefix) {
     withCredentials(dbCredentialBindings(envPrefix) + [
         string(credentialsId: "${envPrefix}_DB_USERNAME", variable: 'DB_USERNAME')
