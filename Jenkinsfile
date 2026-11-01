@@ -598,20 +598,9 @@ pipeline {
 			}
 			steps {
 				script {
-					if (env.ENV_PREFIX == 'MARKETNOTE_PROD') {
-						timeout(time: 15, unit: 'MINUTES') {
-							input message: "prod Flyway 마이그레이션을 실행합니다. 계속하시겠습니까? (서비스: ${env.SERVICE_NAME}, 버전: ${env.PROJECT_VERSION})",
-								  ok: 'Proceed'
-						}
-					}
+					def helper = load 'jenkins/resolve-and-register.groovy'
+					helper.runFlywayMigrationStage(this, env.ENV_PREFIX)
 				}
-				timeout(time: 30, unit: 'MINUTES') {
-					script {
-						def helper = load 'jenkins/resolve-and-register.groovy'
-						helper.runFlywayMigration(this, env.ENV_PREFIX)
-					}
-				}
-				echo 'Flyway migration complete'
 			}
 		}
 
