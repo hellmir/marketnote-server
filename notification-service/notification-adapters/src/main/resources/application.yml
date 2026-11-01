@@ -138,6 +138,10 @@ management:
     tags:
       application: ${spring.application.name}
 
+springdoc:
+  paths-to-exclude:
+    - /api/v1/internal/**
+
 ---
 spring:
   config:
