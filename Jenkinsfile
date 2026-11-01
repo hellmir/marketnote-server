@@ -474,7 +474,7 @@ pipeline {
 					}
 					if (!redisChanged && changed.contains('Jenkinsfile')) {
 						redisChanged = sh(
-							script: "git diff --unified=0 ${base} HEAD -- Jenkinsfile | grep -E '^[+-]' | grep -Eq 'buildRedisTaskDefinition|stage\\(.Register Redis|stage\\(.Deploy Redis|name: \"redis\"|image: \"redis:' && echo match || true",
+							script: "git diff --unified=0 ${base} HEAD -- Jenkinsfile | grep -E '^[+-]' | grep -iq 'redis' && echo match || true",
 							returnStdout: true
 						).trim() == 'match'
 					}
