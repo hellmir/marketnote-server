@@ -96,6 +96,15 @@ public interface GetUserUseCase {
 
     /**
      * @param id 회원 ID
+     * @return 추천인 코드 등록 여부 {@link boolean}
+     * @Date 2026-11-03
+     * @Author 성효빈
+     * @Description 회원의 추천인 초대 코드 등록 여부를 조회합니다.
+     */
+    boolean isReferredUserCodeRegistered(Long id);
+
+    /**
+     * @param id 회원 ID
      * @return 회원 정보 조회 결과 {@link GetUserInfoResult}
      * @Date 2025-12-28
      * @Author 성효빈
